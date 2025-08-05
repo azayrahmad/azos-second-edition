@@ -21,4 +21,5 @@ document.querySelector('#app').innerHTML = `
   </div>
 `
 
+Win98TaskbarManager.init();
 setupCounter(document.querySelector('#counter'))

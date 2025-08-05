@@ -7,11 +7,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite App</title>
   <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
+  <link rel="stylesheet" href="/src/styles/98.css" />
+  <link rel="stylesheet" href="/src/styles/desktop.css" />
+  <link rel="stylesheet" href="/src/styles/taskbar.css" />
 </head>
 
 <body class="scanlines">
   <div id="app"></div>
+
+  <div class="taskbar">
+    <button class="start-button">
+      <img src="/src/assets/icons/windows-4.png" alt="Windows Logo"> Start
+    </button>
+    <div class="start-menu-wrapper">
+      <div id="start-menu" class="start-menu hidden">
+        <div class="blue-rectangle"><img src="/src/assets/img/win98start.bmp" /></div>
+        <ul class="start-menu-list">
+          <li onclick="/">
+            <img src="/src/assets/icons/computer_explorer.ico" alt="Computer">
+            <span>aziz rahmad</span>
+          </li>
+
+          <div class="start-menu-divider"></div>
+          <li class="start-menu-item" for="/about/">
+            <img src="/src/assets/icons/SHELL32_3.ico" alt="My Documents">
+            <span>About</span>
+          </li>
+          <div class="start-menu-divider"></div>
+          <li class="logoff-menu-item"><img src="/src/assets/icons/key_win-4.png" alt="logoff"><span id="logofftext">Log
+              Off Guest...</span>
+          </li>
+          <li onclick="location.reload();"><img src="/src/assets/icons/shut_down_normal-0.png" alt="shutdown">Shut
+            Down...</li>
+        </ul>
+      </div>
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-divider-handler"></div>
+    <div class="taskbar-icon-area">
+      <button class="taskbar-icon show-desktop">
+        <img src="/src/assets/icons/desktop_old-4.png" alt="Show Desktop">
+      </button>
+      <button class="taskbar-icon" onclick="window.open('https://www.linkedin.com/in/aziz-rahmad', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=linkedin.com" alt="Show Desktop">
+      </button>
+      <button class="taskbar-icon" onclick="window.open('https://www.github.com/azayrahmad', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=https://www.github.com/azayrahmad" alt="Show Desktop">
+      </button>
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-divider-handler"></div>
+    <div class="taskbar-app-area">
+
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="system-tray">
+      <img src="/src/assets/icons/SYSTRAY_220.ico" alt="Volume">
+      <div class="taskbar-clock" title="">
+        <span id="clock"></span>
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.js"></script>
+  <script src="/src/components/Win98TaskbarManager.js"></script>
 </body>
 
 </html>
