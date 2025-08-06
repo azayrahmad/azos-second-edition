@@ -2,6 +2,7 @@ import './style.css'
 import javascriptLogo from './javascript.svg'
 import viteLogo from '/vite.svg'
 import { setupCounter } from './counter.js'
+import { init } from './components/Win98TaskbarManager.js'
 
 document.querySelector('#app').innerHTML = `
   <div>
@@ -20,6 +21,5 @@ document.querySelector('#app').innerHTML = `
     </p>
   </div>
 `
-
-Win98TaskbarManager.init();
+init();
 setupCounter(document.querySelector('#counter'))
