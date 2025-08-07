@@ -64,7 +64,7 @@ function createTaskbarButton(windowId, iconSrc, title) {
 }
 
 // Show desktop functionality
-function showDesktop() {
+export function showDesktop() {
   const windows = document.querySelectorAll(".app-window");
   const allMinimized = Array.from(windows).every((win) => win.isMinimized);
 
@@ -82,7 +82,7 @@ function showDesktop() {
 }
 
 // Clock functionality
-function updateClock() {
+export function updateClock() {
   const now = new Date();
   const timeString = now
     .toLocaleTimeString([], {

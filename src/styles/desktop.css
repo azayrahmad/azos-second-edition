@@ -52,3 +52,72 @@ html {
   image-rendering: pixelated;
   font-smooth: never;
 }
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.desktop-area {
+  position: relative;
+  overflow: hidden;
+  /* Add padding inside to create space for window borders */
+  padding: 4px;
+  box-sizing: border-box;
+  height: calc(
+    100vh - 28px - env(safe-area-inset-bottom) - 2px
+  ); /* Adjust height dynamically */
+}
+
+.desktop {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: repeat(auto-fill, minmax(60px, 1fr));
+  grid-auto-columns: min-content;
+  padding: 10px;
+  gap: 5px;
+}
+
+.desktop-icon {
+  width: 70px;
+  text-align: center;
+  /* position: relative;  Remove relative positioning */
+  color: white;
+  margin: 5px;
+  /* Keep the margin */
+}
+
+.desktop-icon .icon {
+  display: block;
+  /* width: 32px;
+    height: 32px; */
+  margin: auto;
+}
+
+.desktop-icon .icon img {
+  width: 32px;
+  height: 32px;
+}
+
+.desktop-icon .icon-label {
+  font-size: var(--icon-label-font-size);
+}
+
+.highlighted-icon {
+  filter: var(--icon-filter);
+}
+
+.highlighted-label {
+  background-color: var(--highlight-blue);
+  color: var(--highlight-text);
+}
+
+.selected {
+  border: 1px dotted white;
+}
