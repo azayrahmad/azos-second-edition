@@ -1,6 +1,17 @@
 /**
  * Win98TaskbarManager - Handles taskbar, start menu, and system tray
  */
+
+import windowsStartLogo from "../assets/icons/windows-4.png";
+import windowsStartMenuBar from "../assets/img/win98start.bmp";
+import computerIcon from "../assets/icons/computer_explorer.ico";
+import shell32Icon from "../assets/icons/SHELL32_3.ico";
+import keyIcon from "../assets/icons/key_win-4.png";
+import shutdownIcon from "../assets/icons/shut_down_normal-0.png";
+import showDesktopIcon from "../assets/icons/desktop_old-4.png";
+import volumeIcon from "../assets/icons/SYSTRAY_220.ico";
+
+
 // Start menu functionality
 export function showStartMenu() {
   const startMenu = document.getElementById("start-menu");
@@ -106,6 +117,63 @@ export function updateClock() {
 
 // Initialize taskbar
 export function init() {
+
+  console.log("Initializing Win98 Taskbar Manager...");
+  // Set up taskbar
+  const taskbar = document.querySelector(".taskbar");
+  taskbar.innerHTML = `
+    <button class="start-button">
+      <img src="${windowsStartLogo}" alt="Windows Logo"> Start
+    </button>
+    <div class="start-menu-wrapper">
+      <div id="start-menu" class="start-menu hidden">
+        <div class="blue-rectangle"><img src="${windowsStartMenuBar}" /></div>
+        <ul class="start-menu-list">
+          <li onclick="/">
+            <img src="${computerIcon}" alt="Computer">
+            <span>aziz rahmad</span>
+          </li>
+
+          <div class="start-menu-divider"></div>
+          <li class="start-menu-item" for="/about/">
+            <img src="${shell32Icon}" alt="My Documents">
+            <span>About</span>
+          </li>
+          <div class="start-menu-divider"></div>
+          <li class="logoff-menu-item"><img src="${keyIcon}" alt="logoff"><span id="logofftext">Log
+              Off Guest...</span>
+          </li>
+          <li onclick="location.reload();"><img src="${shutdownIcon}" alt="shutdown">Shut
+            Down...</li>
+        </ul>
+      </div>
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-divider-handler"></div>
+    <div class="taskbar-icon-area">
+      <button class="taskbar-icon show-desktop">
+        <img src="${showDesktopIcon}" alt="Show Desktop">
+      </button>
+      <button class="taskbar-icon" onclick="window.open('https://www.linkedin.com/in/aziz-rahmad', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=linkedin.com" alt="Show Desktop">
+      </button>
+      <button class="taskbar-icon" onclick="window.open('https://www.github.com/azayrahmad', '_blank')">
+        <img src="https://www.google.com/s2/favicons?domain=https://www.github.com/azayrahmad" alt="Show Desktop">
+      </button>
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="taskbar-divider-handler"></div>
+    <div class="taskbar-app-area">
+
+    </div>
+    <div class="taskbar-divider"></div>
+    <div class="system-tray">
+      <img src="${volumeIcon}" alt="Volume">
+      <div class="taskbar-clock" title="">
+        <span id="clock"></span>
+      </div>
+    </div>`;
+
   // Set up start button
   const startButton = document.querySelector(".start-button");
   if (startButton) {
