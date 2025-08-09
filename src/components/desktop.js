@@ -2,6 +2,8 @@
  * Win98DesktopManager - Handles desktop icons and desktop interactions
  */
 // Set up desktop icons
+
+import { init } from './taskbar.js';
 export function setupIcons() {
   document.querySelectorAll(".desktop-icon").forEach((icon) => {
     // Set up icon click to highlight
@@ -42,6 +44,7 @@ export function setupIcons() {
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
   setupIcons();
+  init(); // Initialize the taskbar manager
 
   // Additional desktop functionality can be added here
 }

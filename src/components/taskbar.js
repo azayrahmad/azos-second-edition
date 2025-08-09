@@ -1,5 +1,5 @@
 /**
- * Win98TaskbarManager - Handles taskbar, start menu, and system tray
+ * Taskbar - Handles taskbar, start menu, and system tray
  * Improved version with better architecture, error handling, and maintainability
  */
 
@@ -42,9 +42,9 @@ const ANIMATIONS = {
 };
 
 /**
- * Main TaskbarManager class - encapsulates all taskbar functionality
+ * Main Taskbar class - encapsulates all taskbar functionality
  */
-class Win98TaskbarManager {
+class Taskbar {
   constructor() {
     this.clockInterval = null;
     this.isInitialized = false;
@@ -56,19 +56,19 @@ class Win98TaskbarManager {
    */
   init() {
     if (this.isInitialized) {
-      console.warn("TaskbarManager already initialized");
+      console.warn("Taskbar already initialized");
       return;
     }
 
     try {
-      console.log("Initializing Win98 Taskbar Manager...");
+      console.log("Initializing Taskbar...");
       this.renderTaskbar();
       this.bindEvents();
       this.initializeClock();
       this.setupExistingTaskbarButtons();
       this.isInitialized = true;
     } catch (error) {
-      console.error("Failed to initialize TaskbarManager:", error);
+      console.error("Failed to initialize Taskbar:", error);
       throw error;
     }
   }
@@ -526,42 +526,42 @@ class Win98TaskbarManager {
 }
 
 // Create singleton instance
-const taskbarManager = new Win98TaskbarManager();
+const taskbar = new Taskbar();
 
 // Export functions for backwards compatibility
 export function showStartMenu() {
-  taskbarManager.showStartMenu();
+  taskbar.showStartMenu();
 }
 
 export function hideStartMenu() {
-  taskbarManager.hideStartMenu();
+  taskbar.hideStartMenu();
 }
 
 export function toggleStartMenu() {
-  taskbarManager.toggleStartMenu();
+  taskbar.toggleStartMenu();
 }
 
 export function showDesktop() {
-  taskbarManager.showDesktop();
+  taskbar.showDesktop();
 }
 
 export function updateClock() {
-  taskbarManager.updateClock();
+  taskbar.updateClock();
 }
 
 export function init() {
-  taskbarManager.init();
+  taskbar.init();
 }
 
 export function destroy() {
-  taskbarManager.destroy();
+  taskbar.destroy();
 }
 
 export function createTaskbarButton(windowId, iconSrc, title) {
-  return taskbarManager.createTaskbarButton(windowId, iconSrc, title);
+  return taskbar.createTaskbarButton(windowId, iconSrc, title);
 }
 
 // Export the manager instance for advanced usage
-export { taskbarManager };
+export { taskbar };
 
-export default taskbarManager;
+export default taskbar;
