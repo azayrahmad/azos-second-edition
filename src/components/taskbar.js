@@ -1,32 +1,22 @@
 /**
- * Taskbar - Handles taskbar, start menu, and system tray
- * Improved version with better architecture, error handling, and maintainability
+ * Taskbar - Handles taskbar, system tray, and taskbar buttons
+ * Refactored to use separate StartMenu class
  */
 
 // Vite handles these imports automatically and will optimize them
 import windowsStartLogo from "../assets/icons/windows-4.png";
-import windowsStartMenuBar from "../assets/img/win98start.bmp";
-import computerIcon from "../assets/icons/computer_explorer.ico";
-import shell32Icon from "../assets/icons/SHELL32_3.ico";
-import keyIcon from "../assets/icons/key_win-4.png";
-import shutdownIcon from "../assets/icons/shut_down_normal-0.png";
 import showDesktopIcon from "../assets/icons/desktop_old-4.png";
 import volumeIcon from "../assets/icons/SYSTRAY_220.ico";
-
-// For Vite, you can also use explicit imports with query parameters if needed:
-// import windowsStartLogo from "../assets/icons/windows-4.png?url"; // Get URL only
-// import windowsStartLogo from "../assets/icons/windows-4.png?inline"; // Inline as base64
+import StartMenu from "./StartMenu.js";
 
 // Constants for better maintainability
 const SELECTORS = {
-  START_MENU: "#start-menu",
   START_BUTTON: ".start-button",
   TASKBAR: ".taskbar",
   TASKBAR_APP_AREA: ".taskbar-app-area",
   SHOW_DESKTOP: ".show-desktop",
   TASKBAR_CLOCK: ".taskbar-clock",
   CLOCK: "#clock",
-  START_MENU_ITEM: ".start-menu-item",
   TASKBAR_BUTTON: ".taskbar-button",
   APP_WINDOW: ".app-window"
 };
@@ -37,18 +27,15 @@ const CLASSES = {
   TASKBAR_BUTTON: "taskbar-button"
 };
 
-const ANIMATIONS = {
-  SCROLL_UP: "scrollUp"
-};
-
 /**
- * Main Taskbar class - encapsulates all taskbar functionality
+ * Main Taskbar class - handles taskbar functionality
  */
 class Taskbar {
   constructor() {
     this.clockInterval = null;
     this.isInitialized = false;
     this.eventListeners = new Map(); // Track event listeners for cleanup
+    this.startMenu = new StartMenu(); // Create StartMenu instance
   }
 
   /**
@@ -63,6 +50,7 @@ class Taskbar {
     try {
       console.log("Initializing Taskbar...");
       this.renderTaskbar();
+      this.startMenu.init(); // Initialize start menu
       this.bindEvents();
       this.initializeClock();
       this.setupExistingTaskbarButtons();
@@ -81,6 +69,9 @@ class Taskbar {
       clearInterval(this.clockInterval);
       this.clockInterval = null;
     }
+
+    // Clean up start menu
+    this.startMenu.destroy();
 
     // Remove all tracked event listeners
     this.eventListeners.forEach(({ element, event, handler }) => {
@@ -126,31 +117,7 @@ class Taskbar {
         <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy"> Start
       </button>
       <div class="start-menu-wrapper">
-        <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
-          <div class="blue-rectangle">
-            <img src="${windowsStartMenuBar}" alt="Start Menu Bar" loading="lazy" />
-          </div>
-          <ul class="start-menu-list">
-            <li role="menuitem" tabindex="0" data-action="home">
-              <img src="${computerIcon}" alt="Computer" loading="lazy">
-              <span>aziz rahmad</span>
-            </li>
-            <div class="start-menu-divider" role="separator"></div>
-            <li class="start-menu-item" role="menuitem" tabindex="0" for="/about/">
-              <img src="${shell32Icon}" alt="My Documents" loading="lazy">
-              <span>About</span>
-            </li>
-            <div class="start-menu-divider" role="separator"></div>
-            <li class="logoff-menu-item" role="menuitem" tabindex="0">
-              <img src="${keyIcon}" alt="Log off" loading="lazy">
-              <span id="logofftext">Log Off Guest...</span>
-            </li>
-            <li role="menuitem" tabindex="0" data-action="shutdown">
-              <img src="${shutdownIcon}" alt="Shutdown" loading="lazy">
-              <span>Shut Down...</span>
-            </li>
-          </ul>
-        </div>
+        <!-- StartMenu content will be rendered here -->
       </div>
       <div class="taskbar-divider"></div>
       <div class="taskbar-divider-handler"></div>
@@ -190,37 +157,18 @@ class Taskbar {
    * Bind all event listeners
    */
   bindEvents() {
-    this.bindStartMenuEvents();
+    this.bindStartButtonEvents();
     this.bindDesktopEvents();
     this.bindExternalLinkEvents();
-    this.bindKeyboardEvents();
   }
 
   /**
-   * Bind start menu related events
+   * Bind start button events
    */
-  bindStartMenuEvents() {
+  bindStartButtonEvents() {
     const startButton = document.querySelector(SELECTORS.START_BUTTON);
-    this.addTrackedEventListener(startButton, "click", () => this.toggleStartMenu());
-
-    // Handle start menu item clicks
-    const startMenuItems = document.querySelectorAll(SELECTORS.START_MENU_ITEM);
-    startMenuItems.forEach(item => {
-      this.addTrackedEventListener(item, "click", (event) => {
-        this.handleStartMenuItemClick(event);
-      });
-    });
-
-    // Handle special actions
-    const shutdownItem = document.querySelector('[data-action="shutdown"]');
-    this.addTrackedEventListener(shutdownItem, "click", () => this.handleShutdown());
-
-    const homeItem = document.querySelector('[data-action="home"]');
-    this.addTrackedEventListener(homeItem, "click", () => this.handleHome());
-
-    // Hide start menu when clicking outside
-    this.addTrackedEventListener(document, "click", (event) => {
-      this.handleOutsideClick(event);
+    this.addTrackedEventListener(startButton, "click", () => {
+      this.startMenu.toggle();
     });
   }
 
@@ -245,120 +193,6 @@ class Taskbar {
         }
       });
     });
-  }
-
-  /**
-   * Bind keyboard events for accessibility
-   */
-  bindKeyboardEvents() {
-    // Handle Enter/Space for menu items
-    const menuItems = document.querySelectorAll('[role="menuitem"]');
-    menuItems.forEach(item => {
-      this.addTrackedEventListener(item, "keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          item.click();
-        }
-      });
-    });
-
-    // Handle Escape to close start menu
-    this.addTrackedEventListener(document, "keydown", (event) => {
-      if (event.key === "Escape") {
-        this.hideStartMenu();
-      }
-    });
-  }
-
-  /**
-   * Start menu visibility controls
-   */
-  showStartMenu() {
-    const startMenu = document.querySelector(SELECTORS.START_MENU);
-    const startButton = document.querySelector(SELECTORS.START_BUTTON);
-
-    if (!startMenu || !startButton) return;
-
-    startMenu.classList.remove(CLASSES.HIDDEN);
-    startButton.classList.add(CLASSES.ACTIVE);
-    startMenu.setAttribute('aria-hidden', 'false');
-
-    // Focus first menu item for accessibility
-    const firstMenuItem = startMenu.querySelector('[role="menuitem"]');
-    if (firstMenuItem) {
-      firstMenuItem.focus();
-    }
-  }
-
-  hideStartMenu() {
-    const startMenu = document.querySelector(SELECTORS.START_MENU);
-    const startButton = document.querySelector(SELECTORS.START_BUTTON);
-
-    if (!startMenu || !startButton) return;
-
-    startMenu.classList.add(CLASSES.HIDDEN);
-    startButton.classList.remove(CLASSES.ACTIVE);
-    startMenu.setAttribute('aria-hidden', 'true');
-    startMenu.style.animationName = "";
-  }
-
-  toggleStartMenu() {
-    const startMenu = document.querySelector(SELECTORS.START_MENU);
-    if (!startMenu) return;
-
-    if (startMenu.classList.contains(CLASSES.HIDDEN)) {
-      this.showStartMenu();
-      startMenu.style.animationName = ANIMATIONS.SCROLL_UP;
-    } else {
-      this.hideStartMenu();
-    }
-  }
-
-  /**
-   * Event handlers
-   */
-  handleStartMenuItemClick(event) {
-    try {
-      if (typeof Win98AppManager !== 'undefined' && Win98AppManager.createAndOpenApp) {
-        Win98AppManager.createAndOpenApp(event);
-      } else {
-        console.warn("Win98AppManager not available");
-      }
-      this.hideStartMenu();
-    } catch (error) {
-      console.error("Failed to handle start menu item click:", error);
-    }
-  }
-
-  handleShutdown() {
-    // TODO: Show confirmation window before shutdown
-    console.log("Shutting down azOS...");
-    if (confirm("Are you sure you want to shut down?")) {
-      location.reload();
-    }
-    this.hideStartMenu();
-  }
-
-  handleHome() {
-    // TODO: Should open a window with home page content
-    console.log("Go to Aziz Rahmad...");
-    window.location.href = "/";
-    this.hideStartMenu();
-  }
-
-  handleOutsideClick(event) {
-    const startMenu = document.querySelector(SELECTORS.START_MENU);
-    const startButton = document.querySelector(SELECTORS.START_BUTTON);
-
-    if (!startMenu || !startButton) return;
-
-    if (
-      !startMenu.classList.contains(CLASSES.HIDDEN) &&
-      !startMenu.contains(event.target) &&
-      !startButton.contains(event.target)
-    ) {
-      this.hideStartMenu();
-    }
   }
 
   /**
@@ -405,6 +239,41 @@ class Taskbar {
 
     taskbarAppArea.appendChild(taskbarButton);
     return taskbarButton;
+  }
+
+  /**
+   * Remove taskbar button
+   */
+  removeTaskbarButton(windowId) {
+    const taskbarAppArea = document.querySelector(SELECTORS.TASKBAR_APP_AREA);
+    if (!taskbarAppArea) return;
+
+    const button = taskbarAppArea.querySelector(`[for="${windowId}"]`);
+    if (button) {
+      button.remove();
+    }
+  }
+
+  /**
+   * Update taskbar button state
+   */
+  updateTaskbarButton(windowId, isActive = false, isMinimized = false) {
+    const button = document.querySelector(`${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`);
+    if (!button) return;
+
+    // Update visual state based on window state
+    if (isActive) {
+      button.classList.add(CLASSES.ACTIVE);
+    } else {
+      button.classList.remove(CLASSES.ACTIVE);
+    }
+
+    // You could add additional classes for minimized state, etc.
+    if (isMinimized) {
+      button.style.opacity = '0.7';
+    } else {
+      button.style.opacity = '1';
+    }
   }
 
   handleTaskbarButtonClick(event) {
@@ -516,6 +385,13 @@ class Taskbar {
   }
 
   /**
+   * Get start menu instance for external access
+   */
+  getStartMenu() {
+    return this.startMenu;
+  }
+
+  /**
    * Utility function to escape HTML
    */
   escapeHtml(text) {
@@ -530,15 +406,15 @@ const taskbar = new Taskbar();
 
 // Export functions for backwards compatibility
 export function showStartMenu() {
-  taskbar.showStartMenu();
+  taskbar.getStartMenu().show();
 }
 
 export function hideStartMenu() {
-  taskbar.hideStartMenu();
+  taskbar.getStartMenu().hide();
 }
 
 export function toggleStartMenu() {
-  taskbar.toggleStartMenu();
+  taskbar.getStartMenu().toggle();
 }
 
 export function showDesktop() {
@@ -559,6 +435,14 @@ export function destroy() {
 
 export function createTaskbarButton(windowId, iconSrc, title) {
   return taskbar.createTaskbarButton(windowId, iconSrc, title);
+}
+
+export function removeTaskbarButton(windowId) {
+  return taskbar.removeTaskbarButton(windowId);
+}
+
+export function updateTaskbarButton(windowId, isActive, isMinimized) {
+  return taskbar.updateTaskbarButton(windowId, isActive, isMinimized);
 }
 
 // Export the manager instance for advanced usage
