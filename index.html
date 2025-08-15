@@ -1,39 +1,48 @@
 <!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/src/assets/icons/windows-4.png"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>azOS Second Edition</title>
+        <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
+        <link
+            href="/node_modules/os-gui/build/layout.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="/node_modules/os-gui/build/windows-98.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="/node_modules/os-gui/build/windows-default.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <!--<link rel="stylesheet" href="/src/styles/98.css" />-->
+        <link rel="stylesheet" href="/src/styles/desktop.css" />
+        <link rel="stylesheet" href="/src/styles/taskbar.css" />
+        <script src="/node_modules/os-gui/MenuBar.js"></script>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/src/assets/icons/windows-4.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>azOS Second Edition</title>
-  <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
-  <link rel="stylesheet" href="/src/styles/98.css" />
-  <link rel="stylesheet" href="/src/styles/desktop.css" />
-  <link rel="stylesheet" href="/src/styles/taskbar.css" />
-</head>
+        <script src="/node_modules/os-gui/demo/lib/jquery-3.3.1.js"></script>
+        <!-- required by $Window.js -->
+        <script src="/node_modules/os-gui/$Window.js"></script>
+    </head>
 
-<body class="scanlines">
-  <div id="app-container" class="app-container">
-    <div id="desktop-area" class="desktop-area">
-      <div class="desktop">
-        <div class="desktop-icon" ondblclick="CreateAndOpenApp(event)" for="/about/" title="About" data-icon=""
-          data-content="&lt;p&gt;&lt;img src=&quot;/about/aboutpic.JPG&quot; alt=&quot;Picture of Aziz with his wife and their lovely daughter&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Seasoned software engineer with experience specializing in developing enterprise solutions using C# and .NET technologies since 2015. A part-time lecturer passionate about teaching and mentoring the next generation of developers. Excels in working within Scrum teams, collaborating on complex projects, and continuously upskilling to stay at the forefront of technological advancements.&lt;/p&gt;
-">
-          <div class="icon">
-            <img src="/src/assets/icons/SHELL32_3.ico">
-          </div>
-          <div class="icon-label">About</div>
+    <body class="scanlines">
+        <div id="app-container" class="app-container">
+            <div id="desktop-area" class="desktop-area">
+                <div class="desktop"></div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="taskbar">
-
-  </div>
-  <script type="module" src="/src/main.js"></script>
-</body>
-
+        <div class="taskbar"></div>
+        <script type="module" src="/src/main.js"></script>
+    </body>
 </html>
