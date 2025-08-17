@@ -216,7 +216,8 @@ class StartMenu {
     startMenu.style.animationName = "";
 
     startMenu.classList.remove(CLASSES.HIDDEN);
-    startButton.classList.add(CLASSES.ACTIVE);
+    startButton.classList.add("selected"); // Changed from CLASSES.ACTIVE
+    startButton.setAttribute("aria-pressed", "true"); // Added
     startMenu.setAttribute("aria-hidden", "false");
     this.isVisible = true;
 
@@ -255,7 +256,8 @@ class StartMenu {
     startMenu.style.animationName = "";
 
     startMenu.classList.add(CLASSES.HIDDEN);
-    startButton.classList.remove(CLASSES.ACTIVE);
+    startButton.classList.remove("selected"); // Changed from CLASSES.ACTIVE
+    startButton.setAttribute("aria-pressed", "false"); // Added
     startMenu.setAttribute("aria-hidden", "true");
     this.isVisible = false;
   }

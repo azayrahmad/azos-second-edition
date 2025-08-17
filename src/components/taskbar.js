@@ -18,13 +18,13 @@ const SELECTORS = {
   TASKBAR_CLOCK: ".taskbar-clock",
   CLOCK: "#clock",
   TASKBAR_BUTTON: ".taskbar-button",
-  APP_WINDOW: ".app-window"
+  APP_WINDOW: ".app-window",
 };
 
 const CLASSES = {
   HIDDEN: "hidden",
   ACTIVE: "active",
-  TASKBAR_BUTTON: "taskbar-button"
+  TASKBAR_BUTTON: "taskbar-button",
 };
 
 /**
@@ -92,7 +92,7 @@ class Taskbar {
     this.eventListeners.set(`${element.id || element.className}-${event}`, {
       element,
       event,
-      handler
+      handler,
     });
   }
 
@@ -113,7 +113,7 @@ class Taskbar {
    */
   getTaskbarHTML() {
     return `
-      <button class="start-button">
+      <button class="start-button toggle">
         <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy"> Start
       </button>
       <div class="start-menu-wrapper">
@@ -125,18 +125,18 @@ class Taskbar {
         <button class="taskbar-icon show-desktop" title="Show Desktop" aria-label="Show Desktop">
           <img src="${showDesktopIcon}" alt="Show Desktop" loading="lazy">
         </button>
-        <button class="taskbar-icon" 
-                title="LinkedIn Profile" 
+        <button class="taskbar-icon"
+                title="LinkedIn Profile"
                 aria-label="Open LinkedIn Profile"
                 data-url="https://www.linkedin.com/in/aziz-rahmad">
-          <img src="https://www.google.com/s2/favicons?domain=linkedin.com" 
+          <img src="https://www.google.com/s2/favicons?domain=linkedin.com"
                alt="LinkedIn" loading="lazy">
         </button>
-        <button class="taskbar-icon" 
-                title="GitHub Profile" 
+        <button class="taskbar-icon"
+                title="GitHub Profile"
                 aria-label="Open GitHub Profile"
                 data-url="https://www.github.com/azayrahmad">
-          <img src="https://www.google.com/s2/favicons?domain=github.com" 
+          <img src="https://www.google.com/s2/favicons?domain=github.com"
                alt="GitHub" loading="lazy">
         </button>
       </div>
@@ -177,15 +177,17 @@ class Taskbar {
    */
   bindDesktopEvents() {
     const showDesktopButton = document.querySelector(SELECTORS.SHOW_DESKTOP);
-    this.addTrackedEventListener(showDesktopButton, "click", () => this.showDesktop());
+    this.addTrackedEventListener(showDesktopButton, "click", () =>
+      this.showDesktop(),
+    );
   }
 
   /**
    * Bind external link events
    */
   bindExternalLinkEvents() {
-    const externalButtons = document.querySelectorAll('[data-url]');
-    externalButtons.forEach(button => {
+    const externalButtons = document.querySelectorAll("[data-url]");
+    externalButtons.forEach((button) => {
       this.addTrackedEventListener(button, "click", (event) => {
         const url = event.currentTarget.dataset.url;
         if (url) {
@@ -200,7 +202,7 @@ class Taskbar {
    */
   openExternalLink(url) {
     try {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      window.open(url, "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error("Failed to open external link:", error);
     }
@@ -229,7 +231,9 @@ class Taskbar {
     taskbarButton.title = title;
 
     // Safely handle missing icon
-    const iconHTML = iconSrc ? `<img src="${iconSrc}" alt="App Icon" loading="lazy">` : "";
+    const iconHTML = iconSrc
+      ? `<img src="${iconSrc}" alt="App Icon" loading="lazy">`
+      : "";
     taskbarButton.innerHTML = `${iconHTML}${this.escapeHtml(title)}`;
 
     // Add click handler
@@ -258,7 +262,9 @@ class Taskbar {
    * Update taskbar button state
    */
   updateTaskbarButton(windowId, isActive = false, isMinimized = false) {
-    const button = document.querySelector(`${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`);
+    const button = document.querySelector(
+      `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
+    );
     if (!button) return;
 
     // Update visual state based on window state
@@ -270,9 +276,9 @@ class Taskbar {
 
     // You could add additional classes for minimized state, etc.
     if (isMinimized) {
-      button.style.opacity = '0.7';
+      button.style.opacity = "0.7";
     } else {
-      button.style.opacity = '1';
+      button.style.opacity = "1";
     }
   }
 
@@ -286,7 +292,10 @@ class Taskbar {
     }
 
     try {
-      if (typeof Win98System !== 'undefined' && typeof Win98WindowManager !== 'undefined') {
+      if (
+        typeof Win98System !== "undefined" &&
+        typeof Win98WindowManager !== "undefined"
+      ) {
         if (win.isMinimized) {
           Win98System.incrementZIndex();
           win.style.zIndex = Win98System.getHighestZIndex();
@@ -316,7 +325,7 @@ class Taskbar {
     const allMinimized = Array.from(windows).every((win) => win.isMinimized);
 
     try {
-      if (typeof Win98WindowManager !== 'undefined') {
+      if (typeof Win98WindowManager !== "undefined") {
         if (allMinimized) {
           // Restore all windows
           windows.forEach((win) => {
@@ -395,7 +404,7 @@ class Taskbar {
    * Utility function to escape HTML
    */
   escapeHtml(text) {
-    const div = document.createElement('div');
+    const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
   }

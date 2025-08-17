@@ -43,6 +43,7 @@ function createWindow(windowConfig) {
   }
 
   document.body.appendChild(win.element);
+  win.focus();
   win.center();
 
   return win;

@@ -1,48 +1,32 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link
-            rel="icon"
-            type="image/svg+xml"
-            href="/src/assets/icons/windows-4.png"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>azOS Second Edition</title>
-        <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
-        <link
-            href="/node_modules/os-gui/build/layout.css"
-            rel="stylesheet"
-            type="text/css"
-        />
-        <link
-            href="/node_modules/os-gui/build/windows-98.css"
-            rel="stylesheet"
-            type="text/css"
-        />
-        <link
-            href="/node_modules/os-gui/build/windows-default.css"
-            rel="stylesheet"
-            type="text/css"
-        />
-        <!--<link rel="stylesheet" href="/src/styles/98.css" />-->
-        <link rel="stylesheet" href="/src/styles/desktop.css" />
-        <link rel="stylesheet" href="/src/styles/taskbar.css" />
-        <script src="/node_modules/os-gui/MenuBar.js"></script>
 
-        <script src="/node_modules/os-gui/demo/lib/jquery-3.3.1.js"></script>
-        <!-- required by $Window.js -->
-        <script src="/node_modules/os-gui/$Window.js"></script>
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/icons/windows-4.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>azOS Second Edition</title>
+    <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
+    <link href="/node_modules/os-gui/build/layout.css" rel="stylesheet" type="text/css" />
+    <link href="/node_modules/os-gui/build/windows-98.css" rel="stylesheet" type="text/css" />
+    <link href="/node_modules/os-gui/build/windows-default.css" rel="stylesheet" type="text/css" />
+    <!--<link rel="stylesheet" href="/src/styles/98.css" />-->
+    <link rel="stylesheet" href="/src/styles/desktop.css" />
+    <link rel="stylesheet" href="/src/styles/taskbar.css" />
+    <script src="./os-gui/MenuBar.js"></script>
+    <script src="./jquery-3.3.1.js"></script>
+    <script src="./os-gui/$Window.js"></script>
+</head>
 
-    <body class="scanlines">
-        <div id="app-container" class="app-container">
-            <div id="desktop-area" class="desktop-area">
-                <div class="desktop"></div>
-            </div>
+<body class="scanlines">
+    <div id="app-container" class="app-container">
+        <div id="desktop-area" class="desktop-area">
+            <div class="desktop"></div>
         </div>
+    </div>
 
-        <div class="taskbar"></div>
-        <script type="module" src="/src/main.js"></script>
-    </body>
+    <div class="taskbar"></div>
+    <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>
