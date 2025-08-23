@@ -236,12 +236,25 @@ class Taskbar {
       : "";
     taskbarButton.innerHTML = `${iconHTML}${this.escapeHtml(title)}`;
 
+    // Prevent mousedown from unfocusing the window
+    this.addTrackedEventListener(taskbarButton, "mousedown", (event) => {
+      event.preventDefault();
+    });
+
     // Add click handler
     this.addTrackedEventListener(taskbarButton, "click", (event) => {
       this.handleTaskbarButtonClick(event);
     });
 
     taskbarAppArea.appendChild(taskbarButton);
+
+    // Add window close listener
+    const win = document.getElementById(windowId);
+    if (win && win.$window) {
+      win.$window.onClosed(() => {
+        this.removeTaskbarButton(windowId);
+      });
+    }
     return taskbarButton;
   }
 
@@ -292,20 +305,29 @@ class Taskbar {
     }
 
     try {
-      if (
-        typeof Win98System !== "undefined" &&
-        typeof Win98WindowManager !== "undefined"
-      ) {
-        if (win.isMinimized) {
-          Win98System.incrementZIndex();
-          win.style.zIndex = Win98System.getHighestZIndex();
-          Win98WindowManager.restoreWindow(win);
-        } else if (win.style.zIndex == Win98System.getHighestZIndex()) {
-          Win98WindowManager.minimizeWindow(win);
+      if (typeof Win98System !== "undefined" && typeof Win98WindowManager !== "undefined") {
+        const $win = $(win);
+        if ($win.is(":visible")) {
+          // If window is visible, either minimize or focus based on current state
+          const isActive = $win.hasClass("focused");
+
+          if (isActive) {
+            // Window is focused, so minimize it
+            Win98WindowManager.minimizeWindow(win);
+          } else {
+            // Window is not focused, so bring it to front and focus it
+            $win.trigger("refocus-window"); // Use $Window's focus system
+            win.style.zIndex = Win98System.incrementZIndex();
+            Win98WindowManager.updateTitleBarClasses(win);
+          }
         } else {
-          Win98System.incrementZIndex();
-          win.style.zIndex = Win98System.getHighestZIndex();
-          Win98WindowManager.updateTitleBarClasses(win);
+          // Window is hidden/minimized, restore it and focus
+          win.style.zIndex = Win98System.incrementZIndex();
+          Win98WindowManager.restoreWindow(win);
+          // Focus the window after restoration
+          setTimeout(() => {
+            $win.trigger("refocus-window");
+          }, 0);
         }
       } else {
         console.warn("Win98System or Win98WindowManager not available");
