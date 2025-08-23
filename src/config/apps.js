@@ -2,7 +2,7 @@ export const apps = [
   {
     id: "about",
     title: "About",
-    icon: "./src/assets/icons/SHELL32_3.ico",
+    icon: new URL('../assets/icons/SHELL32_3.ico', import.meta.url).href,
     path: "/about/",
     action: {
       type: "window",
@@ -105,5 +105,21 @@ export const apps = [
         }
       },
     },
+  },
+  {
+    id: "clippy",
+    title: "Office Assistant",
+    icon: new URL('..\assets\icons\SETDEBUG_100.ico', import.meta.url).href,
+    action: {
+      type: "function",
+      handler: () => {
+        $(".clippy").remove(); // remove any existing instance
+        clippy.load("Clippy", function (agent) {
+          agent.show();
+          agent.speak("Hi there! I'm Clippy. How can I help you today?");
+          window.clippyAgent = agent;
+        });
+      }
+    }
   },
 ];
