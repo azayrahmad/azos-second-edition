@@ -24,7 +24,7 @@ const SELECTORS = {
 const CLASSES = {
   HIDDEN: "hidden",
   ACTIVE: "active",
-  TASKBAR_BUTTON: "taskbar-button",
+  TASKBAR_BUTTON: "toggle selected taskbar-button",
 };
 
 /**
@@ -122,17 +122,17 @@ class Taskbar {
       <div class="taskbar-divider"></div>
       <div class="taskbar-divider-handler"></div>
       <div class="taskbar-icon-area">
-        <button class="taskbar-icon show-desktop" title="Show Desktop" aria-label="Show Desktop">
+        <button class="taskbar-icon lightweight show-desktop" title="Show Desktop" aria-label="Show Desktop">
           <img src="${showDesktopIcon}" alt="Show Desktop" loading="lazy">
         </button>
-        <button class="taskbar-icon"
+        <button class="taskbar-icon lightweight"
                 title="LinkedIn Profile"
                 aria-label="Open LinkedIn Profile"
                 data-url="https://www.linkedin.com/in/aziz-rahmad">
           <img src="https://www.google.com/s2/favicons?domain=linkedin.com"
                alt="LinkedIn" loading="lazy">
         </button>
-        <button class="taskbar-icon"
+        <button class="taskbar-icon lightweight"
                 title="GitHub Profile"
                 aria-label="Open GitHub Profile"
                 data-url="https://www.github.com/azayrahmad">
@@ -248,9 +248,15 @@ class Taskbar {
 
     taskbarAppArea.appendChild(taskbarButton);
 
-    // Add window close listener
+    // Add window focus/blur and close listeners
     const win = document.getElementById(windowId);
     if (win && win.$window) {
+      win.$window.onFocus(() => {
+        this.updateTaskbarButton(windowId, true, false);
+      });
+      win.$window.onBlur(() => {
+        this.updateTaskbarButton(windowId, false, false);
+      });
       win.$window.onClosed(() => {
         this.removeTaskbarButton(windowId);
       });
@@ -272,26 +278,19 @@ class Taskbar {
   }
 
   /**
-   * Update taskbar button state
-   */
+ * Update taskbar button state
+ */
   updateTaskbarButton(windowId, isActive = false, isMinimized = false) {
     const button = document.querySelector(
       `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
     );
     if (!button) return;
 
-    // Update visual state based on window state
+    // Add/remove selected class based on window focus state
     if (isActive) {
-      button.classList.add(CLASSES.ACTIVE);
+      button.classList.add('selected');
     } else {
-      button.classList.remove(CLASSES.ACTIVE);
-    }
-
-    // You could add additional classes for minimized state, etc.
-    if (isMinimized) {
-      button.style.opacity = "0.7";
-    } else {
-      button.style.opacity = "1";
+      button.classList.remove('selected');
     }
   }
 
@@ -314,11 +313,13 @@ class Taskbar {
           if (isActive) {
             // Window is focused, so minimize it
             Win98WindowManager.minimizeWindow(win);
+            this.updateTaskbarButton(windowId, false, true);
           } else {
             // Window is not focused, so bring it to front and focus it
-            $win.trigger("refocus-window"); // Use $Window's focus system
+            $win.trigger("refocus-window");
             win.style.zIndex = Win98System.incrementZIndex();
             Win98WindowManager.updateTitleBarClasses(win);
+            this.updateTaskbarButton(windowId, true, false);
           }
         } else {
           // Window is hidden/minimized, restore it and focus
@@ -327,6 +328,7 @@ class Taskbar {
           // Focus the window after restoration
           setTimeout(() => {
             $win.trigger("refocus-window");
+            this.updateTaskbarButton(windowId, true, false);
           }, 0);
         }
       } else {
