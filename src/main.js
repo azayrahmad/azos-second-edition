@@ -82,3 +82,69 @@ console.log('azOS initialized');
 taskbar.init();
 initDesktop();
 setupCounter(document.querySelector('#counter'));
+
+// ...existing code...
+
+// Add context menu for desktop
+const desktopArea = document.querySelector('.desktop');  // Changed from getElementById to querySelector
+if (desktopArea) {
+    desktopArea.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();  // Add this to prevent event bubbling
+
+        const contextMenuItems = [
+            {
+                label: '&View',
+                submenu: [
+                    { label: 'Large &Icons' },
+                    { label: 'Small &Icons' },
+                    { label: '&List' },
+                    { label: '&Details' }
+                ]
+            },
+            "MENU_DIVIDER",
+            {
+                label: '&New',
+                submenu: [
+                    { label: '&Folder' },
+                    { label: '&Text Document' },
+                    { label: '&Shortcut' }
+                ]
+            },
+            "MENU_DIVIDER",
+            { label: '&Paste', enabled: false },
+            { label: 'Paste &Shortcut', enabled: false },
+            "MENU_DIVIDER",
+            { label: 'Properties', click: () => alert('Properties clicked') }
+        ];
+
+        // Remove any existing menus
+        const existingMenus = document.querySelectorAll('.menu-popup');
+        existingMenus.forEach(menu => menu.remove());
+
+        const contextMenu = new OS.MenuList(contextMenuItems);
+        document.body.appendChild(contextMenu.element);
+
+        // Position the menu at the click coordinates
+        contextMenu.element.style.position = 'absolute';
+        contextMenu.element.style.left = `${e.clientX}px`;
+        contextMenu.element.style.top = `${e.clientY}px`;
+        contextMenu.show();
+
+        // Hide menu when clicking outside
+        const hideMenu = (event) => {
+            if (!contextMenu.element.contains(event.target)) {
+                contextMenu.hide();
+                document.removeEventListener('click', hideMenu);
+                document.body.removeChild(contextMenu.element);
+            }
+        };
+
+        // Add slight delay to prevent immediate hiding
+        setTimeout(() => {
+            document.addEventListener('click', hideMenu);
+        }, 0);
+    });
+} else {
+    console.warn('Desktop element not found');
+}

@@ -24,8 +24,72 @@ function createDesktopIcon(app) {
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
-
+  // Add context menu handler
+  iconDiv.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    showIconContextMenu(e, app);
+  });
   return iconDiv;
+}
+
+function showIconContextMenu(event, app) {
+  const menuItems = [
+    {
+      label: "&Open",
+      click: () => handleAppAction(app),
+    },
+    "MENU_DIVIDER",
+    {
+      label: "Cu&t",
+      enabled: false,
+    },
+    {
+      label: "&Copy",
+      enabled: false,
+    },
+    {
+      label: "&Create Shortcut",
+      enabled: false,
+    },
+    {
+      label: "&Delete",
+      enabled: false,
+    },
+    "MENU_DIVIDER",
+    {
+      label: "Rena&me",
+      enabled: false,
+    },
+    {
+      label: "Proper&ties",
+      click: () => showProperties(app),
+    },
+  ];
+
+  const menu = new OS.MenuList(menuItems);
+  document.body.appendChild(menu.element);
+
+  // Position the menu at click coordinates
+  menu.element.style.position = 'absolute';
+  menu.element.style.left = `${event.pageX}px`;
+  menu.element.style.top = `${event.pageY}px`;
+  menu.show();
+
+  // Close menu when clicking outside
+  const closeMenu = (e) => {
+    if (!menu.element.contains(e.target)) {
+      menu.hide();
+      document.body.removeChild(menu.element);
+      document.removeEventListener('click', closeMenu);
+    }
+  };
+
+  document.addEventListener('click', closeMenu);
+}
+
+function showProperties(app) {
+  console.log(`Show properties for: ${app.title}`);
+  // TODO: Implement properties dialog
 }
 
 export function setupIcons() {
