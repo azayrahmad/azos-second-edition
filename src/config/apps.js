@@ -163,13 +163,24 @@ export const apps = [
               // Encode the question for URL parameters
               const encodedQuestion = encodeURIComponent(question);
               const response = await fetch(
-                `https://resume-chat-api-nine.vercel.app/api/gemini?query=${encodedQuestion}`
+                `https://resume-chat-api-nine.vercel.app/api/resume-helper?query=${encodedQuestion}`
               );
 
               const data = await response.json();
-              // Remove markdown formatting from the response
-              const cleanAnswer = data.text.replace(/\*\*/g, '');
-              agent.speak(cleanAnswer);
+
+              // Process each response fragment with its animation
+              for (const fragment of data) {
+                // Remove markdown formatting from the response
+                const cleanAnswer = fragment.answer.replace(/\*\*/g, '');
+
+                // Play the associated animation if provided
+                if (fragment.animation) {
+                  agent.play(fragment.animation);
+                }
+
+                // Speak the response fragment
+                await agent.speak(cleanAnswer);
+              }
             } catch (error) {
               agent.speak("Sorry, I couldn't get an answer for that!");
               console.error('API Error:', error);
