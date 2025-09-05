@@ -114,10 +114,81 @@ export const apps = [
       type: "function",
       handler: () => {
         $(".clippy").remove(); // remove any existing instance
+
+        // Create tool window
+        const toolWindow = new $Window({
+          title: "Ask Clippy",
+          // toolWindow: true,
+          width: 300,
+          height: 120,
+          resizable: false,
+          maximizeButton: false,
+          minimizeButton: false,
+          content: `
+            <div class="clippy-input" style="padding: 10px;">
+              <input type="text" 
+                style="width: 100%; padding: 5px; margin-bottom: 10px;"
+                placeholder="Ask me anything...">
+              <button class="default">Ask</button>
+            </div>
+          `
+        });
+        toolWindow.$content.append(`
+            <div class="clippy-input" style="padding: 10px;">
+              <input type="text" 
+                placeholder="Ask me anything...">
+              <button class="default">Ask</button>
+            </div>
+          `);
+
+
+        // Load Clippy agent
         clippy.load("Clippy", function (agent) {
           agent.show();
-          agent.speak("Hi there! I'm Clippy. How can I help you today?");
+          agent.speak("Hi there! Type your question and press Enter or click Ask!");
           window.clippyAgent = agent;
+
+          // Handle input events
+          const input = toolWindow.$content.find('input');
+          const askButton = toolWindow.$content.find('button');
+
+          const askClippy = async () => {
+            const question = input.val().trim();
+            if (!question) return;
+
+            agent.speak("Let me think about that...");
+            input.val('');
+
+            try {
+              // Encode the question for URL parameters
+              const encodedQuestion = encodeURIComponent(question);
+              const response = await fetch(
+                `https://resume-chat-api-nine.vercel.app/api/gemini?query=${encodedQuestion}`
+              );
+
+              const data = await response.json();
+              // Remove markdown formatting from the response
+              const cleanAnswer = data.text.replace(/\*\*/g, '');
+              agent.speak(cleanAnswer);
+            } catch (error) {
+              agent.speak("Sorry, I couldn't get an answer for that!");
+              console.error('API Error:', error);
+            }
+          };
+
+          // Handle Enter key
+          input.on('keypress', (e) => {
+            if (e.which === 13) askClippy();
+          });
+
+          // Handle button click
+          askButton.on('click', askClippy);
+
+          // Clean up when window is closed
+          toolWindow.onClosed = () => {
+            agent.hide();
+            window.clippyAgent = null;
+          };
         });
       }
     }
