@@ -156,7 +156,9 @@ export const apps = [
             const question = input.val().trim();
             if (!question) return;
 
-            agent.speak("Let me think about that...");
+            // agent.speak("Let me think about that...");
+
+            agent.speakAndAnimate("Let me look at the resume...", "CheckingSomething");
             input.val('');
 
             try {
@@ -173,16 +175,11 @@ export const apps = [
                 // Remove markdown formatting from the response
                 const cleanAnswer = fragment.answer.replace(/\*\*/g, '');
 
-                // Play the associated animation if provided
-                if (fragment.animation) {
-                  agent.play(fragment.animation);
-                }
-
                 // Speak the response fragment
-                await agent.speak(cleanAnswer);
+                await agent.speakAndAnimate(cleanAnswer, fragment.animation);
               }
             } catch (error) {
-              agent.speak("Sorry, I couldn't get an answer for that!");
+              agent.speakAndAnimate("Sorry, I couldn't get an answer for that!", "Alert");
               console.error('API Error:', error);
             }
           };
