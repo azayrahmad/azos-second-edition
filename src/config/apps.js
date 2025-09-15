@@ -142,6 +142,9 @@ export const apps = [
           `);
 
 
+        // Focus the window
+        toolWindow.focus();
+
         // Load Clippy agent
         clippy.load("Clippy", function (agent) {
           agent.show();
@@ -151,6 +154,9 @@ export const apps = [
           // Handle input events
           const input = toolWindow.$content.find('input');
           const askButton = toolWindow.$content.find('button');
+
+          // Focus the input field immediately
+          input.focus();
 
           const askClippy = async () => {
             const question = input.val().trim();
