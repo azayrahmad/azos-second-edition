@@ -81,6 +81,11 @@
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
                         item.click(e);
+                        this.hide();
+                        // If this is a submenu, also hide parent menus
+                        if (this.isSubmenu && this.parentMenu) {
+                            this.parentMenu.hide();
+                        }
                     }
                 });
             }
