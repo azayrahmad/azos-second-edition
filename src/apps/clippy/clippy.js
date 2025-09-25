@@ -7,7 +7,9 @@ export function launchClippyApp() {
     return;
   }
 
-  $(".clippy").remove(); // remove any existing instance
+  $(".clippy, .clippy-balloon").remove(); // remove any existing instances
+  // Remove any leftover context menus
+  $(".os-menu").remove();
 
   // Create tool window
   const toolWindow = new $Window({
@@ -55,12 +57,19 @@ export function launchClippyApp() {
         "MENU_DIVIDER",
         {
           label: "Close",
-          click: () => 
-            {agent.hide();
-              $(".clippy").remove();
-            },
+          click: () => {
+            agent.hide();
+            $(".clippy, .clippy-balloon").remove();
+            // Remove any context menus that might be left over
+            $(".os-menu").remove();
+            toolWindow.close();
+          },
         },
       ];
+
+      // Remove any existing menus
+      const existingMenus = document.querySelectorAll('.menu-popup');
+      existingMenus.forEach(menu => menu.remove());
 
       const menu = new OS.MenuList(menuItems);
       document.body.appendChild(menu.element);
@@ -76,7 +85,9 @@ export function launchClippyApp() {
       const closeMenu = (e) => {
         if (!menu.element.contains(e.target)) {
           menu.hide();
-          document.body.removeChild(menu.element);
+          if (menu.element.parentNode) {
+            document.body.removeChild(menu.element);
+          }
           document.removeEventListener("click", closeMenu);
         }
       };
@@ -138,6 +149,9 @@ export function launchClippyApp() {
     // Clean up when window is closed
     toolWindow.onClosed = () => {
       agent.hide();
+      $(".clippy, .clippy-balloon").remove();
+      // Remove any context menus that might be left over
+      $(".os-menu").remove();
       window.clippyAgent = null;
       window.clippyToolWindow = null;
     };
