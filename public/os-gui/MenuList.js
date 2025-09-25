@@ -81,11 +81,7 @@
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
                         item.click(e);
-                        this.hide();
-                        // If this is a submenu, also hide parent menus
-                        if (this.isSubmenu && this.parentMenu) {
-                            this.parentMenu.hide();
-                        }
+                        this.close();
                     }
                 });
             }
@@ -166,6 +162,16 @@
 
         hide() {
             this.element.style.display = 'none';
+        }
+
+        close() {
+            if (this.element.parentNode) {
+                this.element.parentNode.removeChild(this.element);
+            }
+            // If this is a submenu, also close parent menus
+            if (this.isSubmenu && this.parentMenu) {
+                this.parentMenu.close();
+            }
         }
 
         position() {
