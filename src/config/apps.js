@@ -1,8 +1,10 @@
+import { launchClippyApp } from "../apps/clippy/clippy.js";
+
 export const apps = [
   {
     id: "about",
     title: "About",
-    icon: new URL('../assets/icons/COMCTL32_20481.ico', import.meta.url).href,
+    icon: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
     path: "/about/",
     action: {
       type: "window",
@@ -106,14 +108,13 @@ export const apps = [
   //     },
   //   },
   // },
-import { launchClippyApp } from '../apps/clippy/clippy.js';
 
-// ... (other apps)
+  // ... (other apps)
 
   {
     id: "clippy",
     title: "Office Assistant",
-    icon: new URL('..\\assets\\icons\\SETDEBUG_100.ico', import.meta.url).href,
+    icon: new URL("..\\assets\\icons\\SETDEBUG_100.ico", import.meta.url).href,
     action: {
       type: "function",
       handler: launchClippyApp,
