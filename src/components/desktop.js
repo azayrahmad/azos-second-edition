@@ -33,38 +33,34 @@ function createDesktopIcon(app) {
 }
 
 function showIconContextMenu(event, app) {
-  const menuItems = [
-    {
-      label: "&Open",
-      click: () => handleAppAction(app),
-    },
-    "MENU_DIVIDER",
-    {
-      label: "Cu&t",
-      enabled: false,
-    },
-    {
-      label: "&Copy",
-      enabled: false,
-    },
-    {
-      label: "&Create Shortcut",
-      enabled: false,
-    },
-    {
-      label: "&Delete",
-      enabled: false,
-    },
-    "MENU_DIVIDER",
-    {
-      label: "Rena&me",
-      enabled: false,
-    },
-    {
-      label: "Proper&ties",
-      click: () => showProperties(app),
-    },
+  const defaultContextMenu = [
+    { label: '&Open', action: 'open', default: true },
+    'MENU_DIVIDER',
+    { label: 'Cu&t', enabled: false },
+    { label: '&Copy', enabled: false },
+    { label: '&Create Shortcut', enabled: false },
+    { label: '&Delete', enabled: false },
+    'MENU_DIVIDER',
+    { label: 'Rena&me', enabled: false },
+    { label: 'Proper&ties', action: 'properties' },
   ];
+
+  const menuItems = (app.contextMenu || defaultContextMenu).map(item => {
+    if (typeof item === 'string') {
+      return item; // Handle dividers
+    }
+    return {
+      ...item,
+      click: () => {
+        if (item.action === 'open') {
+          handleAppAction(app);
+        } else if (item.action === 'properties') {
+          showProperties(app);
+        }
+        // Add more actions as needed
+      },
+    };
+  });
 
   const menu = new OS.MenuList(menuItems);
   document.body.appendChild(menu.element);

@@ -33,6 +33,17 @@ export const apps = [
         `,
       },
     },
+    contextMenu: [
+      { label: '&Open', action: 'open' },
+      'MENU_DIVIDER',
+      { label: 'Cu&t', enabled: false },
+      { label: '&Copy', enabled: false },
+      { label: '&Create Shortcut', enabled: false },
+      { label: '&Delete', enabled: false },
+      'MENU_DIVIDER',
+      { label: 'Rena&me', enabled: false },
+      { label: 'Proper&ties', action: 'properties' },
+    ]
   },
   // {
   //   id: "notepad",
@@ -205,6 +216,17 @@ export const apps = [
           };
         });
       }
-    }
+    },
+    contextMenu: [
+      { label: '&Open', action: 'open' },
+      'MENU_DIVIDER',
+      { label: 'Cu&t', enabled: false },
+      { label: '&Copy', enabled: false },
+      { label: '&Create Shortcut', enabled: false },
+      { label: '&Delete', enabled: false },
+      'MENU_DIVIDER',
+      { label: 'Rena&me', enabled: false },
+      { label: 'Proper&ties', action: 'properties' },
+    ]
   },
 ];
