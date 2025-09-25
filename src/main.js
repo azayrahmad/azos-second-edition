@@ -136,7 +136,9 @@ if (desktopArea) {
             if (!contextMenu.element.contains(event.target)) {
                 contextMenu.hide();
                 document.removeEventListener('click', hideMenu);
-                document.body.removeChild(contextMenu.element);
+                if (contextMenu.element.parentNode) {
+                    document.body.removeChild(contextMenu.element);
+                }
             }
         };
 

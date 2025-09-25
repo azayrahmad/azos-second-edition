@@ -43,6 +43,7 @@
     align-items: center;
     margin: 0;
     font-weight: bold;
+    font-family: "MSW98UI", sans-serif;
 }
 
 .taskbar-icon-area {
@@ -73,6 +74,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: "MSW98UI", sans-serif;
 }
 
 .taskbar-button.active {
@@ -234,6 +236,7 @@ button:not(:disabled):active img {
     text-align: center;
     font-size: 12px;
     user-select: none;
+    font-family: "MSW98UI", sans-serif;
 }
 
 .tooltip-custom {

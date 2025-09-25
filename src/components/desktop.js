@@ -66,6 +66,10 @@ function showIconContextMenu(event, app) {
     },
   ];
 
+  // Remove any existing menus
+  const existingMenus = document.querySelectorAll('.menu-popup');
+  existingMenus.forEach(menu => menu.remove());
+
   const menu = new OS.MenuList(menuItems);
   document.body.appendChild(menu.element);
 
@@ -79,7 +83,9 @@ function showIconContextMenu(event, app) {
   const closeMenu = (e) => {
     if (!menu.element.contains(e.target)) {
       menu.hide();
-      document.body.removeChild(menu.element);
+      if (menu.element.parentNode) {
+        document.body.removeChild(menu.element);
+      }
       document.removeEventListener('click', closeMenu);
     }
   };
