@@ -21,12 +21,55 @@
     // =============================================================================
 
     /**
-     * Speak text while simultaneously playing an animation
+     * Speak text with TTS (Text-to-Speech) and visual word streaming
+     * @param {String} text - The text to speak
+     * @param {Object} options - Configuration options
+     * @param {Boolean} options.hold - Whether to hold the speech balloon (default: false)
+     * @param {Object} options.ttsOptions - TTS configuration (voice, rate, pitch, volume)
+     * @param {Function} options.callback - Called when speech completes
+     */
+    clippy.Agent.prototype.speakWithTTS = function (text, options) {
+        options = options || {};
+        var hold = options.hold || false;
+        var ttsOptions = options.ttsOptions || {};
+        var callback = options.callback;
+
+        // Configure TTS if options provided
+        if (Object.keys(ttsOptions).length > 0) {
+            this.setTTSOptions(ttsOptions);
+        }
+
+        // Check if TTS is available
+        if (!this.isTTSEnabled()) {
+            console.warn('Clippy Extensions: TTS not supported in this browser. Falling back to visual-only speech.');
+            this.speak(text, hold);
+            if (callback) setTimeout(callback, 0);
+            return false;
+        }
+
+        this._addToQueue(function (complete) {
+            var self = this;
+
+            function onSpeechComplete() {
+                if (callback) callback();
+                complete();
+            }
+
+            self._balloon.speak(onSpeechComplete, text, hold, true);
+        }, this);
+
+        return true;
+    },
+
+    /**
+     * Speak text while simultaneously playing an animation (with optional TTS)
      * @param {String} text - The text to speak
      * @param {String} animation - The animation to play
      * @param {Object} options - Configuration options
      * @param {Number} options.animationTimeout - Timeout for animation (default: 5000ms)
      * @param {Boolean} options.hold - Whether to hold the speech balloon (default: false)
+     * @param {Boolean} options.useTTS - Whether to use text-to-speech (default: false)
+     * @param {Object} options.ttsOptions - TTS configuration (voice, rate, pitch, volume)
      * @param {Function} options.callback - Called when both speech and animation complete
      * @returns {Boolean} - True if successful, false if animation doesn't exist
      */
@@ -34,14 +77,25 @@
         options = options || {};
         var animationTimeout = options.animationTimeout !== undefined ? options.animationTimeout : 5000;
         var hold = options.hold || false;
+        var useTTS = options.useTTS || false;
+        var ttsOptions = options.ttsOptions || {};
         var callback = options.callback;
 
         // Validate animation exists
         if (!this.hasAnimation(animation)) {
             console.warn('Clippy Extensions: Animation "' + animation + '" not found. Falling back to speech only.');
-            this.speak(text, hold);
+            if (useTTS && this.isTTSEnabled()) {
+                this.speak(text, hold, true);
+            } else {
+                this.speak(text, hold);
+            }
             if (callback) setTimeout(callback, 0);
             return false;
+        }
+
+        // Configure TTS if requested
+        if (useTTS && Object.keys(ttsOptions).length > 0) {
+            this.setTTSOptions(ttsOptions);
         }
 
         var self = this;
@@ -70,7 +124,7 @@
             self._balloon.speak(function () {
                 speechCompleted = true;
                 checkCompletion();
-            }, text, hold);
+            }, text, hold, useTTS);
 
             // Start animation
             var animationCallback = function (name, state) {
@@ -108,14 +162,25 @@
     clippy.Agent.prototype.speakWithRepeatingAnimation = function (text, animation, options) {
         options = options || {};
         var hold = options.hold || false;
+        var useTTS = options.useTTS || false;
+        var ttsOptions = options.ttsOptions || {};
         var callback = options.callback;
         var animationDelay = options.animationDelay || 200; // Delay between animation cycles
 
         if (!this.hasAnimation(animation)) {
             console.warn('Clippy Extensions: Animation "' + animation + '" not found. Falling back to speech only.');
-            this.speak(text, hold);
+            if (useTTS && this.isTTSEnabled()) {
+                this.speak(text, hold, true);
+            } else {
+                this.speak(text, hold);
+            }
             if (callback) setTimeout(callback, 0);
             return false;
+        }
+
+        // Configure TTS if requested
+        if (useTTS && Object.keys(ttsOptions).length > 0) {
+            this.setTTSOptions(ttsOptions);
         }
 
         var self = this;
@@ -181,7 +246,7 @@
                     checkCompletion();
                 }
                 // Otherwise, checkCompletion will be called when current animation finishes
-            }, text, hold);
+            }, text, hold, useTTS);
 
             // Start first animation
             startNextAnimation();
@@ -349,10 +414,14 @@
      * @param {String} text - The text to speak
      * @param {String} emotion - 'happy', 'sad', 'excited', 'thinking', 'surprised', etc.
      * @param {Object} options - Additional options
+     * @param {Boolean} options.useTTS - Whether to use text-to-speech (default: false)
+     * @param {Object} options.ttsOptions - TTS configuration (voice, rate, pitch, volume)
      * @returns {Boolean} - True if successful
      */
     clippy.Agent.prototype.speakWithEmotion = function (text, emotion, options) {
         options = options || {};
+        var useTTS = options.useTTS || false;
+        var ttsOptions = options.ttsOptions || {};
 
         var emotionAnimations = {
             happy: ['Congratulate', 'GetTechy', 'Pleased', 'Success'],
@@ -372,10 +441,17 @@
 
         if (availableAnims.length === 0) {
             console.warn('Clippy Extensions: No animations available for emotion:', emotion);
-            return this.speak(text, options.hold);
+            if (useTTS && this.isTTSEnabled()) {
+                return this.speak(text, options.hold, true);
+            } else {
+                return this.speak(text, options.hold);
+            }
         }
 
         var selectedAnim = availableAnims[Math.floor(Math.random() * availableAnims.length)];
+        // Add TTS options to speakAndAnimate options
+        options.useTTS = useTTS;
+        options.ttsOptions = ttsOptions;
         return this.speakAndAnimate(text, selectedAnim, options);
     };
 
