@@ -14,17 +14,17 @@ To add a windowed application, follow these steps:
 
 1.  **Open `src/config/apps.js`:** This file contains the array of application configurations.
 2.  **Add a new application object:** Add a new object to the `apps` array with the following properties:
-    *   `id`: A unique identifier for the application (e.g., `"notepad"`).
-    *   `title`: The name of the application that will be displayed on the desktop and in the window's title bar (e.g., `"Notepad"`).
-    *   `icon`: The path to the application's icon. You can use an existing icon or add a new one to the `src/assets/icons` directory.
-    *   `action`: An object with the following properties:
-        *   `type`: Set to `"window"`.
-        *   `window`: An object that defines the window's properties:
-            *   `width`: The initial width of the window.
-            *   `height`: The initial height of the window.
-            *   `resizable`: A boolean indicating whether the window can be resized.
-            *   `menuBar`: (Optional) An object defining the window's menu bar.
-            *   `content`: The HTML content to be displayed within the window.
+    - `id`: A unique identifier for the application (e.g., `"notepad"`).
+    - `title`: The name of the application that will be displayed on the desktop and in the window's title bar (e.g., `"Notepad"`).
+    - `icon`: The path to the application's icon. You can use an existing icon or add a new one to the `src/assets/icons` directory.
+    - `action`: An object with the following properties:
+      - `type`: Set to `"window"`.
+      - `window`: An object that defines the window's properties:
+        - `width`: The initial width of the window.
+        - `height`: The initial height of the window.
+        - `resizable`: A boolean indicating whether the window can be resized.
+        - `menuBar`: (Optional) An object defining the window's menu bar.
+        - `content`: The HTML content to be displayed within the window.
 
 **Example: A Simple "About" Application**
 
@@ -73,12 +73,12 @@ To add a function-based application, follow these steps:
 
 1.  **Open `src/config/apps.js`:** This file contains the array of application configurations.
 2.  **Add a new application object:** Add a new object to the `apps` array with the following properties:
-    *   `id`: A unique identifier for the application (e.g., `"shutdown"`).
-    *   `title`: The name of the application that will be displayed on the desktop.
-    *   `icon`: The path to the application's icon.
-    *   `action`: An object with the following properties:
-        *   `type`: Set to `"function"`.
-        *   `handler`: The function to be executed when the application is launched.
+    - `id`: A unique identifier for the application (e.g., `"shutdown"`).
+    - `title`: The name of the application that will be displayed on the desktop.
+    - `icon`: The path to the application's icon.
+    - `action`: An object with the following properties:
+      - `type`: Set to `"function"`.
+      - `handler`: The function to be executed when the application is launched.
 
 **Example: A "Shut Down" Application**
 
@@ -100,3 +100,54 @@ To add a function-based application, follow these steps:
 ```
 
 After adding your application to `src/config/apps.js`, it will automatically appear on the desktop the next time you load the application.
+
+### Adding Context Menus to Desktop Icons
+
+You can customize the right-click context menu for each application icon. Add a `contextMenu` property to your application configuration to define custom menu items.
+
+Each menu item can be either a regular item with a label and action, a submenu, or a separator (using the string "MENU_DIVIDER").
+
+**Example: Adding a Custom Context Menu**
+
+```javascript
+{
+  id: "myapp",
+  title: "My App",
+  icon: new URL('../assets/icons/myapp.ico', import.meta.url).href,
+  action: {
+    type: "window",
+    // ... window configuration
+  },
+  contextMenu: [
+    {
+      label: "&Open",
+      action: "open" // Special action that launches the app
+    },
+    "MENU_DIVIDER",
+    {
+      label: "Cu&t",
+      enabled: false // Disabled menu item
+    },
+    {
+      label: "&Properties",
+      action: "properties" // Special action that shows properties
+    },
+    {
+      label: "Custom Action",
+      action: () => alert("Custom action clicked!") // Custom function
+    }
+  ]
+}
+```
+
+Menu Item Properties:
+
+- `label`: The text to display (use & before a character to create a keyboard shortcut)
+- `action`: Can be one of:
+  - `"open"`: Opens/launches the application
+  - `"properties"`: Shows the properties dialog
+  - A custom function to execute when clicked
+- `enabled`: (Optional) Boolean to enable/disable the item
+- `submenu`: (Optional) Array of nested menu items for dropdowns
+
+If no `contextMenu` is specified, the icon will have a default context menu with just an "Open" option.
