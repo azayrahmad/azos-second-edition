@@ -181,10 +181,12 @@ clippy.Agent.prototype = {
   /***
    *
    * @param {String} text
+   * @param {Boolean} hold - Whether to hold the speech balloon
+   * @param {Boolean} useTTS - Whether to use text-to-speech
    */
-  speak: function (text, hold) {
+  speak: function (text, hold, useTTS) {
     this._addToQueue(function (complete) {
-      this._balloon.speak(complete, text, hold);
+      this._balloon.speak(complete, text, hold, useTTS);
     }, this);
   },
 
@@ -193,6 +195,46 @@ clippy.Agent.prototype = {
    */
   closeBalloon: function () {
     this._balloon.hide();
+  },
+
+  /***
+   * TTS Configuration Methods
+   */
+
+  /**
+   * Configure TTS settings for this agent
+   * @param {Object} options - TTS configuration options
+   * @param {SpeechSynthesisVoice} options.voice - Voice to use
+   * @param {Number} options.rate - Speech rate (0.1 to 10)
+   * @param {Number} options.pitch - Speech pitch (0 to 2)
+   * @param {Number} options.volume - Speech volume (0 to 1)
+   * @returns {Boolean} - True if TTS is available and configured
+   */
+  setTTSOptions: function (options) {
+    return this._balloon.setTTSOptions(options);
+  },
+
+  /**
+   * Get available TTS voices
+   * @returns {Array} Array of available voices
+   */
+  getTTSVoices: function () {
+    return this._balloon.getTTSVoices();
+  },
+
+  /**
+   * Check if TTS is supported and enabled
+   * @returns {Boolean}
+   */
+  isTTSEnabled: function () {
+    return this._balloon.isTTSEnabled();
+  },
+
+  /**
+   * Stop current TTS speech
+   */
+  stopTTS: function () {
+    this._balloon.stopTTS();
   },
 
   delay: function (time) {
@@ -665,6 +707,14 @@ clippy.Balloon = function (targetEl) {
   this._targetEl = targetEl;
 
   this._hidden = true;
+  this._ttsEnabled = !!window.speechSynthesis;
+  this._ttsOptions = {
+    voice: null,
+    rate: 1.0,
+    pitch: 1.0,
+    volume: 1.0
+  };
+  this._currentUtterance = null;
   this._setup();
 };
 
@@ -758,7 +808,7 @@ clippy.Balloon.prototype = {
     return false;
   },
 
-  speak: function (complete, text, hold) {
+  speak: function (complete, text, hold, useTTS) {
     this._hidden = false;
     this.show();
     var c = this._content;
@@ -774,7 +824,13 @@ clippy.Balloon.prototype = {
     this.reposition();
 
     this._complete = complete;
-    this._sayWords(text, hold, complete);
+
+    // Use TTS if requested and available, otherwise fall back to visual-only
+    if (useTTS && this._ttsEnabled) {
+      this._sayWordsWithTTS(text, hold, complete);
+    } else {
+      this._sayWords(text, hold, complete);
+    }
   },
 
   show: function () {
@@ -827,6 +883,68 @@ clippy.Balloon.prototype = {
     this._addWord();
   },
 
+  _sayWordsWithTTS: function (text, hold, complete) {
+    this._active = true;
+    this._hold = hold;
+    var words = text.split(/[^\S-]/);
+    var el = this._content;
+    var idx = 1;
+    var self = this;
+
+    // Start TTS and synchronize with visual display
+    this._speakTTS(text,
+      // onWord callback - triggered when TTS speaks each word
+      function (charIndex, spokenWords) {
+        // Update visual display to match TTS progress
+        // Find which word we're currently on based on character index
+        var currentWordIndex = 0;
+        var charCount = 0;
+
+        for (var i = 0; i < spokenWords.length; i++) {
+          charCount += spokenWords[i].length + 1; // +1 for space
+          if (charIndex < charCount) {
+            currentWordIndex = i;
+            break;
+          }
+        }
+
+        // Update display to show words up to current TTS position
+        if (currentWordIndex + 1 > idx) {
+          idx = currentWordIndex + 1;
+          el.text(words.slice(0, idx).join(" "));
+        }
+      },
+      // onEnd callback - TTS finished speaking
+      function () {
+        // Ensure all words are displayed
+        el.text(words.slice(0, words.length).join(" "));
+
+        self._active = false;
+        if (!self._hold) {
+          complete();
+          self.hide();
+        }
+      }
+    );
+
+    // Fallback: if TTS doesn't provide word boundaries, fall back to timed display
+    var fallbackTimer = window.setTimeout(function () {
+      if (self._active && !window.speechSynthesis.speaking) {
+        // TTS failed or finished without word boundaries, use regular word streaming
+        self.stopTTS();
+        self._sayWords(text, hold, complete);
+      }
+    }, 1000);
+
+    // Clear fallback timer when TTS starts properly
+    var checkTTSTimer = window.setInterval(function () {
+      if (window.speechSynthesis.speaking) {
+        window.clearTimeout(fallbackTimer);
+        window.clearInterval(checkTTSTimer);
+      }
+    }, 100);
+  },
+
   close: function () {
     if (this._active) {
       this._hold = false;
@@ -849,6 +967,99 @@ clippy.Balloon.prototype = {
       $.proxy(this._finishHideBalloon, this),
       this.CLOSE_BALLOON_DELAY,
     );
+  },
+
+  /**************************** TTS Functionality ************************************/
+
+  /**
+   * Configure TTS settings
+   * @param {Object} options - TTS configuration options
+   * @param {SpeechSynthesisVoice} options.voice - Voice to use
+   * @param {Number} options.rate - Speech rate (0.1 to 10)
+   * @param {Number} options.pitch - Speech pitch (0 to 2)
+   * @param {Number} options.volume - Speech volume (0 to 1)
+   */
+  setTTSOptions: function (options) {
+    if (!this._ttsEnabled) return false;
+
+    this._ttsOptions = $.extend({}, this._ttsOptions, options);
+    return true;
+  },
+
+  /**
+   * Get available TTS voices
+   * @returns {Array} Array of available voices
+   */
+  getTTSVoices: function () {
+    if (!this._ttsEnabled) return [];
+    return window.speechSynthesis.getVoices();
+  },
+
+  /**
+   * Check if TTS is supported and enabled
+   * @returns {Boolean}
+   */
+  isTTSEnabled: function () {
+    return this._ttsEnabled;
+  },
+
+  /**
+   * Stop current TTS utterance
+   */
+  stopTTS: function () {
+    if (this._currentUtterance && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      this._currentUtterance = null;
+    }
+  },
+
+  /**
+   * Speak text using TTS (synchronized with visual word streaming)
+   * @param {String} text - Text to speak
+   * @param {Function} onWord - Callback fired for each word boundary
+   * @param {Function} onEnd - Callback fired when speech ends
+   */
+  _speakTTS: function (text, onWord, onEnd) {
+    if (!this._ttsEnabled || !text) {
+      if (onEnd) onEnd();
+      return;
+    }
+
+    // Stop any current speech
+    this.stopTTS();
+
+    var utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = this._ttsOptions.rate;
+    utterance.pitch = this._ttsOptions.pitch;
+    utterance.volume = this._ttsOptions.volume;
+
+    if (this._ttsOptions.voice) {
+      utterance.voice = this._ttsOptions.voice;
+    }
+
+    // Track word boundaries for synchronization
+    var words = text.split(/[^\S-]/);
+    var currentWordIndex = 0;
+    var wordStartTime = 0;
+    var estimatedWordDuration = (utterance.rate > 0) ? (words.join(' ').length / utterance.rate / 10) : 0;
+
+    utterance.onboundary = function (event) {
+      if (event.name === 'word' && onWord) {
+        onWord(event.charIndex, words);
+      }
+    };
+
+    utterance.onend = function () {
+      if (onEnd) onEnd();
+    };
+
+    utterance.onerror = function (event) {
+      console.warn('TTS Error:', event.error);
+      if (onEnd) onEnd();
+    };
+
+    this._currentUtterance = utterance;
+    window.speechSynthesis.speak(utterance);
   },
 };
 
