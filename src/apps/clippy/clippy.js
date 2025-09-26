@@ -98,8 +98,8 @@ export function launchClippyApp() {
       if (!question) return;
 
       agent.speakAndAnimate(
-        "Let me look at the resume...",
-        "CheckingSomething",
+        "Let me think about it...",
+        "Thinking",
         { useTTS: ttsEnabled }
       );
       input.val("");
@@ -125,8 +125,8 @@ export function launchClippyApp() {
         }
       } catch (error) {
         agent.speakAndAnimate(
-          "Sorry, I couldn't get an answer for that!",
-          "Alert",
+          "Sorry, I couldn't get an answer for that at this time!",
+          "Wave",
           { useTTS: ttsEnabled }
         );
         console.error("API Error:", error);
@@ -174,11 +174,11 @@ export function launchClippyApp() {
       askButton.on("click", askClippy);
 
       // Clean up when window is closed
-      toolWindow.onClosed = () => {
+      toolWindow.onClosed(() => {
         input.off();
         askButton.off();
         window.clippyToolWindow = null;
-      };
+      });
     });
 
     // Add context menu
@@ -224,7 +224,10 @@ export function launchClippyApp() {
             $(".clippy, .clippy-balloon").remove();
             // Remove any context menus that might be left over
             $(".os-menu").remove();
-            toolWindow.close();
+            // Close the tool window if it exists
+            if (window.clippyToolWindow) {
+              window.clippyToolWindow.close();
+            }
           },
         },
       ];
@@ -410,7 +413,7 @@ function showTTSSettingsWindow(agent) {
   });
 
   // Clean up when window is closed
-  ttsWindow.onClosed = () => {
+  ttsWindow.onClosed(() => {
     window.ttsSettingsWindow = null;
-  };
+  });
 }
