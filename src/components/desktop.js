@@ -33,64 +33,66 @@ function createDesktopIcon(app) {
 }
 
 function showIconContextMenu(event, app) {
-  const menuItems = [
-    {
-      label: "&Open",
-      click: () => handleAppAction(app),
-    },
-    "MENU_DIVIDER",
-    {
-      label: "Cu&t",
-      enabled: false,
-    },
-    {
-      label: "&Copy",
-      enabled: false,
-    },
-    {
-      label: "&Create Shortcut",
-      enabled: false,
-    },
-    {
-      label: "&Delete",
-      enabled: false,
-    },
-    "MENU_DIVIDER",
-    {
-      label: "Rena&me",
-      enabled: false,
-    },
-    {
-      label: "Proper&ties",
-      click: () => showProperties(app),
-    },
-  ];
+  let menuItems;
+  const appConfig = apps.find((a) => a.id === app.id);
 
-  // Remove any existing menus
-  const existingMenus = document.querySelectorAll('.menu-popup');
-  existingMenus.forEach(menu => menu.remove());
+  const contextMenu = appConfig.contextMenu;
+
+  if (contextMenu) {
+    menuItems = contextMenu.map((item) => {
+      if (typeof item === "string") {
+        return item;
+      }
+      const newItem = { ...item };
+      if (typeof newItem.action === "string") {
+        switch (newItem.action) {
+          case "open":
+            newItem.click = () => handleAppAction(app);
+            break;
+          case "properties":
+            newItem.click = () => showProperties(app);
+            break;
+          default:
+            newItem.click = () => {};
+            break;
+        }
+      } else if (typeof newItem.action === "function") {
+        newItem.click = newItem.action;
+      }
+      delete newItem.action;
+      return newItem;
+    });
+  } else {
+    menuItems = [
+      {
+        label: "&Open",
+        click: () => handleAppAction(app),
+      },
+    ];
+  }
+
+  const existingMenus = document.querySelectorAll(".menu-popup");
+  existingMenus.forEach((menu) => menu.remove());
 
   const menu = new OS.MenuList(menuItems);
   document.body.appendChild(menu.element);
 
-  // Position the menu at click coordinates
-  menu.element.style.position = 'absolute';
+  menu.element.style.position = "absolute";
   menu.element.style.left = `${event.pageX}px`;
   menu.element.style.top = `${event.pageY}px`;
   menu.show();
 
-  // Close menu when clicking outside
   const closeMenu = (e) => {
     if (!menu.element.contains(e.target)) {
       menu.hide();
       if (menu.element.parentNode) {
         document.body.removeChild(menu.element);
       }
-      document.removeEventListener('click', closeMenu);
+      document.removeEventListener("click", closeMenu);
     }
   };
 
-  document.addEventListener('click', closeMenu);
+  document.addEventListener("click", closeMenu);
 }
 
 function showProperties(app) {
