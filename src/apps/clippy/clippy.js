@@ -15,33 +15,97 @@ export function launchClippyApp() {
     window.clippyToolWindow = null;
   }
 
-  // Create tool window
-  const toolWindow = new $Window({
-    title: "Ask Clippy",
-    width: 300,
-    height: 120,
-    resizable: false,
-    maximizeButton: false,
-    minimizeButton: false,
-  });
-  toolWindow.$content.append(`
-                <div class="clippy-input" style="padding: 10px;">
-                  <input type="text"
-                    placeholder="Ask me anything...">
-                  <button class="default">Ask</button>
-                </div>
-              `);
-
-  window.clippyToolWindow = toolWindow;
-
-  // Focus the window
-  toolWindow.focus();
-
   // Load Clippy agent
   clippy.load("Clippy", function (agent) {
     agent.show();
     agent.speak("Hi there! Type your question and press Enter or click Ask!");
     window.clippyAgent = agent;
+
+    // Define askClippy function
+    const askClippy = async () => {
+      const input = window.clippyToolWindow.$content.find("input");
+      const question = input.val().trim();
+      if (!question) return;
+
+      agent.speakAndAnimate(
+        "Let me look at the resume...",
+        "CheckingSomething",
+      );
+      input.val("");
+
+      try {
+        // Encode the question for URL parameters
+        const encodedQuestion = encodeURIComponent(question);
+        const response = await fetch(
+          `https://resume-chat-api-nine.vercel.app/api/resume-helper?query=${encodedQuestion}`,
+        );
+
+        const data = await response.json();
+
+        // Process each response fragment with its animation
+        for (const fragment of data) {
+          // Remove markdown formatting from the response
+          const cleanAnswer = fragment.answer.replace(/\*\*/g, "");
+
+          // Speak the response fragment
+          await agent.speakAndAnimate(cleanAnswer, fragment.animation);
+        }
+      } catch (error) {
+        agent.speakAndAnimate(
+          "Sorry, I couldn't get an answer for that!",
+          "Alert",
+        );
+        console.error("API Error:", error);
+      }
+    };
+
+    // Add click handler to show tool window
+    agent._el.on("click", function () {
+      // Check if we already have an open window
+      if (window.clippyToolWindow) {
+        window.clippyToolWindow.focus();
+        return;
+      }
+
+      const toolWindow = new $Window({
+        title: "Ask Clippy",
+        width: 300,
+        height: 120,
+        resizable: false,
+        maximizeButton: false,
+        minimizeButton: false,
+      });
+      toolWindow.$content.append(`
+        <div class="clippy-input" style="padding: 10px;">
+          <input type="text"
+            placeholder="Ask me anything...">
+          <button class="default">Ask</button>
+        </div>
+      `);
+
+      window.clippyToolWindow = toolWindow;
+      toolWindow.focus();
+
+      // Set up input handlers for the new window
+      const input = toolWindow.$content.find("input");
+      const askButton = toolWindow.$content.find("button");
+
+      // Focus the input field immediately
+      input.focus();
+
+      input.on("keypress", (e) => {
+        if (e.which === 13) askClippy();
+      });
+
+      askButton.on("click", askClippy);
+
+      // Clean up when window is closed
+      toolWindow.onClosed = () => {
+        input.off();
+        askButton.off();
+        window.clippyToolWindow = null;
+      };
+    });
 
     // Add context menu
     const clippyEl = agent._el;
@@ -100,76 +164,5 @@ export function launchClippyApp() {
 
       document.addEventListener("click", closeMenu);
     });
-
-    // Handle input events
-    const input = toolWindow.$content.find("input");
-    const askButton = toolWindow.$content.find("button");
-
-    // Focus the input field immediately
-    input.focus();
-
-    const askClippy = async () => {
-      const question = input.val().trim();
-      if (!question) return;
-
-      agent.speakAndAnimate(
-        "Let me look at the resume...",
-        "CheckingSomething",
-      );
-      input.val("");
-
-      try {
-        // Encode the question for URL parameters
-        const encodedQuestion = encodeURIComponent(question);
-        const response = await fetch(
-          `https://resume-chat-api-nine.vercel.app/api/resume-helper?query=${encodedQuestion}`,
-        );
-
-        const data = await response.json();
-
-        // Process each response fragment with its animation
-        for (const fragment of data) {
-          // Remove markdown formatting from the response
-          const cleanAnswer = fragment.answer.replace(/\*\*/g, "");
-
-          // Speak the response fragment
-          await agent.speakAndAnimate(cleanAnswer, fragment.animation);
-        }
-      } catch (error) {
-        agent.speakAndAnimate(
-          "Sorry, I couldn't get an answer for that!",
-          "Alert",
-        );
-        console.error("API Error:", error);
-      }
-    };
-
-    // Handle Enter key
-    input.on("keypress", (e) => {
-      if (e.which === 13) askClippy();
-    });
-
-    // Handle button click
-    askButton.on("click", askClippy);
-
-    // Clean up when window is closed
-    toolWindow.onClosed = () => {
-      // Hide and cleanup the agent
-      if (window.clippyAgent) {
-        window.clippyAgent.hide();
-        window.clippyAgent = null;
-      }
-
-      // Remove all clippy-related DOM elements
-      $(".clippy, .clippy-balloon, .os-menu").remove();
-
-      // Clear global references
-      window.clippyAgent = null;
-      window.clippyToolWindow = null;
-
-      // Force cleanup of event listeners
-      toolWindow.$content.find("input").off();
-      toolWindow.$content.find("button").off();
-    };
   });
 }
