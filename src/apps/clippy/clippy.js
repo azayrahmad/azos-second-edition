@@ -220,14 +220,23 @@ export function launchClippyApp() {
         {
           label: "Close",
           click: () => {
-            agent.hide();
-            $(".clippy, .clippy-balloon").remove();
-            // Remove any context menus that might be left over
-            $(".os-menu").remove();
-            // Close the tool window if it exists
-            if (window.clippyToolWindow) {
-              window.clippyToolWindow.close();
-            }
+            agent.speakAndAnimate(
+              "Goodbye! Just open me again if you need any help!",
+              "GoodBye",
+              {
+                useTTS: ttsEnabled,
+                callback: () => {
+                  agent.hide();
+                  $(".clippy, .clippy-balloon").remove();
+                  // Remove any context menus that might be left over
+                  $(".os-menu").remove();
+                  // Close the tool window if it exists
+                  if (window.clippyToolWindow) {
+                    window.clippyToolWindow.close();
+                  }
+                }
+              }
+            );
           },
         },
       ];
