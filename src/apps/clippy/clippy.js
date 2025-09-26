@@ -18,7 +18,7 @@ export function launchClippyApp() {
   // Load Clippy agent
   clippy.load("Clippy", function (agent) {
     agent.show();
-    agent.speak("Hi there! Type your question and press Enter or click Ask!");
+    agent.speak("Hi there! Click me to ask anything about Aziz's resume.");
     window.clippyAgent = agent;
 
     // Define askClippy function
@@ -123,6 +123,15 @@ export function launchClippyApp() {
             !window.clippyToolWindow.$element ||
             !window.clippyToolWindow.$element.closest('body'),
           click: () => launchClippyApp(),
+        },
+        {
+          label: "Help",
+          click: () => {
+            agent.speakAndAnimate(
+              "Hi! I'm here to help you learn about Aziz Rahmad's resume. You can ask me questions about his skills, experience, education, or projects. For example, try asking: 'What are Aziz's technical skills?', 'Tell me about his work experience', or 'What projects has he worked on?' Just click on me and type your question in the input box that appears!",
+              "Explain"
+            );
+          },
         },
         "MENU_DIVIDER",
         {
