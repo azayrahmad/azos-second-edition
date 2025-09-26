@@ -1,15 +1,19 @@
 // src/apps/clippy/clippy.js
 
 export function launchClippyApp() {
-  // Ensure only one instance of the window is created
-  if (window.clippyToolWindow && !window.clippyToolWindow.isClosed) {
-    window.clippyToolWindow.focus();
-    return;
+  // Clean up any existing instance completely
+  if (window.clippyAgent) {
+    window.clippyAgent.hide();
+    window.clippyAgent = null;
   }
 
-  $(".clippy, .clippy-balloon").remove(); // remove any existing instances
-  // Remove any leftover context menus
-  $(".os-menu").remove();
+  // Remove any existing elements
+  $(".clippy, .clippy-balloon, .os-menu").remove();
+
+  // Clear the window reference if it exists
+  if (window.clippyToolWindow) {
+    window.clippyToolWindow = null;
+  }
 
   // Create tool window
   const toolWindow = new $Window({
@@ -51,7 +55,9 @@ export function launchClippyApp() {
         },
         {
           label: "Ask Clippy",
-          enabled: !window.clippyToolWindow || window.clippyToolWindow.isClosed,
+          enabled: !window.clippyToolWindow ||
+            !window.clippyToolWindow.$element ||
+            !window.clippyToolWindow.$element.closest('body'),
           click: () => launchClippyApp(),
         },
         "MENU_DIVIDER",
@@ -148,12 +154,22 @@ export function launchClippyApp() {
 
     // Clean up when window is closed
     toolWindow.onClosed = () => {
-      agent.hide();
-      $(".clippy, .clippy-balloon").remove();
-      // Remove any context menus that might be left over
-      $(".os-menu").remove();
+      // Hide and cleanup the agent
+      if (window.clippyAgent) {
+        window.clippyAgent.hide();
+        window.clippyAgent = null;
+      }
+
+      // Remove all clippy-related DOM elements
+      $(".clippy, .clippy-balloon, .os-menu").remove();
+
+      // Clear global references
       window.clippyAgent = null;
       window.clippyToolWindow = null;
+
+      // Force cleanup of event listeners
+      toolWindow.$content.find("input").off();
+      toolWindow.$content.find("button").off();
     };
   });
 }
