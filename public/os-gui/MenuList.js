@@ -153,11 +153,57 @@
             }));
         }
 
-        show() {
+        /**
+         * @param {number} [x]
+         * @param {number} [y]
+         */
+        show(x, y) {
             this.element.style.display = 'block';
-            if (this.parentEl) {
+
+            // Force a reflow to ensure the element is rendered and has dimensions
+            // before we try to position it. This is crucial for testability.
+            void this.element.offsetHeight;
+
+            if (x !== undefined && y !== undefined) {
+                this.positionAt(x, y);
+            } else if (this.parentEl) {
                 this.position();
             }
+        }
+
+        /**
+         * Position the menu at specific coordinates, ensuring it stays within the viewport.
+         * @param {number} x - The horizontal coordinate.
+         * @param {number} y - The vertical coordinate.
+         */
+        positionAt(x, y) {
+            const menuRect = this.element.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            let newX = x;
+            let newY = y;
+
+            // Adjust horizontal position if it overflows
+            if (x + menuRect.width > viewportWidth) {
+                newX = viewportWidth - menuRect.width - 2; // Add a small buffer
+            }
+
+            // Adjust vertical position if it overflows
+            if (y + menuRect.height > viewportHeight) {
+                newY = y - menuRect.height;
+            }
+
+            // Ensure it's not off-screen on the top or left
+            if (newX < 0) {
+                newX = 0;
+            }
+            if (newY < 0) {
+                newY = 0;
+            }
+
+            this.element.style.left = `${newX}px`;
+            this.element.style.top = `${newY}px`;
         }
 
         hide() {
