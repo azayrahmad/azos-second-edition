@@ -709,25 +709,6 @@ clippy.Balloon = function (targetEl) {
   this._hidden = true;
   this._ttsEnabled = !!window.speechSynthesis;
   this._isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-  // Enhanced TTS detection: check for available voices.
-  // This handles browsers like Firefox that have the API but no voices by default.
-  if (this._ttsEnabled) {
-    var voices = window.speechSynthesis.getVoices();
-    if (voices.length === 0) {
-      // If no voices are found synchronously, disable TTS for now.
-      this._ttsEnabled = false;
-
-      // Set up a listener to re-enable TTS if voices load asynchronously.
-      var self = this;
-      window.speechSynthesis.onvoiceschanged = function() {
-        if (window.speechSynthesis.getVoices().length > 0) {
-          self._ttsEnabled = true;
-        }
-      };
-    }
-  }
-
   this._ttsOptions = {
     voice: null,
     rate: 1.0,
@@ -844,10 +825,28 @@ clippy.Balloon.prototype = {
     this.reposition();
 
     this._complete = complete;
+    var self = this;
 
     // Use TTS if requested and available, otherwise fall back to visual-only
     if (useTTS && this._ttsEnabled) {
-      this._sayWordsWithTTS(text, hold, complete);
+      // Handle asynchronous voice loading in browsers like Chrome mobile.
+      var voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) {
+        // If voices are not available, wait a moment for them to load.
+        window.setTimeout(function() {
+          var voices = window.speechSynthesis.getVoices();
+          if (voices.length === 0) {
+            // If still no voices, fall back to silent words.
+            self._sayWords(text, hold, complete);
+          } else {
+            // Voices loaded, proceed with TTS.
+            self._sayWordsWithTTS(text, hold, complete);
+          }
+        }, 250); // 250ms delay is a pragmatic workaround for the voice loading race condition.
+      } else {
+        // Voices were available immediately.
+        this._sayWordsWithTTS(text, hold, complete);
+      }
     } else {
       this._sayWords(text, hold, complete);
     }
