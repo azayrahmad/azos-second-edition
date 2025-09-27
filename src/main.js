@@ -125,11 +125,9 @@ if (desktopArea) {
         const contextMenu = new OS.MenuList(contextMenuItems);
         document.body.appendChild(contextMenu.element);
 
-        // Position the menu at the click coordinates
-        contextMenu.element.style.position = 'absolute';
-        contextMenu.element.style.left = `${e.clientX}px`;
-        contextMenu.element.style.top = `${e.clientY}px`;
-        contextMenu.show();
+        // Position and show the menu
+        contextMenu.show(e.clientX, e.clientY);
+
 
         // Hide menu when clicking outside
         const hideMenu = (event) => {
