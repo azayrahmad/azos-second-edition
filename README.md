@@ -4,12 +4,13 @@ azOS, Second Edition is a web-based operating system interface designed to emula
 
 ## Project Goal
 
-The main purpose of this project is to create a space for experimenting with AI and other web technologies, all wrapped in a user interface that harks back to the early days of personal computing. It serves as a reminder of what sparked the passion for software engineering in the first place.
+The main purpose of this project is to create a space for experimenting with AI and other web technologies, all wrapped in a user interface that harks back to the early days of my computer experience. It serves as a reminder of what sparked my passion for software engineering in the first place.
 
 ## Technologies Used
 
 *   **Vite**: For fast and efficient frontend development.
-*   **os-gui**: A library for creating the retro desktop GUI components.
+*   **98.css**: A CSS library for faithfully recreating Windows 98 GUI components.
+*   **os-gui**: A CSS/JS library for creating the retro desktop GUI components.
 
 ## Getting Started
 
