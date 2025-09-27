@@ -853,6 +853,37 @@
     };
 
     // =============================================================================
+    // INITIAL POSITION OVERRIDE
+    // =============================================================================
+
+    /**
+     * Override the default show method to position the agent relative to the
+     * window, ensuring it is fully visible.
+     */
+    clippy.Agent.prototype.show = function (fast) {
+        'use strict';
+        this._hidden = false;
+        if (fast) {
+            this._el.show();
+            this.resume();
+            this._onQueueEmpty();
+            return;
+        }
+
+        if (this._el.css('top') === 'auto' || this._el.css('left') === 'auto') {
+            var left = $(window).scrollLeft() + $(window).width() - this._el.width() - 20;
+            var top = $(window).scrollTop() + $(window).height() - this._el.height() - 20;
+            this._el.css({
+                top: top,
+                left: left
+            });
+        }
+
+        this.resume();
+        return this.play('Greeting');
+    };
+
+    // =============================================================================
     // INITIALIZATION
     // =============================================================================
 
