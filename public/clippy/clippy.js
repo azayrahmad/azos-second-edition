@@ -708,6 +708,26 @@ clippy.Balloon = function (targetEl) {
 
   this._hidden = true;
   this._ttsEnabled = !!window.speechSynthesis;
+  this._isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  // Enhanced TTS detection: check for available voices.
+  // This handles browsers like Firefox that have the API but no voices by default.
+  if (this._ttsEnabled) {
+    var voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) {
+      // If no voices are found synchronously, disable TTS for now.
+      this._ttsEnabled = false;
+
+      // Set up a listener to re-enable TTS if voices load asynchronously.
+      var self = this;
+      window.speechSynthesis.onvoiceschanged = function() {
+        if (window.speechSynthesis.getVoices().length > 0) {
+          self._ttsEnabled = true;
+        }
+      };
+    }
+  }
+
   this._ttsOptions = {
     voice: null,
     rate: 1.0,
@@ -891,34 +911,68 @@ clippy.Balloon.prototype = {
     var idx = 1;
     var self = this;
 
-    // Start TTS and synchronize with visual display
+    // --- Mobile Fallback ---
+    // Use a timer-based approach on mobile because the 'onboundary' event is unreliable.
+    if (this._isMobile) {
+      // Define the onEnd callback for TTS
+      var onEnd = function () {
+        // Ensure the timer is cleared and all text is displayed
+        if (self._mobileTTSTimer) {
+          window.clearTimeout(self._mobileTTSTimer);
+          self._mobileTTSTimer = null;
+        }
+        el.text(words.join(" "));
+
+        self._active = false;
+        if (!self._hold) {
+          complete();
+          self.hide();
+        }
+      };
+
+      // Start TTS audio playback
+      this._speakTTS(text, null, onEnd);
+
+      // --- Simulated Word Streaming ---
+      // Calculate word display speed based on TTS rate
+      var timePerWord = (this.WORD_SPEAK_TIME / (this._ttsOptions.rate || 1.0));
+
+      var addWord = function() {
+        if (!self._active) return; // Stop if speech was cancelled
+        if (idx > words.length) {
+          // Stop when all words are displayed; TTS onEnd will handle completion.
+          return;
+        }
+        el.text(words.slice(0, idx).join(" "));
+        idx++;
+        self._mobileTTSTimer = window.setTimeout(addWord, timePerWord);
+      };
+
+      addWord();
+      return; // Exit, preventing desktop logic from running
+    }
+
+    // --- Desktop Logic (onboundary-based) ---
     this._speakTTS(text,
-      // onWord callback - triggered when TTS speaks each word
+      // onWord callback
       function (charIndex, spokenWords) {
-        // Update visual display to match TTS progress
-        // Find which word we're currently on based on character index
         var currentWordIndex = 0;
         var charCount = 0;
-
         for (var i = 0; i < spokenWords.length; i++) {
-          charCount += spokenWords[i].length + 1; // +1 for space
+          charCount += spokenWords[i].length + 1;
           if (charIndex < charCount) {
             currentWordIndex = i;
             break;
           }
         }
-
-        // Update display to show words up to current TTS position
         if (currentWordIndex + 1 > idx) {
           idx = currentWordIndex + 1;
           el.text(words.slice(0, idx).join(" "));
         }
       },
-      // onEnd callback - TTS finished speaking
+      // onEnd callback
       function () {
-        // Ensure all words are displayed
-        el.text(words.slice(0, words.length).join(" "));
-
+        el.text(words.join(" "));
         self._active = false;
         if (!self._hold) {
           complete();
@@ -926,23 +980,6 @@ clippy.Balloon.prototype = {
         }
       }
     );
-
-    // Fallback: if TTS doesn't provide word boundaries, fall back to timed display
-    var fallbackTimer = window.setTimeout(function () {
-      if (self._active && !window.speechSynthesis.speaking) {
-        // TTS failed or finished without word boundaries, use regular word streaming
-        self.stopTTS();
-        self._sayWords(text, hold, complete);
-      }
-    }, 1000);
-
-    // Clear fallback timer when TTS starts properly
-    var checkTTSTimer = window.setInterval(function () {
-      if (window.speechSynthesis.speaking) {
-        window.clearTimeout(fallbackTimer);
-        window.clearInterval(checkTTSTimer);
-      }
-    }, 100);
   },
 
   close: function () {
