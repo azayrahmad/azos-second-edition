@@ -1,5 +1,3 @@
-// src/apps/clippy/clippy.js
-
 export function launchClippyApp() {
   // Clean up any existing instance completely
   if (window.clippyAgent) {
@@ -91,6 +89,54 @@ export function launchClippyApp() {
     agent.speak("Hi there! Click me to ask anything about Aziz's resume.", false, ttsEnabled);
     window.clippyAgent = agent;
 
+    // Define helper function to show/focus tool window
+    const showClippyToolWindow = () => {
+      // Check if we already have an open window
+      if (window.clippyToolWindow) {
+        window.clippyToolWindow.focus();
+        return;
+      }
+
+      const toolWindow = new $Window({
+        title: "Ask Clippy",
+        width: 300,
+        height: 120,
+        resizable: false,
+        maximizeButton: false,
+        minimizeButton: false,
+      });
+      toolWindow.$content.append(`
+        <div class="clippy-input" style="padding: 10px;">
+          <input type="text"
+            placeholder="Ask me anything...">
+          <button class="default">Ask</button>
+        </div>
+      `);
+
+      window.clippyToolWindow = toolWindow;
+      toolWindow.focus();
+
+      // Set up input handlers for the new window
+      const input = toolWindow.$content.find("input");
+      const askButton = toolWindow.$content.find("button");
+
+      // Focus the input field immediately
+      input.focus();
+
+      input.on("keypress", (e) => {
+        if (e.which === 13) askClippy();
+      });
+
+      askButton.on("click", askClippy);
+
+      // Clean up when window is closed
+      toolWindow.onClosed(() => {
+        input.off();
+        askButton.off();
+        window.clippyToolWindow = null;
+      });
+    };
+
     // Define askClippy function
     const askClippy = async () => {
       const input = window.clippyToolWindow.$content.find("input");
@@ -147,50 +193,7 @@ export function launchClippyApp() {
 
     // Add click handler to show tool window
     agent._el.on("click", function () {
-      // Check if we already have an open window
-      if (window.clippyToolWindow) {
-        window.clippyToolWindow.focus();
-        return;
-      }
-
-      const toolWindow = new $Window({
-        title: "Ask Clippy",
-        width: 300,
-        height: 120,
-        resizable: false,
-        maximizeButton: false,
-        minimizeButton: false,
-      });
-      toolWindow.$content.append(`
-        <div class="clippy-input" style="padding: 10px;">
-          <input type="text"
-            placeholder="Ask me anything...">
-          <button class="default">Ask</button>
-        </div>
-      `);
-
-      window.clippyToolWindow = toolWindow;
-      toolWindow.focus();
-
-      // Set up input handlers for the new window
-      const input = toolWindow.$content.find("input");
-      const askButton = toolWindow.$content.find("button");
-
-      // Focus the input field immediately
-      input.focus();
-
-      input.on("keypress", (e) => {
-        if (e.which === 13) askClippy();
-      });
-
-      askButton.on("click", askClippy);
-
-      // Clean up when window is closed
-      toolWindow.onClosed(() => {
-        input.off();
-        askButton.off();
-        window.clippyToolWindow = null;
-      });
+      showClippyToolWindow();
     });
 
     // Add context menu
@@ -205,10 +208,7 @@ export function launchClippyApp() {
         },
         {
           label: "Ask Clippy",
-          enabled: !window.clippyToolWindow ||
-            !window.clippyToolWindow.$element ||
-            !window.clippyToolWindow.$element.closest('body'),
-          click: () => launchClippyApp(),
+          click: () => showClippyToolWindow(),
         },
         {
           label: "Help",
