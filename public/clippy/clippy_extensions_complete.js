@@ -71,7 +71,7 @@
      * @param {Boolean} options.useTTS - Whether to use text-to-speech (default: false)
      * @param {Object} options.ttsOptions - TTS configuration (voice, rate, pitch, volume)
      * @param {Function} options.callback - Called when both speech and animation complete
-     * @returns {Boolean} - True if successful, false if animation doesn't exist
+     * @returns {Promise<Boolean>} - Promise that resolves to true if successful, false if animation doesn't exist
      */
     clippy.Agent.prototype.speakAndAnimate = function (text, animation, options) {
         options = options || {};
@@ -90,7 +90,7 @@
                 this.speak(text, hold);
             }
             if (callback) setTimeout(callback, 0);
-            return false;
+            return Promise.resolve(false);
         }
 
         // Configure TTS if requested
@@ -99,57 +99,58 @@
         }
 
         var self = this;
-        this._addToQueue(function (complete) {
-            var speechCompleted = false;
-            var animationCompleted = false;
-            var hasCalledComplete = false;
-            var animationTimedOut = false;
+        return new Promise(function (resolve) {
+            self._addToQueue(function (complete) {
+                var speechCompleted = false;
+                var animationCompleted = false;
+                var hasCalledComplete = false;
+                var animationTimedOut = false;
 
-            // Function to check if both operations are done
-            var checkCompletion = function () {
-                if ((speechCompleted && animationCompleted) && !hasCalledComplete) {
-                    hasCalledComplete = true;
-                    if (callback) {
-                        try {
-                            callback();
-                        } catch (e) {
-                            console.error('Clippy Extensions: Callback error:', e);
+                // Function to check if both operations are done
+                var checkCompletion = function () {
+                    if ((speechCompleted && animationCompleted) && !hasCalledComplete) {
+                        hasCalledComplete = true;
+                        if (callback) {
+                            try {
+                                callback();
+                            } catch (e) {
+                                console.error('Clippy Extensions: Callback error:', e);
+                            }
                         }
+                        complete();
+                        resolve(true);
                     }
-                    complete();
-                }
-            };
+                };
 
-            // Start speech
-            self._balloon.speak(function () {
-                speechCompleted = true;
-                checkCompletion();
-            }, text, hold, useTTS);
-
-            // Start animation
-            var animationCallback = function (name, state) {
-                if (state === clippy.Animator.States.EXITED) {
-                    animationCompleted = true;
+                // Start speech
+                self._balloon.speak(function () {
+                    speechCompleted = true;
                     checkCompletion();
-                }
-            };
+                }, text, hold, useTTS);
 
-            // Handle animation timeout
-            if (animationTimeout && animationTimeout > 0) {
-                setTimeout(function () {
-                    if (!animationCompleted && !animationTimedOut) {
-                        animationTimedOut = true;
-                        self._animator.exitAnimation();
+                // Start animation
+                var animationCallback = function (name, state) {
+                    if (state === clippy.Animator.States.EXITED) {
+                        animationCompleted = true;
+                        checkCompletion();
                     }
-                }, animationTimeout);
-            }
+                };
 
-            // Play the animation
-            self._playInternal(animation, animationCallback);
+                // Handle animation timeout
+                if (animationTimeout && animationTimeout > 0) {
+                    setTimeout(function () {
+                        if (!animationCompleted && !animationTimedOut) {
+                            animationTimedOut = true;
+                            self._animator.exitAnimation();
+                        }
+                    }, animationTimeout);
+                }
 
-        }, this);
+                // Play the animation
+                self._playInternal(animation, animationCallback);
 
-        return true;
+            }, this);
+        });
     };
 
     /**
