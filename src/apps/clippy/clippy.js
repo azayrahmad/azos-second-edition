@@ -94,8 +94,13 @@ export function launchClippyApp() {
     // Define askClippy function
     const askClippy = async () => {
       const input = window.clippyToolWindow.$content.find("input");
+      const askButton = window.clippyToolWindow.$content.find("button");
       const question = input.val().trim();
       if (!question) return;
+
+      // Disable button and input during processing
+      askButton.prop('disabled', true);
+      input.prop('disabled', true);
 
       agent.speakAndAnimate(
         "Let me think about it...",
@@ -130,6 +135,13 @@ export function launchClippyApp() {
           { useTTS: ttsEnabled }
         );
         console.error("API Error:", error);
+      } finally {
+        // Re-enable button and input if the window still exists
+        if (window.clippyToolWindow) {
+          askButton.prop('disabled', false);
+          input.prop('disabled', false);
+          input.focus();
+        }
       }
     };
 
