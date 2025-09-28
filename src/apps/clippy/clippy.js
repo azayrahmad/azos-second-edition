@@ -113,7 +113,7 @@ export function launchClippyApp() {
         // Encode the question for URL parameters
         const encodedQuestion = encodeURIComponent(question);
         const response = await fetch(
-          `https://resume-chat-api-nine.vercel.app/api/resume-helper?query=${encodedQuestion}`,
+          `https://resume-chat-api-nine.vercel.app/api/clippy-helper?query=${encodedQuestion}`,
         );
 
         const data = await response.json();
@@ -260,12 +260,12 @@ export function launchClippyApp() {
       const menu = new OS.MenuList(menuItems);
       document.body.appendChild(menu.element);
 
-      // Position the menu at click coordinates
+      // Set positioning and z-index
       menu.element.style.position = "absolute";
-      menu.element.style.left = `${e.pageX}px`;
-      menu.element.style.top = `${e.pageY}px`;
       menu.element.style.zIndex = 10000; // Ensure menu is on top of clippy
-      menu.show();
+
+      // Use smart positioning with click coordinates
+      menu.show(e.pageX, e.pageY);
 
       // Close menu when clicking outside
       const closeMenu = (e) => {

@@ -173,6 +173,7 @@
 
         /**
          * Position the menu at specific coordinates, ensuring it stays within the viewport.
+         * Uses smart positioning to try multiple placements and choose the best fit.
          * @param {number} x - The horizontal coordinate.
          * @param {number} y - The vertical coordinate.
          */
@@ -181,29 +182,43 @@
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
 
-            let newX = x;
-            let newY = y;
+            // Define possible positioning options, ordered by preference
+            const positions = [
+                { x: x, y: y, name: 'bottom-right' },                    // Preferred: below and to the right
+                { x: x - menuRect.width, y: y, name: 'bottom-left' },     // Alternative: below and to the left
+                { x: x, y: y - menuRect.height, name: 'top-right' },      // Alternative: above and to the right
+                { x: x - menuRect.width, y: y - menuRect.height, name: 'top-left' }, // Alternative: above and to the left
+                { x: x + 10, y: y + 10, name: 'offset-bottom-right' },   // Offset version as fallback
+            ];
 
-            // Adjust horizontal position if it overflows
-            if (x + menuRect.width > viewportWidth) {
-                newX = viewportWidth - menuRect.width - 2; // Add a small buffer
+            // Find the best position that fits completely within viewport
+            let bestPosition = positions[0]; // Default to first preference
+            let maxVisibleArea = 0;
+
+            for (const pos of positions) {
+                const visibleWidth = Math.min(pos.x + menuRect.width, viewportWidth) - Math.max(pos.x, 0);
+                const visibleHeight = Math.min(pos.y + menuRect.height, viewportHeight) - Math.max(pos.y, 0);
+                const visibleArea = visibleWidth * visibleHeight;
+
+                // If this position shows the entire menu, use it immediately
+                if (visibleWidth >= menuRect.width && visibleHeight >= menuRect.height) {
+                    bestPosition = pos;
+                    break;
+                }
+
+                // Otherwise, track the position with the most visible area
+                if (visibleArea > maxVisibleArea) {
+                    maxVisibleArea = visibleArea;
+                    bestPosition = pos;
+                }
             }
 
-            // Adjust vertical position if it overflows
-            if (y + menuRect.height > viewportHeight) {
-                newY = y - menuRect.height;
-            }
+            // Apply the best position, ensuring it stays within bounds
+            let finalX = Math.max(0, Math.min(bestPosition.x, viewportWidth - menuRect.width));
+            let finalY = Math.max(0, Math.min(bestPosition.y, viewportHeight - menuRect.height));
 
-            // Ensure it's not off-screen on the top or left
-            if (newX < 0) {
-                newX = 0;
-            }
-            if (newY < 0) {
-                newY = 0;
-            }
-
-            this.element.style.left = `${newX}px`;
-            this.element.style.top = `${newY}px`;
+            this.element.style.left = `${finalX}px`;
+            this.element.style.top = `${finalY}px`;
         }
 
         hide() {
