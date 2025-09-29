@@ -3,6 +3,8 @@
      * @typedef {import('./types').OSGUIMenuItem} OSGUIMenuItem
      */
 
+    const MENU_DIVIDER = "MENU_DIVIDER";
+
     class MenuList {
         /**
          * @param {OSGUIMenuItem[]} items
@@ -14,12 +16,20 @@
             this.items = items;
             this.parentEl = options.parentEl;
             this.isSubmenu = options.isSubmenu || false;
+            this.defaultLabel = options.defaultLabel || 'Open';
 
             this.element = document.createElement('div');
             this.element.className = 'menu-popup';
             this.element.setAttribute('role', 'menu');
-            this.element.style.touchAction = 'none';
+            this.element.style.touchAction = 'pan-y'; // allow for scrolling overflowing menus
             this.element.style.display = 'none';
+
+            // Create table structure like MenuBar
+            const menu_popup_table_el = document.createElement('table');
+            menu_popup_table_el.className = 'menu-popup-table';
+            menu_popup_table_el.setAttribute('role', 'presentation');
+            this.element.appendChild(menu_popup_table_el);
+            this.tableElement = menu_popup_table_el;
 
             this.itemElements = [];
             this.buildMenu();
@@ -27,48 +37,89 @@
 
         buildMenu() {
             this.items.forEach((item, index) => {
-                if (item === "MENU_DIVIDER") {
-                    const divider = document.createElement('hr');
-                    divider.className = 'menu-divider';
-                    this.element.appendChild(divider);
+                if (item === MENU_DIVIDER) {
+                    const row_el = document.createElement("tr");
+                    row_el.className = "menu-row";
+                    const td_el = document.createElement("td");
+                    td_el.setAttribute("colspan", "4");
+                    const hr_el = document.createElement("hr");
+                    hr_el.className = "menu-hr";
+                    // Normal menu behavior: clear highlight when hovering over divider
+                    hr_el.addEventListener("pointerenter", () => {
+                        this.highlight(-1);
+                    });
+                    td_el.appendChild(hr_el);
+                    row_el.appendChild(td_el);
+                    this.tableElement.appendChild(row_el);
+                    this.itemElements.push(row_el);
                     return;
                 }
 
-                const itemEl = document.createElement('div');
-                itemEl.className = 'menu-item';
-                itemEl.setAttribute('role', 'menuitem');
+                const row_el = document.createElement("tr");
+                row_el.className = "menu-row";
+                this.itemElements.push(row_el);
+
+                const item_el = row_el;
+                item_el.classList.add("menu-item");
+                item_el.id = `menu-item-${Math.random().toString(36).substring(2)}`;
+                item_el.tabIndex = -1;
+                item_el.setAttribute("role", item.checkbox ? (item.checkbox.type === "radio" ? "menuitemradio" : "menuitemcheckbox") : "menuitem");
 
                 if (item.checkbox) {
-                    itemEl.classList.add('menu-item-checkbox');
+                    item_el.classList.add('menu-item-checkbox');
                 }
                 if (item.submenu) {
-                    itemEl.classList.add('has-submenu');
+                    item_el.classList.add('has-submenu');
+                }
+
+                // Set default item styling
+                if (item.label && item.label.replace(/&/g, '') === this.defaultLabel) {
+                    item_el.classList.add('menu-item-default');
+                    item_el.style.fontWeight = 'bold';
                 }
 
                 if (typeof item.enabled === 'boolean' && !item.enabled) {
-                    itemEl.setAttribute('aria-disabled', 'true');
+                    item_el.setAttribute('aria-disabled', 'true');
                 }
 
-                // Handle item label
-                const labelSpan = document.createElement('span');
-                labelSpan.className = 'menu-item-label';
+                // Create table cells
+                const checkbox_area_el = document.createElement("td");
+                checkbox_area_el.className = "menu-item-checkbox-area";
+                if (item.checkbox?.type === "radio") {
+                    checkbox_area_el.classList.add("radio");
+                } else if (item.checkbox) {
+                    checkbox_area_el.classList.add("checkbox");
+                }
+
+                const label_el = document.createElement("td");
+                label_el.className = "menu-item-label";
                 if (item.label) {
-                    labelSpan.appendChild(this.createAccessKeyLabel(item.label));
+                    label_el.appendChild(this.createAccessKeyLabel(item.label));
                 }
-                itemEl.appendChild(labelSpan);
 
-                // Handle shortcut text if any
+                const shortcut_el = document.createElement("td");
+                shortcut_el.className = "menu-item-shortcut";
                 if (item.shortcut) {
-                    const shortcutSpan = document.createElement('span');
-                    shortcutSpan.className = 'menu-item-shortcut';
-                    shortcutSpan.textContent = item.shortcut;
-                    itemEl.appendChild(shortcutSpan);
+                    shortcut_el.textContent = item.shortcut;
                 }
 
-                this.itemElements.push(itemEl);
-                this.element.appendChild(itemEl);
+                const submenu_area_el = document.createElement("td");
+                submenu_area_el.className = "menu-item-submenu-area";
+                if (item.submenu) {
+                    item_el.setAttribute("aria-haspopup", "true");
+                    item_el.setAttribute("aria-expanded", "false");
+                    submenu_area_el.classList.toggle("point-right", false); // RTL support could be added later
+                }
 
-                this.attachItemEvents(itemEl, item);
+                // Append cells to row
+                item_el.appendChild(checkbox_area_el);
+                item_el.appendChild(label_el);
+                item_el.appendChild(shortcut_el);
+                item_el.appendChild(submenu_area_el);
+
+                this.tableElement.appendChild(row_el);
+
+                this.attachItemEvents(item_el, item);
             });
         }
 
@@ -77,11 +128,29 @@
          * @param {OSGUIMenuItem} item 
          */
         attachItemEvents(itemEl, item) {
+            const item_action = () => {
+                if (item.checkbox) {
+                    if (item.checkbox.toggle) {
+                        item.checkbox.toggle();
+                    }
+                    this.updateMenuItem(itemEl, item);
+                } else if (item.action) {
+                    this.close();
+                    item.action();
+                }
+            };
+
             if (item.click) {
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
                         item.click(e);
                         this.close();
+                    }
+                });
+            } else {
+                itemEl.addEventListener('click', (e) => {
+                    if (!this.isDisabled(item)) {
+                        item_action();
                     }
                 });
             }
@@ -94,14 +163,52 @@
             itemEl.addEventListener('pointerleave', () => {
                 itemEl.classList.remove('highlight');
             });
+
+            // Add update listener for dynamic state changes
+            this.element.addEventListener("update", () => {
+                this.updateMenuItem(itemEl, item);
+            });
+
+            // Initial update
+            this.updateMenuItem(itemEl, item);
         }
 
         /**
-         * @param {HTMLElement} itemEl 
+         * @param {HTMLElement} itemEl
+         * @param {OSGUIMenuItem} item
          */
-        highlight(itemEl) {
+        updateMenuItem(itemEl, item) {
+            // Update disabled state
+            if (this.isDisabled(item)) {
+                itemEl.setAttribute("disabled", "");
+                itemEl.setAttribute("aria-disabled", "true");
+            } else {
+                itemEl.removeAttribute("disabled");
+                itemEl.removeAttribute("aria-disabled");
+            }
+
+            // Update checkbox state
+            if (item.checkbox && item.checkbox.check) {
+                const checked = item.checkbox.check();
+                itemEl.setAttribute("aria-checked", checked ? "true" : "false");
+            }
+        }
+
+        /**
+         * @param {HTMLElement | number} itemElOrIndex
+         */
+        highlight(itemElOrIndex) {
+            let itemEl;
+            if (typeof itemElOrIndex === "number") {
+                itemEl = this.itemElements[itemElOrIndex];
+            } else {
+                itemEl = itemElOrIndex;
+            }
+
             this.itemElements.forEach(el => el.classList.remove('highlight'));
-            itemEl.classList.add('highlight');
+            if (itemEl) {
+                itemEl.classList.add('highlight');
+            }
         }
 
         /**
@@ -163,6 +270,9 @@
             // Force a reflow to ensure the element is rendered and has dimensions
             // before we try to position it. This is crucial for testability.
             void this.element.offsetHeight;
+
+            // Update all menu items when showing
+            this.element.dispatchEvent(new CustomEvent("update", {}));
 
             if (x !== undefined && y !== undefined) {
                 this.positionAt(x, y);
@@ -276,5 +386,6 @@
     }
 
     exports.MenuList = MenuList;
+    exports.MENU_DIVIDER = MENU_DIVIDER;
 
 })(typeof exports !== 'undefined' ? exports : (window.OS = window.OS || {}));
