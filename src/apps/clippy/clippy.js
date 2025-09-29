@@ -224,20 +224,24 @@ export function launchClippyApp() {
         {
           label: "Close",
           click: () => {
+            // First speak and animate with Wave animation
             agent.speakAndAnimate(
               "Goodbye! Just open me again if you need any help!",
-              "GoodBye",
+              "Wave",
               {
                 useTTS: ttsEnabled,
                 callback: () => {
-                  agent.hide();
-                  $(".clippy, .clippy-balloon").remove();
-                  // Remove any context menus that might be left over
-                  $(".os-menu").remove();
-                  // Close the tool window if it exists
-                  if (window.clippyToolWindow) {
-                    window.clippyToolWindow.close();
-                  }
+                  // Then animate GoodBye only before closing everything
+                  agent.play("GoodBye", 5000, () => {
+                    agent.hide();
+                    $(".clippy, .clippy-balloon").remove();
+                    // Remove any context menus that might be left over
+                    $(".os-menu").remove();
+                    // Close the tool window if it exists
+                    if (window.clippyToolWindow) {
+                      window.clippyToolWindow.close();
+                    }
+                  });
                 }
               }
             );
