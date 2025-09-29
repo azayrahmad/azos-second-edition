@@ -1,4 +1,6 @@
 import { launchClippyApp } from "../apps/clippy/clippy.js";
+import { aboutContent } from "../apps/about/about.js";
+import { resumeContent } from "../apps/resume/resume.js";
 
 export const apps = [
   {
@@ -27,12 +29,81 @@ export const apps = [
             },
           ],
         },
-        content: `
-          <div class="about-content" style="padding: 16px;">
-            <h1>About azOS</h1>
-            <p>azOS Second Edition is a web-based operating system interface.</p>
-          </div>
-        `,
+        content: aboutContent,
+      },
+    },
+    contextMenu: [
+      {
+        label: "&Open",
+        action: "open",
+      },
+      "MENU_DIVIDER",
+      {
+        label: "Cu&t",
+        enabled: false,
+      },
+      {
+        label: "&Copy",
+        enabled: false,
+      },
+      {
+        label: "&Create Shortcut",
+        enabled: false,
+      },
+      {
+        label: "&Delete",
+        enabled: false,
+      },
+      "MENU_DIVIDER",
+      {
+        label: "Rena&me",
+        enabled: false,
+      },
+      {
+        label: "Proper&ties",
+        action: "properties",
+      },
+    ],
+  },
+  {
+    id: "resume",
+    title: "Resume",
+    icon: new URL("../assets/icons/word_001.ico", import.meta.url).href,
+    path: "/resume/",
+    action: {
+      type: "window",
+      window: {
+        width: 800,
+        height: 600,
+        resizable: true,
+        menuBar: {
+          File: [
+            {
+              label: "&Download",
+              action: () => {
+                const link = document.createElement('a');
+                link.href = './apps/resume/Aziz Rahmad - Project Resume.pdf';
+                link.download = 'Aziz Rahmad - Project Resume.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              },
+              shortcutLabel: "Ctrl+D",
+            },
+            {
+              label: "&Close",
+              action: (win) => win.close(),
+              shortcutLabel: "Alt+F4",
+            },
+          ],
+          Help: [
+            {
+              label: "&About Resume",
+              action: () => alert("View project resume"),
+            },
+          ],
+        },
+        content: resumeContent,
       },
     },
     contextMenu: [
@@ -146,7 +217,7 @@ export const apps = [
   {
     id: "clippy",
     title: "Office Assistant",
-    icon: new URL("..\\assets\\icons\\SETDEBUG_100.ico", import.meta.url).href,
+    icon: new URL("..\\assets\\icons\\msagent_file-1.png", import.meta.url).href,
     action: {
       type: "function",
       handler: launchClippyApp,
