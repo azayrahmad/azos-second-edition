@@ -255,12 +255,14 @@ class Taskbar {
       const win = document.getElementById(windowId);
       if (!win || !win.$window) return;
 
+      const isMinimized = !$(win).is(":visible");
       const contextMenuItems = [
         {
           label: "Restore",
           default: true,
+          enabled: isMinimized,
           click: () => {
-            if (typeof Win98WindowManager !== "undefined") {
+            if (typeof Win98WindowManager !== "undefined" && isMinimized) {
               Win98WindowManager.restoreWindow(win);
             }
           },
@@ -281,13 +283,23 @@ class Taskbar {
       document.body.appendChild(contextMenu.element);
 
       // Position and show the menu
-      contextMenu.show(e.clientX, e.clientY);
+      const menuHeight = contextMenu.element.offsetHeight;
+      contextMenu.show(e.clientX, e.clientY - menuHeight);
 
-      // Hide menu when clicking outside
+      // Hide menu when clicking outside or pressing Escape
       const hideMenu = (event) => {
-        if (!contextMenu.element.contains(event.target)) {
+        const clickOutside = event.type === 'click' && !contextMenu.element.contains(event.target);
+        const escapePressed = event.type === 'keydown' && event.key === 'Escape';
+
+        if (clickOutside || escapePressed) {
+          if (escapePressed) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+          }
           contextMenu.hide();
           document.removeEventListener("click", hideMenu);
+          document.removeEventListener('keydown', hideMenu);
           if (contextMenu.element.parentNode) {
             document.body.removeChild(contextMenu.element);
           }
@@ -297,6 +309,7 @@ class Taskbar {
       // Add slight delay to prevent immediate hiding
       setTimeout(() => {
         document.addEventListener("click", hideMenu);
+        document.addEventListener('keydown', hideMenu);
       }, 0);
     });
 
