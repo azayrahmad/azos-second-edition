@@ -246,6 +246,78 @@ class Taskbar {
       this.handleTaskbarButtonClick(event);
     });
 
+    // Add context menu handler
+    this.addTrackedEventListener(taskbarButton, "contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const windowId = e.currentTarget.getAttribute("for");
+      const win = document.getElementById(windowId);
+      if (!win || !win.$window) return;
+
+      const isMinimized = !$(win).is(":visible");
+      const contextMenuItems = [
+        {
+          label: "Restore",
+          default: true,
+          enabled: isMinimized,
+          click: () => {
+            if (typeof Win98WindowManager !== "undefined" && isMinimized) {
+              Win98WindowManager.restoreWindow(win);
+            }
+          },
+        },
+        {
+          label: "Close",
+          click: () => {
+            win.$window.close();
+          },
+        },
+      ];
+
+      // Remove any existing menus
+      const existingMenus = document.querySelectorAll(".menu-popup");
+      existingMenus.forEach((menu) => menu.remove());
+
+      const contextMenu = new OS.MenuList(contextMenuItems);
+      document.body.appendChild(contextMenu.element);
+
+      // Set a z-index higher than the taskbar
+      if (window.Win98System) {
+        contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
+      }
+
+      // Position and show the menu
+      const menuHeight = contextMenu.element.offsetHeight;
+      contextMenu.show(e.clientX, e.clientY - menuHeight);
+
+      // Hide menu when clicking outside or pressing Escape
+      const hideMenu = (event) => {
+        const clickOutside = event.type === 'click' && !contextMenu.element.contains(event.target);
+        const escapePressed = event.type === 'keydown' && event.key === 'Escape';
+
+        if (clickOutside || escapePressed) {
+          if (escapePressed) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+          }
+          contextMenu.hide();
+          document.removeEventListener("click", hideMenu);
+          document.removeEventListener('keydown', hideMenu);
+          if (contextMenu.element.parentNode) {
+            document.body.removeChild(contextMenu.element);
+          }
+        }
+      };
+
+      // Add slight delay to prevent immediate hiding
+      setTimeout(() => {
+        document.addEventListener("click", hideMenu);
+        document.addEventListener('keydown', hideMenu);
+      }, 0);
+    });
+
     taskbarAppArea.appendChild(taskbarButton);
 
     // Add window focus/blur and close listeners
