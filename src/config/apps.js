@@ -1,6 +1,7 @@
 import { launchClippyApp } from "../apps/clippy/clippy.js";
 import { aboutContent } from "../apps/about/about.js";
 import { resumeContent } from "../apps/resume/resume.js";
+import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
 
 export const apps = [
   {
@@ -104,6 +105,69 @@ export const apps = [
           ],
         },
         content: resumeContent,
+      },
+    },
+    contextMenu: [
+      {
+        label: "&Open",
+        action: "open",
+      },
+      "MENU_DIVIDER",
+      {
+        label: "Cu&t",
+        enabled: false,
+      },
+      {
+        label: "&Copy",
+        enabled: false,
+      },
+      {
+        label: "&Create Shortcut",
+        enabled: false,
+      },
+      {
+        label: "&Delete",
+        enabled: false,
+      },
+      "MENU_DIVIDER",
+      {
+        label: "Rena&me",
+        enabled: false,
+      },
+      {
+        label: "Proper&ties",
+        action: "properties",
+      },
+    ],
+  },
+  {
+    id: "tipOfTheDay",
+    title: "Tip of the Day",
+    icon: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+    path: "/tip-of-the-day/",
+    action: {
+      type: "window",
+      window: {
+        width: 400,
+        height: 300,
+        resizable: true,
+        menuBar: {
+          File: [
+            {
+              label: "&Close",
+              action: (win) => win.close(),
+              shortcutLabel: "Alt+F4",
+            },
+          ],
+          Help: [
+            {
+              label: "&About",
+              action: () => alert("Displays a random tip."),
+            },
+          ],
+        },
+        content: tipOfTheDayContent,
+        setup: tipOfTheDaySetup,
       },
     },
     contextMenu: [

@@ -66,6 +66,9 @@ function createWindow(windowConfig) {
 
   if (windowConfig.content) {
     win.$content.html(windowConfig.content);
+    if (windowConfig.setup) {
+      windowConfig.setup(win.$content[0]);
+    }
   }
 
   win.onClosed(() => {
