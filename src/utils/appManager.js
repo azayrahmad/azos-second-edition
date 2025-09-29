@@ -27,6 +27,7 @@ export function handleAppAction(app) {
 
     // Create new window if none exists
     const win = createWindow({
+      id: app.id,
       title: app.title,
       icon: app.icon,
       ...app.action.window,
@@ -86,8 +87,10 @@ function createWindow(windowConfig) {
 
   document.body.appendChild(win.element);
 
-  // Generate a unique ID for the window if it doesn't have one
-  if (!win.element.id) {
+  // Use the passed-in ID, otherwise generate a unique one
+  if (windowConfig.id) {
+    win.element.id = windowConfig.id;
+  } else if (!win.element.id) {
     win.element.id = 'window_' + Math.random().toString(36).substr(2, 9);
   }
 

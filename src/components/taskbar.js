@@ -246,6 +246,60 @@ class Taskbar {
       this.handleTaskbarButtonClick(event);
     });
 
+    // Add context menu handler
+    this.addTrackedEventListener(taskbarButton, "contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const windowId = e.currentTarget.getAttribute("for");
+      const win = document.getElementById(windowId);
+      if (!win || !win.$window) return;
+
+      const contextMenuItems = [
+        {
+          label: "Restore",
+          default: true,
+          click: () => {
+            if (typeof Win98WindowManager !== "undefined") {
+              Win98WindowManager.restoreWindow(win);
+            }
+          },
+        },
+        {
+          label: "Close",
+          click: () => {
+            win.$window.close();
+          },
+        },
+      ];
+
+      // Remove any existing menus
+      const existingMenus = document.querySelectorAll(".menu-popup");
+      existingMenus.forEach((menu) => menu.remove());
+
+      const contextMenu = new OS.MenuList(contextMenuItems);
+      document.body.appendChild(contextMenu.element);
+
+      // Position and show the menu
+      contextMenu.show(e.clientX, e.clientY);
+
+      // Hide menu when clicking outside
+      const hideMenu = (event) => {
+        if (!contextMenu.element.contains(event.target)) {
+          contextMenu.hide();
+          document.removeEventListener("click", hideMenu);
+          if (contextMenu.element.parentNode) {
+            document.body.removeChild(contextMenu.element);
+          }
+        }
+      };
+
+      // Add slight delay to prevent immediate hiding
+      setTimeout(() => {
+        document.addEventListener("click", hideMenu);
+      }, 0);
+    });
+
     taskbarAppArea.appendChild(taskbarButton);
 
     // Add window focus/blur and close listeners
