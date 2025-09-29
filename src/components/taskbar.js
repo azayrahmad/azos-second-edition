@@ -282,6 +282,11 @@ class Taskbar {
       const contextMenu = new OS.MenuList(contextMenuItems);
       document.body.appendChild(contextMenu.element);
 
+      // Set a z-index higher than the taskbar
+      if (window.Win98System) {
+        contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
+      }
+
       // Position and show the menu
       const menuHeight = contextMenu.element.offsetHeight;
       contextMenu.show(e.clientX, e.clientY - menuHeight);
