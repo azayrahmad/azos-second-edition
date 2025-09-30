@@ -19,6 +19,7 @@ const SELECTORS = {
   CLOCK: "#clock",
   TASKBAR_BUTTON: ".taskbar-button",
   APP_WINDOW: ".app-window",
+  SYSTEM_TRAY: ".system-tray",
 };
 
 const CLASSES = {
@@ -548,6 +549,70 @@ export function removeTaskbarButton(windowId) {
 
 export function updateTaskbarButton(windowId, isActive, isMinimized) {
   return taskbar.updateTaskbarButton(windowId, isActive, isMinimized);
+}
+
+export function createTrayIcon(app) {
+  const trayArea = document.querySelector(SELECTORS.SYSTEM_TRAY);
+  if (!trayArea) {
+    console.warn("System tray area not found");
+    return;
+  }
+
+  const existingIcon = trayArea.querySelector(`#tray-icon-${app.id}`);
+  if (existingIcon) {
+    return; // Icon already exists
+  }
+
+  const trayIcon = document.createElement("button");
+  trayIcon.id = `tray-icon-${app.id}`;
+  trayIcon.className = "tray-icon";
+  trayIcon.title = app.title;
+  trayIcon.innerHTML = `<img src="${app.icon}" alt="${app.title}" loading="lazy">`;
+
+  trayIcon.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (app.tray?.contextMenu) {
+      const menuItems = typeof app.tray.contextMenu === 'function'
+        ? app.tray.contextMenu()
+        : app.tray.contextMenu;
+
+      const existingMenus = document.querySelectorAll(".menu-popup");
+      existingMenus.forEach((menu) => menu.remove());
+
+      const contextMenu = new OS.MenuList(menuItems);
+      document.body.appendChild(contextMenu.element);
+
+      if (window.Win98System) {
+        contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
+      }
+
+      const menuHeight = contextMenu.element.offsetHeight;
+      contextMenu.show(e.clientX, e.clientY - menuHeight);
+
+      const hideMenu = (event) => {
+        if (!contextMenu.element.contains(event.target)) {
+          contextMenu.hide();
+          document.removeEventListener("click", hideMenu);
+          if (contextMenu.element.parentNode) {
+            document.body.removeChild(contextMenu.element);
+          }
+        }
+      };
+
+      setTimeout(() => {
+        document.addEventListener("click", hideMenu);
+      }, 0);
+    }
+  });
+
+  const volumeIcon = trayArea.querySelector('img[alt="Volume"]');
+  if (volumeIcon) {
+    trayArea.insertBefore(trayIcon, volumeIcon);
+  } else {
+    trayArea.appendChild(trayIcon);
+  }
 }
 
 // Export the manager instance for advanced usage

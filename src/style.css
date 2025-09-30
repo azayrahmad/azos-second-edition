@@ -98,3 +98,25 @@ h1 {
 .read-the-docs {
   color: #888;
 }
+
+.tray-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 2px;
+}
+
+.tray-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid #87888f;
+}
+
+.tray-icon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}

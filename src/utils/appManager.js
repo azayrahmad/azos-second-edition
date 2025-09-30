@@ -1,7 +1,7 @@
 /**
  * AppManager - Handles app launching and window creation
  */
-import { createTaskbarButton } from '../components/taskbar.js';
+import { createTaskbarButton, createTrayIcon } from '../components/taskbar.js';
 
 // Track open windows by app identifier
 const openWindows = new Map();
@@ -37,6 +37,11 @@ export function handleAppAction(app) {
     openWindows.set(app.id, win);
   } else if (app.action.type === "function") {
     app.action.handler();
+  }
+
+  // Create tray icon if app is configured to have one
+  if (app.hasTray) {
+    createTrayIcon(app);
   }
 }
 
