@@ -87,15 +87,15 @@ export function getClippyMenuItems() {
 
   return [
     {
-      label: "Animate",
+      label: "&Animate",
       click: () => agent.animate(),
     },
     {
-      label: "Ask Clippy",
+      label: "&Ask Clippy",
       click: () => showClippyToolWindow(),
     },
     {
-      label: "Help",
+      label: "&Help",
       click: () => {
         agent.speakAndAnimate(
           "Hi! I'm here to help you learn about Aziz Rahmad's resume. You can ask me questions about his skills, experience, education, or projects. For example, try asking: 'What are Aziz's technical skills?', 'Tell me about his work experience', or 'What projects has he worked on?' Just click on me and type your question in the input box that appears!",
@@ -106,7 +106,7 @@ export function getClippyMenuItems() {
     },
     "MENU_DIVIDER",
     {
-      label: "Close",
+      label: "&Close",
       click: () => {
         agent.speakAndAnimate(
           "Goodbye! Just open me again if you need any help!",
@@ -133,6 +133,43 @@ export function getClippyMenuItems() {
       },
     },
   ];
+}
+
+export function showClippyContextMenu(event) {
+  // Remove any existing menus first (only one context menu at a time)
+  const existingMenus = document.querySelectorAll(".menu-popup");
+  existingMenus.forEach((menu) => menu.remove());
+
+  const menuItems = getClippyMenuItems();
+  const menu = new OS.MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
+  document.body.appendChild(menu.element);
+
+  // Set z-index if Win98System is available
+  if (window.Win98System) {
+    menu.element.style.zIndex = window.Win98System.incrementZIndex();
+  }
+
+  // Position and show the menu
+  const menuHeight = menu.element.offsetHeight;
+  menu.show(event.pageX, event.pageY - menuHeight);
+
+  // Handle click outside to close
+  const closeMenu = (e) => {
+    if (!menu.element.contains(e.target)) {
+      menu.hide();
+      if (menu.element.parentNode) {
+        document.body.removeChild(menu.element);
+      }
+      document.removeEventListener("click", closeMenu);
+      document.removeEventListener("contextmenu", closeMenu);
+    }
+  };
+
+  // Use setTimeout to prevent immediate closing
+  setTimeout(() => {
+    document.addEventListener("click", closeMenu);
+    document.addEventListener("contextmenu", closeMenu);
+  }, 0);
 }
 
 export function launchClippyApp() {
@@ -203,10 +240,7 @@ export function launchClippyApp() {
 
     agent._el.on("contextmenu", function (e) {
       e.preventDefault();
-      const menuItems = getClippyMenuItems();
-      const menu = new OS.MenuList(menuItems);
-      document.body.appendChild(menu.element);
-      menu.show(e.pageX, e.pageY);
+      showClippyContextMenu(e);
     });
   });
 }

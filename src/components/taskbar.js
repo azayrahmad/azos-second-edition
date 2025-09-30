@@ -8,6 +8,7 @@ import windowsStartLogo from "../assets/icons/windows-4.png";
 import showDesktopIcon from "../assets/icons/desktop_old-4.png";
 import volumeIcon from "../assets/icons/SYSTRAY_220.ico";
 import StartMenu from "./StartMenu.js";
+import { showClippyContextMenu } from "../apps/clippy/clippy.js";
 
 // Constants for better maintainability
 const SELECTORS = {
@@ -574,36 +575,42 @@ export function createTrayIcon(app) {
     e.stopPropagation();
 
     if (app.tray?.contextMenu) {
-      const menuItems = typeof app.tray.contextMenu === 'function'
-        ? app.tray.contextMenu()
-        : app.tray.contextMenu;
+      // Use centralized function for clippy context menu
+      if (app.id === 'clippy') {
+        showClippyContextMenu(e);
+      } else {
+        // Handle other tray icons normally
+        const menuItems = typeof app.tray.contextMenu === 'function'
+          ? app.tray.contextMenu()
+          : app.tray.contextMenu;
 
-      const existingMenus = document.querySelectorAll(".menu-popup");
-      existingMenus.forEach((menu) => menu.remove());
+        const existingMenus = document.querySelectorAll(".menu-popup");
+        existingMenus.forEach((menu) => menu.remove());
 
-      const contextMenu = new OS.MenuList(menuItems);
-      document.body.appendChild(contextMenu.element);
+        const contextMenu = new OS.MenuList(menuItems);
+        document.body.appendChild(contextMenu.element);
 
-      if (window.Win98System) {
-        contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
-      }
-
-      const menuHeight = contextMenu.element.offsetHeight;
-      contextMenu.show(e.clientX, e.clientY - menuHeight);
-
-      const hideMenu = (event) => {
-        if (!contextMenu.element.contains(event.target)) {
-          contextMenu.hide();
-          document.removeEventListener("click", hideMenu);
-          if (contextMenu.element.parentNode) {
-            document.body.removeChild(contextMenu.element);
-          }
+        if (window.Win98System) {
+          contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
         }
-      };
 
-      setTimeout(() => {
-        document.addEventListener("click", hideMenu);
-      }, 0);
+        const menuHeight = contextMenu.element.offsetHeight;
+        contextMenu.show(e.clientX, e.clientY - menuHeight);
+
+        const hideMenu = (event) => {
+          if (!contextMenu.element.contains(event.target)) {
+            contextMenu.hide();
+            document.removeEventListener("click", hideMenu);
+            if (contextMenu.element.parentNode) {
+              document.body.removeChild(contextMenu.element);
+            }
+          }
+        };
+
+        setTimeout(() => {
+          document.addEventListener("click", hideMenu);
+        }, 0);
+      }
     }
   });
 
