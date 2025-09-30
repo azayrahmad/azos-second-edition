@@ -7,12 +7,9 @@ export const tipOfTheDayContent = tipOfTheDayHTML;
 
 export function setup(contentElement) {
   const tips = [
-    "You can scroll text up one screen by pressing Page Up. Pressing Page Down scrolls text down one screen.",
-    "To open a file, click the File menu, and then click Open.",
-    "To save a file, click the File menu, and then click Save.",
-    "You can switch between open windows by pressing Alt+Tab.",
+    "To open a file or an application from desktop, double-click the icon.",
     "To close a window, click the X in the top-right corner.",
-    "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Office Assistant</a> for assistance with Windows 98 features."
+    "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Office Assistant</a> for assistance with azOS features."
   ];
 
   let currentTipIndex = Math.floor(Math.random() * tips.length);
