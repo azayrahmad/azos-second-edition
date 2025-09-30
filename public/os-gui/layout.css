@@ -71,6 +71,15 @@ body > .window-titlebar {
 }
 .menu-popup-table {
 	border-collapse: collapse;
+	/* Override 98.css table styles for menu tables */
+	background-color: var(--Menu);
+	position: static;
+	text-align: initial;
+	white-space: normal;
+}
+.menu-popup-table > tbody > tr > * {
+	height: auto;
+	padding: 0;
 }
 .menu-button,
 .menu-item {
