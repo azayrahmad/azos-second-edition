@@ -154,8 +154,38 @@ export function launchClippyApp() {
       const setDefaultVoice = () => {
         const voices = agent.getTTSVoices();
         if (voices.length > 0) {
-          let defaultVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('male'));
-          if (!defaultVoice) defaultVoice = voices.find(v => v.lang.startsWith('en'));
+          // Improved voice selection logic
+          const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+
+          // Prioritize male-sounding voices by name patterns
+          let defaultVoice = englishVoices.find(v =>
+            v.name.toLowerCase().includes('male') ||
+            v.name.toLowerCase().includes('david') ||
+            v.name.toLowerCase().includes('alex') ||
+            v.name.toLowerCase().includes('fred') ||
+            v.name.toLowerCase().includes('daniel') ||
+            v.name.toLowerCase().includes('george') ||
+            v.name.toLowerCase().includes('paul') ||
+            v.name.toLowerCase().includes('tom') ||
+            v.name.toLowerCase().includes('mark') ||
+            v.name.toLowerCase().includes('james') ||
+            v.name.toLowerCase().includes('michael')
+          );
+
+          // If no male voice found, prefer voices that are NOT obviously female
+          if (!defaultVoice) {
+            const femaleNames = ['zira', 'hazel', 'samantha', 'susan', 'karen', 'sara', 'emma', 'lucy', 'anna'];
+            const nonFemaleVoices = englishVoices.filter(v =>
+              !femaleNames.some(name => v.name.toLowerCase().includes(name)) &&
+              !v.name.toLowerCase().includes('female')
+            );
+
+            if (nonFemaleVoices.length > 0) {
+              defaultVoice = nonFemaleVoices[0]; // Take first non-female voice
+            } else {
+              defaultVoice = englishVoices[0]; // Fallback to any English voice
+            }
+          }
 
           agent.setTTSOptions({ voice: defaultVoice, rate: 0.9, pitch: 0.9, volume: 0.8 });
         }

@@ -951,10 +951,42 @@ clippy.Balloon.prototype = {
       return; // Exit, preventing desktop logic from running
     }
 
-    // --- Desktop Logic (onboundary-based) ---
+    // --- Desktop Logic (onboundary-based with timer fallback) ---
+    var boundaryEventsReceived = 0;
+    var lastBoundaryTime = Date.now();
+
+    // Clear any existing fallback timer
+    if (this._ttsFallbackTimer) {
+      window.clearTimeout(this._ttsFallbackTimer);
+      this._ttsFallbackTimer = null;
+    }
+
+    // Start fallback timer in case boundary events don't work (Chrome issue)
+    var startFallbackTimer = function() {
+      var timePerWord = (self.WORD_SPEAK_TIME / (self._ttsOptions.rate || 1.0)) * 1.2; // Slightly slower to be safe
+
+      var addWord = function() {
+        if (!self._active) return; // Stop if speech was cancelled
+        if (idx > words.length) return;
+
+        el.text(words.slice(0, idx).join(" "));
+        idx++;
+
+        if (idx <= words.length) {
+          self._ttsFallbackTimer = window.setTimeout(addWord, timePerWord);
+        }
+      };
+
+      // Start fallback after a short delay to allow boundary events to take precedence
+      self._ttsFallbackTimer = window.setTimeout(addWord, 300);
+    };
+
     this._speakTTS(text,
       // onWord callback
       function (charIndex, spokenWords) {
+        boundaryEventsReceived++;
+        lastBoundaryTime = Date.now();
+
         var currentWordIndex = 0;
         var charCount = 0;
         for (var i = 0; i < spokenWords.length; i++) {
@@ -971,6 +1003,12 @@ clippy.Balloon.prototype = {
       },
       // onEnd callback
       function () {
+        // Clear any pending fallback timer
+        if (self._ttsFallbackTimer) {
+          window.clearTimeout(self._ttsFallbackTimer);
+          self._ttsFallbackTimer = null;
+        }
+
         el.text(words.join(" "));
         self._active = false;
         if (!self._hold) {
@@ -979,6 +1017,9 @@ clippy.Balloon.prototype = {
         }
       }
     );
+
+    // Start fallback timer for browsers that don't fire boundary events reliably
+    startFallbackTimer();
   },
 
   close: function () {
@@ -994,6 +1035,11 @@ clippy.Balloon.prototype = {
     if (this._hiding) {
       window.clearTimeout(this._hiding);
       this._hiding = null;
+    }
+    // Clear TTS fallback timer if active
+    if (this._ttsFallbackTimer) {
+      window.clearTimeout(this._ttsFallbackTimer);
+      this._ttsFallbackTimer = null;
     }
   },
 
