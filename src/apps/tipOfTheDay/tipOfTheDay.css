@@ -1,7 +1,81 @@
+.tip-of-the-day-content > div:first-child {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sunken-panel {
+    display: flex;
+    flex: 1;
+}
+
+.icon-container {
+    background-color: #7B7B7B;
+    padding: 15px;
+}
+
+.content-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.tip-separator {
+    margin: 4px 0;
+    color: #7B7B7B;
+}
+
+.tip-text-container {
+    padding: 8px;
+    flex: 1;
+}
+
+#tip-text {
+    margin: 0;
+    padding: 0;
+}
+
+.bottom-controls {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.button-group button {
+    min-width: 80px;
+    padding: 4px;
+    font-size: 12px;
+}
+
 .tip-header {
     font-family: 'Times New Roman', serif;
     font-size: 20px;
     margin-top: 10px;
     margin-bottom: 0;
     padding: 8px;
+}
+
+.menu-hotkey {
+    text-decoration: underline;
+}
+
+.tip-link {
+    color: #0000FF;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.tip-link:hover {
+    color: #FF0000;
+}
+
+.tip-link:active {
+    color: #800080;
 }
