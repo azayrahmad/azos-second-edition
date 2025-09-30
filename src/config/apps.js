@@ -1,4 +1,4 @@
-import { launchClippyApp } from "../apps/clippy/clippy.js";
+import { launchClippyApp, getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { aboutContent } from "../apps/about/about.js";
 import { resumeContent } from "../apps/resume/resume.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
@@ -273,5 +273,9 @@ export const apps = [
       type: "function",
       handler: launchClippyApp,
     },
+    hasTray: true,
+    tray: {
+      contextMenu: getClippyMenuItems,
+    }
   },
 ];

@@ -98,3 +98,19 @@ h1 {
 .read-the-docs {
   color: #888;
 }
+
+.tray-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 2px;
+}
+
+.tray-icon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
