@@ -134,6 +134,7 @@ button {
   background-color: var(--ButtonFace);
   color: rgb(0, 0, 0);
   color: var(--ButtonText);
+  font-family: "MSW98UI", sans-serif;
 }
 button:not(.lightweight) {
   outline: none; /* replaced with inner dotted focus ring (which is admittedly not so prominent...) */
@@ -219,6 +220,7 @@ button.lightweight {
   border-style: solid;
   border-width: 1px;
   border-color: transparent;
+  font-family: "MSW98UI", sans-serif;
 }
 /* TODO: recommend preventing focus on click for lightweight buttons */
 button.lightweight:enabled:hover {
@@ -562,6 +564,7 @@ body > .window-titlebar {
   /* @extend button.lightweight; */
   background: rgb(192, 192, 192);
   background: var(--Menu);
+  font-family: "MSW98UI", sans-serif;
 }
 /* Note: In Windows 98, normal menu bars have an inset highlight if you use Esc and then the arrow keys,
 whereas Explorer's menu bars are outset and match the hover effect, which I feel makes more sense,

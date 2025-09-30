@@ -1,0 +1,26 @@
+<div class="tip-of-the-day-content">
+  <div>
+    <div class="sunken-panel">
+      <div class="icon-container">
+          <img src="src/assets/icons/RNAUI_106.ico" alt="Help Icon" width="32" height="32">
+      </div>
+      <div class="content-area">
+          <h1 class="tip-header"><strong>Did you know...</strong></h1>
+          <hr class="tip-separator" />
+          <div class="tip-text-container">
+              <p id="tip-text">You can scroll text up one screen by pressing Page Up. Pressing Page Down scrolls text down one screen.</p>
+          </div>
+      </div>
+    </div>
+    <div class="bottom-controls">
+      <div class="field-row">
+          <input type="checkbox" id="show-tips">
+          <label for="show-tips">Show tips at startup</label>
+      </div>
+      <div class="button-group">
+          <button id="next-tip">&Next Tip</button>
+          <button class="default" onclick="$(this.closest('.window')).data('$window').close()">&Close</button>
+      </div>
+    </div>
+  </div>
+</div>
