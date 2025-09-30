@@ -125,6 +125,7 @@ export function getClippyMenuItems() {
                 if (trayIcon) {
                   trayIcon.remove();
                 }
+                window.clippyAgent = null;
               });
             }
           }
@@ -136,7 +137,7 @@ export function getClippyMenuItems() {
 
 export function launchClippyApp() {
   if (window.clippyAgent) {
-    agent.hide();
+    window.clippyAgent.hide();
   }
   $(".clippy, .clippy-balloon, .os-menu").remove();
   if (window.clippyToolWindow) {
