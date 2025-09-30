@@ -12,10 +12,15 @@ export function setup(contentElement) {
     "To close a window, click the X in the top-right corner."
   ];
 
-  let currentTipIndex = 0;
+  let currentTipIndex = Math.floor(Math.random() * tips.length);
 
   const tipTextElement = contentElement.querySelector('#tip-text');
   const nextTipButton = contentElement.querySelector('#next-tip');
+
+  // Display the initial random tip
+  if (tipTextElement) {
+    tipTextElement.textContent = tips[currentTipIndex];
+  }
 
   if (nextTipButton && tipTextElement) {
     nextTipButton.addEventListener('click', () => {
