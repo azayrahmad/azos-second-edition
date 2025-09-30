@@ -46,6 +46,8 @@ function createWindow(windowConfig) {
     outerWidth: windowConfig.width,
     outerHeight: windowConfig.height,
     resizable: windowConfig.resizable,
+    minimizeButton: windowConfig.minimizeButton,
+    maximizeButton: windowConfig.maximizeButton,
     icons: {
       16: windowConfig.icon,
     },

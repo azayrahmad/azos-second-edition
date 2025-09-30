@@ -150,22 +150,9 @@ export const apps = [
       window: {
         width: 400,
         height: 300,
-        resizable: true,
-        menuBar: {
-          File: [
-            {
-              label: "&Close",
-              action: (win) => win.close(),
-              shortcutLabel: "Alt+F4",
-            },
-          ],
-          Help: [
-            {
-              label: "&About",
-              action: () => alert("Displays a random tip."),
-            },
-          ],
-        },
+        resizable: false,
+        minimizeButton: false,
+        maximizeButton: false,
         content: tipOfTheDayContent,
         setup: tipOfTheDaySetup,
       },
