@@ -563,7 +563,7 @@ export function createTrayIcon(app) {
     return; // Icon already exists
   }
 
-  const trayIcon = document.createElement("button");
+  const trayIcon = document.createElement("div");
   trayIcon.id = `tray-icon-${app.id}`;
   trayIcon.className = "tray-icon";
   trayIcon.title = app.title;
