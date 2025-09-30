@@ -1,0 +1,26 @@
+<div class="tip-of-the-day-content">
+  <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+    <div style="display: flex; flex: 1;" class="sunken-panel">
+      <div style="background-color: #7B7B7B; padding: 15px;">
+          <img src="src/assets/icons/RNAUI_106.ico" alt="Help Icon" width="32" height="32">
+      </div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column;">
+          <h1 class="tip-header"><strong>Did you know...</strong></h1>
+          <hr style="margin: 4px 0; color: #7B7B7B" />
+          <div style="padding: 8px; flex: 1;">
+              <p style="margin: 0; padding: 0;" id="tip-text">You can scroll text up one screen by pressing Page Up. Pressing Page Down scrolls text down one screen.</p>
+          </div>
+      </div>
+    </div>
+    <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+      <div class="field-row">
+          <input type="checkbox" id="show-tips">
+          <label for="show-tips">Show tips at startup</label>
+      </div>
+      <div style="display: flex; gap: 8px;">
+          <button class="default" id="next-tip">Next Tip</button>
+          <button onclick="$(this.closest('.window')).data('$window').close()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
