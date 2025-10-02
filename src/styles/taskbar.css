@@ -4,9 +4,9 @@
     left: 0;
     width: 100%;
     height: 28px;
-    background: var(--background-gray);
-    border-top: 1px solid var(--border-light);
-    box-shadow: inset 0 1px white;
+    background: var(--ButtonFace, #c0c0c0);
+    border-top: 1px solid var(--ButtonLight, #dfdfdf);
+    box-shadow: inset 0 1px var(--ButtonHilight, white);
     padding: 2px;
     display: flex;
     align-items: center;
@@ -20,19 +20,19 @@
 .taskbar-divider {
     width: 1px;
     height: 24px;
-    background-color: var(--shadow-medium-dark);
-    border-right: var(--border-white) 1px solid;
+    background-color: var(--ButtonShadow, grey);
+    border-right: var(--ButtonHilight, white) 1px solid;
     margin: 0 0 0 2px;
 }
 
 .taskbar-divider-handler {
     width: 1px;
     height: 16px;
-    background-color: var(--background-gray);
-    border-top: var(--border-white) 1px solid;
-    border-left: var(--border-white) 1px solid;
-    border-right: var(--border-dark) 1px solid;
-    border-bottom: var(--border-dark) 1px solid;
+    background-color: var(--ButtonFace, #c0c0c0);
+    border-top: var(--ButtonHilight, white) 1px solid;
+    border-left: var(--ButtonHilight, white) 1px solid;
+    border-right: var(--ButtonShadow, #808080) 1px solid;
+    border-bottom: var(--ButtonShadow, #808080) 1px solid;
     padding-left: 0;
     margin: 2px;
 }
@@ -79,11 +79,11 @@
 
 .taskbar-button.active {
     box-shadow:
-        inset -1px -1px var(--shadow-light),
-        inset 1px 1px var(--shadow-dark),
-        inset -2px -2px var(--shadow-medium-light),
-        inset 2px 2px var(--shadow-medium-dark);
-    text-shadow: var(--text-shadow);
+        inset -1px -1px var(--ButtonHilight, #fff),
+        inset 1px 1px var(--ButtonDkShadow, #000),
+        inset -2px -2px var(--ButtonLight, #dfdfdf),
+        inset 2px 2px var(--ButtonShadow, #808080);
+    text-shadow: 1px 1px #222;
     background-image: url("/win98/checker.png");
     background-repeat: repeat;
 }
@@ -111,10 +111,10 @@ button:not(:disabled):active img {
 
 .taskbar-icon:hover {
     box-shadow:
-        inset -1px -1px var(--shadow-dark),
-        inset 1px 1px var(--shadow-light),
-        inset -2px -2px var(--shadow-medium-dark),
-        inset 2px 2px var(--shadow-medium-light);
+        inset -1px -1px var(--ButtonDkShadow, #000),
+        inset 1px 1px var(--ButtonHilight, #fff),
+        inset -2px -2px var(--ButtonShadow, #808080),
+        inset 2px 2px var(--ButtonLight, #dfdfdf);
 }
 
 .taskbar-icon img {
@@ -138,13 +138,13 @@ button:not(:disabled):active img {
     position: absolute;
     bottom: 0; /* Adjust this value to position the menu above the start button */
     left: 0;
-    background-color: var(--background-gray);
-    border: 1px solid black;
-    border-top-color: var(--border-light);
-    border-left-color: var(--border-light);
+    background-color: var(--ButtonFace, #c0c0c0);
+    border: 1px solid var(--ButtonDkShadow, black);
+    border-top-color: var(--ButtonLight, #dfdfdf);
+    border-left-color: var(--ButtonLight, #dfdfdf);
     box-shadow:
-        inset -1px -1px 0 0 var(--border-dark),
-        inset 1px 1px 0 0 var(--border-white);
+        inset -1px -1px 0 0 var(--ButtonShadow, #808080),
+        inset 1px 1px 0 0 var(--ButtonHilight, white);
     z-index: 1000;
     display: flex;
     align-items: stretch;
@@ -179,13 +179,13 @@ button:not(:disabled):active img {
     margin-right: 14px;
 }
 .start-menu li:hover {
-    background-color: var(--highlight-blue);
-    color: var(--highlight-text);
+    background-color: var(--Hilight, #0000a8);
+    color: var(--HilightText, #fff);
 }
 
 .blue-rectangle {
     width: 21px;
-    background-color: var(--highlight-blue);
+    background-color: var(--Hilight, #0000a8);
     margin: 2px;
     margin-right: 0;
     display: grid;
@@ -206,8 +206,8 @@ button:not(:disabled):active img {
 .start-menu-divider {
     width: 146px;
     height: 1px;
-    background-color: var(--shadow-medium-dark);
-    border-bottom: var(--border-white) 1px solid;
+    background-color: var(--ButtonShadow, grey);
+    border-bottom: var(--ButtonHilight, white) 1px solid;
     margin: 0 3px;
 }
 
@@ -222,10 +222,10 @@ button:not(:disabled):active img {
 
 .system-tray {
     height: 22px;
-    background: var(--background-gray);
-    border: 1px solid var(--border-light);
-    border-left: 1px solid var(--border-dark);
-    border-top: 1px solid var(--border-dark);
+    background: var(--ButtonFace, #c0c0c0);
+    border: 1px solid var(--ButtonLight, #dfdfdf);
+    border-left: 1px solid var(--ButtonShadow, #808080);
+    border-top: 1px solid var(--ButtonShadow, #808080);
     margin: 2px;
     display: flex;
     align-items: center;
