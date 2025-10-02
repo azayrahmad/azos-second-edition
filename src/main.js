@@ -86,11 +86,12 @@ setupCounter(document.querySelector('#counter'));
 // ...existing code...
 
 // Add context menu for desktop
-const desktopArea = document.querySelector('.desktop');  // Changed from getElementById to querySelector
-if (desktopArea) {
-    desktopArea.addEventListener('contextmenu', (e) => {
+document.addEventListener('contextmenu', (e) => {
+    const desktopArea = document.querySelector('.desktop-area');
+    // Check if the right-click was inside the desktop area, but not on an icon
+    if (desktopArea && desktopArea.contains(e.target) && e.target.closest('.desktop-icon') === null) {
         e.preventDefault();
-        e.stopPropagation();  // Add this to prevent event bubbling
+        e.stopPropagation();
 
         const contextMenuItems = [
             {
@@ -99,7 +100,16 @@ if (desktopArea) {
                     { label: 'Large &Icons' },
                     { label: 'Small &Icons' },
                     { label: '&List' },
-                    { label: '&Details' }
+                    { label: '&Details' },
+                    "MENU_DIVIDER",
+                    {
+                        label: 'Scanlines',
+                        type: 'checkbox',
+                        checked: document.body.classList.contains('scanlines'),
+                        click: () => {
+                            document.body.classList.toggle('scanlines');
+                        },
+                    },
                 ]
             },
             "MENU_DIVIDER",
@@ -128,7 +138,6 @@ if (desktopArea) {
         // Position and show the menu
         contextMenu.show(e.clientX, e.clientY);
 
-
         // Hide menu when clicking outside
         const hideMenu = (event) => {
             if (!contextMenu.element.contains(event.target)) {
@@ -144,7 +153,5 @@ if (desktopArea) {
         setTimeout(() => {
             document.addEventListener('click', hideMenu);
         }, 0);
-    });
-} else {
-    console.warn('Desktop element not found');
-}
+    }
+});
