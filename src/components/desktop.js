@@ -95,6 +95,43 @@ function showIconContextMenu(event, app) {
   document.addEventListener("click", closeMenu);
 }
 
+function showDesktopContextMenu(event) {
+  const menuItems = [
+    {
+      label: 'Scanlines',
+      checkbox: {
+        check: () => document.body.classList.contains('scanlines'),
+        toggle: () => {
+          document.body.classList.toggle('scanlines');
+        }
+      }
+    }
+  ];
+
+  const existingMenus = document.querySelectorAll('.menu-popup');
+  existingMenus.forEach(menu => menu.remove());
+
+  const menu = new OS.MenuList(menuItems);
+  document.body.appendChild(menu.element);
+
+  menu.show(event.clientX, event.clientY);
+
+  const closeMenu = (e) => {
+      if (!menu.element.contains(e.target)) {
+          menu.hide();
+          if (menu.element.parentNode) {
+              document.body.removeChild(menu.element);
+          }
+          document.removeEventListener('click', closeMenu);
+      }
+  };
+
+  // Add slight delay to prevent immediate hiding
+  setTimeout(() => {
+      document.addEventListener('click', closeMenu);
+  }, 0);
+}
+
 function showProperties(app) {
   console.log(`Show properties for: ${app.title}`);
   // TODO: Implement properties dialog
@@ -146,5 +183,15 @@ export function setupIcons() {
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
   setupIcons();
+
+  const desktop = document.querySelector('.desktop');
+  desktop.addEventListener('contextmenu', (e) => {
+    // Show desktop context menu only if not clicking on an icon
+    if (e.target === desktop) {
+      e.preventDefault();
+      showDesktopContextMenu(e);
+    }
+  });
+
   init(); // Initialize the taskbar manager
 }
