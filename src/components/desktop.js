@@ -193,5 +193,22 @@ export function initDesktop() {
     }
   });
 
+  // Add click handler to desktop to deselect icons
+  desktop.addEventListener('click', (e) => {
+    // Only handle clicks directly on the desktop (not on icons)
+    if (e.target === desktop) {
+      // Remove highlight from all icons and icon-labels
+      document
+        .querySelectorAll(".desktop-icon .icon img, .desktop-icon .icon-label")
+        .forEach((element) => {
+          element.classList.remove(
+            "highlighted-icon",
+            "highlighted-label",
+            "selected",
+          );
+        });
+    }
+  });
+
   init(); // Initialize the taskbar manager
 }
