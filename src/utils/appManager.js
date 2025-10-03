@@ -30,6 +30,7 @@ export function handleAppAction(app) {
       id: app.id,
       title: app.title,
       icon: app.icon,
+      hasTaskbarButton: app.hasTaskbarButton,
       ...app.action.window,
     });
 
@@ -107,16 +108,16 @@ function createWindow(windowConfig) {
   // Store jQuery window object reference
   $(win.element).data('$window', win);
 
-  // Create taskbar button
-  const taskbarButton = createTaskbarButton(
-    win.element.id,
-    windowConfig.icon,
-    windowConfig.title
-  );  // Add app-window class for taskbar compatibility
-  win.element.classList.add('app-window');
-
-  // Connect the window's minimize target to the taskbar button
-  win.setMinimizeTarget(taskbarButton);
+  // Create taskbar button only if explicitly configured
+  if (windowConfig.hasTaskbarButton) {
+    const taskbarButton = createTaskbarButton(
+      win.element.id,
+      windowConfig.icon,
+      windowConfig.title
+    );
+    win.element.classList.add('app-window');
+    win.setMinimizeTarget(taskbarButton);
+  }
 
   win.focus();
   win.center();

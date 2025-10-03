@@ -1,4 +1,5 @@
 import { launchClippyApp, getClippyMenuItems } from "../apps/clippy/clippy.js";
+import { launchWebampApp, getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { aboutContent } from "../apps/about/about.js";
 import { resumeContent } from "../apps/resume/resume.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
@@ -9,6 +10,7 @@ export const apps = [
     title: "About",
     icon: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
     path: "/about/",
+    hasTaskbarButton: true,
     action: {
       type: "window",
       window: {
@@ -71,6 +73,7 @@ export const apps = [
     title: "Resume",
     icon: new URL("../assets/icons/word_001.ico", import.meta.url).href,
     path: "/resume/",
+    hasTaskbarButton: true,
     action: {
       type: "window",
       window: {
@@ -145,6 +148,7 @@ export const apps = [
     title: "Tip of the Day",
     icon: new URL("../assets/icons/help_book_cool-0.png", import.meta.url).href,
     path: "/tip-of-the-day/",
+    hasTaskbarButton: true,
     action: {
       type: "window",
       window: {
@@ -276,6 +280,19 @@ export const apps = [
     hasTray: true,
     tray: {
       contextMenu: getClippyMenuItems,
+    }
+  },
+  {
+    id: "webamp",
+    title: "Winamp",
+    icon: new URL("../assets/icons/winamp.png", import.meta.url).href,
+    action: {
+      type: "function",
+      handler: launchWebampApp,
+    },
+    hasTaskbarButton: true,
+    tray: {
+      contextMenu: getWebampMenuItems,
     }
   },
 ];
