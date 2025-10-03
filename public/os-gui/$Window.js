@@ -124,6 +124,7 @@ function $Window(options = {}) {
 	$w[0].$window = $w;
 	$w.element = $w[0];
 	$w[0].id = `os-window-${Math.random().toString(36).substr(2, 9)}`;
+
 	$w.$titlebar = $(E("div")).addClass("window-titlebar").appendTo($w);
 	$w.$title_area = $(E("div")).addClass("window-title-area").appendTo($w.$titlebar);
 	$w.$title = $(E("span")).addClass("window-title").appendTo($w.$title_area);
@@ -148,6 +149,9 @@ function $Window(options = {}) {
 		$w.$x = $(E("button")).addClass("window-close-button window-action-close window-button").appendTo($w.$titlebar);
 		$w.$x.attr("aria-label", "Close window");
 		$w.$x.append("<span class='window-button-icon'></span>");
+	}
+	if (options.hasChrome === false) {
+		$w.addClass("no-chrome");
 	}
 	$w.$content = $(E("div")).addClass("window-content").appendTo($w);
 	$w.$content.attr("tabIndex", "-1");
