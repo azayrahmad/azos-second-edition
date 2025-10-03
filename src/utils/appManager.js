@@ -53,10 +53,15 @@ function createWindow(windowConfig) {
     resizable: windowConfig.resizable,
     minimizeButton: windowConfig.minimizeButton,
     maximizeButton: windowConfig.maximizeButton,
+    hasChrome: windowConfig.hasChrome,
     icons: {
       16: windowConfig.icon,
     },
   });
+
+  if (windowConfig.onClose) {
+    win.onClosed(windowConfig.onClose);
+  }
 
   if (windowConfig.menuBar) {
     const menuBar = new MenuBar(windowConfig.menuBar);

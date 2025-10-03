@@ -430,6 +430,22 @@ body > .window-titlebar {
   padding: 2px;
 }
 
+.os-window.no-chrome {
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+
+.os-window.no-chrome .window-titlebar {
+	display: none !important;
+}
+
+.os-window.no-chrome {
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+
 .window-button {
   display: block;
   width: 16px;

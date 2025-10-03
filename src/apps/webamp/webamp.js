@@ -1,36 +1,33 @@
 let webampInstance = null;
 
-export async function launchWebampApp() {
+/**
+ * Creates and renders the Webamp instance within a given container.
+ * @param {HTMLElement} container - The DOM element to render Webamp into.
+ */
+export async function setupWebamp(container) {
   if (webampInstance) {
-    // TODO: Maybe focus the window?
+    // This case should ideally not be hit if window management is correct.
     return;
   }
 
+  // Dynamically import Webamp
   const Webamp = (await import("https://unpkg.com/webamp@^2")).default;
-  const desktop = document.querySelector(".desktop");
-  if (!desktop) {
-    console.error("Could not find desktop element to render Webamp into.");
-    return;
-  }
+
+  // Ensure the container is empty before rendering
+  container.innerHTML = '';
 
   webampInstance = new Webamp({
-    // Optional: initial tracks
-    // initialTracks: [{
-    //   metaData: {
-    //     artist: "DJ Mike Llama",
-    //     title: "Llama Whippin' Intro",
-    //   },
-    //   url: "https://cdn.rawgit.com/captbaritone/webamp/master/mp3/llama-2.91.mp3",
-    // }],
+    // Initial options can be set here if needed
   });
 
-  await webampInstance.renderWhenReady(desktop);
-
-  webampInstance.onClose(() => {
-    webampInstance = null;
-  });
+  // Render the Webamp instance into the provided container
+  await webampInstance.renderWhenReady(container);
 }
 
+/**
+ * Returns the context menu items for the Webamp application.
+ * This is used for the taskbar button context menu.
+ */
 export function getWebampMenuItems() {
   return [
     {
@@ -38,8 +35,19 @@ export function getWebampMenuItems() {
       action: () => {
         if (webampInstance) {
           webampInstance.close();
+          webampInstance = null;
         }
       },
     },
   ];
+}
+
+/**
+ * Handles the cleanup when the Webamp window is closed.
+ */
+export function onWindowClose() {
+  if (webampInstance) {
+    webampInstance.close();
+    webampInstance = null;
+  }
 }

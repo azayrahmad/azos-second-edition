@@ -1,5 +1,5 @@
 import { launchClippyApp, getClippyMenuItems } from "../apps/clippy/clippy.js";
-import { launchWebampApp, getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { setupWebamp, onWindowClose } from "../apps/webamp/webamp.js";
 import { aboutContent } from "../apps/about/about.js";
 import { resumeContent } from "../apps/resume/resume.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
@@ -191,95 +191,22 @@ export const apps = [
       },
     ],
   },
-  // {
-  //   id: "notepad",
-  //   title: "Notepad",
-  //   icon: "./src/assets/icons/notepad.ico",
-  //   path: "/notepad/",
-  //   action: {
-  //     type: "window",
-  //     window: {
-  //       width: 500,
-  //       height: 400,
-  //       resizable: true,
-  //       menuBar: {
-  //         File: [
-  //           {
-  //             label: "&New",
-  //             shortcutLabel: "Ctrl+N",
-  //             action: () => console.log("New document"),
-  //           },
-  //           {
-  //             label: "&Save",
-  //             shortcutLabel: "Ctrl+S",
-  //             action: () => console.log("Save document"),
-  //           },
-  //           { label: "-" },
-  //           {
-  //             label: "E&xit",
-  //             action: (win) => win.close(),
-  //           },
-  //         ],
-  //         Edit: [
-  //           {
-  //             label: "&Undo",
-  //             shortcutLabel: "Ctrl+Z",
-  //             enabled: false,
-  //           },
-  //           { label: "-" },
-  //           {
-  //             label: "Cu&t",
-  //             shortcutLabel: "Ctrl+X",
-  //           },
-  //           {
-  //             label: "&Copy",
-  //             shortcutLabel: "Ctrl+C",
-  //           },
-  //           {
-  //             label: "&Paste",
-  //             shortcutLabel: "Ctrl+V",
-  //           },
-  //         ],
-  //       },
-  //       content: `
-  //         <div class="notepad-content" style="padding: 8px;">
-  //           <textarea style="width: 100%; height: calc(100% - 16px); resize: none;"></textarea>
-  //         </div>
-  //       `,
-  //     },
-  //   },
-  // },
-  // {
-  //   id: "shutdown",
-  //   title: "Shut Down",
-  //   icon: "./src/assets/icons/shutdown.ico",
-  //   action: {
-  //     type: "function",
-  //     handler: () => {
-  //       if (confirm("Are you sure you want to shut down the system?")) {
-  //         document.body.innerHTML =
-  //           '<div style="text-align: center; padding-top: 40vh;">It is now safe to turn off your computer.</div>';
-  //       }
-  //     },
-  //   },
-  // },
-
-  // ... (other apps)
-
   {
     id: "webamp",
     title: "Webamp",
     icon: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
     action: {
-      type: "function",
-      handler: launchWebampApp,
-    },
-    hasTray: true,
-    tray: {
-      contextMenu: getWebampMenuItems,
+      type: "window",
+      window: {
+        width: 275,
+        height: 116 * 3,
+        hasChrome: false,
+        resizable: false,
+        setup: setupWebamp,
+        onClose: onWindowClose,
+      },
     },
   },
-
   {
     id: "clippy",
     title: "Office Assistant",
