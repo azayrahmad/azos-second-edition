@@ -1,4 +1,5 @@
 import { launchClippyApp, getClippyMenuItems } from "../apps/clippy/clippy.js";
+import { launchWebampApp, getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { aboutContent } from "../apps/about/about.js";
 import { resumeContent } from "../apps/resume/resume.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
@@ -264,6 +265,20 @@ export const apps = [
   // },
 
   // ... (other apps)
+
+  {
+    id: "webamp",
+    title: "Webamp",
+    icon: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+    action: {
+      type: "function",
+      handler: launchWebampApp,
+    },
+    hasTray: true,
+    tray: {
+      contextMenu: getWebampMenuItems,
+    },
+  },
 
   {
     id: "clippy",
