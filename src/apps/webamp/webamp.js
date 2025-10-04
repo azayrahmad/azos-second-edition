@@ -35,7 +35,7 @@ export function launchWebampApp() {
             artist: "DJ Mike Llama",
             title: "Llama Whippin' Intro"
           },
-          url: "https://cdn.jsdelivr.net/gh/captbaritone/webamp@43434d82/demo/mp3/llama-2.91.mp3"
+          url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3"
         }
       ]
     });
