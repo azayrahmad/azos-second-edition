@@ -14,24 +14,11 @@ export const apps = [
     action: {
       type: "window",
       window: {
-        width: 400,
+        width: 500,
         height: 300,
-        resizable: true,
-        menuBar: {
-          File: [
-            {
-              label: "&Close",
-              action: (win) => win.close(),
-              shortcutLabel: "Alt+F4",
-            },
-          ],
-          Help: [
-            {
-              label: "&About",
-              action: () => alert("About this app"),
-            },
-          ],
-        },
+        resizable: false,
+        minimizeButton: false,
+        maximizeButton: false,
         content: aboutContent,
       },
     },
