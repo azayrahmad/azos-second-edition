@@ -96,40 +96,62 @@ function showIconContextMenu(event, app) {
 }
 
 function showDesktopContextMenu(event) {
-  const menuItems = [
-    {
-      label: 'Scanlines',
-      checkbox: {
-        check: () => document.body.classList.contains('scanlines'),
-        toggle: () => {
-          document.body.classList.toggle('scanlines');
+    const themes = {
+        default: 'Default',
+        blue: 'Blue',
+    };
+
+    const setTheme = (theme) => {
+        document.body.classList.remove(...Object.keys(themes).map(t => `theme-${t}`));
+        if (theme !== 'default') {
+            document.body.classList.add(`theme-${theme}`);
         }
-      }
-    }
-  ];
+        localStorage.setItem('desktop-theme', theme);
+    };
 
-  const existingMenus = document.querySelectorAll('.menu-popup');
-  existingMenus.forEach(menu => menu.remove());
+    const currentTheme = localStorage.getItem('desktop-theme') || 'default';
 
-  const menu = new OS.MenuList(menuItems);
-  document.body.appendChild(menu.element);
+    const menuItems = [
+        {
+            label: 'Theme',
+            submenu: Object.keys(themes).map(themeKey => ({
+                label: themes[themeKey],
+                checkbox: {
+                    type: 'radio',
+                    check: () => currentTheme === themeKey,
+                    toggle: () => setTheme(themeKey),
+                },
+            })),
+        },
+        {
+            label: 'Scanlines',
+            checkbox: {
+                check: () => document.body.classList.contains('scanlines'),
+                toggle: () => {
+                    document.body.classList.toggle('scanlines');
+                }
+            }
+        }
+    ];
 
-  menu.show(event.clientX, event.clientY);
+    const existingMenus = document.querySelectorAll('.menu-popup');
+    existingMenus.forEach(menu => menu.remove());
 
-  const closeMenu = (e) => {
-      if (!menu.element.contains(e.target)) {
-          menu.hide();
-          if (menu.element.parentNode) {
-              document.body.removeChild(menu.element);
-          }
-          document.removeEventListener('click', closeMenu);
-      }
-  };
+    const menu = new OS.MenuList(menuItems);
+    document.body.appendChild(menu.element);
 
-  // Add slight delay to prevent immediate hiding
-  setTimeout(() => {
-      document.addEventListener('click', closeMenu);
-  }, 0);
+    menu.show(event.clientX, event.clientY);
+
+    const closeMenu = (e) => {
+        if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
+            menu.closeAll();
+            document.removeEventListener('click', closeMenu);
+        }
+    };
+
+    setTimeout(() => {
+        document.addEventListener('click', closeMenu);
+    }, 0);
 }
 
 function showProperties(app) {
@@ -179,9 +201,17 @@ export function setupIcons() {
   });
 }
 
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('desktop-theme');
+    if (savedTheme && savedTheme !== 'default') {
+        document.body.classList.add(`theme-${savedTheme}`);
+    }
+}
+
 // Initialize desktop behavior
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
+  applySavedTheme();
   setupIcons();
 
   const desktop = document.querySelector('.desktop');

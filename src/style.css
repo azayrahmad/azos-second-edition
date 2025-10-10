@@ -114,3 +114,8 @@ h1 {
   height: 16px;
   object-fit: contain;
 }
+
+/* Themes */
+body.theme-blue {
+  --background-teal: #00539C;
+}
