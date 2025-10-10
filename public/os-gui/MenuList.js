@@ -11,12 +11,16 @@
          * @param {Object} options
          * @param {HTMLElement} [options.parentEl] - Parent element for context positioning
          * @param {boolean} [options.isSubmenu=false] - Whether this is a submenu
+         * @param {MenuList} [options.parentMenu] - Parent menu instance
          */
         constructor(items, options = {}) {
             this.items = items;
             this.parentEl = options.parentEl;
             this.isSubmenu = options.isSubmenu || false;
+            this.parentMenu = options.parentMenu;
             this.defaultLabel = options.defaultLabel || 'Open';
+            this.activeSubmenu = null;
+            this.submenuOpenTimer = null;
 
             this.element = document.createElement('div');
             this.element.className = 'menu-popup';
@@ -36,6 +40,10 @@
         }
 
         buildMenu() {
+            // Clear existing items
+            this.tableElement.innerHTML = '';
+            this.itemElements = [];
+
             this.items.forEach((item, index) => {
                 if (item === MENU_DIVIDER) {
                     const row_el = document.createElement("tr");
@@ -134,8 +142,14 @@
                         item.checkbox.toggle();
                     }
                     this.updateMenuItem(itemEl, item);
+                    // For checkmark-style radio buttons, we don't close the menu,
+                    // allowing the user to see the change.
+                    // The menu is closed by clicking outside of it.
+                    if (item.checkbox.type !== 'radio') {
+                        this.closeAll();
+                    }
                 } else if (item.action) {
-                    this.close();
+                    this.closeAll();
                     item.action();
                 }
             };
@@ -144,12 +158,15 @@
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
                         item.click(e);
-                        this.close();
+                         // Only close if it's not a checkbox/radio.
+                        if (!item.checkbox) {
+                            this.closeAll();
+                        }
                     }
                 });
             } else {
                 itemEl.addEventListener('click', (e) => {
-                    if (!this.isDisabled(item)) {
+                    if (!this.isDisabled(item) && !item.submenu) {
                         item_action();
                     }
                 });
@@ -158,10 +175,21 @@
             itemEl.addEventListener('pointerenter', () => {
                 this.highlight(itemEl);
                 this.sendInfoEvent(item);
+                this.closeActiveSubmenu();
+
+                if (item.submenu) {
+                    this.submenuOpenTimer = setTimeout(() => {
+                        this.openSubmenu(item, itemEl);
+                    }, 200);
+                }
             });
 
-            itemEl.addEventListener('pointerleave', () => {
-                itemEl.classList.remove('highlight');
+            itemEl.addEventListener('pointerleave', (e) => {
+                clearTimeout(this.submenuOpenTimer);
+                // Don't remove highlight if moving into a submenu
+                if (!this.activeSubmenu || !this.activeSubmenu.element.contains(e.relatedTarget)) {
+                     itemEl.classList.remove('highlight');
+                }
             });
 
             // Add update listener for dynamic state changes
@@ -205,7 +233,12 @@
                 itemEl = itemElOrIndex;
             }
 
-            this.itemElements.forEach(el => el.classList.remove('highlight'));
+            this.itemElements.forEach(el => {
+                if (el !== itemEl) {
+                    el.classList.remove('highlight');
+                }
+            });
+
             if (itemEl) {
                 itemEl.classList.add('highlight');
             }
@@ -333,15 +366,45 @@
 
         hide() {
             this.element.style.display = 'none';
+            this.closeActiveSubmenu();
         }
 
         close() {
             if (this.element.parentNode) {
                 this.element.parentNode.removeChild(this.element);
+                this.element.dispatchEvent(new CustomEvent('close', { bubbles: true }));
             }
-            // If this is a submenu, also close parent menus
-            if (this.isSubmenu && this.parentMenu) {
-                this.parentMenu.close();
+            this.closeActiveSubmenu();
+        }
+
+        closeAll() {
+            let menu = this;
+            while (menu.parentMenu) {
+                menu = menu.parentMenu;
+            }
+            menu.close();
+        }
+
+        openSubmenu(item, itemEl) {
+            if (this.activeSubmenu) {
+                this.closeActiveSubmenu();
+            }
+
+            const submenu = new MenuList(item.submenu, {
+                isSubmenu: true,
+                parentMenu: this,
+                parentEl: itemEl,
+            });
+
+            this.activeSubmenu = submenu;
+            document.body.appendChild(submenu.element);
+            submenu.show();
+        }
+
+        closeActiveSubmenu() {
+            if (this.activeSubmenu) {
+                this.activeSubmenu.close();
+                this.activeSubmenu = null;
             }
         }
 
@@ -350,38 +413,45 @@
 
             const parentRect = this.parentEl.getBoundingClientRect();
             const menuRect = this.element.getBoundingClientRect();
+            let x, y;
 
             if (this.isSubmenu) {
-                // Position submenu to the right of the parent
-                this.element.style.left = `${parentRect.right}px`;
-                this.element.style.top = `${parentRect.top}px`;
+                // Position submenu to the right of the parent item
+                x = parentRect.right;
+                y = parentRect.top;
             } else {
-                // Position dropdown below the parent
-                this.element.style.left = `${parentRect.left}px`;
-                this.element.style.top = `${parentRect.bottom}px`;
+                // Position dropdown below the parent element
+                x = parentRect.left;
+                y = parentRect.bottom;
             }
 
-            // Adjust if menu goes off screen
+            // Adjust if menu goes off-screen
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
 
-            if (menuRect.right > viewportWidth) {
+            if (x + menuRect.width > viewportWidth) {
                 if (this.isSubmenu) {
-                    // Show submenu to the left of parent
-                    this.element.style.left = `${parentRect.left - menuRect.width}px`;
+                    // If submenu is off-screen, show it to the left of the parent item
+                    x = parentRect.left - menuRect.width;
                 } else {
-                    // Align with right edge of parent
-                    this.element.style.left = `${parentRect.right - menuRect.width}px`;
+                    // Align dropdown with the right edge of the parent
+                    x = parentRect.right - menuRect.width;
                 }
             }
 
-            if (menuRect.bottom > viewportHeight) {
+            if (y + menuRect.height > viewportHeight) {
                 if (this.isSubmenu) {
-                    this.element.style.top = `${Math.max(0, viewportHeight - menuRect.height)}px`;
+                    // Adjust vertical position to stay within viewport
+                    y = Math.max(0, viewportHeight - menuRect.height);
                 } else {
-                    this.element.style.top = `${parentRect.top - menuRect.height}px`;
+                    // Show dropdown above the parent
+                    y = parentRect.top - menuRect.height;
                 }
             }
+
+            // Final position clamping
+            this.element.style.left = `${Math.max(0, x)}px`;
+            this.element.style.top = `${Math.max(0, y)}px`;
         }
     }
 

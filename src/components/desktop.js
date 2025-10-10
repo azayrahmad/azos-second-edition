@@ -96,40 +96,82 @@ function showIconContextMenu(event, app) {
 }
 
 function showDesktopContextMenu(event) {
-  const menuItems = [
-    {
-      label: 'Scanlines',
-      checkbox: {
-        check: () => document.body.classList.contains('scanlines'),
-        toggle: () => {
-          document.body.classList.toggle('scanlines');
+    const themes = {
+        default: 'Default',
+        'peggys-pastels': "Peggy's Pastels",
+        blue: 'Blue',
+    };
+
+    const setTheme = (theme, menu) => {
+        localStorage.setItem('desktop-theme', theme);
+        applySavedTheme();
+        // Dispatch a custom event to notify any open menus to update their state
+        document.dispatchEvent(new CustomEvent('theme-changed'));
+    };
+
+    const menuItems = [];
+    const menu = new OS.MenuList(menuItems);
+
+    const themeSubmenu = Object.keys(themes).map(themeKey => ({
+        label: themes[themeKey],
+        checkbox: {
+            type: 'radio',
+            check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
+            toggle: () => setTheme(themeKey, menu),
+        },
+    }));
+
+    const finalMenuItems = [
+        {
+            label: 'Theme',
+            submenu: themeSubmenu,
+        },
+        {
+            label: 'Scanlines',
+            checkbox: {
+                check: () => document.body.classList.contains('scanlines'),
+                toggle: () => {
+                    document.body.classList.toggle('scanlines');
+                }
+            }
         }
-      }
-    }
-  ];
+    ];
 
-  const existingMenus = document.querySelectorAll('.menu-popup');
-  existingMenus.forEach(menu => menu.remove());
+    menu.items = finalMenuItems;
+    menu.buildMenu();
 
-  const menu = new OS.MenuList(menuItems);
-  document.body.appendChild(menu.element);
+    const existingMenus = document.querySelectorAll('.menu-popup');
+    existingMenus.forEach(m => m.remove());
 
-  menu.show(event.clientX, event.clientY);
+    document.body.appendChild(menu.element);
+    menu.show(event.clientX, event.clientY);
 
-  const closeMenu = (e) => {
-      if (!menu.element.contains(e.target)) {
-          menu.hide();
-          if (menu.element.parentNode) {
-              document.body.removeChild(menu.element);
-          }
-          document.removeEventListener('click', closeMenu);
-      }
-  };
+    // This listener will update the checkmarks in the theme submenu
+    const themeUpdateListener = () => {
+        // Find the active submenu and trigger its update event
+        if (menu.activeSubmenu && menu.activeSubmenu.element) {
+            menu.activeSubmenu.element.dispatchEvent(new CustomEvent("update", {}));
+        }
+    };
+    document.addEventListener('theme-changed', themeUpdateListener);
 
-  // Add slight delay to prevent immediate hiding
-  setTimeout(() => {
-      document.addEventListener('click', closeMenu);
-  }, 0);
+    const closeMenu = (e) => {
+        if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
+            menu.closeAll();
+        }
+    };
+
+    // Add a listener to the menu itself to know when it's closed, so we can clean up
+    const onClose = () => {
+        document.removeEventListener('click', closeMenu);
+        document.removeEventListener('theme-changed', themeUpdateListener);
+        menu.element.removeEventListener('close', onClose);
+    };
+    menu.element.addEventListener('close', onClose);
+
+    setTimeout(() => {
+        document.addEventListener('click', closeMenu);
+    }, 0);
 }
 
 function showProperties(app) {
@@ -179,9 +221,22 @@ export function setupIcons() {
   });
 }
 
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('desktop-theme') || 'default';
+    const themeIds = ['peggys-pastels-theme', 'blue-theme'];
+
+    themeIds.forEach(id => {
+        const stylesheet = document.getElementById(id);
+        if (stylesheet) {
+            stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
+        }
+    });
+}
+
 // Initialize desktop behavior
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
+  applySavedTheme();
   setupIcons();
 
   const desktop = document.querySelector('.desktop');
