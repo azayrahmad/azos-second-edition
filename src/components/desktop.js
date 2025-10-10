@@ -119,7 +119,6 @@ function showDesktopContextMenu(event) {
             submenu: Object.keys(themes).map(themeKey => ({
                 label: themes[themeKey],
                 checkbox: {
-                    type: 'radio', // Use radio type for visual cue, but logic handles it like checkmarks
                     check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
                     toggle: () => setTheme(themeKey),
                 },
@@ -144,15 +143,23 @@ function showDesktopContextMenu(event) {
 
     menu.show(event.clientX, event.clientY);
 
+    const handleThemeChange = () => {
+        // When the theme changes, we need to manually trigger an update on the menu
+        // to re-evaluate the 'check' state of all theme items.
+        menu.element.dispatchEvent(new CustomEvent('update', {}));
+    };
+
     const closeMenu = (e) => {
         if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
             menu.closeAll();
             document.removeEventListener('click', closeMenu);
+            document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
         }
     };
 
     setTimeout(() => {
         document.addEventListener('click', closeMenu);
+        document.addEventListener('theme-changed', handleThemeChange);
     }, 0);
 }
 
