@@ -11,12 +11,16 @@
          * @param {Object} options
          * @param {HTMLElement} [options.parentEl] - Parent element for context positioning
          * @param {boolean} [options.isSubmenu=false] - Whether this is a submenu
+         * @param {MenuList} [options.parentMenu] - Parent menu instance
          */
         constructor(items, options = {}) {
             this.items = items;
             this.parentEl = options.parentEl;
             this.isSubmenu = options.isSubmenu || false;
+            this.parentMenu = options.parentMenu;
             this.defaultLabel = options.defaultLabel || 'Open';
+            this.activeSubmenu = null;
+            this.submenuOpenTimer = null;
 
             this.element = document.createElement('div');
             this.element.className = 'menu-popup';
@@ -134,8 +138,9 @@
                         item.checkbox.toggle();
                     }
                     this.updateMenuItem(itemEl, item);
+                    // Do not close menu for checkbox items, allowing for dynamic updates.
                 } else if (item.action) {
-                    this.close();
+                    this.closeAll();
                     item.action();
                 }
             };
@@ -144,12 +149,15 @@
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
                         item.click(e);
-                        this.close();
+                        // Only close if it's not a checkbox.
+                        if (!item.checkbox) {
+                            this.closeAll();
+                        }
                     }
                 });
             } else {
                 itemEl.addEventListener('click', (e) => {
-                    if (!this.isDisabled(item)) {
+                    if (!this.isDisabled(item) && !item.submenu) {
                         item_action();
                     }
                 });
@@ -158,10 +166,21 @@
             itemEl.addEventListener('pointerenter', () => {
                 this.highlight(itemEl);
                 this.sendInfoEvent(item);
+                this.closeActiveSubmenu();
+
+                if (item.submenu) {
+                    this.submenuOpenTimer = setTimeout(() => {
+                        this.openSubmenu(item, itemEl);
+                    }, 200); // A slight delay
+                }
             });
 
-            itemEl.addEventListener('pointerleave', () => {
-                itemEl.classList.remove('highlight');
+            itemEl.addEventListener('pointerleave', (e) => {
+                clearTimeout(this.submenuOpenTimer);
+                // Don't remove highlight if moving into a submenu
+                if (!this.activeSubmenu || !this.activeSubmenu.element.contains(e.relatedTarget)) {
+                     itemEl.classList.remove('highlight');
+                }
             });
 
             // Add update listener for dynamic state changes
@@ -205,7 +224,12 @@
                 itemEl = itemElOrIndex;
             }
 
-            this.itemElements.forEach(el => el.classList.remove('highlight'));
+            this.itemElements.forEach(el => {
+                if (el !== itemEl) {
+                    el.classList.remove('highlight');
+                }
+            });
+
             if (itemEl) {
                 itemEl.classList.add('highlight');
             }
@@ -333,15 +357,44 @@
 
         hide() {
             this.element.style.display = 'none';
+            this.closeActiveSubmenu();
         }
 
         close() {
             if (this.element.parentNode) {
                 this.element.parentNode.removeChild(this.element);
             }
-            // If this is a submenu, also close parent menus
-            if (this.isSubmenu && this.parentMenu) {
-                this.parentMenu.close();
+            this.closeActiveSubmenu();
+        }
+
+        closeAll() {
+            let menu = this;
+            while (menu.parentMenu) {
+                menu = menu.parentMenu;
+            }
+            menu.close();
+        }
+
+        openSubmenu(item, itemEl) {
+            if (this.activeSubmenu) {
+                this.closeActiveSubmenu();
+            }
+
+            const submenu = new MenuList(item.submenu, {
+                isSubmenu: true,
+                parentMenu: this,
+                parentEl: itemEl,
+            });
+
+            this.activeSubmenu = submenu;
+            document.body.appendChild(submenu.element);
+            submenu.show();
+        }
+
+        closeActiveSubmenu() {
+            if (this.activeSubmenu) {
+                this.activeSubmenu.close();
+                this.activeSubmenu = null;
             }
         }
 
