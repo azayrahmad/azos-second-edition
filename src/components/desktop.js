@@ -98,13 +98,13 @@ function showIconContextMenu(event, app) {
 function showDesktopContextMenu(event) {
     const themes = {
         default: 'Default',
-        blue: 'Blue',
+        'peggys-pastels': "Peggy's Pastels",
     };
 
     const setTheme = (theme) => {
-        document.body.classList.remove(...Object.keys(themes).map(t => `theme-${t}`));
-        if (theme !== 'default') {
-            document.body.classList.add(`theme-${theme}`);
+        const themeStylesheet = document.getElementById('peggys-pastels-theme');
+        if (themeStylesheet) {
+            themeStylesheet.disabled = (theme === 'default');
         }
         localStorage.setItem('desktop-theme', theme);
     };
@@ -202,9 +202,10 @@ export function setupIcons() {
 }
 
 function applySavedTheme() {
-    const savedTheme = localStorage.getItem('desktop-theme');
-    if (savedTheme && savedTheme !== 'default') {
-        document.body.classList.add(`theme-${savedTheme}`);
+    const savedTheme = localStorage.getItem('desktop-theme') || 'default';
+    const themeStylesheet = document.getElementById('peggys-pastels-theme');
+    if (themeStylesheet) {
+        themeStylesheet.disabled = (savedTheme === 'default');
     }
 }
 
