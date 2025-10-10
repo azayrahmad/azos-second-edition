@@ -99,17 +99,19 @@ function showDesktopContextMenu(event) {
     const themes = {
         default: 'Default',
         'peggys-pastels': "Peggy's Pastels",
+        blue: 'Blue',
     };
 
     const setTheme = (theme) => {
-        const themeStylesheet = document.getElementById('peggys-pastels-theme');
-        if (themeStylesheet) {
-            themeStylesheet.disabled = (theme === 'default');
-        }
+        // First, set the theme in localStorage
         localStorage.setItem('desktop-theme', theme);
-    };
 
-    const currentTheme = localStorage.getItem('desktop-theme') || 'default';
+        // Apply the theme immediately
+        applySavedTheme();
+
+        // Dispatch a custom event to notify any open menus to update their state
+        document.dispatchEvent(new CustomEvent('theme-changed'));
+    };
 
     const menuItems = [
         {
@@ -117,8 +119,8 @@ function showDesktopContextMenu(event) {
             submenu: Object.keys(themes).map(themeKey => ({
                 label: themes[themeKey],
                 checkbox: {
-                    type: 'radio',
-                    check: () => currentTheme === themeKey,
+                    type: 'radio', // Use radio type for visual cue, but logic handles it like checkmarks
+                    check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
                     toggle: () => setTheme(themeKey),
                 },
             })),
@@ -203,10 +205,15 @@ export function setupIcons() {
 
 function applySavedTheme() {
     const savedTheme = localStorage.getItem('desktop-theme') || 'default';
-    const themeStylesheet = document.getElementById('peggys-pastels-theme');
-    if (themeStylesheet) {
-        themeStylesheet.disabled = (savedTheme === 'default');
-    }
+    const themeIds = ['peggys-pastels-theme', 'blue-theme'];
+
+    themeIds.forEach(id => {
+        const stylesheet = document.getElementById(id);
+        if (stylesheet) {
+            // Disable all theme stylesheets except the active one
+            stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
+        }
+    });
 }
 
 // Initialize desktop behavior

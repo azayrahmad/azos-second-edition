@@ -138,7 +138,7 @@
                         item.checkbox.toggle();
                     }
                     this.updateMenuItem(itemEl, item);
-                    this.closeAll(); // Close menu after selection
+                    // Do not close menu for checkbox items, allowing for dynamic updates.
                 } else if (item.action) {
                     this.closeAll();
                     item.action();
@@ -149,7 +149,10 @@
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
                         item.click(e);
-                        this.closeAll();
+                        // Only close if it's not a checkbox.
+                        if (!item.checkbox) {
+                            this.closeAll();
+                        }
                     }
                 });
             } else {
