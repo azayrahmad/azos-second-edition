@@ -234,7 +234,7 @@ export function launchClippyApp() {
       }
     }
 
-    agent.speak("Hi there! Click me to ask anything about Aziz's resume.", false, ttsEnabled);
+    agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
 
     agent._el.on("click", () => showClippyToolWindow());
 
