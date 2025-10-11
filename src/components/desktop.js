@@ -146,7 +146,9 @@ function showDesktopContextMenu(event) {
     const handleThemeChange = () => {
         // When the theme changes, we need to manually trigger an update on the menu
         // to re-evaluate the 'check' state of all theme items.
-        menu.element.dispatchEvent(new CustomEvent('update', {}));
+        if (menu.activeSubmenu) {
+            menu.activeSubmenu.element.dispatchEvent(new CustomEvent('update', {}));
+        }
     };
 
     const closeMenu = (e) => {
