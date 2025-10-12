@@ -1,8 +1,17 @@
-[
-  "about",
-  "resume",
-  "tipOfTheDay",
-  "notepad",
-  "clippy",
-  "webamp"
-]
+{
+  "apps": [
+    "about",
+    "pdfviewer",
+    "tipOfTheDay",
+    "notepad",
+    "clippy",
+    "webamp"
+  ],
+  "files": [
+    {
+      "filename": "Resume.pdf",
+      "app": "pdfviewer",
+      "path": "Resume.pdf"
+    }
+  ]
+}

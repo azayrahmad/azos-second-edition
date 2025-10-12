@@ -6,17 +6,19 @@ import { createTaskbarButton, createTrayIcon } from '../components/taskbar.js';
 // Track open windows by app identifier
 const openWindows = new Map();
 
+import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
+
 export function handleAppAction(app) {
   if (app.action.type === "window") {
-    // Check if window already exists
-    const existingWindow = openWindows.get(app.id);
+    // For apps that open files, we use the file path as a unique identifier for the window.
+    const windowId = app.filePath ? `${app.id}-${app.filePath}` : app.id;
+
+    const existingWindow = openWindows.get(windowId);
     if (existingWindow) {
-      // Focus existing window instead of creating new one
       const $win = $(existingWindow.element);
       if ($win.is(":visible")) {
         $win.trigger("refocus-window");
       } else {
-        // Restore if minimized
         existingWindow.restore();
         setTimeout(() => {
           $win.trigger("refocus-window");
@@ -25,17 +27,21 @@ export function handleAppAction(app) {
       return;
     }
 
-    // Create new window if none exists
+    let windowContent = app.action.window.content;
+    if (app.filePath && app.id === 'pdfviewer') {
+      windowContent = createPdfViewerContent(app.filePath);
+    }
+
     const win = createWindow({
-      id: app.id,
+      id: windowId,
       title: app.title,
       icon: app.icon,
       hasTaskbarButton: app.hasTaskbarButton,
       ...app.action.window,
+      content: windowContent, // Use potentially modified content
     });
 
-    // Store reference to window
-    openWindows.set(app.id, win);
+    openWindows.set(windowId, win);
   } else if (app.action.type === "function") {
     app.action.handler();
   }

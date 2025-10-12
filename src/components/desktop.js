@@ -6,30 +6,37 @@ import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
 import { handleAppAction } from "../utils/appManager.js";
 
-function createDesktopIcon(app) {
+function createDesktopIcon(item, isFile = false) {
+  const app = isFile ? apps.find(a => a.id === item.app) : item;
+  if (!app) return null;
+
   const iconDiv = document.createElement("div");
   iconDiv.className = "desktop-icon";
-  iconDiv.setAttribute("title", app.title);
+  iconDiv.setAttribute("title", isFile ? item.filename : app.title);
   iconDiv.setAttribute("data-app-id", app.id);
+  if (isFile) {
+    iconDiv.setAttribute("data-file-path", item.path);
+  }
 
   const iconInner = document.createElement("div");
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
-  iconImg.src = app.icon;
+  iconImg.src = app.icon; // For now, files use the icon of the app that opens them.
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = app.title;
+  iconLabel.textContent = isFile ? item.filename : app.title;
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
-  // Add context menu handler
+
   iconDiv.addEventListener("contextmenu", (e) => {
     e.preventDefault();
-    showIconContextMenu(e, app);
+    showIconContextMenu(e, app); // Context menu might need adjustments for files
   });
+
   return iconDiv;
 }
 
@@ -173,44 +180,63 @@ function showProperties(app) {
 
 export function setupIcons() {
   const desktop = document.querySelector(".desktop");
+  desktop.innerHTML = ""; // Clear existing icons
 
-  // Clear existing icons
-  desktop.innerHTML = "";
-
-  // Create icons for each app
-  const appsToLoad = apps.filter((app) => desktopApps.includes(app.id));
+  // Load apps
+  const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
   appsToLoad.forEach((app) => {
-    const icon = createDesktopIcon(app);
+    const icon = createDesktopIcon(app, false);
+    if (icon) {
+      configureIcon(icon, app);
+      desktop.appendChild(icon);
+    }
+  });
 
-    // Set up icon click to highlight
-    icon.addEventListener("click", function () {
-      // Remove highlight from all icons and icon-labels
-      document
-        .querySelectorAll(".desktop-icon .icon img, .desktop-icon .icon-label")
-        .forEach((element) => {
-          element.classList.remove(
-            "highlighted-icon",
-            "highlighted-label",
-            "selected",
-          );
-        });
+  // Load files
+  desktopApps.files.forEach((file) => {
+    const icon = createDesktopIcon(file, true);
+    if (icon) {
+      const app = apps.find(a => a.id === file.app);
+      configureIcon(icon, app, file.path);
+      desktop.appendChild(icon);
+    }
+  });
+}
 
-      // Add highlight to the clicked icon and icon-label
-      const iconImg = this.querySelector(".icon img");
-      const iconLabel = this.querySelector(".icon-label");
-      if (iconImg) iconImg.classList.add("highlighted-icon");
-      if (iconLabel) {
-        iconLabel.classList.add("highlighted-label");
-        iconLabel.classList.add("selected");
-      }
-    });
+function configureIcon(icon, app, filePath = null) {
+  // Set up icon click to highlight
+  icon.addEventListener("click", function () {
+    // Remove highlight from all icons and icon-labels
+    document
+      .querySelectorAll(".desktop-icon .icon img, .desktop-icon .icon-label")
+      .forEach((element) => {
+        element.classList.remove(
+          "highlighted-icon",
+          "highlighted-label",
+          "selected"
+        );
+      });
 
-    // Double-click to execute app action
-    icon.addEventListener("dblclick", () => {
+    // Add highlight to the clicked icon and icon-label
+    const iconImg = this.querySelector(".icon img");
+    const iconLabel = this.querySelector(".icon-label");
+    if (iconImg) iconImg.classList.add("highlighted-icon");
+    if (iconLabel) {
+      iconLabel.classList.add("highlighted-label");
+      iconLabel.classList.add("selected");
+    }
+  });
+
+  // Double-click to execute app action
+  icon.addEventListener("dblclick", () => {
+    if (filePath) {
+      // It's a file, launch the app with the file path
+      const appWithFile = { ...app, filePath: filePath };
+      handleAppAction(appWithFile);
+    } else {
+      // It's an app
       handleAppAction(app);
-    });
-
-    desktop.appendChild(icon);
+    }
   });
 }
 
