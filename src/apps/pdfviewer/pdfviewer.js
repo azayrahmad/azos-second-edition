@@ -1,5 +1,5 @@
 export function createPdfViewerContent(filePath) {
-  const dataPath = filePath ? `/files/${filePath}` : '';
+  const dataPath = filePath ? `./files/${filePath}` : '';
   const title = filePath ? `PDF Viewer - ${filePath}` : 'PDF Viewer';
 
   return `
