@@ -1,46 +1,55 @@
 /* A blue theme inspired by classic Windows themes. */
 :root {
-	--background-teal: rgb(58, 110, 165); /* This is the correct blue for the desktop */
-	--checker: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAG0lEQVQYV2P89eDJ/18PnzEwfjl46j+bvBQDAHJ8Cj5el2f8AAAAAElFTkSuQmCC");
-	--button-active-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h192v192h-192v-192z%22%20fill%3D%22rgb(10%2C%2036%2C%20106)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
-	--button-normal-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22rgb(0%2C%200%2C%20128)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
-	--inset-deep-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(0%2C%200%2C%20128)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22rgb(255%2C%20255%2C%20255)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(10%2C%2036%2C%20106)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
-	--button-default-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(255%2C%20255%2C%20255)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h96v32h-64v64h-32v-96z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M160%2064h32v128h-128v-32h96v-96z%22%20fill%3D%22rgb(0%2C%200%2C%20128)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M96%2096h64v64h-64v-64z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%09%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22256%22%20height%3D%22256%22%20stroke-width%3D%2264%22%20stroke%3D%22rgb(0%2C%200%2C%200)%22%20fill%3D%22none%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 96 / 3px;
-	--button-default-active-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h192v192h-192v-192z%22%20fill%3D%22rgb(10%2C%2036%2C%20106)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%09%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22256%22%20height%3D%22256%22%20stroke-width%3D%2264%22%20stroke%3D%22rgb(0%2C%200%2C%200)%22%20fill%3D%22none%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
-	--scrollbar-arrows-ButtonText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAW0lEQVQ4T2NkGGSAcZC5h4FWDvrPwEC02ShqkR0EkkAHuBxMyEKYWYQ8jKEOXQOyo/A5BuZwqqvBZiA+3xMbilQLIWqlcUJRimwPzjRELcdQZA6hREeR4eRoBgBoXhAK6oiMhwAAAABJRU5ErkJggg==");
-	--scrollbar-arrows-GrayText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAYElEQVQ4T2NkGGSAcZC5h4EmDrrnmvBfafcCosxGVwvXBJJADy1chhKyEGYWIUdhU4fiC2RH4XMMzOG0UIMRrPh8T2woUi2EqJXACUUpsj040xC1HEOpOUTlBEotIUU/ANEWQAoG78U6AAAAAElFTkSuQmCC");
-	--scrollbar-arrows-ButtonHilight: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAYElEQVQ4T2NkGGSAcZC5h4EmDvr14Ml/NgUZosxGVwvXBJJADy1chhKyEGYWIUdhU4fiC2RH4XMMzOG0UIMRrPh8T2woUi2EqJXACUUpsj040xC1HEOpOUTlBEotIUU/AIJVQAqPLmKjAAAAAElFTkSuQmCC");
-	--scrollbar-size: 17px;
-	--scrollbar-button-inner-size: 13px;
-	--Scrollbar: rgb(200, 200, 200);
-	--Background: rgb(58, 110, 165);
-	--ActiveTitle: rgb(10, 36, 106);
-	--InactiveTitle: rgb(128, 128, 128);
-	--Menu: rgb(180, 200, 220);
-	--Window: rgb(255, 255, 255);
-	--WindowFrame: rgb(0, 0, 0);
-	--MenuText: rgb(0, 0, 0);
-	--WindowText: rgb(0, 0, 0);
-	--TitleText: rgb(255, 255, 255);
-	--ActiveBorder: rgb(180, 200, 220);
-	--InactiveBorder: rgb(180, 200, 220);
-	--AppWorkspace: rgb(128, 128, 128);
-	--Hilight: rgb(10, 36, 106);
-	--HilightText: rgb(255, 255, 255);
-	--ButtonFace: rgb(180, 200, 220);
-	--ButtonShadow: rgb(0, 0, 128);
-	--GrayText: rgb(128, 128, 128);
-	--ButtonText: rgb(0, 0, 0);
-	--InactiveTitleText: rgb(210, 230, 250);
-	--ButtonHilight: rgb(210, 230, 250);
-	--ButtonDkShadow: rgb(0, 0, 0);
-	--ButtonLight: rgb(210, 230, 250);
-	--InfoText: rgb(0, 0, 0);
-	--InfoWindow: rgb(255, 255, 225);
-	--ButtonAlternateFace: rgb(181, 181, 181);
-	--HotTrackingColor: rgb(0, 128, 128);
-	--GradientActiveTitle: rgb(10, 36, 106);
-	--GradientInactiveTitle: rgb(128, 128, 128);
-	--MenuHilight: rgb(10, 36, 106);
-	--MenuBar: rgb(180, 200, 220);
+  --background-teal: rgb(
+    58,
+    110,
+    165
+  ); /* This is the correct blue for the desktop */
+  --checker: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAG0lEQVQYV2O8/OTH/8vPfjAwLjv14b+uFAcDAG90ChC/AKc5AAAAAElFTkSuQmCC");
+  --button-active-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h192v192h-192v-192z%22%20fill%3D%22rgb(10%2C%2036%2C%20106)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E")
+    64 / 2px;
+  --button-normal-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22rgb(0%2C%200%2C%20128)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E")
+    64 / 2px;
+  --inset-deep-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(0%2C%200%2C%20128)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22rgb(255%2C%20255%2C%20255)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(10%2C%2036%2C%20106)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E")
+    64 / 2px;
+  --button-default-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(255%2C%20255%2C%20255)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h96v32h-64v64h-32v-96z%22%20fill%3D%22rgb(210%2C%20230%2C%20250)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M160%2064h32v128h-128v-32h96v-96z%22%20fill%3D%22rgb(0%2C%200%2C%20128)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M96%2096h64v64h-64v-64z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%09%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22256%22%20height%3D%22256%22%20stroke-width%3D%2264%22%20stroke%3D%22rgb(0%2C%200%2C%200)%22%20fill%3D%22none%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E")
+    96 / 3px;
+  --button-default-active-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h192v192h-192v-192z%22%20fill%3D%22rgb(10%2C%2036%2C%20106)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(180%2C%20200%2C%20220)%22%2F%3E%0A%09%09%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22256%22%20height%3D%22256%22%20stroke-width%3D%2264%22%20stroke%3D%22rgb(0%2C%200%2C%200)%22%20fill%3D%22none%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E")
+    64 / 2px;
+  --scrollbar-arrows-ButtonText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAW0lEQVQ4T2NkGGSAcZC5h4FWDvrPwEC02ShqkR0EkkAHuBxMyEKYWYQ8jKEOXQOyo/A5BuZwqqvBZiA+3xMbilQLIWqlcUJRimwPzjRELcdQZA6hREeR4eRoBgBoXhAK6oiMhwAAAABJRU5ErkJggg==");
+  --scrollbar-arrows-GrayText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAYElEQVQ4T2NkGGSAcZC5h4EmDjJsvvv/fK0yUWajq4VrAkmghxYuQwlZCDOLkKOwqUPxBbKj8DkG5nBaqMEIVny+JzYUqRZC1ErghKIU2R6caYhajqHUHKJyAqWWkKIfANj2QArAsbtdAAAAAElFTkSuQmCC");
+  --scrollbar-arrows-ButtonHilight: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAYElEQVQ4T2NkGGSAcZC5h4EmDrr85Md/XRkOosxGVwvXBJJADy1chhKyEGYWIUdhU4fiC2RH4XMMzOG0UIMRrPh8T2woUi2EqJXACUUpsj040xC1HEOpOUTlBEotIUU/AHnlQApCJ0jDAAAAAElFTkSuQmCC");
+  --scrollbar-size: 13px;
+  --scrollbar-button-inner-size: 9px;
+  --Scrollbar: rgb(200, 200, 200);
+  --Background: rgb(58, 110, 165);
+  --ActiveTitle: rgb(10, 36, 106);
+  --InactiveTitle: rgb(128, 128, 128);
+  --Menu: rgb(180, 200, 220);
+  --Window: rgb(255, 255, 255);
+  --WindowFrame: rgb(0, 0, 0);
+  --MenuText: rgb(0, 0, 0);
+  --WindowText: rgb(0, 0, 0);
+  --TitleText: rgb(255, 255, 255);
+  --ActiveBorder: rgb(180, 200, 220);
+  --InactiveBorder: rgb(180, 200, 220);
+  --AppWorkspace: rgb(128, 128, 128);
+  --Hilight: rgb(10, 36, 106);
+  --HilightText: rgb(255, 255, 255);
+  --ButtonFace: rgb(180, 200, 220);
+  --ButtonShadow: rgb(0, 0, 128);
+  --GrayText: rgb(128, 128, 128);
+  --ButtonText: rgb(0, 0, 0);
+  --InactiveTitleText: rgb(210, 230, 250);
+  --ButtonHilight: rgb(210, 230, 250);
+  --ButtonDkShadow: rgb(0, 0, 0);
+  --ButtonLight: rgb(210, 230, 250);
+  --InfoText: rgb(0, 0, 0);
+  --InfoWindow: rgb(255, 255, 225);
+  --ButtonAlternateFace: rgb(181, 181, 181);
+  --HotTrackingColor: rgb(0, 128, 128);
+  --GradientActiveTitle: rgb(10, 36, 106);
+  --GradientInactiveTitle: rgb(128, 128, 128);
+  --MenuHilight: rgb(10, 36, 106);
+  --MenuBar: rgb(180, 200, 220);
 }

@@ -19,6 +19,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Fixedsys Excelsior";
+  src: url("/src/assets/fonts/Fixedsys Excelsior.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --background-teal: #008080;
   --background-gray: #c0c0c0;
