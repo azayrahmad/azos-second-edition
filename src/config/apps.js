@@ -3,6 +3,7 @@ import { launchWebampApp, getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { aboutContent } from "../apps/about/about.js";
 import { resumeContent } from "../apps/resume/resume.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
+import { notepadContent } from "../apps/notepad/notepad.js";
 
 export const apps = [
   {
@@ -181,64 +182,87 @@ export const apps = [
       },
     ],
   },
-  // {
-  //   id: "notepad",
-  //   title: "Notepad",
-  //   icon: "./src/assets/icons/notepad.ico",
-  //   path: "/notepad/",
-  //   action: {
-  //     type: "window",
-  //     window: {
-  //       width: 500,
-  //       height: 400,
-  //       resizable: true,
-  //       menuBar: {
-  //         File: [
-  //           {
-  //             label: "&New",
-  //             shortcutLabel: "Ctrl+N",
-  //             action: () => console.log("New document"),
-  //           },
-  //           {
-  //             label: "&Save",
-  //             shortcutLabel: "Ctrl+S",
-  //             action: () => console.log("Save document"),
-  //           },
-  //           { label: "-" },
-  //           {
-  //             label: "E&xit",
-  //             action: (win) => win.close(),
-  //           },
-  //         ],
-  //         Edit: [
-  //           {
-  //             label: "&Undo",
-  //             shortcutLabel: "Ctrl+Z",
-  //             enabled: false,
-  //           },
-  //           { label: "-" },
-  //           {
-  //             label: "Cu&t",
-  //             shortcutLabel: "Ctrl+X",
-  //           },
-  //           {
-  //             label: "&Copy",
-  //             shortcutLabel: "Ctrl+C",
-  //           },
-  //           {
-  //             label: "&Paste",
-  //             shortcutLabel: "Ctrl+V",
-  //           },
-  //         ],
-  //       },
-  //       content: `
-  //         <div class="notepad-content" style="padding: 8px;">
-  //           <textarea style="width: 100%; height: calc(100% - 16px); resize: none;"></textarea>
-  //         </div>
-  //       `,
-  //     },
-  //   },
-  // },
+  {
+    id: "notepad",
+    title: "Notepad",
+    icon: new URL("../assets/icons/word_001.ico", import.meta.url).href,
+    path: "/notepad/",
+    hasTaskbarButton: true,
+    action: {
+      type: "window",
+      window: {
+        width: 600,
+        height: 400,
+        resizable: true,
+        menuBar: {
+          File: [
+            {
+              label: "&New",
+              shortcutLabel: "Ctrl+N",
+              action: (win) => {
+                const textarea = win.element.querySelector('.notepad-textarea');
+                if (textarea) textarea.value = '';
+              },
+            },
+            {
+              label: "&Open",
+              shortcutLabel: "Ctrl+O",
+              enabled: false,
+            },
+            {
+              label: "&Save",
+              shortcutLabel: "Ctrl+S",
+              enabled: false,
+            },
+            {
+              label: "Save &As...",
+              enabled: false,
+            },
+            "MENU_DIVIDER",
+            {
+              label: "E&xit",
+              action: (win) => win.close(),
+            },
+          ],
+          Edit: [
+            {
+              label: "&Undo",
+              shortcutLabel: "Ctrl+Z",
+              action: () => document.execCommand("undo"),
+            },
+            "MENU_DIVIDER",
+            {
+              label: "Cu&t",
+              shortcutLabel: "Ctrl+X",
+               action: () => document.execCommand("cut"),
+            },
+            {
+              label: "&Copy",
+              shortcutLabel: "Ctrl+C",
+              action: () => document.execCommand("copy"),
+            },
+            {
+              label: "&Paste",
+              shortcutLabel: "Ctrl+V",
+              action: () => document.execCommand("paste"),
+            },
+            {
+              label: "De&lete",
+              shortcutLabel: "Del",
+              action: () => document.execCommand("delete"),
+            },
+          ],
+          Help: [
+            {
+              label: "&About Notepad",
+              action: () => alert("A simple text editor."),
+            },
+          ],
+        },
+        content: notepadContent,
+      },
+    },
+  },
   // {
   //   id: "shutdown",
   //   title: "Shut Down",
