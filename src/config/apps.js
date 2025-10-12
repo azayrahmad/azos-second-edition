@@ -1,7 +1,7 @@
 import { launchClippyApp, getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { launchWebampApp, getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { aboutContent } from "../apps/about/about.js";
-import { resumeContent } from "../apps/resume/resume.js";
+import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
 import { notepadContent } from "../apps/notepad/notepad.js";
 
@@ -57,10 +57,10 @@ export const apps = [
     ],
   },
   {
-    id: "resume",
-    title: "Resume",
+    id: "pdfviewer",
+    title: "PDF Viewer",
     icon: new URL("../assets/icons/word_001.ico", import.meta.url).href,
-    path: "/resume/",
+    path: "/pdfviewer/",
     hasTaskbarButton: true,
     action: {
       type: "window",
@@ -71,16 +71,13 @@ export const apps = [
         menuBar: {
           File: [
             {
-              label: "&Download",
-              action: () => {
-                const link = document.createElement('a');
-                link.href = './apps/resume/Aziz Rahmad - Project Resume.pdf';
-                link.download = 'Aziz Rahmad - Project Resume.pdf';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+              label: "&Open",
+              action: (win) => {
+                // This would ideally open a file picker, which is complex to implement.
+                // For now, it does nothing.
+                alert("File picker not implemented.");
               },
-              shortcutLabel: "Ctrl+D",
+              shortcutLabel: "Ctrl+O",
             },
             {
               label: "&Close",
@@ -90,12 +87,12 @@ export const apps = [
           ],
           Help: [
             {
-              label: "&About Resume",
-              action: () => alert("View project resume"),
+              label: "&About PDF Viewer",
+              action: () => alert("A simple PDF viewer."),
             },
           ],
         },
-        content: resumeContent,
+        content: createPdfViewerContent(null), // No file loaded initially
       },
     },
     contextMenu: [
