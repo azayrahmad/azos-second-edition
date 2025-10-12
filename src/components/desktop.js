@@ -3,6 +3,7 @@
  */
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
+import desktopApps from "../config/desktop.json";
 import { handleAppAction } from "../utils/appManager.js";
 
 function createDesktopIcon(app) {
@@ -177,7 +178,8 @@ export function setupIcons() {
   desktop.innerHTML = "";
 
   // Create icons for each app
-  apps.forEach((app) => {
+  const appsToLoad = apps.filter((app) => desktopApps.includes(app.id));
+  appsToLoad.forEach((app) => {
     const icon = createDesktopIcon(app);
 
     // Set up icon click to highlight

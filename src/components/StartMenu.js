@@ -10,6 +10,7 @@ import shell32Icon from "../assets/icons/SHELL32_3.ico";
 import keyIcon from "../assets/icons/key_win-4.png";
 import shutdownIcon from "../assets/icons/shut_down_normal-0.png";
 import { apps } from "../config/apps.js";
+import startMenuApps from "../config/startmenu.json";
 import { handleAppAction } from "../utils/appManager.js";
 
 // Constants
@@ -91,7 +92,8 @@ class StartMenu {
    * Generate app menu items HTML from apps configuration
    */
   generateAppMenuItems() {
-    return apps
+    const appsToLoad = apps.filter((app) => startMenuApps.includes(app.id));
+    return appsToLoad
       .map(
         (app) => `
           <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
