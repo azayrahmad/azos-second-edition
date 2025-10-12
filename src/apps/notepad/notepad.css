@@ -1,0 +1,26 @@
+.notepad-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.notepad-textarea {
+  flex-grow: 1;
+  border: none;
+  resize: none;
+  padding: 4px;
+  font-family: "Fixedsys Excelsior", monospace;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+}
+
+.notepad-textarea:focus {
+  outline: none;
+}
