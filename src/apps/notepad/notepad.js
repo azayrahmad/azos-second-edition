@@ -41,8 +41,28 @@ export class Notepad {
         this.win.events.on('format', this.formatCode);
         this.win.events.on('language-change', this.setLanguage);
         this.win.events.on('copy', this.copyFormattedCode);
+        this.win.events.on('new', this.clearContent.bind(this));
+        this.win.events.on('paste', this.pasteText.bind(this));
 
         this.updateHighlight();
+    }
+
+    clearContent() {
+        this.codeInput.value = '';
+        this.updateHighlight();
+    }
+
+    pasteText() {
+        this.codeInput.focus();
+        navigator.clipboard.readText().then(text => {
+            document.execCommand('insertText', false, text);
+            this.updateHighlight();
+        }).catch(err => {
+            console.error('Failed to read clipboard contents: ', err);
+            // Fallback for browsers that don't support readText or if permission is denied
+            document.execCommand('paste');
+            this.updateHighlight();
+        });
     }
 
     setLanguage(lang) {
