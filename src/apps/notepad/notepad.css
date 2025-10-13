@@ -1,26 +1,96 @@
 .notepad-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.notepad-textarea {
-  flex-grow: 1;
-  border: none;
-  resize: none;
-  padding: 4px;
-  font-family: "Fixedsys Excelsior", monospace;
-  font-size: 1rem;
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  overflow: scroll;
+.controls-group {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 5px;
 }
 
-.notepad-textarea:focus {
-  outline: none;
+.controls-group label {
+    font-weight: bold;
+}
+
+.controls-group select {
+    flex: 1;
+    min-width: 150px;
+}
+
+.editor-wrapper {
+    position: relative;
+    background: white;
+    border: 2px inset;
+    min-height: 250px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.editor-wrapper textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: transparent;
+    caret-color: black;
+    font-family: monospace !important;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+    overflow-y: auto;
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+.editor-wrapper textarea:focus {
+    outline: none;
+}
+
+.editor-wrapper pre {
+    margin: 0;
+    padding: 8px;
+    pointer-events: none;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.editor-wrapper code {
+    font-family: monospace !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block;
+}
+
+.status-bar {
+    display: flex;
+    gap: 2px;
+    margin-top: 8px;
+}
+
+.status-bar-field {
+    flex: 1;
+    padding: 2px 4px;
+    border: 1px inset;
 }
