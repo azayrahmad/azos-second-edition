@@ -236,7 +236,7 @@ export const apps = [
             {
               label: "&Copy",
               shortcutLabel: "Ctrl+C",
-              action: () => document.execCommand("copy"),
+              action: (win) => win.events.emit('copy'),
             },
             {
               label: "&Paste",

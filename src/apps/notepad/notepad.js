@@ -40,6 +40,7 @@ export class Notepad {
         // Listen for events from the menu bar
         this.win.events.on('format', this.formatCode);
         this.win.events.on('language-change', this.setLanguage);
+        this.win.events.on('copy', this.copyFormattedCode);
 
         this.updateHighlight();
     }
@@ -118,22 +119,35 @@ export class Notepad {
         return html;
     }
 
-    async copyFormattedCode() {
+    copyFormattedCode() {
         try {
             const htmlContent = this.getInlineStyledHTML();
-            const plainText = this.codeInput.value;
 
-            const blobHTML = new Blob([htmlContent], { type: 'text/html' });
-            const blobText = new Blob([plainText], { type: 'text/plain' });
+            // Create a temporary element to hold the HTML content
+            const tempEl = document.createElement('div');
+            tempEl.style.position = 'absolute';
+            tempEl.style.left = '-9999px';
+            tempEl.innerHTML = htmlContent;
+            document.body.appendChild(tempEl);
 
-            const clipboardItem = new ClipboardItem({
-                'text/html': blobHTML,
-                'text/plain': blobText
-            });
+            // Select the content of the temporary element
+            const range = document.createRange();
+            range.selectNode(tempEl);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
 
-            await navigator.clipboard.write([clipboardItem]);
+            // Copy the selection to the clipboard
+            const successful = document.execCommand('copy');
 
-            this.statusText.textContent = '✓ Copied to clipboard!';
+            // Clean up
+            document.body.removeChild(tempEl);
+            window.getSelection().removeAllRanges();
+
+            if (successful) {
+                this.statusText.textContent = '✓ Copied to clipboard!';
+            } else {
+                throw new Error('Copy command was unsuccessful');
+            }
 
             setTimeout(() => {
                 this.statusText.textContent = 'Ready';
