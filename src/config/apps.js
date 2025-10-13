@@ -182,7 +182,7 @@ export const apps = [
   {
     id: "notepad",
     title: "Notepad",
-    icon: new URL("../assets/icons/word_001.ico", import.meta.url).href,
+    icon: new URL("../assets/icons/NOTEPAD_1.ico", import.meta.url).href,
     path: "/notepad/",
     hasTaskbarButton: true,
     action: {
@@ -231,12 +231,12 @@ export const apps = [
             {
               label: "Cu&t",
               shortcutLabel: "Ctrl+X",
-               action: () => document.execCommand("cut"),
+              action: () => document.execCommand("cut"),
             },
             {
               label: "&Copy",
               shortcutLabel: "Ctrl+C",
-              action: () => document.execCommand("copy"),
+              action: (win) => win.events.emit('copy'),
             },
             {
               label: "&Paste",
@@ -248,6 +248,29 @@ export const apps = [
               shortcutLabel: "Del",
               action: () => document.execCommand("delete"),
             },
+            "MENU_DIVIDER",
+            {
+              label: "&Format",
+              action: (win) => win.events.emit('format'),
+            },
+          ],
+          Language: [
+            { label: 'C', type: 'radio', name: 'language', value: 'c', checked: true, action: (win) => win.events.emit('language-change', 'c') },
+            { label: 'C++', type: 'radio', name: 'language', value: 'cpp', action: (win) => win.events.emit('language-change', 'cpp') },
+            { label: 'Java', type: 'radio', name: 'language', value: 'java', action: (win) => win.events.emit('language-change', 'java') },
+            { label: 'Python', type: 'radio', name: 'language', value: 'python', action: (win) => win.events.emit('language-change', 'python') },
+            { label: 'JavaScript', type: 'radio', name: 'language', value: 'javascript', action: (win) => win.events.emit('language-change', 'javascript') },
+            { label: 'C#', type: 'radio', name: 'language', value: 'csharp', action: (win) => win.events.emit('language-change', 'csharp') },
+            { label: 'HTML', type: 'radio', name: 'language', value: 'html', action: (win) => win.events.emit('language-change', 'html') },
+            { label: 'CSS', type: 'radio', name: 'language', value: 'css', action: (win) => win.events.emit('language-change', 'css') },
+            { label: 'SQL', type: 'radio', name: 'language', value: 'sql', action: (win) => win.events.emit('language-change', 'sql') },
+            { label: 'PHP', type: 'radio', name: 'language', value: 'php', action: (win) => win.events.emit('language-change', 'php') },
+            { label: 'Ruby', type: 'radio', name: 'language', value: 'ruby', action: (win) => win.events.emit('language-change', 'ruby') },
+            { label: 'Go', type: 'radio', name: 'language', value: 'go', action: (win) => win.events.emit('language-change', 'go') },
+            { label: 'Rust', type: 'radio', name: 'language', value: 'rust', action: (win) => win.events.emit('language-change', 'rust') },
+            { label: 'TypeScript', type: 'radio', name: 'language', value: 'typescript', action: (win) => win.events.emit('language-change', 'typescript') },
+            { label: 'Bash', type: 'radio', name: 'language', value: 'bash', action: (win) => win.events.emit('language-change', 'bash') },
+            { label: 'JSON', type: 'radio', name: 'language', value: 'json', action: (win) => win.events.emit('language-change', 'json') },
           ],
           Help: [
             {

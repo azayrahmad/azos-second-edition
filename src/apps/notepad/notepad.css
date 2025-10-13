@@ -2,25 +2,104 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
 }
 
-.notepad-textarea {
+.controls-group {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 5px;
+}
+
+.controls-group label {
+  font-weight: bold;
+}
+
+.controls-group select {
+  flex: 1;
+  min-width: 150px;
+}
+
+.editor-wrapper {
+  position: relative;
+  background: white;
+  border: 2px inset;
+  min-height: 250px;
   flex-grow: 1;
-  border: none;
-  resize: none;
-  padding: 4px;
-  font-family: "Fixedsys Excelsior", monospace;
-  font-size: 1rem;
-  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.editor-wrapper textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  overflow: scroll;
+  padding: 8px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: transparent;
+  caret-color: black;
+  font-family: "Fixedsys Excelsior", monospace !important;
+  font-size: 16px !important;
+  line-height: 1.5;
+  resize: none;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  overflow-y: auto;
+  z-index: 2;
+  box-sizing: border-box;
 }
 
-.notepad-textarea:focus {
+.editor-wrapper textarea:focus {
   outline: none;
+}
+
+.editor-wrapper pre {
+  margin: 0;
+  padding: 8px;
+  pointer-events: none;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  /* Hide scrollbars on the pre element to avoid double scrollbars */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.editor-wrapper pre::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+.editor-wrapper code {
+  font-family: "Fixedsys Excelsior", monospace !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block;
+}
+
+.status-bar {
+  display: flex;
+  gap: 2px;
+}
+
+.status-bar-field {
+  flex: 1;
+  padding: 2px 4px;
+  border: 1px inset;
+  margin-block-start: 0;
+  margin-block-end: 0;
 }

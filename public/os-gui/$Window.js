@@ -303,6 +303,22 @@ function $Window(options = {}) {
 	$w.onBlur = make_simple_listenable("blur");
 	$w.onClosed = make_simple_listenable("closed");
 
+	// Simple event emitter
+	$w.events = {
+		_listeners: {},
+		on(event, callback) {
+			if (!this._listeners[event]) {
+				this._listeners[event] = [];
+			}
+			this._listeners[event].push(callback);
+		},
+		emit(event, data) {
+			if (this._listeners[event]) {
+				this._listeners[event].forEach(callback => callback(data));
+			}
+		}
+	};
+
 	/**
 	 * @param {{ innerWidth?: number, innerHeight?: number, outerWidth?: number, outerHeight?: number }} options
 	 */

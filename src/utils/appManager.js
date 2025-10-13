@@ -7,6 +7,7 @@ import { createTaskbarButton, createTrayIcon } from '../components/taskbar.js';
 const openWindows = new Map();
 
 import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
+import { Notepad } from '../apps/notepad/notepad.js';
 
 export function handleAppAction(app) {
   if (app.action.type === "window") {
@@ -40,6 +41,13 @@ export function handleAppAction(app) {
       ...app.action.window,
       content: windowContent, // Use potentially modified content
     });
+
+    if (app.id === 'notepad') {
+      const notepadContainer = win.$content.find('.notepad-container')[0];
+      if (notepadContainer) {
+        new Notepad(notepadContainer, win);
+      }
+    }
 
     openWindows.set(windowId, win);
   } else if (app.action.type === "function") {
