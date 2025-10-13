@@ -74,15 +74,11 @@ function createWindow(windowConfig) {
   });
 
   if (windowConfig.menuBar) {
-    const menuBar = new MenuBar(windowConfig.menuBar);
-    Object.values(windowConfig.menuBar)
-      .flat()
-      .forEach((item) => {
-        if (item.action) {
-          const originalAction = item.action;
-          item.action = () => originalAction(win);
-        }
-      });
+    const menuBarDef =
+      typeof windowConfig.menuBar === "function"
+        ? windowConfig.menuBar(win)
+        : windowConfig.menuBar;
+    const menuBar = new MenuBar(menuBarDef);
     win.setMenuBar(menuBar);
   }
 
