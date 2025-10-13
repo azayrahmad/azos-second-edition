@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/fixedsys-excelsior-301');
+
 .notepad-container {
     display: flex;
     flex-direction: column;
@@ -28,7 +30,7 @@
     border: 2px inset;
     min-height: 250px;
     flex-grow: 1;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .editor-wrapper textarea {
@@ -43,14 +45,13 @@
     background: transparent;
     color: transparent;
     caret-color: black;
-    font-family: monospace !important;
-    font-size: 13px;
+    font-family: 'Fixedsys Excelsior 3.01', monospace !important;
+    font-size: 16px !important;
     line-height: 1.5;
     resize: none;
     white-space: pre;
     overflow-wrap: normal;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow: hidden; /* Hide internal scrollbars */
     z-index: 2;
     box-sizing: border-box;
 }
@@ -65,7 +66,7 @@
     pointer-events: none;
     white-space: pre;
     overflow-wrap: normal;
-    overflow-x: auto;
+    overflow: hidden; /* Hide internal scrollbars */
     position: absolute;
     top: 0;
     left: 0;
@@ -75,8 +76,8 @@
 }
 
 .editor-wrapper code {
-    font-family: monospace !important;
-    font-size: 13px !important;
+    font-family: 'Fixedsys Excelsior 3.01', monospace !important;
+    font-size: 16px !important;
     line-height: 1.5 !important;
     padding: 0 !important;
     margin: 0 !important;
