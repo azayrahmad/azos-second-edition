@@ -120,6 +120,11 @@ export class Notepad {
     }
 
     copyFormattedCode() {
+        // We use the deprecated document.execCommand('copy') here because the modern
+        // navigator.clipboard.write() API is not allowed in this context.
+        // The browser's security model requires a direct, trusted user gesture
+        // (like a click) for clipboard access, and that context is lost
+        // through the app's event-driven menu system. This is a reliable fallback.
         try {
             const htmlContent = this.getInlineStyledHTML();
 
