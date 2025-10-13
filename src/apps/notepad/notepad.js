@@ -76,15 +76,13 @@ export class Notepad {
     }
 
     syncScroll() {
-        this.highlighted.parentElement.scrollTop = this.codeInput.scrollTop;
-        this.highlighted.parentElement.scrollLeft = this.codeInput.scrollLeft;
-        this.highlighted.scrollTop = this.codeInput.scrollTop;
-        this.highlighted.scrollLeft = this.codeInput.scrollLeft;
+        this.highlighted.style.top = `-${this.codeInput.scrollTop}px`;
+        this.highlighted.style.left = `-${this.codeInput.scrollLeft}px`;
     }
 
     updateHighlight() {
         const code = this.codeInput.value;
-        this.highlighted.textContent = code;
+        this.highlighted.textContent = code + '\n';
         this.highlighted.className = `highlighted language-${this.currentLanguage}`;
         this.highlighted.removeAttribute('data-highlighted');
         hljs.highlightElement(this.highlighted);
