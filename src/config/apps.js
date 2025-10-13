@@ -241,7 +241,7 @@ export const apps = [
             {
               label: "&Paste",
               shortcutLabel: "Ctrl+V",
-              action: () => document.execCommand("paste"),
+              action: (win) => win.events.emit('paste'),
             },
             {
               label: "De&lete",
