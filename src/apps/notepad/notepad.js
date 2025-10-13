@@ -22,6 +22,7 @@ export class Notepad {
     }
 
     init() {
+        this.win.notepad = this;
         this.codeInput = this.container.querySelector('.codeInput');
         this.highlighted = this.container.querySelector('.highlighted');
         this.statusText = this.container.querySelector('.statusText');
@@ -48,6 +49,10 @@ export class Notepad {
     setLanguage(lang) {
         this.currentLanguage = lang;
         this.updateHighlight();
+        const menuBarEl = this.win.element.querySelector('.menus');
+        if (menuBarEl) {
+            menuBarEl.dispatchEvent(new CustomEvent('update'));
+        }
     }
 
     syncScroll() {

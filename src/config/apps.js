@@ -191,12 +191,12 @@ export const apps = [
         width: 600,
         height: 400,
         resizable: true,
-        menuBar: {
+        menuBar: (win) => ({
           File: [
             {
               label: "&New",
               shortcutLabel: "Ctrl+N",
-              action: (win) => {
+              action: () => {
                 const textarea = win.element.querySelector('.notepad-textarea');
                 if (textarea) textarea.value = '';
               },
@@ -218,7 +218,7 @@ export const apps = [
             "MENU_DIVIDER",
             {
               label: "E&xit",
-              action: (win) => win.close(),
+              action: () => win.close(),
             },
           ],
           Edit: [
@@ -236,7 +236,7 @@ export const apps = [
             {
               label: "&Copy",
               shortcutLabel: "Ctrl+C",
-              action: (win) => win.events.emit('copy'),
+              action: () => win.events.emit('copy'),
             },
             {
               label: "&Paste",
@@ -251,26 +251,32 @@ export const apps = [
             "MENU_DIVIDER",
             {
               label: "&Format",
-              action: (win) => win.events.emit('format'),
+              action: () => win.events.emit('format'),
             },
           ],
           Language: [
-            { label: 'C', type: 'radio', name: 'language', value: 'c', checked: true, action: (win) => win.events.emit('language-change', 'c') },
-            { label: 'C++', type: 'radio', name: 'language', value: 'cpp', action: (win) => win.events.emit('language-change', 'cpp') },
-            { label: 'Java', type: 'radio', name: 'language', value: 'java', action: (win) => win.events.emit('language-change', 'java') },
-            { label: 'Python', type: 'radio', name: 'language', value: 'python', action: (win) => win.events.emit('language-change', 'python') },
-            { label: 'JavaScript', type: 'radio', name: 'language', value: 'javascript', action: (win) => win.events.emit('language-change', 'javascript') },
-            { label: 'C#', type: 'radio', name: 'language', value: 'csharp', action: (win) => win.events.emit('language-change', 'csharp') },
-            { label: 'HTML', type: 'radio', name: 'language', value: 'html', action: (win) => win.events.emit('language-change', 'html') },
-            { label: 'CSS', type: 'radio', name: 'language', value: 'css', action: (win) => win.events.emit('language-change', 'css') },
-            { label: 'SQL', type: 'radio', name: 'language', value: 'sql', action: (win) => win.events.emit('language-change', 'sql') },
-            { label: 'PHP', type: 'radio', name: 'language', value: 'php', action: (win) => win.events.emit('language-change', 'php') },
-            { label: 'Ruby', type: 'radio', name: 'language', value: 'ruby', action: (win) => win.events.emit('language-change', 'ruby') },
-            { label: 'Go', type: 'radio', name: 'language', value: 'go', action: (win) => win.events.emit('language-change', 'go') },
-            { label: 'Rust', type: 'radio', name: 'language', value: 'rust', action: (win) => win.events.emit('language-change', 'rust') },
-            { label: 'TypeScript', type: 'radio', name: 'language', value: 'typescript', action: (win) => win.events.emit('language-change', 'typescript') },
-            { label: 'Bash', type: 'radio', name: 'language', value: 'bash', action: (win) => win.events.emit('language-change', 'bash') },
-            { label: 'JSON', type: 'radio', name: 'language', value: 'json', action: (win) => win.events.emit('language-change', 'json') },
+            {
+              radioItems: [
+                { label: 'C', value: 'c' },
+                { label: 'C++', value: 'cpp' },
+                { label: 'Java', value: 'java' },
+                { label: 'Python', value: 'python' },
+                { label: 'JavaScript', value: 'javascript' },
+                { label: 'C#', value: 'csharp' },
+                { label: 'HTML', value: 'html' },
+                { label: 'CSS', value: 'css' },
+                { label: 'SQL', value: 'sql' },
+                { label: 'PHP', value: 'php' },
+                { label: 'Ruby', value: 'ruby' },
+                { label: 'Go', value: 'go' },
+                { label: 'Rust', value: 'rust' },
+                { label: 'TypeScript', value: 'typescript' },
+                { label: 'Bash', value: 'bash' },
+                { label: 'JSON', value: 'json' },
+              ],
+              getValue: () => win.notepad?.currentLanguage,
+              setValue: (value) => win.events.emit('language-change', value),
+            },
           ],
           Help: [
             {
@@ -278,7 +284,7 @@ export const apps = [
               action: () => alert("A simple text editor."),
             },
           ],
-        },
+        }),
         content: notepadContent,
       },
     },
