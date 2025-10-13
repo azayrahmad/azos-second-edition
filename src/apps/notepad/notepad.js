@@ -53,6 +53,8 @@ export class Notepad {
     syncScroll() {
         this.highlighted.parentElement.scrollTop = this.codeInput.scrollTop;
         this.highlighted.parentElement.scrollLeft = this.codeInput.scrollLeft;
+        this.highlighted.scrollTop = this.codeInput.scrollTop;
+        this.highlighted.scrollLeft = this.codeInput.scrollLeft;
     }
 
     updateHighlight() {
