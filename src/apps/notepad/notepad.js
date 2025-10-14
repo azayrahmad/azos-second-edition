@@ -23,6 +23,9 @@ export class Notepad {
 
     init() {
         this.win.notepad = this;
+        if (this.win.title() === 'Notepad') {
+            this.win.title('Untitled - Notepad');
+        }
         this.codeInput = this.container.querySelector('.codeInput');
         this.highlighted = this.container.querySelector('.highlighted');
         this.statusText = this.container.querySelector('.statusText');
@@ -82,6 +85,8 @@ export class Notepad {
             const file = e.target.files[0];
             if (!file) return;
 
+            this.win.title(`${file.name} - Notepad`);
+
             const lang = this.getLanguageFromExtension(file.name);
             this.setLanguage(lang);
 
@@ -97,6 +102,7 @@ export class Notepad {
 
     clearContent() {
         this.codeInput.value = '';
+        this.win.title('Untitled - Notepad');
         this.updateHighlight();
     }
 

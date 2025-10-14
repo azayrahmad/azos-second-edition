@@ -334,6 +334,21 @@ class Taskbar {
       win.$window.onClosed(() => {
         this.removeTaskbarButton(windowId);
       });
+
+      // Listen for title changes to update the taskbar button
+      $(win).on('title-change', () => {
+        const newTitle = win.$window.title();
+        const button = document.querySelector(
+          `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
+        );
+        if (button) {
+          button.title = newTitle;
+          const iconImg = button.querySelector('img');
+          button.innerHTML = `${iconImg ? iconImg.outerHTML : ''}${this.escapeHtml(
+            newTitle,
+          )}`;
+        }
+      });
     }
     return taskbarButton;
   }
