@@ -48,8 +48,49 @@ export class Notepad {
         this.win.events.on('new', this.clearContent.bind(this));
         this.win.events.on('paste', this.pasteText.bind(this));
         this.win.events.on('open', this.openFile.bind(this));
+        this.win.events.on('preview-markdown', this.previewMarkdown.bind(this));
 
         this.updateHighlight();
+    }
+
+    previewMarkdown() {
+        const text = this.codeInput.value;
+        const html = marked.parse(text);
+
+        const previewWindow = new $Window({
+            title: 'Markdown Preview',
+            width: 400,
+            height: 300,
+            resizable: true,
+            type: 'tool',
+            content: `
+                <div class="markdown-preview" style="padding: 10px; font-family: sans-serif; height: calc(100% - 40px); overflow: auto;"></div>
+                <div class="markdown-preview-footer" style="text-align: right; padding: 5px;">
+                    <button class="copy-button">Copy HTML</button>
+                </div>
+            `
+        });
+
+        setTimeout(() => {
+            const previewEl = previewWindow.element.querySelector('.markdown-preview');
+            previewEl.innerHTML = html;
+        }, 100);
+
+        const copyButton = previewWindow.element.querySelector('.copy-button');
+        copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(html).then(() => {
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy HTML';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                copyButton.textContent = 'Error!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy HTML';
+                }, 2000);
+            });
+        });
     }
 
     getLanguageFromExtension(filename) {

@@ -254,6 +254,12 @@ export const apps = [
               action: () => win.events.emit('format'),
             },
           ],
+          View: [
+            {
+              label: "Preview Markdown",
+              action: () => win.events.emit('preview-markdown'),
+            },
+          ],
           Language: [
             {
               radioItems: [
