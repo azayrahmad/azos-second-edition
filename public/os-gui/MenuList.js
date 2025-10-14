@@ -24,9 +24,6 @@
 
             this.element = document.createElement('div');
             this.element.className = 'menu-popup';
-            if (options.className) {
-                this.element.classList.add(options.className);
-            }
             this.element.setAttribute('role', 'menu');
             this.element.style.touchAction = 'pan-y'; // allow for scrolling overflowing menus
             this.element.style.display = 'none';
@@ -92,12 +89,7 @@
                 // Create table cells
                 const checkbox_area_el = document.createElement("td");
                 checkbox_area_el.className = "menu-item-checkbox-area";
-                if (item.icon) {
-                    const icon_el = document.createElement('img');
-                    icon_el.src = item.icon;
-                    icon_el.className = 'menu-item-icon';
-                    checkbox_area_el.appendChild(icon_el);
-                } else if (item.checkbox?.type === "radio") {
+                if (item.checkbox?.type === "radio") {
                     checkbox_area_el.classList.add("radio");
                 } else if (item.checkbox) {
                     checkbox_area_el.classList.add("checkbox");

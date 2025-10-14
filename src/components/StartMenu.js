@@ -10,7 +10,6 @@ import shell32Icon from "../assets/icons/SHELL32_3.ico";
 import keyIcon from "../assets/icons/key_win-4.png";
 import shutdownIcon from "../assets/icons/shut_down_normal-0.png";
 import { apps } from "../config/apps.js";
-import startMenuApps from "../config/startmenu.json";
 import { handleAppAction } from "../utils/appManager.js";
 
 // Constants
@@ -103,9 +102,10 @@ class StartMenu {
              <span>aziz rahmad</span>
            </li>
            <div class="start-menu-divider" role="separator"></div>
-           <li id="programs-menu-item" class="start-menu-item" role="menuitem" tabindex="0">
+           <li id="programs-menu-item" class="start-menu-item has-submenu" role="menuitem" tabindex="0">
              <img src="/src/assets/icons/SHELL32_21.ico" alt="Programs" loading="lazy">
              <span>Programs</span>
+             <div class="submenu-arrow"></div>
            </li>
            <div class="start-menu-divider" role="separator"></div>
            <li class="logoff-menu-item" role="menuitem" tabindex="0">
@@ -396,57 +396,92 @@ class StartMenu {
     return div.innerHTML;
   }
 
+  buildProgramsSubmenu() {
+    const programItems = apps
+      .map(
+        (app) => `
+          <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
+              <img src="${app.icon}" alt="${app.title}" loading="lazy">
+              <span>${app.title}</span>
+          </li>
+      `,
+      )
+      .join("");
+
+    return `
+      <div id="programs-submenu" class="start-menu-submenu">
+        <ul class="start-menu-list">
+          ${programItems}
+        </ul>
+      </div>
+    `;
+  }
+
   bindProgramsMenu() {
     const programsItem = document.getElementById("programs-menu-item");
     if (!programsItem) return;
 
-    let programsMenu = null;
+    let submenu = null;
 
-    const closeProgramsMenu = () => {
-      if (programsMenu) {
-        programsMenu.close();
-        programsMenu = null;
-      }
-    };
+    const showSubmenu = () => {
+      if (submenu) return;
+      programsItem.classList.add("highlight");
+      submenu = document.createElement("div");
+      submenu.innerHTML = this.buildProgramsSubmenu();
+      submenu = submenu.firstElementChild;
+      document.body.appendChild(submenu);
 
-    this.addTrackedEventListener(programsItem, "pointerenter", () => {
-      if (programsMenu) return;
+      const rect = programsItem.getBoundingClientRect();
+      submenu.style.left = `${rect.right}px`;
+      submenu.style.top = `${rect.top}px`;
 
-      const programItems = apps.map((app) => {
-        return {
-          label: app.title,
-          action: () => {
+      submenu.querySelectorAll(".start-menu-item").forEach((item) => {
+        this.addTrackedEventListener(item, "click", (event) => {
+          const appId = item.getAttribute("data-app-id");
+          const app = apps.find((a) => a.id === appId);
+          if (app) {
             handleAppAction(app);
             this.hide();
-          },
-          icon: app.icon.href,
-        };
+            closeSubmenu();
+          }
+        });
       });
 
-      programsMenu = new window.OS.MenuList(programItems, {
-        parentEl: programsItem,
-        isSubmenu: true,
-        className: "programs-menu",
+      this.addTrackedEventListener(submenu, "pointerenter", () => {
+        clearTimeout(leaveTimeout);
       });
 
-      document.body.appendChild(programsMenu.element);
-      programsMenu.show();
+      this.addTrackedEventListener(submenu, "pointerleave", () => {
+        closeSubmenu();
+      });
+    };
+
+    const closeSubmenu = () => {
+      if (!submenu) return;
+      programsItem.classList.remove("highlight");
+      submenu.remove();
+      submenu = null;
+    };
+
+    this.addTrackedEventListener(programsItem, "pointerenter", showSubmenu);
+
+    let leaveTimeout;
+
+    this.addTrackedEventListener(programsItem, "pointerleave", () => {
+      leaveTimeout = setTimeout(() => {
+        closeSubmenu();
+      }, 300);
     });
 
-    // Close on leaving the main start menu
-    this.addTrackedEventListener(
-      document.getElementById("start-menu"),
-      "pointerleave",
-      (event) => {
-        // Check if the mouse is moving to the submenu
-        if (
-          programsMenu &&
-          !programsMenu.element.contains(event.relatedTarget)
-        ) {
-          closeProgramsMenu();
+    this.addTrackedEventListener(programsItem, "pointerenter", () => {
+        clearTimeout(leaveTimeout);
+    });
+
+    this.addTrackedEventListener(document, "click", (event) => {
+        if (submenu && !submenu.contains(event.target) && event.target !== programsItem) {
+            closeSubmenu();
         }
-      },
-    );
+    });
   }
 }
 

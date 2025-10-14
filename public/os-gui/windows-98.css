@@ -1114,8 +1114,43 @@ so I think I'll imitate that. (I might change it later) */
 
 /*# sourceMappingURL=windows-98.css.map */
 
-.programs-menu .menu-item-icon {
+.start-menu-item.has-submenu > .submenu-arrow {
+  border: 4px solid transparent;
+  border-left-color: black;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.start-menu-submenu {
+  position: absolute;
+  background-color: rgb(192, 192, 192);
+  border: 1px solid black;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+  padding: 2px;
+  z-index: 10001;
+}
+
+.start-menu-submenu .start-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.start-menu-submenu .start-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+}
+
+.start-menu-submenu .start-menu-item:hover {
+  background-color: #000080;
+  color: white;
+}
+
+.start-menu-submenu .start-menu-item img {
   width: 16px;
   height: 16px;
-  margin-right: 4px;
+  margin-right: 8px;
 }
