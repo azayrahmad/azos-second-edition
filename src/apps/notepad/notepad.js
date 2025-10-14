@@ -59,17 +59,15 @@ export class Notepad {
 
         const previewWindow = new $Window({
             title: 'Markdown Preview',
-            width: 400,
-            height: 300,
-            resizable: true,
-            type: 'tool',
-            content: `
+            toolWindow: true
+        });
+
+        previewWindow.$content.html(`
                 <div class="markdown-preview" style="padding: 10px; font-family: sans-serif; height: calc(100% - 40px); overflow: auto;"></div>
                 <div class="markdown-preview-footer" style="text-align: right; padding: 5px;">
                     <button class="copy-button">Copy HTML</button>
                 </div>
-            `
-        });
+            `);
 
         setTimeout(() => {
             const previewEl = previewWindow.element.querySelector('.markdown-preview');
