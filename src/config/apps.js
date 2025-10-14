@@ -204,7 +204,7 @@ export const apps = [
             {
               label: "&Open",
               shortcutLabel: "Ctrl+O",
-              action: (win) => win.events.emit('open'),
+              action: () => win.events.emit('open'),
             },
             {
               label: "&Save",
@@ -241,7 +241,7 @@ export const apps = [
             {
               label: "&Paste",
               shortcutLabel: "Ctrl+V",
-              action: (win) => win.events.emit('paste'),
+              action: () => win.events.emit('paste'),
             },
             {
               label: "De&lete",

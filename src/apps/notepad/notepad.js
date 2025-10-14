@@ -49,6 +49,31 @@ export class Notepad {
         this.updateHighlight();
     }
 
+    getLanguageFromExtension(filename) {
+        const extension = filename.split('.').pop().toLowerCase();
+        const extensionMap = {
+            'js': 'javascript',
+            'html': 'html',
+            'css': 'css',
+            'json': 'json',
+            'py': 'python',
+            'java': 'java',
+            'c': 'c',
+            'h': 'c',
+            'cpp': 'cpp',
+            'hpp': 'cpp',
+            'cs': 'csharp',
+            'sql': 'sql',
+            'php': 'php',
+            'rb': 'ruby',
+            'go': 'go',
+            'rs': 'rust',
+            'ts': 'typescript',
+            'sh': 'bash',
+        };
+        return extensionMap[extension] || 'c'; // default to c
+    }
+
     openFile() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -56,6 +81,9 @@ export class Notepad {
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            const lang = this.getLanguageFromExtension(file.name);
+            this.setLanguage(lang);
 
             const reader = new FileReader();
             reader.onload = (event) => {
