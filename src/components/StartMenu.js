@@ -4,7 +4,7 @@
  */
 
 // Import icons
-import windowsStartMenuBar from "../assets/img/win98start.bmp";
+import windowsStartMenuBar from "../assets/img/win98start.png";
 import computerIcon from "../assets/icons/computer_explorer.ico";
 import shell32Icon from "../assets/icons/SHELL32_3.ico";
 import keyIcon from "../assets/icons/key_win-4.png";

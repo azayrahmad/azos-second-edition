@@ -61,7 +61,7 @@ function showIconContextMenu(event, app) {
             newItem.click = () => showProperties(app);
             break;
           default:
-            newItem.click = () => {};
+            newItem.click = () => { };
             break;
         }
       } else if (typeof newItem.action === "function") {
@@ -104,73 +104,75 @@ function showIconContextMenu(event, app) {
 }
 
 function showDesktopContextMenu(event) {
-    const themes = {
-        default: 'Default',
-        'peggys-pastels': "Peggy's Pastels",
-        blue: 'Blue',
-    };
+  const themes = {
+    default: 'Default',
+    'peggys-pastels': "Peggy's Pastels",
+    blue: 'Blue',
+    '60s-usa': '60s USA',
+    'dangerous-creatures': 'Dangerous Creatures',
+  };
 
-    const setTheme = (theme) => {
-        // First, set the theme in localStorage
-        localStorage.setItem('desktop-theme', theme);
+  const setTheme = (theme) => {
+    // First, set the theme in localStorage
+    localStorage.setItem('desktop-theme', theme);
 
-        // Apply the theme immediately
-        applySavedTheme();
+    // Apply the theme immediately
+    applySavedTheme();
 
-        // Dispatch a custom event to notify any open menus to update their state
-        document.dispatchEvent(new CustomEvent('theme-changed'));
-    };
+    // Dispatch a custom event to notify any open menus to update their state
+    document.dispatchEvent(new CustomEvent('theme-changed'));
+  };
 
-    const menuItems = [
-        {
-            label: 'Theme',
-            submenu: Object.keys(themes).map(themeKey => ({
-                label: themes[themeKey],
-                checkbox: {
-                    check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
-                    toggle: () => setTheme(themeKey),
-                },
-            })),
+  const menuItems = [
+    {
+      label: 'Theme',
+      submenu: Object.keys(themes).map(themeKey => ({
+        label: themes[themeKey],
+        checkbox: {
+          check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
+          toggle: () => setTheme(themeKey),
         },
-        {
-            label: 'Scanlines',
-            checkbox: {
-                check: () => document.body.classList.contains('scanlines'),
-                toggle: () => {
-                    document.body.classList.toggle('scanlines');
-                }
-            }
+      })),
+    },
+    {
+      label: 'Scanlines',
+      checkbox: {
+        check: () => document.body.classList.contains('scanlines'),
+        toggle: () => {
+          document.body.classList.toggle('scanlines');
         }
-    ];
+      }
+    }
+  ];
 
-    const existingMenus = document.querySelectorAll('.menu-popup');
-    existingMenus.forEach(menu => menu.remove());
+  const existingMenus = document.querySelectorAll('.menu-popup');
+  existingMenus.forEach(menu => menu.remove());
 
-    const menu = new OS.MenuList(menuItems);
-    document.body.appendChild(menu.element);
+  const menu = new OS.MenuList(menuItems);
+  document.body.appendChild(menu.element);
 
-    menu.show(event.clientX, event.clientY);
+  menu.show(event.clientX, event.clientY);
 
-    const handleThemeChange = () => {
-        // When the theme changes, we need to manually trigger an update on the menu
-        // to re-evaluate the 'check' state of all theme items.
-        if (menu.activeSubmenu) {
-            menu.activeSubmenu.element.dispatchEvent(new CustomEvent('update', {}));
-        }
-    };
+  const handleThemeChange = () => {
+    // When the theme changes, we need to manually trigger an update on the menu
+    // to re-evaluate the 'check' state of all theme items.
+    if (menu.activeSubmenu) {
+      menu.activeSubmenu.element.dispatchEvent(new CustomEvent('update', {}));
+    }
+  };
 
-    const closeMenu = (e) => {
-        if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
-            menu.closeAll();
-            document.removeEventListener('click', closeMenu);
-            document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
-        }
-    };
+  const closeMenu = (e) => {
+    if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
+      menu.closeAll();
+      document.removeEventListener('click', closeMenu);
+      document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
+    }
+  };
 
-    setTimeout(() => {
-        document.addEventListener('click', closeMenu);
-        document.addEventListener('theme-changed', handleThemeChange);
-    }, 0);
+  setTimeout(() => {
+    document.addEventListener('click', closeMenu);
+    document.addEventListener('theme-changed', handleThemeChange);
+  }, 0);
 }
 
 function showProperties(app) {
@@ -241,16 +243,16 @@ function configureIcon(icon, app, filePath = null) {
 }
 
 function applySavedTheme() {
-    const savedTheme = localStorage.getItem('desktop-theme') || 'default';
-    const themeIds = ['peggys-pastels-theme', 'blue-theme'];
+  const savedTheme = localStorage.getItem('desktop-theme') || 'default';
+  const themeIds = ['peggys-pastels-theme', 'blue-theme', '60s-usa-theme', 'dangerous-creatures-theme'];
 
-    themeIds.forEach(id => {
-        const stylesheet = document.getElementById(id);
-        if (stylesheet) {
-            // Disable all theme stylesheets except the active one
-            stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
-        }
-    });
+  themeIds.forEach(id => {
+    const stylesheet = document.getElementById(id);
+    if (stylesheet) {
+      // Disable all theme stylesheets except the active one
+      stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
+    }
+  });
 }
 
 // Initialize desktop behavior

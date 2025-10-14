@@ -27,20 +27,19 @@
 }
 
 :root {
-  --background-teal: #008080;
-  --background-gray: #c0c0c0;
-  --border-light: #dfdfdf;
-  --border-dark: #87888f;
-  --border-white: white;
-  --border-black: black;
-  --highlight-blue: #0000a8;
-  --highlight-text: #fff;
-  --shadow-light: #fff;
-  --shadow-dark: #0a0a0a;
-  --shadow-medium-light: #dfdfdf;
-  --shadow-medium-dark: grey;
+  --background-gray: var(--ButtonFace);
+  --border-light: var(--ButtonLight);
+  --border-dark: var(--ButtonShadow);
+  --border-white: var(--ButtonHilight);
+  --border-black: var(--ButtonDkShadow);
+  --highlight-blue: var(--Hilight);
+  --highlight-text: var(--HilightText);
+  --shadow-light: var(--ButtonHilight);
+  --shadow-dark: var(--ButtonDkShadow);
+  --shadow-medium-light: var(--ButtonLight);
+  --shadow-medium-dark: var(--ButtonShadow);
   --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%) brightness(0.6);
-  --text-shadow: 1px 1px #222;
+  --text-shadow: 1px 1px var(--ButtonDkShadow);
   --icon-label-font-size: 11px;
 }
 
@@ -51,18 +50,18 @@ html {
   padding: 0;
   overflow-x: hidden;
   font-family: "MSW98UI", sans-serif;
-  background-color: var(--background-teal);
+  background-color: var(--Background);
   image-rendering: pixelated;
   font-smooth: never;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--HotTrackingColor);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--Hilight);
 }
 
 body {
@@ -92,10 +91,10 @@ h1 {
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em var(--HotTrackingColor));
 }
 .logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
+  filter: drop-shadow(0 0 2em var(--ButtonFace));
 }
 
 .card {
@@ -103,7 +102,7 @@ h1 {
 }
 
 .read-the-docs {
-  color: #888;
+  color: var(--GrayText);
 }
 
 .tray-icon {
