@@ -609,6 +609,7 @@ so I think I'll imitate that. (I might change it later) */
   background: var(--Menu);
   color: rgb(0, 0, 0);
   color: var(--MenuText);
+  z-index: 10000;
 }
 .menu-popup td {
   padding: 0 1px;
