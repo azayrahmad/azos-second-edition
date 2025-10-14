@@ -44,8 +44,55 @@ export class Notepad {
         this.win.events.on('copy', this.copyFormattedCode);
         this.win.events.on('new', this.clearContent.bind(this));
         this.win.events.on('paste', this.pasteText.bind(this));
+        this.win.events.on('open', this.openFile.bind(this));
 
         this.updateHighlight();
+    }
+
+    getLanguageFromExtension(filename) {
+        const extension = filename.split('.').pop().toLowerCase();
+        const extensionMap = {
+            'js': 'javascript',
+            'html': 'html',
+            'css': 'css',
+            'json': 'json',
+            'py': 'python',
+            'java': 'java',
+            'c': 'c',
+            'h': 'c',
+            'cpp': 'cpp',
+            'hpp': 'cpp',
+            'cs': 'csharp',
+            'sql': 'sql',
+            'php': 'php',
+            'rb': 'ruby',
+            'go': 'go',
+            'rs': 'rust',
+            'ts': 'typescript',
+            'sh': 'bash',
+        };
+        return extensionMap[extension] || 'c'; // default to c
+    }
+
+    openFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'text/plain, .js, .html, .css, .json, .py, .java, .c, .cpp, .cs, .sql, .php, .rb, .go, .rs, .ts, .sh';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const lang = this.getLanguageFromExtension(file.name);
+            this.setLanguage(lang);
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.codeInput.value = event.target.result;
+                this.updateHighlight();
+            };
+            reader.readAsText(file);
+        };
+        input.click();
     }
 
     clearContent() {
