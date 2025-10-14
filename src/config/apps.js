@@ -204,7 +204,7 @@ export const apps = [
             {
               label: "&Open",
               shortcutLabel: "Ctrl+O",
-              enabled: false,
+              action: (win) => win.events.emit('open'),
             },
             {
               label: "&Save",

@@ -44,8 +44,27 @@ export class Notepad {
         this.win.events.on('copy', this.copyFormattedCode);
         this.win.events.on('new', this.clearContent.bind(this));
         this.win.events.on('paste', this.pasteText.bind(this));
+        this.win.events.on('open', this.openFile.bind(this));
 
         this.updateHighlight();
+    }
+
+    openFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'text/plain, .js, .html, .css, .json, .py, .java, .c, .cpp, .cs, .sql, .php, .rb, .go, .rs, .ts, .sh';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.codeInput.value = event.target.result;
+                this.updateHighlight();
+            };
+            reader.readAsText(file);
+        };
+        input.click();
     }
 
     clearContent() {
