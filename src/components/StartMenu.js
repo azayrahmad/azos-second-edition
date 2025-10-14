@@ -402,7 +402,7 @@ class StartMenu {
         (app) => `
           <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
               <img src="${app.icon}" alt="${app.title}" loading="lazy">
-              <span>${app.title}</span>
+              <span>${this.escapeHtml(app.title)}</span>
           </li>
       `,
       )
@@ -422,6 +422,7 @@ class StartMenu {
     if (!programsItem) return;
 
     let submenu = null;
+    let leaveTimeout;
 
     const showSubmenu = () => {
       if (submenu) return;
@@ -432,8 +433,16 @@ class StartMenu {
       document.body.appendChild(submenu);
 
       const rect = programsItem.getBoundingClientRect();
+      const submenuRect = submenu.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      let top = rect.top;
+      if (top + submenuRect.height > viewportHeight) {
+        top = viewportHeight - submenuRect.height;
+      }
+
       submenu.style.left = `${rect.right}px`;
-      submenu.style.top = `${rect.top}px`;
+      submenu.style.top = `${top}px`;
 
       submenu.querySelectorAll(".start-menu-item").forEach((item) => {
         this.addTrackedEventListener(item, "click", (event) => {
@@ -463,18 +472,15 @@ class StartMenu {
       submenu = null;
     };
 
-    this.addTrackedEventListener(programsItem, "pointerenter", showSubmenu);
-
-    let leaveTimeout;
+    this.addTrackedEventListener(programsItem, "pointerenter", () => {
+        clearTimeout(leaveTimeout);
+        showSubmenu();
+    });
 
     this.addTrackedEventListener(programsItem, "pointerleave", () => {
       leaveTimeout = setTimeout(() => {
         closeSubmenu();
       }, 300);
-    });
-
-    this.addTrackedEventListener(programsItem, "pointerenter", () => {
-        clearTimeout(leaveTimeout);
     });
 
     this.addTrackedEventListener(document, "click", (event) => {
