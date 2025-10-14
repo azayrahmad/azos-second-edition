@@ -19,24 +19,6 @@
   font-style: normal;
 }
 
-:root {
-  --background-teal: #008080;
-  --background-gray: #c0c0c0;
-  --border-light: #dfdfdf;
-  --border-dark: #87888f;
-  --border-white: white;
-  --border-black: black;
-  --highlight-blue: #0000a8;
-  --highlight-text: #fff;
-  --shadow-light: #fff;
-  --shadow-dark: #0a0a0a;
-  --shadow-medium-light: #dfdfdf;
-  --shadow-medium-dark: grey;
-  --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%) brightness(0.6);
-  --text-shadow: 1px 1px #222;
-  --icon-label-font-size: 11px;
-}
-
 .hidden {
   display: none !important;
 }
@@ -48,7 +30,7 @@ html {
   padding: 0;
   overflow-x: hidden;
   font-family: "MSW98UI", sans-serif;
-  background-color: var(--background-teal);
+  background-color: var(--Background);
   image-rendering: pixelated;
   font-smooth: never;
 }
@@ -89,7 +71,7 @@ html {
 .desktop-icon {
   width: 70px;
   text-align: center;
-  color: white;
+  color: var(--ButtonHilight);
 }
 
 .desktop-icon .icon {
@@ -109,14 +91,14 @@ html {
 }
 
 .highlighted-icon {
-  filter: var(--icon-filter);
+  filter: var(--IconFilter);
 }
 
 .highlighted-label {
-  background-color: var(--highlight-blue);
-  color: var(--highlight-text);
+  background-color: var(--Hilight);
+  color: var(--HilightText);
 }
 
 .selected {
-  border: 1px dotted white;
+  border: 1px dotted var(--ButtonHilight);
 }
