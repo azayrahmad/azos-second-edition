@@ -89,22 +89,6 @@ class StartMenu {
     startMenuWrapper.innerHTML = this.getStartMenuHTML();
   }
   /**
-   * Generate app menu items HTML from apps configuration
-   */
-  generateAppMenuItems() {
-    const appsToLoad = apps.filter((app) => startMenuApps.includes(app.id));
-    return appsToLoad
-      .map(
-        (app) => `
-          <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
-              <img src="${app.icon}" alt="${app.title}" loading="lazy">
-              <span>${app.title}</span>
-          </li>
-      `,
-      )
-      .join("");
-  }
-  /**
    * Generate start menu HTML template
    */
   getStartMenuHTML() {
@@ -119,7 +103,10 @@ class StartMenu {
              <span>aziz rahmad</span>
            </li>
            <div class="start-menu-divider" role="separator"></div>
-           ${this.generateAppMenuItems()}
+           <li id="programs-menu-item" class="start-menu-item" role="menuitem" tabindex="0">
+             <img src="/src/assets/icons/SHELL32_21.ico" alt="Programs" loading="lazy">
+             <span>Programs</span>
+           </li>
            <div class="start-menu-divider" role="separator"></div>
            <li class="logoff-menu-item" role="menuitem" tabindex="0">
              <img src="${keyIcon}" alt="Log off" loading="lazy">
@@ -141,6 +128,7 @@ class StartMenu {
     this.bindSpecialActionEvents();
     this.bindKeyboardEvents();
     this.bindOutsideClickEvents();
+    this.bindProgramsMenu();
   }
 
   /**
@@ -406,6 +394,59 @@ class StartMenu {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  bindProgramsMenu() {
+    const programsItem = document.getElementById("programs-menu-item");
+    if (!programsItem) return;
+
+    let programsMenu = null;
+
+    const closeProgramsMenu = () => {
+      if (programsMenu) {
+        programsMenu.close();
+        programsMenu = null;
+      }
+    };
+
+    this.addTrackedEventListener(programsItem, "pointerenter", () => {
+      if (programsMenu) return;
+
+      const programItems = apps.map((app) => {
+        return {
+          label: app.title,
+          action: () => {
+            handleAppAction(app);
+            this.hide();
+          },
+          icon: app.icon.href,
+        };
+      });
+
+      programsMenu = new window.OS.MenuList(programItems, {
+        parentEl: programsItem,
+        isSubmenu: true,
+        className: "programs-menu",
+      });
+
+      document.body.appendChild(programsMenu.element);
+      programsMenu.show();
+    });
+
+    // Close on leaving the main start menu
+    this.addTrackedEventListener(
+      document.getElementById("start-menu"),
+      "pointerleave",
+      (event) => {
+        // Check if the mouse is moving to the submenu
+        if (
+          programsMenu &&
+          !programsMenu.element.contains(event.relatedTarget)
+        ) {
+          closeProgramsMenu();
+        }
+      },
+    );
   }
 }
 

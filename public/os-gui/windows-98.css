@@ -1113,3 +1113,9 @@ so I think I'll imitate that. (I might change it later) */
 }
 
 /*# sourceMappingURL=windows-98.css.map */
+
+.programs-menu .menu-item-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
