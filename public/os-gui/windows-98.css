@@ -1116,7 +1116,7 @@ so I think I'll imitate that. (I might change it later) */
 
 .start-menu-item.has-submenu > .submenu-arrow {
   border: 4px solid transparent;
-  border-left-color: black;
+  border-left-color: var(--ButtonText);
   position: absolute;
   right: 5px;
   top: 50%;
@@ -1125,8 +1125,8 @@ so I think I'll imitate that. (I might change it later) */
 
 .start-menu-submenu {
   position: absolute;
-  background-color: rgb(192, 192, 192);
-  border: 1px solid black;
+  background-color: var(--ButtonFace);
+  border: 1px solid var(--ButtonDkShadow);
   box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
   padding: 2px;
   z-index: 10001;
@@ -1142,11 +1142,12 @@ so I think I'll imitate that. (I might change it later) */
   display: flex;
   align-items: center;
   padding: 4px 10px;
+  color: var(--MenuText);
 }
 
 .start-menu-submenu .start-menu-item:hover {
-  background-color: #000080;
-  color: white;
+  background-color: var(--Hilight);
+  color: var(--HilightText);
 }
 
 .start-menu-submenu .start-menu-item img {
