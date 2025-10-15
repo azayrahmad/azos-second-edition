@@ -141,7 +141,7 @@ function showDesktopContextMenu(event) {
         setupIcons();
       },
     },
-    '-',
+    'MENU_DIVIDER',
     {
       label: 'Theme',
       submenu: Object.keys(themes).map(themeKey => ({
