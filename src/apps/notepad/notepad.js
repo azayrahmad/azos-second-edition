@@ -294,42 +294,41 @@ export class Notepad {
     }
 
     formatCode() {
-        let code = this.codeInput.value;
-        const lines = code.split('\n').map(line => line.trim());
-        let indentLevel = 0;
-        const indentSize = 4;
-        const formattedLines = [];
+        const languageToParser = {
+            javascript: 'babel',
+            html: 'html',
+            css: 'css',
+            json: 'json',
+            // Add other language-to-parser mappings as needed
+        };
 
-        for (let line of lines) {
-            if (line === '') {
-                formattedLines.push('');
-                continue;
-            }
+        const parser = languageToParser[this.currentLanguage];
 
-            if (line.startsWith('}') || line.startsWith(']') || line.startsWith(')')) {
-                indentLevel = Math.max(0, indentLevel - 1);
-            }
-
-            const indent = ' '.repeat(indentLevel * indentSize);
-            formattedLines.push(indent + line);
-
-            if (line.endsWith('{') || line.endsWith('[') || line.endsWith('(')) {
-                indentLevel++;
-            }
-
-            if (line.startsWith('case ') || line === 'default:') {
-                indentLevel++;
-            } else if (line === 'break;' && indentLevel > 0) {
-                indentLevel = Math.max(0, indentLevel - 1);
-            }
+        if (!parser) {
+            this.statusText.textContent = `Formatting not available for ${this.currentLanguage}.`;
+            setTimeout(() => {
+                this.statusText.textContent = 'Ready';
+            }, 3000);
+            return;
         }
 
-        this.codeInput.value = formattedLines.join('\n');
-        this.statusText.textContent = 'Code formatted!';
-        setTimeout(() => {
-            this.statusText.textContent = 'Ready';
-        }, 2000);
-        this.updateHighlight();
+        try {
+            const rawCode = this.codeInput.value;
+            const formattedCode = prettier.format(rawCode, {
+                parser: parser,
+                plugins: [prettierPlugins.babel, prettierPlugins.html, prettierPlugins.css],
+            });
+            this.codeInput.value = formattedCode;
+            this.statusText.textContent = 'Code formatted!';
+            this.updateHighlight();
+        } catch (error) {
+            console.error('Prettier formatting error:', error);
+            this.statusText.textContent = 'Error formatting code. Check console.';
+        } finally {
+            setTimeout(() => {
+                this.statusText.textContent = 'Ready';
+            }, 2000);
+        }
     }
 }
 
