@@ -134,6 +134,15 @@ function showDesktopContextMenu(event) {
 
   const menuItems = [
     {
+      label: 'Sort Icons',
+      click: () => {
+        // Remove saved positions and redraw icons
+        localStorage.removeItem('iconPositions');
+        setupIcons();
+      },
+    },
+    'MENU_DIVIDER',
+    {
       label: 'Theme',
       submenu: Object.keys(themes).map(themeKey => ({
         label: themes[themeKey],
