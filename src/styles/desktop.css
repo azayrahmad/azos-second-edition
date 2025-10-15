@@ -89,6 +89,7 @@ html {
   width: 70px;
   text-align: center;
   color: var(--HilightText);
+  z-index: 1; /* Ensure icons are on top of other elements */
 }
 
 .desktop-icon .icon {
