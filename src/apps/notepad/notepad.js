@@ -24,6 +24,7 @@ export class Notepad {
 
     init() {
         this.win.notepad = this;
+        this.previewWindow = null;
 
         this.fileHandle = null;
         this.isDirty = false;
@@ -47,6 +48,15 @@ export class Notepad {
             this.isDirty = true;
             this.updateTitle();
             this.updateHighlight();
+
+            if (this.previewWindow) {
+                const text = this.codeInput.value;
+                const html = marked.parse(text);
+                const previewEl = this.previewWindow.element.querySelector('.markdown-preview');
+                if (previewEl) {
+                    previewEl.innerHTML = html;
+                }
+            }
         });
         this.codeInput.addEventListener('scroll', this.syncScroll);
 
@@ -74,10 +84,15 @@ export class Notepad {
     }
 
     previewMarkdown() {
+        if (this.previewWindow) {
+            this.previewWindow.focus();
+            return;
+        }
+
         const text = this.codeInput.value;
         const html = marked.parse(text);
 
-        const previewWindow = new $Window({
+        this.previewWindow = new $Window({
             title: 'HTML/Markdown Preview',
             innerWidth: 600,
             innerHeight: 400,
@@ -87,7 +102,11 @@ export class Notepad {
             resizable: true
         });
 
-        previewWindow.$content.html(`
+        this.previewWindow.onClosed(() => {
+            this.previewWindow = null;
+        });
+
+        this.previewWindow.$content.html(`
                 <div class="markdown-preview sunken-panel"></div>
                 <div class="markdown-preview-footer" style="text-align: right; padding: 5px;">
                     <button class="copy-button">Copy HTML</button>
@@ -95,11 +114,11 @@ export class Notepad {
             `);
 
         setTimeout(() => {
-            const previewEl = previewWindow.element.querySelector('.markdown-preview');
+            const previewEl = this.previewWindow.element.querySelector('.markdown-preview');
             previewEl.innerHTML = html;
         }, 100);
 
-        const copyButton = previewWindow.element.querySelector('.copy-button');
+        const copyButton = this.previewWindow.element.querySelector('.copy-button');
         copyButton.addEventListener('click', () => {
             navigator.clipboard.writeText(html).then(() => {
                 copyButton.textContent = 'Copied!';
