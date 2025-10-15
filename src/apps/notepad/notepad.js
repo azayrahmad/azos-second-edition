@@ -185,11 +185,7 @@ export class Notepad {
                         {
                             description: 'Text Files',
                             accept: { 'text/plain': ['.txt'] },
-                        },
-                        {
-                            description: 'All Files',
-                            accept: { '*/*': ['.*'] },
-                        },
+                        }
                     ],
                 });
                 this.fileHandle = handle;
