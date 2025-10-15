@@ -10,53 +10,63 @@ import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
 import { Notepad } from '../apps/notepad/notepad.js';
 
 export function handleAppAction(app) {
-  if (app.action.type === "window") {
-    // For apps that open files, we use the file path as a unique identifier for the window.
-    const windowId = app.filePath ? `${app.id}-${app.filePath}` : app.id;
+  document.body.style.cursor = "wait";
 
-    const existingWindow = openWindows.get(windowId);
-    if (existingWindow) {
-      const $win = $(existingWindow.element);
-      if ($win.is(":visible")) {
-        $win.trigger("refocus-window");
-      } else {
-        existingWindow.restore();
-        setTimeout(() => {
+  try {
+    if (app.action.type === "window") {
+      // For apps that open files, we use the file path as a unique identifier for the window.
+      const windowId = app.filePath ? `${app.id}-${app.filePath}` : app.id;
+
+      const existingWindow = openWindows.get(windowId);
+      if (existingWindow) {
+        const $win = $(existingWindow.element);
+        if ($win.is(":visible")) {
           $win.trigger("refocus-window");
-        }, 0);
+        } else {
+          existingWindow.restore();
+          setTimeout(() => {
+            $win.trigger("refocus-window");
+          }, 0);
+        }
+        return;
       }
-      return;
-    }
 
-    let windowContent = app.action.window.content;
-    if (app.filePath && app.id === 'pdfviewer') {
-      windowContent = createPdfViewerContent(app.filePath);
-    }
-
-    const win = createWindow({
-      id: windowId,
-      title: app.title,
-      icon: app.icon,
-      hasTaskbarButton: app.hasTaskbarButton,
-      ...app.action.window,
-      content: windowContent, // Use potentially modified content
-    });
-
-    if (app.id === 'notepad') {
-      const notepadContainer = win.$content.find('.notepad-container')[0];
-      if (notepadContainer) {
-        new Notepad(notepadContainer, win);
+      let windowContent = app.action.window.content;
+      if (app.filePath && app.id === "pdfviewer") {
+        windowContent = createPdfViewerContent(app.filePath);
       }
+
+      const win = createWindow({
+        id: windowId,
+        title: app.title,
+        icon: app.icon,
+        hasTaskbarButton: app.hasTaskbarButton,
+        ...app.action.window,
+        content: windowContent, // Use potentially modified content
+      });
+
+      if (app.id === "notepad") {
+        const notepadContainer = win.$content.find(".notepad-container")[0];
+        if (notepadContainer) {
+          new Notepad(notepadContainer, win);
+        }
+      }
+
+      openWindows.set(windowId, win);
+    } else if (app.action.type === "function") {
+      app.action.handler();
     }
 
-    openWindows.set(windowId, win);
-  } else if (app.action.type === "function") {
-    app.action.handler();
-  }
-
-  // Create tray icon if app is configured to have one
-  if (app.hasTray) {
-    createTrayIcon(app);
+    // Create tray icon if app is configured to have one
+    if (app.hasTray) {
+      createTrayIcon(app);
+    }
+  } finally {
+    // Use a short timeout to ensure the browser has time to render the 'wait' cursor
+    // before it's immediately reset. This prevents a race condition.
+    setTimeout(() => {
+      document.body.style.cursor = "default";
+    }, 50);
   }
 }
 
