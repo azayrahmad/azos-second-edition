@@ -180,14 +180,29 @@ export class Notepad {
     async saveAs() {
         if (window.showSaveFilePicker) {
             try {
-                const handle = await window.showSaveFilePicker({
-                    types: [
-                        {
-                            description: 'Text Files',
-                            accept: { 'text/plain': ['.txt'] },
-                        }
-                    ],
+                // Generate file types from languages config
+                const fileTypes = languages.map(lang => ({
+                    description: `${lang.name} Files`,
+                    accept: {
+                        'text/plain': lang.extensions.map(ext => `.${ext}`),
+                    },
+                }));
+
+                // Add "All Files" option
+                fileTypes.push({
+                    description: 'All Files',
+                    accept: { '*/*': ['.*'] },
                 });
+
+                // Find the current language to set as default
+                const currentLanguageDetails = languages.find(lang => lang.id === this.currentLanguage);
+
+                const pickerOptions = {
+                    types: fileTypes,
+                    suggestedName: this.fileName === 'Untitled' ? `Untitled${currentLanguageDetails?.extensions[0] || '.txt'}` : this.fileName,
+                };
+
+                const handle = await window.showSaveFilePicker(pickerOptions);
                 this.fileHandle = handle;
                 this.fileName = handle.name;
                 await this.writeFile(this.fileHandle);
@@ -204,11 +219,17 @@ export class Notepad {
             }
         } else {
             // Fallback for browsers that don't support the API
+            const newFileName = prompt("Enter a filename:", this.fileName === 'Untitled' ? 'Untitled.txt' : this.fileName);
+            if (!newFileName) {
+                return; // User cancelled the prompt
+            }
+            this.fileName = newFileName;
+
             const blob = new Blob([this.codeInput.value], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = this.fileName === 'Untitled' ? 'Untitled.txt' : this.fileName;
+            a.download = this.fileName;
             document.body.appendChild(a);
             a.click();
             setTimeout(() => {
