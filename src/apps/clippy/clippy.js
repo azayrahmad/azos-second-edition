@@ -208,7 +208,6 @@ export function showClippyContextMenu(event) {
 }
 
 export function launchClippyApp(agentName = currentAgentName) {
-  console.log(`Launching clippy app with agent: ${agentName}`);
   if (window.clippyAgent) {
     // Gracefully hide and remove the current agent before loading a new one
     window.clippyAgent.hide(() => {

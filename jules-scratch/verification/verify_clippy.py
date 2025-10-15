@@ -26,13 +26,12 @@ def run(playwright):
         # Wait for the context menu to appear
         page.wait_for_selector(".menu-popup", timeout=5000)
 
-        # Hover over the "Agent" menu item to reveal the submenu
+        # Click the "Agent" menu item to reveal the submenu
         agent_menu_item = page.get_by_text("Agent")
-        agent_menu_item.hover()
+        agent_menu_item.click()
 
-        # Wait for the submenu to appear
-        time.sleep(0.5)
-        page.wait_for_selector(".menu-popup .menu-popup", timeout=5000)
+        # Wait for the submenu to appear and take a screenshot
+        page.wait_for_selector(".menu-popup", timeout=5000)
         page.screenshot(path="jules-scratch/verification/clippy_context_menu_with_submenu.png")
 
         # Switch to Genius
