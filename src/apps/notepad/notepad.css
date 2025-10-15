@@ -109,3 +109,11 @@
 .hljs {
   background: transparent;
 }
+
+.markdown-preview {
+  padding: 8px;
+  height: calc(100% - 40px);
+  overflow: auto;
+  user-select: text;
+  flex-direction: column;
+}
