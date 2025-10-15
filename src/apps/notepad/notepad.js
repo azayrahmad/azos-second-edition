@@ -24,9 +24,13 @@ export class Notepad {
 
     init() {
         this.win.notepad = this;
-        if (this.win.title() === 'Notepad') {
-            this.win.title('Untitled - Notepad');
-        }
+
+        this.fileHandle = null;
+        this.isDirty = false;
+        this.fileName = 'Untitled';
+
+        this.updateTitle();
+
         this.codeInput = this.container.querySelector('.codeInput');
         this.highlighted = this.container.querySelector('.highlighted');
         this.statusText = this.container.querySelector('.statusText');
@@ -39,7 +43,11 @@ export class Notepad {
         this.copyFormattedCode = this.copyFormattedCode.bind(this);
         this.setLanguage = this.setLanguage.bind(this);
 
-        this.codeInput.addEventListener('input', this.updateHighlight);
+        this.codeInput.addEventListener('input', () => {
+            this.isDirty = true;
+            this.updateTitle();
+            this.updateHighlight();
+        });
         this.codeInput.addEventListener('scroll', this.syncScroll);
 
         // Listen for events from the menu bar
@@ -50,8 +58,19 @@ export class Notepad {
         this.win.events.on('paste', this.pasteText.bind(this));
         this.win.events.on('open', this.openFile.bind(this));
         this.win.events.on('preview-markdown', this.previewMarkdown.bind(this));
+        this.win.events.on('save-as', this.saveAs.bind(this));
+        this.win.events.on('save', this.saveFile.bind(this));
 
         this.updateHighlight();
+    }
+
+    updateTitle() {
+        const dirtyIndicator = this.isDirty ? '*' : '';
+        this.win.title(`${dirtyIndicator}${this.fileName} - Notepad`);
+        const menuBarEl = this.win.element.querySelector('.menus');
+        if (menuBarEl) {
+            menuBarEl.dispatchEvent(new CustomEvent('update'));
+        }
     }
 
     previewMarkdown() {
@@ -111,7 +130,10 @@ export class Notepad {
             const file = e.target.files[0];
             if (!file) return;
 
-            this.win.title(`${file.name} - Notepad`);
+            this.fileName = file.name;
+            this.fileHandle = null; // We don't get a handle from this legacy method
+            this.isDirty = false;
+            this.updateTitle();
 
             const lang = this.getLanguageFromExtension(file.name);
             this.setLanguage(lang);
@@ -119,6 +141,8 @@ export class Notepad {
             const reader = new FileReader();
             reader.onload = (event) => {
                 this.codeInput.value = event.target.result;
+                this.isDirty = false;
+                this.updateTitle();
                 this.updateHighlight();
             };
             reader.readAsText(file);
@@ -128,8 +152,82 @@ export class Notepad {
 
     clearContent() {
         this.codeInput.value = '';
-        this.win.title('Untitled - Notepad');
+        this.fileName = 'Untitled';
+        this.fileHandle = null;
+        this.isDirty = false;
+        this.updateTitle();
         this.updateHighlight();
+    }
+
+    async saveFile() {
+        if (this.fileHandle) {
+            try {
+                await this.writeFile(this.fileHandle);
+                this.isDirty = false;
+                this.updateTitle();
+                this.statusText.textContent = 'File saved.';
+                setTimeout(() => this.statusText.textContent = 'Ready', 2000);
+            } catch (err) {
+                console.error('Error saving file:', err);
+                this.statusText.textContent = 'Error saving file.';
+                setTimeout(() => this.statusText.textContent = 'Ready', 3000);
+            }
+        } else {
+            await this.saveAs();
+        }
+    }
+
+    async saveAs() {
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    types: [
+                        {
+                            description: 'Text Files',
+                            accept: { 'text/plain': ['.txt'] },
+                        },
+                        {
+                            description: 'All Files',
+                            accept: { '*/*': ['.*'] },
+                        },
+                    ],
+                });
+                this.fileHandle = handle;
+                this.fileName = handle.name;
+                await this.writeFile(this.fileHandle);
+                this.isDirty = false;
+                this.updateTitle();
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    // User cancelled the dialog, do nothing
+                    return;
+                }
+                console.error('Error saving file:', err);
+                this.statusText.textContent = 'Error saving file.';
+                setTimeout(() => this.statusText.textContent = 'Ready', 3000);
+            }
+        } else {
+            // Fallback for browsers that don't support the API
+            const blob = new Blob([this.codeInput.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = this.fileName === 'Untitled' ? 'Untitled.txt' : this.fileName;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                this.isDirty = false; // Assume save was successful
+                this.updateTitle();
+            }, 0);
+        }
+    }
+
+    async writeFile(fileHandle) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(this.codeInput.value);
+        await writable.close();
     }
 
     pasteText() {
