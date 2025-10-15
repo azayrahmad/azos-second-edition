@@ -114,30 +114,21 @@ export function getClippyMenuItems() {
     "MENU_DIVIDER",
     {
       label: "A&gent",
-      click: (e) => {
-        const agentMenu = new OS.MenuList([
-          {
-            label: currentAgentName === "Clippy" ? "✓ Clippy" : "Clippy",
-            click: () => {
-              if (currentAgentName !== "Clippy") {
-                setCurrentAgentName("Clippy");
-                launchClippyApp("Clippy");
-              }
-            },
+      submenu: [
+        {
+          radioItems: [
+            { label: "Clippy", value: "Clippy" },
+            { label: "Genius", value: "Genius" },
+          ],
+          getValue: () => currentAgentName,
+          setValue: (value) => {
+            if (currentAgentName !== value) {
+              setCurrentAgentName(value);
+              launchClippyApp(value);
+            }
           },
-          {
-            label: currentAgentName === "Genius" ? "✓ Genius" : "Genius",
-            click: () => {
-              if (currentAgentName !== "Genius") {
-                setCurrentAgentName("Genius");
-                launchClippyApp("Genius");
-              }
-            },
-          },
-        ]);
-        document.body.appendChild(agentMenu.element);
-        agentMenu.show(e.pageX, e.pageY);
-      },
+        },
+      ],
     },
     "MENU_DIVIDER",
     {
