@@ -316,7 +316,7 @@ export class Notepad {
             const rawCode = this.codeInput.value;
             const formattedCode = prettier.format(rawCode, {
                 parser: parser,
-                plugins: [prettierPlugins.babel, prettierPlugins.html, prettierPlugins.css],
+                plugins: prettierPlugins,
             });
             this.codeInput.value = formattedCode;
             this.statusText.textContent = 'Code formatted!';
