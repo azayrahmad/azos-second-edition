@@ -5,6 +5,7 @@ import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
 import { handleAppAction } from "../utils/appManager.js";
+import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -113,24 +114,7 @@ function showIconContextMenu(event, app) {
 }
 
 function showDesktopContextMenu(event) {
-  const themes = {
-    default: 'Default',
-    'peggys-pastels': "Peggy's Pastels",
-    blue: 'Blue',
-    '60s-usa': '60s USA',
-    'dangerous-creatures': 'Dangerous Creatures',
-  };
-
-  const setTheme = (theme) => {
-    // First, set the theme in localStorage
-    localStorage.setItem('desktop-theme', theme);
-
-    // Apply the theme immediately
-    applySavedTheme();
-
-    // Dispatch a custom event to notify any open menus to update their state
-    document.dispatchEvent(new CustomEvent('theme-changed'));
-  };
+  const themes = getThemes();
 
   const menuItems = [
     {
@@ -147,7 +131,7 @@ function showDesktopContextMenu(event) {
       submenu: Object.keys(themes).map(themeKey => ({
         label: themes[themeKey],
         checkbox: {
-          check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
+          check: () => getCurrentTheme() === themeKey,
           toggle: () => setTheme(themeKey),
         },
       })),
@@ -356,23 +340,10 @@ function configureIcon(icon, app, filePath = null) {
   });
 }
 
-function applySavedTheme() {
-  const savedTheme = localStorage.getItem('desktop-theme') || 'default';
-  const themeIds = ['peggys-pastels-theme', 'blue-theme', '60s-usa-theme', 'dangerous-creatures-theme'];
-
-  themeIds.forEach(id => {
-    const stylesheet = document.getElementById(id);
-    if (stylesheet) {
-      // Disable all theme stylesheets except the active one
-      stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
-    }
-  });
-}
-
 // Initialize desktop behavior
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
-  applySavedTheme();
+  applyTheme();
   setupIcons();
 
   const desktop = document.querySelector('.desktop');
