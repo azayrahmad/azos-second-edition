@@ -239,6 +239,8 @@ function configureIcon(icon, app, filePath = null) {
     // Left-click only
     if (e.button !== 0) return;
 
+    e.preventDefault();
+
     isDragging = true;
     wasDragged = false;
     dragStartX = e.clientX;
