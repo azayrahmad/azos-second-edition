@@ -194,15 +194,12 @@ export function setupIcons() {
   desktop.innerHTML = ""; // Clear existing icons
 
   const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
-  let iconsToBake = [];
 
   const placeIcon = (icon, iconId) => {
     if (iconPositions[iconId]) {
       icon.style.position = "absolute";
       icon.style.left = iconPositions[iconId].x;
       icon.style.top = iconPositions[iconId].y;
-    } else {
-      iconsToBake.push(icon);
     }
     desktop.appendChild(icon);
   };
@@ -228,32 +225,6 @@ export function setupIcons() {
       placeIcon(icon, iconId);
     }
   });
-
-  // "Bake" the initial positions of any icons that weren't already positioned.
-  // This must be done after they are added to the DOM and rendered by the grid.
-  setTimeout(() => {
-    iconsToBake.forEach(icon => {
-      const iconId = icon.getAttribute('data-icon-id');
-      // Check again in case another process set the position
-      if (!iconPositions[iconId]) {
-        const rect = icon.getBoundingClientRect();
-        const desktopRect = desktop.getBoundingClientRect();
-        const x = rect.left - desktopRect.left;
-        const y = rect.top - desktopRect.top;
-
-        icon.style.position = 'absolute';
-        icon.style.left = `${x}px`;
-        icon.style.top = `${y}px`;
-
-        // Optional: Save the baked position so it's consistent on next load
-        iconPositions[iconId] = { x: `${x}px`, y: `${y}px` };
-      }
-    });
-    // Save the newly baked positions to localStorage
-    if (iconsToBake.length > 0) {
-      localStorage.setItem('iconPositions', JSON.stringify(iconPositions));
-    }
-  }, 0);
 }
 
 function configureIcon(icon, app, filePath = null) {
