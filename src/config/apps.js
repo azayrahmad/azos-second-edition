@@ -210,11 +210,12 @@ export const apps = [
             {
               label: "&Save",
               shortcutLabel: "Ctrl+S",
-              enabled: false,
+              action: () => win.events.emit('save'),
+              enabled: (win) => win.notepad?.isDirty,
             },
             {
               label: "Save &As...",
-              enabled: false,
+              action: () => win.events.emit('save-as'),
             },
             "MENU_DIVIDER",
             {
