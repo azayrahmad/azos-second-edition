@@ -40,7 +40,7 @@
         }
 
         buildMenu() {
-            this.items.forEach((item, index) => {
+            this.items.forEach((item) => {
                 if (item === MENU_DIVIDER) {
                     const row_el = document.createElement("tr");
                     row_el.className = "menu-row";
@@ -48,7 +48,6 @@
                     td_el.setAttribute("colspan", "4");
                     const hr_el = document.createElement("hr");
                     hr_el.className = "menu-hr";
-                    // Normal menu behavior: clear highlight when hovering over divider
                     hr_el.addEventListener("pointerenter", () => {
                         this.highlight(-1);
                     });
@@ -56,75 +55,91 @@
                     row_el.appendChild(td_el);
                     this.tableElement.appendChild(row_el);
                     this.itemElements.push(row_el);
-                    return;
+                } else if (item.radioItems) {
+                    const tbody = document.createElement('tbody');
+                    tbody.setAttribute('role', 'group');
+                    if (item.ariaLabel) {
+                        tbody.setAttribute('aria-label', item.ariaLabel);
+                    }
+                    item.radioItems.forEach(radioItem => {
+                        radioItem.checkbox = {
+                            type: 'radio',
+                            check: () => radioItem.value === item.getValue(),
+                            toggle: () => item.setValue(radioItem.value),
+                        };
+                        const radio_item_el = this.createMenuItem(radioItem);
+                        tbody.appendChild(radio_item_el);
+                    });
+                    this.tableElement.appendChild(tbody);
+                } else {
+                    const item_el = this.createMenuItem(item);
+                    this.tableElement.appendChild(item_el);
                 }
-
-                const row_el = document.createElement("tr");
-                row_el.className = "menu-row";
-                this.itemElements.push(row_el);
-
-                const item_el = row_el;
-                item_el.classList.add("menu-item");
-                item_el.id = `menu-item-${Math.random().toString(36).substring(2)}`;
-                item_el.tabIndex = -1;
-                item_el.setAttribute("role", item.checkbox ? (item.checkbox.type === "radio" ? "menuitemradio" : "menuitemcheckbox") : "menuitem");
-
-                if (item.checkbox) {
-                    item_el.classList.add('menu-item-checkbox');
-                }
-                if (item.submenu) {
-                    item_el.classList.add('has-submenu');
-                }
-
-                // Set default item styling
-                if (item.label && item.label.replace(/&/g, '') === this.defaultLabel) {
-                    item_el.classList.add('menu-item-default');
-                    item_el.style.fontWeight = 'bold';
-                }
-
-                if (typeof item.enabled === 'boolean' && !item.enabled) {
-                    item_el.setAttribute('aria-disabled', 'true');
-                }
-
-                // Create table cells
-                const checkbox_area_el = document.createElement("td");
-                checkbox_area_el.className = "menu-item-checkbox-area";
-                if (item.checkbox?.type === "radio") {
-                    checkbox_area_el.classList.add("radio");
-                } else if (item.checkbox) {
-                    checkbox_area_el.classList.add("checkbox");
-                }
-
-                const label_el = document.createElement("td");
-                label_el.className = "menu-item-label";
-                if (item.label) {
-                    label_el.appendChild(this.createAccessKeyLabel(item.label));
-                }
-
-                const shortcut_el = document.createElement("td");
-                shortcut_el.className = "menu-item-shortcut";
-                if (item.shortcut) {
-                    shortcut_el.textContent = item.shortcut;
-                }
-
-                const submenu_area_el = document.createElement("td");
-                submenu_area_el.className = "menu-item-submenu-area";
-                if (item.submenu) {
-                    item_el.setAttribute("aria-haspopup", "true");
-                    item_el.setAttribute("aria-expanded", "false");
-                    submenu_area_el.classList.toggle("point-right", false); // RTL support could be added later
-                }
-
-                // Append cells to row
-                item_el.appendChild(checkbox_area_el);
-                item_el.appendChild(label_el);
-                item_el.appendChild(shortcut_el);
-                item_el.appendChild(submenu_area_el);
-
-                this.tableElement.appendChild(row_el);
-
-                this.attachItemEvents(item_el, item);
             });
+        }
+
+        createMenuItem(item) {
+            const row_el = document.createElement("tr");
+            row_el.className = "menu-row";
+            this.itemElements.push(row_el);
+
+            const item_el = row_el;
+            item_el.classList.add("menu-item");
+            item_el.id = `menu-item-${Math.random().toString(36).substring(2)}`;
+            item_el.tabIndex = -1;
+            item_el.setAttribute("role", item.checkbox ? (item.checkbox.type === "radio" ? "menuitemradio" : "menuitemcheckbox") : "menuitem");
+
+            if (item.checkbox) {
+                item_el.classList.add('menu-item-checkbox');
+            }
+            if (item.submenu) {
+                item_el.classList.add('has-submenu');
+            }
+
+            if (item.label && item.label.replace(/&/g, '') === this.defaultLabel) {
+                item_el.classList.add('menu-item-default');
+                item_el.style.fontWeight = 'bold';
+            }
+
+            if (typeof item.enabled === 'boolean' && !item.enabled) {
+                item_el.setAttribute('aria-disabled', 'true');
+            }
+
+            const checkbox_area_el = document.createElement("td");
+            checkbox_area_el.className = "menu-item-checkbox-area";
+            if (item.checkbox?.type === "radio") {
+                checkbox_area_el.classList.add("radio");
+            } else if (item.checkbox) {
+                checkbox_area_el.classList.add("checkbox");
+            }
+
+            const label_el = document.createElement("td");
+            label_el.className = "menu-item-label";
+            if (item.label) {
+                label_el.appendChild(this.createAccessKeyLabel(item.label));
+            }
+
+            const shortcut_el = document.createElement("td");
+            shortcut_el.className = "menu-item-shortcut";
+            if (item.shortcut) {
+                shortcut_el.textContent = item.shortcut;
+            }
+
+            const submenu_area_el = document.createElement("td");
+            submenu_area_el.className = "menu-item-submenu-area";
+            if (item.submenu) {
+                item_el.setAttribute("aria-haspopup", "true");
+                item_el.setAttribute("aria-expanded", "false");
+                submenu_area_el.classList.toggle("point-right", false);
+            }
+
+            item_el.appendChild(checkbox_area_el);
+            item_el.appendChild(label_el);
+            item_el.appendChild(shortcut_el);
+            item_el.appendChild(submenu_area_el);
+
+            this.attachItemEvents(item_el, item);
+            return row_el;
         }
 
         /**

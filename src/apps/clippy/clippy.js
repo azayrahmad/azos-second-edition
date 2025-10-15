@@ -1,3 +1,10 @@
+let currentAgentName = localStorage.getItem("clippyAgentName") || "Clippy";
+
+function setCurrentAgentName(name) {
+  currentAgentName = name;
+  localStorage.setItem("clippyAgentName", name);
+}
+
 function showClippyToolWindow() {
   const agent = window.clippyAgent;
   if (!agent) return;
@@ -106,6 +113,25 @@ export function getClippyMenuItems() {
     },
     "MENU_DIVIDER",
     {
+      label: "A&gent",
+      submenu: [
+        {
+          radioItems: [
+            { label: "Clippy", value: "Clippy" },
+            { label: "Genius", value: "Genius" },
+          ],
+          getValue: () => currentAgentName,
+          setValue: (value) => {
+            if (currentAgentName !== value) {
+              setCurrentAgentName(value);
+              launchClippyApp(value);
+            }
+          },
+        },
+      ],
+    },
+    "MENU_DIVIDER",
+    {
       label: "&Close",
       click: () => {
         agent.speakAndAnimate(
@@ -172,17 +198,26 @@ export function showClippyContextMenu(event) {
   }, 0);
 }
 
-export function launchClippyApp() {
+export function launchClippyApp(agentName = currentAgentName) {
   if (window.clippyAgent) {
-    window.clippyAgent.hide();
+    // Gracefully hide and remove the current agent before loading a new one
+    window.clippyAgent.hide(() => {
+      $(".clippy, .clippy-balloon").remove();
+    });
+  } else {
+    $(".clippy, .clippy-balloon").remove();
   }
-  $(".clippy, .clippy-balloon, .os-menu").remove();
+
   if (window.clippyToolWindow) {
     window.clippyToolWindow.close();
     window.clippyToolWindow = null;
   }
 
-  clippy.load("Clippy", function (agent) {
+  // Ensure the menu is removed if it exists
+  const existingMenus = document.querySelectorAll(".menu-popup");
+  existingMenus.forEach((menu) => menu.remove());
+
+  clippy.load(agentName, function (agent) {
     window.clippyAgent = agent;
     agent.show();
 
