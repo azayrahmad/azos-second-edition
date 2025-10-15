@@ -10,7 +10,7 @@ export function setup(contentElement) {
   const tips = [
     "To open a file or an application from desktop, double-click the icon.",
     "To close a window, click the X in the top-right corner.",
-    "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Office Assistant</a> for assistance with azOS features."
+    "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Assistant</a> for assistance with azOS features."
   ];
 
   let currentTipIndex = Math.floor(Math.random() * tips.length);

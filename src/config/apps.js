@@ -299,7 +299,7 @@ export const apps = [
 
   {
     id: "clippy",
-    title: "Office Assistant",
+    title: "Assistant",
     icon: new URL("..\\assets\\icons\\msagent_file-1.png", import.meta.url).href,
     action: {
       type: "function",
