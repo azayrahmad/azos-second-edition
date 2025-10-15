@@ -4,6 +4,7 @@ import { aboutContent } from "../apps/about/about.js";
 import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
 import { notepadContent } from "../apps/notepad/notepad.js";
+import { languages } from "./languages.js";
 
 export const apps = [
   {
@@ -262,27 +263,7 @@ export const apps = [
           ],
           Language: [
             {
-              radioItems: [
-                { label: 'Plain Text', value: 'text' },
-                "MENU_DIVIDER",
-                { label: 'Markdown', value: 'markdown' },
-                { label: 'HTML', value: 'html' },
-                { label: 'C', value: 'c' },
-                { label: 'C++', value: 'cpp' },
-                { label: 'C#', value: 'csharp' },
-                { label: 'Java', value: 'java' },
-                { label: 'JavaScript', value: 'javascript' },
-                { label: 'TypeScript', value: 'typescript' },
-                { label: 'JSON', value: 'json' },
-                { label: 'CSS', value: 'css' },
-                { label: 'SQL', value: 'sql' },
-                { label: 'Python', value: 'python' },
-                { label: 'PHP', value: 'php' },
-                { label: 'Ruby', value: 'ruby' },
-                { label: 'Go', value: 'go' },
-                { label: 'Rust', value: 'rust' },
-                { label: 'Bash', value: 'bash' },
-              ],
+              radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
               getValue: () => win.notepad?.currentLanguage,
               setValue: (value) => win.events.emit('language-change', value),
             },

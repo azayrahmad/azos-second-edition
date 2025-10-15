@@ -1,4 +1,5 @@
 import './notepad.css';
+import { languages } from '../../config/languages.js';
 
 export class Notepad {
     constructor(container, win) {
@@ -98,37 +99,14 @@ export class Notepad {
 
     getLanguageFromExtension(filename) {
         const extension = filename.split('.').pop().toLowerCase();
-        const extensionMap = {
-            'js': 'javascript',
-            'html': 'html',
-            'css': 'css',
-            'json': 'json',
-            'py': 'python',
-            'java': 'java',
-            'c': 'c',
-            'h': 'c',
-            'cpp': 'cpp',
-            'hpp': 'cpp',
-            'cs': 'csharp',
-            'sql': 'sql',
-            'php': 'php',
-            'rb': 'ruby',
-            'go': 'go',
-            'rs': 'rust',
-            'ts': 'typescript',
-            'sh': 'bash',
-            'md': 'markdown',
-            'txt': 'text',
-            'mdc': 'markdown',
-            'markdown': 'markdown'
-        };
-        return extensionMap[extension] || 'txt'; // default to txt
+        const language = languages.find(lang => lang.extensions.includes(extension));
+        return language ? language.id : 'text';
     }
 
     openFile() {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = 'text/plain, .js, .html, .css, .json, .py, .java, .c, .cpp, .cs, .sql, .php, .rb, .go, .rs, .ts, .sh, .md, .mdc, .markdown, .txt';
+        input.accept = languages.flatMap(lang => lang.extensions.map(ext => `.${ext}`)).join(',');
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -183,8 +161,11 @@ export class Notepad {
 
     updateHighlight() {
         const code = this.codeInput.value;
+        const language = languages.find(lang => lang.id === this.currentLanguage);
+        const hljsClass = language ? language.hljs : 'text';
+
         this.highlighted.textContent = code + '\n';
-        this.highlighted.className = `highlighted language-${this.currentLanguage}`;
+        this.highlighted.className = `highlighted language-${hljsClass}`;
         this.highlighted.removeAttribute('data-highlighted');
         hljs.highlightElement(this.highlighted);
 
@@ -294,42 +275,34 @@ export class Notepad {
     }
 
     formatCode() {
-        let code = this.codeInput.value;
-        const lines = code.split('\n').map(line => line.trim());
-        let indentLevel = 0;
-        const indentSize = 4;
-        const formattedLines = [];
+        const language = languages.find(lang => lang.id === this.currentLanguage);
+        const parser = language ? language.prettier : null;
 
-        for (let line of lines) {
-            if (line === '') {
-                formattedLines.push('');
-                continue;
-            }
-
-            if (line.startsWith('}') || line.startsWith(']') || line.startsWith(')')) {
-                indentLevel = Math.max(0, indentLevel - 1);
-            }
-
-            const indent = ' '.repeat(indentLevel * indentSize);
-            formattedLines.push(indent + line);
-
-            if (line.endsWith('{') || line.endsWith('[') || line.endsWith('(')) {
-                indentLevel++;
-            }
-
-            if (line.startsWith('case ') || line === 'default:') {
-                indentLevel++;
-            } else if (line === 'break;' && indentLevel > 0) {
-                indentLevel = Math.max(0, indentLevel - 1);
-            }
+        if (!parser) {
+            this.statusText.textContent = `Formatting not available for ${language ? language.name : this.currentLanguage}.`;
+            setTimeout(() => {
+                this.statusText.textContent = 'Ready';
+            }, 3000);
+            return;
         }
 
-        this.codeInput.value = formattedLines.join('\n');
-        this.statusText.textContent = 'Code formatted!';
-        setTimeout(() => {
-            this.statusText.textContent = 'Ready';
-        }, 2000);
-        this.updateHighlight();
+        try {
+            const rawCode = this.codeInput.value;
+            const formattedCode = prettier.format(rawCode, {
+                parser: parser,
+                plugins: prettierPlugins,
+            });
+            this.codeInput.value = formattedCode;
+            this.statusText.textContent = 'Code formatted!';
+            this.updateHighlight();
+        } catch (error) {
+            console.error('Prettier formatting error:', error);
+            this.statusText.textContent = 'Error formatting code. Check console.';
+        } finally {
+            setTimeout(() => {
+                this.statusText.textContent = 'Ready';
+            }, 2000);
+        }
     }
 }
 
