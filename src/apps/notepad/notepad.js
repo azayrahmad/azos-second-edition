@@ -181,12 +181,15 @@ export class Notepad {
         if (window.showSaveFilePicker) {
             try {
                 // Generate file types from languages config
-                const fileTypes = languages.map(lang => ({
-                    description: `${lang.name} Files`,
-                    accept: {
-                        'text/plain': lang.extensions.map(ext => `.${ext}`),
-                    },
-                }));
+                const fileTypes = languages.map(lang => {
+                    const accept = {};
+                    const mimeType = lang.mimeType || 'text/plain';
+                    accept[mimeType] = lang.extensions.map(ext => `.${ext}`);
+                    return {
+                        description: `${lang.name}`,
+                        accept,
+                    };
+                });
 
                 // Add "All Files" option
                 fileTypes.push({
@@ -194,18 +197,15 @@ export class Notepad {
                     accept: { '*/*': ['.*'] },
                 });
 
-                // Find the current language to set as default
-                const currentLanguageDetails = languages.find(lang => lang.id === this.currentLanguage);
-
                 const pickerOptions = {
                     types: fileTypes,
-                    suggestedName: this.fileName === 'Untitled' ? `Untitled${currentLanguageDetails?.extensions[0] || '.txt'}` : this.fileName,
+                    suggestedName: 'Untitled',
                 };
 
                 const handle = await window.showSaveFilePicker(pickerOptions);
                 this.fileHandle = handle;
                 this.fileName = handle.name;
-                await this.writeFile(this.fileHandle);
+                await this.writeFile(handle);
                 this.isDirty = false;
                 this.updateTitle();
             } catch (err) {
