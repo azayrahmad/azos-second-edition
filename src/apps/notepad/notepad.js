@@ -1,4 +1,5 @@
 import './notepad.css';
+import { languages } from '../../config/languages.js';
 
 export class Notepad {
     constructor(container, win) {
@@ -98,37 +99,14 @@ export class Notepad {
 
     getLanguageFromExtension(filename) {
         const extension = filename.split('.').pop().toLowerCase();
-        const extensionMap = {
-            'js': 'javascript',
-            'html': 'html',
-            'css': 'css',
-            'json': 'json',
-            'py': 'python',
-            'java': 'java',
-            'c': 'c',
-            'h': 'c',
-            'cpp': 'cpp',
-            'hpp': 'cpp',
-            'cs': 'csharp',
-            'sql': 'sql',
-            'php': 'php',
-            'rb': 'ruby',
-            'go': 'go',
-            'rs': 'rust',
-            'ts': 'typescript',
-            'sh': 'bash',
-            'md': 'markdown',
-            'txt': 'text',
-            'mdc': 'markdown',
-            'markdown': 'markdown'
-        };
-        return extensionMap[extension] || 'txt'; // default to txt
+        const language = languages.find(lang => lang.extensions.includes(extension));
+        return language ? language.id : 'text';
     }
 
     openFile() {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = 'text/plain, .js, .html, .css, .json, .py, .java, .c, .cpp, .cs, .sql, .php, .rb, .go, .rs, .ts, .sh, .md, .mdc, .markdown, .txt';
+        input.accept = languages.flatMap(lang => lang.extensions.map(ext => `.${ext}`)).join(',');
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -183,8 +161,11 @@ export class Notepad {
 
     updateHighlight() {
         const code = this.codeInput.value;
+        const language = languages.find(lang => lang.id === this.currentLanguage);
+        const hljsClass = language ? language.hljs : 'text';
+
         this.highlighted.textContent = code + '\n';
-        this.highlighted.className = `highlighted language-${this.currentLanguage}`;
+        this.highlighted.className = `highlighted language-${hljsClass}`;
         this.highlighted.removeAttribute('data-highlighted');
         hljs.highlightElement(this.highlighted);
 
@@ -294,18 +275,11 @@ export class Notepad {
     }
 
     formatCode() {
-        const languageToParser = {
-            javascript: 'babel',
-            html: 'html',
-            css: 'css',
-            json: 'json',
-            // Add other language-to-parser mappings as needed
-        };
-
-        const parser = languageToParser[this.currentLanguage];
+        const language = languages.find(lang => lang.id === this.currentLanguage);
+        const parser = language ? language.prettier : null;
 
         if (!parser) {
-            this.statusText.textContent = `Formatting not available for ${this.currentLanguage}.`;
+            this.statusText.textContent = `Formatting not available for ${language ? language.name : this.currentLanguage}.`;
             setTimeout(() => {
                 this.statusText.textContent = 'Ready';
             }, 3000);
