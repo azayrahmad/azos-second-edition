@@ -2,6 +2,7 @@ import './style.css'
 import { setupCounter } from './counter.js'
 import { initDesktop } from './components/desktop.js'
 import { taskbar } from './components/taskbar.js'
+import { ShowDialogWindow } from './components/DialogWindow.js'
 
 // Window Management System
 class WindowManagerSystem {
@@ -82,6 +83,8 @@ console.log('azOS initialized');
 taskbar.init();
 initDesktop();
 setupCounter(document.querySelector('#counter'));
+
+window.ShowDialogWindow = ShowDialogWindow;
 
 // ...existing code...
 

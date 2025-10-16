@@ -5,6 +5,7 @@ import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
 import { notepadContent } from "../apps/notepad/notepad.js";
 import { languages } from "./languages.js";
+import { ShowDialogWindow } from '../components/DialogWindow.js';
 
 export const apps = [
   {
@@ -321,5 +322,22 @@ export const apps = [
     tray: {
       contextMenu: getWebampMenuItems,
     }
+  },
+  {
+    id: "alertTest",
+    title: "Alert Test",
+    icon: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
+    action: {
+      type: "function",
+      handler: () => {
+        ShowDialogWindow({
+          title: "Alert",
+          text: "The alert works.",
+          soundId: "chord",
+          contentIconUrl: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
+          buttons: [{ label: 'OK', isDefault: true }],
+        });
+      },
+    },
   },
 ];

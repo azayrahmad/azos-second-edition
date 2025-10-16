@@ -425,5 +425,36 @@ export function initDesktop() {
     }
   });
 
+    // Temporary test button for DialogWindow
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Test Dialog';
+    testButton.style.position = 'absolute';
+    testButton.style.top = '150px';
+    testButton.style.left = '10px';
+    testButton.style.zIndex = '10000';
+    testButton.onclick = () => {
+        ShowDialogWindow({
+            title: 'Test Dialog',
+            text: 'This is a test of the dialog window.',
+            soundId: 'notify',
+            modal: true,
+            contentIconUrl: '/src/assets/icons/info-3.png',
+            buttons: [
+                {
+                    label: 'OK', action: () => {
+                        console.log('OK clicked');
+                        ShowDialogWindow({
+                            title: 'Another Dialog',
+                            text: 'This is a non-modal dialog.',
+                            soundId: 'ding',
+                        });
+                    }, isDefault: true
+                },
+                { label: 'Cancel', action: () => console.log('Cancel clicked') }
+            ]
+        });
+    };
+    desktop.appendChild(testButton);
+
   init(); // Initialize the taskbar manager
 }
