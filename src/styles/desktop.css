@@ -63,11 +63,9 @@ html {
 .desktop-area {
   position: relative;
   overflow: hidden;
-  /* Add padding inside to create space for window borders */
-  padding: 4px;
   box-sizing: border-box;
   height: calc(
-    100vh - 24px - env(safe-area-inset-bottom) - 2px
+    100vh - 28px - env(safe-area-inset-bottom) - 1px
   ); /* Adjust height dynamically */
 }
 
