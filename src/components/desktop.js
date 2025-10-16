@@ -304,21 +304,24 @@ function configureIcon(icon, app, filePath = null) {
     // If we're starting a drag and icons are in grid mode,
     // we need to 'freeze' their current positions.
     if (!desktop.classList.contains('has-absolute-icons')) {
-      const allIcons = desktop.querySelectorAll('.desktop-icon');
+      const allIcons = Array.from(desktop.querySelectorAll('.desktop-icon'));
+      const initialPositions = allIcons.map(i => ({
+        icon: i,
+        id: i.getAttribute('data-icon-id'),
+        rect: i.getBoundingClientRect()
+      }));
+
       const iconPositions = {};
 
-      allIcons.forEach(i => {
-        const rect = i.getBoundingClientRect();
-        const id = i.getAttribute('data-icon-id');
-        i.style.position = 'absolute';
-        i.style.left = `${rect.left - desktopRect.left}px`;
-        i.style.top = `${rect.top - desktopRect.top}px`;
+      initialPositions.forEach(({ icon: i, id, rect }) => {
+        const x = `${rect.left - desktopRect.left}px`;
+        const y = `${rect.top - desktopRect.top}px`;
 
-        // Also save these initial positions to localStorage
-        iconPositions[id] = {
-          x: i.style.left,
-          y: i.style.top,
-        };
+        i.style.position = 'absolute';
+        i.style.left = x;
+        i.style.top = y;
+
+        iconPositions[id] = { x, y };
       });
 
       localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
