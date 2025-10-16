@@ -236,7 +236,13 @@ class Taskbar {
     const iconHTML = iconSrc
       ? `<img src="${iconSrc}" alt="App Icon" loading="lazy">`
       : "";
-    taskbarButton.innerHTML = `${iconHTML}${this.escapeHtml(title)}`;
+    // Wrap icon and text inside a span
+    taskbarButton.innerHTML = `
+      <span class="taskbar-button-content">
+        ${iconHTML}
+        <span class="taskbar-button-text">${this.escapeHtml(title)}</span>
+      </span>
+    `;
 
     // Prevent mousedown from unfocusing the window
     this.addTrackedEventListener(taskbarButton, "mousedown", (event) => {
@@ -344,9 +350,12 @@ class Taskbar {
         if (button) {
           button.title = newTitle;
           const iconImg = button.querySelector('img');
-          button.innerHTML = `${iconImg ? iconImg.outerHTML : ''}${this.escapeHtml(
-            newTitle,
-          )}`;
+          button.innerHTML = `
+            <span class="taskbar-button-content">
+              ${iconImg ? iconImg.outerHTML : ''}
+              <span class="taskbar-button-text">${this.escapeHtml(newTitle)}</span>
+            </span>
+          `;
         }
       });
     }
