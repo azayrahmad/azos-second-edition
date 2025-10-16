@@ -103,7 +103,7 @@ class StartMenu {
            </li>
            <div class="start-menu-divider" role="separator"></div>
            <li id="programs-menu-item" class="start-menu-item has-submenu" role="menuitem" tabindex="0">
-             <img src="/src/assets/icons/SHELL32_21.ico" alt="Programs" loading="lazy">
+             <img src="./src/assets/icons/SHELL32_3.ico" alt="Programs" loading="lazy">
              <span>Programs</span>
              <div class="submenu-arrow"></div>
            </li>
@@ -473,8 +473,8 @@ class StartMenu {
     };
 
     this.addTrackedEventListener(programsItem, "pointerenter", () => {
-        clearTimeout(leaveTimeout);
-        showSubmenu();
+      clearTimeout(leaveTimeout);
+      showSubmenu();
     });
 
     this.addTrackedEventListener(programsItem, "pointerleave", () => {
@@ -484,9 +484,9 @@ class StartMenu {
     });
 
     this.addTrackedEventListener(document, "click", (event) => {
-        if (submenu && !submenu.contains(event.target) && event.target !== programsItem) {
-            closeSubmenu();
-        }
+      if (submenu && !submenu.contains(event.target) && event.target !== programsItem) {
+        closeSubmenu();
+      }
     });
   }
 }

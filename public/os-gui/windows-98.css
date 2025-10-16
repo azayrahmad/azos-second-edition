@@ -1119,8 +1119,6 @@ so I think I'll imitate that. (I might change it later) */
   border-left-color: var(--ButtonText);
   position: absolute;
   right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .start-menu-submenu {
