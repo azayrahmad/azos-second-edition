@@ -65,7 +65,7 @@ html {
   overflow: hidden;
   box-sizing: border-box;
   height: calc(
-    100vh - 28px - env(safe-area-inset-bottom) - 1px
+    100vh - 24px - env(safe-area-inset-bottom) - 1px
   ); /* Adjust height dynamically */
 }
 
