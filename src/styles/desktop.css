@@ -118,3 +118,40 @@ html {
 .selected {
   border: 1px dotted var(--HilightText);
 }
+
+.shutdown-dialog-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.shutdown-dialog-content img {
+  margin-right: 20px;
+}
+
+.shutdown-dialog-text p {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.shutdown-options {
+  display: flex;
+  flex-direction: column;
+}
+
+.shutdown-options .field-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.shutdown-options .field-row input {
+  margin-right: 5px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 10px 10px;
+    gap: 5px;
+}

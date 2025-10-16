@@ -298,11 +298,99 @@ class StartMenu {
    * Handle shutdown action
    */
   handleShutdown() {
-    console.log("Shutting down azOS...");
-    if (confirm("Are you sure you want to shut down?")) {
-      location.reload();
-    }
+    this.showShutdownDialog();
     this.hide();
+  }
+
+  showShutdownDialog() {
+    const win = new $Window({
+      title: 'Shut Down Windows',
+      width: 420,
+      height: 'auto',
+      resizable: false,
+      minimizeButton: false,
+      maximizeButton: false,
+      modal: true,
+    });
+
+    const content = document.createElement('div');
+    content.className = 'shutdown-dialog-content';
+
+    const img = document.createElement('img');
+    img.src = shutdownIcon;
+    img.alt = 'Shutdown';
+    img.width = 48;
+    img.height = 48;
+    content.appendChild(img);
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'shutdown-dialog-text';
+
+    const p = document.createElement('p');
+    p.textContent = 'What do you want the computer to do?';
+    textDiv.appendChild(p);
+
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'shutdown-options';
+
+    const options = [
+      { id: 'standby', value: 'standby', text: 'Stand by', checked: true },
+      { id: 'shutdown', value: 'shutdown', text: 'Shut down' },
+      { id: 'restart', value: 'restart', text: 'Restart' },
+      { id: 'restart-msdos', value: 'restart-msdos', text: 'Restart in MS-DOS mode' },
+    ];
+
+    options.forEach(opt => {
+      const fieldRow = document.createElement('div');
+      fieldRow.className = 'field-row';
+
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'shutdown-option';
+      input.id = opt.id;
+      input.value = opt.value;
+      if (opt.checked) {
+        input.checked = true;
+      }
+
+      const label = document.createElement('label');
+      label.htmlFor = opt.id;
+      label.textContent = opt.text;
+
+      fieldRow.appendChild(input);
+      fieldRow.appendChild(label);
+      optionsDiv.appendChild(fieldRow);
+    });
+
+    textDiv.appendChild(optionsDiv);
+    content.appendChild(textDiv);
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'dialog-buttons';
+
+    const okButton = document.createElement('button');
+    okButton.textContent = 'OK';
+    okButton.onclick = () => win.close();
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.onclick = () => win.close();
+
+    const helpButton = document.createElement('button');
+    helpButton.textContent = 'Help';
+    helpButton.onclick = () => win.close();
+
+    buttonContainer.append(okButton, cancelButton, helpButton);
+
+    win.$content.append(content, buttonContainer);
+    win.center();
+
+    setTimeout(() => {
+      const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
+      const frameHeight = win.outerHeight() - win.$content.innerHeight();
+      win.outerHeight(contentHeight + frameHeight + 10); // Add some padding
+      win.center();
+    }, 0);
   }
 
   /**
