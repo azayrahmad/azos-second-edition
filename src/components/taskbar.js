@@ -116,7 +116,8 @@ class Taskbar {
   getTaskbarHTML() {
     return `
       <button class="start-button toggle">
-        <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy"> Start
+        <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy"> 
+        <span class="start-button-text">Start</span>
       </button>
       <div class="start-menu-wrapper">
         <!-- StartMenu content will be rendered here -->
