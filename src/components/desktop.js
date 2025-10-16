@@ -113,6 +113,44 @@ function showIconContextMenu(event, app) {
   document.addEventListener("click", closeMenu);
 }
 
+function setWallpaper() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const dataUrl = readerEvent.target.result;
+        localStorage.setItem('wallpaper', dataUrl);
+        applyWallpaper();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+function applyWallpaper() {
+  const wallpaper = localStorage.getItem('wallpaper');
+  const desktop = document.querySelector('.desktop');
+  if (wallpaper) {
+    desktop.style.backgroundImage = `url(${wallpaper})`;
+    desktop.style.backgroundRepeat = 'repeat';
+    desktop.style.backgroundSize = 'auto';
+    desktop.style.backgroundColor = ''; // Remove solid color
+  } else {
+    desktop.style.backgroundImage = '';
+    desktop.style.backgroundColor = 'var(--desktop-bg)'; // Restore solid color
+  }
+}
+
+function removeWallpaper() {
+  localStorage.removeItem('wallpaper');
+  applyWallpaper();
+}
+
 function showDesktopContextMenu(event) {
   const themes = getThemes();
 
@@ -124,6 +162,20 @@ function showDesktopContextMenu(event) {
         localStorage.removeItem('iconPositions');
         setupIcons();
       },
+    },
+    'MENU_DIVIDER',
+    {
+      label: 'Wallpaper',
+      submenu: [
+        {
+          label: 'Set Wallpaper...',
+          click: setWallpaper,
+        },
+        {
+          label: 'Remove Wallpaper',
+          click: removeWallpaper,
+        },
+      ],
     },
     'MENU_DIVIDER',
     {
@@ -344,6 +396,7 @@ function configureIcon(icon, app, filePath = null) {
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
   applyTheme();
+  applyWallpaper();
   setupIcons();
 
   const desktop = document.querySelector('.desktop');
