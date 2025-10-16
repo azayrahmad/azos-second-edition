@@ -1,54 +1,53 @@
 /* Dialog Window Styles */
 
 .dialog-content {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    font-family: 'MS Sans Serif', sans-serif;
-    font-size: 11px;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
 }
 
 .dialog-content-icon {
-    margin-right: 15px;
-    flex-shrink: 0;
+  margin-right: 15px;
+  flex-shrink: 0;
 }
 
 .dialog-content-text {
-    line-height: 1.5;
+  line-height: 1.5;
 }
 
 .dialog-buttons {
-    display: flex;
-    justify-content: center;
-    padding: 0 10px 10px 10px;
-    background-color: var(--button-face);
-    border-top: 1px solid var(--border-highlight);
+  display: flex;
+  justify-content: center;
+  padding: 0 10px 10px 10px;
+  background-color: var(--button-face);
+  border-top: 1px solid var(--border-highlight);
 }
 
 .dialog-buttons button {
-    min-width: 75px;
-    margin: 0 5px;
-    padding: 4px 12px;
-}
-
-.dialog-buttons button.default {
-    font-weight: bold;
+  min-width: 75px;
+  margin: 0 5px;
+  padding: 4px 12px;
 }
 
 /* Modal Overlay */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-        linear-gradient(45deg, var(--button-shadow) 25%, transparent 25%),
-        linear-gradient(-45deg, var(--button-shadow) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, var(--button-shadow) 75%),
-        linear-gradient(-45deg, transparent 75%, var(--button-shadow) 75%);
-    background-size: 4px 4px;
-    background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
-    z-index: 4; /* Below the window's default z-index */
-    opacity: 0.5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+      45deg,
+      var(--button-shadow) 25%,
+      transparent 25%
+    ),
+    linear-gradient(-45deg, var(--button-shadow) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--button-shadow) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--button-shadow) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+  z-index: 4; /* Below the window's default z-index */
+  opacity: 0.5;
 }

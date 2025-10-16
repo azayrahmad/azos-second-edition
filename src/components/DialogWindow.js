@@ -35,8 +35,10 @@ function ShowDialogWindow(options) {
 
     const winOptions = {
         title: title || 'Dialog',
-        toolWindow: true,
+        toolWindow: false,
         resizable: false,
+        minimizeButton: false,
+        maximizeButton: false,
         width: 400,
         height: 'auto',
     };
@@ -113,7 +115,7 @@ function ShowDialogWindow(options) {
     setTimeout(() => {
         const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
         const frameHeight = win.outerHeight() - win.$content.innerHeight();
-        win.outerHeight(contentHeight + frameHeight + 20); // Add some padding
+        win.outerHeight(contentHeight + frameHeight); // Add some padding
         win.center(); // Recenter after resizing
     }, 0);
 
