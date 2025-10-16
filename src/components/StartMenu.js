@@ -385,12 +385,31 @@ class StartMenu {
     win.$content.append(content, buttonContainer);
     win.center();
 
+    // Handle modality
+    let modalOverlay = null;
+    if (win.options.modal) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay';
+        document.body.appendChild(modalOverlay);
+
+        // Ensure the overlay and window are on top of the start menu wrapper (z-index: 9999)
+        const newZIndex = 10001;
+        win.css('z-index', newZIndex);
+        modalOverlay.style.zIndex = newZIndex - 1;
+
+        win.onClosed(() => {
+            document.body.removeChild(modalOverlay);
+        });
+    }
+
     setTimeout(() => {
       const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
       const frameHeight = win.outerHeight() - win.$content.innerHeight();
       win.outerHeight(contentHeight + frameHeight + 10); // Add some padding
       win.center();
     }, 0);
+
+    win.focus();
   }
 
   /**
