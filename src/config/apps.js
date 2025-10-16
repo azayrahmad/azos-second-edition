@@ -193,7 +193,7 @@ export const apps = [
         height: 400,
         resizable: true,
         menuBar: (win) => ({
-          File: [
+          "&File": [
             {
               label: "&New",
               shortcutLabel: "Ctrl+N",
@@ -222,7 +222,7 @@ export const apps = [
               action: () => win.close(),
             },
           ],
-          Edit: [
+          "&Edit": [
             {
               label: "&Undo",
               shortcutLabel: "Ctrl+Z",
@@ -255,20 +255,20 @@ export const apps = [
               action: () => win.events.emit('format'),
             },
           ],
-          View: [
+          "&View": [
             {
               label: "HTML Preview",
               action: () => win.events.emit('preview-markdown'),
             },
           ],
-          Language: [
+          "&Language": [
             {
               radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
               getValue: () => win.notepad?.currentLanguage,
               setValue: (value) => win.events.emit('language-change', value),
             },
           ],
-          Help: [
+          "&Help": [
             {
               label: "&About Notepad",
               action: () => alert("A simple text editor."),
