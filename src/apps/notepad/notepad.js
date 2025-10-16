@@ -62,14 +62,49 @@ export class Notepad {
         this.win.events.on('save-as', this.saveAs.bind(this));
         this.win.events.on('save', this.saveFile.bind(this));
 
-        this.win.on('close', async (e) => {
-            const action = await this.checkForUnsavedChanges();
-            if (action === 'cancel') {
+        this.win.on('close', (e) => {
+            if (this.isDirty) {
                 e.preventDefault();
+                this.showUnsavedChangesDialogOnClose();
             }
         });
 
         this.updateHighlight();
+    }
+
+    showUnsavedChangesDialogOnClose() {
+        ShowDialogWindow({
+            title: 'Notepad',
+            text: `The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?`,
+            contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
+            modal: true,
+            buttons: [
+                {
+                    label: 'Yes',
+                    action: async () => {
+                        await this.saveFile();
+                        if (!this.isDirty) { // saveFile was successful
+                            this.win.close(true);
+                        } else {
+                            return false; // Don't close dialog if save was cancelled
+                        }
+                    },
+                    isDefault: true,
+                },
+                {
+                    label: 'No',
+                    action: () => {
+                        this.win.close(true);
+                    },
+                },
+                {
+                    label: 'Cancel',
+                    action: () => {
+                        // Just close the dialog
+                    },
+                },
+            ],
+        });
     }
 
     checkForUnsavedChanges() {
@@ -79,7 +114,7 @@ export class Notepad {
                 return;
             }
 
-            const dialog = ShowDialogWindow({
+            ShowDialogWindow({
                 title: 'Notepad',
                 text: `The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?`,
                 contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
