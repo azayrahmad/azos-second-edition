@@ -83,6 +83,11 @@ html {
   align-content: start;
 }
 
+/* When dragging, disable grid so icons stay put */
+.desktop.has-absolute-icons {
+  display: block;
+}
+
 .desktop-icon {
   width: 70px;
   text-align: center;

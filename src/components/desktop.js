@@ -240,6 +240,13 @@ export function setupIcons() {
 
   const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
 
+  // If there are any saved positions, we are in manual mode.
+  if (Object.keys(iconPositions).length > 0) {
+    desktop.classList.add('has-absolute-icons');
+  } else {
+    desktop.classList.remove('has-absolute-icons');
+  }
+
   const placeIcon = (icon, iconId) => {
     if (iconPositions[iconId]) {
       icon.style.position = "absolute";
@@ -291,7 +298,34 @@ function configureIcon(icon, app, filePath = null) {
     dragStartX = e.clientX;
     dragStartY = e.clientY;
 
-    const desktopRect = icon.parentElement.getBoundingClientRect();
+    const desktop = icon.parentElement;
+    const desktopRect = desktop.getBoundingClientRect();
+
+    // If we're starting a drag and icons are in grid mode,
+    // we need to 'freeze' their current positions.
+    if (!desktop.classList.contains('has-absolute-icons')) {
+      const allIcons = desktop.querySelectorAll('.desktop-icon');
+      const iconPositions = {};
+
+      allIcons.forEach(i => {
+        const rect = i.getBoundingClientRect();
+        const id = i.getAttribute('data-icon-id');
+        i.style.position = 'absolute';
+        i.style.left = `${rect.left - desktopRect.left}px`;
+        i.style.top = `${rect.top - desktopRect.top}px`;
+
+        // Also save these initial positions to localStorage
+        iconPositions[id] = {
+          x: i.style.left,
+          y: i.style.top,
+        };
+      });
+
+      localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
+      desktop.classList.add('has-absolute-icons');
+    }
+
+
     const iconRect = icon.getBoundingClientRect();
 
     const offsetX = e.clientX - iconRect.left;
