@@ -1,5 +1,6 @@
 import './notepad.css';
 import { languages } from '../../config/languages.js';
+import { ShowDialogWindow } from '../../components/DialogWindow.js';
 
 export class Notepad {
     constructor(container, win) {
@@ -61,7 +62,51 @@ export class Notepad {
         this.win.events.on('save-as', this.saveAs.bind(this));
         this.win.events.on('save', this.saveFile.bind(this));
 
+        this.win.on('close', async (e) => {
+            const action = await this.checkForUnsavedChanges();
+            if (action === 'cancel') {
+                e.preventDefault();
+            }
+        });
+
         this.updateHighlight();
+    }
+
+    checkForUnsavedChanges() {
+        return new Promise(async (resolve) => {
+            if (!this.isDirty) {
+                resolve('continue');
+                return;
+            }
+
+            const dialog = ShowDialogWindow({
+                title: 'Notepad',
+                text: `The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?`,
+                contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
+                buttons: [
+                    {
+                        label: 'Yes',
+                        action: async () => {
+                            await this.saveFile();
+                            if (!this.isDirty) { // saveFile was successful
+                                resolve('continue');
+                            } else {
+                                resolve('cancel'); // User cancelled the save dialog
+                            }
+                        },
+                        isDefault: true,
+                    },
+                    {
+                        label: 'No',
+                        action: () => resolve('continue'),
+                    },
+                    {
+                        label: 'Cancel',
+                        action: () => resolve('cancel'),
+                    },
+                ],
+            });
+        });
     }
 
     updateTitle() {
@@ -122,7 +167,10 @@ export class Notepad {
         return language ? language.id : 'text';
     }
 
-    openFile() {
+    async openFile() {
+        const action = await this.checkForUnsavedChanges();
+        if (action === 'cancel') return;
+
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = languages.flatMap(lang => lang.extensions.map(ext => `.${ext}`)).join(',');
@@ -150,7 +198,10 @@ export class Notepad {
         input.click();
     }
 
-    clearContent() {
+    async clearContent() {
+        const action = await this.checkForUnsavedChanges();
+        if (action === 'cancel') return;
+
         this.codeInput.value = '';
         this.fileName = 'Untitled';
         this.fileHandle = null;

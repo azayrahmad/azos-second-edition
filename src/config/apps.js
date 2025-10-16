@@ -198,10 +198,7 @@ export const apps = [
             {
               label: "&New",
               shortcutLabel: "Ctrl+N",
-              action: () => {
-                const textarea = win.element.querySelector('.notepad-textarea');
-                if (textarea) textarea.value = '';
-              },
+              action: () => win.events.emit('new'),
             },
             {
               label: "&Open",
