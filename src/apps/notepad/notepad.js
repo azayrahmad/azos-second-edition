@@ -75,9 +75,10 @@ export class Notepad {
     showUnsavedChangesDialogOnClose() {
         ShowDialogWindow({
             title: 'Notepad',
-            text: `The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?`,
+            text: `<div style="white-space: pre-wrap">The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?</div>`,
             contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
             modal: true,
+            soundId: 'chord',
             buttons: [
                 {
                     label: 'Yes',

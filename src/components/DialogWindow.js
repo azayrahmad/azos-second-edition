@@ -68,7 +68,7 @@ function ShowDialogWindow(options) {
 
     const textEl = document.createElement('div');
     textEl.className = 'dialog-content-text';
-    textEl.textContent = text;
+    textEl.innerHTML = text;
     content.appendChild(textEl);
 
     // Create buttons
