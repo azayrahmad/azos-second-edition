@@ -67,7 +67,7 @@ html {
   padding: 4px;
   box-sizing: border-box;
   height: calc(
-    100vh - 28px - env(safe-area-inset-bottom) - 2px
+    100vh - 24px - env(safe-area-inset-bottom) - 2px
   ); /* Adjust height dynamically */
 }
 
