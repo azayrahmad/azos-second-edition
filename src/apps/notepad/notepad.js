@@ -83,6 +83,7 @@ export class Notepad {
                 title: 'Notepad',
                 text: `The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?`,
                 contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
+                modal: true,
                 buttons: [
                     {
                         label: 'Yes',
