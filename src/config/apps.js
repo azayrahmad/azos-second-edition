@@ -211,7 +211,6 @@ export const apps = [
               label: "&Save",
               shortcutLabel: "Ctrl+S",
               action: () => win.events.emit('save'),
-              enabled: (win) => win.notepad?.isDirty,
             },
             {
               label: "Save &As...",

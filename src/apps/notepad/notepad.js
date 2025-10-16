@@ -191,12 +191,6 @@ export class Notepad {
                     };
                 });
 
-                // Add "All Files" option
-                fileTypes.push({
-                    description: 'All Files',
-                    accept: { '*/*': ['.*'] },
-                });
-
                 const pickerOptions = {
                     types: fileTypes,
                     suggestedName: 'Untitled',
