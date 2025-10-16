@@ -7,7 +7,7 @@
   background: var(--ButtonFace, #c0c0c0);
   border-top: 1px solid var(--ButtonLight, #dfdfdf);
   box-shadow: inset 0 1px var(--ButtonHilight, white);
-  padding: 2px;
+  /* padding: 2px; */
   display: flex;
   align-items: center;
   flex-shrink: 0;
