@@ -29,6 +29,11 @@ export class Notepad {
         this.fileHandle = null;
         this.isDirty = false;
         this.fileName = 'Untitled';
+        this.findState = {
+            term: '',
+            caseSensitive: false,
+            direction: 'down', // 'up' or 'down'
+        };
 
         this.updateTitle();
 
@@ -116,19 +121,114 @@ export class Notepad {
     }
 
     showFindDialog() {
-        ShowDialogWindow({
+        const dialogContent = `
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="find-text" style="margin-right: 5px;">Find what:</label>
+                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
+                    <label for="match-case">Match case</label>
+                </div>
+                <fieldset class="group-box" style="padding: 5px 10px;">
+                    <legend>Direction</legend>
+                    <div class="field-row">
+                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === 'up' ? 'checked' : ''}>
+                        <label for="dir-up">Up</label>
+                    </div>
+                    <div class="field-row">
+                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === 'down' ? 'checked' : ''}>
+                        <label for="dir-down">Down</label>
+                    </div>
+                </fieldset>
+            </div>
+        `;
+
+        const dialog = ShowDialogWindow({
             title: 'Find',
-            text: 'This feature is not yet implemented.',
-            buttons: [{ label: 'OK', isDefault: true }],
+            width: 380,
+            height: 'auto',
+            text: dialogContent,
+            buttons: [
+                {
+                    label: 'Find Next',
+                    action: (win) => {
+                        const findInput = win.element.querySelector('#find-text');
+                        const term = findInput.value;
+                        if (!term) return false; // Keep dialog open if term is empty
+
+                        this.findState.term = term;
+                        this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
+                        this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
+
+                        this.findNext();
+                        return true; // Close dialog
+                    },
+                    isDefault: true,
+                },
+                {
+                    label: 'Cancel',
+                    action: () => { /* Just closes the dialog */ }
+                }
+            ],
+            onclose: (win) => {
+                // Also update state if user closes dialog with 'X'
+                const findInput = win.element.querySelector('#find-text');
+                this.findState.term = findInput.value;
+                this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
+                this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
+            }
         });
+
+        // Focus the input field when the dialog opens
+        setTimeout(() => {
+            const input = dialog.element.querySelector('#find-text');
+            input.focus();
+            input.select();
+        }, 0);
     }
 
     findNext() {
-        ShowDialogWindow({
-            title: 'Find Next',
-            text: 'This feature is not yet implemented.',
-            buttons: [{ label: 'OK', isDefault: true }],
-        });
+        const { term, caseSensitive, direction } = this.findState;
+        if (!term) {
+            this.showFindDialog();
+            return;
+        }
+
+        const editor = this.codeInput;
+        const text = editor.value;
+        const searchTerm = caseSensitive ? term : term.toLowerCase();
+        const textToSearch = caseSensitive ? text : text.toLowerCase();
+
+        let index;
+        if (direction === 'down') {
+            const searchStart = editor.selectionEnd;
+            index = textToSearch.indexOf(searchTerm, searchStart);
+            if (index === -1) {
+                // If not found, wrap around and search from the beginning
+                index = textToSearch.indexOf(searchTerm);
+            }
+        } else { // direction === 'up'
+            const searchStart = editor.selectionStart - 1;
+            index = textToSearch.lastIndexOf(searchTerm, searchStart);
+            if (index === -1) {
+                // If not found, wrap around and search from the end
+                index = textToSearch.lastIndexOf(searchTerm);
+            }
+        }
+
+        if (index !== -1) {
+            editor.focus();
+            editor.setSelectionRange(index, index + term.length);
+        } else {
+            ShowDialogWindow({
+                title: 'Notepad',
+                text: `Cannot find "${term}"`,
+                soundId: "chord",
+                buttons: [{ label: 'OK', isDefault: true }],
+            });
+        }
     }
 
     showUnsavedChangesDialog(options = {}) {
