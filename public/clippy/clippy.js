@@ -256,7 +256,7 @@ clippy.Agent.prototype = {
 
   stop: function () {
     // clear the queue
-    this.stopTTS();
+    this._balloon.stopTTS();
     this._queue.clear();
     this._animator.exitAnimation();
     this._balloon.hide();
@@ -388,7 +388,7 @@ clippy.Agent.prototype = {
   },
 
   _onDoubleClick: function () {
-    if (this._balloon.isAnimating()) return;
+    if (this._balloon.isSpeaking()) return;
     if (!this.play("ClickedOn")) {
       this.animate();
     }
@@ -718,6 +718,7 @@ clippy.Balloon = function (targetEl) {
     volume: 1.0
   };
   this._currentUtterance = null;
+  this._balloonType = null;
   this._setup();
 };
 
@@ -812,6 +813,7 @@ clippy.Balloon.prototype = {
   },
 
   showHtml: function (html, hold) {
+    this._balloonType = "input";
     this._hidden = false;
     this.show();
     var c = this._content;
@@ -829,6 +831,7 @@ clippy.Balloon.prototype = {
   },
 
   speak: function (complete, text, hold, useTTS) {
+    this._balloonType = "speech";
     this._hidden = false;
     this.show();
     var c = this._content;
@@ -879,6 +882,7 @@ clippy.Balloon.prototype = {
   hide: function (fast) {
     if (fast) {
       this._balloon.hide();
+      this._balloonType = null;
       return;
     }
 
@@ -895,8 +899,8 @@ clippy.Balloon.prototype = {
     this._hiding = null;
   },
 
-  isAnimating: function () {
-    return this._active;
+  isSpeaking: function () {
+    return this._active && this._balloonType === "speech";
   },
 
   _sayWords: function (text, hold, complete) {
