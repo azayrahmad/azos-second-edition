@@ -123,6 +123,8 @@ function ShowDialogWindow(options) {
     }, 0);
 
     win.focus();
+
+    return win;
 }
 
 export { ShowDialogWindow };
