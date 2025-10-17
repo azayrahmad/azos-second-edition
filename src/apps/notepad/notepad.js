@@ -37,21 +37,17 @@ export class Notepad {
         this.statusText = this.container.querySelector('.statusText');
         this.lineCount = this.container.querySelector('.lineCount');
         this.currentLanguage = 'text'; // Default language
-        this.wordWrap = false;
 
         this.updateHighlight = this.updateHighlight.bind(this);
         this.syncScroll = this.syncScroll.bind(this);
-        this.syncPadding = this.syncPadding.bind(this);
         this.formatCode = this.formatCode.bind(this);
         this.copyFormattedCode = this.copyFormattedCode.bind(this);
         this.setLanguage = this.setLanguage.bind(this);
-        this.toggleWordWrap = this.toggleWordWrap.bind(this);
 
         this.codeInput.addEventListener('input', () => {
             this.isDirty = true;
             this.updateTitle();
             this.updateHighlight();
-            this.syncPadding();
         });
         this.codeInput.addEventListener('scroll', this.syncScroll);
 
@@ -65,8 +61,8 @@ export class Notepad {
         this.win.events.on('preview-markdown', this.previewMarkdown.bind(this));
         this.win.events.on('save-as', this.saveAs.bind(this));
         this.win.events.on('save', this.saveFile.bind(this));
-        this.win.events.on('toggle-word-wrap', this.toggleWordWrap);
-
+        this.win.events.on('find', this.showFindDialog.bind(this));
+        this.win.events.on('find-next', this.findNext.bind(this));
 
         this.win.on('close', (e) => {
             if (this.isDirty) {
@@ -75,16 +71,15 @@ export class Notepad {
             }
         });
 
-        this.updateHighlight();
-        this.syncPadding();
+        this.wordWrap = false; // Word wrap is off by default
+        this.win.events.on('toggle-word-wrap', this.toggleWordWrap.bind(this));
 
-        this.win.on('resize', this.syncPadding);
+        this.updateHighlight();
     }
 
     toggleWordWrap() {
         this.wordWrap = !this.wordWrap;
         this.applyWordWrap();
-        this.syncPadding();
         // Force menu update
         const menuBarEl = this.win.element.querySelector('.menus');
         if (menuBarEl) {
@@ -107,12 +102,20 @@ export class Notepad {
         this.updateHighlight(); // Re-sync scroll positions
     }
 
-    syncPadding() {
-        const scrollbarWidth = this.codeInput.offsetWidth - this.codeInput.clientWidth;
-        const scrollbarHeight = this.codeInput.offsetHeight - this.codeInput.clientHeight;
-        const preElement = this.highlighted.parentElement;
-        preElement.style.paddingRight = `${scrollbarWidth}px`;
-        preElement.style.paddingBottom = `${scrollbarHeight}px`;
+    showFindDialog() {
+        ShowDialogWindow({
+            title: 'Find',
+            text: 'This feature is not yet implemented.',
+            buttons: [{ label: 'OK', isDefault: true }],
+        });
+    }
+
+    findNext() {
+        ShowDialogWindow({
+            title: 'Find Next',
+            text: 'This feature is not yet implemented.',
+            buttons: [{ label: 'OK', isDefault: true }],
+        });
     }
 
     showUnsavedChangesDialog(options = {}) {
