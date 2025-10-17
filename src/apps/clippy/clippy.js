@@ -1,4 +1,5 @@
 let currentAgentName = localStorage.getItem("clippyAgentName") || "Clippy";
+let inputBalloonTimeout = null;
 
 function setCurrentAgentName(name) {
   currentAgentName = name;
@@ -26,19 +27,39 @@ function showClippyInputBalloon() {
 
   input.focus();
 
+  const resetBalloonTimeout = () => {
+    if (inputBalloonTimeout) {
+      clearTimeout(inputBalloonTimeout);
+    }
+    inputBalloonTimeout = setTimeout(() => {
+      agent.closeBalloon();
+    }, 60000); // 1 minute
+  };
+
+  const clearBalloonTimeout = () => {
+    if (inputBalloonTimeout) {
+      clearTimeout(inputBalloonTimeout);
+    }
+  };
+
   const askClippyHandler = () => {
+    clearBalloonTimeout();
     const question = input.val();
     askClippy(agent, question);
     agent.closeBalloon();
   };
 
   input.on("keypress", (e) => {
+    resetBalloonTimeout();
     if (e.which === 13) {
       e.preventDefault();
       askClippyHandler();
     }
   });
+
   askButton.on("click", askClippyHandler);
+
+  resetBalloonTimeout(); // Start the timer when the balloon is shown
 }
 
 async function askClippy(agent, question) {

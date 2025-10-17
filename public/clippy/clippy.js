@@ -194,7 +194,7 @@ clippy.Agent.prototype = {
    * Close the current balloon
    */
   closeBalloon: function () {
-    this._balloon.hide();
+    this._balloon.hide(true);
   },
 
   /***
