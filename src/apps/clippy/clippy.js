@@ -13,9 +13,9 @@ function showClippyInputBalloon() {
   agent.stop();
 
   const balloonContent = `
-    <div class="clippy-input" style="padding: 10px; display: flex; flex-direction: column; align-items: center;">
-      <input type="text" placeholder="Ask me anything..." style="width: 200px; margin-bottom: 5px;">
-      <button class="default" style="width: 80px;">Ask</button>
+    <div class="clippy-input" style="display: flex; flex-direction: column; align-items: center;">
+      <input type="text" placeholder="Ask me anything..." style="margin-bottom: 5px; background-color: white; border: 1px solid black; box-shadow: none;">
+      <button class="default" style="width: 80px; background-color: transparent; border: 1px solid black; border-radius: 4px; width: 70px">Ask</button>
     </div>
   `;
 
@@ -270,4 +270,3 @@ export function launchClippyApp(agentName = currentAgentName) {
     });
   });
 }
-
