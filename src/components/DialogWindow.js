@@ -16,6 +16,7 @@ import sounds from '../config/sounds.js';
  * @property {DialogButton[]} [buttons] - The buttons to display in the dialog.
  * @property {string} [soundId] - The ID of a sound to play from the sound config.
  * @property {boolean} [modal=false] - Whether the dialog should be modal.
+ * @property {$Window} [parentWindow] - Optional parent window to disable when modal.
  */
 
 /**
@@ -31,6 +32,7 @@ function ShowDialogWindow(options) {
         buttons = [{ label: 'OK', action: () => { }, isDefault: true }],
         soundId,
         modal = false,
+        parentWindow,
     } = options;
 
     const winOptions = {
@@ -99,12 +101,20 @@ function ShowDialogWindow(options) {
     // Handle modality
     let modalOverlay = null;
     if (modal) {
-        modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
-        document.body.appendChild(modalOverlay);
-        win.onClosed(() => {
-            document.body.removeChild(modalOverlay);
-        });
+        if (parentWindow) {
+            parentWindow.set({ enabled: false });
+            win.onClosed(() => {
+                parentWindow.set({ enabled: true });
+                parentWindow.focus();
+            });
+        } else {
+            modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay';
+            document.body.appendChild(modalOverlay);
+            win.onClosed(() => {
+                document.body.removeChild(modalOverlay);
+            });
+        }
     }
 
     // Play sound

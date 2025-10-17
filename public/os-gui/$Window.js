@@ -914,6 +914,48 @@
 			}
 		};
 
+		// Add window disable/enable functionality
+		$w.disable = () => {
+			$w.addClass('disabled-window');
+			$w.$content.attr('aria-disabled', 'true');
+			$w.$titlebar.find('button').prop('disabled', true);
+
+			// Remove event listeners while disabled
+			$w.off('pointerdown mousedown');
+			$w.$titlebar.off('pointerdown');
+
+			// Store current z-index and move window back
+			$w.data('previous-z-index', $w.css('z-index'));
+			$w.css('z-index', '0');
+
+			// Prevent focus
+			$w.blur();
+			$w.$content.find('*').attr('tabindex', '-1');
+		};
+
+		$w.enable = () => {
+			$w.removeClass('disabled-window');
+			$w.$content.attr('aria-disabled', 'false');
+			$w.$titlebar.find('button').prop('disabled', false);
+
+			// Restore event listeners
+			$w.on('pointerdown mousedown', handle_pointer_activation);
+			$w.$titlebar.on('pointerdown', handle_titlebar_pointer_activation);
+
+			// Restore previous z-index
+			const previousZIndex = $w.data('previous-z-index');
+			if (previousZIndex) {
+				$w.css('z-index', previousZIndex);
+			}
+
+			// Restore focusability
+			$w.$content.find('*').removeAttr('tabindex');
+		};
+
+		$w.isDisabled = () => {
+			return $w.hasClass('disabled-window');
+		};
+
 		// Keep track of last focused elements per container,
 		// where containers include:
 		// - window (global focus tracking)
