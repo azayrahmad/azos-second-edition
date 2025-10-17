@@ -80,7 +80,7 @@ function ShowDialogWindow(options) {
         button.textContent = btnDef.label;
         button.onclick = async () => {
             if (btnDef.action) {
-                const result = await btnDef.action();
+                const result = await btnDef.action(win);
                 if (result === false) {
                     return; // Don't close the dialog if action returns false
                 }
@@ -123,6 +123,8 @@ function ShowDialogWindow(options) {
     }, 0);
 
     win.focus();
+
+    return win;
 }
 
 export { ShowDialogWindow };

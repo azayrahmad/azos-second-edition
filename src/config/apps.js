@@ -277,6 +277,7 @@ export const apps = [
               label: "Find &Next",
               shortcutLabel: "F3",
               action: () => win.events.emit('find-next'),
+              enabled: () => win.notepad?.findState?.term,
             },
           ],
           "&Code": [
