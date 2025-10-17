@@ -72,13 +72,19 @@ export class Notepad {
         this.updateHighlight();
     }
 
-    showUnsavedChangesDialogOnClose() {
-        ShowDialogWindow({
+    showUnsavedChangesDialog(options = {}) {
+        return ShowDialogWindow({
             title: 'Notepad',
             text: `<div style="white-space: pre-wrap">The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?</div>`,
             contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
             modal: true,
             soundId: 'chord',
+            buttons: options.buttons || [],
+        });
+    }
+
+    showUnsavedChangesDialogOnClose() {
+        this.showUnsavedChangesDialog({
             buttons: [
                 {
                     label: 'Yes',
@@ -115,11 +121,7 @@ export class Notepad {
                 return;
             }
 
-            ShowDialogWindow({
-                title: 'Notepad',
-                text: `The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?`,
-                contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
-                modal: true,
+            this.showUnsavedChangesDialog({
                 buttons: [
                     {
                         label: 'Yes',
