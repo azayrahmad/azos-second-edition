@@ -262,9 +262,13 @@ export function launchClippyApp(agentName = currentAgentName) {
 
     agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
 
-    agent._el.on("click", () => showClippyInputBalloon());
+    agent._el.on("click", () => {
+      if (agent._balloon.isAnimating()) return;
+      showClippyInputBalloon();
+    });
 
     agent._el.on("contextmenu", function (e) {
+      if (agent._balloon.isAnimating()) return;
       e.preventDefault();
       showClippyContextMenu(e);
     });
