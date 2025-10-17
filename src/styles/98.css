@@ -43,9 +43,6 @@ fieldset {
   padding: 10px;
   padding-block-start: 8px;
 }
-legend {
-  background: silver;
-}
 .field-row {
   align-items: center;
   display: flex;
