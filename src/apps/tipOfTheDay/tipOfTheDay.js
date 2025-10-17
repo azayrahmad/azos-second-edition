@@ -3,16 +3,11 @@ import tipOfTheDayHTML from './tipOfTheDay.html?raw';
 import { handleAppAction } from '../../utils/appManager.js';
 import { apps } from '../../config/apps.js';
 import tipIconUrl from '../../assets/icons/RNAUI_106.ico';
+import { tips } from '../../config/tips.js';
 
 export const tipOfTheDayContent = tipOfTheDayHTML.replace('TIP_ICON_PLACEHOLDER', tipIconUrl);
 
 export function setup(contentElement) {
-  const tips = [
-    "To open a file or an application from desktop, double-click the icon.",
-    "To close a window, click the X in the top-right corner.",
-    "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Assistant</a> for assistance with azOS features."
-  ];
-
   let currentTipIndex = Math.floor(Math.random() * tips.length);
 
   const tipTextElement = contentElement.querySelector('#tip-text');
