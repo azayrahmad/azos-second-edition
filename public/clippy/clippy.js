@@ -256,6 +256,7 @@ clippy.Agent.prototype = {
 
   stop: function () {
     // clear the queue
+    this.stopTTS();
     this._queue.clear();
     this._animator.exitAnimation();
     this._balloon.hide();
