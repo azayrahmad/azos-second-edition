@@ -809,6 +809,23 @@ clippy.Balloon.prototype = {
     return false;
   },
 
+  showHtml: function (html, hold) {
+    this._hidden = false;
+    this.show();
+    var c = this._content;
+    c.height("auto");
+    c.width("auto");
+    c.html(html);
+    this.reposition();
+
+    this._active = true;
+    this._hold = hold;
+
+    if (!this._hold) {
+      this.hide();
+    }
+  },
+
   speak: function (complete, text, hold, useTTS) {
     this._hidden = false;
     this.show();

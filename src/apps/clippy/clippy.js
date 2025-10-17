@@ -5,66 +5,50 @@ function setCurrentAgentName(name) {
   localStorage.setItem("clippyAgentName", name);
 }
 
-function showClippyToolWindow() {
+function showClippyInputBalloon() {
   const agent = window.clippyAgent;
   if (!agent) return;
 
-  if (window.clippyToolWindow) {
-    window.clippyToolWindow.focus();
-    return;
-  }
+  agent.stop();
 
-  const toolWindow = new $Window({
-    title: "Ask Clippy",
-    width: 300,
-    height: 120,
-    resizable: false,
-    maximizeButton: false,
-    minimizeButton: false,
-  });
-
-  toolWindow.$content.append(`
-    <div class="clippy-input" style="padding: 10px;">
-      <input type="text" placeholder="Ask me anything...">
-      <button class="default">Ask</button>
+  const balloonContent = `
+    <div class="clippy-input" style="padding: 10px; display: flex; flex-direction: column; align-items: center;">
+      <input type="text" placeholder="Ask me anything..." style="width: 200px; margin-bottom: 5px;">
+      <button class="default" style="width: 80px;">Ask</button>
     </div>
-  `);
+  `;
 
-  window.clippyToolWindow = toolWindow;
-  toolWindow.focus();
+  agent._balloon.showHtml(balloonContent, true);
 
-  const input = toolWindow.$content.find("input");
-  const askButton = toolWindow.$content.find("button");
+  const balloon = agent._balloon._balloon;
+  const input = balloon.find("input");
+  const askButton = balloon.find("button");
+
   input.focus();
 
-  const askClippyHandler = () => askClippy(agent, toolWindow);
+  const askClippyHandler = () => {
+    const question = input.val();
+    askClippy(agent, question);
+    agent.closeBalloon();
+  };
+
   input.on("keypress", (e) => {
-    if (e.which === 13) askClippyHandler();
+    if (e.which === 13) {
+      e.preventDefault();
+      askClippyHandler();
+    }
   });
   askButton.on("click", askClippyHandler);
-
-  toolWindow.onClosed(() => {
-    input.off();
-    askButton.off();
-    window.clippyToolWindow = null;
-  });
 }
 
-async function askClippy(agent, toolWindow) {
-  const input = toolWindow.$content.find("input");
-  const askButton = toolWindow.$content.find("button");
-  const question = input.val().trim();
-  if (!question) return;
-
-  askButton.prop('disabled', true);
-  input.prop('disabled', true);
+async function askClippy(agent, question) {
+  if (!question || question.trim().length === 0) return;
 
   const ttsEnabled = agent.isTTSEnabled();
   agent.speakAndAnimate("Let me think about it...", "Thinking", { useTTS: ttsEnabled });
-  input.val("");
 
   try {
-    const encodedQuestion = encodeURIComponent(question);
+    const encodedQuestion = encodeURIComponent(question.trim());
     const response = await fetch(`https://resume-chat-api-nine.vercel.app/api/clippy-helper?query=${encodedQuestion}`);
     const data = await response.json();
 
@@ -75,12 +59,6 @@ async function askClippy(agent, toolWindow) {
   } catch (error) {
     agent.speakAndAnimate("Sorry, I couldn't get an answer for that at this time!", "Wave", { useTTS: ttsEnabled });
     console.error("API Error:", error);
-  } finally {
-    if (window.clippyToolWindow) {
-      askButton.prop('disabled', false);
-      input.prop('disabled', false);
-      input.focus();
-    }
   }
 }
 
@@ -99,7 +77,7 @@ export function getClippyMenuItems() {
     },
     {
       label: "&Ask Clippy",
-      click: () => showClippyToolWindow(),
+      click: () => showClippyInputBalloon(),
     },
     {
       label: "&Help",
@@ -144,9 +122,6 @@ export function getClippyMenuItems() {
                 agent.hide();
                 $(".clippy, .clippy-balloon").remove();
                 $(".os-menu").remove();
-                if (window.clippyToolWindow) {
-                  window.clippyToolWindow.close();
-                }
                 const trayIcon = document.querySelector("#tray-icon-clippy");
                 if (trayIcon) {
                   trayIcon.remove();
@@ -208,11 +183,6 @@ export function launchClippyApp(agentName = currentAgentName) {
     $(".clippy, .clippy-balloon").remove();
   }
 
-  if (window.clippyToolWindow) {
-    window.clippyToolWindow.close();
-    window.clippyToolWindow = null;
-  }
-
   // Ensure the menu is removed if it exists
   const existingMenus = document.querySelectorAll(".menu-popup");
   existingMenus.forEach((menu) => menu.remove());
@@ -271,7 +241,7 @@ export function launchClippyApp(agentName = currentAgentName) {
 
     agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
 
-    agent._el.on("click", () => showClippyToolWindow());
+    agent._el.on("click", () => showClippyInputBalloon());
 
     agent._el.on("contextmenu", function (e) {
       e.preventDefault();
