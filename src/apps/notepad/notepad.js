@@ -40,6 +40,7 @@ export class Notepad {
 
         this.updateHighlight = this.updateHighlight.bind(this);
         this.syncScroll = this.syncScroll.bind(this);
+        this.syncPadding = this.syncPadding.bind(this);
         this.formatCode = this.formatCode.bind(this);
         this.copyFormattedCode = this.copyFormattedCode.bind(this);
         this.setLanguage = this.setLanguage.bind(this);
@@ -75,11 +76,15 @@ export class Notepad {
         this.win.events.on('toggle-word-wrap', this.toggleWordWrap.bind(this));
 
         this.updateHighlight();
+        this.syncPadding();
+
+        this.win.on('resize', this.syncPadding);
     }
 
     toggleWordWrap() {
         this.wordWrap = !this.wordWrap;
         this.applyWordWrap();
+        this.syncPadding();
         // Force menu update
         const menuBarEl = this.win.element.querySelector('.menus');
         if (menuBarEl) {
@@ -100,6 +105,14 @@ export class Notepad {
             this.highlighted.style.overflowWrap = 'normal';
         }
         this.updateHighlight(); // Re-sync scroll positions
+    }
+
+    syncPadding() {
+        const scrollbarWidth = this.codeInput.offsetWidth - this.codeInput.clientWidth;
+        const scrollbarHeight = this.codeInput.offsetHeight - this.codeInput.clientHeight;
+        const preElement = this.highlighted.parentElement;
+        preElement.style.paddingRight = `${scrollbarWidth + 8}px`;
+        preElement.style.paddingBottom = `${scrollbarHeight + 8}px`;
     }
 
     showFindDialog() {
