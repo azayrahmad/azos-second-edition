@@ -68,7 +68,7 @@ function ShowDialogWindow(options) {
 
     const textEl = document.createElement('div');
     textEl.className = 'dialog-content-text';
-    textEl.textContent = text;
+    textEl.innerHTML = text;
     content.appendChild(textEl);
 
     // Create buttons
@@ -78,9 +78,12 @@ function ShowDialogWindow(options) {
     buttons.forEach(btnDef => {
         const button = document.createElement('button');
         button.textContent = btnDef.label;
-        button.onclick = () => {
+        button.onclick = async () => {
             if (btnDef.action) {
-                btnDef.action();
+                const result = await btnDef.action();
+                if (result === false) {
+                    return; // Don't close the dialog if action returns false
+                }
             }
             win.close();
         };
