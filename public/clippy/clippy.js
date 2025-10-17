@@ -256,6 +256,7 @@ clippy.Agent.prototype = {
 
   stop: function () {
     // clear the queue
+    this.stopTTS();
     this._queue.clear();
     this._animator.exitAnimation();
     this._balloon.hide();
@@ -387,6 +388,7 @@ clippy.Agent.prototype = {
   },
 
   _onDoubleClick: function () {
+    if (this._balloon.isAnimating()) return;
     if (!this.play("ClickedOn")) {
       this.animate();
     }
@@ -891,6 +893,10 @@ clippy.Balloon.prototype = {
     this._balloon.hide();
     this._hidden = true;
     this._hiding = null;
+  },
+
+  isAnimating: function () {
+    return this._active;
   },
 
   _sayWords: function (text, hold, complete) {
