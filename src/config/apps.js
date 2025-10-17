@@ -249,50 +249,21 @@ export const apps = [
             },
             "MENU_DIVIDER",
             {
-              label: "Select &All",
-              shortcutLabel: "Ctrl+A",
-              action: () => {
-                  const editor = win.notepad?.codeInput;
-                  if (editor) {
-                      editor.select();
-                  }
-              },
-            },
-            "MENU_DIVIDER",
-            {
-              label: "&Word Wrap",
-              checkbox: {
-                check: () => win.notepad?.wordWrap,
-                toggle: () => win.events.emit('toggle-word-wrap'),
-              },
+              label: "&Format",
+              action: () => win.events.emit('format'),
             },
           ],
-          "&Search": [
+          "&View": [
             {
-              label: "&Find...",
-              shortcutLabel: "Ctrl+F",
-              action: () => win.events.emit('find'),
-            },
-            {
-              label: "Find &Next",
-              shortcutLabel: "F3",
-              action: () => win.events.emit('find-next'),
+              label: "HTML Preview",
+              action: () => win.events.emit('preview-markdown'),
             },
           ],
-          "&Code": [
+          "&Language": [
             {
-                label: "&Language",
-                submenu: [
-                    {
-                        radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
-                        getValue: () => win.notepad?.currentLanguage,
-                        setValue: (value) => win.events.emit('language-change', value),
-                    },
-                ]
-            },
-            {
-                label: "HTML/Markdown Preview",
-                action: () => win.events.emit('preview-markdown'),
+              radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
+              getValue: () => win.notepad?.currentLanguage,
+              setValue: (value) => win.events.emit('language-change', value),
             },
           ],
           "&Help": [
