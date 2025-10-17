@@ -89,10 +89,9 @@ export function getClippyMenuItems() {
     return [{ label: "Clippy not available", enabled: false }];
   }
 
-  const isSpeaking = agent._balloon.isSpeaking();
   const ttsEnabled = agent.isTTSEnabled();
 
-  const baseItems = [
+  return [
     {
       label: "&Animate",
       click: () => agent.animate(),
@@ -150,22 +149,12 @@ export function getClippyMenuItems() {
                 }
                 window.clippyAgent = null;
               });
-            },
+            }
           }
         );
       },
     },
   ];
-
-  if (isSpeaking) {
-    return baseItems.map((item) => {
-      if (typeof item === "string") return item;
-      if (item.label === "&Close") return item;
-      return { ...item, enabled: false };
-    });
-  }
-
-  return baseItems;
 }
 
 export function showClippyContextMenu(event) {
@@ -274,11 +263,12 @@ export function launchClippyApp(agentName = currentAgentName) {
     agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
 
     agent._el.on("click", () => {
-      if (agent._balloon.isSpeaking()) return;
+      if (agent._balloon.isAnimating()) return;
       showClippyInputBalloon();
     });
 
     agent._el.on("contextmenu", function (e) {
+      if (agent._balloon.isAnimating()) return;
       e.preventDefault();
       showClippyContextMenu(e);
     });
