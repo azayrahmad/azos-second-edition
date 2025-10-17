@@ -61,6 +61,8 @@ export class Notepad {
         this.win.events.on('preview-markdown', this.previewMarkdown.bind(this));
         this.win.events.on('save-as', this.saveAs.bind(this));
         this.win.events.on('save', this.saveFile.bind(this));
+        this.win.events.on('find', this.showFindDialog.bind(this));
+        this.win.events.on('find-next', this.findNext.bind(this));
 
         this.win.on('close', (e) => {
             if (this.isDirty) {
@@ -69,7 +71,51 @@ export class Notepad {
             }
         });
 
+        this.wordWrap = false; // Word wrap is off by default
+        this.win.events.on('toggle-word-wrap', this.toggleWordWrap.bind(this));
+
         this.updateHighlight();
+    }
+
+    toggleWordWrap() {
+        this.wordWrap = !this.wordWrap;
+        this.applyWordWrap();
+        // Force menu update
+        const menuBarEl = this.win.element.querySelector('.menus');
+        if (menuBarEl) {
+            menuBarEl.dispatchEvent(new CustomEvent('update'));
+        }
+    }
+
+    applyWordWrap() {
+        if (this.wordWrap) {
+            this.codeInput.style.whiteSpace = 'pre-wrap';
+            this.codeInput.style.overflowWrap = 'break-word';
+            this.highlighted.style.whiteSpace = 'pre-wrap';
+            this.highlighted.style.overflowWrap = 'break-word';
+        } else {
+            this.codeInput.style.whiteSpace = 'pre';
+            this.codeInput.style.overflowWrap = 'normal';
+            this.highlighted.style.whiteSpace = 'pre';
+            this.highlighted.style.overflowWrap = 'normal';
+        }
+        this.updateHighlight(); // Re-sync scroll positions
+    }
+
+    showFindDialog() {
+        ShowDialogWindow({
+            title: 'Find',
+            text: 'This feature is not yet implemented.',
+            buttons: [{ label: 'OK', isDefault: true }],
+        });
+    }
+
+    findNext() {
+        ShowDialogWindow({
+            title: 'Find Next',
+            text: 'This feature is not yet implemented.',
+            buttons: [{ label: 'OK', isDefault: true }],
+        });
     }
 
     showUnsavedChangesDialog(options = {}) {
