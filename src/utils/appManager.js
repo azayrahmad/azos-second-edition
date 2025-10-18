@@ -52,7 +52,6 @@ export function handleAppAction(app) {
         }
       }
 
-
       openWindows.set(windowId, win);
     } else if (app.action.type === "function") {
       app.action.handler();
