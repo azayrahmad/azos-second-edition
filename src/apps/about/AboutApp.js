@@ -14,6 +14,7 @@ export class AboutApp extends Application {
             resizable: this.resizable,
             minimizeButton: this.minimizeButton,
             maximizeButton: this.maximizeButton,
+            icons: this.icon,
         });
 
         win.$content.html(aboutContent);

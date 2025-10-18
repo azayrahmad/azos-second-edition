@@ -7,6 +7,7 @@ import { WebampApp } from '../apps/webamp/WebampApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { ICONS } from './icons.js';
 
 export const appClasses = {
     'about': AboutApp,
@@ -21,7 +22,7 @@ export const apps = [
   {
     id: "about",
     title: "About",
-    icon: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
+    icon: ICONS.about,
     appClass: AboutApp,
     width: 500,
     height: 300,
@@ -32,7 +33,7 @@ export const apps = [
   {
     id: "pdfviewer",
     title: "PDF Viewer",
-    icon: new URL("../assets/icons/word_001.ico", import.meta.url).href,
+    icon: ICONS.pdf,
     appClass: PdfViewerApp,
     width: 800,
     height: 600,
@@ -41,7 +42,7 @@ export const apps = [
   {
     id: "tipOfTheDay",
     title: "Tip of the Day",
-    icon: new URL("../assets/icons/help_book_cool-0.png", import.meta.url).href,
+    icon: ICONS.tip,
     appClass: TipOfTheDayApp,
     width: 400,
     height: 300,
@@ -52,7 +53,7 @@ export const apps = [
   {
     id: "notepad",
     title: "Notepad",
-    icon: new URL("../assets/icons/NOTEPAD_1.ico", import.meta.url).href,
+    icon: ICONS.notepad,
     appClass: NotepadApp,
     width: 600,
     height: 400,
@@ -61,7 +62,7 @@ export const apps = [
   {
     id: "clippy",
     title: "Assistant",
-    icon: new URL("..\\assets\\icons\\msagent_file-1.png", import.meta.url).href,
+    icon: ICONS.clippy,
     appClass: ClippyApp,
     hasTray: true,
     tray: {
@@ -71,7 +72,7 @@ export const apps = [
   {
     id: "webamp",
     title: "Winamp",
-    icon: new URL("../assets/icons/winamp.png", import.meta.url).href,
+    icon: ICONS.webamp,
     appClass: WebampApp,
     hasTaskbarButton: true,
     tray: {
@@ -81,7 +82,7 @@ export const apps = [
   {
     id: "alertTest",
     title: "Alert Test",
-    icon: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
+    icon: ICONS.about,
     action: {
       type: "function",
       handler: () => {
@@ -89,7 +90,7 @@ export const apps = [
           title: "Alert",
           text: "The alert works.",
           soundId: "chord",
-          contentIconUrl: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
+          contentIconUrl: ICONS.about[32],
           buttons: [{ label: 'OK', isDefault: true }],
         });
       },

@@ -4,9 +4,7 @@
  */
 
 // Vite handles these imports automatically and will optimize them
-import windowsStartLogo from "../assets/icons/windows-4.png";
-import showDesktopIcon from "../assets/icons/desktop_old-4.png";
-import volumeIcon from "../assets/icons/SYSTRAY_220.ico";
+import { ICONS } from "../config/icons.js";
 import StartMenu from "./StartMenu.js";
 import { showClippyContextMenu } from "../apps/clippy/clippy.js";
 
@@ -116,7 +114,7 @@ class Taskbar {
   getTaskbarHTML() {
     return `
       <button class="start-button toggle">
-        <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy"> 
+        <img src="${ICONS.windows[16]}" alt="Windows Logo" loading="lazy">
         <span class="start-button-text">Start</span>
       </button>
       <div class="start-menu-wrapper">
@@ -126,7 +124,7 @@ class Taskbar {
       <div class="taskbar-divider-handler"></div>
       <div class="taskbar-icon-area">
         <button class="taskbar-icon lightweight show-desktop" title="Show Desktop" aria-label="Show Desktop">
-          <img src="${showDesktopIcon}" alt="Show Desktop" loading="lazy">
+          <img src="${ICONS.desktop_old[16]}" alt="Show Desktop" loading="lazy">
         </button>
         <button class="taskbar-icon lightweight"
                 title="LinkedIn Profile"
@@ -149,7 +147,7 @@ class Taskbar {
       </div>
       <div class="taskbar-divider"></div>
       <div class="system-tray" role="group" aria-label="System tray">
-        <img src="${volumeIcon}" alt="Volume" loading="lazy">
+        <img src="${ICONS.systray[16]}" alt="Volume" loading="lazy">
         <div class="taskbar-clock" title="" role="timer" aria-live="polite">
           <span id="clock" aria-label="Current time"></span>
         </div>
@@ -235,7 +233,7 @@ class Taskbar {
 
     // Safely handle missing icon
     const iconHTML = iconSrc
-      ? `<img src="${iconSrc}" alt="App Icon" loading="lazy">`
+      ? `<img src="${iconSrc[16]}" alt="App Icon" loading="lazy">`
       : "";
     // Wrap icon and text inside a span
     taskbarButton.innerHTML = `
@@ -594,7 +592,7 @@ export function createTrayIcon(app) {
   trayIcon.className = "tray-icon";
   trayIcon.title = app.title;
   trayIcon.setAttribute("data-app-id", app.id);
-  trayIcon.innerHTML = `<img src="${app.icon}" alt="${app.title}" loading="lazy">`;
+  trayIcon.innerHTML = `<img src="${app.icon[16]}" alt="${app.title}" loading="lazy">`;
 
   trayIcon.addEventListener("contextmenu", (e) => {
     e.preventDefault();

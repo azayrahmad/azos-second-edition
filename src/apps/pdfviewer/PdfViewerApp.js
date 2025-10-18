@@ -12,6 +12,7 @@ export class PdfViewerApp extends Application {
             outerWidth: this.width,
             outerHeight: this.height,
             resizable: this.resizable,
+            icons: this.icon,
         });
 
         const menuBar = new MenuBar({

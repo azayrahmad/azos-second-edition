@@ -166,8 +166,10 @@
 		}
 
 		var $component = options.$component;
-		if (typeof options.icon === "object" && "tagName" in options.icon) {
-			options.icons = { any: options.icon };
+		if (options.icons) {
+			$w.icons = options.icons;
+		} else if (typeof options.icon === "object" && "tagName" in options.icon) {
+			$w.icons = { any: options.icon };
 		} else if (options.icon) {
 			// old terrible API using globals that you have to define
 			console.warn("DEPRECATED: use options.icons instead of options.icon, e.g. new $Window({icons: {16: 'app-16x16.png', any: 'app-icon.svg'}})");
@@ -180,8 +182,9 @@
 			} else {
 				throw new Error("Use {icon: img_element} or {icons: {16: url_or_img_element}} options");
 			}
+		} else {
+			$w.icons = {};
 		}
-		$w.icons = options.icons || {};
 		let iconSize = 16;
 		$w.setTitlebarIconSize = function (target_icon_size) {
 			if ($w.icons) {

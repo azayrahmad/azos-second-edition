@@ -16,6 +16,7 @@ export class TipOfTheDayApp extends Application {
             resizable: this.resizable,
             minimizeButton: this.minimizeButton,
             maximizeButton: this.maximizeButton,
+            icons: this.icon,
         });
 
         win.$content.html(tipOfTheDayContent);

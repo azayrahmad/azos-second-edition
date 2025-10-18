@@ -5,10 +5,7 @@
 
 // Import icons
 import windowsStartMenuBar from "../assets/img/win98start.png";
-import computerIcon from "../assets/icons/computer_explorer.ico";
-import shell32Icon from "../assets/icons/SHELL32_3.ico";
-import keyIcon from "../assets/icons/key_win-4.png";
-import shutdownIcon from "../assets/icons/shut_down_normal-0.png";
+import { ICONS } from "../config/icons.js";
 import { apps } from "../config/apps.js";
 import startMenuApps from "../config/startmenu.json";
 import { launchApp } from "../utils/appManager.js";
@@ -97,7 +94,7 @@ class StartMenu {
       .map(
         (app) => `
           <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
-              <img src="${app.icon}" alt="${app.title}" loading="lazy">
+              <img src="${app.icon[16]}" alt="${app.title}" loading="lazy">
               <span>${app.title}</span>
           </li>
       `,
@@ -115,18 +112,18 @@ class StartMenu {
          </div>
          <ul class="start-menu-list">
            <li role="menuitem" tabindex="0" data-action="home">
-             <img src="${computerIcon}" alt="Computer" loading="lazy">
+             <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
              <span>aziz rahmad</span>
            </li>
            <div class="start-menu-divider" role="separator"></div>
            ${this.generateAppMenuItems()}
            <div class="start-menu-divider" role="separator"></div>
            <li class="logoff-menu-item" role="menuitem" tabindex="0">
-             <img src="${keyIcon}" alt="Log off" loading="lazy">
+             <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
              <span id="logofftext">Log Off Guest...</span>
            </li>
            <li role="menuitem" tabindex="0" data-action="shutdown">
-             <img src="${shutdownIcon}" alt="Shutdown" loading="lazy">
+             <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
              <span>Shut Down...</span>
            </li>
          </ul>

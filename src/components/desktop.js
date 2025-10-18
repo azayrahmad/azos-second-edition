@@ -6,6 +6,7 @@ import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
 import { launchApp } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
+import { ICONS } from "../config/icons.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -32,7 +33,7 @@ function createDesktopIcon(item, isFile = false) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
-  iconImg.src = app.icon; // For now, files use the icon of the app that opens them.
+  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
