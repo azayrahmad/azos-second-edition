@@ -9,9 +9,9 @@ export class PdfViewerApp extends Application {
     _createWindow(filePath) {
         const win = new $Window({
             title: this.title,
-            width: 800,
-            height: 600,
-            resizable: true,
+            outerWidth: this.width,
+            outerHeight: this.height,
+            resizable: this.resizable,
         });
 
         const menuBar = new MenuBar({

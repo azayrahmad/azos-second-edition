@@ -1,5 +1,7 @@
 import { Application } from '../Application.js';
-import { tipOfTheDayContent, setup as tipOfTheDaySetup } from './tipOfTheDay.js';
+import { tipOfTheDayContent } from './tipOfTheDay.js';
+import { tips } from '../../config/tips.js';
+import { launchApp } from '../../utils/appManager.js';
 
 export class TipOfTheDayApp extends Application {
     constructor(config) {
@@ -9,11 +11,11 @@ export class TipOfTheDayApp extends Application {
     _createWindow() {
         const win = new $Window({
             title: this.title,
-            width: 400,
-            height: 300,
-            resizable: false,
-            minimizeButton: false,
-            maximizeButton: false,
+            outerWidth: this.width,
+            outerHeight: this.height,
+            resizable: this.resizable,
+            minimizeButton: this.minimizeButton,
+            maximizeButton: this.maximizeButton,
         });
 
         win.$content.html(tipOfTheDayContent);
@@ -21,8 +23,44 @@ export class TipOfTheDayApp extends Application {
     }
 
     _onLaunch() {
-        if (tipOfTheDaySetup) {
-            tipOfTheDaySetup(this.win.$content[0]);
+        const contentElement = this.win.$content[0];
+        let currentTipIndex = Math.floor(Math.random() * tips.length);
+
+        const tipTextElement = contentElement.querySelector('#tip-text');
+        const nextTipButton = contentElement.querySelector('#next-tip');
+        const closeButton = contentElement.querySelector('.button-group button:last-child');
+
+        if (nextTipButton) {
+            nextTipButton.innerHTML = '';
+            nextTipButton.appendChild(window.AccessKeys.toFragment('&Next Tip'));
+        }
+        if (closeButton) {
+            closeButton.innerHTML = '';
+            closeButton.appendChild(window.AccessKeys.toFragment('&Close'));
+            closeButton.addEventListener('click', () => this.win.close());
+        }
+
+        const displayTip = (tipIndex) => {
+            if (tipTextElement) {
+                tipTextElement.innerHTML = tips[tipIndex];
+                const links = tipTextElement.querySelectorAll('.tip-link');
+                links.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const appId = link.getAttribute('data-app');
+                        launchApp(appId);
+                    });
+                });
+            }
+        };
+
+        displayTip(currentTipIndex);
+
+        if (nextTipButton && tipTextElement) {
+            nextTipButton.addEventListener('click', () => {
+                currentTipIndex = (currentTipIndex + 1) % tips.length;
+                displayTip(currentTipIndex);
+            });
         }
     }
 }

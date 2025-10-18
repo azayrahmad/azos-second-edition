@@ -16,6 +16,13 @@ export class Application {
         this.hasTray = config.hasTray === true;
         this.tray = config.tray;
         this.win = null;
+
+        // Store window properties
+        this.width = config.width;
+        this.height = config.height;
+        this.resizable = config.resizable;
+        this.minimizeButton = config.minimizeButton;
+        this.maximizeButton = config.maximizeButton;
     }
 
     launch(filePath = null) {

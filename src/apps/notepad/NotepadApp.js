@@ -11,9 +11,9 @@ export class NotepadApp extends Application {
     _createWindow() {
         const win = new $Window({
             title: this.title,
-            width: 600,
-            height: 400,
-            resizable: true,
+            outerWidth: this.width,
+            outerHeight: this.height,
+            resizable: this.resizable,
         });
 
         const menuBar = this._createMenuBar();

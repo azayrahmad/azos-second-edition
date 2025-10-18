@@ -9,11 +9,11 @@ export class AboutApp extends Application {
     _createWindow() {
         const win = new $Window({
             title: this.title,
-            width: 500,
-            height: 300,
-            resizable: false,
-            minimizeButton: false,
-            maximizeButton: false,
+            outerWidth: this.width,
+            outerHeight: this.height,
+            resizable: this.resizable,
+            minimizeButton: this.minimizeButton,
+            maximizeButton: this.maximizeButton,
         });
 
         win.$content.html(aboutContent);
