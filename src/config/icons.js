@@ -12,7 +12,7 @@ export const ICONS = {
     32: new URL("../assets/icons/help_book_cool-0.png", import.meta.url).href,
   },
   notepad: {
-    16: new URL("../assets/icons/NOTEPAD_1.ico", import.meta.url).href,
+    16: new URL("../assets/icons/notepad-0.png", import.meta.url).href,
     32: new URL("../assets/icons/NOTEPAD_1.ico", import.meta.url).href,
   },
   clippy: {
