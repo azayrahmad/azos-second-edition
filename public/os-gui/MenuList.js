@@ -24,6 +24,9 @@
 
             this.element = document.createElement('div');
             this.element.className = 'menu-popup';
+            if (options.className) {
+                this.element.classList.add(options.className);
+            }
             this.element.setAttribute('role', 'menu');
             this.element.style.touchAction = 'pan-y'; // allow for scrolling overflowing menus
             this.element.style.display = 'none';
@@ -456,4 +459,4 @@
     exports.MenuList = MenuList;
     exports.MENU_DIVIDER = MENU_DIVIDER;
 
-})(typeof exports !== 'undefined' ? exports : (window.OS = window.OS || {}));
+})(typeof exports !== 'undefined' ? exports : window);

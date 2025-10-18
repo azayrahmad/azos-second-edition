@@ -93,7 +93,7 @@ function showIconContextMenu(event, app) {
   const existingMenus = document.querySelectorAll(".menu-popup");
   existingMenus.forEach((menu) => menu.remove());
 
-  const menu = new OS.MenuList(menuItems);
+  const menu = new MenuList(menuItems);
   document.body.appendChild(menu.element);
 
   menu.element.style.position = "absolute";
@@ -203,7 +203,7 @@ function showDesktopContextMenu(event) {
   const existingMenus = document.querySelectorAll('.menu-popup');
   existingMenus.forEach(menu => menu.remove());
 
-  const menu = new OS.MenuList(menuItems);
+  const menu = new MenuList(menuItems);
   document.body.appendChild(menu.element);
 
   menu.show(event.clientX, event.clientY);

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toolbar Component Demo</title>
+    <link href="./windows-98.css" rel="stylesheet" type="text/css" />
+    <link href="./windows-default.css" rel="stylesheet" type="text/css" />
+    <link href="./Toolbar.css" rel="stylesheet" type="text/css" />
+    <script src="./MenuList.js"></script>
+    <script src="./Toolbar.js"></script>
+    <style>
+        body {
+            background-color: #008080;
+            padding: 20px;
+        }
+        .demo-container {
+            background-color: var(--button-face);
+            padding: 2px;
+            border: 1px solid var(--button-shadow);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Toolbar Component Demo</h1>
+    <div class="demo-container">
+        <!-- Toolbar will be inserted here -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.demo-container');
+
+            const placeholderIcon = '../src/assets/icons/computer_explorer-0.png';
+
+            const toolbarItems = [
+                { label: 'Back', icon: placeholderIcon, action: () => console.log('Back') },
+                { label: 'Forward', icon: placeholderIcon, action: () => console.log('Forward'), enabled: false },
+                { label: 'Up', icon: placeholderIcon, action: () => console.log('Up') },
+                { label: 'Cut', icon: placeholderIcon, action: () => console.log('Cut') },
+                { label: 'Copy', icon: placeholderIcon, action: () => console.log('Copy') },
+                { label: 'Paste', icon: placeholderIcon, action: () => console.log('Paste') },
+                {
+                    label: 'Views',
+                    icon: placeholderIcon,
+                    // No primary action, main button will open submenu
+                    submenu: [
+                        { label: 'Large Icons', action: () => console.log('View: Large Icons') },
+                        { label: 'Small Icons', action: () => console.log('View: Small Icons') },
+                        { label: 'List', action: () => console.log('View: List') },
+                        { label: 'Details', action: () => console.log('View: Details') },
+                    ]
+                },
+                {
+                    label: 'Tools',
+                    icon: placeholderIcon,
+                    action: () => console.log('Tools Main Action'),
+                    submenu: [
+                        { label: 'Map Network Drive...', action: () => console.log('Tools: Map') },
+                        { label: 'Disconnect Network Drive...', action: () => console.log('Tools: Disconnect') },
+                    ]
+                },
+            ];
+
+            const toolbar = new Toolbar(toolbarItems);
+            container.appendChild(toolbar.element);
+        });
+    </script>
+
+</body>
+</html>
