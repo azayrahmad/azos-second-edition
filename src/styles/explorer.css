@@ -2,14 +2,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--ButtonFace);
-  border-top: 1px solid var(--ButtonShadow);
+  background-color: var(--button-face);
+  border-top: 1px solid var(--button-shadow);
 }
 
 .explorer-toolbar {
   display: flex;
   padding: 2px;
-  border-bottom: 1px solid var(--ButtonShadow);
+  border-bottom: 1px solid var(--button-shadow);
 }
 
 .explorer-toolbar button {
@@ -21,12 +21,12 @@
   display: flex;
   align-items: center;
   padding: 2px;
-  border-bottom: 1px solid var(--ButtonShadow);
+  border-bottom: 1px solid var(--button-shadow);
 }
 
 .explorer-address-bar label {
   margin-right: 4px;
-  color: var(--GrayText);
+  color: var(--button-text-gray);
 }
 
 .explorer-address-bar input {
@@ -35,7 +35,7 @@
 
 .explorer-content {
   flex-grow: 1;
-  background-color: var(--Window);
-  border: 1px solid var(--ButtonLight);
+  background-color: white;
+  border: 1px solid var(--border-light);
   margin: 2px;
 }

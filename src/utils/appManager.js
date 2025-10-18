@@ -8,7 +8,6 @@ const openWindows = new Map();
 
 import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
 import { Notepad } from '../apps/notepad/notepad.js';
-import { Explorer } from '../apps/explorer/Explorer.js';
 
 export function handleAppAction(app) {
   document.body.style.cursor = "wait";
@@ -53,12 +52,6 @@ export function handleAppAction(app) {
         }
       }
 
-      if (app.id === "explorer") {
-        const explorerContainer = win.$content.find(".explorer-container")[0];
-        if (explorerContainer) {
-          new Explorer(explorerContainer, win);
-        }
-      }
 
       openWindows.set(windowId, win);
     } else if (app.action.type === "function") {

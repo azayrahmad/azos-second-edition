@@ -2,8 +2,8 @@
     display: flex;
     align-items: center;
     padding: 2px;
-    border-bottom: 1px solid var(--ButtonShadow);
-    background-color: var(--ButtonFace);
+    border-bottom: 1px solid var(--button-shadow);
+    background-color: var(--button-face);
     height: 58px;
 }
 
@@ -14,7 +14,7 @@
 }
 
 .toolbar-button-group:hover {
-    border-color: var(--ButtonHilight);
+    border-color: var(--button-highlight);
 }
 
 .toolbar-button {
@@ -27,9 +27,9 @@
     border: none;
     background: none;
     padding: 1px;
-    /* font-family: var(--font-family); */ /* This variable is not defined in windows-98.css */
+    font-family: var(--font-family);
     font-size: 11px;
-    color: var(--ButtonText);
+    color: var(--button-text);
 }
 
 .toolbar-button.has-submenu-main {
@@ -40,7 +40,7 @@
     width: 12px;
     height: 56px;
     border: none;
-    border-left: 1px solid var(--ButtonShadow);
+    border-left: 1px solid var(--button-shadow);
     background: none;
     padding: 0;
     font-size: 8px;
@@ -50,11 +50,11 @@
 }
 
 .toolbar-button:active, .toolbar-arrow-button:active {
-    border: 1px solid var(--ButtonShadow);
+    border: 1px solid var(--button-shadow);
 }
 
 .toolbar-button:disabled, .toolbar-arrow-button:disabled {
-    color: var(--GrayText);
+    color: var(--button-text-disabled);
     filter: grayscale(100%);
     opacity: 0.5;
 }
@@ -80,10 +80,10 @@
 /* MenuList styles remain the same */
 .menu-popup {
     position: absolute;
-    background: var(--ButtonFace);
+    background: var(--button-face);
     border: 1px solid;
-    border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow) var(--ButtonHilight);
-    box-shadow: 1px 1px 0 var(--ButtonShadow);
+    border-color: var(--button-highlight) var(--button-shadow) var(--button-shadow) var(--button-highlight);
+    box-shadow: 1px 1px 0 var(--button-shadow);
     padding: 1px;
     z-index: 10000;
 }
@@ -97,19 +97,19 @@
 }
 
 .menu-item {
-    /* font-family: var(--font-family); */ /* This variable is not defined in windows-98.css */
+    font-family: var(--font-family);
     font-size: 11px;
-    color: var(--ButtonText);
+    color: var(--button-text);
     white-space: nowrap;
 }
 
 .menu-item.highlight {
-    background-color: var(--Hilight);
-    color: var(--HilightText);
+    background-color: var(--highlight);
+    color: var(--highlight-text);
 }
 
 .menu-item[aria-disabled="true"] {
-    color: var(--GrayText);
+    color: var(--button-text-disabled);
 }
 
 .menu-item-label {
