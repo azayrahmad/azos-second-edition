@@ -46,9 +46,6 @@
   align-items: center;
 }
 
-.taskbar-app-area {
-  flex-grow: 1;
-}
 
 .taskbar-button {
   display: flex;

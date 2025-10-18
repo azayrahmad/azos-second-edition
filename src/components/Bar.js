@@ -15,11 +15,15 @@ export default class Bar {
     this.parent = parent;
     this.options = {
       orientation: 'horizontal',
+      fill: false,
       ...options,
     };
     this.items = [];
     this.element = document.createElement('div');
     this.element.className = `bar ${this.options.orientation} ${this.options.className || ''}`;
+    if (this.options.fill) {
+      this.element.classList.add('bar-fill');
+    }
     this.parent.appendChild(this.element);
   }
 

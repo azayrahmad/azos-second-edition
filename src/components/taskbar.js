@@ -132,7 +132,7 @@ class Taskbar {
     mainBar.addItem(iconBar, { draggable: true, resizable: true });
 
     // App Area
-    const appAreaBar = new Bar(mainBar.element, { className: 'taskbar-app-area' });
+    const appAreaBar = new Bar(mainBar.element, { className: 'taskbar-app-area', fill: true });
     mainBar.addItem(appAreaBar, { draggable: true, resizable: true });
 
     // System Tray
