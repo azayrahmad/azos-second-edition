@@ -6,6 +6,7 @@ import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
 import { launchApp } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
+import { ICONS } from "../config/icons.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
