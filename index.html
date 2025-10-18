@@ -6,7 +6,6 @@
     <link rel="icon" type="image/svg+xml" href="/src/assets/icons/windows-4.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>azOS Second Edition</title>
-    <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
     <link rel="stylesheet" href="/src/styles/98.css" />
     <link href="./os-gui/layout.css" rel="stylesheet" type="text/css" />
@@ -44,17 +43,6 @@
 
     <div class="taskbar"></div>
     <script type="module" src="/src/main.js"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').then(registration => {
-            console.log('SW registered: ', registration);
-          }).catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
-          });
-        });
-      }
-    </script>
 </body>
 
 </html>
