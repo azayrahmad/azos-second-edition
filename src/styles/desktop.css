@@ -20,20 +20,19 @@
 }
 
 :root {
-  --background-teal: #008080;
-  --background-gray: #c0c0c0;
-  --border-light: #dfdfdf;
-  --border-dark: #87888f;
-  --border-white: white;
-  --border-black: black;
-  --highlight-blue: #0000a8;
-  --highlight-text: #fff;
-  --shadow-light: #fff;
-  --shadow-dark: #0a0a0a;
-  --shadow-medium-light: #dfdfdf;
-  --shadow-medium-dark: grey;
+  --background-gray: var(--ButtonFace);
+  --border-light: var(--ButtonLight);
+  --border-dark: var(--ButtonShadow);
+  --border-white: var(--ButtonHilight);
+  --border-black: var(--ButtonDkShadow);
+  --highlight-blue: var(--Hilight);
+  --highlight-text: var(--HilightText);
+  --shadow-light: var(--ButtonHilight);
+  --shadow-dark: var(--ButtonDkShadow);
+  --shadow-medium-light: var(--ButtonLight);
+  --shadow-medium-dark: var(--ButtonShadow);
   --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%) brightness(0.6);
-  --text-shadow: 1px 1px #222;
+  --text-shadow: 1px 1px var(--ButtonDkShadow);
   --icon-label-font-size: 11px;
 }
 
@@ -48,7 +47,7 @@ html {
   padding: 0;
   overflow-x: hidden;
   font-family: "MSW98UI", sans-serif;
-  background-color: var(--background-teal);
+  background-color: var(--Background);
   image-rendering: pixelated;
   font-smooth: never;
 }
@@ -64,11 +63,9 @@ html {
 .desktop-area {
   position: relative;
   overflow: hidden;
-  /* Add padding inside to create space for window borders */
-  padding: 4px;
   box-sizing: border-box;
   height: calc(
-    100vh - 28px - env(safe-area-inset-bottom) - 2px
+    100vh - 24px - env(safe-area-inset-bottom) - 1px
   ); /* Adjust height dynamically */
 }
 
@@ -86,10 +83,16 @@ html {
   align-content: start;
 }
 
+/* When dragging, disable grid so icons stay put */
+.desktop.has-absolute-icons {
+  display: block;
+}
+
 .desktop-icon {
   width: 70px;
   text-align: center;
-  color: white;
+  color: var(--HilightText);
+  z-index: 1; /* Ensure icons are on top of other elements */
 }
 
 .desktop-icon .icon {
@@ -118,5 +121,5 @@ html {
 }
 
 .selected {
-  border: 1px dotted white;
+  border: 1px dotted var(--HilightText);
 }

@@ -1,4 +1,5 @@
 /*! 98.css v0.1.21 - https://github.com/jdan/98.css */
+
 @font-face {
   font-family: "Pixelated MS Sans Serif";
   font-style: normal;
@@ -14,7 +15,7 @@
   src: url(ms_sans_serif_bold.woff2) format("woff2");
 }
 body {
-  color: #222;
+  color: var(--ButtonText);
   font-family: "MSW98UI", sans-serif;
   font-size: 12px;
 }
@@ -32,7 +33,7 @@ h4 {
   font-size: 1.5rem;
 }
 u {
-  border-bottom: 0.5px solid #222;
+  border-bottom: 0.5px solid var(--ButtonText);
   text-decoration: none;
 }
 fieldset {
@@ -41,9 +42,6 @@ fieldset {
   margin: 0;
   padding: 10px;
   padding-block-start: 8px;
-}
-legend {
-  background: silver;
 }
 .field-row {
   align-items: center;
@@ -125,9 +123,12 @@ input[type="checkbox"] + label {
   position: relative;
 }
 input[type="checkbox"] + label:before {
-  background: #fff;
-  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
+  background: var(--Window);
+  box-shadow:
+    inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow),
+    inset -2px -2px var(--ButtonLight),
+    inset 2px 2px var(--ButtonDkShadow);
   content: "";
   display: inline-block;
   height: 13px;
@@ -175,9 +176,12 @@ input[type="tel"],
 input[type="text"],
 input[type="url"],
 select {
-  background-color: #fff;
-  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
+  background-color: var(--Window);
+  box-shadow:
+    inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow),
+    inset -2px -2px var(--ButtonLight),
+    inset 2px 2px var(--ButtonDkShadow);
   box-sizing: border-box;
   padding: 3px 4px;
 }
@@ -189,10 +193,13 @@ textarea {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-color: #fff;
+  background-color: var(--Window);
   border-radius: 0;
-  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
+  box-shadow:
+    inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow),
+    inset -2px -2px var(--ButtonLight),
+    inset 2px 2px var(--ButtonDkShadow);
   box-sizing: border-box;
   padding: 3px 4px;
 }
@@ -304,21 +311,35 @@ input[type="range"].has-box-indicator::-moz-range-thumb {
   transform: translateY(0);
 }
 input[type="range"]::-webkit-slider-runnable-track {
-  background: #000;
-  border-bottom: 1px solid grey;
-  border-right: 1px solid grey;
-  box-shadow: 1px 0 0 #fff, 1px 1px 0 #fff, 0 1px 0 #fff, -1px 0 0 #a9a9a9,
-    -1px -1px 0 #a9a9a9, 0 -1px 0 #a9a9a9, -1px 1px 0 #fff, 1px -1px #a9a9a9;
+  background: var(--ButtonDkShadow);
+  border-bottom: 1px solid var(--ButtonShadow);
+  border-right: 1px solid var(--ButtonShadow);
+  box-shadow:
+    1px 0 0 var(--ButtonHilight),
+    1px 1px 0 var(--ButtonHilight),
+    0 1px 0 var(--ButtonHilight),
+    -1px 0 0 var(--ButtonShadow),
+    -1px -1px 0 var(--ButtonShadow),
+    0 -1px 0 var(--ButtonShadow),
+    -1px 1px 0 var(--ButtonHilight),
+    1px -1px var(--ButtonShadow);
   box-sizing: border-box;
   height: 2px;
   width: 100%;
 }
 input[type="range"]::-moz-range-track {
-  background: #000;
-  border-bottom: 1px solid grey;
-  border-right: 1px solid grey;
-  box-shadow: 1px 0 0 #fff, 1px 1px 0 #fff, 0 1px 0 #fff, -1px 0 0 #a9a9a9,
-    -1px -1px 0 #a9a9a9, 0 -1px 0 #a9a9a9, -1px 1px 0 #fff, 1px -1px #a9a9a9;
+  background: var(--ButtonDkShadow);
+  border-bottom: 1px solid var(--ButtonShadow);
+  border-right: 1px solid var(--ButtonShadow);
+  box-shadow:
+    1px 0 0 var(--ButtonHilight),
+    1px 1px 0 var(--ButtonHilight),
+    0 1px 0 var(--ButtonHilight),
+    -1px 0 0 var(--ButtonShadow),
+    -1px -1px 0 var(--ButtonShadow),
+    0 -1px 0 var(--ButtonShadow),
+    -1px 1px 0 var(--ButtonHilight),
+    1px -1px var(--ButtonShadow);
   box-sizing: border-box;
   height: 2px;
   width: 100%;
@@ -340,15 +361,29 @@ input[type="range"]::-moz-range-track {
   border-bottom: 1px solid grey;
   border-left: 1px solid grey;
   border-right: 0;
-  box-shadow: -1px 0 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff, 1px 0 0 #a9a9a9,
-    1px -1px 0 #a9a9a9, 0 -1px 0 #a9a9a9, 1px 1px 0 #fff, -1px -1px #a9a9a9;
+  box-shadow:
+    -1px 0 0 #fff,
+    -1px 1px 0 #fff,
+    0 1px 0 #fff,
+    1px 0 0 #a9a9a9,
+    1px -1px 0 #a9a9a9,
+    0 -1px 0 #a9a9a9,
+    1px 1px 0 #fff,
+    -1px -1px #a9a9a9;
 }
 .is-vertical > input[type="range"]::-moz-range-track {
   border-bottom: 1px solid grey;
   border-left: 1px solid grey;
   border-right: 0;
-  box-shadow: -1px 0 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff, 1px 0 0 #a9a9a9,
-    1px -1px 0 #a9a9a9, 0 -1px 0 #a9a9a9, 1px 1px 0 #fff, -1px -1px #a9a9a9;
+  box-shadow:
+    -1px 0 0 #fff,
+    -1px 1px 0 #fff,
+    0 1px 0 #fff,
+    1px 0 0 #a9a9a9,
+    1px -1px 0 #a9a9a9,
+    0 -1px 0 #a9a9a9,
+    1px 1px 0 #fff,
+    -1px -1px #a9a9a9;
 }
 .is-vertical > input[type="range"]::-webkit-slider-thumb {
   transform: translateY(-8px) scaleX(-1);
@@ -363,25 +398,28 @@ input[type="range"]::-moz-range-track {
   transform: translateY(0) scaleX(-1);
 }
 select:focus {
-  background-color: navy;
-  color: #fff;
+  background-color: var(--ActiveTitle);
+  color: var(--HilightText);
 }
 select:focus option {
-  background-color: #fff;
-  color: #000;
+  background-color: var(--Window);
+  color: var(--ButtonText);
 }
 select:active {
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='16' height='17' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0h16v17H0V0zm1 16h14V1H1v15z' fill='gray'/%3E%3Cpath fill='silver' d='M1 1h14v15H1z'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 7H5v1h1v1h1v1h1v1h1v-1h1V9h1V8h1V7z' fill='%23000'/%3E%3C/svg%3E");
 }
 a {
-  color: #00f;
+  color: var(--HotTrackingColor);
 }
 a:focus {
-  outline: 1px dotted #00f;
+  outline: 1px dotted var(--HotTrackingColor);
 }
 ul.tree-view {
-  background: #fff;
-  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
+  background: var(--Window);
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px grey,
+    inset -2px -2px #dfdfdf,
     inset 2px 2px #0a0a0a;
   display: block;
   margin: 0;
@@ -391,12 +429,12 @@ ul.tree-view li {
   list-style-type: none;
 }
 ul.tree-view a {
-  color: #000;
+  color: var(--ButtonText);
   text-decoration: none;
 }
 ul.tree-view a:focus {
-  background-color: navy;
-  color: #fff;
+  background-color: var(--ActiveTitle);
+  color: var(--HilightText);
 }
 ul.tree-view li,
 ul.tree-view ul {
@@ -441,8 +479,8 @@ ul.tree-view ul details > summary:before {
   z-index: 1;
 }
 ul.tree-view details > summary:before {
-  background-color: #fff;
-  border: 1px solid grey;
+  background-color: var(--Window);
+  border: 1px solid var(--ButtonShadow);
   content: "+";
   display: block;
   float: left;
@@ -461,9 +499,12 @@ ul.tree-view details > summary::marker {
   content: "";
 }
 pre {
-  background: #fff;
-  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
+  background: var(--Window);
+  box-shadow:
+    inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow),
+    inset -2px -2px var(--ButtonLight),
+    inset 2px 2px var(--ButtonDkShadow);
   display: block;
   margin: 0;
   padding: 12px 8px;
@@ -497,9 +538,12 @@ table {
   white-space: nowrap;
 }
 table > thead > tr > * {
-  background: silver;
-  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px grey,
-    inset 2px 2px #dfdfdf;
+  background: var(--ButtonFace);
+  box-shadow:
+    inset -1px -1px var(--ButtonDkShadow),
+    inset 1px 1px var(--ButtonHilight),
+    inset -2px -2px var(--ButtonShadow),
+    inset 2px 2px var(--ButtonLight);
   box-sizing: border-box;
   font-weight: 400;
   height: 17px;
@@ -511,8 +555,8 @@ table.interactive > tbody > tr {
   cursor: pointer;
 }
 table > tbody > tr.highlighted {
-  background-color: navy;
-  color: #fff;
+  background-color: var(--ActiveTitle);
+  color: var(--HilightText);
 }
 table > tbody > tr > * {
   height: 14px;
@@ -524,39 +568,50 @@ table > tbody > tr > * {
   appearance: none;
   border: none;
   border-radius: 0;
-  box-shadow: inset -2px -2px #dfdfdf, inset 2px 2px grey;
+  box-shadow:
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px grey;
   box-sizing: border-box;
   height: 32px;
   padding: 4px;
   position: relative;
 }
 .progress-indicator > .progress-indicator-bar {
-  background-color: navy;
+  background-color: var(--ActiveTitle);
   display: block;
   height: 100%;
 }
 .progress-indicator.segmented > .progress-indicator-bar {
   background-color: transparent;
-  background-image: linear-gradient(90deg, navy 16px, transparent 0 2px);
+  background-image: linear-gradient(
+    90deg,
+    var(--ActiveTitle) 16px,
+    transparent 0 2px
+  );
   background-repeat: repeat;
   background-size: 18px 100%;
   width: 100%;
 }
 .field-border {
-  background: #fff;
+  background: var(--Window);
 }
 .field-border,
 .field-border-disabled {
-  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
+  box-shadow:
+    inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow),
+    inset -2px -2px var(--ButtonLight),
+    inset 2px 2px var(--ButtonDkShadow);
   padding: 2px;
 }
 .field-border-disabled {
-  background: silver;
+  background: var(--ButtonFace);
 }
 .status-field-border {
-  background: silver;
-  box-shadow: inset -1px -1px #dfdfdf, inset 1px 1px grey;
+  background: var(--ButtonFace);
+  box-shadow:
+    inset -1px -1px var(--ButtonLight),
+    inset 1px 1px var(--ButtonShadow);
   padding: 1px;
 }
 
@@ -565,4 +620,3 @@ table > tbody > tr > * {
   display: flex;
   flex-direction: column;
 }
-/*# sourceMappingURL=98.css.map */

@@ -4,7 +4,14 @@
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
-import { handleAppAction } from "../utils/appManager.js";
+import { launchApp } from "../utils/appManager.js";
+import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
+import { ICONS } from "../config/icons.js";
+
+function getIconId(app, filePath = null) {
+  // Create a unique ID for the icon based on app ID or file path
+  return filePath ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, '-')}` : `app-${app.id}`;
+}
 
 function createDesktopIcon(item, isFile = false) {
   const app = isFile ? apps.find(a => a.id === item.app) : item;
@@ -13,6 +20,10 @@ function createDesktopIcon(item, isFile = false) {
   const iconDiv = document.createElement("div");
   iconDiv.className = "desktop-icon";
   iconDiv.setAttribute("title", isFile ? item.filename : app.title);
+
+  const iconId = getIconId(app, isFile ? item.path : null);
+  iconDiv.setAttribute("data-icon-id", iconId);
+
   iconDiv.setAttribute("data-app-id", app.id);
   if (isFile) {
     iconDiv.setAttribute("data-file-path", item.path);
@@ -22,7 +33,7 @@ function createDesktopIcon(item, isFile = false) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
-  iconImg.src = app.icon; // For now, files use the icon of the app that opens them.
+  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
@@ -55,13 +66,13 @@ function showIconContextMenu(event, app) {
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
           case "open":
-            newItem.click = () => handleAppAction(app);
+            newItem.click = () => launchApp(app.id);
             break;
           case "properties":
             newItem.click = () => showProperties(app);
             break;
           default:
-            newItem.click = () => {};
+            newItem.click = () => { };
             break;
         }
       } else if (typeof newItem.action === "function") {
@@ -103,74 +114,120 @@ function showIconContextMenu(event, app) {
   document.addEventListener("click", closeMenu);
 }
 
+function setWallpaper() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (readerEvent) => {
+        const dataUrl = readerEvent.target.result;
+        localStorage.setItem('wallpaper', dataUrl);
+        applyWallpaper();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  input.click();
+}
+
+function applyWallpaper() {
+  const wallpaper = localStorage.getItem('wallpaper');
+  const desktop = document.querySelector('.desktop');
+  if (wallpaper) {
+    desktop.style.backgroundImage = `url(${wallpaper})`;
+    desktop.style.backgroundRepeat = 'repeat';
+    desktop.style.backgroundSize = 'auto';
+    desktop.style.backgroundColor = ''; // Remove solid color
+  } else {
+    desktop.style.backgroundImage = '';
+    desktop.style.backgroundColor = 'var(--desktop-bg)'; // Restore solid color
+  }
+}
+
+function removeWallpaper() {
+  localStorage.removeItem('wallpaper');
+  applyWallpaper();
+}
+
 function showDesktopContextMenu(event) {
-    const themes = {
-        default: 'Default',
-        'peggys-pastels': "Peggy's Pastels",
-        blue: 'Blue',
-    };
+  const themes = getThemes();
 
-    const setTheme = (theme) => {
-        // First, set the theme in localStorage
-        localStorage.setItem('desktop-theme', theme);
-
-        // Apply the theme immediately
-        applySavedTheme();
-
-        // Dispatch a custom event to notify any open menus to update their state
-        document.dispatchEvent(new CustomEvent('theme-changed'));
-    };
-
-    const menuItems = [
+  const menuItems = [
+    {
+      label: 'Sort Icons',
+      click: () => {
+        // Remove saved positions and redraw icons
+        localStorage.removeItem('iconPositions');
+        setupIcons();
+      },
+    },
+    'MENU_DIVIDER',
+    {
+      label: 'Wallpaper',
+      submenu: [
         {
-            label: 'Theme',
-            submenu: Object.keys(themes).map(themeKey => ({
-                label: themes[themeKey],
-                checkbox: {
-                    check: () => (localStorage.getItem('desktop-theme') || 'default') === themeKey,
-                    toggle: () => setTheme(themeKey),
-                },
-            })),
+          label: 'Set Wallpaper...',
+          click: setWallpaper,
         },
         {
-            label: 'Scanlines',
-            checkbox: {
-                check: () => document.body.classList.contains('scanlines'),
-                toggle: () => {
-                    document.body.classList.toggle('scanlines');
-                }
-            }
+          label: 'Remove Wallpaper',
+          click: removeWallpaper,
+        },
+      ],
+    },
+    'MENU_DIVIDER',
+    {
+      label: 'Theme',
+      submenu: Object.keys(themes).map(themeKey => ({
+        label: themes[themeKey],
+        checkbox: {
+          check: () => getCurrentTheme() === themeKey,
+          toggle: () => setTheme(themeKey),
+        },
+      })),
+    },
+    {
+      label: 'Scanlines',
+      checkbox: {
+        check: () => document.body.classList.contains('scanlines'),
+        toggle: () => {
+          document.body.classList.toggle('scanlines');
         }
-    ];
+      }
+    }
+  ];
 
-    const existingMenus = document.querySelectorAll('.menu-popup');
-    existingMenus.forEach(menu => menu.remove());
+  const existingMenus = document.querySelectorAll('.menu-popup');
+  existingMenus.forEach(menu => menu.remove());
 
-    const menu = new OS.MenuList(menuItems);
-    document.body.appendChild(menu.element);
+  const menu = new OS.MenuList(menuItems);
+  document.body.appendChild(menu.element);
 
-    menu.show(event.clientX, event.clientY);
+  menu.show(event.clientX, event.clientY);
 
-    const handleThemeChange = () => {
-        // When the theme changes, we need to manually trigger an update on the menu
-        // to re-evaluate the 'check' state of all theme items.
-        if (menu.activeSubmenu) {
-            menu.activeSubmenu.element.dispatchEvent(new CustomEvent('update', {}));
-        }
-    };
+  const handleThemeChange = () => {
+    // When the theme changes, we need to manually trigger an update on the menu
+    // to re-evaluate the 'check' state of all theme items.
+    if (menu.activeSubmenu) {
+      menu.activeSubmenu.element.dispatchEvent(new CustomEvent('update', {}));
+    }
+  };
 
-    const closeMenu = (e) => {
-        if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
-            menu.closeAll();
-            document.removeEventListener('click', closeMenu);
-            document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
-        }
-    };
+  const closeMenu = (e) => {
+    if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
+      menu.closeAll();
+      document.removeEventListener('click', closeMenu);
+      document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
+    }
+  };
 
-    setTimeout(() => {
-        document.addEventListener('click', closeMenu);
-        document.addEventListener('theme-changed', handleThemeChange);
-    }, 0);
+  setTimeout(() => {
+    document.addEventListener('click', closeMenu);
+    document.addEventListener('theme-changed', handleThemeChange);
+  }, 0);
 }
 
 function showProperties(app) {
@@ -182,13 +239,32 @@ export function setupIcons() {
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
+  const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
+
+  // If there are any saved positions, we are in manual mode.
+  if (Object.keys(iconPositions).length > 0) {
+    desktop.classList.add('has-absolute-icons');
+  } else {
+    desktop.classList.remove('has-absolute-icons');
+  }
+
+  const placeIcon = (icon, iconId) => {
+    if (iconPositions[iconId]) {
+      icon.style.position = "absolute";
+      icon.style.left = iconPositions[iconId].x;
+      icon.style.top = iconPositions[iconId].y;
+    }
+    desktop.appendChild(icon);
+  };
+
   // Load apps
   const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
   appsToLoad.forEach((app) => {
     const icon = createDesktopIcon(app, false);
     if (icon) {
-      configureIcon(icon, app);
-      desktop.appendChild(icon);
+      const iconId = getIconId(app);
+      configureIcon(icon, app, null);
+      placeIcon(icon, iconId);
     }
   });
 
@@ -196,17 +272,165 @@ export function setupIcons() {
   desktopApps.files.forEach((file) => {
     const icon = createDesktopIcon(file, true);
     if (icon) {
-      const app = apps.find(a => a.id === file.app);
+      const app = apps.find((a) => a.id === file.app);
+      const iconId = getIconId(app, file.path);
       configureIcon(icon, app, file.path);
-      desktop.appendChild(icon);
+      placeIcon(icon, iconId);
     }
   });
 }
 
 function configureIcon(icon, app, filePath = null) {
-  // Set up icon click to highlight
-  icon.addEventListener("click", function () {
-    // Remove highlight from all icons and icon-labels
+  let isDragging = false;
+  let wasDragged = false;
+  let dragStartX, dragStartY;
+  let offsetX, offsetY;
+  let longPressTimer;
+  let isLongPress = false;
+
+  const iconId = icon.getAttribute("data-icon-id");
+
+  const handleDragStart = (e) => {
+    // For mouse events, only respond to left-click
+    if (e.type === 'mousedown' && e.button !== 0) return;
+
+    // We prevent default on mousedown to stop text selection, but not on touchstart
+    // to allow the browser to generate click/dblclick events.
+    if (e.type === 'mousedown') {
+      e.preventDefault();
+    }
+
+    isDragging = true;
+    wasDragged = false;
+    isLongPress = false;
+
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+    dragStartX = clientX;
+    dragStartY = clientY;
+
+    // Long press detection for touch
+    if (e.type === 'touchstart') {
+      longPressTimer = setTimeout(() => {
+        isLongPress = true;
+        // Find the touch point to position the context menu
+        const touch = e.touches[0];
+        const mockEvent = {
+          pageX: touch.pageX,
+          pageY: touch.pageY,
+          preventDefault: () => e.preventDefault(),
+        };
+        showIconContextMenu(mockEvent, app);
+      }, 500); // 500ms for a long press
+    }
+
+    const desktop = icon.parentElement;
+    const desktopRect = desktop.getBoundingClientRect();
+
+    if (!desktop.classList.contains('has-absolute-icons')) {
+      const allIcons = Array.from(desktop.querySelectorAll('.desktop-icon'));
+      const initialPositions = allIcons.map(i => ({
+        icon: i,
+        id: i.getAttribute('data-icon-id'),
+        rect: i.getBoundingClientRect()
+      }));
+      const iconPositions = {};
+      initialPositions.forEach(({ icon: i, id, rect }) => {
+        const x = `${rect.left - desktopRect.left}px`;
+        const y = `${rect.top - desktopRect.top}px`;
+        i.style.position = 'absolute';
+        i.style.left = x;
+        i.style.top = y;
+        iconPositions[id] = { x, y };
+      });
+      localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
+      desktop.classList.add('has-absolute-icons');
+    }
+
+    const iconRect = icon.getBoundingClientRect();
+    offsetX = clientX - iconRect.left;
+    offsetY = clientY - iconRect.top;
+
+    if (e.type === 'mousedown') {
+      document.addEventListener("mousemove", handleDragMove);
+      document.addEventListener("mouseup", handleDragEnd);
+    } else if (e.type === 'touchstart') {
+      document.addEventListener("touchmove", handleDragMove, { passive: false });
+      document.addEventListener("touchend", handleDragEnd);
+    }
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+
+    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    if (Math.abs(clientX - dragStartX) > 5 || Math.abs(clientY - dragStartY) > 5) {
+      clearTimeout(longPressTimer); // Moved too far, not a long press
+      if (!wasDragged) {
+        wasDragged = true;
+        window.getSelection().removeAllRanges();
+      }
+    }
+
+    if (!wasDragged) return;
+
+    // Prevent scrolling on touch devices ONLY when dragging
+    if (e.type === 'touchmove') {
+      e.preventDefault();
+    }
+
+    const desktop = icon.parentElement;
+    const desktopRect = desktop.getBoundingClientRect();
+    const iconRect = icon.getBoundingClientRect();
+
+    let newX = clientX - desktopRect.left - offsetX;
+    let newY = clientY - desktopRect.top - offsetY;
+
+    newX = Math.max(0, Math.min(newX, desktopRect.width - iconRect.width));
+    newY = Math.max(0, Math.min(newY, desktopRect.height - iconRect.height));
+
+    icon.style.left = `${newX}px`;
+    icon.style.top = `${newY}px`;
+  };
+
+  const handleDragEnd = () => {
+    clearTimeout(longPressTimer); // Always clear timer on end
+    isDragging = false;
+
+    if (wasDragged) {
+      const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
+      iconPositions[iconId] = {
+        x: icon.style.left,
+        y: icon.style.top,
+      };
+      localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
+    }
+
+    document.removeEventListener("mousemove", handleDragMove);
+    document.removeEventListener("mouseup", handleDragEnd);
+    document.removeEventListener("touchmove", handleDragMove);
+    document.removeEventListener("touchend", handleDragEnd);
+
+    // Reset wasDragged after a short delay to allow click/dblclick to be suppressed
+    setTimeout(() => {
+        wasDragged = false;
+        isLongPress = false;
+    }, 0);
+  };
+
+  icon.addEventListener("mousedown", handleDragStart);
+  icon.addEventListener("touchstart", handleDragStart, { passive: true }); // Use passive:true to improve scroll performance initially
+
+  icon.addEventListener("click", function (e) {
+    if (wasDragged || isLongPress) {
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+    // Handle single click for selection
     document
       .querySelectorAll(".desktop-icon .icon img, .desktop-icon .icon-label")
       .forEach((element) => {
@@ -217,7 +441,6 @@ function configureIcon(icon, app, filePath = null) {
         );
       });
 
-    // Add highlight to the clicked icon and icon-label
     const iconImg = this.querySelector(".icon img");
     const iconLabel = this.querySelector(".icon-label");
     if (iconImg) iconImg.classList.add("highlighted-icon");
@@ -228,35 +451,21 @@ function configureIcon(icon, app, filePath = null) {
   });
 
   // Double-click to execute app action
-  icon.addEventListener("dblclick", () => {
-    if (filePath) {
-      // It's a file, launch the app with the file path
-      const appWithFile = { ...app, filePath: filePath };
-      handleAppAction(appWithFile);
-    } else {
-      // It's an app
-      handleAppAction(app);
+  icon.addEventListener("dblclick", (e) => {
+    if (wasDragged || isLongPress) {
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
+    launchApp(app.id, filePath);
   });
-}
-
-function applySavedTheme() {
-    const savedTheme = localStorage.getItem('desktop-theme') || 'default';
-    const themeIds = ['peggys-pastels-theme', 'blue-theme'];
-
-    themeIds.forEach(id => {
-        const stylesheet = document.getElementById(id);
-        if (stylesheet) {
-            // Disable all theme stylesheets except the active one
-            stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
-        }
-    });
 }
 
 // Initialize desktop behavior
 export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
-  applySavedTheme();
+  applyTheme();
+  applyWallpaper();
   setupIcons();
 
   const desktop = document.querySelector('.desktop');

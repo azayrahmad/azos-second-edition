@@ -1,0 +1,35 @@
+/* A 60s USA theme inspired by classic Windows themes. */
+:root {
+  --background-teal: rgb(0, 0, 0);
+  --Scrollbar: rgb(200, 200, 200);
+  --Background: rgb(0, 0, 0);
+  --ActiveTitle: rgb(153, 180, 209);
+  --InactiveTitle: rgb(191, 205, 219);
+  --Menu: rgb(240, 240, 240);
+  --Window: rgb(255, 255, 255);
+  --WindowFrame: rgb(100, 100, 100);
+  --MenuText: rgb(0, 0, 0);
+  --WindowText: rgb(0, 0, 0);
+  --TitleText: rgb(0, 0, 0);
+  --ActiveBorder: rgb(180, 180, 180);
+  --InactiveBorder: rgb(244, 247, 252);
+  --AppWorkspace: rgb(171, 171, 171);
+  --Hilight: rgb(51, 153, 255);
+  --HilightText: rgb(255, 255, 255);
+  --ButtonFace: rgb(240, 240, 240);
+  --ButtonShadow: rgb(160, 160, 160);
+  --GrayText: rgb(128, 128, 128);
+  --ButtonText: rgb(0, 0, 0);
+  --InactiveTitleText: rgb(67, 78, 84);
+  --ButtonHilight: rgb(255, 255, 255);
+  --ButtonDkShadow: rgb(105, 105, 105);
+  --ButtonLight: rgb(227, 227, 227);
+  --InfoText: rgb(0, 0, 0);
+  --InfoWindow: rgb(255, 255, 225);
+  --ButtonAlternateFace: rgb(0, 0, 0);
+  --HotTrackingColor: rgb(0, 102, 204);
+  --GradientActiveTitle: rgb(185, 209, 234);
+  --GradientInactiveTitle: rgb(215, 228, 242);
+  --MenuHilight: rgb(51, 153, 255);
+  --MenuBar: rgb(240, 240, 240);
+}

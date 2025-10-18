@@ -17,7 +17,7 @@ export function launchWebampApp() {
   webampContainer = document.createElement('div');
   webampContainer.id = 'webamp-container';
   webampContainer.style.position = 'absolute';
-  webampContainer.style.zIndex = '1000';
+  webampContainer.style.zIndex = window.Win98System ? window.Win98System.incrementZIndex() : '1000';
   webampContainer.style.left = '50px';
   webampContainer.style.top = '50px';
   document.body.appendChild(webampContainer);
@@ -56,10 +56,16 @@ export function launchWebampApp() {
       // Add focus/blur event listeners to update taskbar button state
       const webampElement = document.getElementById('webamp');
       if (webampElement) {
+        // Set the id for window management
+        webampElement.id = 'webamp';
+
         webampElement.addEventListener('focusin', () => {
-          // Webamp gained focus, update taskbar button
+          // Webamp gained focus, update taskbar button and z-index
           if (webampTaskbarButton && !isMinimized) {
             updateTaskbarButton('webamp-taskbar-button', true, false);
+            if (window.Win98System) {
+              webampElement.style.zIndex = window.Win98System.incrementZIndex();
+            }
           }
         });
 
@@ -71,27 +77,27 @@ export function launchWebampApp() {
         });
       }
     });
-      // Create taskbar button
-  const taskbarButtonId = 'webamp-taskbar-button';
-  webampTaskbarButton = createTaskbarButton(
-    taskbarButtonId,
-    new URL("../../assets/icons/winamp.png", import.meta.url).href,
-    "Winamp"
-  );
+    // Create taskbar button
+    const taskbarButtonId = 'webamp-taskbar-button';
+    webampTaskbarButton = createTaskbarButton(
+      taskbarButtonId,
+      new URL("../../assets/icons/winamp.png", import.meta.url).href,
+      "Winamp"
+    );
 
-  // Override the default click behavior for Webamp taskbar button
-  if (webampTaskbarButton) {
-    webampTaskbarButton.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
+    // Override the default click behavior for Webamp taskbar button
+    if (webampTaskbarButton) {
+      webampTaskbarButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
 
-      if (isMinimized) {
-        showWebamp();
-      } else {
-        minimizeWebamp();
-      }
-    });
-  }
+        if (isMinimized) {
+          showWebamp();
+        } else {
+          minimizeWebamp();
+        }
+      });
+    }
   }).catch((error) => {
     console.error('Failed to load Webamp:', error);
     webampContainer.innerHTML = '<div style="padding: 20px; text-align: center; background: white; border: 1px solid #ccc;">Failed to load Webamp. Please check your internet connection.</div>';
@@ -107,6 +113,11 @@ function showWebamp() {
   webampElement.style.display = 'block';
   webampElement.style.visibility = 'visible';
   isMinimized = false;
+
+  // Bring Webamp to front using the window management system
+  if (window.Win98System) {
+    webampElement.style.zIndex = window.Win98System.incrementZIndex();
+  }
 
   // Update taskbar button to show active state
   if (webampTaskbarButton) {
