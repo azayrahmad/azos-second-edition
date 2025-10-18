@@ -4,9 +4,112 @@ import { aboutContent } from "../apps/about/about.js";
 import { createPdfViewerContent } from "../apps/pdfviewer/pdfviewer.js";
 import { tipOfTheDayContent, setup as tipOfTheDaySetup } from "../apps/tipOfTheDay/tipOfTheDay.js";
 import { notepadContent } from "../apps/notepad/notepad.js";
+import { explorerContent } from "../apps/explorer/Explorer.js";
 import { languages } from "./languages.js";
 
 export const apps = [
+  {
+    id: "explorer",
+    title: "My Computer",
+    icon: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
+    path: "/explorer/",
+    hasTaskbarButton: true,
+    action: {
+      type: "window",
+      window: {
+        width: 640,
+        height: 480,
+        resizable: true,
+        menuBar: (win) => ({
+          File: [
+            {
+              label: "&Close",
+              action: () => win.close(),
+            },
+          ],
+          Edit: [
+            {
+              label: "&Undo",
+              enabled: false,
+            },
+            "MENU_DIVIDER",
+            {
+              label: "Cu&t",
+              enabled: false,
+            },
+            {
+              label: "&Copy",
+              enabled: false,
+            },
+            {
+              label: "&Paste",
+              enabled: false,
+            },
+            "MENU_DIVIDER",
+            {
+              label: "Select &All",
+            },
+          ],
+          View: [
+            {
+              label: "&Toolbar",
+              checkbox: {
+                check: () => true, // placeholder
+                toggle: () => {}, // placeholder
+              },
+            },
+            {
+              label: "&Status Bar",
+              checkbox: {
+                check: () => true, // placeholder
+                toggle: () => {}, // placeholder
+              },
+            },
+            "MENU_DIVIDER",
+            {
+                label: "Lar&ge Icons",
+            },
+            {
+                label: "Sm&all Icons",
+            },
+            {
+                label: "&List",
+            },
+            {
+                label: "&Details",
+            },
+            "MENU_DIVIDER",
+            {
+                label: "Refresh"
+            }
+          ],
+          Go: [
+            {
+                label: "Back"
+            },
+            {
+                label: "Forward"
+            },
+            {
+                label: "Up One Level"
+            }
+          ],
+          Favorites: [
+            {
+                label: "(empty)"
+            }
+          ],
+          Help: [
+            {
+              label: "&About",
+              action: () => alert("Explorer placeholder."),
+            },
+          ],
+        }),
+        content: explorerContent,
+      },
+    },
+  },
   {
     id: "about",
     title: "About",

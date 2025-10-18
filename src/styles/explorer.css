@@ -1,0 +1,41 @@
+.explorer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--button-face);
+  border-top: 1px solid var(--button-shadow);
+}
+
+.explorer-toolbar {
+  display: flex;
+  padding: 2px;
+  border-bottom: 1px solid var(--button-shadow);
+}
+
+.explorer-toolbar button {
+  /* Basic button styling, will be replaced with icon buttons */
+  margin-right: 2px;
+}
+
+.explorer-address-bar {
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-bottom: 1px solid var(--button-shadow);
+}
+
+.explorer-address-bar label {
+  margin-right: 4px;
+  color: var(--button-text-gray);
+}
+
+.explorer-address-bar input {
+  flex-grow: 1;
+}
+
+.explorer-content {
+  flex-grow: 1;
+  background-color: white;
+  border: 1px solid var(--border-light);
+  margin: 2px;
+}
