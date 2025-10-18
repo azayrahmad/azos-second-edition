@@ -4,12 +4,8 @@ import { languages } from '../../config/languages.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 
 export class NotepadApp extends Application {
-    constructor() {
-        super({
-            id: 'notepad',
-            title: 'Notepad',
-            icon: new URL('../../assets/icons/NOTEPAD_1.ico', import.meta.url).href,
-        });
+    constructor(config) {
+        super(config);
     }
 
     _createWindow() {

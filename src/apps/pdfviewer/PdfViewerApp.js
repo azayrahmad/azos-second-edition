@@ -2,12 +2,8 @@ import { Application } from '../Application.js';
 import { createPdfViewerContent } from './pdfviewer.js';
 
 export class PdfViewerApp extends Application {
-    constructor() {
-        super({
-            id: 'pdfviewer',
-            title: 'PDF Viewer',
-            icon: new URL('../../assets/icons/word_001.ico', import.meta.url).href,
-        });
+    constructor(config) {
+        super(config);
     }
 
     _createWindow(filePath) {

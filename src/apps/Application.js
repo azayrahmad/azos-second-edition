@@ -1,6 +1,7 @@
-import { createTaskbarButton } from '../components/taskbar.js';
+import { createTaskbarButton, createTrayIcon } from '../components/taskbar.js';
 
 const openWindows = new Map();
+const openApps = new Map();
 
 export class Application {
     constructor(config) {
@@ -11,34 +12,42 @@ export class Application {
         this.id = config.id;
         this.title = config.title;
         this.icon = config.icon;
-        this.hasTaskbarButton = config.hasTaskbarButton !== false; // Default to true
+        this.hasTaskbarButton = config.hasTaskbarButton !== false;
+        this.hasTray = config.hasTray === true;
+        this.tray = config.tray;
         this.win = null;
     }
 
     launch(filePath = null) {
         const windowId = this._getWindowId(filePath);
 
-        const existingWindow = openWindows.get(windowId);
-        if (existingWindow) {
-            const $win = $(existingWindow.element);
-            if ($win.is(':visible')) {
-                existingWindow.focus();
-            } else {
-                existingWindow.restore();
-                setTimeout(() => existingWindow.focus(), 0);
+        if (openApps.has(this.id)) {
+            const existingApp = openApps.get(this.id);
+            if (existingApp.win) {
+                const $win = $(existingApp.win.element);
+                if ($win.is(':visible')) {
+                    existingApp.win.focus();
+                } else {
+                    existingApp.win.restore();
+                    setTimeout(() => existingApp.win.focus(), 0);
+                }
             }
             return;
         }
 
         this.win = this._createWindow(filePath);
-        if (!this.win) {
-            console.error(`Application ${this.id} failed to create a window.`);
-            return;
+
+        if (this.win) {
+            this._setupWindow(windowId);
+            openWindows.set(windowId, this.win);
         }
 
-        this._setupWindow(windowId);
+        if (this.hasTray) {
+            createTrayIcon(this);
+        }
+
         this._onLaunch(filePath);
-        openWindows.set(windowId, this.win);
+        openApps.set(this.id, this);
     }
 
     _getWindowId(filePath) {
@@ -64,6 +73,8 @@ export class Application {
                 }
             }
             openWindows.delete(windowId);
+            // Also remove from the master app list
+            openApps.delete(this.id);
         });
 
         document.body.appendChild(this.win.element);

@@ -2,13 +2,8 @@ import { Application } from '../Application.js';
 import { aboutContent } from './about.js';
 
 export class AboutApp extends Application {
-    constructor() {
-        super({
-            id: 'about',
-            title: 'About',
-            icon: new URL('../../assets/icons/COMCTL32_20481.ico', import.meta.url).href,
-            hasTaskbarButton: true,
-        });
+    constructor(config) {
+        super(config);
     }
 
     _createWindow() {

@@ -593,6 +593,7 @@ export function createTrayIcon(app) {
   trayIcon.id = `tray-icon-${app.id}`;
   trayIcon.className = "tray-icon";
   trayIcon.title = app.title;
+  trayIcon.setAttribute("data-app-id", app.id);
   trayIcon.innerHTML = `<img src="${app.icon}" alt="${app.title}" loading="lazy">`;
 
   trayIcon.addEventListener("contextmenu", (e) => {
