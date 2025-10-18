@@ -116,7 +116,11 @@ class StartMenu {
              <span>aziz rahmad</span>
            </li>
            <div class="start-menu-divider" role="separator"></div>
-           ${this.generateAppMenuItems()}
+           <li id="programs-menu-item" class="start-menu-item has-submenu" role="menuitem" tabindex="0">
+             <img src="./src/assets/icons/SHELL32_3.ico" alt="Programs" loading="lazy">
+             <span>Programs</span>
+             <div class="submenu-arrow"></div>
+           </li>
            <div class="start-menu-divider" role="separator"></div>
            <li class="logoff-menu-item" role="menuitem" tabindex="0">
              <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
@@ -138,6 +142,7 @@ class StartMenu {
     this.bindSpecialActionEvents();
     this.bindKeyboardEvents();
     this.bindOutsideClickEvents();
+    this.bindProgramsMenu();
   }
 
   /**
@@ -402,6 +407,100 @@ class StartMenu {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  buildProgramsSubmenu() {
+    const programItems = apps
+      .map(
+        (app) => `
+          <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
+              <img src="${app.icon}" alt="${app.title}" loading="lazy">
+              <span>${this.escapeHtml(app.title)}</span>
+          </li>
+      `,
+      )
+      .join("");
+
+    return `
+      <div id="programs-submenu" class="start-menu-submenu">
+        <ul class="start-menu-list">
+          ${programItems}
+        </ul>
+      </div>
+    `;
+  }
+
+  bindProgramsMenu() {
+    const programsItem = document.getElementById("programs-menu-item");
+    if (!programsItem) return;
+
+    let submenu = null;
+    let leaveTimeout;
+
+    const showSubmenu = () => {
+      if (submenu) return;
+      programsItem.classList.add("highlight");
+      submenu = document.createElement("div");
+      submenu.innerHTML = this.buildProgramsSubmenu();
+      submenu = submenu.firstElementChild;
+      document.body.appendChild(submenu);
+
+      const rect = programsItem.getBoundingClientRect();
+      const submenuRect = submenu.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      let top = rect.top;
+      if (top + submenuRect.height > viewportHeight) {
+        top = viewportHeight - submenuRect.height;
+      }
+
+      submenu.style.left = `${rect.right}px`;
+      submenu.style.top = `${top}px`;
+
+      submenu.querySelectorAll(".start-menu-item").forEach((item) => {
+        this.addTrackedEventListener(item, "click", (event) => {
+          const appId = item.getAttribute("data-app-id");
+          const app = apps.find((a) => a.id === appId);
+          if (app) {
+            handleAppAction(app);
+            this.hide();
+            closeSubmenu();
+          }
+        });
+      });
+
+      this.addTrackedEventListener(submenu, "pointerenter", () => {
+        clearTimeout(leaveTimeout);
+      });
+
+      this.addTrackedEventListener(submenu, "pointerleave", () => {
+        closeSubmenu();
+      });
+    };
+
+    const closeSubmenu = () => {
+      if (!submenu) return;
+      programsItem.classList.remove("highlight");
+      submenu.remove();
+      submenu = null;
+    };
+
+    this.addTrackedEventListener(programsItem, "pointerenter", () => {
+      clearTimeout(leaveTimeout);
+      showSubmenu();
+    });
+
+    this.addTrackedEventListener(programsItem, "pointerleave", () => {
+      leaveTimeout = setTimeout(() => {
+        closeSubmenu();
+      }, 300);
+    });
+
+    this.addTrackedEventListener(document, "click", (event) => {
+      if (submenu && !submenu.contains(event.target) && event.target !== programsItem) {
+        closeSubmenu();
+      }
+    });
   }
 }
 
