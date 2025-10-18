@@ -1,4 +1,4 @@
-((exports) => {
+import { $Window } from "./$Window.js";
 
 /**
  * @template {keyof HTMLElementTagNameMap} K
@@ -1189,9 +1189,4 @@ function MenuBar(menus) {
 	this.setKeyboardScope = set_keyboard_scope;
 }
 
-exports.MenuBar = MenuBar;
-exports.AccessKeys = AccessKeys;
-exports.MENU_DIVIDER = MENU_DIVIDER;
-
-// @ts-ignore
-})(typeof module !== "undefined" ? module.exports : window);
+export { MenuBar, AccessKeys, MENU_DIVIDER };

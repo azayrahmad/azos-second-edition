@@ -1,12 +1,12 @@
-import { AboutApp } from '../apps/about/AboutApp.js';
-import { NotepadApp } from '../apps/notepad/NotepadApp.js';
-import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
-import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
-import { ClippyApp } from '../apps/clippy/ClippyApp.js';
-import { WebampApp } from '../apps/webamp/WebampApp.js';
+import { AboutApp } from '../features/apps/about/AboutApp.js';
+import { NotepadApp } from '../features/apps/notepad/NotepadApp.js';
+import { PdfViewerApp } from '../features/apps/pdfviewer/PdfViewerApp.js';
+import { TipOfTheDayApp } from '../features/apps/tipOfTheDay/TipOfTheDayApp.js';
+import { ClippyApp } from '../features/apps/clippy/ClippyApp.js';
+import { WebampApp } from '../features/apps/webamp/WebampApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
-import { getClippyMenuItems } from "../apps/clippy/clippy.js";
-import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { getClippyMenuItems } from "../features/apps/clippy/clippy.js";
+import { getWebampMenuItems } from "../features/apps/webamp/webamp.js";
 import { ICONS } from './icons.js';
 
 export const appClasses = {

@@ -1,11 +1,10 @@
-((exports) => {
-    /**
-     * @typedef {import('./types').OSGUIMenuItem} OSGUIMenuItem
-     */
+/**
+ * @typedef {import('./types').OSGUIMenuItem} OSGUIMenuItem
+ */
 
-    const MENU_DIVIDER = "MENU_DIVIDER";
+const MENU_DIVIDER = "MENU_DIVIDER";
 
-    class MenuList {
+export class MenuList {
         /**
          * @param {OSGUIMenuItem[]} items
          * @param {Object} options
@@ -453,7 +452,4 @@
         }
     }
 
-    exports.MenuList = MenuList;
-    exports.MENU_DIVIDER = MENU_DIVIDER;
-
-})(typeof exports !== 'undefined' ? exports : (window.OS = window.OS || {}));
+    export { MENU_DIVIDER };

@@ -1,4 +1,4 @@
-import { Application } from '../Application.js';
+import { Application } from '../../core/Application.js';
 import { createPdfViewerContent } from './pdfviewer.js';
 
 export class PdfViewerApp extends Application {

@@ -1,4 +1,4 @@
-import { Application } from '../Application.js';
+import { Application } from '../../core/Application.js';
 import { aboutContent } from './about.js';
 
 export class AboutApp extends Application {

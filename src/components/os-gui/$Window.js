@@ -1,8 +1,6 @@
-((exports) => {
+// TODO: E\("([a-z]+)"\) -> "<$1>" or get rid of jQuery as a dependency
 
-	// TODO: E\("([a-z]+)"\) -> "<$1>" or get rid of jQuery as a dependency
-
-	const E = document.createElement.bind(document);
+const E = document.createElement.bind(document);
 
 	/**
 	 * @param {Element | object | null | undefined} element 
@@ -1791,7 +1789,4 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 		return $w;
 	}
 
-	exports.$Window = $Window;
-	exports.$FormWindow = $FormWindow;
-
-})(window);
+export { $Window, $FormWindow };

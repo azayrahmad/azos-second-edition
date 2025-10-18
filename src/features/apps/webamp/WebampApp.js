@@ -1,7 +1,7 @@
-import { Application } from '../Application.js';
-import { launchClippyApp } from './clippy.js';
+import { Application } from '../../core/Application.js';
+import { launchWebampApp } from './webamp.js';
 
-export class ClippyApp extends Application {
+export class WebampApp extends Application {
     constructor(config) {
         super(config);
     }
@@ -13,6 +13,6 @@ export class ClippyApp extends Application {
 
     _onLaunch() {
         // Call the legacy launch function.
-        launchClippyApp();
+        launchWebampApp();
     }
 }

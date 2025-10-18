@@ -5,7 +5,8 @@
 
 // Vite handles these imports automatically and will optimize them
 import { ICONS } from "../config/icons.js";
-import StartMenu from "./StartMenu.js";
+import StartMenu from "../features/start-menu/StartMenu.js";
+import "./taskbar.css";
 import { showClippyContextMenu } from "../apps/clippy/clippy.js";
 
 // Constants for better maintainability

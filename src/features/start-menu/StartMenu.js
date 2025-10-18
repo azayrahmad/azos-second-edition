@@ -4,11 +4,12 @@
  */
 
 // Import icons
-import windowsStartMenuBar from "../assets/img/win98start.png";
-import { ICONS } from "../config/icons.js";
-import { apps } from "../config/apps.js";
-import startMenuApps from "../config/startmenu.json";
-import { launchApp } from "../utils/appManager.js";
+import windowsStartMenuBar from "../../assets/img/win98start.png";
+import { ICONS } from "../../config/icons.js";
+import { apps } from "../../config/apps.js";
+import startMenuApps from "../../config/startmenu.json";
+import { launchApp } from "../../core/appManager.js";
+import "./start-menu.css";
 
 // Constants
 const SELECTORS = {

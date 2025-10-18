@@ -1,4 +1,4 @@
-import { Application } from '../Application.js';
+import { Application } from '../../core/Application.js';
 import './notepad.css';
 import { languages } from '../../config/languages.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';

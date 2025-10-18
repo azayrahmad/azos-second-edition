@@ -1,4 +1,4 @@
-import { Application } from '../Application.js';
+import { Application } from '../../core/Application.js';
 import { tipOfTheDayContent } from './tipOfTheDay.js';
 import { tips } from '../../config/tips.js';
 import { launchApp } from '../../utils/appManager.js';

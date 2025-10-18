@@ -1,12 +1,14 @@
 /**
  * Win98DesktopManager - Handles desktop icons and desktop interactions
  */
-import { init } from "./taskbar.js";
-import { apps } from "../config/apps.js";
-import desktopApps from "../config/desktop.json";
-import { launchApp } from "../utils/appManager.js";
-import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
-import { ICONS } from "../config/icons.js";
+import { init } from "../../components/taskbar.js";
+import { apps } from "../../config/apps.js";
+import desktopApps from "./desktop.json";
+import { launchApp } from "../../core/appManager.js";
+import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../../core/themeManager.js";
+import { ICONS } from "../../config/icons.js";
+import { MenuList, MENU_DIVIDER } from "../../components/os-gui/MenuList.js";
+import "./desktop.css";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -93,7 +95,7 @@ function showIconContextMenu(event, app) {
   const existingMenus = document.querySelectorAll(".menu-popup");
   existingMenus.forEach((menu) => menu.remove());
 
-  const menu = new OS.MenuList(menuItems);
+  const menu = new MenuList(menuItems);
   document.body.appendChild(menu.element);
 
   menu.element.style.position = "absolute";
@@ -164,7 +166,7 @@ function showDesktopContextMenu(event) {
         setupIcons();
       },
     },
-    'MENU_DIVIDER',
+    MENU_DIVIDER,
     {
       label: 'Wallpaper',
       submenu: [
@@ -203,7 +205,7 @@ function showDesktopContextMenu(event) {
   const existingMenus = document.querySelectorAll('.menu-popup');
   existingMenus.forEach(menu => menu.remove());
 
-  const menu = new OS.MenuList(menuItems);
+  const menu = new MenuList(menuItems);
   document.body.appendChild(menu.element);
 
   menu.show(event.clientX, event.clientY);

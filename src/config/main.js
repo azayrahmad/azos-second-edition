@@ -1,8 +1,10 @@
-import './style.css'
-import { setupCounter } from './counter.js'
-import { initDesktop } from './components/desktop.js'
-import { taskbar } from './components/taskbar.js'
-import { ShowDialogWindow } from './components/DialogWindow.js'
+import { setupCounter } from '../counter.js';
+import { initDesktop } from '../features/desktop/desktop.js';
+import '../style.css';
+import '../features/desktop/desktop.css';
+import '../components/os-gui/os-gui.css';
+import { taskbar } from '../components/taskbar.js'
+import { ShowDialogWindow } from '../components/DialogWindow.js'
 
 // Window Management System
 class WindowManagerSystem {
