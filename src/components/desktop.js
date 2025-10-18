@@ -283,26 +283,28 @@ function configureIcon(icon, app, filePath = null) {
   let isDragging = false;
   let wasDragged = false;
   let dragStartX, dragStartY;
-  let clickTimeout = null;
+  let offsetX, offsetY;
 
   const iconId = icon.getAttribute("data-icon-id");
 
-  icon.addEventListener("mousedown", (e) => {
-    // Left-click only
-    if (e.button !== 0) return;
+  const handleDragStart = (e) => {
+    // For mouse events, only respond to left-click
+    if (e.type === 'mousedown' && e.button !== 0) return;
 
     e.preventDefault();
 
     isDragging = true;
     wasDragged = false;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
+
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+    dragStartX = clientX;
+    dragStartY = clientY;
 
     const desktop = icon.parentElement;
     const desktopRect = desktop.getBoundingClientRect();
 
-    // If we're starting a drag and icons are in grid mode,
-    // we need to 'freeze' their current positions.
     if (!desktop.classList.contains('has-absolute-icons')) {
       const allIcons = Array.from(desktop.querySelectorAll('.desktop-icon'));
       const initialPositions = allIcons.map(i => ({
@@ -310,85 +312,83 @@ function configureIcon(icon, app, filePath = null) {
         id: i.getAttribute('data-icon-id'),
         rect: i.getBoundingClientRect()
       }));
-
       const iconPositions = {};
-
       initialPositions.forEach(({ icon: i, id, rect }) => {
         const x = `${rect.left - desktopRect.left}px`;
         const y = `${rect.top - desktopRect.top}px`;
-
         i.style.position = 'absolute';
         i.style.left = x;
         i.style.top = y;
-
         iconPositions[id] = { x, y };
       });
-
       localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
       desktop.classList.add('has-absolute-icons');
     }
 
+    const iconRect = icon.getBoundingClientRect();
+    offsetX = clientX - iconRect.left;
+    offsetY = clientY - iconRect.top;
 
+    if (e.type === 'mousedown') {
+      document.addEventListener("mousemove", handleDragMove);
+      document.addEventListener("mouseup", handleDragEnd);
+    } else if (e.type === 'touchstart') {
+      document.addEventListener("touchmove", handleDragMove, { passive: false });
+      document.addEventListener("touchend", handleDragEnd);
+    }
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+
+    // Prevent scrolling on touch devices
+    if (e.type === 'touchmove') {
+      e.preventDefault();
+    }
+
+    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    if (!wasDragged && Math.abs(clientX - dragStartX) < 5 && Math.abs(clientY - dragStartY) < 5) {
+      return;
+    }
+    wasDragged = true;
+    window.getSelection().removeAllRanges();
+
+    const desktop = icon.parentElement;
+    const desktopRect = desktop.getBoundingClientRect();
     const iconRect = icon.getBoundingClientRect();
 
-    const offsetX = e.clientX - iconRect.left;
-    const offsetY = e.clientY - iconRect.top;
+    let newX = clientX - desktopRect.left - offsetX;
+    let newY = clientY - desktopRect.top - offsetY;
 
-    const onMouseMove = (moveEvent) => {
-      // Check if the mouse has moved a significant distance to be considered a drag
-      if (
-        !wasDragged &&
-        Math.abs(moveEvent.clientX - dragStartX) < 5 &&
-        Math.abs(moveEvent.clientY - dragStartY) < 5
-      ) {
-        return; // Not a drag yet
-      }
-      wasDragged = true;
+    newX = Math.max(0, Math.min(newX, desktopRect.width - iconRect.width));
+    newY = Math.max(0, Math.min(newY, desktopRect.height - iconRect.height));
 
-      // Now we're dragging
-      if (isDragging) {
-        // Clear selection to avoid text selection issues
-        window.getSelection().removeAllRanges();
+    icon.style.left = `${newX}px`;
+    icon.style.top = `${newY}px`;
+  };
 
-        let newX = moveEvent.clientX - desktopRect.left - offsetX;
-        let newY = moveEvent.clientY - desktopRect.top - offsetY;
+  const handleDragEnd = () => {
+    isDragging = false;
 
-        // Constrain to desktop boundaries
-        newX = Math.max(
-          0,
-          Math.min(newX, desktopRect.width - iconRect.width)
-        );
-        newY = Math.max(
-          0,
-          Math.min(newY, desktopRect.height - iconRect.height)
-        );
+    if (wasDragged) {
+      const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
+      iconPositions[iconId] = {
+        x: icon.style.left,
+        y: icon.style.top,
+      };
+      localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
+    }
 
-        icon.style.position = "absolute";
-        icon.style.left = `${newX}px`;
-        icon.style.top = `${newY}px`;
-      }
-    };
+    document.removeEventListener("mousemove", handleDragMove);
+    document.removeEventListener("mouseup", handleDragEnd);
+    document.removeEventListener("touchmove", handleDragMove);
+    document.removeEventListener("touchend", handleDragEnd);
+  };
 
-    const onMouseUp = () => {
-      isDragging = false;
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-
-      if (wasDragged) {
-        // Save position if dragged
-        const iconPositions =
-          JSON.parse(localStorage.getItem("iconPositions")) || {};
-        iconPositions[iconId] = {
-          x: icon.style.left,
-          y: icon.style.top,
-        };
-        localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
-      }
-    };
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-  });
+  icon.addEventListener("mousedown", handleDragStart);
+  icon.addEventListener("touchstart", handleDragStart, { passive: false });
 
   icon.addEventListener("click", function (e) {
     if (wasDragged) {
