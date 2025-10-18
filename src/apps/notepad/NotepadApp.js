@@ -14,6 +14,7 @@ export class NotepadApp extends Application {
             outerWidth: this.width,
             outerHeight: this.height,
             resizable: this.resizable,
+            icons: this.icon,
         });
 
         const menuBar = this._createMenuBar();

@@ -90,7 +90,7 @@ export const apps = [
           title: "Alert",
           text: "The alert works.",
           soundId: "chord",
-          contentIconUrl: ICONS.about,
+          contentIconUrl: ICONS.about[32],
           buttons: [{ label: 'OK', isDefault: true }],
         });
       },

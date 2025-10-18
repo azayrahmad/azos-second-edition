@@ -94,7 +94,7 @@ class StartMenu {
       .map(
         (app) => `
           <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
-              <img src="${app.icon}" alt="${app.title}" loading="lazy">
+              <img src="${app.icon[16]}" alt="${app.title}" loading="lazy">
               <span>${app.title}</span>
           </li>
       `,
@@ -112,18 +112,18 @@ class StartMenu {
          </div>
          <ul class="start-menu-list">
            <li role="menuitem" tabindex="0" data-action="home">
-             <img src="${ICONS.computer}" alt="Computer" loading="lazy">
+             <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
              <span>aziz rahmad</span>
            </li>
            <div class="start-menu-divider" role="separator"></div>
            ${this.generateAppMenuItems()}
            <div class="start-menu-divider" role="separator"></div>
            <li class="logoff-menu-item" role="menuitem" tabindex="0">
-             <img src="${ICONS.key}" alt="Log off" loading="lazy">
+             <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
              <span id="logofftext">Log Off Guest...</span>
            </li>
            <li role="menuitem" tabindex="0" data-action="shutdown">
-             <img src="${ICONS.shutdown}" alt="Shutdown" loading="lazy">
+             <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
              <span>Shut Down...</span>
            </li>
          </ul>
