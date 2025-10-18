@@ -17,25 +17,6 @@
   ); /* Ensures the taskbar isn’t obscured on mobile */
 }
 
-.taskbar-divider {
-  width: 1px;
-  height: 24px;
-  background-color: var(--ButtonShadow, grey);
-  border-right: var(--ButtonHilight, white) 1px solid;
-  margin: 0 0 0 2px;
-}
-
-.taskbar-divider-handler {
-  width: 1px;
-  height: 16px;
-  background-color: var(--ButtonFace, #c0c0c0);
-  border-top: var(--ButtonHilight, white) 1px solid;
-  border-left: var(--ButtonHilight, white) 1px solid;
-  border-right: var(--ButtonShadow, #808080) 1px solid;
-  border-bottom: var(--ButtonShadow, #808080) 1px solid;
-  padding-left: 0;
-  margin: 2px;
-}
 
 .start-button,
 .title-bar-text {
@@ -51,21 +32,22 @@
   padding-right: 2px;
 }
 
-.taskbar-icon-area {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  width: auto;
-  justify-content: flex-start;
+.taskbar-main-bar {
+    flex-grow: 1;
+    height: 100%;
 }
 
+.taskbar-icon-area,
 .taskbar-app-area {
   display: flex;
   flex-wrap: nowrap;
   overflow: hidden;
-  width: auto;
+  height: 100%;
+  align-items: center;
+}
+
+.taskbar-app-area {
   flex-grow: 1;
-  justify-content: flex-start;
 }
 
 .taskbar-button {

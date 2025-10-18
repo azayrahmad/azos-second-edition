@@ -1,0 +1,85 @@
+/*
+ * Styles for the generic Bar component
+ */
+
+.bar {
+  display: flex;
+  background-color: var(--ButtonFace, #c0c0c0);
+  width: 100%;
+  height: 100%;
+}
+
+.bar.horizontal {
+  flex-direction: row;
+  align-items: center;
+}
+
+.bar.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Bar Items */
+.bar > * {
+  flex-shrink: 0; /* Prevent items from shrinking by default */
+}
+
+.bar > .bar {
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
+/* Dividers */
+.bar-divider {
+  background-color: var(--ButtonShadow, grey);
+  border-right: 1px solid var(--ButtonHilight, white);
+}
+
+.bar.horizontal .bar-divider {
+  width: 2px;
+  height: 100%;
+  margin: 0 2px;
+}
+
+.bar.vertical .bar-divider {
+  height: 2px;
+  width: 100%;
+  margin: 2px 0;
+}
+
+.bar-divider.resizable {
+  cursor: ew-resize; /* For horizontal bars */
+}
+
+.bar.vertical .bar-divider.resizable {
+  cursor: ns-resize;
+}
+
+
+/* Drag Handles */
+.bar-drag-handle {
+  width: 4px;
+  height: 100%;
+  cursor: grab;
+  background-color: var(--ButtonFace, #c0c0c0);
+  border: 1px solid var(--ButtonShadow, grey);
+  border-style: dotted;
+  margin-right: 2px;
+}
+
+.bar-drag-handle:active {
+    cursor: grabbing;
+}
+
+.bar-item-placeholder {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px dashed #999;
+  flex-shrink: 0;
+}
+
+.bar .dragging {
+  opacity: 0.5;
+  position: absolute;
+  pointer-events: none; /* So it doesn't interfere with drop targets */
+  z-index: 1000;
+}

@@ -8,6 +8,7 @@ import windowsStartLogo from "../assets/icons/windows-4.png";
 import showDesktopIcon from "../assets/icons/desktop_old-4.png";
 import volumeIcon from "../assets/icons/SYSTRAY_220.ico";
 import StartMenu from "./StartMenu.js";
+import Bar from "./Bar.js";
 import { showClippyContextMenu } from "../apps/clippy/clippy.js";
 
 // Constants for better maintainability
@@ -102,58 +103,79 @@ class Taskbar {
    * Render the taskbar HTML structure
    */
   renderTaskbar() {
-    const taskbar = document.querySelector(SELECTORS.TASKBAR);
-    if (!taskbar) {
+    const taskbarElement = document.querySelector(SELECTORS.TASKBAR);
+    if (!taskbarElement) {
       throw new Error("Taskbar element not found");
     }
+    taskbarElement.innerHTML = ''; // Clear existing content
 
-    taskbar.innerHTML = this.getTaskbarHTML();
-  }
+    // Create Start Button
+    const startButton = document.createElement('button');
+    startButton.className = 'start-button toggle';
+    startButton.innerHTML = `
+      <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy">
+      <span class="start-button-text">Start</span>
+    `;
+    taskbarElement.appendChild(startButton);
 
-  /**
-   * Generate taskbar HTML template
-   */
-  getTaskbarHTML() {
-    return `
-      <button class="start-button toggle">
-        <img src="${windowsStartLogo}" alt="Windows Logo" loading="lazy"> 
-        <span class="start-button-text">Start</span>
-      </button>
-      <div class="start-menu-wrapper">
-        <!-- StartMenu content will be rendered here -->
-      </div>
-      <div class="taskbar-divider"></div>
-      <div class="taskbar-divider-handler"></div>
-      <div class="taskbar-icon-area">
-        <button class="taskbar-icon lightweight show-desktop" title="Show Desktop" aria-label="Show Desktop">
-          <img src="${showDesktopIcon}" alt="Show Desktop" loading="lazy">
-        </button>
-        <button class="taskbar-icon lightweight"
-                title="LinkedIn Profile"
-                aria-label="Open LinkedIn Profile"
-                data-url="https://www.linkedin.com/in/aziz-rahmad">
-          <img src="https://www.google.com/s2/favicons?domain=linkedin.com"
-               alt="LinkedIn" loading="lazy">
-        </button>
-        <button class="taskbar-icon lightweight"
-                title="GitHub Profile"
-                aria-label="Open GitHub Profile"
-                data-url="https://www.github.com/azayrahmad">
-          <img src="https://www.google.com/s2/favicons?domain=github.com"
-               alt="GitHub" loading="lazy">
-        </button>
-      </div>
-      <div class="taskbar-divider"></div>
-      <div class="taskbar-divider-handler"></div>
-      <div class="taskbar-app-area" role="group" aria-label="Application buttons">
-      </div>
-      <div class="taskbar-divider"></div>
-      <div class="system-tray" role="group" aria-label="System tray">
+    // Create Start Menu Wrapper
+    const startMenuWrapper = document.createElement('div');
+    startMenuWrapper.className = 'start-menu-wrapper';
+    taskbarElement.appendChild(startMenuWrapper);
+
+    // Main bar for draggable areas
+    const mainBar = new Bar(taskbarElement, { className: 'taskbar-main-bar' });
+
+    // Icon Area
+    const iconBar = new Bar(mainBar.element, { className: 'taskbar-icon-area' });
+    this.addIconButtons(iconBar.element);
+    mainBar.addItem(iconBar, { draggable: true, resizable: true });
+
+    // App Area
+    const appAreaBar = new Bar(mainBar.element, { className: 'taskbar-app-area' });
+    mainBar.addItem(appAreaBar, { draggable: true, resizable: true });
+
+    // System Tray
+    const systemTray = document.createElement('div');
+    systemTray.className = 'system-tray';
+    systemTray.setAttribute('role', 'group');
+    systemTray.setAttribute('aria-label', 'System tray');
+    systemTray.innerHTML = `
         <img src="${volumeIcon}" alt="Volume" loading="lazy">
         <div class="taskbar-clock" title="" role="timer" aria-live="polite">
           <span id="clock" aria-label="Current time"></span>
         </div>
-      </div>`;
+    `;
+    taskbarElement.appendChild(systemTray);
+  }
+
+  /**
+   * Adds the initial static icon buttons to the icon bar.
+   * @param {HTMLElement} iconBarElement - The element of the icon bar.
+   */
+  addIconButtons(iconBarElement) {
+    const showDesktopButton = document.createElement('button');
+    showDesktopButton.className = 'taskbar-icon lightweight show-desktop';
+    showDesktopButton.title = 'Show Desktop';
+    showDesktopButton.setAttribute('aria-label', 'Show Desktop');
+    showDesktopButton.innerHTML = `<img src="${showDesktopIcon}" alt="Show Desktop" loading="lazy">`;
+    iconBarElement.appendChild(showDesktopButton);
+
+    const linkedInButton = document.createElement('button');
+    linkedInButton.className = 'taskbar-icon lightweight';
+    linkedInButton.title = 'LinkedIn Profile';
+    linkedInButton.setAttribute('aria-label', 'Open LinkedIn Profile');
+    linkedInButton.dataset.url = 'https://www.linkedin.com/in/aziz-rahmad';
+    linkedInButton.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=linkedin.com" alt="LinkedIn" loading="lazy">`;
+    iconBarElement.appendChild(linkedInButton);
+
+    const githubButton = document.createElement('button');
+    githubButton.className = 'taskbar-icon lightweight';
+    githubButton.title = 'GitHub Profile';
+    githubButton.setAttribute('aria-label', 'Open GitHub Profile');
+    githubButton.dataset.url = 'https://www.github.com/azayrahmad';
+    githubButton.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=github.com" alt="GitHub" loading="lazy">`;
+    iconBarElement.appendChild(githubButton);
   }
 
   /**
