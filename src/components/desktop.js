@@ -284,6 +284,8 @@ function configureIcon(icon, app, filePath = null) {
   let wasDragged = false;
   let dragStartX, dragStartY;
   let offsetX, offsetY;
+  let longPressTimer;
+  let isLongPress = false;
 
   const iconId = icon.getAttribute("data-icon-id");
 
@@ -291,16 +293,36 @@ function configureIcon(icon, app, filePath = null) {
     // For mouse events, only respond to left-click
     if (e.type === 'mousedown' && e.button !== 0) return;
 
-    e.preventDefault();
+    // We prevent default on mousedown to stop text selection, but not on touchstart
+    // to allow the browser to generate click/dblclick events.
+    if (e.type === 'mousedown') {
+      e.preventDefault();
+    }
 
     isDragging = true;
     wasDragged = false;
+    isLongPress = false;
 
     const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
 
     dragStartX = clientX;
     dragStartY = clientY;
+
+    // Long press detection for touch
+    if (e.type === 'touchstart') {
+      longPressTimer = setTimeout(() => {
+        isLongPress = true;
+        // Find the touch point to position the context menu
+        const touch = e.touches[0];
+        const mockEvent = {
+          pageX: touch.pageX,
+          pageY: touch.pageY,
+          preventDefault: () => e.preventDefault(),
+        };
+        showIconContextMenu(mockEvent, app);
+      }, 500); // 500ms for a long press
+    }
 
     const desktop = icon.parentElement;
     const desktopRect = desktop.getBoundingClientRect();
@@ -341,19 +363,23 @@ function configureIcon(icon, app, filePath = null) {
   const handleDragMove = (e) => {
     if (!isDragging) return;
 
-    // Prevent scrolling on touch devices
-    if (e.type === 'touchmove') {
-      e.preventDefault();
-    }
-
     const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
     const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
 
-    if (!wasDragged && Math.abs(clientX - dragStartX) < 5 && Math.abs(clientY - dragStartY) < 5) {
-      return;
+    if (Math.abs(clientX - dragStartX) > 5 || Math.abs(clientY - dragStartY) > 5) {
+      clearTimeout(longPressTimer); // Moved too far, not a long press
+      if (!wasDragged) {
+        wasDragged = true;
+        window.getSelection().removeAllRanges();
+      }
     }
-    wasDragged = true;
-    window.getSelection().removeAllRanges();
+
+    if (!wasDragged) return;
+
+    // Prevent scrolling on touch devices ONLY when dragging
+    if (e.type === 'touchmove') {
+      e.preventDefault();
+    }
 
     const desktop = icon.parentElement;
     const desktopRect = desktop.getBoundingClientRect();
@@ -370,6 +396,7 @@ function configureIcon(icon, app, filePath = null) {
   };
 
   const handleDragEnd = () => {
+    clearTimeout(longPressTimer); // Always clear timer on end
     isDragging = false;
 
     if (wasDragged) {
@@ -385,14 +412,21 @@ function configureIcon(icon, app, filePath = null) {
     document.removeEventListener("mouseup", handleDragEnd);
     document.removeEventListener("touchmove", handleDragMove);
     document.removeEventListener("touchend", handleDragEnd);
+
+    // Reset wasDragged after a short delay to allow click/dblclick to be suppressed
+    setTimeout(() => {
+        wasDragged = false;
+        isLongPress = false;
+    }, 0);
   };
 
   icon.addEventListener("mousedown", handleDragStart);
-  icon.addEventListener("touchstart", handleDragStart, { passive: false });
+  icon.addEventListener("touchstart", handleDragStart, { passive: true }); // Use passive:true to improve scroll performance initially
 
   icon.addEventListener("click", function (e) {
-    if (wasDragged) {
-      e.stopPropagation(); // Stop click from propagating if it was a drag
+    if (wasDragged || isLongPress) {
+      e.stopPropagation();
+      e.preventDefault();
       return;
     }
     // Handle single click for selection
@@ -416,9 +450,11 @@ function configureIcon(icon, app, filePath = null) {
   });
 
   // Double-click to execute app action
-  icon.addEventListener("dblclick", () => {
-    if (wasDragged) {
-      return; // Don't launch app if the icon was dragged
+  icon.addEventListener("dblclick", (e) => {
+    if (wasDragged || isLongPress) {
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
     if (filePath) {
       const appWithFile = { ...app, filePath: filePath };
