@@ -11,7 +11,7 @@ import keyIcon from "../assets/icons/key_win-4.png";
 import shutdownIcon from "../assets/icons/shut_down_normal-0.png";
 import { apps } from "../config/apps.js";
 import startMenuApps from "../config/startmenu.json";
-import { handleAppAction } from "../utils/appManager.js";
+import { launchApp } from "../utils/appManager.js";
 
 // Constants
 const SELECTORS = {
@@ -152,9 +152,8 @@ class StartMenu {
     startMenuItems.forEach((item) => {
       this.addTrackedEventListener(item, "click", (event) => {
         const appId = item.getAttribute("data-app-id");
-        const app = apps.find((a) => a.id === appId);
-        if (app) {
-          handleAppAction(app);
+        if (appId) {
+          launchApp(appId);
           this.hide();
         }
       });

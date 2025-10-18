@@ -4,7 +4,7 @@
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
-import { handleAppAction } from "../utils/appManager.js";
+import { launchApp } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
 
 function getIconId(app, filePath = null) {
@@ -65,7 +65,7 @@ function showIconContextMenu(event, app) {
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
           case "open":
-            newItem.click = () => handleAppAction(app);
+            newItem.click = () => launchApp(app.id);
             break;
           case "properties":
             newItem.click = () => showProperties(app);
@@ -456,12 +456,7 @@ function configureIcon(icon, app, filePath = null) {
       e.preventDefault();
       return;
     }
-    if (filePath) {
-      const appWithFile = { ...app, filePath: filePath };
-      handleAppAction(appWithFile);
-    } else {
-      handleAppAction(app);
-    }
+    launchApp(app.id, filePath);
   });
 }
 
