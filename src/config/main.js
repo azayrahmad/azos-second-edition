@@ -1,6 +1,8 @@
 import { setupCounter } from '../counter.js';
 import { initDesktop } from '../features/desktop/desktop.js';
 import '../style.css';
+import '../98.css';
+import '../scanlines-css.css';
 import '../features/desktop/desktop.css';
 import '../components/os-gui/os-gui.css';
 import { taskbar } from '../components/taskbar.js'

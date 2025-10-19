@@ -1,5 +1,5 @@
 // Webamp integration for the desktop environment
-import { createTaskbarButton, removeTaskbarButton, updateTaskbarButton } from '../../components/taskbar.js';
+import { createTaskbarButton, removeTaskbarButton, updateTaskbarButton } from '../../../components/taskbar.js';
 
 let webampInstance = null;
 let webampContainer = null;
