@@ -163,7 +163,7 @@ export function showClippyContextMenu(event) {
   existingMenus.forEach((menu) => menu.remove());
 
   const menuItems = getClippyMenuItems();
-  const menu = new OS.MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
+  const menu = new MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
   document.body.appendChild(menu.element);
 
   // Set z-index if Win98System is available
