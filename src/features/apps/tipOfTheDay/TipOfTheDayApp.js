@@ -1,7 +1,9 @@
 import { Application } from '../../core/Application.js';
 import { tipOfTheDayContent } from './tipOfTheDay.js';
 import { tips } from '../../config/tips.js';
-import { launchApp } from '../../utils/appManager.js';
+import { launchApp } from '../../core/appManager.js';
+import { $Window } from '../../components/os-gui/$Window.js';
+import { AccessKeys } from '../../components/os-gui/MenuBar.js';
 
 export class TipOfTheDayApp extends Application {
     constructor(config) {
@@ -33,11 +35,11 @@ export class TipOfTheDayApp extends Application {
 
         if (nextTipButton) {
             nextTipButton.innerHTML = '';
-            nextTipButton.appendChild(window.AccessKeys.toFragment('&Next Tip'));
+            nextTipButton.appendChild(AccessKeys.toFragment('&Next Tip'));
         }
         if (closeButton) {
             closeButton.innerHTML = '';
-            closeButton.appendChild(window.AccessKeys.toFragment('&Close'));
+            closeButton.appendChild(AccessKeys.toFragment('&Close'));
             closeButton.addEventListener('click', () => this.win.close());
         }
 

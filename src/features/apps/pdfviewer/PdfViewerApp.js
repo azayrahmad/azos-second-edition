@@ -1,5 +1,7 @@
 import { Application } from '../../core/Application.js';
 import { createPdfViewerContent } from './pdfviewer.js';
+import { $Window } from '../../components/os-gui/$Window.js';
+import { MenuBar } from '../../components/os-gui/MenuBar.js';
 
 export class PdfViewerApp extends Application {
     constructor(config) {

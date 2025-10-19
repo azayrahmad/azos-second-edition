@@ -2,6 +2,8 @@ import { Application } from '../../core/Application.js';
 import './notepad.css';
 import { languages } from '../../config/languages.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
+import { $Window } from '../../components/os-gui/$Window.js';
+import { MenuBar, MENU_DIVIDER } from '../../components/os-gui/MenuBar.js';
 
 export class NotepadApp extends Application {
     constructor(config) {
@@ -46,7 +48,7 @@ export class NotepadApp extends Application {
                     label: "Save &As...",
                     action: () => this.saveAs(),
                 },
-                "MENU_DIVIDER",
+                MENU_DIVIDER,
                 {
                     label: "E&xit",
                     action: () => this.win.close(),
@@ -58,7 +60,7 @@ export class NotepadApp extends Application {
                     shortcutLabel: "Ctrl+Z",
                     action: () => document.execCommand("undo"),
                 },
-                "MENU_DIVIDER",
+                MENU_DIVIDER,
                 {
                     label: "Cu&t",
                     shortcutLabel: "Ctrl+X",
@@ -79,13 +81,13 @@ export class NotepadApp extends Application {
                     shortcutLabel: "Del",
                     action: () => document.execCommand("delete"),
                 },
-                "MENU_DIVIDER",
+                MENU_DIVIDER,
                 {
                     label: "Select &All",
                     shortcutLabel: "Ctrl+A",
                     action: () => this.codeInput?.select(),
                 },
-                "MENU_DIVIDER",
+                MENU_DIVIDER,
                 {
                     label: "&Word Wrap",
                     checkbox: {

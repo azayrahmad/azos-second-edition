@@ -7,7 +7,7 @@
 import { ICONS } from "../config/icons.js";
 import StartMenu from "../features/start-menu/StartMenu.js";
 import "./taskbar.css";
-import { showClippyContextMenu } from "../apps/clippy/clippy.js";
+import { showClippyContextMenu } from "../features/apps/clippy/clippy.js";
 
 // Constants for better maintainability
 const SELECTORS = {

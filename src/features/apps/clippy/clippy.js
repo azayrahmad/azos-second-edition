@@ -1,3 +1,5 @@
+import { MenuList, MENU_DIVIDER } from '../../../components/os-gui/MenuList.js';
+
 let currentAgentName = localStorage.getItem("clippyAgentName") || "Clippy";
 let inputBalloonTimeout = null;
 
@@ -110,7 +112,7 @@ export function getClippyMenuItems() {
         );
       },
     },
-    "MENU_DIVIDER",
+    MENU_DIVIDER,
     {
       label: "A&gent",
       submenu: [
@@ -163,7 +165,7 @@ export function showClippyContextMenu(event) {
   existingMenus.forEach((menu) => menu.remove());
 
   const menuItems = getClippyMenuItems();
-  const menu = new OS.MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
+  const menu = new MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
   document.body.appendChild(menu.element);
 
   // Set z-index if Win98System is available
