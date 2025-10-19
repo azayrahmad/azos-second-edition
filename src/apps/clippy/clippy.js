@@ -32,21 +32,10 @@ function showClippyInputBalloon() {
 
   input.focus();
 
-  // Reposition balloon if it's out of viewport
-  const balloonEl = balloon.get(0);
-  const rect = balloonEl.getBoundingClientRect();
-  if (rect.bottom > window.innerHeight) {
-    balloonEl.style.top = `${window.innerHeight - rect.height - 10}px`;
-  }
-  if (rect.right > window.innerWidth) {
-    balloonEl.style.left = `${window.innerWidth - rect.width - 10}px`;
-  }
-  if (rect.top < 0) {
-    balloonEl.style.top = '10px';
-  }
-  if (rect.left < 0) {
-    balloonEl.style.left = '10px';
-  }
+  // Reposition balloon after a delay to allow for rendering
+  setTimeout(() => {
+    agent._balloon.reposition();
+  }, 0);
 
   const resetBalloonTimeout = () => {
     if (inputBalloonTimeout) {
