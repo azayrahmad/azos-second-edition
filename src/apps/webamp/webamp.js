@@ -1,12 +1,14 @@
 // Webamp integration for the desktop environment
 import { createTaskbarButton, removeTaskbarButton, updateTaskbarButton } from '../../components/taskbar.js';
+import { ICONS } from '../../config/icons.js';
+import { launchApp } from '../../utils/appManager.js';
 
 let webampInstance = null;
 let webampContainer = null;
 let webampTaskbarButton = null;
 let isMinimized = false;
 
-export function launchWebampApp() {
+export function launchWebampApp(app) {
   // If Webamp is already running, show it
   if (webampInstance) {
     showWebamp();
@@ -46,7 +48,7 @@ export function launchWebampApp() {
     });
 
     webampInstance.onClose(() => {
-      closeWebamp();
+      app.close();
     });
 
     webampInstance.renderWhenReady(webampContainer).then(() => {
@@ -81,7 +83,7 @@ export function launchWebampApp() {
     const taskbarButtonId = 'webamp-taskbar-button';
     webampTaskbarButton = createTaskbarButton(
       taskbarButtonId,
-      new URL("../../assets/icons/winamp.png", import.meta.url).href,
+      ICONS.webamp,
       "Winamp"
     );
 
@@ -140,7 +142,7 @@ function minimizeWebamp() {
   }
 }
 
-function closeWebamp() {
+export function closeWebamp() {
   if (webampContainer) {
     webampContainer.remove();
     webampContainer = null;
@@ -159,12 +161,12 @@ function closeWebamp() {
   isMinimized = false;
 }
 
-export function getWebampMenuItems() {
+export function getWebampMenuItems(app) {
   if (!webampInstance) {
     return [
       { label: "Webamp not running", enabled: false },
       "MENU_DIVIDER",
-      { label: "&Launch Webamp", click: () => launchWebampApp() }
+      { label: "&Launch Webamp", click: () => launchApp('webamp') }
     ];
   }
 
@@ -204,7 +206,7 @@ export function getWebampMenuItems() {
     "MENU_DIVIDER",
     {
       label: "&Close Webamp",
-      click: () => closeWebamp(),
+      click: () => app.close(),
     },
   ];
 }

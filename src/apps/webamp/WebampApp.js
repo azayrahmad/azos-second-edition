@@ -1,9 +1,10 @@
-import { Application } from '../Application.js';
-import { launchWebampApp } from './webamp.js';
+import { Application, openApps } from '../Application.js';
+import { closeWebamp, launchWebampApp } from './webamp.js';
 
 export class WebampApp extends Application {
     constructor(config) {
         super(config);
+        this.isClosing = false;
     }
 
     _createWindow() {
@@ -13,6 +14,14 @@ export class WebampApp extends Application {
 
     _onLaunch() {
         // Call the legacy launch function.
-        launchWebampApp();
+        launchWebampApp(this);
+    }
+
+    close() {
+        if (this.isClosing) return;
+        this.isClosing = true;
+
+        closeWebamp();
+        openApps.delete(this.id);
     }
 }
