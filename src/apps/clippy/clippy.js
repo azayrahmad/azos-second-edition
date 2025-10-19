@@ -302,7 +302,7 @@ export function launchClippyApp(app, agentName = currentAgentName) {
 
     agent.speakAndAnimate(
       "Hey, there. Want quick answers to your questions? Just click me.",
-      "Greeting",
+      "Explain",
       { useTTS: ttsEnabled }
     );
 
