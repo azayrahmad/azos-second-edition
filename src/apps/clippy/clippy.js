@@ -16,7 +16,7 @@ function showClippyInputBalloon() {
     <div class="clippy-input" style="display: flex; flex-direction: column; align-items: center; padding: 5px;">
       <b style="align-self: flex-start; margin-bottom: 5px;">What would you like to do?</b>
       <textarea rows="2" placeholder="Ask me anything..." style="width: 100%; margin-bottom: 10px; background-color: white; border: 1px solid black; box-shadow: none; resize: none; font-family: inherit; font-size: inherit;"></textarea>
-      <div style="display: flex; justify-content: flex-end; width: 100%;">
+      <div style="display: flex; justify-content: space-evenly; width: 100%;">
         <button class="ask-button default" style="margin-right: 5px; background-color: transparent; border: 1px solid black; border-radius: 4px; width: 70px">Ask</button>
         <button class="cancel-button" style="background-color: transparent; border: 1px solid black; border-radius: 4px; width: 70px">Cancel</button>
       </div>
