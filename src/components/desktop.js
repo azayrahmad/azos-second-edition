@@ -133,13 +133,28 @@ function setWallpaper() {
   input.click();
 }
 
+function getWallpaperMode() {
+  return localStorage.getItem('wallpaperMode') || 'tile';
+}
+
+function setWallpaperMode(mode) {
+  localStorage.setItem('wallpaperMode', mode);
+  applyWallpaper();
+}
+
 function applyWallpaper() {
   const wallpaper = localStorage.getItem('wallpaper');
   const desktop = document.querySelector('.desktop');
   if (wallpaper) {
+    const mode = getWallpaperMode();
     desktop.style.backgroundImage = `url(${wallpaper})`;
-    desktop.style.backgroundRepeat = 'repeat';
-    desktop.style.backgroundSize = 'auto';
+    if (mode === 'stretch') {
+      desktop.style.backgroundRepeat = 'no-repeat';
+      desktop.style.backgroundSize = 'cover';
+    } else { // 'tile'
+      desktop.style.backgroundRepeat = 'repeat';
+      desktop.style.backgroundSize = 'auto';
+    }
     desktop.style.backgroundColor = ''; // Remove solid color
   } else {
     desktop.style.backgroundImage = '';
@@ -175,6 +190,26 @@ function showDesktopContextMenu(event) {
         {
           label: 'Remove Wallpaper',
           click: removeWallpaper,
+        },
+        'MENU_DIVIDER',
+        {
+          label: 'Wallpaper Mode',
+          submenu: [
+            {
+              label: 'Tile',
+              checkbox: {
+                check: () => getWallpaperMode() === 'tile',
+                toggle: () => setWallpaperMode('tile'),
+              },
+            },
+            {
+              label: 'Stretch',
+              checkbox: {
+                check: () => getWallpaperMode() === 'stretch',
+                toggle: () => setWallpaperMode('stretch'),
+              },
+            },
+          ],
         },
       ],
     },
