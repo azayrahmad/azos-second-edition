@@ -1,4 +1,4 @@
-import { Application } from '../Application.js';
+import { Application, openApps } from '../Application.js';
 import { launchClippyApp } from './clippy.js';
 
 export class ClippyApp extends Application {
@@ -13,6 +13,21 @@ export class ClippyApp extends Application {
 
     _onLaunch() {
         // Call the legacy launch function.
-        launchClippyApp();
+        launchClippyApp(this);
+    }
+
+    close() {
+        const agent = window.clippyAgent;
+        if (agent) {
+            agent.hide();
+            $(".clippy, .clippy-balloon").remove();
+            $(".os-menu").remove();
+            const trayIcon = document.querySelector("#tray-icon-clippy");
+            if (trayIcon) {
+                trayIcon.remove();
+            }
+            window.clippyAgent = null;
+            openApps.delete(this.id);
+        }
     }
 }

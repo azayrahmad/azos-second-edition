@@ -1,7 +1,7 @@
 import { createTaskbarButton, createTrayIcon } from '../components/taskbar.js';
 
 const openWindows = new Map();
-const openApps = new Map();
+export const openApps = new Map();
 
 export class Application {
     constructor(config) {

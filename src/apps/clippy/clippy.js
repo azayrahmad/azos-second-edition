@@ -109,7 +109,7 @@ async function askClippy(agent, question) {
   }
 }
 
-export function getClippyMenuItems() {
+export function getClippyMenuItems(app) {
   const agent = window.clippyAgent;
   if (!agent) {
     return [{ label: "Clippy not available", enabled: false }];
@@ -149,7 +149,7 @@ export function getClippyMenuItems() {
           setValue: (value) => {
             if (currentAgentName !== value) {
               setCurrentAgentName(value);
-              launchClippyApp(value);
+              launchClippyApp(app, value);
             }
           },
         },
@@ -166,14 +166,7 @@ export function getClippyMenuItems() {
             useTTS: ttsEnabled,
             callback: () => {
               agent.play("GoodBye", 5000, () => {
-                agent.hide();
-                $(".clippy, .clippy-balloon").remove();
-                $(".os-menu").remove();
-                const trayIcon = document.querySelector("#tray-icon-clippy");
-                if (trayIcon) {
-                  trayIcon.remove();
-                }
-                window.clippyAgent = null;
+                app.close();
               });
             }
           }
@@ -183,12 +176,12 @@ export function getClippyMenuItems() {
   ];
 }
 
-export function showClippyContextMenu(event) {
+export function showClippyContextMenu(event, app) {
   // Remove any existing menus first (only one context menu at a time)
   const existingMenus = document.querySelectorAll(".menu-popup");
   existingMenus.forEach((menu) => menu.remove());
 
-  const menuItems = getClippyMenuItems();
+  const menuItems = getClippyMenuItems(app);
   const menu = new MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
   document.body.appendChild(menu.element);
 
@@ -220,7 +213,7 @@ export function showClippyContextMenu(event) {
   }, 0);
 }
 
-export function launchClippyApp(agentName = currentAgentName) {
+export function launchClippyApp(app, agentName = currentAgentName) {
   if (window.clippyAgent) {
     // Gracefully hide and remove the current agent before loading a new one
     window.clippyAgent.hide(() => {
@@ -328,7 +321,7 @@ export function launchClippyApp(agentName = currentAgentName) {
       if (agent.isSpeaking) return;
       e.preventDefault();
       contextMenuOpened = true;
-      showClippyContextMenu(e);
+      showClippyContextMenu(e, app);
     });
   });
 }
