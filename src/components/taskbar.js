@@ -286,7 +286,7 @@ class Taskbar {
       const existingMenus = document.querySelectorAll(".menu-popup");
       existingMenus.forEach((menu) => menu.remove());
 
-      const contextMenu = new OS.MenuList(contextMenuItems);
+      const contextMenu = new MenuList(contextMenuItems);
       document.body.appendChild(contextMenu.element);
 
       // Set a z-index higher than the taskbar
@@ -611,7 +611,7 @@ export function createTrayIcon(app) {
         const existingMenus = document.querySelectorAll(".menu-popup");
         existingMenus.forEach((menu) => menu.remove());
 
-        const contextMenu = new OS.MenuList(menuItems);
+        const contextMenu = new MenuList(menuItems);
         document.body.appendChild(contextMenu.element);
 
         if (window.Win98System) {
