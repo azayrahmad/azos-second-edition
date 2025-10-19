@@ -260,15 +260,36 @@ export function launchClippyApp(agentName = currentAgentName) {
       }
     }
 
+    agent.isSpeaking = false; // Initial state
+
+    // Wrap the original speakAndAnimate function
+    const originalSpeakAndAnimate = agent.speakAndAnimate;
+    agent.speakAndAnimate = function (text, animation, options) {
+      agent.isSpeaking = true;
+      const originalCallback = options?.callback;
+      const newOptions = {
+        ...options,
+        callback: () => {
+          if (originalCallback) {
+            originalCallback();
+          }
+          agent.isSpeaking = false;
+        },
+      };
+      return originalSpeakAndAnimate.call(this, text, animation, newOptions);
+    };
+
     agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
 
-    agent._el.on("click", () => {
-      if (agent._balloon.isAnimating()) return;
+    agent._el.on("click", (e) => {
+      if (agent.isSpeaking) return;
+      // Also check if a context menu is open
+      if (document.querySelector('.menu-popup')) return;
       showClippyInputBalloon();
     });
 
     agent._el.on("contextmenu", function (e) {
-      if (agent._balloon.isAnimating()) return;
+      if (agent.isSpeaking) return;
       e.preventDefault();
       showClippyContextMenu(e);
     });
