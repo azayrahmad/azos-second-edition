@@ -32,6 +32,22 @@ function showClippyInputBalloon() {
 
   input.focus();
 
+  // Reposition balloon if it's out of viewport
+  const balloonEl = balloon.get(0);
+  const rect = balloonEl.getBoundingClientRect();
+  if (rect.bottom > window.innerHeight) {
+    balloonEl.style.top = `${window.innerHeight - rect.height - 10}px`;
+  }
+  if (rect.right > window.innerWidth) {
+    balloonEl.style.left = `${window.innerWidth - rect.width - 10}px`;
+  }
+  if (rect.top < 0) {
+    balloonEl.style.top = '10px';
+  }
+  if (rect.left < 0) {
+    balloonEl.style.left = '10px';
+  }
+
   const resetBalloonTimeout = () => {
     if (inputBalloonTimeout) {
       clearTimeout(inputBalloonTimeout);
@@ -222,6 +238,8 @@ export function launchClippyApp(agentName = currentAgentName) {
     window.clippyAgent = agent;
     agent.show();
 
+    let contextMenuOpened = false;
+
     const ttsEnabled = agent.isTTSEnabled();
     if (ttsEnabled) {
       const setDefaultVoice = () => {
@@ -289,9 +307,17 @@ export function launchClippyApp(agentName = currentAgentName) {
       return originalSpeakAndAnimate.call(this, text, animation, newOptions);
     };
 
-    agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
+    agent.speakAndAnimate(
+      "Hey, there. Want quick answers to your questions? Just click me.",
+      "Greeting",
+      { useTTS: ttsEnabled }
+    );
 
     agent._el.on("click", (e) => {
+      if (contextMenuOpened) {
+        contextMenuOpened = false;
+        return;
+      }
       if (agent.isSpeaking) return;
       // Also check if a context menu is open
       if (document.querySelector('.menu-popup')) return;
@@ -301,6 +327,7 @@ export function launchClippyApp(agentName = currentAgentName) {
     agent._el.on("contextmenu", function (e) {
       if (agent.isSpeaking) return;
       e.preventDefault();
+      contextMenuOpened = true;
       showClippyContextMenu(e);
     });
   });
