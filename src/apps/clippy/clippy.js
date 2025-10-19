@@ -13,19 +13,29 @@ function showClippyInputBalloon() {
   agent.stop();
 
   const balloonContent = `
-    <div class="clippy-input" style="display: flex; flex-direction: column; align-items: center;">
-      <input type="text" placeholder="Ask me anything..." style="margin-bottom: 5px; background-color: white; border: 1px solid black; box-shadow: none;">
-      <button class="default" style="width: 80px; background-color: transparent; border: 1px solid black; border-radius: 4px; width: 70px">Ask</button>
+    <div class="clippy-input" style="display: flex; flex-direction: column; align-items: center; padding: 5px;">
+      <b style="align-self: flex-start; margin-bottom: 5px;">What would you like to do?</b>
+      <textarea rows="2" placeholder="Ask me anything..." style="width: 100%; margin-bottom: 10px; background-color: white; border: 1px solid black; box-shadow: none; resize: none; font-family: inherit; font-size: inherit;"></textarea>
+      <div style="display: flex; justify-content: space-evenly; width: 100%;">
+        <button class="ask-button default" style="margin-right: 5px; background-color: transparent; border: 1px solid black; border-radius: 4px; width: 70px">Ask</button>
+        <button class="cancel-button" style="background-color: transparent; border: 1px solid black; border-radius: 4px; width: 70px">Cancel</button>
+      </div>
     </div>
   `;
 
   agent._balloon.showHtml(balloonContent, true);
 
   const balloon = agent._balloon._balloon;
-  const input = balloon.find("input");
-  const askButton = balloon.find("button");
+  const input = balloon.find("textarea");
+  const askButton = balloon.find(".ask-button");
+  const cancelButton = balloon.find(".cancel-button");
 
   input.focus();
+
+  // Reposition balloon after a delay to allow for rendering
+  setTimeout(() => {
+    agent._balloon.reposition();
+  }, 0);
 
   const resetBalloonTimeout = () => {
     if (inputBalloonTimeout) {
@@ -59,6 +69,11 @@ function showClippyInputBalloon() {
 
   askButton.on("click", askClippyHandler);
 
+  cancelButton.on("click", () => {
+    clearBalloonTimeout();
+    agent.closeBalloon();
+  });
+
   resetBalloonTimeout(); // Start the timer when the balloon is shown
 }
 
@@ -83,7 +98,7 @@ async function askClippy(agent, question) {
   }
 }
 
-export function getClippyMenuItems() {
+export function getClippyMenuItems(app) {
   const agent = window.clippyAgent;
   if (!agent) {
     return [{ label: "Clippy not available", enabled: false }];
@@ -123,7 +138,7 @@ export function getClippyMenuItems() {
           setValue: (value) => {
             if (currentAgentName !== value) {
               setCurrentAgentName(value);
-              launchClippyApp(value);
+              launchClippyApp(app, value);
             }
           },
         },
@@ -140,14 +155,7 @@ export function getClippyMenuItems() {
             useTTS: ttsEnabled,
             callback: () => {
               agent.play("GoodBye", 5000, () => {
-                agent.hide();
-                $(".clippy, .clippy-balloon").remove();
-                $(".os-menu").remove();
-                const trayIcon = document.querySelector("#tray-icon-clippy");
-                if (trayIcon) {
-                  trayIcon.remove();
-                }
-                window.clippyAgent = null;
+                app.close();
               });
             }
           }
@@ -157,12 +165,12 @@ export function getClippyMenuItems() {
   ];
 }
 
-export function showClippyContextMenu(event) {
+export function showClippyContextMenu(event, app) {
   // Remove any existing menus first (only one context menu at a time)
   const existingMenus = document.querySelectorAll(".menu-popup");
   existingMenus.forEach((menu) => menu.remove());
 
-  const menuItems = getClippyMenuItems();
+  const menuItems = getClippyMenuItems(app);
   const menu = new MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
   document.body.appendChild(menu.element);
 
@@ -194,7 +202,7 @@ export function showClippyContextMenu(event) {
   }, 0);
 }
 
-export function launchClippyApp(agentName = currentAgentName) {
+export function launchClippyApp(app, agentName = currentAgentName) {
   if (window.clippyAgent) {
     // Gracefully hide and remove the current agent before loading a new one
     window.clippyAgent.hide(() => {
@@ -211,6 +219,8 @@ export function launchClippyApp(agentName = currentAgentName) {
   clippy.load(agentName, function (agent) {
     window.clippyAgent = agent;
     agent.show();
+
+    let contextMenuOpened = false;
 
     const ttsEnabled = agent.isTTSEnabled();
     if (ttsEnabled) {
@@ -279,9 +289,17 @@ export function launchClippyApp(agentName = currentAgentName) {
       return originalSpeakAndAnimate.call(this, text, animation, newOptions);
     };
 
-    agent.speak("Hey, there. Want quick answers to your questions? Just click me.", false, ttsEnabled);
+    agent.speakAndAnimate(
+      "Hey, there. Want quick answers to your questions? Just click me.",
+      "Explain",
+      { useTTS: ttsEnabled }
+    );
 
     agent._el.on("click", (e) => {
+      if (contextMenuOpened) {
+        contextMenuOpened = false;
+        return;
+      }
       if (agent.isSpeaking) return;
       // Also check if a context menu is open
       if (document.querySelector('.menu-popup')) return;
@@ -291,7 +309,8 @@ export function launchClippyApp(agentName = currentAgentName) {
     agent._el.on("contextmenu", function (e) {
       if (agent.isSpeaking) return;
       e.preventDefault();
-      showClippyContextMenu(e);
+      contextMenuOpened = true;
+      showClippyContextMenu(e, app);
     });
   });
 }
