@@ -20,35 +20,35 @@ export class NotepadApp extends Application {
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
 
-        const addressBarItems = [
-            {
-                label: "My Computer",
-                icon: "/src/assets/icons/computer-3.png",
-                children: [
-                    {
-                        label: "3½ Floppy (A:)",
-                        icon: "/src/assets/icons/floppy-drive-3.png",
-                    },
-                    {
-                        label: "(C:)",
-                        icon: "/src/assets/icons/drive-2.png",
-                        children: [
-                            {
-                                label: "Program Files",
-                                icon: "/src/assets/icons/folder-2.png",
-                                selected: true,
-                            },
-                            {
-                                label: "Windows",
-                                icon: "/src/assets/icons/folder-2.png",
-                            }
-                        ]
-                    }
-                ]
-            }
-        ];
-        const addressBar = new AddressBar(addressBarItems);
-        win.$content.prepend(addressBar.element);
+        // const addressBarItems = [
+        //     {
+        //         label: "My Computer",
+        //         icon: "/src/assets/icons/computer-3.png",
+        //         children: [
+        //             {
+        //                 label: "3½ Floppy (A:)",
+        //                 icon: "/src/assets/icons/floppy-drive-3.png",
+        //             },
+        //             {
+        //                 label: "(C:)",
+        //                 icon: "/src/assets/icons/drive-2.png",
+        //                 children: [
+        //                     {
+        //                         label: "Program Files",
+        //                         icon: "/src/assets/icons/folder-2.png",
+        //                         selected: true,
+        //                     },
+        //                     {
+        //                         label: "Windows",
+        //                         icon: "/src/assets/icons/folder-2.png",
+        //                     }
+        //                 ]
+        //             }
+        //         ]
+        //     }
+        // ];
+        // const addressBar = new AddressBar(addressBarItems);
+        // win.$content.prepend(addressBar.element);
 
 
         win.$content.append('<div class="notepad-container"></div>');

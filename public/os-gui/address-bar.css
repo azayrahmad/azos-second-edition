@@ -1,7 +1,7 @@
 .address-bar {
     display: flex;
     align-items: center;
-    background-color: #c0c0c0;
+    background-color: var(--ButtonFace);
     padding: 2px;
     position: relative;
     font-family: "MS Sans Serif", sans-serif;
@@ -17,8 +17,8 @@
     display: flex;
     align-items: center;
     flex-grow: 1;
-    background-color: #fff;
-    border: 1px solid #808080;
+    background-color: var(--Window);
+    border: 1px solid var(--ButtonShadow);
     padding: 2px;
     cursor: default;
 }
@@ -32,10 +32,10 @@
 .dropdown-button {
     width: 17px;
     height: 17px;
-    background-color: #c0c0c0;
-    border: 1px solid #fff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background-color: var(--ButtonFace);
+    border: 1px solid var(--ButtonHilight);
+    border-right-color: var(--ButtonShadow);
+    border-bottom-color: var(--ButtonShadow);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,8 +47,8 @@
     top: 100%;
     left: 0;
     right: 0;
-    background-color: #fff;
-    border: 1px solid #808080;
+    background-color: var(--Window);
+    border: 1px solid var(--ButtonShadow);
     z-index: 1000;
     max-height: 200px;
     overflow-y: auto;
@@ -62,8 +62,8 @@
 }
 
 .dropdown-list-item:hover {
-    background-color: #000080;
-    color: #fff;
+    background-color: var(--Hilight);
+    color: var(--HilightText);
 }
 
 .list-item-icon {
