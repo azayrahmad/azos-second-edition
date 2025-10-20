@@ -140,6 +140,7 @@ function getWallpaperMode() {
 function setWallpaperMode(mode) {
   localStorage.setItem('wallpaperMode', mode);
   applyWallpaper();
+  document.dispatchEvent(new CustomEvent('wallpaper-changed'));
 }
 
 function applyWallpaper() {
@@ -193,30 +194,28 @@ function showDesktopContextMenu(event) {
         },
         'MENU_DIVIDER',
         {
-          label: 'Wallpaper Mode',
-          submenu: [
-            {
-              radioItems: [
-                { label: 'Tile', value: 'tile' },
-                { label: 'Stretch', value: 'stretch' },
-              ],
-              getValue: () => getWallpaperMode(),
-              setValue: (value) => setWallpaperMode(value),
-            },
+          radioItems: [
+            { label: 'Tile', value: 'tile' },
+            { label: 'Stretch', value: 'stretch' },
           ],
+          getValue: () => getWallpaperMode(),
+          setValue: (value) => setWallpaperMode(value),
+          ariaLabel: 'Wallpaper Mode'
         },
       ],
     },
     'MENU_DIVIDER',
     {
       label: 'Theme',
-      submenu: Object.keys(themes).map(themeKey => ({
-        label: themes[themeKey],
-        checkbox: {
-          check: () => getCurrentTheme() === themeKey,
-          toggle: () => setTheme(themeKey),
-        },
-      })),
+      submenu: [{
+        radioItems: Object.keys(themes).map(themeKey => ({
+          label: themes[themeKey],
+          value: themeKey,
+        })),
+        getValue: () => getCurrentTheme(),
+        setValue: (value) => setTheme(value),
+        ariaLabel: 'Color Theme'
+      }],
     },
     {
       label: 'Scanlines',
@@ -237,7 +236,7 @@ function showDesktopContextMenu(event) {
 
   menu.show(event.clientX, event.clientY);
 
-  const handleThemeChange = () => {
+  const updateActiveSubmenu = () => {
     // When the theme changes, we need to manually trigger an update on the menu
     // to re-evaluate the 'check' state of all theme items.
     if (menu.activeSubmenu) {
@@ -245,17 +244,23 @@ function showDesktopContextMenu(event) {
     }
   };
 
+  // Consolidate event handlers for state changes that affect the menu
+  const handleThemeChange = updateActiveSubmenu;
+  const handleWallpaperChange = updateActiveSubmenu;
+
   const closeMenu = (e) => {
     if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
       menu.closeAll();
       document.removeEventListener('click', closeMenu);
       document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
+      document.removeEventListener('wallpaper-changed', handleWallpaperChange);
     }
   };
 
   setTimeout(() => {
     document.addEventListener('click', closeMenu);
     document.addEventListener('theme-changed', handleThemeChange);
+    document.addEventListener('wallpaper-changed', handleWallpaperChange);
   }, 0);
 }
 
@@ -445,8 +450,8 @@ function configureIcon(icon, app, filePath = null) {
 
     // Reset wasDragged after a short delay to allow click/dblclick to be suppressed
     setTimeout(() => {
-        wasDragged = false;
-        isLongPress = false;
+      wasDragged = false;
+      isLongPress = false;
     }, 0);
   };
 
