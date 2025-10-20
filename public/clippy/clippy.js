@@ -910,11 +910,11 @@ clippy.Balloon.prototype = {
     return this._active;
   },
 
-  _sayWords: function (text, hold, complete) {
+  _sayWords: function (text, hold, complete, rate) {
     this._active = true;
     this._hold = hold;
     var words = text.split(/[^\S-]/);
-    var time = this.WORD_SPEAK_TIME;
+    var time = this.WORD_SPEAK_TIME / (rate || 1.0);
     var el = this._content;
     var idx = 1;
 
@@ -937,123 +937,11 @@ clippy.Balloon.prototype = {
   },
 
   _sayWordsWithTTS: function (text, hold, complete) {
-    this._active = true;
-    this._hold = hold;
-    var words = text.split(/[^\S-]/);
-    var el = this._content;
-    var idx = 1;
-    var self = this;
-
-    // --- Mobile Fallback ---
-    // Use a timer-based approach on mobile because the 'onboundary' event is unreliable.
-    if (this._isMobile) {
-      // Define the onEnd callback for TTS
-      var onEnd = function () {
-        // Ensure the timer is cleared and all text is displayed
-        if (self._mobileTTSTimer) {
-          window.clearTimeout(self._mobileTTSTimer);
-          self._mobileTTSTimer = null;
-        }
-        el.text(words.join(" "));
-
-        self._active = false;
-        if (!self._hold) {
-          complete();
-          self.hide();
-        }
-      };
-
-      // Start TTS audio playback
-      this._speakTTS(text, null, onEnd);
-
-      // --- Simulated Word Streaming ---
-      // Calculate word display speed based on TTS rate
-      var timePerWord = (this.WORD_SPEAK_TIME / (this._ttsOptions.rate || 1.0));
-
-      var addWord = function () {
-        if (!self._active) return; // Stop if speech was cancelled
-        if (idx > words.length) {
-          // Stop when all words are displayed; TTS onEnd will handle completion.
-          return;
-        }
-        el.text(words.slice(0, idx).join(" "));
-        idx++;
-        self._mobileTTSTimer = window.setTimeout(addWord, timePerWord);
-      };
-
-      addWord();
-      return; // Exit, preventing desktop logic from running
-    }
-
-    // --- Desktop Logic (onboundary-based with timer fallback) ---
-    var boundaryEventsReceived = 0;
-    var lastBoundaryTime = Date.now();
-
-    // Clear any existing fallback timer
-    if (this._ttsFallbackTimer) {
-      window.clearTimeout(this._ttsFallbackTimer);
-      this._ttsFallbackTimer = null;
-    }
-
-    // Start fallback timer in case boundary events don't work (Chrome issue)
-    var startFallbackTimer = function () {
-      var timePerWord = (self.WORD_SPEAK_TIME / (self._ttsOptions.rate || 1.0)) * 1.2; // Slightly slower to be safe
-
-      var addWord = function () {
-        if (!self._active) return; // Stop if speech was cancelled
-        if (idx > words.length) return;
-
-        el.text(words.slice(0, idx).join(" "));
-        idx++;
-
-        if (idx <= words.length) {
-          self._ttsFallbackTimer = window.setTimeout(addWord, timePerWord);
-        }
-      };
-
-      // Start fallback after a short delay to allow boundary events to take precedence
-      self._ttsFallbackTimer = window.setTimeout(addWord, 300);
-    };
-
-    this._speakTTS(text,
-      // onWord callback
-      function (charIndex, spokenWords) {
-        boundaryEventsReceived++;
-        lastBoundaryTime = Date.now();
-
-        var currentWordIndex = 0;
-        var charCount = 0;
-        for (var i = 0; i < spokenWords.length; i++) {
-          charCount += spokenWords[i].length + 1;
-          if (charIndex < charCount) {
-            currentWordIndex = i;
-            break;
-          }
-        }
-        if (currentWordIndex + 1 > idx) {
-          idx = currentWordIndex + 1;
-          el.text(words.slice(0, idx).join(" "));
-        }
-      },
-      // onEnd callback
-      function () {
-        // Clear any pending fallback timer
-        if (self._ttsFallbackTimer) {
-          window.clearTimeout(self._ttsFallbackTimer);
-          self._ttsFallbackTimer = null;
-        }
-
-        el.text(words.join(" "));
-        self._active = false;
-        if (!self._hold) {
-          complete();
-          self.hide();
-        }
-      }
-    );
-
-    // Start fallback timer for browsers that don't fire boundary events reliably
-    startFallbackTimer();
+    // The onboundary event is not reliable when the browser is muted.
+    // To ensure the animation is always smooth, we'll run the visual animation
+    // on a timer, and the speech will play in parallel if the browser is not muted.
+    this._speakTTS(text, null, function () { /* Audio playback is complete */ });
+    this._sayWords(text, hold, complete, this._ttsOptions.rate);
   },
 
   close: function () {
