@@ -7,6 +7,7 @@ import desktopApps from "../config/desktop.json";
 import { launchApp } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
 import { ICONS } from "../config/icons.js";
+import { playSound } from '../utils/soundManager.js';
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -178,6 +179,12 @@ function showDesktopContextMenu(event) {
         // Remove saved positions and redraw icons
         localStorage.removeItem('iconPositions');
         setupIcons();
+      },
+    },
+    {
+      label: 'Empty Recycle Bin',
+      click: () => {
+        playSound('EmptyRecycleBin');
       },
     },
     'MENU_DIVIDER',

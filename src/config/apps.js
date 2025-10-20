@@ -89,7 +89,7 @@ export const apps = [
         ShowDialogWindow({
           title: "Alert",
           text: "The alert works.",
-          soundId: "chord",
+          soundEvent: "SystemHand",
           contentIconUrl: ICONS.about[32],
           buttons: [{ label: 'OK', isDefault: true }],
         });

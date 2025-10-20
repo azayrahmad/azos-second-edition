@@ -9,6 +9,7 @@ import { ICONS } from "../config/icons.js";
 import { apps } from "../config/apps.js";
 import startMenuApps from "../config/startmenu.json";
 import { launchApp } from "../utils/appManager.js";
+import { playSound } from '../utils/soundManager.js';
 
 // Constants
 const SELECTORS = {
@@ -296,7 +297,8 @@ class StartMenu {
   handleShutdown() {
     console.log("Shutting down azOS...");
     if (confirm("Are you sure you want to shut down?")) {
-      location.reload();
+      playSound('SystemExit');
+      setTimeout(() => location.reload(), 500);
     }
     this.hide();
   }

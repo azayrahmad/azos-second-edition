@@ -1,4 +1,4 @@
-import sounds from '../config/sounds.js';
+import { playSound } from '../utils/soundManager.js';
 
 /**
  * @typedef {object} DialogButton
@@ -14,7 +14,7 @@ import sounds from '../config/sounds.js';
  * @property {string} [contentIconUrl] - Optional URL for an icon in the content area.
  * @property {string} text - The main text content of the dialog.
  * @property {DialogButton[]} [buttons] - The buttons to display in the dialog.
- * @property {string} [soundId] - The ID of a sound to play from the sound config.
+ * @property {string} [soundEvent] - The name of the sound event to play.
  * @property {boolean} [modal=false] - Whether the dialog should be modal.
  */
 
@@ -29,7 +29,7 @@ function ShowDialogWindow(options) {
         contentIconUrl,
         text,
         buttons = [{ label: 'OK', action: () => { }, isDefault: true }],
-        soundId,
+        soundEvent,
         modal = false,
     } = options;
 
@@ -108,9 +108,8 @@ function ShowDialogWindow(options) {
     }
 
     // Play sound
-    if (soundId && sounds[soundId]) {
-        const audio = new Audio(sounds[soundId]);
-        audio.play().catch(e => console.error("Error playing sound:", e));
+    if (soundEvent) {
+        playSound(soundEvent);
     }
 
     // Auto-height adjustment
