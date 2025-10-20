@@ -11,12 +11,14 @@ export function playSound(eventName) {
   const themes = getThemes();
   const themeName = themes[themeId] || 'Default';
   const currentScheme = soundSchemes[themeName];
+  const defaultScheme = soundSchemes['Default'];
 
-  if (!currentScheme) {
-    return;
-  }
+  // Determine the sound file name with fallbacks
+  const soundFileName =
+    (currentScheme && currentScheme[eventName]) ||
+    (defaultScheme && defaultScheme[eventName]);
 
-  const soundFileName = currentScheme[eventName];
+  // If no sound was found after all checks, exit.
   if (!soundFileName) {
     return;
   }
