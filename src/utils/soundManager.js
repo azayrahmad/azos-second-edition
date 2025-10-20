@@ -16,9 +16,7 @@ export function playSound(eventName) {
   // Determine the sound file name with fallbacks
   const soundFileName =
     (currentScheme && currentScheme[eventName]) ||
-    (defaultScheme && defaultScheme[eventName]) ||
-    (currentScheme && currentScheme.Default) ||
-    (defaultScheme && defaultScheme.Default);
+    (defaultScheme && defaultScheme[eventName]);
 
   // If no sound was found after all checks, exit.
   if (!soundFileName) {
