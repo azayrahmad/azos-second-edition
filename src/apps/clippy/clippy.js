@@ -35,7 +35,7 @@ function showClippyInputBalloon() {
   // Reposition balloon after a delay to allow for rendering
   setTimeout(() => {
     agent._balloon.reposition();
-  }, 0);
+  }, 10);
 
   const resetBalloonTimeout = () => {
     if (inputBalloonTimeout) {
