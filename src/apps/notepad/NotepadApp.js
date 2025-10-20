@@ -201,6 +201,49 @@ export class NotepadApp extends Application {
         this.lineCount = container.find('.lineCount')[0];
         this.currentLanguage = 'text';
 
+        const notepadContainer = this.win.$content.find('.notepad-container')[0];
+        notepadContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            notepadContainer.classList.add('dragover');
+        });
+
+        notepadContainer.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            notepadContainer.classList.remove('dragover');
+        });
+
+        notepadContainer.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            notepadContainer.classList.remove('dragover');
+
+            if (await this.checkForUnsavedChanges() === 'cancel') return;
+
+            const files = e.dataTransfer.files;
+            if (files.length !== 1) {
+                alert('Please drop a single file.');
+                return;
+            }
+            const file = files[0];
+
+            this.fileName = file.name;
+            this.fileHandle = null;
+            this.isDirty = false;
+            this.updateTitle();
+            this.setLanguage(this.getLanguageFromExtension(file.name));
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.codeInput.value = event.target.result;
+                this.isDirty = false;
+                this.updateTitle();
+                this.updateHighlight();
+            };
+            reader.readAsText(file);
+        });
+
         this.codeInput.addEventListener('input', () => {
             this.isDirty = true;
             this.updateTitle();
