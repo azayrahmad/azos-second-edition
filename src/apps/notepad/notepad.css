@@ -8,7 +8,7 @@
 }
 
 .notepad-container.dragover {
-  outline-color: var(--button-dark);
+  outline-color: var(--ButtonDkShadow);
 }
 
 .controls-group {
