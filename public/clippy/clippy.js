@@ -812,20 +812,31 @@ clippy.Balloon.prototype = {
   },
 
   showHtml: function (html, hold) {
+    const self = this;
     this._hidden = false;
-    this.show();
-    var c = this._content;
-    c.height("auto");
-    c.width("auto");
+    // Set visibility to hidden and position off-screen to calculate dimensions
+    this._balloon.css({
+      visibility: 'hidden',
+      top: '-9999px',
+      left: '-9999px'
+    });
+    this.show(); // This sets display: block
+
+    const c = this._content;
+    c.height('auto');
+    c.width('auto');
     c.html(html);
-    this.reposition();
 
-    this._active = true;
-    this._hold = hold;
-
-    if (!this._hold) {
-      this.hide();
-    }
+    // Use a nested requestAnimationFrame to ensure rendering is complete
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        self.reposition();
+        self._balloon.css('visibility', 'visible');
+        // Restore state management
+        self._active = true;
+        self._hold = hold;
+      });
+    });
   },
 
   speak: function (complete, text, hold, useTTS) {
@@ -852,7 +863,7 @@ clippy.Balloon.prototype = {
       var voices = window.speechSynthesis.getVoices();
       if (voices.length === 0) {
         // If voices are not available, wait a moment for them to load.
-        window.setTimeout(function() {
+        window.setTimeout(function () {
           var voices = window.speechSynthesis.getVoices();
           if (voices.length === 0) {
             // If still no voices, fall back to silent words.
@@ -959,7 +970,7 @@ clippy.Balloon.prototype = {
       // Calculate word display speed based on TTS rate
       var timePerWord = (this.WORD_SPEAK_TIME / (this._ttsOptions.rate || 1.0));
 
-      var addWord = function() {
+      var addWord = function () {
         if (!self._active) return; // Stop if speech was cancelled
         if (idx > words.length) {
           // Stop when all words are displayed; TTS onEnd will handle completion.
@@ -985,10 +996,10 @@ clippy.Balloon.prototype = {
     }
 
     // Start fallback timer in case boundary events don't work (Chrome issue)
-    var startFallbackTimer = function() {
+    var startFallbackTimer = function () {
       var timePerWord = (self.WORD_SPEAK_TIME / (self._ttsOptions.rate || 1.0)) * 1.2; // Slightly slower to be safe
 
-      var addWord = function() {
+      var addWord = function () {
         if (!self._active) return; // Stop if speech was cancelled
         if (idx > words.length) return;
 
