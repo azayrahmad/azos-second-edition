@@ -98,6 +98,8 @@ async function askClippy(agent, question) {
   }
 }
 
+import { AGENT_NAMES } from "../../config/agents.js";
+
 export function getClippyMenuItems(app) {
   const agent = window.clippyAgent;
   if (!agent) {
@@ -130,10 +132,7 @@ export function getClippyMenuItems(app) {
       label: "A&gent",
       submenu: [
         {
-          radioItems: [
-            { label: "Clippy", value: "Clippy" },
-            { label: "Genius", value: "Genius" },
-          ],
+          radioItems: AGENT_NAMES.map(name => ({ label: name, value: name })),
           getValue: () => currentAgentName,
           setValue: (value) => {
             if (currentAgentName !== value) {
