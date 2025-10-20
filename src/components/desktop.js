@@ -150,7 +150,7 @@ function applyWallpaper() {
     desktop.style.backgroundImage = `url(${wallpaper})`;
     if (mode === 'stretch') {
       desktop.style.backgroundRepeat = 'no-repeat';
-      desktop.style.backgroundSize = 'cover';
+      desktop.style.backgroundSize = '100% 100%';
     } else { // 'tile'
       desktop.style.backgroundRepeat = 'repeat';
       desktop.style.backgroundSize = 'auto';
@@ -196,18 +196,12 @@ function showDesktopContextMenu(event) {
           label: 'Wallpaper Mode',
           submenu: [
             {
-              label: 'Tile',
-              checkbox: {
-                check: () => getWallpaperMode() === 'tile',
-                toggle: () => setWallpaperMode('tile'),
-              },
-            },
-            {
-              label: 'Stretch',
-              checkbox: {
-                check: () => getWallpaperMode() === 'stretch',
-                toggle: () => setWallpaperMode('stretch'),
-              },
+              radioItems: [
+                { label: 'Tile', value: 'tile' },
+                { label: 'Stretch', value: 'stretch' },
+              ],
+              getValue: () => getWallpaperMode(),
+              setValue: (value) => setWallpaperMode(value),
             },
           ],
         },
