@@ -333,7 +333,7 @@ export class NotepadApp extends Application {
             ShowDialogWindow({
                 title: 'Notepad',
                 text: `Cannot find "${term}"`,
-                soundId: "chord",
+                soundEvent: 'SystemHand',
                 buttons: [{ label: 'OK', isDefault: true }],
             });
         }
@@ -345,7 +345,7 @@ export class NotepadApp extends Application {
             text: `<div style="white-space: pre-wrap">The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?</div>`,
             contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
             modal: true,
-            soundId: 'chord',
+            soundEvent: 'SystemQuestion',
             buttons: options.buttons || [],
         });
     }
