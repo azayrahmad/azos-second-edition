@@ -2,6 +2,13 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  outline: 2px dashed transparent;
+  outline-offset: -4px;
+  transition: outline-color 0.2s ease;
+}
+
+.notepad-container.dragover {
+  outline-color: var(--button-dark);
 }
 
 .controls-group {
