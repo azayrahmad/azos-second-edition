@@ -81,19 +81,9 @@ window.Win98WindowManager = system; // Using same instance for both since they'r
 
 // Initialize the OS
 console.log('azOS initialized');
-taskbar.init();
-initDesktop();
-setupCounter(document.querySelector('#counter'));
-
-window.ShowDialogWindow = ShowDialogWindow;
-
-import { launchApp } from './utils/appManager.js';
 
 playSound('WindowsLogon');
+taskbar.init();
+initDesktop();
 
-// Show Tip of the Day on startup if enabled
-const showTipsAtStartup = localStorage.getItem('showTipsAtStartup');
-if (showTipsAtStartup === null || showTipsAtStartup === 'true') {
-    launchApp('tipOfTheDay');
-}
-
+window.ShowDialogWindow = ShowDialogWindow;
