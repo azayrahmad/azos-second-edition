@@ -563,8 +563,20 @@ clippy.Animator.prototype = {
       this._sounds[snd] = new Audio(uri);
     }
   },
+
+  _getAnimationByName: function(name) {
+      if (!name) return null;
+      var anims = this._data.animations;
+      for (var animName in anims) {
+          if (animName.toLowerCase() === name.toLowerCase()) {
+              return animName;
+          }
+      }
+      return null;
+  },
+
   hasAnimation: function (name) {
-    return !!this._data.animations[name];
+    return !!this._getAnimationByName(name);
   },
 
   exitAnimation: function () {
@@ -574,12 +586,13 @@ clippy.Animator.prototype = {
   showAnimation: function (animationName, stateChangeCallback) {
     this._exiting = false;
 
-    if (!this.hasAnimation(animationName)) {
-      return false;
+    var correctedName = this._getAnimationByName(animationName);
+    if (!correctedName) {
+        return false;
     }
 
-    this._currentAnimation = this._data.animations[animationName];
-    this.currentAnimationName = animationName;
+    this._currentAnimation = this._data.animations[correctedName];
+    this.currentAnimationName = correctedName;
 
     if (!this._started) {
       this._step();
