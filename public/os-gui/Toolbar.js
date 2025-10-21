@@ -37,6 +37,7 @@
 
             const mainButtonEl = E("button", { class: "toolbar-button" });
             mainButtonEl.disabled = this.isDisabled(item);
+            mainButtonEl.classList.add("lightweight");
 
             const iconEl = E("div", { class: "toolbar-icon" });
             if (item.icon) {
