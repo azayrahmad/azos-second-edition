@@ -4,6 +4,7 @@ import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
 import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
 import { ClippyApp } from '../apps/clippy/ClippyApp.js';
 import { WebampApp } from '../apps/webamp/WebampApp.js';
+import { AudioConverterApp } from '../apps/audioconverter/AudioConverterApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -16,6 +17,7 @@ export const appClasses = {
     'tipOfTheDay': TipOfTheDayApp,
     'clippy': ClippyApp,
     'webamp': WebampApp,
+    'audioconverter': AudioConverterApp,
 };
 
 export const apps = [
@@ -95,5 +97,14 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "audioconverter",
+    title: "Audio Converter",
+    icon: ICONS.about, // Placeholder icon
+    appClass: AudioConverterApp,
+    width: 400,
+    height: 300,
+    resizable: false,
   },
 ];
