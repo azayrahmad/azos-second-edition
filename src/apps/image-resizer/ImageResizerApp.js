@@ -2,7 +2,7 @@ import { Application } from '../Application.js';
 import './image-resizer.css';
 
 export class ImageResizerApp extends Application {
-    _onLaunch() {
+    _createWindow() {
         const win = this.win = new $Window({
             title: 'Image Resizer',
             width: 600,
@@ -14,7 +14,7 @@ export class ImageResizerApp extends Application {
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
 
-        win.content.innerHTML = this._getHTML();
+        win.$content.append(this._getHTML());
         this.initApp();
     }
 
@@ -88,18 +88,18 @@ export class ImageResizerApp extends Application {
     }
 
     initApp() {
-        const content = this.win.content;
-        const fileInput = content.querySelector('#fileInput');
-        const widthInput = content.querySelector('#widthInput');
-        const heightInput = content.querySelector('#heightInput');
-        const aspectRatio = content.querySelector('#aspectRatio');
-        const enlargeBtn = content.querySelector('#enlargeBtn');
-        const downloadBtn = content.querySelector('#downloadBtn');
-        const previewArea = content.querySelector('#previewArea');
-        const originalCanvas = content.querySelector('#originalCanvas');
-        const enlargedCanvas = content.querySelector('#enlargedCanvas');
-        const info = content.querySelector('#info');
-        const appContainer = content.querySelector('.image-resizer-app');
+        const content = this.win.$content;
+        const fileInput = content.find('#fileInput')[0];
+        const widthInput = content.find('#widthInput')[0];
+        const heightInput = content.find('#heightInput')[0];
+        const aspectRatio = content.find('#aspectRatio')[0];
+        const enlargeBtn = content.find('#enlargeBtn')[0];
+        const downloadBtn = content.find('#downloadBtn')[0];
+        const previewArea = content.find('#previewArea')[0];
+        const originalCanvas = content.find('#originalCanvas')[0];
+        const enlargedCanvas = content.find('#enlargedCanvas')[0];
+        const info = content.find('#info')[0];
+        const appContainer = content.find('.image-resizer-app')[0];
 
         let originalImage = null;
         let isUpdatingDimensions = false;
@@ -111,19 +111,19 @@ export class ImageResizerApp extends Application {
         };
 
         // Make the entire window content the drop target
-        content.addEventListener('dragover', (e) => {
+        appContainer.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
             appContainer.classList.add('dragover');
         });
 
-        content.addEventListener('dragleave', (e) => {
+        appContainer.addEventListener('dragleave', (e) => {
             e.preventDefault();
             e.stopPropagation();
             appContainer.classList.remove('dragover');
         });
 
-        content.addEventListener('drop', (e) => {
+        appContainer.addEventListener('drop', (e) => {
             e.preventDefault();
             e.stopPropagation();
             appContainer.classList.remove('dragover');
