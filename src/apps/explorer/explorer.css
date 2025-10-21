@@ -1,0 +1,15 @@
+.explorer-app .window-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.explorer-app .header-container {
+    flex-shrink: 0;
+}
+
+.explorer-app .explorer-content {
+    flex-grow: 1;
+    background-color: white;
+    border: 1px solid #808080;
+    margin: 1px;
+}
