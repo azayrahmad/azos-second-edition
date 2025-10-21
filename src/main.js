@@ -87,7 +87,13 @@ setupCounter(document.querySelector('#counter'));
 
 window.ShowDialogWindow = ShowDialogWindow;
 
+import { launchApp } from './utils/appManager.js';
+
 playSound('WindowsLogon');
 
-// ...existing code...
+// Show Tip of the Day on startup if enabled
+const showTipsAtStartup = localStorage.getItem('showTipsAtStartup');
+if (showTipsAtStartup === null || showTipsAtStartup === 'true') {
+    launchApp('tipOfTheDay');
+}
 
