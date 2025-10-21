@@ -24,8 +24,8 @@ export const ICONS = {
     32: new URL("../assets/icons/winamp.png", import.meta.url).href,
   },
   image: {
-    16: new URL("../assets/icons/write_wordpad-2.png", import.meta.url).href,
-    32: new URL("../assets/icons/write_wordpad-2.png", import.meta.url).href,
+    16: new URL("../assets/icons/kodak_imaging-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/kodak_imaging-0.png", import.meta.url).href,
   },
   computer: {
     16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,

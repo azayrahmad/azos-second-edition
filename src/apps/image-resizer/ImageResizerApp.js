@@ -2,7 +2,7 @@ import { Application } from '../Application.js';
 import './image-resizer.css';
 
 export class ImageResizerApp extends Application {
-    _onLaunch() {
+    _createWindow() {
         const win = this.win = new $Window({
             title: 'Image Resizer',
             width: 920,
@@ -11,8 +11,8 @@ export class ImageResizerApp extends Application {
             icons: this.icon,
         });
 
-        win.content.style.overflow = 'hidden';
-        win.content.innerHTML = `
+        // win.$content.style.overflow = 'hidden';
+        win.$content.append(`
             <div class="container image-resizer-app">
                 <h1>🎨 Pixel Perfect Image Enlarger</h1>
                 <p class="subtitle">Upload an image and enlarge it with crisp, pixel-perfect scaling</p>
@@ -50,49 +50,51 @@ export class ImageResizerApp extends Application {
                     <div class="info" id="info"></div>
                 </div>
             </div>
-        `;
+        `);
         this.initApp();
     }
 
     initApp() {
-        const content = this.win.content;
-        const uploadArea = content.querySelector('#uploadArea');
-        const fileInput = content.querySelector('#fileInput');
-        const widthInput = content.querySelector('#widthInput');
-        const heightInput = content.querySelector('#heightInput');
-        const aspectRatio = content.querySelector('#aspectRatio');
-        const enlargeBtn = content.querySelector('#enlargeBtn');
-        const downloadBtn = content.querySelector('#downloadBtn');
-        const previewArea = content.querySelector('#previewArea');
-        const originalCanvas = content.querySelector('#originalCanvas');
-        const enlargedCanvas = content.querySelector('#enlargedCanvas');
-        const info = content.querySelector('#info');
+        const content = this.win.$content;
+        const elements = {
+            uploadArea: content.find('#uploadArea')[0],
+            fileInput: content.find('#fileInput')[0],
+            widthInput: content.find('#widthInput')[0],
+            heightInput: content.find('#heightInput')[0],
+            aspectRatio: content.find('#aspectRatio')[0],
+            enlargeBtn: content.find('#enlargeBtn')[0],
+            downloadBtn: content.find('#downloadBtn')[0],
+            previewArea: content.find('#previewArea')[0],
+            originalCanvas: content.find('#originalCanvas')[0],
+            enlargedCanvas: content.find('#enlargedCanvas')[0],
+            info: content.find('#info')[0]
+        };
 
         let originalImage = null;
         let isUpdatingDimensions = false;
 
         // Upload area interactions
-        uploadArea.addEventListener('click', () => fileInput.click());
+        elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
 
-        uploadArea.addEventListener('dragover', (e) => {
+        elements.uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.classList.add('dragover');
+            elements.uploadArea.classList.add('dragover');
         });
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
+        elements.uploadArea.addEventListener('dragleave', () => {
+            elements.uploadArea.classList.remove('dragover');
         });
 
-        uploadArea.addEventListener('drop', (e) => {
+        elements.uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.classList.remove('dragover');
+            elements.uploadArea.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
                 loadImage(file);
             }
         });
 
-        fileInput.addEventListener('change', (e) => {
+        elements.fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 loadImage(file);
@@ -108,11 +110,11 @@ export class ImageResizerApp extends Application {
                     drawOriginal();
 
                     // Set default dimensions to 4x the original
-                    widthInput.value = img.width * 4;
-                    heightInput.value = img.height * 4;
+                    elements.widthInput.value = img.width * 4;
+                    elements.heightInput.value = img.height * 4;
 
-                    enlargeBtn.disabled = false;
-                    previewArea.classList.add('active');
+                    elements.enlargeBtn.disabled = false;
+                    elements.previewArea.classList.add('active');
                 };
                 img.src = e.target.result;
             };
@@ -120,38 +122,38 @@ export class ImageResizerApp extends Application {
         }
 
         function drawOriginal() {
-            originalCanvas.width = originalImage.width;
-            originalCanvas.height = originalImage.height;
-            const ctx = originalCanvas.getContext('2d');
+            elements.originalCanvas.width = originalImage.width;
+            elements.originalCanvas.height = originalImage.height;
+            const ctx = elements.originalCanvas.getContext('2d');
             ctx.drawImage(originalImage, 0, 0);
         }
 
         // Handle aspect ratio maintenance
-        widthInput.addEventListener('input', () => {
-            if (aspectRatio.checked && originalImage && !isUpdatingDimensions) {
+        elements.widthInput.addEventListener('input', () => {
+            if (elements.aspectRatio.checked && originalImage && !isUpdatingDimensions) {
                 isUpdatingDimensions = true;
                 const ratio = originalImage.height / originalImage.width;
-                heightInput.value = Math.round(widthInput.value * ratio);
+                elements.heightInput.value = Math.round(elements.widthInput.value * ratio);
                 isUpdatingDimensions = false;
             }
         });
 
-        heightInput.addEventListener('input', () => {
-            if (aspectRatio.checked && originalImage && !isUpdatingDimensions) {
+        elements.heightInput.addEventListener('input', () => {
+            if (elements.aspectRatio.checked && originalImage && !isUpdatingDimensions) {
                 isUpdatingDimensions = true;
                 const ratio = originalImage.width / originalImage.height;
-                widthInput.value = Math.round(heightInput.value * ratio);
+                elements.widthInput.value = Math.round(elements.heightInput.value * ratio);
                 isUpdatingDimensions = false;
             }
         });
 
-        enlargeBtn.addEventListener('click', enlargeImage);
+        elements.enlargeBtn.addEventListener('click', enlargeImage);
 
         function enlargeImage() {
             if (!originalImage) return;
 
-            const targetWidth = parseInt(widthInput.value);
-            const targetHeight = parseInt(heightInput.value);
+            const targetWidth = parseInt(elements.widthInput.value);
+            const targetHeight = parseInt(elements.heightInput.value);
 
             // Calculate scale factors for width and height
             const scaleX = targetWidth / originalImage.width;
@@ -173,9 +175,9 @@ export class ImageResizerApp extends Application {
             const srcData = srcCtx.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
             const srcPixels = srcData.data;
 
-            enlargedCanvas.width = newWidth;
-            enlargedCanvas.height = newHeight;
-            const dstCtx = enlargedCanvas.getContext('2d');
+            elements.enlargedCanvas.width = newWidth;
+            elements.enlargedCanvas.height = newHeight;
+            const dstCtx = elements.enlargedCanvas.getContext('2d');
             const dstData = dstCtx.createImageData(newWidth, newHeight);
             const dstPixels = dstData.data;
 
@@ -197,9 +199,9 @@ export class ImageResizerApp extends Application {
             }
 
             dstCtx.putImageData(dstData, 0, 0);
-            downloadBtn.disabled = false;
+            elements.downloadBtn.disabled = false;
 
-            info.innerHTML = `
+            elements.info.innerHTML = `
                 <strong>Original:</strong> ${originalImage.width}×${originalImage.height}px<br>
                 <strong>Target:</strong> ${targetWidth}×${targetHeight}px<br>
                 <strong>Enlarged:</strong> ${newWidth}×${newHeight}px (${scale.toFixed(2)}× scale)<br>
@@ -207,10 +209,10 @@ export class ImageResizerApp extends Application {
             `;
         }
 
-        downloadBtn.addEventListener('click', () => {
+        elements.downloadBtn.addEventListener('click', () => {
             const link = document.createElement('a');
-            link.download = `enlarged_${enlargedCanvas.width}x${enlargedCanvas.height}.png`;
-            link.href = enlargedCanvas.toDataURL('image/png');
+            link.download = `enlarged_${elements.enlargedCanvas.width}x${elements.enlargedCanvas.height}.png`;
+            link.href = elements.enlargedCanvas.toDataURL('image/png');
             link.click();
         });
     }
