@@ -19,10 +19,15 @@ export function launchWebampApp(app) {
   webampContainer = document.createElement('div');
   webampContainer.id = 'webamp-container';
   webampContainer.style.position = 'absolute';
-  webampContainer.style.zIndex = window.Win98System ? window.Win98System.incrementZIndex() : '1000';
+  webampContainer.style.zIndex = $Window.Z_INDEX++;
   webampContainer.style.left = '50px';
   webampContainer.style.top = '50px';
   document.body.appendChild(webampContainer);
+
+  // Bring to front on click
+  webampContainer.addEventListener('mousedown', () => {
+    webampContainer.style.zIndex = $Window.Z_INDEX++;
+  }, true); // Use capture to ensure it runs before other listeners
 
 
 
@@ -65,9 +70,7 @@ export function launchWebampApp(app) {
           // Webamp gained focus, update taskbar button and z-index
           if (webampTaskbarButton && !isMinimized) {
             updateTaskbarButton('webamp-taskbar-button', true, false);
-            if (window.Win98System) {
-              webampElement.style.zIndex = window.Win98System.incrementZIndex();
-            }
+            webampContainer.style.zIndex = $Window.Z_INDEX++;
           }
         });
 
@@ -117,9 +120,7 @@ function showWebamp() {
   isMinimized = false;
 
   // Bring Webamp to front using the window management system
-  if (window.Win98System) {
-    webampElement.style.zIndex = window.Win98System.incrementZIndex();
-  }
+  webampContainer.style.zIndex = $Window.Z_INDEX++;
 
   // Update taskbar button to show active state
   if (webampTaskbarButton) {
