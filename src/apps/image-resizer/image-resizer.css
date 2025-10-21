@@ -1,0 +1,68 @@
+.image-resizer-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.image-resizer-app .main-content {
+    display: flex;
+    flex-grow: 1;
+    padding: 12px;
+    gap: 12px;
+}
+
+.image-resizer-app .controls-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.image-resizer-app .buttons-container {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 12px;
+}
+
+.image-resizer-app .preview-area {
+    flex-grow: 1;
+    display: none; /* Hidden by default */
+    gap: 12px;
+}
+
+.image-resizer-app .canvas-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.image-resizer-app .sunken-panel {
+    flex-grow: 1;
+    padding: 2px;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-resizer-app canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.image-resizer-app .status-bar {
+    display: flex;
+}
+
+.image-resizer-app .status-bar-field {
+    flex: 1;
+}
+
+.image-resizer-app.dragover {
+    outline: 2px dashed blue;
+    outline-offset: -4px;
+}

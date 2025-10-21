@@ -4,6 +4,7 @@ import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
 import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
 import { ClippyApp } from '../apps/clippy/ClippyApp.js';
 import { WebampApp } from '../apps/webamp/WebampApp.js';
+import { ImageResizerApp } from '../apps/image-resizer/ImageResizerApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -16,6 +17,7 @@ export const appClasses = {
     'tipOfTheDay': TipOfTheDayApp,
     'clippy': ClippyApp,
     'webamp': WebampApp,
+    'image-resizer': ImageResizerApp,
 };
 
 export const apps = [
@@ -57,6 +59,15 @@ export const apps = [
     appClass: NotepadApp,
     width: 600,
     height: 400,
+    resizable: true,
+  },
+  {
+    id: "image-resizer",
+    title: "Image Resizer",
+    icon: ICONS.image,
+    appClass: ImageResizerApp,
+    width: 920,
+    height: 720,
     resizable: true,
   },
   {
