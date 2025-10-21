@@ -420,39 +420,51 @@
             if (!this.parentEl) return;
 
             const parentRect = this.parentEl.getBoundingClientRect();
-            const menuRect = this.element.getBoundingClientRect();
-
-            if (this.isSubmenu) {
-                // Position submenu to the right of the parent
-                this.element.style.left = `${parentRect.right}px`;
-                this.element.style.top = `${parentRect.top}px`;
-            } else {
-                // Position dropdown below the parent
-                this.element.style.left = `${parentRect.left}px`;
-                this.element.style.top = `${parentRect.bottom}px`;
-            }
-
-            // Adjust if menu goes off screen
+            // Use offsetWidth and offsetHeight to get the dimensions of the menu,
+            // since getBoundingClientRect() can be incorrect before the menu is shown.
+            const menuWidth = this.element.offsetWidth;
+            const menuHeight = this.element.offsetHeight;
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
 
-            if (menuRect.right > viewportWidth) {
-                if (this.isSubmenu) {
-                    // Show submenu to the left of parent
-                    this.element.style.left = `${parentRect.left - menuRect.width}px`;
-                } else {
-                    // Align with right edge of parent
-                    this.element.style.left = `${parentRect.right - menuRect.width}px`;
+            let x, y;
+
+            if (this.isSubmenu) {
+                // Default position: to the right of the parent item
+                x = parentRect.right;
+                y = parentRect.top;
+
+                // If it goes off-screen to the right, position it to the left
+                if (x + menuWidth > viewportWidth) {
+                    x = parentRect.left - menuWidth;
+                }
+
+                // If it goes off-screen to the bottom, align bottom edges
+                if (y + menuHeight > viewportHeight) {
+                    y = viewportHeight - menuHeight;
+                }
+            } else {
+                // Default position: below the parent element
+                x = parentRect.left;
+                y = parentRect.bottom;
+
+                // If it goes off-screen to the right, align right edges
+                if (x + menuWidth > viewportWidth) {
+                    x = parentRect.right - menuWidth;
+                }
+
+                // If it goes off-screen to the bottom, position it above the parent
+                if (y + menuHeight > viewportHeight) {
+                    y = parentRect.top - menuHeight;
                 }
             }
 
-            if (menuRect.bottom > viewportHeight) {
-                if (this.isSubmenu) {
-                    this.element.style.top = `${Math.max(0, viewportHeight - menuRect.height)}px`;
-                } else {
-                    this.element.style.top = `${parentRect.top - menuRect.height}px`;
-                }
-            }
+            // Final check to prevent going off the top or left of the screen
+            x = Math.max(0, x);
+            y = Math.max(0, y);
+
+            this.element.style.left = `${x}px`;
+            this.element.style.top = `${y}px`;
         }
     }
 
