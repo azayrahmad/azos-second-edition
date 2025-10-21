@@ -32,13 +32,19 @@ const cursorThemes = {
     },
 };
 
+const allCursorProperties = Object.keys(cursorThemes[Object.keys(cursorThemes)[0]]);
+
 export function applyCursor(theme) {
     const root = document.documentElement;
-    const cursorTheme = cursorThemes[theme] || cursorThemes['default'];
-    console.log('Applying cursor theme:', theme, cursorTheme);
+    const cursorTheme = cursorThemes[theme];
+
     if (cursorTheme) {
         for (const [property, value] of Object.entries(cursorTheme)) {
             root.style.setProperty(property, value);
+        }
+    } else {
+        for (const property of allCursorProperties) {
+            root.style.removeProperty(property);
         }
     }
 }
