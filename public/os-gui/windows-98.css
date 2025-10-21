@@ -487,16 +487,16 @@ body > .window-titlebar {
   background-color: var(--GrayText);
 }
 .window-action-close .window-button-icon {
-  --sprite-x: calc(-3 * 13px);
+  --sprite-x: calc(-3 * 13px - 1px);
 }
 .window-action-maximize .window-button-icon {
-  --sprite-x: calc(-1 * 13px);
+  --sprite-x: calc(-1 * 13px - 1px);
 }
 .window-action-restore .window-button-icon {
-  --sprite-x: calc(-2 * 13px);
+  --sprite-x: calc(-2 * 13px - 1px);
 }
 .window-action-minimize .window-button-icon {
-  --sprite-x: calc(-0 * 13px);
+  --sprite-x: calc(-0 * 13px - 1px);
 }
 .window-close-button {
   margin-left: 2px;
