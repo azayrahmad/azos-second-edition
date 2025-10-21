@@ -1,3 +1,4 @@
+window.clippyAppInstance = null;
 let currentAgentName = localStorage.getItem("clippyAgentName") || "Clippy";
 let inputBalloonTimeout = null;
 
@@ -101,6 +102,7 @@ async function askClippy(agent, question) {
 import { AGENT_NAMES } from "../../config/agents.js";
 
 export function getClippyMenuItems(app) {
+  const appInstance = app || window.clippyAppInstance;
   const agent = window.clippyAgent;
   if (!agent) {
     return [{ label: "Clippy not available", enabled: false }];
@@ -137,7 +139,7 @@ export function getClippyMenuItems(app) {
           setValue: (value) => {
             if (currentAgentName !== value) {
               setCurrentAgentName(value);
-              launchClippyApp(app, value);
+              launchClippyApp(appInstance, value);
             }
           },
         },
@@ -154,7 +156,9 @@ export function getClippyMenuItems(app) {
             useTTS: ttsEnabled,
             callback: () => {
               agent.play("GoodBye", 5000, () => {
-                app.close();
+                if (appInstance) {
+                  appInstance.close();
+                }
               });
             }
           }
@@ -202,6 +206,11 @@ export function showClippyContextMenu(event, app) {
 }
 
 export function launchClippyApp(app, agentName = currentAgentName) {
+  if (app) {
+    window.clippyAppInstance = app;
+  }
+  const appInstance = app || window.clippyAppInstance;
+
   if (window.clippyAgent) {
     // Gracefully hide and remove the current agent before loading a new one
     window.clippyAgent.hide(() => {
@@ -374,7 +383,7 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       if (agent.isSpeaking) return;
       e.preventDefault();
       contextMenuOpened = true;
-      showClippyContextMenu(e, app);
+      showClippyContextMenu(e, appInstance);
     });
 
     agent._el.on("mousedown", handleDragStart);
