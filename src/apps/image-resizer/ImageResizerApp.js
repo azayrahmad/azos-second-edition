@@ -2,99 +2,138 @@ import { Application } from '../Application.js';
 import './image-resizer.css';
 
 export class ImageResizerApp extends Application {
-    _createWindow() {
+    _onLaunch() {
         const win = this.win = new $Window({
             title: 'Image Resizer',
-            width: 920,
-            height: 720,
+            width: 600,
+            height: 480,
             resizable: true,
             icons: this.icon,
         });
 
-        // win.$content.style.overflow = 'hidden';
-        win.$content.append(`
-            <div class="container image-resizer-app">
-                <h1>🎨 Pixel Perfect Image Enlarger</h1>
-                <p class="subtitle">Upload an image and enlarge it with crisp, pixel-perfect scaling</p>
+        const menuBar = this._createMenuBar();
+        win.setMenuBar(menuBar);
 
-                <div class="upload-area" id="uploadArea">
-                    <p style="font-size: 18px; margin-bottom: 10px;">📁 Click or drag an image here</p>
-                    <p style="color: #999; font-size: 14px;">Supports PNG, JPG, GIF, and more</p>
-                    <input type="file" id="fileInput" accept="image/*">
-                </div>
-
-                <div class="controls">
-                    <label for="widthInput">Width (px):</label>
-                    <input type="number" id="widthInput" min="1" value="800">
-                    <label for="heightInput">Height (px):</label>
-                    <input type="number" id="heightInput" min="1" value="600">
-                    <label style="display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="aspectRatio" checked>
-                        Keep Aspect Ratio
-                    </label>
-                    <button id="enlargeBtn" disabled>Enlarge Image</button>
-                    <button id="downloadBtn" disabled>Download Result</button>
-                </div>
-
-                <div class="preview-area" id="previewArea">
-                    <div class="canvas-container">
-                        <div class="canvas-box">
-                            <h3>Original Image</h3>
-                            <canvas id="originalCanvas"></canvas>
-                        </div>
-                        <div class="canvas-box">
-                            <h3>Enlarged Image</h3>
-                            <canvas id="enlargedCanvas"></canvas>
-                        </div>
-                    </div>
-                    <div class="info" id="info"></div>
-                </div>
-            </div>
-        `);
+        win.content.innerHTML = this._getHTML();
         this.initApp();
     }
 
+    _createMenuBar() {
+        return new MenuBar({
+            "&File": [
+                {
+                    label: "&Open...",
+                    action: () => this.openFile(),
+                },
+                "MENU_DIVIDER",
+                {
+                    label: "E&xit",
+                    action: () => this.win.close(),
+                },
+            ],
+            "&Help": [
+                {
+                    label: "&About Image Resizer",
+                    action: () => this.showAboutDialog(),
+                },
+            ],
+        });
+    }
+
+    _getHTML() {
+        return `
+            <div class="image-resizer-app">
+                <div class="main-content">
+                    <fieldset class="controls-group">
+                        <legend>Resize Options</legend>
+                        <div class="field-row-stacked" style="width: 120px;">
+                            <label for="widthInput">Width (px):</label>
+                            <input type="number" id="widthInput" min="1" value="800">
+                        </div>
+                        <div class="field-row-stacked" style="width: 120px;">
+                            <label for="heightInput">Height (px):</label>
+                            <input type="number" id="heightInput" min="1" value="600">
+                        </div>
+                        <div class="field-row" style="margin-top: 10px;">
+                            <input type="checkbox" id="aspectRatio" checked>
+                            <label for="aspectRatio">Keep Aspect Ratio</label>
+                        </div>
+                        <div class="buttons-container">
+                            <button id="enlargeBtn" disabled>Enlarge</button>
+                            <button id="downloadBtn" disabled>Download</button>
+                        </div>
+                    </fieldset>
+
+                    <div class="preview-area" id="previewArea">
+                        <div class="canvas-box">
+                            <h3>Original</h3>
+                            <div class="sunken-panel">
+                                <canvas id="originalCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="canvas-box">
+                            <h3>Enlarged</h3>
+                            <div class="sunken-panel">
+                                <canvas id="enlargedCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-bar" id="info">
+                    <p class="status-bar-field">Drag an image onto the window or use File > Open</p>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+        `;
+    }
+
     initApp() {
-        const content = this.win.$content;
-        const elements = {
-            uploadArea: content.find('#uploadArea')[0],
-            fileInput: content.find('#fileInput')[0],
-            widthInput: content.find('#widthInput')[0],
-            heightInput: content.find('#heightInput')[0],
-            aspectRatio: content.find('#aspectRatio')[0],
-            enlargeBtn: content.find('#enlargeBtn')[0],
-            downloadBtn: content.find('#downloadBtn')[0],
-            previewArea: content.find('#previewArea')[0],
-            originalCanvas: content.find('#originalCanvas')[0],
-            enlargedCanvas: content.find('#enlargedCanvas')[0],
-            info: content.find('#info')[0]
-        };
+        const content = this.win.content;
+        const fileInput = content.querySelector('#fileInput');
+        const widthInput = content.querySelector('#widthInput');
+        const heightInput = content.querySelector('#heightInput');
+        const aspectRatio = content.querySelector('#aspectRatio');
+        const enlargeBtn = content.querySelector('#enlargeBtn');
+        const downloadBtn = content.querySelector('#downloadBtn');
+        const previewArea = content.querySelector('#previewArea');
+        const originalCanvas = content.querySelector('#originalCanvas');
+        const enlargedCanvas = content.querySelector('#enlargedCanvas');
+        const info = content.querySelector('#info');
+        const appContainer = content.querySelector('.image-resizer-app');
 
         let originalImage = null;
         let isUpdatingDimensions = false;
 
-        // Upload area interactions
-        elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
+        this.openFile = () => fileInput.click();
 
-        elements.uploadArea.addEventListener('dragover', (e) => {
+        this.showAboutDialog = () => {
+            alert("Image Resizer v1.0\\n\\nResizes images with pixel-perfect precision.");
+        };
+
+        // Make the entire window content the drop target
+        content.addEventListener('dragover', (e) => {
             e.preventDefault();
-            elements.uploadArea.classList.add('dragover');
+            e.stopPropagation();
+            appContainer.classList.add('dragover');
         });
 
-        elements.uploadArea.addEventListener('dragleave', () => {
-            elements.uploadArea.classList.remove('dragover');
+        content.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            appContainer.classList.remove('dragover');
         });
 
-        elements.uploadArea.addEventListener('drop', (e) => {
+        content.addEventListener('drop', (e) => {
             e.preventDefault();
-            elements.uploadArea.classList.remove('dragover');
+            e.stopPropagation();
+            appContainer.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
                 loadImage(file);
             }
         });
 
-        elements.fileInput.addEventListener('change', (e) => {
+        fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 loadImage(file);
@@ -109,12 +148,11 @@ export class ImageResizerApp extends Application {
                     originalImage = img;
                     drawOriginal();
 
-                    // Set default dimensions to 4x the original
-                    elements.widthInput.value = img.width * 4;
-                    elements.heightInput.value = img.height * 4;
+                    widthInput.value = img.width * 4;
+                    heightInput.value = img.height * 4;
 
-                    elements.enlargeBtn.disabled = false;
-                    elements.previewArea.classList.add('active');
+                    enlargeBtn.disabled = false;
+                    previewArea.style.display = 'flex'; // Make visible
                 };
                 img.src = e.target.result;
             };
@@ -122,47 +160,41 @@ export class ImageResizerApp extends Application {
         }
 
         function drawOriginal() {
-            elements.originalCanvas.width = originalImage.width;
-            elements.originalCanvas.height = originalImage.height;
-            const ctx = elements.originalCanvas.getContext('2d');
+            originalCanvas.width = originalImage.width;
+            originalCanvas.height = originalImage.height;
+            const ctx = originalCanvas.getContext('2d');
             ctx.drawImage(originalImage, 0, 0);
         }
 
-        // Handle aspect ratio maintenance
-        elements.widthInput.addEventListener('input', () => {
-            if (elements.aspectRatio.checked && originalImage && !isUpdatingDimensions) {
+        widthInput.addEventListener('input', () => {
+            if (aspectRatio.checked && originalImage && !isUpdatingDimensions) {
                 isUpdatingDimensions = true;
                 const ratio = originalImage.height / originalImage.width;
-                elements.heightInput.value = Math.round(elements.widthInput.value * ratio);
+                heightInput.value = Math.round(widthInput.value * ratio);
                 isUpdatingDimensions = false;
             }
         });
 
-        elements.heightInput.addEventListener('input', () => {
-            if (elements.aspectRatio.checked && originalImage && !isUpdatingDimensions) {
+        heightInput.addEventListener('input', () => {
+            if (aspectRatio.checked && originalImage && !isUpdatingDimensions) {
                 isUpdatingDimensions = true;
                 const ratio = originalImage.width / originalImage.height;
-                elements.widthInput.value = Math.round(elements.heightInput.value * ratio);
+                widthInput.value = Math.round(heightInput.value * ratio);
                 isUpdatingDimensions = false;
             }
         });
 
-        elements.enlargeBtn.addEventListener('click', enlargeImage);
+        enlargeBtn.addEventListener('click', enlargeImage);
 
         function enlargeImage() {
             if (!originalImage) return;
 
-            const targetWidth = parseInt(elements.widthInput.value);
-            const targetHeight = parseInt(elements.heightInput.value);
-
-            // Calculate scale factors for width and height
+            const targetWidth = parseInt(widthInput.value);
+            const targetHeight = parseInt(heightInput.value);
             const scaleX = targetWidth / originalImage.width;
             const scaleY = targetHeight / originalImage.height;
-
-            // Use the smaller scale to maintain aspect ratio within target dimensions
             const scale = Math.min(scaleX, scaleY);
 
-            // Calculate actual output dimensions (maintaining aspect ratio)
             const newWidth = Math.round(originalImage.width * scale);
             const newHeight = Math.round(originalImage.height * scale);
 
@@ -171,20 +203,17 @@ export class ImageResizerApp extends Application {
             srcCanvas.height = originalImage.height;
             const srcCtx = srcCanvas.getContext('2d');
             srcCtx.drawImage(originalImage, 0, 0);
-
             const srcData = srcCtx.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
             const srcPixels = srcData.data;
 
-            elements.enlargedCanvas.width = newWidth;
-            elements.enlargedCanvas.height = newHeight;
-            const dstCtx = elements.enlargedCanvas.getContext('2d');
+            enlargedCanvas.width = newWidth;
+            enlargedCanvas.height = newHeight;
+            const dstCtx = enlargedCanvas.getContext('2d');
             const dstData = dstCtx.createImageData(newWidth, newHeight);
             const dstPixels = dstData.data;
 
-            // Pixel-perfect scaling using nearest neighbor
             for (let dstY = 0; dstY < newHeight; dstY++) {
                 for (let dstX = 0; dstX < newWidth; dstX++) {
-                    // Map destination pixel back to source pixel (nearest neighbor)
                     const srcX = Math.floor(dstX / scale);
                     const srcY = Math.floor(dstY / scale);
 
@@ -199,20 +228,18 @@ export class ImageResizerApp extends Application {
             }
 
             dstCtx.putImageData(dstData, 0, 0);
-            elements.downloadBtn.disabled = false;
+            downloadBtn.disabled = false;
 
-            elements.info.innerHTML = `
-                <strong>Original:</strong> ${originalImage.width}×${originalImage.height}px<br>
-                <strong>Target:</strong> ${targetWidth}×${targetHeight}px<br>
-                <strong>Enlarged:</strong> ${newWidth}×${newHeight}px (${scale.toFixed(2)}× scale)<br>
-                <strong>Method:</strong> Pixel-perfect nearest-neighbor scaling (no interpolation)
+            info.innerHTML = `
+                <p class="status-bar-field">Original: ${originalImage.width}×${originalImage.height}px</p>
+                <p class="status-bar-field">Enlarged: ${newWidth}×${newHeight}px (${scale.toFixed(2)}× scale)</p>
             `;
         }
 
-        elements.downloadBtn.addEventListener('click', () => {
+        downloadBtn.addEventListener('click', () => {
             const link = document.createElement('a');
-            link.download = `enlarged_${elements.enlargedCanvas.width}x${elements.enlargedCanvas.height}.png`;
-            link.href = elements.enlargedCanvas.toDataURL('image/png');
+            link.download = `enlarged_${enlargedCanvas.width}x${enlargedCanvas.height}.png`;
+            link.href = enlargedCanvas.toDataURL('image/png');
             link.click();
         });
     }
