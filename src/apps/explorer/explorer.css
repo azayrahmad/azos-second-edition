@@ -1,0 +1,32 @@
+.explorer-app .window-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.explorer-app .header-container {
+    flex-shrink: 0;
+}
+
+.explorer-app .explorer-content {
+    flex-grow: 1;
+    background-color: white;
+    border: 1px solid #808080;
+    margin: 1px;
+}
+
+.animated-icon-container {
+    position: absolute;
+    right: 4px;
+    top: 2px;
+    width: 38px;
+    height: 38px;
+    cursor: default;
+}
+
+.animated-icon {
+    width: 100%;
+    height: 100%;
+    background-image: url('https://github.com/user-attachments/files/23015223/Bitmap304.bmp');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+}

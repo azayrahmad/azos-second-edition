@@ -4,6 +4,7 @@ import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
 import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
 import { ClippyApp } from '../apps/clippy/ClippyApp.js';
 import { WebampApp } from '../apps/webamp/WebampApp.js';
+import { ExplorerApp } from '../apps/explorer/ExplorerApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -16,6 +17,7 @@ export const appClasses = {
     'tipOfTheDay': TipOfTheDayApp,
     'clippy': ClippyApp,
     'webamp': WebampApp,
+    'explorer': ExplorerApp,
 };
 
 export const apps = [
@@ -95,5 +97,14 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "explorer",
+    title: "My Computer",
+    icon: ICONS.computer,
+    appClass: ExplorerApp,
+    width: 640,
+    height: 480,
+    resizable: true,
   },
 ];
