@@ -32,6 +32,15 @@
     <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
     <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
     <script src="https://unpkg.com/prettier@2.8.8/parser-css.js"></script>
+    <script>
+        // The parser scripts populate a global `prettierPlugins` object.
+        // We need to convert it to an array to pass to prettier.format().
+        if (typeof prettierPlugins === 'object' && prettierPlugins !== null) {
+            window.prettierPlugins = Object.values(prettierPlugins);
+        } else {
+            window.prettierPlugins = [];
+        }
+    </script>
     <script src="./os-gui/MenuBar.js"></script>
     <script src="./jquery-3.3.1.js"></script>
     <script src="./os-gui/$Window.js"></script>
