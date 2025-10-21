@@ -1,0 +1,55 @@
+body {
+    cursor: var(--cursor-default);
+}
+
+a, .desktop-icon, .menu-item, .tab, .button, .close-button, .maximize-button, .minimize-button {
+    cursor: var(--cursor-pointer);
+}
+
+input[type='text'], textarea {
+    cursor: var(--cursor-text);
+}
+
+.window, .dialog-window {
+    cursor: var(--cursor-default);
+}
+
+.window-title-bar {
+    cursor: var(--cursor-move);
+}
+
+.ui-resizable-handle {
+    cursor: var(--cursor-default);
+}
+
+.ui-resizable-n {
+    cursor: var(--cursor-ns-resize);
+}
+
+.ui-resizable-e {
+    cursor: var(--cursor-we-resize);
+}
+
+.ui-resizable-s {
+    cursor: var(--cursor-ns-resize);
+}
+
+.ui-resizable-w {
+    cursor: var(--cursor-we-resize);
+}
+
+.ui-resizable-ne {
+    cursor: var(--cursor-nesw-resize);
+}
+
+.ui-resizable-se {
+    cursor: var(--cursor-nwse-resize);
+}
+
+.ui-resizable-sw {
+    cursor: var(--cursor-nesw-resize);
+}
+
+.ui-resizable-nw {
+    cursor: var(--cursor-nwse-resize);
+}

@@ -16,7 +16,10 @@ export function getCurrentTheme() {
     return localStorage.getItem('desktop-theme') || 'default';
 }
 
+import { applyCursor } from './cursorManager.js';
+
 export function applyTheme() {
+    applyCursor(getCurrentTheme());
     const savedTheme = getCurrentTheme();
 
     themeIds.forEach(id => {
