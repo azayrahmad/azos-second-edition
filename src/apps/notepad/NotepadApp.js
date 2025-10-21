@@ -153,6 +153,12 @@ export class NotepadApp extends Application {
                     label: "HTML/Markdown Preview",
                     action: () => this.previewMarkdown(),
                 },
+                "MENU_DIVIDER",
+                {
+                    label: "&Format",
+                    shortcutLabel: "Ctrl+Shift+F",
+                    action: () => this.formatCode(),
+                },
             ],
             "&Help": [
                 {
@@ -639,21 +645,36 @@ hljs.highlightElement(this.highlighted);
     }
 
     formatCode() {
+        if (typeof prettier === 'undefined' || typeof prettierPlugins === 'undefined') {
+            this.statusText.textContent = 'Prettier library not loaded.';
+            setTimeout(() => this.statusText.textContent = 'Ready', 3000);
+            return;
+        }
+
         const language = languages.find(lang => lang.id === this.currentLanguage);
         const parser = language?.prettier;
+
         if (!parser) {
             this.statusText.textContent = `Formatting not available for ${language?.name || this.currentLanguage}.`;
             setTimeout(() => this.statusText.textContent = 'Ready', 3000);
             return;
         }
+
         try {
-            this.codeInput.value = prettier.format(this.codeInput.value, { parser, plugins: prettierPlugins });
-            this.statusText.textContent = 'Code formatted!';
+            const formattedCode = prettier.format(this.codeInput.value, {
+                parser: parser,
+                plugins: prettierPlugins,
+            });
+            this.codeInput.value = formattedCode;
+            this.isDirty = true;
+            this.updateTitle();
             this.updateHighlight();
+            this.statusText.textContent = 'Code formatted successfully.';
         } catch (error) {
-            this.statusText.textContent = 'Error formatting code.';
+            console.error('Prettier formatting error:', error);
+            this.statusText.textContent = `Error formatting code: ${error.message.split('\\n')[0]}`;
         } finally {
-            setTimeout(() => this.statusText.textContent = 'Ready', 2000);
+            setTimeout(() => this.statusText.textContent = 'Ready', 3000);
         }
     }
 }
