@@ -2,6 +2,10 @@ import { Application } from '../Application.js';
 import './image-resizer.css';
 
 export class ImageResizerApp extends Application {
+    constructor(config) {
+        super(config);
+    }
+
     _createWindow() {
         const win = this.win = new $Window({
             title: 'Image Resizer',
@@ -14,8 +18,14 @@ export class ImageResizerApp extends Application {
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
 
-        win.$content.append(this._getHTML());
-        this.initApp();
+        win.$content.append('<div class="image-resizer-container"></div>');
+        return win;
+    }
+
+    _onLaunch() {
+        const container = this.win.$content.find('.image-resizer-container')[0];
+        container.innerHTML = this._getHTML();
+        this._initApp();
     }
 
     _createMenuBar() {
@@ -87,7 +97,7 @@ export class ImageResizerApp extends Application {
         `;
     }
 
-    initApp() {
+    _initApp() {
         const content = this.win.$content;
         const fileInput = content.find('#fileInput')[0];
         const widthInput = content.find('#widthInput')[0];
