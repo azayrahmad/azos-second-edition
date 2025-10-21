@@ -24,8 +24,8 @@ export const ICONS = {
     32: new URL("../assets/icons/winamp.png", import.meta.url).href,
   },
   computer: {
-    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
+    16: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
   },
   folder: {
     16: new URL("../assets/icons/directory_open_file_mydocs_small-5.png", import.meta.url).href,
