@@ -1,4 +1,5 @@
 import { AboutApp } from '../apps/about/AboutApp.js';
+import { AppMakerApp } from '../apps/appmaker/AppMakerApp.js';
 import { NotepadApp } from '../apps/notepad/NotepadApp.js';
 import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
 import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
@@ -12,6 +13,7 @@ import { ICONS } from './icons.js';
 
 export const appClasses = {
     'about': AboutApp,
+    'appmaker': AppMakerApp,
     'notepad': NotepadApp,
     'pdfviewer': PdfViewerApp,
     'tipOfTheDay': TipOfTheDayApp,
@@ -21,6 +23,15 @@ export const appClasses = {
 };
 
 export const apps = [
+  {
+    id: "appmaker",
+    title: "App Maker",
+    icon: ICONS.appmaker,
+    appClass: AppMakerApp,
+    width: 400,
+    height: 300,
+    resizable: true,
+  },
   {
     id: "about",
     title: "About",
