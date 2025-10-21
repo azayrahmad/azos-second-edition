@@ -63,5 +63,22 @@ export class TipOfTheDayApp extends Application {
                 displayTip(currentTipIndex);
             });
         }
+
+        const showTipsCheckbox = contentElement.querySelector('#show-tips');
+        if (showTipsCheckbox) {
+            const showTipsKey = 'showTipsAtStartup';
+            let showTips = localStorage.getItem(showTipsKey);
+
+            if (showTips === null) {
+                showTips = 'true';
+                localStorage.setItem(showTipsKey, showTips);
+            }
+
+            showTipsCheckbox.checked = (showTips === 'true');
+
+            showTipsCheckbox.addEventListener('change', () => {
+                localStorage.setItem(showTipsKey, showTipsCheckbox.checked);
+            });
+        }
     }
 }

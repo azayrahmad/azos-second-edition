@@ -81,13 +81,9 @@ window.Win98WindowManager = system; // Using same instance for both since they'r
 
 // Initialize the OS
 console.log('azOS initialized');
-taskbar.init();
-initDesktop();
-setupCounter(document.querySelector('#counter'));
-
-window.ShowDialogWindow = ShowDialogWindow;
 
 playSound('WindowsLogon');
+taskbar.init();
+initDesktop();
 
-// ...existing code...
-
+window.ShowDialogWindow = ShowDialogWindow;

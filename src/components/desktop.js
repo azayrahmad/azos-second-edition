@@ -536,4 +536,11 @@ export function initDesktop() {
   });
 
   init(); // Initialize the taskbar manager
+
+  const showTipsAtStartup = localStorage.getItem('showTipsAtStartup');
+
+  console.log('Show Tips at Startup:', showTipsAtStartup);
+  if (showTipsAtStartup === null || showTipsAtStartup === 'true') {
+    launchApp('tipOfTheDay');
+  }
 }
