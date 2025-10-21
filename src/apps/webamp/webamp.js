@@ -27,84 +27,82 @@ export function launchWebampApp(app) {
 
 
   // Initialize Webamp
-  import('https://unpkg.com/webamp@^2').then((Webamp) => {
-    const { default: WebampClass } = Webamp;
-
-    webampInstance = new WebampClass({
-      initialTracks: [
-        {
-          metaData: {
-            artist: "DJ Mike Llama",
-            title: "Llama Whippin' Intro"
-          },
-          url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3"
-        }
-      ]
-    });
-
-    // Set up Webamp event listeners
-    webampInstance.onMinimize(() => {
-      minimizeWebamp();
-    });
-
-    webampInstance.onClose(() => {
-      app.close();
-    });
-
-    webampInstance.renderWhenReady(webampContainer).then(() => {
-      // Webamp is ready, show it
-      showWebamp();
-
-      // Add focus/blur event listeners to update taskbar button state
-      const webampElement = document.getElementById('webamp');
-      if (webampElement) {
-        // Set the id for window management
-        webampElement.id = 'webamp';
-
-        webampElement.addEventListener('focusin', () => {
-          // Webamp gained focus, update taskbar button and z-index
-          if (webampTaskbarButton && !isMinimized) {
-            updateTaskbarButton('webamp-taskbar-button', true, false);
-            if (window.Win98System) {
-              webampElement.style.zIndex = window.Win98System.incrementZIndex();
-            }
-          }
-        });
-
-        webampElement.addEventListener('focusout', () => {
-          // Webamp lost focus, update taskbar button to appear unselected
-          if (webampTaskbarButton) {
-            updateTaskbarButton('webamp-taskbar-button', false, false);
-          }
-        });
-      }
-    });
-    // Create taskbar button
-    const taskbarButtonId = 'webamp-taskbar-button';
-    webampTaskbarButton = createTaskbarButton(
-      taskbarButtonId,
-      ICONS.webamp,
-      "Winamp"
-    );
-
-    // Override the default click behavior for Webamp taskbar button
-    if (webampTaskbarButton) {
-      webampTaskbarButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (isMinimized) {
-          showWebamp();
-        } else {
-          minimizeWebamp();
-        }
-      });
-    }
-  }).catch((error) => {
+  if (!window.Webamp) {
     console.error('Failed to load Webamp:', error);
     webampContainer.innerHTML = '<div style="padding: 20px; text-align: center; background: white; border: 1px solid #ccc;">Failed to load Webamp. Please check your internet connection.</div>';
     showWebamp();
+    return;
+  }
+  const WebampClass = window.Webamp.default;
+  webampInstance = new WebampClass({
+    initialTracks: [
+      {
+        metaData: {
+          artist: "DJ Mike Llama",
+          title: "Llama Whippin' Intro"
+        },
+        url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3"
+      }
+    ]
   });
+
+  // Set up Webamp event listeners
+  webampInstance.onMinimize(() => {
+    minimizeWebamp();
+  });
+
+  webampInstance.onClose(() => {
+    app.close();
+  });
+
+  webampInstance.renderWhenReady(webampContainer).then(() => {
+    // Webamp is ready, show it
+    showWebamp();
+
+    // Add focus/blur event listeners to update taskbar button state
+    const webampElement = document.getElementById('webamp');
+    if (webampElement) {
+      // Set the id for window management
+      webampElement.id = 'webamp';
+
+      webampElement.addEventListener('focusin', () => {
+        // Webamp gained focus, update taskbar button and z-index
+        if (webampTaskbarButton && !isMinimized) {
+          updateTaskbarButton('webamp-taskbar-button', true, false);
+          webampElement.style.zIndex = $Window.Z_INDEX++;
+        }
+      });
+
+      webampElement.addEventListener('focusout', () => {
+        // Webamp lost focus, update taskbar button to appear unselected
+        if (webampTaskbarButton) {
+          updateTaskbarButton('webamp-taskbar-button', false, false);
+        }
+      });
+    }
+  });
+
+  // Create taskbar button
+  const taskbarButtonId = 'webamp-taskbar-button';
+  webampTaskbarButton = createTaskbarButton(
+    taskbarButtonId,
+    ICONS.webamp,
+    "Winamp"
+  );
+
+  // Override the default click behavior for Webamp taskbar button
+  if (webampTaskbarButton) {
+    webampTaskbarButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (isMinimized) {
+        showWebamp();
+      } else {
+        minimizeWebamp();
+      }
+    });
+  }
 }
 
 function showWebamp() {
