@@ -1,4 +1,5 @@
 .taskbar {
+  cursor: var(--cursor-default);
   position: fixed; /* Changed from sticky to fixed */
   bottom: 0; /* Ensure it's pinned to the bottom */
   left: 0;
