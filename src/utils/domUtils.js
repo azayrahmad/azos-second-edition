@@ -6,11 +6,9 @@ export function renderHTML(container, htmlString, snippetWrapperClass = null) {
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
+        iframe.srcdoc = htmlString;
         container.innerHTML = '';
         container.appendChild(iframe);
-        iframe.contentWindow.document.open();
-        iframe.contentWindow.document.write(htmlString);
-        iframe.contentWindow.document.close();
     } else {
         if (snippetWrapperClass) {
             container.innerHTML = `<div class="${snippetWrapperClass}">${htmlString}</div>`;
