@@ -16,15 +16,16 @@
     flex-direction: column;
 }
 
-.app-name-input,
-.html-input {
+.app-name-input {
     margin-bottom: 10px;
 }
 
-.html-input {
+#editor-container {
     flex-grow: 1;
-    resize: none;
+    display: flex;
+    flex-direction: column;
 }
+
 .button-container {
     display: flex;
     justify-content: flex-end;

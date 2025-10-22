@@ -1,8 +1,10 @@
 import { Application } from '../Application.js';
 import './appmaker.css';
+import '../../components/notepad-editor.css';
 import { setupIcons } from '../../components/desktop.js';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 import { registerCustomApp } from '../../utils/customAppManager.js';
+import { NotepadEditor } from '../../components/NotepadEditor.js';
 
 export class AppMakerApp extends Application {
     constructor(config) {
@@ -59,7 +61,12 @@ export class AppMakerApp extends Application {
         container.innerHTML = this._getHTML();
 
         this.appNameInput = container.querySelector('#appName');
-        this.appHtmlInput = container.querySelector('#appHtml');
+        const editorContainer = container.querySelector('#editor-container');
+
+        this.editor = new NotepadEditor(editorContainer, {
+            win: this.win,
+            language: 'html'
+        });
 
         container.querySelector('#previewBtn').addEventListener('click', () => this._previewApp());
         container.querySelector('#saveBtn').addEventListener('click', () => this._saveApp());
@@ -67,7 +74,7 @@ export class AppMakerApp extends Application {
 
     _previewApp() {
         const appName = this.appNameInput.value || 'Preview';
-        const appHtml = this.appHtmlInput.value;
+        const appHtml = this.editor.getValue();
 
         const previewWindow = new $Window({
             title: appName,
@@ -81,7 +88,7 @@ export class AppMakerApp extends Application {
 
     _saveApp() {
         const appName = this.appNameInput.value;
-        const appHtml = this.appHtmlInput.value;
+        const appHtml = this.editor.getValue();
 
         if (!appName) {
             alert('Please enter an app name.');
@@ -99,7 +106,12 @@ export class AppMakerApp extends Application {
         registerCustomApp(appInfo);
 
         const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
-        savedApps.push(appInfo);
+        const existingAppIndex = savedApps.findIndex(app => app.id === appId);
+        if (existingAppIndex > -1) {
+            savedApps[existingAppIndex] = appInfo;
+        } else {
+            savedApps.push(appInfo);
+        }
         setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, savedApps);
 
         setupIcons();
@@ -112,7 +124,7 @@ export class AppMakerApp extends Application {
                     <label for="appName">App Name:</label>
                     <input type="text" id="appName" class="app-name-input" placeholder="Enter app name">
                     <label for="appHtml">HTML Content:</label>
-                    <textarea id="appHtml" class="html-input" placeholder="Enter HTML here"></textarea>
+                    <div id="editor-container"></div>
                 </div>
                 <div class="button-container">
                     <button id="previewBtn">Preview</button>

@@ -1,7 +1,9 @@
 import { Application } from '../Application.js';
 import './notepad.css';
+import '../../components/notepad-editor.css';
 import { languages } from '../../config/languages.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
+import { NotepadEditor } from '../../components/NotepadEditor.js';
 
 export class NotepadApp extends Application {
     constructor(config) {
@@ -19,37 +21,6 @@ export class NotepadApp extends Application {
 
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
-
-        // const addressBarItems = [
-        //     {
-        //         label: "My Computer",
-        //         icon: "/src/assets/icons/computer-3.png",
-        //         children: [
-        //             {
-        //                 label: "3½ Floppy (A:)",
-        //                 icon: "/src/assets/icons/floppy-drive-3.png",
-        //             },
-        //             {
-        //                 label: "(C:)",
-        //                 icon: "/src/assets/icons/drive-2.png",
-        //                 children: [
-        //                     {
-        //                         label: "Program Files",
-        //                         icon: "/src/assets/icons/folder-2.png",
-        //                         selected: true,
-        //                     },
-        //                     {
-        //                         label: "Windows",
-        //                         icon: "/src/assets/icons/folder-2.png",
-        //                     }
-        //                 ]
-        //             }
-        //         ]
-        //     }
-        // ];
-        // const addressBar = new AddressBar(addressBarItems);
-        // win.$content.prepend(addressBar.element);
-
 
         win.$content.append('<div class="notepad-container"></div>');
         return win;
@@ -114,13 +85,13 @@ export class NotepadApp extends Application {
                 {
                     label: "Select &All",
                     shortcutLabel: "Ctrl+A",
-                    action: () => this.codeInput?.select(),
+                    action: () => this.editor.codeInput.select(),
                 },
                 "MENU_DIVIDER",
                 {
                     label: "&Word Wrap",
                     checkbox: {
-                        check: () => this.wordWrap,
+                        check: () => this.editor.wordWrap,
                         toggle: () => this.toggleWordWrap(),
                     },
                 },
@@ -144,7 +115,7 @@ export class NotepadApp extends Application {
                     submenu: [
                         {
                             radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
-                            getValue: () => this.currentLanguage,
+                            getValue: () => this.editor.currentLanguage,
                             setValue: (value) => this.setLanguage(value),
                         },
                     ]
@@ -171,24 +142,14 @@ export class NotepadApp extends Application {
 
     _onLaunch() {
         const container = this.win.$content.find('.notepad-container')[0];
-        container.innerHTML = this._getHTML();
-        this._initEditor();
-    }
+        this.editor = new NotepadEditor(container, {
+            win: this.win,
+            onInput: () => {
+                this.isDirty = true;
+                this.updateTitle();
+            }
+        });
 
-    _getHTML() {
-        return `
-            <div class="editor-wrapper">
-                <pre><code class="highlighted"></code></pre>
-                <textarea class="codeInput" spellcheck="false"></textarea>
-            </div>
-            <div class="status-bar">
-                <p class="status-bar-field statusText">Ready</p>
-                <p class="status-bar-field lineCount">Lines: 1</p>
-            </div>
-        `;
-    }
-
-    _initEditor() {
         this.fileHandle = null;
         this.isDirty = false;
         this.fileName = 'Untitled';
@@ -199,13 +160,6 @@ export class NotepadApp extends Application {
         };
 
         this.updateTitle();
-
-        const container = this.win.$content;
-        this.codeInput = container.find('.codeInput')[0];
-        this.highlighted = container.find('.highlighted')[0];
-        this.statusText = container.find('.statusText')[0];
-        this.lineCount = container.find('.lineCount')[0];
-        this.currentLanguage = 'text';
 
         const notepadContainer = this.win.$content.find('.notepad-container')[0];
         notepadContainer.addEventListener('dragover', (e) => {
@@ -242,20 +196,12 @@ export class NotepadApp extends Application {
 
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.codeInput.value = event.target.result;
+                this.editor.setValue(event.target.result);
                 this.isDirty = false;
                 this.updateTitle();
-                this.updateHighlight();
             };
             reader.readAsText(file);
         });
-
-        this.codeInput.addEventListener('input', () => {
-            this.isDirty = true;
-            this.updateTitle();
-            this.updateHighlight();
-        });
-        this.codeInput.addEventListener('scroll', this.syncScroll.bind(this));
 
         this.win.on('close', (e) => {
             if (this.isDirty) {
@@ -263,36 +209,11 @@ export class NotepadApp extends Application {
                 this.showUnsavedChangesDialogOnClose();
             }
         });
-
-        this.wordWrap = false;
-        this.updateHighlight();
-        this.syncPadding();
-        this.win.on('resize', this.syncPadding.bind(this));
     }
 
     toggleWordWrap() {
-        this.wordWrap = !this.wordWrap;
-        this.applyWordWrap();
-        this.syncPadding();
+        this.editor.toggleWordWrap();
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
-    }
-
-    applyWordWrap() {
-        const styleValue = this.wordWrap ? 'pre-wrap' : 'pre';
-        const overflowValue = this.wordWrap ? 'break-word' : 'normal';
-        this.codeInput.style.whiteSpace = styleValue;
-        this.codeInput.style.overflowWrap = overflowValue;
-        this.highlighted.style.whiteSpace = styleValue;
-        this.highlighted.style.overflowWrap = overflowValue;
-        this.updateHighlight();
-    }
-
-    syncPadding() {
-        const scrollbarWidth = this.codeInput.offsetWidth - this.codeInput.clientWidth;
-        const scrollbarHeight = this.codeInput.offsetHeight - this.codeInput.clientHeight;
-        const preElement = this.highlighted.parentElement;
-        preElement.style.paddingRight = `${scrollbarWidth + 8}px`;
-        preElement.style.paddingBottom = `${scrollbarHeight + 8}px`;
     }
 
     showFindDialog() {
@@ -361,7 +282,7 @@ export class NotepadApp extends Application {
             return;
         }
 
-        const editor = this.codeInput;
+        const editor = this.editor.codeInput;
         const text = editor.value;
         const searchTerm = caseSensitive ? term : term.toLowerCase();
         const textToSearch = caseSensitive ? text : text.toLowerCase();
@@ -444,7 +365,7 @@ export class NotepadApp extends Application {
     }
 
     previewMarkdown() {
-        const html = marked.parse(this.codeInput.value);
+        const html = marked.parse(this.editor.getValue());
         const previewWindow = new $Window({
             title: 'HTML/Markdown Preview',
             innerWidth: 600,
@@ -486,10 +407,9 @@ export class NotepadApp extends Application {
             this.setLanguage(this.getLanguageFromExtension(file.name));
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.codeInput.value = event.target.result;
+                this.editor.setValue(event.target.result);
                 this.isDirty = false;
                 this.updateTitle();
-                this.updateHighlight();
             };
             reader.readAsText(file);
         };
@@ -498,12 +418,11 @@ export class NotepadApp extends Application {
 
     async clearContent() {
         if (await this.checkForUnsavedChanges() === 'cancel') return;
-        this.codeInput.value = '';
+        this.editor.setValue('');
         this.fileName = 'Untitled';
         this.fileHandle = null;
         this.isDirty = false;
         this.updateTitle();
-        this.updateHighlight();
     }
 
     async saveFile() {
@@ -512,8 +431,8 @@ export class NotepadApp extends Application {
                 await this.writeFile(this.fileHandle);
                 this.isDirty = false;
                 this.updateTitle();
-                this.statusText.textContent = 'File saved.';
-                setTimeout(() => this.statusText.textContent = 'Ready', 2000);
+                this.editor.statusText.textContent = 'File saved.';
+                setTimeout(() => this.editor.statusText.textContent = 'Ready', 2000);
             } catch (err) {
                 console.error('Error saving file:', err);
             }
@@ -542,7 +461,7 @@ export class NotepadApp extends Application {
             const newFileName = prompt("Enter a filename:", this.fileName === 'Untitled' ? 'Untitled.txt' : this.fileName);
             if (!newFileName) return;
             this.fileName = newFileName;
-            const blob = new Blob([this.codeInput.value], { type: 'text/plain' });
+            const blob = new Blob([this.editor.getValue()], { type: 'text/plain' });
             const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
             a.download = this.fileName;
@@ -555,41 +474,22 @@ a.href = URL.createObjectURL(blob);
 
     async writeFile(fileHandle) {
         const writable = await fileHandle.createWritable();
-        await writable.write(this.codeInput.value);
+        await writable.write(this.editor.getValue());
         await writable.close();
     }
 
     pasteText() {
-        this.codeInput.focus();
+        this.editor.focus();
         navigator.clipboard.readText().then(text => {
             document.execCommand('insertText', false, text);
-            this.updateHighlight();
         }).catch(() => {
             document.execCommand('paste');
-            this.updateHighlight();
         });
     }
 
     setLanguage(lang) {
-        this.currentLanguage = lang;
-        this.updateHighlight();
+        this.editor.setLanguage(lang);
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
-    }
-
-    syncScroll() {
-        this.highlighted.style.top = `-${this.codeInput.scrollTop}px`;
-        this.highlighted.style.left = `-${this.codeInput.scrollLeft}px`;
-    }
-
-    updateHighlight() {
-        const code = this.codeInput.value;
-        const language = languages.find(lang => lang.id === this.currentLanguage);
-        this.highlighted.textContent = code + '\n';
-        this.highlighted.className = `highlighted language-${language ? language.hljs : 'text'}`;
-        this.highlighted.removeAttribute('data-highlighted');
-hljs.highlightElement(this.highlighted);
-        this.lineCount.textContent = `Lines: ${code.split('\n').length}`;
-        this.syncScroll();
     }
 
     getInlineStyledHTML() {
@@ -597,8 +497,8 @@ hljs.highlightElement(this.highlighted);
         tempDiv.style.cssText = 'position: absolute; visibility: hidden;';
         const tempPre = document.createElement('pre');
         const tempCode = document.createElement('code');
-        tempCode.className = this.highlighted.className;
-        tempCode.textContent = this.codeInput.value;
+        tempCode.className = this.editor.highlighted.className;
+        tempCode.textContent = this.editor.getValue();
         tempPre.appendChild(tempCode);
         tempDiv.appendChild(tempPre);
         document.body.appendChild(tempDiv);
@@ -636,45 +536,44 @@ hljs.highlightElement(this.highlighted);
             const successful = document.execCommand('copy');
             document.body.removeChild(tempEl);
             window.getSelection().removeAllRanges();
-            this.statusText.textContent = successful ? '✓ Copied to clipboard!' : 'Copy failed!';
+            this.editor.statusText.textContent = successful ? '✓ Copied to clipboard!' : 'Copy failed!';
         } catch (err) {
-            this.statusText.textContent = 'Copy failed!';
+            this.editor.statusText.textContent = 'Copy failed!';
         } finally {
-            setTimeout(() => this.statusText.textContent = 'Ready', 2000);
+            setTimeout(() => this.editor.statusText.textContent = 'Ready', 2000);
         }
     }
 
     formatCode() {
         if (typeof prettier === 'undefined' || typeof prettierPlugins === 'undefined') {
-            this.statusText.textContent = 'Prettier library not loaded.';
-            setTimeout(() => this.statusText.textContent = 'Ready', 3000);
+            this.editor.statusText.textContent = 'Prettier library not loaded.';
+            setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
             return;
         }
 
-        const language = languages.find(lang => lang.id === this.currentLanguage);
+        const language = languages.find(lang => lang.id === this.editor.currentLanguage);
         const parser = language?.prettier;
 
         if (!parser) {
-            this.statusText.textContent = `Formatting not available for ${language?.name || this.currentLanguage}.`;
-            setTimeout(() => this.statusText.textContent = 'Ready', 3000);
+            this.editor.statusText.textContent = `Formatting not available for ${language?.name || this.editor.currentLanguage}.`;
+            setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
             return;
         }
 
         try {
-            const formattedCode = prettier.format(this.codeInput.value, {
+            const formattedCode = prettier.format(this.editor.getValue(), {
                 parser: parser,
                 plugins: prettierPlugins,
             });
-            this.codeInput.value = formattedCode;
+            this.editor.setValue(formattedCode);
             this.isDirty = true;
             this.updateTitle();
-            this.updateHighlight();
-            this.statusText.textContent = 'Code formatted successfully.';
+            this.editor.statusText.textContent = 'Code formatted successfully.';
         } catch (error) {
             console.error('Prettier formatting error:', error);
-            this.statusText.textContent = `Error formatting code: ${error.message.split('\\n')[0]}`;
+            this.editor.statusText.textContent = `Error formatting code: ${error.message.split('\\n')[0]}`;
         } finally {
-            setTimeout(() => this.statusText.textContent = 'Ready', 3000);
+            setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
         }
     }
 }
