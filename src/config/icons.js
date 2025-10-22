@@ -1,7 +1,11 @@
 export const ICONS = {
   appmaker: {
-    16: new URL("../assets/icons/word_001.ico", import.meta.url).href,
-    32: new URL("../assets/icons/word_001.ico", import.meta.url).href,
+    16: new URL("../assets/icons/appwizard-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/appwizard-2.png", import.meta.url).href,
+  },
+  appmakerApp: {
+    16: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
   },
   about: {
     16: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
