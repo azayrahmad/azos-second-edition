@@ -464,7 +464,7 @@ function configureIcon(icon, app, filePath = null) {
   };
 
   icon.addEventListener("mousedown", handleDragStart);
-  icon.addEventListener("touchstart", handleDragStart, { passive: true }); // Use passive:true to improve scroll performance initially
+  icon.addEventListener("touchstart", handleDragStart);
 
   icon.addEventListener("click", function (e) {
     if (wasDragged || isLongPress) {
