@@ -11,23 +11,26 @@
 }
 
 .input-container {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
+}
+
+.app-name-input,
+.html-input {
     margin-bottom: 10px;
 }
 
-.app-name-input {
-    margin-bottom: 10px;
-}
-
-.editor-wrapper, .preview-wrapper {
-    height: 100%;
-}
-
-.preview-wrapper {
-    padding: 5px;
-}
-
-.window[role="tabpanel"] {
+.html-input {
     flex-grow: 1;
+    resize: none;
+}
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.button-container button {
+    margin-left: 10px;
 }
