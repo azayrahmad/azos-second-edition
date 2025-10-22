@@ -89,8 +89,11 @@ export class NotepadEditor {
     }
 
     syncScroll() {
-        this.highlighted.style.top = `-${this.codeInput.scrollTop}px`;
-        this.highlighted.style.left = `-${this.codeInput.scrollLeft}px`;
+        const preElement = this.highlighted.parentElement;
+        preElement.scrollTop = this.codeInput.scrollTop;
+        preElement.scrollLeft = this.codeInput.scrollLeft;
+        this.highlighted.scrollTop = this.codeInput.scrollTop;
+        this.highlighted.scrollLeft = this.codeInput.scrollLeft;
     }
 
     updateHighlight() {

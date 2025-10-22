@@ -41,7 +41,7 @@
     pointer-events: none;
     white-space: pre;
     overflow-wrap: normal;
-    overflow-y: hidden;
+    overflow: auto;
     position: absolute;
     top: 0;
     left: 0;
@@ -64,7 +64,6 @@
     padding: 0 !important;
     margin: 0 !important;
     display: block;
-    position: relative;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
