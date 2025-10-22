@@ -1,5 +1,5 @@
 export function renderHTML(container, htmlString, snippetWrapperClass = null) {
-    const isFullHtml = /<!DOCTYPE html>/i.test(htmlString) || /<html[\s>]/i.test(htmlString) || /<body[\s>]/i.test(htmlString);
+    const isFullHtml = /<!DOCTYPE html>/i.test(htmlString) || /<html[\s>]/i.test(htmlString) || /<body[\s>]/i.test(htmlString) || /<head[\s>]/i.test(htmlString) || /<title[\s>]/i.test(htmlString) || /<style[\s>]/i.test(htmlString) || /<meta[\s>]/i.test(htmlString);
 
     if (isFullHtml) {
         const iframe = document.createElement('iframe');
