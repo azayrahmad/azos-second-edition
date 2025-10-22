@@ -170,6 +170,28 @@ function removeWallpaper() {
   applyWallpaper();
 }
 
+function getMonitorType() {
+  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || 'CRT';
+}
+
+function setMonitorType(type) {
+  setItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE, type);
+  if (type === 'CRT') {
+    document.body.classList.add('scanlines');
+  } else {
+    document.body.classList.remove('scanlines');
+  }
+}
+
+function applyMonitorType() {
+    const type = getMonitorType();
+    if (type === 'CRT') {
+        document.body.classList.add('scanlines');
+    } else {
+        document.body.classList.remove('scanlines');
+    }
+}
+
 function showDesktopContextMenu(event) {
   const themes = getThemes();
 
@@ -226,13 +248,16 @@ function showDesktopContextMenu(event) {
       }],
     },
     {
-      label: 'Scanlines',
-      checkbox: {
-        check: () => document.body.classList.contains('scanlines'),
-        toggle: () => {
-          document.body.classList.toggle('scanlines');
-        }
-      }
+      label: 'Monitor Type',
+      submenu: [{
+        radioItems: [
+          { label: 'TFT', value: 'TFT' },
+          { label: 'CRT', value: 'CRT' },
+        ],
+        getValue: () => getMonitorType(),
+        setValue: (value) => setMonitorType(value),
+        ariaLabel: 'Monitor Type'
+      }],
     }
   ];
 
@@ -508,6 +533,7 @@ export function initDesktop() {
   console.log("Initializing Win98 Desktop Manager...");
   applyTheme();
   applyWallpaper();
+  applyMonitorType();
   setupIcons();
 
   const desktop = document.querySelector('.desktop');
