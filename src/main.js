@@ -1,6 +1,7 @@
 import './style.css'
 import { setupCounter } from './counter.js'
 import { initDesktop } from './components/desktop.js'
+import { getItem, LOCAL_STORAGE_KEYS } from './utils/localStorage.js';
 import { apps, appClasses } from './config/apps.js';
 import { ICONS } from './config/icons.js';
 import { Application } from './apps/Application.js';
@@ -85,7 +86,7 @@ window.Win98System = system;
 window.Win98WindowManager = system; // Using same instance for both since they're closely related
 
 function loadCustomApps() {
-    const savedApps = JSON.parse(localStorage.getItem('customApps')) || [];
+    const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
 
     savedApps.forEach(appInfo => {
         registerCustomApp(appInfo);

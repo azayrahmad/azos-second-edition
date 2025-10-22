@@ -1,6 +1,7 @@
 import { Application } from '../Application.js';
 import './appmaker.css';
 import { setupIcons } from '../../components/desktop.js';
+import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 import { registerCustomApp } from '../../utils/customAppManager.js';
 
 export class AppMakerApp extends Application {
@@ -97,9 +98,9 @@ export class AppMakerApp extends Application {
 
         registerCustomApp(appInfo);
 
-        const savedApps = JSON.parse(localStorage.getItem('customApps')) || [];
+        const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
         savedApps.push(appInfo);
-        localStorage.setItem('customApps', JSON.stringify(savedApps));
+        setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, savedApps);
 
         setupIcons();
     }
