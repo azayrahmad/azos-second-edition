@@ -5,6 +5,7 @@ import { setupIcons } from '../../components/desktop.js';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 import { registerCustomApp } from '../../utils/customAppManager.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
+import { renderHTML } from '../../utils/domUtils.js';
 
 export class AppMakerApp extends Application {
     constructor(config) {
@@ -83,7 +84,7 @@ export class AppMakerApp extends Application {
             resizable: true,
         });
 
-        previewWindow.$content.html(appHtml);
+        renderHTML(previewWindow.$content[0], appHtml);
     }
 
     _saveApp() {
