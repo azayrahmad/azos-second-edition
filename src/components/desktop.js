@@ -297,6 +297,32 @@ function showDesktopContextMenu(event) {
   }, 0);
 }
 
+function findNextOpenPosition(desktop, iconWidth, iconHeight, gap) {
+  const occupiedPositions = new Set();
+  const icons = desktop.querySelectorAll('.desktop-icon');
+
+  icons.forEach(icon => {
+    const x = parseInt(icon.style.left, 10);
+    const y = parseInt(icon.style.top, 10);
+    if (!isNaN(x) && !isNaN(y)) {
+      occupiedPositions.add(`${x},${y}`);
+    }
+  });
+
+  const containerWidth = desktop.clientWidth;
+  const containerHeight = desktop.clientHeight;
+
+  for (let y = gap; y + iconHeight <= containerHeight; y += iconHeight + gap) {
+    for (let x = gap; x + iconWidth <= containerWidth; x += iconWidth + gap) {
+      if (!occupiedPositions.has(`${x},${y}`)) {
+        return { x, y };
+      }
+    }
+  }
+
+  return { x: gap, y: gap }; // Fallback to the top-left corner
+}
+
 function showProperties(app) {
   console.log(`Show properties for: ${app.title}`);
   // TODO: Implement properties dialog
@@ -317,9 +343,17 @@ export function setupIcons() {
 
   const placeIcon = (icon, iconId) => {
     if (iconPositions[iconId]) {
-      icon.style.position = "absolute";
-      icon.style.left = iconPositions[iconId].x;
-      icon.style.top = iconPositions[iconId].y;
+        icon.style.position = "absolute";
+        icon.style.left = iconPositions[iconId].x;
+        icon.style.top = iconPositions[iconId].y;
+    } else if (desktop.classList.contains('has-absolute-icons')) {
+        // If we are in manual mode but this icon has no position, find one
+        const { x, y } = findNextOpenPosition(desktop, 70, 60, 5); // Using default icon size and gap
+        icon.style.position = "absolute";
+        icon.style.left = `${x}px`;
+        icon.style.top = `${y}px`;
+        iconPositions[iconId] = { x: `${x}px`, y: `${y}px` };
+        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
     desktop.appendChild(icon);
   };

@@ -69,7 +69,9 @@ export function registerCustomApp(appInfo) {
 
     apps.push(newApp);
     appClasses[appInfo.id] = newApp.appClass;
-    desktopConfig.apps.push(appInfo.id);
+    if (!desktopConfig.apps.includes(appInfo.id)) {
+        desktopConfig.apps.push(appInfo.id);
+    }
 }
 
 export function deleteCustomApp(appId) {
