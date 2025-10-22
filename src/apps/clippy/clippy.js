@@ -69,7 +69,8 @@ function showClippyInputBalloon() {
 
   askButton.on("click", askClippyHandler);
 
-  cancelButton.on("click", () => {
+  cancelButton.on("click", (e) => {
+    e.stopPropagation();
     clearBalloonTimeout();
     agent.closeBalloon();
   });
@@ -294,11 +295,19 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       { useTTS: ttsEnabled }
     );
 
+    let rightClickFlag = false;
+    agent._el.on('mousedown', (e) => {
+        if (e.button === 2) {
+            rightClickFlag = true;
+        }
+    });
+
     agent._el.on("click", (e) => {
-      if (contextMenuOpened) {
-        contextMenuOpened = false;
+      if (rightClickFlag) {
+        rightClickFlag = false;
         return;
       }
+
       if (agent.isSpeaking) return;
       // Also check if a context menu is open
       if (document.querySelector('.menu-popup')) return;
@@ -308,7 +317,6 @@ export function launchClippyApp(app, agentName = currentAgentName) {
     agent._el.on("contextmenu", function (e) {
       if (agent.isSpeaking) return;
       e.preventDefault();
-      contextMenuOpened = true;
       showClippyContextMenu(e, app);
     });
   });
