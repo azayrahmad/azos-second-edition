@@ -118,8 +118,8 @@ html {
 .highlighted-label {
   background-color: var(--highlight-blue);
   color: var(--highlight-text);
-}
+  /* }
 
-.selected {
+.selected { */
   border: 1px dotted var(--HilightText);
 }
