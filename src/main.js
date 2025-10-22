@@ -1,6 +1,11 @@
 import './style.css'
 import { setupCounter } from './counter.js'
 import { initDesktop } from './components/desktop.js'
+import { apps, appClasses } from './config/apps.js';
+import { ICONS } from './config/icons.js';
+import { Application } from './apps/Application.js';
+import { registerCustomApp } from './utils/customAppManager.js';
+import desktopConfig from './config/desktop.json';
 import { taskbar } from './components/taskbar.js'
 import { ShowDialogWindow } from './components/DialogWindow.js'
 import { playSound } from './utils/soundManager.js';
@@ -79,10 +84,19 @@ const system = new WindowManagerSystem();
 window.Win98System = system;
 window.Win98WindowManager = system; // Using same instance for both since they're closely related
 
+function loadCustomApps() {
+    const savedApps = JSON.parse(localStorage.getItem('customApps')) || [];
+
+    savedApps.forEach(appInfo => {
+        registerCustomApp(appInfo);
+    });
+}
+
 // Initialize the OS
 console.log('azOS initialized');
 
 playSound('WindowsLogon');
+loadCustomApps();
 taskbar.init();
 initDesktop();
 

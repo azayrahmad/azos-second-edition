@@ -4,7 +4,7 @@
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
 import desktopApps from "../config/desktop.json";
-import { launchApp } from "../utils/appManager.js";
+import { launchApp, handleAppAction } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
 import { ICONS } from "../config/icons.js";
 import { playSound } from '../utils/soundManager.js';
