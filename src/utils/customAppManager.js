@@ -1,3 +1,4 @@
+import { getItem, setItem, LOCAL_STORAGE_KEYS } from './localStorage.js';
 import { Application } from '../apps/Application.js';
 import { apps, appClasses } from '../config/apps.js';
 import { ICONS } from '../config/icons.js';
@@ -66,7 +67,7 @@ export function deleteCustomApp(appId) {
         desktopConfig.apps.splice(desktopIndex, 1);
     }
 
-    const savedApps = JSON.parse(localStorage.getItem('customApps')) || [];
+    const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
     const newSavedApps = savedApps.filter(app => app.id !== appId);
-    localStorage.setItem('customApps', JSON.stringify(newSavedApps));
+    setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, newSavedApps);
 }

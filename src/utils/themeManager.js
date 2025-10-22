@@ -1,3 +1,5 @@
+import { getItem, setItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
+
 const themes = {
     default: 'Default',
     'peggys-pastels': "Peggy's Pastels",
@@ -13,7 +15,7 @@ export function getThemes() {
 }
 
 export function getCurrentTheme() {
-    return localStorage.getItem('desktop-theme') || 'default';
+    return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || 'default';
 }
 
 export function applyTheme() {
@@ -28,7 +30,7 @@ export function applyTheme() {
 }
 
 export function setTheme(theme) {
-    localStorage.setItem('desktop-theme', theme);
+    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, theme);
     applyTheme();
     document.dispatchEvent(new CustomEvent('theme-changed'));
 }

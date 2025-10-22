@@ -3,6 +3,7 @@
  */
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
+import { getItem, setItem, removeItem, LOCAL_STORAGE_KEYS } from '../utils/localStorage.js';
 import desktopApps from "../config/desktop.json";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
@@ -125,7 +126,7 @@ function setWallpaper() {
       const reader = new FileReader();
       reader.onload = (readerEvent) => {
         const dataUrl = readerEvent.target.result;
-        localStorage.setItem('wallpaper', dataUrl);
+        setItem(LOCAL_STORAGE_KEYS.WALLPAPER, dataUrl);
         applyWallpaper();
       };
       reader.readAsDataURL(file);
@@ -135,17 +136,17 @@ function setWallpaper() {
 }
 
 function getWallpaperMode() {
-  return localStorage.getItem('wallpaperMode') || 'tile';
+  return getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || 'tile';
 }
 
 function setWallpaperMode(mode) {
-  localStorage.setItem('wallpaperMode', mode);
+  setItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE, mode);
   applyWallpaper();
   document.dispatchEvent(new CustomEvent('wallpaper-changed'));
 }
 
 function applyWallpaper() {
-  const wallpaper = localStorage.getItem('wallpaper');
+  const wallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
   const desktop = document.querySelector('.desktop');
   if (wallpaper) {
     const mode = getWallpaperMode();
@@ -165,7 +166,7 @@ function applyWallpaper() {
 }
 
 function removeWallpaper() {
-  localStorage.removeItem('wallpaper');
+  removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
   applyWallpaper();
 }
 
@@ -177,7 +178,7 @@ function showDesktopContextMenu(event) {
       label: 'Sort Icons',
       click: () => {
         // Remove saved positions and redraw icons
-        localStorage.removeItem('iconPositions');
+        removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
         setupIcons();
       },
     },
@@ -280,7 +281,7 @@ export function setupIcons() {
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
-  const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
+  const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
 
   // If there are any saved positions, we are in manual mode.
   if (Object.keys(iconPositions).length > 0) {
@@ -385,7 +386,7 @@ function configureIcon(icon, app, filePath = null) {
         i.style.top = y;
         iconPositions[id] = { x, y };
       });
-      localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
+      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
       desktop.classList.add('has-absolute-icons');
     }
 
@@ -442,12 +443,12 @@ function configureIcon(icon, app, filePath = null) {
     isDragging = false;
 
     if (wasDragged) {
-      const iconPositions = JSON.parse(localStorage.getItem("iconPositions")) || {};
+      const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
       iconPositions[iconId] = {
         x: icon.style.left,
         y: icon.style.top,
       };
-      localStorage.setItem("iconPositions", JSON.stringify(iconPositions));
+      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
 
     document.removeEventListener("mousemove", handleDragMove);
@@ -537,10 +538,10 @@ export function initDesktop() {
 
   init(); // Initialize the taskbar manager
 
-  const showTipsAtStartup = localStorage.getItem('showTipsAtStartup');
+  const showTipsAtStartup = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);
 
   console.log('Show Tips at Startup:', showTipsAtStartup);
-  if (showTipsAtStartup === null || showTipsAtStartup === 'true') {
+  if (showTipsAtStartup === null || showTipsAtStartup === 'true' || showTipsAtStartup === true) {
     launchApp('tipOfTheDay');
   }
 }

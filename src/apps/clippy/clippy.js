@@ -1,10 +1,12 @@
+import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
+
 window.clippyAppInstance = null;
-let currentAgentName = localStorage.getItem("clippyAgentName") || "Clippy";
+let currentAgentName = getItem(LOCAL_STORAGE_KEYS.CLIPPY_AGENT_NAME) || "Clippy";
 let inputBalloonTimeout = null;
 
 function setCurrentAgentName(name) {
   currentAgentName = name;
-  localStorage.setItem("clippyAgentName", name);
+  setItem(LOCAL_STORAGE_KEYS.CLIPPY_AGENT_NAME, name);
 }
 
 function showClippyInputBalloon() {
