@@ -3,6 +3,7 @@ export const LOCAL_STORAGE_KEYS = {
   CUSTOM_APPS: 'customApps',
   SHOW_TIPS_AT_STARTUP: 'showTipsAtStartup',
   CLIPPY_AGENT_NAME: 'clippyAgentName',
+  CLIPPY_TTS_ENABLED: 'clippyTTSEnabled',
   WALLPAPER: 'wallpaper',
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
