@@ -1,5 +1,5 @@
-export function renderHTML(container, htmlString) {
-    const isFullHtml = /<html[\s>]/i.test(htmlString) || /<body[\s>]/i.test(htmlString);
+export function renderHTML(container, htmlString, snippetWrapperClass = null) {
+    const isFullHtml = /<!DOCTYPE html>/i.test(htmlString) || /<html[\s>]/i.test(htmlString) || /<body[\s>]/i.test(htmlString);
 
     if (isFullHtml) {
         const iframe = document.createElement('iframe');
@@ -12,6 +12,10 @@ export function renderHTML(container, htmlString) {
         iframe.contentWindow.document.write(htmlString);
         iframe.contentWindow.document.close();
     } else {
-        container.innerHTML = htmlString;
+        if (snippetWrapperClass) {
+            container.innerHTML = `<div class="${snippetWrapperClass}">${htmlString}</div>`;
+        } else {
+            container.innerHTML = htmlString;
+        }
     }
 }

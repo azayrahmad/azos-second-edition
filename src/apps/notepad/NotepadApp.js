@@ -395,7 +395,7 @@ export class NotepadApp extends Application {
         previewContainer.appendChild(footer);
         previewWindow.$content.append(previewContainer);
 
-        renderHTML(contentArea, html);
+        renderHTML(contentArea, html, 'markdown-preview sunken-panel');
 
         footer.querySelector('.copy-button').addEventListener('click', (e) => {
             navigator.clipboard.writeText(html).then(() => {
