@@ -101,6 +101,7 @@ function ShowDialogWindow(options) {
     if (modal) {
         modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
+        modalOverlay.style.zIndex = $Window.Z_INDEX++;
         document.body.appendChild(modalOverlay);
         win.onClosed(() => {
             document.body.removeChild(modalOverlay);

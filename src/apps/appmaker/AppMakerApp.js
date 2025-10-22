@@ -1,4 +1,5 @@
 import { Application } from '../Application.js';
+import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import './appmaker.css';
 import '../../components/notepad-editor.css';
 import { setupIcons } from '../../components/desktop.js';
@@ -92,30 +93,50 @@ export class AppMakerApp extends Application {
         const appHtml = this.editor.getValue();
 
         if (!appName) {
-            alert('Please enter an app name.');
+            ShowDialogWindow({
+                title: 'Error',
+                text: 'Please enter an app name.',
+                soundEvent: 'SystemHand',
+            });
             return;
         }
 
-        const appId = appName.toLowerCase().replace(/\s/g, '');
+        ShowDialogWindow({
+            title: 'Save App',
+            text: `Are you sure you want to save the app "${appName}"?`,
+            modal: true,
+            buttons: [
+                {
+                    label: 'Yes',
+                    action: () => {
+                        const appId = appName.toLowerCase().replace(/\s/g, '');
 
-        const appInfo = {
-            id: appId,
-            title: appName,
-            html: appHtml,
-        };
+                        const appInfo = {
+                            id: appId,
+                            title: appName,
+                            html: appHtml,
+                        };
 
-        registerCustomApp(appInfo);
+                        registerCustomApp(appInfo);
 
-        const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
-        const existingAppIndex = savedApps.findIndex(app => app.id === appId);
-        if (existingAppIndex > -1) {
-            savedApps[existingAppIndex] = appInfo;
-        } else {
-            savedApps.push(appInfo);
-        }
-        setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, savedApps);
+                        const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
+                        const existingAppIndex = savedApps.findIndex(app => app.id === appId);
+                        if (existingAppIndex > -1) {
+                            savedApps[existingAppIndex] = appInfo;
+                        } else {
+                            savedApps.push(appInfo);
+                        }
+                        setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, savedApps);
 
-        setupIcons();
+                        setupIcons();
+                    },
+                    isDefault: true,
+                },
+                {
+                    label: 'No',
+                },
+            ],
+        });
     }
 
     _getHTML() {

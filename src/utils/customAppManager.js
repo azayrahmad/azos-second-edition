@@ -1,4 +1,5 @@
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from './localStorage.js';
+import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { renderHTML } from './domUtils.js';
 import { Application } from '../apps/Application.js';
 import { apps, appClasses } from '../config/apps.js';
@@ -43,8 +44,24 @@ export function registerCustomApp(appInfo) {
             {
                 label: 'Delete',
                 action: () => {
-                    deleteCustomApp(appInfo.id);
-                    setupIcons();
+                    ShowDialogWindow({
+                        title: 'Delete App',
+                        text: `Are you sure you want to delete the app "${appInfo.title}"?`,
+                        modal: true,
+                        buttons: [
+                            {
+                                label: 'Yes',
+                                action: () => {
+                                    deleteCustomApp(appInfo.id);
+                                    setupIcons();
+                                },
+                                isDefault: true,
+                            },
+                            {
+                                label: 'No',
+                            },
+                        ],
+                    });
                 },
             },
         ],
