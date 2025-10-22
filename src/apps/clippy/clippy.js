@@ -131,6 +131,18 @@ export function getClippyMenuItems(app) {
         );
       },
     },
+    {
+      label: "Enable &TTS",
+      checkbox: {
+        check: () => getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true,
+        toggle: () => {
+          const currentState = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+          const newState = !currentState;
+          setItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED, newState);
+          if (agent) agent.setTTSEnabled(newState);
+        },
+      },
+    },
     "MENU_DIVIDER",
     {
       label: "A&gent",
@@ -228,6 +240,10 @@ export function launchClippyApp(app, agentName = currentAgentName) {
 
   clippy.load(agentName, function (agent) {
     window.clippyAgent = agent;
+
+    const ttsUserPref = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+    agent.setTTSEnabled(ttsUserPref);
+
     agent.show();
 
     let contextMenuOpened = false;

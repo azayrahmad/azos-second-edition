@@ -237,6 +237,10 @@ clippy.Agent.prototype = {
     this._balloon.stopTTS();
   },
 
+  setTTSEnabled: function (enabled) {
+    this._balloon.setTTSEnabled(enabled);
+  },
+
   delay: function (time) {
     time = time || 250;
 
@@ -723,6 +727,7 @@ clippy.Balloon = function (targetEl) {
 
   this._hidden = true;
   this._ttsEnabled = !!window.speechSynthesis;
+  this._ttsUserEnabled = this._ttsEnabled;
   this._isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   this._ttsOptions = {
     voice: null,
@@ -1129,7 +1134,11 @@ clippy.Balloon.prototype = {
    * @returns {Boolean}
    */
   isTTSEnabled: function () {
-    return this._ttsEnabled;
+    return this._ttsUserEnabled;
+  },
+
+  setTTSEnabled: function (enabled) {
+    this._ttsUserEnabled = this._ttsEnabled && enabled;
   },
 
   /**
