@@ -1,5 +1,6 @@
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from './localStorage.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
+import { renderHTML } from './domUtils.js';
 import { Application } from '../apps/Application.js';
 import { apps, appClasses } from '../config/apps.js';
 import { ICONS } from '../config/icons.js';
@@ -21,7 +22,7 @@ export function registerCustomApp(appInfo) {
                 resizable: true,
                 icons: this.icon,
             });
-            win.$content.html(appInfo.html);
+            renderHTML(win.$content[0], appInfo.html);
             return win;
         }
     }
