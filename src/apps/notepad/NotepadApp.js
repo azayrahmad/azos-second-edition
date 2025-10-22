@@ -4,6 +4,7 @@ import '../../components/notepad-editor.css';
 import { languages } from '../../config/languages.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
+import { renderHTML } from '../../utils/domUtils.js';
 
 export class NotepadApp extends Application {
     constructor(config) {
@@ -372,13 +373,31 @@ export class NotepadApp extends Application {
             innerHeight: 400,
             resizable: true,
         });
-        previewWindow.$content.html(`
-            <div class="markdown-preview sunken-panel">${html}</div>
-            <div class="markdown-preview-footer" style="text-align: right; padding: 5px;">
-                <button class="copy-button">Copy HTML</button>
-            </div>
-        `);
-        previewWindow.element.querySelector('.copy-button').addEventListener('click', (e) => {
+
+        const previewContainer = document.createElement('div');
+        previewContainer.className = 'markdown-preview-container';
+        previewContainer.style.height = '100%';
+        previewContainer.style.display = 'flex';
+        previewContainer.style.flexDirection = 'column';
+
+        const contentArea = document.createElement('div');
+        contentArea.className = 'markdown-preview-content';
+        contentArea.style.flexGrow = '1';
+        contentArea.style.overflow = 'auto';
+
+        const footer = document.createElement('div');
+        footer.className = 'markdown-preview-footer';
+        footer.style.textAlign = 'right';
+        footer.style.padding = '5px';
+        footer.innerHTML = '<button class="copy-button">Copy HTML</button>';
+
+        previewContainer.appendChild(contentArea);
+        previewContainer.appendChild(footer);
+        previewWindow.$content.append(previewContainer);
+
+        renderHTML(contentArea, html);
+
+        footer.querySelector('.copy-button').addEventListener('click', (e) => {
             navigator.clipboard.writeText(html).then(() => {
                 e.target.textContent = 'Copied!';
                 setTimeout(() => e.target.textContent = 'Copy HTML', 2000);
