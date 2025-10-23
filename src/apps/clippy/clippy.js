@@ -122,13 +122,9 @@ export function getClippyMenuItems(app) {
       click: () => showClippyInputBalloon(),
     },
     {
-      label: "&Help",
+      label: "&Tutorial",
       click: () => {
-        agent.speakAndAnimate(
-          "Hi! I'm here to help you learn about Aziz Rahmad's resume. You can ask me questions about his skills, experience, education, or projects. For example, try asking: 'What are Aziz's technical skills?', 'Tell me about his work experience', or 'What projects has he worked on?' Just click on me and type your question in the input box that appears!",
-          "Explain",
-          { useTTS: ttsEnabled }
-        );
+        startTutorial(agent);
       },
     },
     {
@@ -407,4 +403,86 @@ export function launchClippyApp(app, agentName = currentAgentName) {
     agent._el.on("mousedown", handleDragStart);
     agent._el.on("touchstart", handleDragStart, { passive: true });
   });
+}
+
+function startTutorial(agent) {
+  if (!agent || agent.isSpeaking) return;
+
+  agent.stop();
+  const ttsEnabled = agent.isTTSEnabled();
+  const initialPos = agent._el.offset();
+
+  const getElementTopLeft = (selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  };
+
+  const getElementCenter = (selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  };
+
+  const appMakerIcon = getElementTopLeft('.desktop-icon[for="appMaker"]');
+  const notepadIcon = getElementTopLeft('.desktop-icon[for="notepad"]');
+  const assistantIcon = getElementTopLeft('.desktop-icon[for="clippy"]');
+  const startButton = getElementCenter('.start-button');
+  const iconsArea = { x: 40, y: 100 };
+
+  const sequence = [
+    // Welcome
+    (complete) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Greeting", { useTTS: ttsEnabled, callback: complete }),
+
+    // Desktop Icons
+    (complete) => agent.moveTo(iconsArea.x + 100, iconsArea.y, 1500, complete),
+    (complete) => {
+      agent.gestureAt(iconsArea.x, iconsArea.y);
+      agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: complete });
+    },
+
+    // Start Menu
+    ...(startButton ? [
+      (complete) => agent.moveTo(startButton.x + 80, startButton.y - 80, 1500, complete),
+      (complete) => {
+        agent.gestureAt(startButton.x, startButton.y);
+        agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: complete });
+      },
+    ] : []),
+
+    // App Maker
+    ...(appMakerIcon ? [
+      (complete) => agent.moveTo(appMakerIcon.x + 80, appMakerIcon.y, 1500, complete),
+      (complete) => {
+        agent.gestureAt(appMakerIcon.x, appMakerIcon.y);
+        agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: complete });
+      },
+    ] : []),
+
+    // Notepad
+    ...(notepadIcon ? [
+      (complete) => agent.moveTo(notepadIcon.x + 80, notepadIcon.y, 1500, complete),
+      (complete) => {
+        agent.gestureAt(notepadIcon.x, notepadIcon.y);
+        agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: complete });
+      },
+    ] : []),
+
+    // Assistant
+    ...(assistantIcon ? [
+      (complete) => agent.moveTo(assistantIcon.x + 80, assistantIcon.y, 1500, complete),
+      (complete) => {
+        agent.gestureAt(assistantIcon.x, assistantIcon.y);
+        agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: complete });
+      },
+    ] : []),
+
+    // Return home
+    (complete) => agent.moveTo(initialPos.left, initialPos.top, 2000, complete),
+    (complete) => agent.speakAndAnimate("That's the tour! Let me know if you need anything else.", "Wave", { useTTS: ttsEnabled, callback: complete }),
+  ];
+
+  sequence.forEach(step => agent._addToQueue(step));
 }
