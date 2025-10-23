@@ -70,8 +70,8 @@ export class AppMakerApp extends Application {
             language: 'html'
         });
 
-        container.querySelector('#previewBtn').addEventListener('click', () => this._previewApp());
-        container.querySelector('#saveBtn').addEventListener('click', () => this._saveApp());
+        // container.querySelector('#previewBtn').addEventListener('click', () => this._previewApp());
+        // container.querySelector('#saveBtn').addEventListener('click', () => this._saveApp());
     }
 
     _previewApp() {
@@ -147,10 +147,6 @@ export class AppMakerApp extends Application {
                     <input type="text" id="appName" class="app-name-input" placeholder="Enter app name">
                     <label for="appHtml">HTML Content:</label>
                     <div id="editor-container"></div>
-                </div>
-                <div class="button-container">
-                    <button id="previewBtn">Preview</button>
-                    <button id="saveBtn">Save App</button>
                 </div>
             </div>
         `;

@@ -12,14 +12,14 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { ICONS } from './icons.js';
 
 export const appClasses = {
-    'about': AboutApp,
-    'appmaker': AppMakerApp,
-    'notepad': NotepadApp,
-    'pdfviewer': PdfViewerApp,
-    'tipOfTheDay': TipOfTheDayApp,
-    'clippy': ClippyApp,
-    'webamp': WebampApp,
-    'image-resizer': ImageResizerApp,
+  'about': AboutApp,
+  'appmaker': AppMakerApp,
+  'notepad': NotepadApp,
+  'pdfviewer': PdfViewerApp,
+  'tipOfTheDay': TipOfTheDayApp,
+  'clippy': ClippyApp,
+  'webamp': WebampApp,
+  'image-resizer': ImageResizerApp,
 };
 
 export const apps = [
@@ -28,8 +28,8 @@ export const apps = [
     title: "App Maker",
     icon: ICONS.appmaker,
     appClass: AppMakerApp,
-    width: 400,
-    height: 300,
+    width: 600,
+    height: 400,
     resizable: true,
   },
   {
