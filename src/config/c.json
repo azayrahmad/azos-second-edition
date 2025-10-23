@@ -1,0 +1,24 @@
+{
+  "User": {
+    "Desktop": {
+      "apps": [
+        "about",
+        "pdfviewer",
+        "tipOfTheDay",
+        "notepad",
+        "image-resizer",
+        "clippy",
+        "webamp",
+        "alertTest",
+        "appmaker"
+      ],
+      "files": [
+        {
+          "filename": "Resume.pdf",
+          "app": "pdfviewer",
+          "path": "Resume.pdf"
+        }
+      ]
+    }
+  }
+}
