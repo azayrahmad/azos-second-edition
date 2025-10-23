@@ -426,6 +426,14 @@ function startTutorial(agent) {
     return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
   };
 
+  const playGesture = (x, y, callback) => {
+    const direction = agent._getDirection(x, y);
+    const gestureAnim = "Gesture" + direction;
+    const lookAnim = "Look" + direction;
+    const animation = agent.hasAnimation(gestureAnim) ? gestureAnim : lookAnim;
+    agent.play(animation, 3000, callback);
+  };
+
   const appMakerIcon = getElementTopLeft('.desktop-icon[for="appMaker"]');
   const notepadIcon = getElementTopLeft('.desktop-icon[for="notepad"]');
   const assistantIcon = getElementTopLeft('.desktop-icon[for="clippy"]');
@@ -444,11 +452,12 @@ function startTutorial(agent) {
     (done) => agent.moveTo(iconsArea.x + 100, iconsArea.y, 1500, done)
   );
   sequence.push(
-    (done) => {
-      agent.gestureAt(iconsArea.x, iconsArea.y);
-      agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: done });
-    }
+    (done) => playGesture(iconsArea.x, iconsArea.y, done)
   );
+  sequence.push(
+    (done) => agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: done })
+  );
+
 
   // 3. Start Menu
   if (startButton) {
@@ -456,10 +465,10 @@ function startTutorial(agent) {
       (done) => agent.moveTo(startButton.x + 80, startButton.y - 80, 1500, done)
     );
     sequence.push(
-      (done) => {
-        agent.gestureAt(startButton.x, startButton.y);
-        agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: done });
-      }
+      (done) => playGesture(startButton.x, startButton.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: done })
     );
   }
 
@@ -469,10 +478,10 @@ function startTutorial(agent) {
       (done) => agent.moveTo(appMakerIcon.x + 80, appMakerIcon.y, 1500, done)
     );
     sequence.push(
-      (done) => {
-        agent.gestureAt(appMakerIcon.x, appMakerIcon.y);
-        agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: done });
-      }
+      (done) => playGesture(appMakerIcon.x, appMakerIcon.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: done })
     );
   }
 
@@ -482,10 +491,10 @@ function startTutorial(agent) {
       (done) => agent.moveTo(notepadIcon.x + 80, notepadIcon.y, 1500, done)
     );
     sequence.push(
-      (done) => {
-        agent.gestureAt(notepadIcon.x, notepadIcon.y);
-        agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: done });
-      }
+      (done) => playGesture(notepadIcon.x, notepadIcon.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: done })
     );
   }
 
@@ -495,10 +504,10 @@ function startTutorial(agent) {
       (done) => agent.moveTo(assistantIcon.x + 80, assistantIcon.y, 1500, done)
     );
     sequence.push(
-      (done) => {
-        agent.gestureAt(assistantIcon.x, assistantIcon.y);
-        agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: done });
-      }
+      (done) => playGesture(assistantIcon.x, assistantIcon.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: done })
     );
   }
 
