@@ -122,13 +122,9 @@ export function getClippyMenuItems(app) {
       click: () => showClippyInputBalloon(),
     },
     {
-      label: "&Help",
+      label: "&Tutorial",
       click: () => {
-        agent.speakAndAnimate(
-          "Hi! I'm here to help you learn about Aziz Rahmad's resume. You can ask me questions about his skills, experience, education, or projects. For example, try asking: 'What are Aziz's technical skills?', 'Tell me about his work experience', or 'What projects has he worked on?' Just click on me and type your question in the input box that appears!",
-          "Explain",
-          { useTTS: ttsEnabled }
-        );
+        startTutorial(agent);
       },
     },
     {
@@ -339,4 +335,131 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       showClippyContextMenu(e, appInstance);
     });
   });
+}
+
+function startTutorial(agent) {
+  if (!agent || agent.isSpeaking) return;
+
+  agent.stop();
+  const ttsEnabled = agent.isTTSEnabled();
+  const initialPos = agent._el.offset();
+
+  const getElementTopLeft = (selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left, y: rect.top };
+  };
+
+  const getElementCenter = (selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  };
+
+  const playGesture = (x, y, callback) => {
+    const direction = agent._getDirection(x, y);
+    const gestureAnim = "Gesture" + direction;
+    const lookAnim = "Look" + direction;
+    const animation = agent.hasAnimation(gestureAnim) ? gestureAnim : lookAnim;
+    agent.play(animation, 3000, callback);
+  };
+
+  const appMakerIcon = getElementTopLeft('.desktop-icon[data-app-id="appmaker"]');
+  const notepadIcon = getElementTopLeft('.desktop-icon[data-app-id="notepad"]');
+  const assistantIcon = getElementTopLeft('.desktop-icon[data-app-id="clippy"]');
+  const startButton = getElementCenter('.start-button');
+  const iconsArea = { x: 40, y: 100 };
+
+  const sequence = [];
+
+  // 1. Welcome
+  sequence.push(
+    (done) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Explain", { useTTS: ttsEnabled, callback: done })
+  );
+
+  // 2. Desktop Icons
+  sequence.push(
+    (done) => agent._el.animate({ top: iconsArea.y, left: iconsArea.x + 100 }, 1500, done)
+  );
+  sequence.push(
+    (done) => playGesture(iconsArea.x, iconsArea.y, done)
+  );
+  sequence.push(
+    (done) => agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: done })
+  );
+
+
+  // 3. Start Menu
+  if (startButton) {
+    sequence.push(
+      (done) => agent._el.animate({ top: startButton.y - 80, left: startButton.x + 80 }, 1500, done)
+    );
+    sequence.push(
+      (done) => playGesture(startButton.x, startButton.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: done })
+    );
+  }
+
+  // 4. App Maker
+  if (appMakerIcon) {
+    sequence.push(
+      (done) => agent._el.animate({ top: appMakerIcon.y, left: appMakerIcon.x + 80 }, 1500, done)
+    );
+    sequence.push(
+      (done) => playGesture(appMakerIcon.x, appMakerIcon.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: done })
+    );
+  }
+
+  // 5. Notepad
+  if (notepadIcon) {
+    sequence.push(
+      (done) => agent._el.animate({ top: notepadIcon.y, left: notepadIcon.x + 80 }, 1500, done)
+    );
+    sequence.push(
+      (done) => playGesture(notepadIcon.x, notepadIcon.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: done })
+    );
+  }
+
+  // 6. Assistant
+  if (assistantIcon) {
+    sequence.push(
+      (done) => agent._el.animate({ top: assistantIcon.y, left: assistantIcon.x + 80 }, 1500, done)
+    );
+    sequence.push(
+      (done) => playGesture(assistantIcon.x, assistantIcon.y, done)
+    );
+    sequence.push(
+      (done) => agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: done })
+    );
+  }
+
+  // 7. Return home
+  sequence.push(
+    (done) => agent._el.animate({ top: initialPos.top, left: initialPos.left }, 2000, done)
+  );
+  sequence.push(
+    (done) => agent.speakAndAnimate("That's the tour! Let me know if you need anything else.", "Wave", { useTTS: ttsEnabled, callback: done })
+  );
+
+  // --- Sequence Executor ---
+  let currentIndex = 0;
+  function runNext() {
+    if (currentIndex < sequence.length) {
+      const step = sequence[currentIndex];
+      currentIndex++;
+      step(runNext); // Pass the executor as the 'done' callback
+    }
+  }
+
+  runNext();
 }
