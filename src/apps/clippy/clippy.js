@@ -449,7 +449,7 @@ function startTutorial(agent) {
 
   // 2. Desktop Icons
   sequence.push(
-    (done) => agent.moveTo(iconsArea.x + 100, iconsArea.y, 1500, done)
+    (done) => agent._el.animate({ top: iconsArea.y, left: iconsArea.x + 100 }, 1500, done)
   );
   sequence.push(
     (done) => playGesture(iconsArea.x, iconsArea.y, done)
@@ -462,7 +462,7 @@ function startTutorial(agent) {
   // 3. Start Menu
   if (startButton) {
     sequence.push(
-      (done) => agent.moveTo(startButton.x + 80, startButton.y - 80, 1500, done)
+      (done) => agent._el.animate({ top: startButton.y - 80, left: startButton.x + 80 }, 1500, done)
     );
     sequence.push(
       (done) => playGesture(startButton.x, startButton.y, done)
@@ -475,7 +475,7 @@ function startTutorial(agent) {
   // 4. App Maker
   if (appMakerIcon) {
     sequence.push(
-      (done) => agent.moveTo(appMakerIcon.x + 80, appMakerIcon.y, 1500, done)
+      (done) => agent._el.animate({ top: appMakerIcon.y, left: appMakerIcon.x + 80 }, 1500, done)
     );
     sequence.push(
       (done) => playGesture(appMakerIcon.x, appMakerIcon.y, done)
@@ -488,7 +488,7 @@ function startTutorial(agent) {
   // 5. Notepad
   if (notepadIcon) {
     sequence.push(
-      (done) => agent.moveTo(notepadIcon.x + 80, notepadIcon.y, 1500, done)
+      (done) => agent._el.animate({ top: notepadIcon.y, left: notepadIcon.x + 80 }, 1500, done)
     );
     sequence.push(
       (done) => playGesture(notepadIcon.x, notepadIcon.y, done)
@@ -501,7 +501,7 @@ function startTutorial(agent) {
   // 6. Assistant
   if (assistantIcon) {
     sequence.push(
-      (done) => agent.moveTo(assistantIcon.x + 80, assistantIcon.y, 1500, done)
+      (done) => agent._el.animate({ top: assistantIcon.y, left: assistantIcon.x + 80 }, 1500, done)
     );
     sequence.push(
       (done) => playGesture(assistantIcon.x, assistantIcon.y, done)
@@ -513,7 +513,7 @@ function startTutorial(agent) {
 
   // 7. Return home
   sequence.push(
-    (done) => agent.moveTo(initialPos.left, initialPos.top, 2000, done)
+    (done) => agent._el.animate({ top: initialPos.top, left: initialPos.left }, 2000, done)
   );
   sequence.push(
     (done) => agent.speakAndAnimate("That's the tour! Let me know if you need anything else.", "Wave", { useTTS: ttsEnabled, callback: done })
