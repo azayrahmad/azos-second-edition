@@ -402,6 +402,10 @@ body > .window-titlebar {
   /*border: 1px solid var(--WindowFrame);*/
   /* TODO: use window-specific theme colors; also different types of windows */
 }
+.os-window.maximized {
+  border: none;
+}
+
 .os-window:not(.maximized) {
   border-style: solid;
   border-width: 1px;
