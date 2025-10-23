@@ -175,7 +175,8 @@ clippy.Agent.prototype = {
     }
 
     this.resume();
-    return this.play("Greeting");
+    var animation = this.hasAnimation("Greeting") ? "Greeting" : "Greet";
+    return this.play(animation);
   },
 
   /***
