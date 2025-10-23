@@ -33,6 +33,11 @@ export class AppMakerApp extends Application {
         return new MenuBar({
             "&File": [
                 {
+                    label: "&Open HTML...",
+                    action: () => this._openHtmlFile(),
+                },
+                "MENU_DIVIDER",
+                {
                     label: "&Save",
                     shortcutLabel: "Ctrl+S",
                     action: () => this._saveApp(),
@@ -63,6 +68,8 @@ export class AppMakerApp extends Application {
         container.innerHTML = this._getHTML();
 
         this.appNameInput = container.querySelector('#appName');
+        this.appNameInput.addEventListener('input', () => this._updateTitle());
+
         const editorContainer = container.querySelector('#editor-container');
 
         this.editor = new NotepadEditor(editorContainer, {
@@ -70,8 +77,36 @@ export class AppMakerApp extends Application {
             language: 'html'
         });
 
-        // container.querySelector('#previewBtn').addEventListener('click', () => this._previewApp());
-        // container.querySelector('#saveBtn').addEventListener('click', () => this._saveApp());
+        this._updateTitle();
+    }
+
+    _updateTitle() {
+        const appName = this.appNameInput.value;
+        const newTitle = appName ? `${appName} - App Maker` : 'App Maker';
+        this.win.title(newTitle);
+    }
+
+    _openHtmlFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.html';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const htmlContent = event.target.result;
+                const fileName = file.name.replace(/\.html$/, '');
+                this.appNameInput.value = fileName;
+                this.editor.setValue(htmlContent);
+                this._updateTitle();
+            };
+            reader.readAsText(file);
+        };
+        input.click();
     }
 
     _previewApp() {
