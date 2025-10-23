@@ -432,57 +432,93 @@ function startTutorial(agent) {
   const startButton = getElementCenter('.start-button');
   const iconsArea = { x: 40, y: 100 };
 
-  const sequence = [
-    // Welcome
-    (complete) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Greeting", { useTTS: ttsEnabled, callback: complete }),
+  const sequence = [];
 
-    // Desktop Icons
-    (complete) => agent.moveTo(iconsArea.x + 100, iconsArea.y, 1500, complete),
-    (complete) => {
+  // 1. Welcome
+  sequence.push(
+    (done) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Greeting", { useTTS: ttsEnabled, callback: done })
+  );
+
+  // 2. Desktop Icons
+  sequence.push(
+    (done) => agent.moveTo(iconsArea.x + 100, iconsArea.y, 1500, done)
+  );
+  sequence.push(
+    (done) => {
       agent.gestureAt(iconsArea.x, iconsArea.y);
-      agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: complete });
-    },
+      agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: done });
+    }
+  );
 
-    // Start Menu
-    ...(startButton ? [
-      (complete) => agent.moveTo(startButton.x + 80, startButton.y - 80, 1500, complete),
-      (complete) => {
+  // 3. Start Menu
+  if (startButton) {
+    sequence.push(
+      (done) => agent.moveTo(startButton.x + 80, startButton.y - 80, 1500, done)
+    );
+    sequence.push(
+      (done) => {
         agent.gestureAt(startButton.x, startButton.y);
-        agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: complete });
-      },
-    ] : []),
+        agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: done });
+      }
+    );
+  }
 
-    // App Maker
-    ...(appMakerIcon ? [
-      (complete) => agent.moveTo(appMakerIcon.x + 80, appMakerIcon.y, 1500, complete),
-      (complete) => {
+  // 4. App Maker
+  if (appMakerIcon) {
+    sequence.push(
+      (done) => agent.moveTo(appMakerIcon.x + 80, appMakerIcon.y, 1500, done)
+    );
+    sequence.push(
+      (done) => {
         agent.gestureAt(appMakerIcon.x, appMakerIcon.y);
-        agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: complete });
-      },
-    ] : []),
+        agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: done });
+      }
+    );
+  }
 
-    // Notepad
-    ...(notepadIcon ? [
-      (complete) => agent.moveTo(notepadIcon.x + 80, notepadIcon.y, 1500, complete),
-      (complete) => {
+  // 5. Notepad
+  if (notepadIcon) {
+    sequence.push(
+      (done) => agent.moveTo(notepadIcon.x + 80, notepadIcon.y, 1500, done)
+    );
+    sequence.push(
+      (done) => {
         agent.gestureAt(notepadIcon.x, notepadIcon.y);
-        agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: complete });
-      },
-    ] : []),
+        agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: done });
+      }
+    );
+  }
 
-    // Assistant
-    ...(assistantIcon ? [
-      (complete) => agent.moveTo(assistantIcon.x + 80, assistantIcon.y, 1500, complete),
-      (complete) => {
+  // 6. Assistant
+  if (assistantIcon) {
+    sequence.push(
+      (done) => agent.moveTo(assistantIcon.x + 80, assistantIcon.y, 1500, done)
+    );
+    sequence.push(
+      (done) => {
         agent.gestureAt(assistantIcon.x, assistantIcon.y);
-        agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: complete });
-      },
-    ] : []),
+        agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: done });
+      }
+    );
+  }
 
-    // Return home
-    (complete) => agent.moveTo(initialPos.left, initialPos.top, 2000, complete),
-    (complete) => agent.speakAndAnimate("That's the tour! Let me know if you need anything else.", "Wave", { useTTS: ttsEnabled, callback: complete }),
-  ];
+  // 7. Return home
+  sequence.push(
+    (done) => agent.moveTo(initialPos.left, initialPos.top, 2000, done)
+  );
+  sequence.push(
+    (done) => agent.speakAndAnimate("That's the tour! Let me know if you need anything else.", "Wave", { useTTS: ttsEnabled, callback: done })
+  );
 
-  sequence.forEach(step => agent._addToQueue(step));
+  // --- Sequence Executor ---
+  let currentIndex = 0;
+  function runNext() {
+    if (currentIndex < sequence.length) {
+      const step = sequence[currentIndex];
+      currentIndex++;
+      step(runNext); // Pass the executor as the 'done' callback
+    }
+  }
+
+  runNext();
 }
