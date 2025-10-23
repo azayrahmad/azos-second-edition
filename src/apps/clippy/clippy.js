@@ -434,7 +434,7 @@ function startTutorial(agent) {
     agent.play(animation, 3000, callback);
   };
 
-  const appMakerIcon = getElementTopLeft('.desktop-icon[data-app-id="appMaker"]');
+  const appMakerIcon = getElementTopLeft('.desktop-icon[data-app-id="appmaker"]');
   const notepadIcon = getElementTopLeft('.desktop-icon[data-app-id="notepad"]');
   const assistantIcon = getElementTopLeft('.desktop-icon[data-app-id="clippy"]');
   const startButton = getElementCenter('.start-button');
@@ -444,7 +444,7 @@ function startTutorial(agent) {
 
   // 1. Welcome
   sequence.push(
-    (done) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Greeting", { useTTS: ttsEnabled, callback: done })
+    (done) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Explain", { useTTS: ttsEnabled, callback: done })
   );
 
   // 2. Desktop Icons
