@@ -321,73 +321,8 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       { useTTS: ttsEnabled }
     );
 
-    let isDragging = false;
-    let wasDragged = false;
-    let offsetX, offsetY;
-
-    const handleDragStart = (e) => {
-      if (e.type === 'mousedown' && e.button !== 0) return;
-      if (agent.isSpeaking) return;
-
-      isDragging = true;
-      wasDragged = false;
-      agent.stop();
-
-      const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-      const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-
-      const agentRect = agent._el[0].getBoundingClientRect();
-      offsetX = clientX - agentRect.left;
-      offsetY = clientY - agentRect.top;
-
-      if (e.type === 'mousedown') {
-        document.addEventListener("mousemove", handleDragMove);
-        document.addEventListener("mouseup", handleDragEnd);
-      } else if (e.type === 'touchstart') {
-        document.addEventListener("touchmove", handleDragMove, { passive: false });
-        document.addEventListener("touchend", handleDragEnd);
-      }
-    };
-
-    const handleDragMove = (e) => {
-      if (!isDragging) return;
-      wasDragged = true;
-      if (e.type === 'touchmove') {
-        e.preventDefault();
-      }
-
-      const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-      const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-
-      let newX = clientX - offsetX;
-      let newY = clientY - offsetY;
-
-      const agentRect = agent._el[0].getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-
-      // Constrain the agent within the viewport
-      newX = Math.max(0, Math.min(newX, viewportWidth - agentRect.width));
-      newY = Math.max(0, Math.min(newY, viewportHeight - agentRect.height));
-
-      agent.moveTo(newX, newY);
-    };
-
-    const handleDragEnd = () => {
-      isDragging = false;
-
-      document.removeEventListener("mousemove", handleDragMove);
-      document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("touchmove", handleDragMove);
-      document.removeEventListener("touchend", handleDragEnd);
-
-      setTimeout(() => {
-        wasDragged = false;
-      }, 0);
-    };
-
     agent._el.on("click", (e) => {
-      if (wasDragged || contextMenuOpened) {
+      if (contextMenuOpened) {
         contextMenuOpened = false;
         return;
       }
@@ -403,8 +338,5 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       contextMenuOpened = true;
       showClippyContextMenu(e, appInstance);
     });
-
-    agent._el.on("mousedown", handleDragStart);
-    agent._el.on("touchstart", handleDragStart, { passive: true });
   });
 }
