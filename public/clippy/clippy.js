@@ -175,7 +175,7 @@ clippy.Agent.prototype = {
     }
 
     this.resume();
-    var animation = this.hasAnimation("Greeting") ? "Greeting" : "Greet";
+    var animation = this.hasAnimation("Greeting") ? "Greeting" : "Show";
     return this.play(animation);
   },
 
@@ -569,15 +569,15 @@ clippy.Animator.prototype = {
     }
   },
 
-  _getAnimationByName: function(name) {
-      if (!name) return null;
-      var anims = this._data.animations;
-      for (var animName in anims) {
-          if (animName.toLowerCase() === name.toLowerCase()) {
-              return animName;
-          }
+  _getAnimationByName: function (name) {
+    if (!name) return null;
+    var anims = this._data.animations;
+    for (var animName in anims) {
+      if (animName.toLowerCase() === name.toLowerCase()) {
+        return animName;
       }
-      return null;
+    }
+    return null;
   },
 
   hasAnimation: function (name) {
@@ -593,7 +593,7 @@ clippy.Animator.prototype = {
 
     var correctedName = this._getAnimationByName(animationName);
     if (!correctedName) {
-        return false;
+      return false;
     }
 
     this._currentAnimation = this._data.animations[correctedName];

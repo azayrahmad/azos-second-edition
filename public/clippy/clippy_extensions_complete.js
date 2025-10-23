@@ -61,97 +61,97 @@
         return true;
     },
 
-    /**
-     * Speak text while simultaneously playing an animation (with optional TTS)
-     * @param {String} text - The text to speak
-     * @param {String} animation - The animation to play
-     * @param {Object} options - Configuration options
-     * @param {Number} options.animationTimeout - Timeout for animation (default: 5000ms)
-     * @param {Boolean} options.hold - Whether to hold the speech balloon (default: false)
-     * @param {Boolean} options.useTTS - Whether to use text-to-speech (default: false)
-     * @param {Object} options.ttsOptions - TTS configuration (voice, rate, pitch, volume)
-     * @param {Function} options.callback - Called when both speech and animation complete
-     * @returns {Promise<Boolean>} - Promise that resolves to true if successful, false if animation doesn't exist
-     */
-    clippy.Agent.prototype.speakAndAnimate = function (text, animation, options) {
-        options = options || {};
-        var animationTimeout = options.animationTimeout !== undefined ? options.animationTimeout : 5000;
-        var hold = options.hold || false;
-        var useTTS = options.useTTS || false;
-        var ttsOptions = options.ttsOptions || {};
-        var callback = options.callback;
+        /**
+         * Speak text while simultaneously playing an animation (with optional TTS)
+         * @param {String} text - The text to speak
+         * @param {String} animation - The animation to play
+         * @param {Object} options - Configuration options
+         * @param {Number} options.animationTimeout - Timeout for animation (default: 5000ms)
+         * @param {Boolean} options.hold - Whether to hold the speech balloon (default: false)
+         * @param {Boolean} options.useTTS - Whether to use text-to-speech (default: false)
+         * @param {Object} options.ttsOptions - TTS configuration (voice, rate, pitch, volume)
+         * @param {Function} options.callback - Called when both speech and animation complete
+         * @returns {Promise<Boolean>} - Promise that resolves to true if successful, false if animation doesn't exist
+         */
+        clippy.Agent.prototype.speakAndAnimate = function (text, animation, options) {
+            options = options || {};
+            var animationTimeout = options.animationTimeout !== undefined ? options.animationTimeout : 5000;
+            var hold = options.hold || false;
+            var useTTS = options.useTTS || false;
+            var ttsOptions = options.ttsOptions || {};
+            var callback = options.callback;
 
-        // Validate animation exists
-        if (!this.hasAnimation(animation)) {
-            console.warn('Clippy Extensions: Animation "' + animation + '" not found. Falling back to speech only.');
-            if (useTTS && this.isTTSEnabled()) {
-                this.speak(text, hold, true);
-            } else {
-                this.speak(text, hold);
-            }
-            if (callback) setTimeout(callback, 0);
-            return Promise.resolve(false);
-        }
-
-        // Configure TTS if requested
-        if (useTTS && Object.keys(ttsOptions).length > 0) {
-            this.setTTSOptions(ttsOptions);
-        }
-
-        var self = this;
-        return new Promise(function (resolve) {
-            self._addToQueue(function (complete) {
-                var speechCompleted = false;
-                var animationCompleted = false;
-                var hasCalledComplete = false;
-                var animationTimedOut = false;
-
-                // Function to check if both operations are done
-                var checkCompletion = function () {
-                    if ((speechCompleted && animationCompleted) && !hasCalledComplete) {
-                        hasCalledComplete = true;
-                        if (callback) {
-                            try {
-                                callback();
-                            } catch (e) {
-                                console.error('Clippy Extensions: Callback error:', e);
-                            }
-                        }
-                        complete();
-                        resolve(true);
-                    }
-                };
-
-                // Start speech
-                self._balloon.speak(function () {
-                    speechCompleted = true;
-                    checkCompletion();
-                }, text, hold, useTTS);
-
-                // Start animation
-                var animationCallback = function (name, state) {
-                    if (state === clippy.Animator.States.EXITED) {
-                        animationCompleted = true;
-                        checkCompletion();
-                    }
-                };
-
-                // Handle animation timeout
-                if (animationTimeout && animationTimeout > 0) {
-                    setTimeout(function () {
-                        if (!animationCompleted && !animationTimedOut) {
-                            animationTimedOut = true;
-                            self._animator.exitAnimation();
-                        }
-                    }, animationTimeout);
+            // Validate animation exists
+            if (!this.hasAnimation(animation)) {
+                console.warn('Clippy Extensions: Animation "' + animation + '" not found. Falling back to speech only.');
+                if (useTTS && this.isTTSEnabled()) {
+                    this.speak(text, hold, true);
+                } else {
+                    this.speak(text, hold);
                 }
+                if (callback) setTimeout(callback, 0);
+                return Promise.resolve(false);
+            }
 
-                // Play the animation
-                self._playInternal(animation, animationCallback);
+            // Configure TTS if requested
+            if (useTTS && Object.keys(ttsOptions).length > 0) {
+                this.setTTSOptions(ttsOptions);
+            }
 
-            }, this);
-        });
-    };
+            var self = this;
+            return new Promise(function (resolve) {
+                self._addToQueue(function (complete) {
+                    var speechCompleted = false;
+                    var animationCompleted = false;
+                    var hasCalledComplete = false;
+                    var animationTimedOut = false;
+
+                    // Function to check if both operations are done
+                    var checkCompletion = function () {
+                        if ((speechCompleted && animationCompleted) && !hasCalledComplete) {
+                            hasCalledComplete = true;
+                            if (callback) {
+                                try {
+                                    callback();
+                                } catch (e) {
+                                    console.error('Clippy Extensions: Callback error:', e);
+                                }
+                            }
+                            complete();
+                            resolve(true);
+                        }
+                    };
+
+                    // Start speech
+                    self._balloon.speak(function () {
+                        speechCompleted = true;
+                        checkCompletion();
+                    }, text, hold, useTTS);
+
+                    // Start animation
+                    var animationCallback = function (name, state) {
+                        if (state === clippy.Animator.States.EXITED) {
+                            animationCompleted = true;
+                            checkCompletion();
+                        }
+                    };
+
+                    // Handle animation timeout
+                    if (animationTimeout && animationTimeout > 0) {
+                        setTimeout(function () {
+                            if (!animationCompleted && !animationTimedOut) {
+                                animationTimedOut = true;
+                                self._animator.exitAnimation();
+                            }
+                        }, animationTimeout);
+                    }
+
+                    // Play the animation
+                    self._playInternal(animation, animationCallback);
+
+                }, this);
+            });
+        };
 
     /**
      * Speak with animation that repeats to match speech duration
@@ -853,6 +853,14 @@
         return this.contextualResponse('warning', message);
     };
 
+    /**
+     * Get the appropriate goodbye animation name
+     * @returns {String} - Goodbye animation name
+     */
+    clippy.Agent.prototype.getGoodbyeAnimation = function () {
+        return this.hasAnimation("Goodbye") ? "Goodbye" : this.hasAnimation("GoodBye") ? "GoodBye" : "Hide";
+    }
+
     // =============================================================================
     // INITIAL POSITION OVERRIDE
     // =============================================================================
@@ -881,7 +889,8 @@
         }
 
         this.resume();
-        return this.play('Greeting');
+        var animation = this.hasAnimation("Greeting") ? "Greeting" : "Show";
+        return this.play(animation);
     };
 
     // =============================================================================
@@ -897,7 +906,7 @@
             'speakWithEmotion', 'whisper', 'announce',
             'setPersonality', 'greetWithPersonality', 'farewellWithPersonality',
             'contextualResponse', 'performSequence', 'getAnimationInfo', 'isBusy', 'getQueueLength',
-            'showError', 'showSuccess', 'showLoading', 'showWarning'
+            'showError', 'showSuccess', 'showLoading', 'showWarning', 'getGoodbyeAnimation'
         ]
     };
 
