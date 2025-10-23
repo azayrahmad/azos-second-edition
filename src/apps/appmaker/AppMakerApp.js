@@ -83,7 +83,7 @@ export class AppMakerApp extends Application {
     _updateTitle() {
         const appName = this.appNameInput.value;
         const newTitle = appName ? `${appName} - App Maker` : 'App Maker';
-        this.win.setTitle(newTitle);
+        this.win.title(newTitle);
     }
 
     _openHtmlFile() {
