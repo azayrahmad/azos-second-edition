@@ -169,7 +169,7 @@ export function getClippyMenuItems(app) {
           {
             useTTS: ttsEnabled,
             callback: () => {
-              agent.play("GoodBye", 5000, () => {
+              agent.play(agent.getGoodbyeAnimation(), 5000, () => {
                 if (appInstance) {
                   appInstance.close();
                 }
