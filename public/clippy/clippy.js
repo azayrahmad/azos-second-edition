@@ -383,6 +383,7 @@ clippy.Agent.prototype = {
     $(window).on("resize", $.proxy(this.reposition, this));
 
     this._el.on("mousedown", $.proxy(this._onMouseDown, this));
+    this._el.on("touchstart", $.proxy(this._onMouseDown, this));
 
     this._el.on("dblclick", $.proxy(this._onDoubleClick, this));
   },
@@ -427,7 +428,7 @@ clippy.Agent.prototype = {
 
   _onMouseDown: function (e) {
     e.preventDefault();
-    this._startDrag(e);
+    this._startDrag(e.originalEvent || e);
   },
 
   /**************************** Drag ************************************/
@@ -442,17 +443,21 @@ clippy.Agent.prototype = {
     this._upHandle = $.proxy(this._finishDrag, this);
 
     $(window).on("mousemove", this._moveHandle);
+    $(window).on("touchmove", this._moveHandle);
+
     $(window).on("mouseup", this._upHandle);
+    $(window).on("touchend", this._upHandle);
 
     this._dragUpdateLoop = window.setTimeout(
       $.proxy(this._updateLocation, this),
-      10,
+      10
     );
   },
 
   _calculateClickOffset: function (e) {
-    var mouseX = e.pageX;
-    var mouseY = e.pageY;
+    var touch = e.touches && e.touches[0];
+    var mouseX = touch ? touch.pageX : e.pageX;
+    var mouseY = touch ? touch.pageY : e.pageY;
     var o = this._el.offset();
     return {
       top: mouseY - o.top,
@@ -464,23 +469,31 @@ clippy.Agent.prototype = {
     this._el.css({ top: this._targetY, left: this._taregtX });
     this._dragUpdateLoop = window.setTimeout(
       $.proxy(this._updateLocation, this),
-      10,
+      10
     );
   },
 
   _dragMove: function (e) {
     e.preventDefault();
-    var x = e.clientX - this._offset.left;
-    var y = e.clientY - this._offset.top;
-    this._taregtX = x;
-    this._targetY = y;
+
+    var event = e.originalEvent || e;
+    var touch = event.touches && event.touches[0];
+
+    var x = touch ? touch.clientX : e.clientX;
+    var y = touch ? touch.clientY : e.clientY;
+
+    this._taregtX = x - this._offset.left;
+    this._targetY = y - this._offset.top;
   },
 
   _finishDrag: function () {
     window.clearTimeout(this._dragUpdateLoop);
     // remove handles
     $(window).off("mousemove", this._moveHandle);
+    $(window).off("touchmove", this._moveHandle);
+
     $(window).off("mouseup", this._upHandle);
+    $(window).off("touchend", this._upHandle);
     // resume animations
     this._balloon.show();
     this.reposition();
