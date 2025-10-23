@@ -156,7 +156,10 @@
                         item.checkbox.toggle();
                     }
                     this.updateMenuItem(itemEl, item);
-                    // Do not close menu for checkbox items, allowing for dynamic updates.
+                    // Close menu for radio items, but not for regular checkboxes.
+                    if (item.checkbox.type === 'radio') {
+                        this.closeAll();
+                    }
                 } else if (item.action) {
                     this.closeAll();
                     item.action();
