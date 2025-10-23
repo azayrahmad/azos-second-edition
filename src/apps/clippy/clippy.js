@@ -397,7 +397,23 @@ function startTutorial(agent) {
       (done) => agent._el.animate({ top: startButton.y - 80, left: startButton.x + 80 }, 1500, done)
     );
     sequence.push(
-      (done) => playGesture(startButton.x, startButton.y, done)
+      (done) => playGesture(startButton.x, startButton.y, () => {
+        const startButtonEl = document.querySelector('.start-button');
+        if (startButtonEl) {
+          startButtonEl.classList.add('active');
+          setTimeout(() => {
+            startButtonEl.click();
+            startButtonEl.classList.remove('active');
+            setTimeout(() => {
+              // Close the menu by clicking the button again
+              startButtonEl.click();
+              done();
+            }, 1500);
+          }, 500);
+        } else {
+          done();
+        }
+      })
     );
     sequence.push(
       (done) => agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: done })
@@ -406,14 +422,38 @@ function startTutorial(agent) {
 
   // 4. App Maker
   if (appMakerIcon) {
+    const appMakerIconEl = document.querySelector('.desktop-icon[data-app-id="appmaker"]');
     sequence.push(
       (done) => agent._el.animate({ top: appMakerIcon.y, left: appMakerIcon.x + 80 }, 1500, done)
     );
     sequence.push(
-      (done) => playGesture(appMakerIcon.x, appMakerIcon.y, done)
+      (done) => playGesture(appMakerIcon.x, appMakerIcon.y, () => {
+        if (appMakerIconEl) {
+          const iconImg = appMakerIconEl.querySelector(".icon img");
+          const iconLabel = appMakerIconEl.querySelector(".icon-label");
+          if (iconImg) iconImg.classList.add("highlighted-icon");
+          if (iconLabel) {
+            iconLabel.classList.add("highlighted-label", "selected");
+          }
+        }
+        setTimeout(done, 500);
+      })
     );
     sequence.push(
       (done) => agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: done })
+    );
+    sequence.push(
+      (done) => {
+        if (appMakerIconEl) {
+          const iconImg = appMakerIconEl.querySelector(".icon img");
+          const iconLabel = appMakerIconEl.querySelector(".icon-label");
+          if (iconImg) iconImg.classList.remove("highlighted-icon");
+          if (iconLabel) {
+            iconLabel.classList.remove("highlighted-label", "selected");
+          }
+        }
+        done();
+      }
     );
   }
 
