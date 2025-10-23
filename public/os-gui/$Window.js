@@ -1464,8 +1464,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 				if (y_axis === HANDLE_BOTTOM) { cursor_name += "s"; }
 				if (x_axis === HANDLE_LEFT) { cursor_name += "w"; }
 				if (x_axis === HANDLE_RIGHT) { cursor_name += "e"; }
+				const theme_cursor_name = cursor_name;
 				cursor_name += "-resize";
-				const cursor = `var(--cursor-${cursor_name.replace("-", "")}-resize, ${cursor_name})`;
+				const cursor = `var(--cursor-${theme_cursor_name}-resize, ${cursor_name})`;
 
 				// Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
 				// Here's a little diagram of sorts:

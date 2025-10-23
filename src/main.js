@@ -5,7 +5,6 @@ import { initDesktop } from './components/desktop.js'
 import { taskbar } from './components/taskbar.js'
 import { ShowDialogWindow } from './components/DialogWindow.js'
 import { playSound } from './utils/soundManager.js';
-import { launchApp } from './utils/appManager.js';
 
 // Window Management System
 class WindowManagerSystem {
@@ -88,7 +87,6 @@ initDesktop();
 setupCounter(document.querySelector('#counter'));
 
 window.ShowDialogWindow = ShowDialogWindow;
-window.appManager = { launchApp };
 
 playSound('WindowsLogon');
 
