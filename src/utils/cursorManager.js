@@ -14,7 +14,8 @@ const cursorThemes = {
         '--cursor-nesw-resize': `url(${cursors.dangerousCreatures.sizeNESW}), nesw-resize`,
         '--cursor-ns-resize': `url(${cursors.dangerousCreatures.sizeNS}), ns-resize`,
         '--cursor-nwse-resize': `url(${cursors.dangerousCreatures.sizeNWSE}), nwse-resize`,
-        '--cursor-we-resize': `url(${cursors.dangerousCreatures.sizeWE}), we-resize`,
+        '--cursor-we-resize': `url(${cursors.dangerousCreatures.sizeWE}), ew-resize`,
+
     },
     '60s-usa': {
         '--cursor-default': `url(${cursors.usa60s.arrow}), auto`,
@@ -28,7 +29,7 @@ const cursorThemes = {
         '--cursor-nesw-resize': `url(${cursors.usa60s.sizeNESW}), nesw-resize`,
         '--cursor-ns-resize': `url(${cursors.usa60s.sizeNS}), ns-resize`,
         '--cursor-nwse-resize': `url(${cursors.usa60s.sizeNWSE}), nwse-resize`,
-        '--cursor-we-resize': `url(${cursors.usa60s.sizeWE}), we-resize`,
+        '--cursor-we-resize': `url(${cursors.usa60s.sizeWE}), ew-resize`,
     },
 };
 
@@ -42,6 +43,7 @@ export function applyCursor(theme) {
         console.log('Applying cursor theme:', theme);
         for (const [property, value] of Object.entries(cursorTheme)) {
             root.style.setProperty(property, value);
+            console.log(`Set ${property} to ${value}`);
         }
     } else {
         for (const property of allCursorProperties) {

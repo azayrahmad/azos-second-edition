@@ -1460,14 +1460,33 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 				const $handle = $("<div>").addClass("handle").appendTo($w);
 
 				let cursor_name = "";
-				if (y_axis === HANDLE_TOP) { cursor_name += "n"; }
-				if (y_axis === HANDLE_BOTTOM) { cursor_name += "s"; }
-				if (x_axis === HANDLE_LEFT) { cursor_name += "w"; }
-				if (x_axis === HANDLE_RIGHT) { cursor_name += "e"; }
-				const theme_cursor_name = cursor_name;
-				cursor_name += "-resize";
-				const cursor = `var(--cursor-${theme_cursor_name}-resize, ${cursor_name})`;
 
+				// Diagonal first
+				if (
+					(y_axis === HANDLE_TOP && x_axis === HANDLE_LEFT) ||
+					(y_axis === HANDLE_BOTTOM && x_axis === HANDLE_RIGHT)
+				) {
+					cursor_name = "nwse";
+				} else if (
+					(y_axis === HANDLE_TOP && x_axis === HANDLE_RIGHT) ||
+					(y_axis === HANDLE_BOTTOM && x_axis === HANDLE_LEFT)
+				) {
+					cursor_name = "nesw";
+				}
+				// Straight vertical
+				else if (y_axis === HANDLE_TOP || y_axis === HANDLE_BOTTOM) {
+					cursor_name = "ns";
+				}
+				// Straight horizontal
+				else if (x_axis === HANDLE_LEFT || x_axis === HANDLE_RIGHT) {
+					cursor_name = "we";
+				}
+
+				const theme_cursor_name = cursor_name;
+				const fallback = cursor_name === "we" ? "ew-resize" : `${cursor_name}-resize`;
+				const cursor = `var(--cursor-${theme_cursor_name}-resize, ${fallback})`;
+
+				console.log(cursor);
 				// Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
 				// Here's a little diagram of sorts:
 				// outerWidth(true): margin, [ outerWidth(): border, [ innerWidth(): padding, [ width(): content ] ] ]
