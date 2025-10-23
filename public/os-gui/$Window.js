@@ -1459,12 +1459,13 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 				// const resizes_width = x_axis !== HANDLE_MIDDLE;
 				const $handle = $("<div>").addClass("handle").appendTo($w);
 
-				let cursor = "";
-				if (y_axis === HANDLE_TOP) { cursor += "n"; }
-				if (y_axis === HANDLE_BOTTOM) { cursor += "s"; }
-				if (x_axis === HANDLE_LEFT) { cursor += "w"; }
-				if (x_axis === HANDLE_RIGHT) { cursor += "e"; }
-				cursor += "-resize";
+				let cursor_name = "";
+				if (y_axis === HANDLE_TOP) { cursor_name += "n"; }
+				if (y_axis === HANDLE_BOTTOM) { cursor_name += "s"; }
+				if (x_axis === HANDLE_LEFT) { cursor_name += "w"; }
+				if (x_axis === HANDLE_RIGHT) { cursor_name += "e"; }
+				cursor_name += "-resize";
+				const cursor = `var(--cursor-${cursor_name.replace("-", "")}-resize, ${cursor_name})`;
 
 				// Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
 				// Here's a little diagram of sorts:
