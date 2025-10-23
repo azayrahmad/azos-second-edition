@@ -39,6 +39,7 @@ export function applyCursor(theme) {
     const cursorTheme = cursorThemes[theme];
 
     if (cursorTheme) {
+        console.log('Applying cursor theme:', theme);
         for (const [property, value] of Object.entries(cursorTheme)) {
             root.style.setProperty(property, value);
         }

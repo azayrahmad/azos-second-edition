@@ -203,7 +203,7 @@ button:not(:disabled):active img {
   height: 22px;
   width: 132px;
   padding: 7px 10px;
-  cursor: default;
+  cursor: var(--cursor-default);
   display: flex;
   align-items: center;
   font-size: 12px;

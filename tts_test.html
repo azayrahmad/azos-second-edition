@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +11,15 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
+
         .test-section {
             background: white;
             padding: 20px;
             margin: 10px 0;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         button {
             background: #0078d4;
             color: white;
@@ -24,27 +27,44 @@
             padding: 10px 15px;
             margin: 5px;
             border-radius: 3px;
-            cursor: pointer;
+            cursor: var(--cursor-pointer);
         }
+
         button:hover {
             background: #005a9e;
         }
-        input, select {
+
+        input,
+        select {
             padding: 8px;
             margin: 5px;
             border: 1px solid #ccc;
             border-radius: 3px;
         }
+
         .status {
             padding: 10px;
             margin: 10px 0;
             border-radius: 3px;
         }
-        .success { background-color: #d4edda; color: #155724; }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .info { background-color: #d1ecf1; color: #0c5460; }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
     </style>
 </head>
+
 <body>
     <h1>Clippy TTS Integration Test</h1>
 
@@ -94,7 +114,7 @@
         let ttsSupported = false;
 
         // Initialize TTS support check
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             checkTTSSupport();
         });
 
@@ -128,13 +148,13 @@
                 voiceSection.style.display = 'block';
 
                 // Update slider values
-                document.getElementById('rate-slider').addEventListener('input', function() {
+                document.getElementById('rate-slider').addEventListener('input', function () {
                     document.getElementById('rate-value').textContent = this.value;
                 });
-                document.getElementById('pitch-slider').addEventListener('input', function() {
+                document.getElementById('pitch-slider').addEventListener('input', function () {
                     document.getElementById('pitch-value').textContent = this.value;
                 });
-                document.getElementById('volume-slider').addEventListener('input', function() {
+                document.getElementById('volume-slider').addEventListener('input', function () {
                     document.getElementById('volume-value').textContent = this.value;
                 });
 
@@ -183,7 +203,7 @@
         function loadClippy() {
             const statusDiv = document.getElementById('clippy-status');
 
-            clippy.load('Clippy', function(agent) {
+            clippy.load('Clippy', function (agent) {
                 clippyAgent = agent;
                 statusDiv.textContent = 'Clippy loaded successfully!';
                 statusDiv.className = 'status success';
@@ -196,7 +216,7 @@
                 // Show Clippy
                 agent.show();
                 agent.moveTo(200, 200);
-            }, function() {
+            }, function () {
                 statusDiv.textContent = 'Failed to load Clippy!';
                 statusDiv.className = 'status error';
             });
@@ -223,7 +243,7 @@
 
             clippyAgent.speakWithTTS(text, {
                 ttsOptions: ttsOptions,
-                callback: function() {
+                callback: function () {
                     console.log('Clippy TTS completed');
                 }
             });
@@ -251,7 +271,7 @@
             clippyAgent.speakAndAnimate(text, 'Explain', {
                 useTTS: true,
                 ttsOptions: ttsOptions,
-                callback: function() {
+                callback: function () {
                     console.log('Clippy speak and animate completed');
                 }
             });
@@ -279,7 +299,7 @@
             clippyAgent.speakWithEmotion(text, 'excited', {
                 useTTS: true,
                 ttsOptions: ttsOptions,
-                callback: function() {
+                callback: function () {
                     console.log('Clippy emotional speech completed');
                 }
             });
@@ -292,7 +312,7 @@
 
             clippyAgent.speakWithTTS(text, {
                 ttsOptions: { rate: 0.8 }, // Slightly slower for better demo
-                callback: function() {
+                callback: function () {
                     console.log('Word sync test completed');
                 }
             });
@@ -310,7 +330,7 @@
             clippyAgent.speak(text, false, true); // Try TTS but it will fallback
 
             // Restore TTS
-            setTimeout(function() {
+            setTimeout(function () {
                 clippyAgent._balloon._ttsEnabled = originalTTSEnabled;
             }, 1000);
         }
@@ -325,4 +345,5 @@
         }
     </script>
 </body>
+
 </html>
