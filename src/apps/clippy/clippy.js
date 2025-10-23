@@ -434,9 +434,9 @@ function startTutorial(agent) {
     agent.play(animation, 3000, callback);
   };
 
-  const appMakerIcon = getElementTopLeft('.desktop-icon[for="appMaker"]');
-  const notepadIcon = getElementTopLeft('.desktop-icon[for="notepad"]');
-  const assistantIcon = getElementTopLeft('.desktop-icon[for="clippy"]');
+  const appMakerIcon = getElementTopLeft('.desktop-icon[data-app-id="appMaker"]');
+  const notepadIcon = getElementTopLeft('.desktop-icon[data-app-id="notepad"]');
+  const assistantIcon = getElementTopLeft('.desktop-icon[data-app-id="clippy"]');
   const startButton = getElementCenter('.start-button');
   const iconsArea = { x: 40, y: 100 };
 
