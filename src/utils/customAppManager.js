@@ -4,7 +4,8 @@ import { renderHTML } from './domUtils.js';
 import { Application } from '../apps/Application.js';
 import { apps, appClasses } from '../config/apps.js';
 import { ICONS } from '../config/icons.js';
-import desktopConfig from '../config/desktop.json';
+import cDrive from '../config/c.json';
+const desktopConfig = cDrive.User.Desktop;
 import { launchApp } from './appManager.js';
 import { setupIcons } from '../components/desktop.js';
 

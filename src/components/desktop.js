@@ -4,7 +4,8 @@
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
 import { getItem, setItem, removeItem, LOCAL_STORAGE_KEYS } from '../utils/localStorage.js';
-import desktopApps from "../config/desktop.json";
+import cDrive from "../config/c.json";
+const desktopApps = cDrive.User.Desktop;
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
 import { ICONS } from "../config/icons.js";
