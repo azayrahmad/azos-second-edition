@@ -53,6 +53,7 @@ html {
   background-color: var(--Background);
   image-rendering: pixelated;
   font-smooth: never;
+  cursor: var(--cursor-default);
 }
 
 a {
@@ -119,4 +120,8 @@ h1 {
   width: 16px;
   height: 16px;
   object-fit: contain;
+}
+
+button {
+  cursor: var(--cursor-default);
 }

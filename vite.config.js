@@ -2,15 +2,16 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-    "base": "/azos-second-edition/",
+  assetsInclude: ['**/*.ani'],
+  "base": "/azos-second-edition/",
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-                name: 'azOS Second Edition',
-                short_name: 'azOS',
-                description: 'A web-based OS simulation.',
+        name: 'azOS Second Edition',
+        short_name: 'azOS',
+        description: 'A web-based OS simulation.',
         theme_color: '#008080',
         icons: [
           {

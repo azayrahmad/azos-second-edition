@@ -124,10 +124,8 @@ input[type="checkbox"] + label {
 }
 input[type="checkbox"] + label:before {
   background: var(--Window);
-  box-shadow:
-    inset -1px -1px var(--ButtonHilight),
-    inset 1px 1px var(--ButtonShadow),
-    inset -2px -2px var(--ButtonLight),
+  box-shadow: inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow), inset -2px -2px var(--ButtonLight),
     inset 2px 2px var(--ButtonDkShadow);
   content: "";
   display: inline-block;
@@ -177,10 +175,8 @@ input[type="text"],
 input[type="url"],
 select {
   background-color: var(--Window);
-  box-shadow:
-    inset -1px -1px var(--ButtonHilight),
-    inset 1px 1px var(--ButtonShadow),
-    inset -2px -2px var(--ButtonLight),
+  box-shadow: inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow), inset -2px -2px var(--ButtonLight),
     inset 2px 2px var(--ButtonDkShadow);
   box-sizing: border-box;
   padding: 3px 4px;
@@ -195,10 +191,8 @@ textarea {
   appearance: none;
   background-color: var(--Window);
   border-radius: 0;
-  box-shadow:
-    inset -1px -1px var(--ButtonHilight),
-    inset 1px 1px var(--ButtonShadow),
-    inset -2px -2px var(--ButtonLight),
+  box-shadow: inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow), inset -2px -2px var(--ButtonLight),
     inset 2px 2px var(--ButtonDkShadow);
   box-sizing: border-box;
   padding: 3px 4px;
@@ -314,15 +308,10 @@ input[type="range"]::-webkit-slider-runnable-track {
   background: var(--ButtonDkShadow);
   border-bottom: 1px solid var(--ButtonShadow);
   border-right: 1px solid var(--ButtonShadow);
-  box-shadow:
-    1px 0 0 var(--ButtonHilight),
-    1px 1px 0 var(--ButtonHilight),
-    0 1px 0 var(--ButtonHilight),
-    -1px 0 0 var(--ButtonShadow),
-    -1px -1px 0 var(--ButtonShadow),
-    0 -1px 0 var(--ButtonShadow),
-    -1px 1px 0 var(--ButtonHilight),
-    1px -1px var(--ButtonShadow);
+  box-shadow: 1px 0 0 var(--ButtonHilight), 1px 1px 0 var(--ButtonHilight),
+    0 1px 0 var(--ButtonHilight), -1px 0 0 var(--ButtonShadow),
+    -1px -1px 0 var(--ButtonShadow), 0 -1px 0 var(--ButtonShadow),
+    -1px 1px 0 var(--ButtonHilight), 1px -1px var(--ButtonShadow);
   box-sizing: border-box;
   height: 2px;
   width: 100%;
@@ -331,15 +320,10 @@ input[type="range"]::-moz-range-track {
   background: var(--ButtonDkShadow);
   border-bottom: 1px solid var(--ButtonShadow);
   border-right: 1px solid var(--ButtonShadow);
-  box-shadow:
-    1px 0 0 var(--ButtonHilight),
-    1px 1px 0 var(--ButtonHilight),
-    0 1px 0 var(--ButtonHilight),
-    -1px 0 0 var(--ButtonShadow),
-    -1px -1px 0 var(--ButtonShadow),
-    0 -1px 0 var(--ButtonShadow),
-    -1px 1px 0 var(--ButtonHilight),
-    1px -1px var(--ButtonShadow);
+  box-shadow: 1px 0 0 var(--ButtonHilight), 1px 1px 0 var(--ButtonHilight),
+    0 1px 0 var(--ButtonHilight), -1px 0 0 var(--ButtonShadow),
+    -1px -1px 0 var(--ButtonShadow), 0 -1px 0 var(--ButtonShadow),
+    -1px 1px 0 var(--ButtonHilight), 1px -1px var(--ButtonShadow);
   box-sizing: border-box;
   height: 2px;
   width: 100%;
@@ -361,29 +345,15 @@ input[type="range"]::-moz-range-track {
   border-bottom: 1px solid grey;
   border-left: 1px solid grey;
   border-right: 0;
-  box-shadow:
-    -1px 0 0 #fff,
-    -1px 1px 0 #fff,
-    0 1px 0 #fff,
-    1px 0 0 #a9a9a9,
-    1px -1px 0 #a9a9a9,
-    0 -1px 0 #a9a9a9,
-    1px 1px 0 #fff,
-    -1px -1px #a9a9a9;
+  box-shadow: -1px 0 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff, 1px 0 0 #a9a9a9,
+    1px -1px 0 #a9a9a9, 0 -1px 0 #a9a9a9, 1px 1px 0 #fff, -1px -1px #a9a9a9;
 }
 .is-vertical > input[type="range"]::-moz-range-track {
   border-bottom: 1px solid grey;
   border-left: 1px solid grey;
   border-right: 0;
-  box-shadow:
-    -1px 0 0 #fff,
-    -1px 1px 0 #fff,
-    0 1px 0 #fff,
-    1px 0 0 #a9a9a9,
-    1px -1px 0 #a9a9a9,
-    0 -1px 0 #a9a9a9,
-    1px 1px 0 #fff,
-    -1px -1px #a9a9a9;
+  box-shadow: -1px 0 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff, 1px 0 0 #a9a9a9,
+    1px -1px 0 #a9a9a9, 0 -1px 0 #a9a9a9, 1px 1px 0 #fff, -1px -1px #a9a9a9;
 }
 .is-vertical > input[type="range"]::-webkit-slider-thumb {
   transform: translateY(-8px) scaleX(-1);
@@ -416,10 +386,7 @@ a:focus {
 }
 ul.tree-view {
   background: var(--Window);
-  box-shadow:
-    inset -1px -1px #fff,
-    inset 1px 1px grey,
-    inset -2px -2px #dfdfdf,
+  box-shadow: inset -1px -1px #fff, inset 1px 1px grey, inset -2px -2px #dfdfdf,
     inset 2px 2px #0a0a0a;
   display: block;
   margin: 0;
@@ -500,10 +467,8 @@ ul.tree-view details > summary::marker {
 }
 pre {
   background: var(--Window);
-  box-shadow:
-    inset -1px -1px var(--ButtonHilight),
-    inset 1px 1px var(--ButtonShadow),
-    inset -2px -2px var(--ButtonLight),
+  box-shadow: inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow), inset -2px -2px var(--ButtonLight),
     inset 2px 2px var(--ButtonDkShadow);
   display: block;
   margin: 0;
@@ -539,10 +504,8 @@ table {
 }
 table > thead > tr > * {
   background: var(--ButtonFace);
-  box-shadow:
-    inset -1px -1px var(--ButtonDkShadow),
-    inset 1px 1px var(--ButtonHilight),
-    inset -2px -2px var(--ButtonShadow),
+  box-shadow: inset -1px -1px var(--ButtonDkShadow),
+    inset 1px 1px var(--ButtonHilight), inset -2px -2px var(--ButtonShadow),
     inset 2px 2px var(--ButtonLight);
   box-sizing: border-box;
   font-weight: 400;
@@ -552,7 +515,7 @@ table > thead > tr > * {
   top: 0;
 }
 table.interactive > tbody > tr {
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 table > tbody > tr.highlighted {
   background-color: var(--ActiveTitle);
@@ -568,9 +531,7 @@ table > tbody > tr > * {
   appearance: none;
   border: none;
   border-radius: 0;
-  box-shadow:
-    inset -2px -2px #dfdfdf,
-    inset 2px 2px grey;
+  box-shadow: inset -2px -2px #dfdfdf, inset 2px 2px grey;
   box-sizing: border-box;
   height: 32px;
   padding: 4px;
@@ -597,10 +558,8 @@ table > tbody > tr > * {
 }
 .field-border,
 .field-border-disabled {
-  box-shadow:
-    inset -1px -1px var(--ButtonHilight),
-    inset 1px 1px var(--ButtonShadow),
-    inset -2px -2px var(--ButtonLight),
+  box-shadow: inset -1px -1px var(--ButtonHilight),
+    inset 1px 1px var(--ButtonShadow), inset -2px -2px var(--ButtonLight),
     inset 2px 2px var(--ButtonDkShadow);
   padding: 2px;
 }
@@ -609,8 +568,7 @@ table > tbody > tr > * {
 }
 .status-field-border {
   background: var(--ButtonFace);
-  box-shadow:
-    inset -1px -1px var(--ButtonLight),
+  box-shadow: inset -1px -1px var(--ButtonLight),
     inset 1px 1px var(--ButtonShadow);
   padding: 1px;
 }
