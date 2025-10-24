@@ -1,49 +1,55 @@
 
 import { cursors } from '../config/cursors.js';
+import { applyAniCursor, clearAniCursor } from './aniCursor.js';
 
 const cursorThemes = {
     'dangerous-creatures': {
-        '--cursor-default': `url(${cursors.dangerousCreatures.arrow}), auto`,
-        '--cursor-pointer': `url(${cursors.dangerousCreatures.arrow}), pointer`,
-        '--cursor-text': `url(${cursors.dangerousCreatures.beam}), text`,
-        '--cursor-wait': `url(${cursors.dangerousCreatures.busy}), wait`,
-        '--cursor-help': `url(${cursors.dangerousCreatures.help}), help`,
-        '--cursor-move': `url(${cursors.dangerousCreatures.move}), move`,
-        '--cursor-not-allowed': `url(${cursors.dangerousCreatures.no}), not-allowed`,
-        '--cursor-crosshair': `url(${cursors.dangerousCreatures.cross}), crosshair`,
-        '--cursor-nesw-resize': `url(${cursors.dangerousCreatures.sizeNESW}), nesw-resize`,
-        '--cursor-ns-resize': `url(${cursors.dangerousCreatures.sizeNS}), ns-resize`,
-        '--cursor-nwse-resize': `url(${cursors.dangerousCreatures.sizeNWSE}), nwse-resize`,
-        '--cursor-we-resize': `url(${cursors.dangerousCreatures.sizeWE}), ew-resize`,
-
+        '--cursor-default': { value: `url(${cursors.dangerousCreatures.arrow}), auto` },
+        '--cursor-pointer': { value: `url(${cursors.dangerousCreatures.arrow}), pointer` },
+        '--cursor-text': { value: `url(${cursors.dangerousCreatures.beam}), text` },
+        '--cursor-wait': { value: 'wait', animated: true, type: 'busy' },
+        '--cursor-help': { value: `url(${cursors.dangerousCreatures.help}), help` },
+        '--cursor-move': { value: `url(${cursors.dangerousCreatures.move}), move` },
+        '--cursor-not-allowed': { value: `url(${cursors.dangerousCreatures.no}), not-allowed` },
+        '--cursor-crosshair': { value: `url(${cursors.dangerousCreatures.cross}), crosshair` },
+        '--cursor-nesw-resize': { value: `url(${cursors.dangerousCreatures.sizeNESW}), nesw-resize` },
+        '--cursor-ns-resize': { value: `url(${cursors.dangerousCreatures.sizeNS}), ns-resize` },
+        '--cursor-nwse-resize': { value: `url(${cursors.dangerousCreatures.sizeNWSE}), nwse-resize` },
+        '--cursor-we-resize': { value: `url(${cursors.dangerousCreatures.sizeWE}), ew-resize` },
     },
     '60s-usa': {
-        '--cursor-default': `url(${cursors.usa60s.arrow}), auto`,
-        '--cursor-pointer': `url(${cursors.usa60s.arrow}), pointer`,
-        '--cursor-text': `url(${cursors.usa60s.beam}), text`,
-        '--cursor-wait': `url(${cursors.usa60s.busy}), wait`,
-        '--cursor-help': `url(${cursors.usa60s.help}), help`,
-        '--cursor-move': `url(${cursors.usa60s.move}), move`,
-        '--cursor-not-allowed': `url(${cursors.usa60s.no}), not-allowed`,
-        '--cursor-crosshair': `url(${cursors.usa60s.cross}), crosshair`,
-        '--cursor-nesw-resize': `url(${cursors.usa60s.sizeNESW}), nesw-resize`,
-        '--cursor-ns-resize': `url(${cursors.usa60s.sizeNS}), ns-resize`,
-        '--cursor-nwse-resize': `url(${cursors.usa60s.sizeNWSE}), nwse-resize`,
-        '--cursor-we-resize': `url(${cursors.usa60s.sizeWE}), ew-resize`,
+        '--cursor-default': { value: `url(${cursors.usa60s.arrow}), auto` },
+        '--cursor-pointer': { value: `url(${cursors.usa60s.arrow}), pointer` },
+        '--cursor-text': { value: `url(${cursors.usa60s.beam}), text` },
+        '--cursor-wait': { value: 'wait', animated: true, type: 'busy' },
+        '--cursor-help': { value: `url(${cursors.usa60s.help}), help` },
+        '--cursor-move': { value: `url(${cursors.usa60s.move}), move` },
+        '--cursor-not-allowed': { value: `url(${cursors.usa60s.no}), not-allowed` },
+        '--cursor-crosshair': { value: `url(${cursors.usa60s.cross}), crosshair` },
+        '--cursor-nesw-resize': { value: `url(${cursors.usa60s.sizeNESW}), nesw-resize` },
+        '--cursor-ns-resize': { value: `url(${cursors.usa60s.sizeNS}), ns-resize` },
+        '--cursor-nwse-resize': { value: `url(${cursors.usa60s.sizeNWSE}), nwse-resize` },
+        '--cursor-we-resize': { value: `url(${cursors.usa60s.sizeWE}), ew-resize` },
     },
 };
 
 const allCursorProperties = Object.keys(cursorThemes[Object.keys(cursorThemes)[0]]);
+let currentTheme = 'default';
 
 export function applyCursor(theme) {
+    currentTheme = theme;
     const root = document.documentElement;
-    const cursorTheme = cursorThemes[theme];
+    const themeConfig = cursorThemes[theme];
 
-    if (cursorTheme) {
-        console.log('Applying cursor theme:', theme);
-        for (const [property, value] of Object.entries(cursorTheme)) {
-            root.style.setProperty(property, value);
-            console.log(`Set ${property} to ${value}`);
+    clearAniCursor();
+
+    if (themeConfig) {
+        for (const [property, config] of Object.entries(themeConfig)) {
+            if (config.animated) {
+                applyAniCursor(theme, config.type);
+            } else {
+                root.style.setProperty(property, config.value);
+            }
         }
     } else {
         for (const property of allCursorProperties) {

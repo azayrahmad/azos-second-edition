@@ -1,0 +1,48 @@
+import { convertAniBinaryToCSS } from 'ani-cursor';
+import { cursors } from '../config/cursors';
+
+const styleMap = new Map();
+
+export async function applyAniCursor(theme, cursorType) {
+  const cursorUrl = cursors[theme]?.[cursorType];
+
+  if (!cursorUrl) {
+    console.warn(`Animated cursor not found for theme: ${theme}, type: ${cursorType}`);
+    return;
+  }
+
+  // Remove any existing animated cursor style
+  clearAniCursor();
+
+  try {
+    const response = await fetch(cursorUrl);
+    const data = new Uint8Array(await response.arrayBuffer());
+
+    // Use a unique ID for the style element to manage it easily
+    const styleId = `ani-cursor-style-${theme}-${cursorType}`;
+    let style = document.getElementById(styleId);
+
+    if (!style) {
+        style = document.createElement('style');
+        style.id = styleId;
+        document.head.appendChild(style);
+    }
+
+    style.innerText = convertAniBinaryToCSS('body', data);
+    styleMap.set('body', style);
+
+  } catch (error) {
+    console.error('Failed to apply animated cursor:', error);
+  }
+}
+
+export function clearAniCursor() {
+    for (const [selector, style] of styleMap.entries()) {
+        if (style && style.parentNode) {
+            style.parentNode.removeChild(style);
+        }
+        styleMap.delete(selector);
+        // Also reset the cursor property on the element
+        document.querySelector(selector).style.cursor = '';
+    }
+}
