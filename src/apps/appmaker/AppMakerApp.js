@@ -11,6 +11,8 @@ import { renderHTML } from '../../utils/domUtils.js';
 export class AppMakerApp extends Application {
     constructor(config) {
         super(config);
+        this.appWidth = 400;
+        this.appHeight = 300;
     }
 
     _createWindow() {
@@ -48,6 +50,12 @@ export class AppMakerApp extends Application {
                     action: () => this.win.close(),
                 },
             ],
+            "&Edit": [
+                {
+                    label: "&Options...",
+                    action: () => this._showOptions(),
+                },
+            ],
             "&View": [
                 {
                     label: "&Preview",
@@ -58,6 +66,39 @@ export class AppMakerApp extends Application {
                 {
                     label: "&About App Maker",
                     action: () => alert("A simple app maker."),
+                },
+            ],
+        });
+    }
+
+    _showOptions() {
+        ShowDialogWindow({
+            title: 'Options',
+            text: `
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div class="field-row">
+                        <label for="appWidth" style="flex: 1;">Width (px):</label>
+                        <input type="number" id="appmaker-width" value="${this.appWidth}" style="width: 60px;">
+                    </div>
+                    <div class="field-row">
+                        <label for="appHeight" style="flex: 1;">Height (px):</label>
+                        <input type="number" id="appmaker-height" value="${this.appHeight}" style="width: 60px;">
+                    </div>
+                </div>
+            `,
+            buttons: [
+                {
+                    label: 'OK',
+                    action: (win) => {
+                        const widthInput = win.$content.find('#appmaker-width')[0];
+                        const heightInput = win.$content.find('#appmaker-height')[0];
+                        this.appWidth = parseInt(widthInput.value, 10) || 400;
+                        this.appHeight = parseInt(heightInput.value, 10) || 300;
+                    },
+                    isDefault: true,
+                },
+                {
+                    label: 'Cancel',
                 },
             ],
         });
@@ -115,8 +156,8 @@ export class AppMakerApp extends Application {
 
         const previewWindow = new $Window({
             title: appName,
-            width: 400,
-            height: 300,
+            width: this.appWidth,
+            height: this.appHeight,
             resizable: true,
         });
 
@@ -150,6 +191,8 @@ export class AppMakerApp extends Application {
                             id: appId,
                             title: appName,
                             html: appHtml,
+                            width: this.appWidth,
+                            height: this.appHeight,
                         };
 
                         registerCustomApp(appInfo);
