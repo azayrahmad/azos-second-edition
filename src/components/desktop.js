@@ -151,9 +151,13 @@ function applyWallpaper() {
   if (wallpaper) {
     const mode = getWallpaperMode();
     desktop.style.backgroundImage = `url(${wallpaper})`;
+    desktop.style.backgroundPosition = 'center';
     if (mode === 'stretch') {
       desktop.style.backgroundRepeat = 'no-repeat';
       desktop.style.backgroundSize = '100% 100%';
+    } else if (mode === 'fill') {
+        desktop.style.backgroundRepeat = 'no-repeat';
+        desktop.style.backgroundSize = 'cover';
     } else { // 'tile'
       desktop.style.backgroundRepeat = 'repeat';
       desktop.style.backgroundSize = 'auto';
@@ -226,6 +230,7 @@ function showDesktopContextMenu(event) {
         {
           radioItems: [
             { label: 'Tile', value: 'tile' },
+            { label: 'Fill', value: 'fill' },
             { label: 'Stretch', value: 'stretch' },
           ],
           getValue: () => getWallpaperMode(),
