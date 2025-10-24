@@ -1,3 +1,4 @@
+import './styles/cursors.css';
 import './style.css'
 import { setupCounter } from './counter.js'
 import { initDesktop } from './components/desktop.js'
