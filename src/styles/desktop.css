@@ -124,3 +124,10 @@ html {
 .selected { */
   border: 1px dotted var(--HilightText);
 }
+
+.lasso {
+  border: 1px dotted var(--HilightText);
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none; /* Make sure it doesn't interfere with mouse events */
+}
