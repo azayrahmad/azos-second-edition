@@ -69,7 +69,7 @@
 .tip-link {
   color: #0000ff;
   text-decoration: underline;
-  cursor: var(--cursor-pointer);
+  /* cursor: var(--cursor-pointer); */
 }
 
 .tip-link:hover {

@@ -17,9 +17,6 @@ export async function applyAniCursor(theme, cursorType) {
     return;
   }
 
-  // Remove any existing animated cursor style
-  clearAniCursor();
-
   try {
     const response = await fetch(cursorUrl);
     const data = new Uint8Array(await response.arrayBuffer());
@@ -34,8 +31,9 @@ export async function applyAniCursor(theme, cursorType) {
         document.head.appendChild(style);
     }
 
-    style.innerText = convertAniBinaryToCSS('body', data);
-    styleMap.set('body', style);
+    style.innerText = convertAniBinaryToCSS(`.cursor-${cursorType}`, data);
+    styleMap.set(`.cursor-${cursorType}`, style);
+    console.log('Animated cursor applied successfully, theme:', theme, 'type:', cursorType);
 
   } catch (error) {
     console.error('Failed to apply animated cursor:', error);

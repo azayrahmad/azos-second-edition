@@ -392,7 +392,7 @@ body > .window-titlebar {
   );
 }
 .os-window {
-  cursor: var(--cursor-default);
+
   /* Needed for when maximized, otherwise would be provided by %outset-deep */
   background: rgb(192, 192, 192);
   background: var(--ButtonFace);

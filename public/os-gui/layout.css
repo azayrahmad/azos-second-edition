@@ -3,7 +3,7 @@
 .os-window,
 .os-window .window-titlebar,
 .os-window .window-title {
-  cursor: var(--cursor-default);
+
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;

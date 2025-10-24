@@ -515,7 +515,7 @@ table > thead > tr > * {
   top: 0;
 }
 table.interactive > tbody > tr {
-  cursor: var(--cursor-pointer);
+  /* cursor: var(--cursor-pointer); */
 }
 table > tbody > tr.highlighted {
   background-color: var(--ActiveTitle);

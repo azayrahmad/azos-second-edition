@@ -1,5 +1,5 @@
 .taskbar {
-  cursor: var(--cursor-default);
+
   position: fixed; /* Changed from sticky to fixed */
   bottom: 0; /* Ensure it's pinned to the bottom */
   left: 0;
@@ -203,7 +203,7 @@ button:not(:disabled):active img {
   height: 22px;
   width: 132px;
   padding: 7px 10px;
-  cursor: var(--cursor-default);
+
   display: flex;
   align-items: center;
   font-size: 12px;

@@ -41,7 +41,7 @@ export function applyCursor(theme) {
     const root = document.documentElement;
     const themeConfig = cursorThemes[theme];
 
-    clearAniCursor();
+    // clearAniCursor();
 
     if (themeConfig) {
         for (const [property, config] of Object.entries(themeConfig)) {

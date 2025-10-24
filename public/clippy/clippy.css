@@ -2,7 +2,6 @@
 .clippy-balloon {
   position: fixed;
   z-index: 1000;
-  cursor: var(--cursor-pointer);
 }
 
 .clippy-balloon {
