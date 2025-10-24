@@ -16,8 +16,8 @@ export function registerCustomApp(appInfo) {
         _createWindow() {
             const win = new $Window({
                 title: this.title,
-                width: 400,
-                height: 300,
+                width: appInfo.width || 400,
+                height: appInfo.height || 300,
                 resizable: true,
                 icons: this.icon,
             });
@@ -31,8 +31,8 @@ export function registerCustomApp(appInfo) {
         title: appInfo.title,
         icon: ICONS.appmaker,
         appClass: CustomApp,
-        width: 400,
-        height: 300,
+        width: appInfo.width || 400,
+        height: appInfo.height || 300,
         resizable: true,
         contextMenu: [
             {
