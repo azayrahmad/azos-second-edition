@@ -540,6 +540,7 @@ export function initDesktop() {
   const desktop = document.querySelector('.desktop');
   let lasso;
   let isLassoing = false;
+  let wasLassoing = false;
   let lassoStartX, lassoStartY;
   let selectedIcons = new Set();
 
@@ -625,12 +626,16 @@ export function initDesktop() {
 
     const onMouseUp = () => {
       isLassoing = false;
+      wasLassoing = true;
       if (lasso && lasso.parentElement) {
         lasso.parentElement.removeChild(lasso);
       }
       lasso = null;
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+       setTimeout(() => {
+        wasLassoing = false;
+      }, 0);
     };
 
     document.addEventListener('mousemove', onMouseMove);
@@ -649,6 +654,10 @@ export function initDesktop() {
 
   // Add click handler to desktop to deselect icons
   desktop.addEventListener('click', (e) => {
+    if (wasLassoing) {
+      wasLassoing = false;
+      return;
+    }
     if (e.target === desktop && !isLassoing && !e.target.closest('.desktop-icon')) {
       clearSelection();
     }
