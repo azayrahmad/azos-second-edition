@@ -302,7 +302,8 @@ function showProperties(app) {
   // TODO: Implement properties dialog
 }
 
-export function setupIcons() {
+export function setupIcons(options) {
+  const { selectedIcons, clearSelection } = options;
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
@@ -330,7 +331,7 @@ export function setupIcons() {
     const icon = createDesktopIcon(app, false);
     if (icon) {
       const iconId = getIconId(app);
-      configureIcon(icon, app, null);
+      configureIcon(icon, app, null, { selectedIcons, clearSelection });
       placeIcon(icon, iconId);
     }
   });
@@ -341,28 +342,25 @@ export function setupIcons() {
     if (icon) {
       const app = apps.find((a) => a.id === file.app);
       const iconId = getIconId(app, file.path);
-      configureIcon(icon, app, file.path);
+      configureIcon(icon, app, file.path, { selectedIcons, clearSelection });
       placeIcon(icon, iconId);
     }
   });
 }
 
-function configureIcon(icon, app, filePath = null) {
+function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelection }) {
   let isDragging = false;
   let wasDragged = false;
   let dragStartX, dragStartY;
-  let offsetX, offsetY;
+  let dragOffsets = new Map();
   let longPressTimer;
   let isLongPress = false;
 
   const iconId = icon.getAttribute("data-icon-id");
 
   const handleDragStart = (e) => {
-    // For mouse events, only respond to left-click
     if (e.type === 'mousedown' && e.button !== 0) return;
 
-    // We prevent default on mousedown to stop text selection, but not on touchstart
-    // to allow the browser to generate click/dblclick events.
     if (e.type === 'mousedown') {
       e.preventDefault();
     }
@@ -370,6 +368,7 @@ function configureIcon(icon, app, filePath = null) {
     isDragging = true;
     wasDragged = false;
     isLongPress = false;
+    dragOffsets.clear();
 
     const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
     const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
@@ -377,11 +376,9 @@ function configureIcon(icon, app, filePath = null) {
     dragStartX = clientX;
     dragStartY = clientY;
 
-    // Long press detection for touch
     if (e.type === 'touchstart') {
       longPressTimer = setTimeout(() => {
         isLongPress = true;
-        // Find the touch point to position the context menu
         const touch = e.touches[0];
         const mockEvent = {
           pageX: touch.pageX,
@@ -389,7 +386,7 @@ function configureIcon(icon, app, filePath = null) {
           preventDefault: () => e.preventDefault(),
         };
         showIconContextMenu(mockEvent, app);
-      }, 500); // 500ms for a long press
+      }, 500);
     }
 
     const desktop = icon.parentElement;
@@ -397,13 +394,10 @@ function configureIcon(icon, app, filePath = null) {
 
     if (!desktop.classList.contains('has-absolute-icons')) {
       const allIcons = Array.from(desktop.querySelectorAll('.desktop-icon'));
-      const initialPositions = allIcons.map(i => ({
-        icon: i,
-        id: i.getAttribute('data-icon-id'),
-        rect: i.getBoundingClientRect()
-      }));
       const iconPositions = {};
-      initialPositions.forEach(({ icon: i, id, rect }) => {
+      allIcons.forEach(i => {
+        const id = i.getAttribute('data-icon-id');
+        const rect = i.getBoundingClientRect();
         const x = `${rect.left - desktopRect.left}px`;
         const y = `${rect.top - desktopRect.top}px`;
         i.style.position = 'absolute';
@@ -415,9 +409,22 @@ function configureIcon(icon, app, filePath = null) {
       desktop.classList.add('has-absolute-icons');
     }
 
-    const iconRect = icon.getBoundingClientRect();
-    offsetX = clientX - iconRect.left;
-    offsetY = clientY - iconRect.top;
+    // If the clicked icon is not part of the current selection,
+    // clear the selection and select only this one.
+    if (!selectedIcons.has(icon)) {
+      clearSelection();
+      selectedIcons.add(icon);
+      icon.querySelector(".icon img")?.classList.add("highlighted-icon");
+      icon.querySelector(".icon-label")?.classList.add("highlighted-label", "selected");
+    }
+
+    // Prepare all selected icons for dragging
+    selectedIcons.forEach(selectedIcon => {
+      const iconRect = selectedIcon.getBoundingClientRect();
+      const offsetX = clientX - iconRect.left;
+      const offsetY = clientY - iconRect.top;
+      dragOffsets.set(selectedIcon, { offsetX, offsetY });
+    });
 
     if (e.type === 'mousedown') {
       document.addEventListener("mousemove", handleDragMove);
@@ -435,7 +442,7 @@ function configureIcon(icon, app, filePath = null) {
     const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
 
     if (Math.abs(clientX - dragStartX) > 5 || Math.abs(clientY - dragStartY) > 5) {
-      clearTimeout(longPressTimer); // Moved too far, not a long press
+      clearTimeout(longPressTimer);
       if (!wasDragged) {
         wasDragged = true;
         window.getSelection().removeAllRanges();
@@ -444,35 +451,41 @@ function configureIcon(icon, app, filePath = null) {
 
     if (!wasDragged) return;
 
-    // Prevent scrolling on touch devices ONLY when dragging
     if (e.type === 'touchmove') {
       e.preventDefault();
     }
 
     const desktop = icon.parentElement;
     const desktopRect = desktop.getBoundingClientRect();
-    const iconRect = icon.getBoundingClientRect();
 
-    let newX = clientX - desktopRect.left - offsetX;
-    let newY = clientY - desktopRect.top - offsetY;
+    selectedIcons.forEach(selectedIcon => {
+      const { offsetX, offsetY } = dragOffsets.get(selectedIcon);
+      const iconRect = selectedIcon.getBoundingClientRect();
 
-    newX = Math.max(0, Math.min(newX, desktopRect.width - iconRect.width));
-    newY = Math.max(0, Math.min(newY, desktopRect.height - iconRect.height));
+      let newX = clientX - desktopRect.left - offsetX;
+      let newY = clientY - desktopRect.top - offsetY;
 
-    icon.style.left = `${newX}px`;
-    icon.style.top = `${newY}px`;
+      newX = Math.max(0, Math.min(newX, desktopRect.width - iconRect.width));
+      newY = Math.max(0, Math.min(newY, desktopRect.height - iconRect.height));
+
+      selectedIcon.style.left = `${newX}px`;
+      selectedIcon.style.top = `${newY}px`;
+    });
   };
 
   const handleDragEnd = () => {
-    clearTimeout(longPressTimer); // Always clear timer on end
+    clearTimeout(longPressTimer);
     isDragging = false;
 
     if (wasDragged) {
       const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
-      iconPositions[iconId] = {
-        x: icon.style.left,
-        y: icon.style.top,
-      };
+      selectedIcons.forEach(selectedIcon => {
+        const id = selectedIcon.getAttribute('data-icon-id');
+        iconPositions[id] = {
+          x: selectedIcon.style.left,
+          y: selectedIcon.style.top,
+        };
+      });
       setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
 
@@ -481,7 +494,6 @@ function configureIcon(icon, app, filePath = null) {
     document.removeEventListener("touchmove", handleDragMove);
     document.removeEventListener("touchend", handleDragEnd);
 
-    // Reset wasDragged after a short delay to allow click/dblclick to be suppressed
     setTimeout(() => {
       wasDragged = false;
       isLongPress = false;
@@ -497,27 +509,18 @@ function configureIcon(icon, app, filePath = null) {
       e.preventDefault();
       return;
     }
-    // Handle single click for selection
-    document
-      .querySelectorAll(".desktop-icon .icon img, .desktop-icon .icon-label")
-      .forEach((element) => {
-        element.classList.remove(
-          "highlighted-icon",
-          "highlighted-label",
-          "selected"
-        );
-      });
+
+    clearSelection();
+    selectedIcons.add(this);
 
     const iconImg = this.querySelector(".icon img");
     const iconLabel = this.querySelector(".icon-label");
     if (iconImg) iconImg.classList.add("highlighted-icon");
     if (iconLabel) {
-      iconLabel.classList.add("highlighted-label");
-      iconLabel.classList.add("selected");
+      iconLabel.classList.add("highlighted-label", "selected");
     }
   });
 
-  // Double-click to execute app action
   icon.addEventListener("dblclick", (e) => {
     if (wasDragged || isLongPress) {
       e.stopPropagation();
@@ -534,9 +537,108 @@ export function initDesktop() {
   applyTheme();
   applyWallpaper();
   applyMonitorType();
-  setupIcons();
-
   const desktop = document.querySelector('.desktop');
+  let lasso;
+  let isLassoing = false;
+  let lassoStartX, lassoStartY;
+  let selectedIcons = new Set();
+
+  function clearSelection() {
+    selectedIcons.forEach(icon => {
+      const iconImg = icon.querySelector(".icon img");
+      const iconLabel = icon.querySelector(".icon-label");
+      if (iconImg) iconImg.classList.remove("highlighted-icon");
+      if (iconLabel) {
+        iconLabel.classList.remove("highlighted-label", "selected");
+      }
+    });
+    selectedIcons.clear();
+  }
+
+  function isIntersecting(rect1, rect2) {
+    return !(rect1.right < rect2.left ||
+             rect1.left > rect2.right ||
+             rect1.bottom < rect2.top ||
+             rect1.top > rect2.bottom);
+  }
+
+  desktop.addEventListener('mousedown', (e) => {
+    if (e.target !== desktop) return; // Only start lasso on desktop itself
+    if (e.button !== 0) return; // Only for left click
+
+    isLassoing = true;
+    lassoStartX = e.clientX;
+    lassoStartY = e.clientY;
+
+    lasso = document.createElement('div');
+    lasso.className = 'lasso';
+    lasso.style.left = `${lassoStartX}px`;
+    lasso.style.top = `${lassoStartY}px`;
+    desktop.appendChild(lasso);
+
+    clearSelection();
+    e.preventDefault();
+
+    const onMouseMove = (moveEvent) => {
+      if (!isLassoing) return;
+
+      const currentX = moveEvent.clientX;
+      const currentY = moveEvent.clientY;
+
+      const width = Math.abs(currentX - lassoStartX);
+      const height = Math.abs(currentY - lassoStartY);
+      const left = Math.min(currentX, lassoStartX);
+      const top = Math.min(currentY, lassoStartY);
+
+      lasso.style.width = `${width}px`;
+      lasso.style.height = `${height}px`;
+      lasso.style.left = `${left}px`;
+      lasso.style.top = `${top}px`;
+
+      const lassoRect = lasso.getBoundingClientRect();
+      const icons = document.querySelectorAll('.desktop-icon');
+
+      icons.forEach(icon => {
+        const iconRect = icon.getBoundingClientRect();
+        const iconImg = icon.querySelector(".icon img");
+        const iconLabel = icon.querySelector(".icon-label");
+
+        if (isIntersecting(lassoRect, iconRect)) {
+          if (!selectedIcons.has(icon)) {
+            selectedIcons.add(icon);
+            if (iconImg) iconImg.classList.add("highlighted-icon");
+            if (iconLabel) {
+              iconLabel.classList.add("highlighted-label", "selected");
+            }
+          }
+        } else {
+          if (selectedIcons.has(icon)) {
+            selectedIcons.delete(icon);
+            if (iconImg) iconImg.classList.remove("highlighted-icon");
+            if (iconLabel) {
+              iconLabel.classList.remove("highlighted-label", "selected");
+            }
+          }
+        }
+      });
+    };
+
+    const onMouseUp = () => {
+      isLassoing = false;
+      if (lasso && lasso.parentElement) {
+        lasso.parentElement.removeChild(lasso);
+      }
+      lasso = null;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  setupIcons({ selectedIcons, clearSelection });
+
   desktop.addEventListener('contextmenu', (e) => {
     // Show desktop context menu only if not clicking on an icon
     if (e.target === desktop) {
@@ -547,18 +649,8 @@ export function initDesktop() {
 
   // Add click handler to desktop to deselect icons
   desktop.addEventListener('click', (e) => {
-    // Only handle clicks directly on the desktop (not on icons)
-    if (e.target === desktop) {
-      // Remove highlight from all icons and icon-labels
-      document
-        .querySelectorAll(".desktop-icon .icon img, .desktop-icon .icon-label")
-        .forEach((element) => {
-          element.classList.remove(
-            "highlighted-icon",
-            "highlighted-label",
-            "selected",
-          );
-        });
+    if (e.target === desktop && !isLassoing && !e.target.closest('.desktop-icon')) {
+      clearSelection();
     }
   });
 

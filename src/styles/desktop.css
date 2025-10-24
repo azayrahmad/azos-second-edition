@@ -124,3 +124,11 @@ html {
 .selected { */
   border: 1px dotted var(--HilightText);
 }
+
+.lasso {
+  border: 1px dotted var(--HilightText);
+  position: absolute;
+  background-color: rgba(0, 0, 255, 0.1); /* Optional: slight blue tint */
+  z-index: 1000;
+  pointer-events: none; /* Make sure it doesn't interfere with mouse events */
+}
