@@ -4,7 +4,13 @@ import { cursors } from '../config/cursors';
 const styleMap = new Map();
 
 export async function applyAniCursor(theme, cursorType) {
-  const cursorUrl = cursors[theme]?.[cursorType];
+  const themeKeyMap = {
+    '60s-usa': 'usa60s',
+    'dangerous-creatures': 'dangerousCreatures',
+    // Add other theme mappings here
+  };
+  const themeKey = themeKeyMap[theme] || theme;
+  const cursorUrl = cursors[themeKey]?.[cursorType];
 
   if (!cursorUrl) {
     console.warn(`Animated cursor not found for theme: ${theme}, type: ${cursorType}`);
