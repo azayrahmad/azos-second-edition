@@ -197,7 +197,7 @@ function applyMonitorType() {
   }
 }
 
-function showDesktopContextMenu(event) {
+function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
 
   const menuItems = [
@@ -206,7 +206,7 @@ function showDesktopContextMenu(event) {
       click: () => {
         // Remove saved positions and redraw icons
         removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-        setupIcons();
+        setupIcons({ selectedIcons, clearSelection });
       },
     },
     {
@@ -403,18 +403,30 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
     const desktopRect = desktop.getBoundingClientRect();
 
     if (!desktop.classList.contains('has-absolute-icons')) {
+      // Force browser to calculate layout before we read positions
+      desktop.offsetHeight;
+
       const allIcons = Array.from(desktop.querySelectorAll('.desktop-icon'));
       const iconPositions = {};
+      const newPositions = [];
+
+      // 1. Read all positions first
       allIcons.forEach(i => {
         const id = i.getAttribute('data-icon-id');
         const rect = i.getBoundingClientRect();
         const x = `${rect.left - desktopRect.left}px`;
         const y = `${rect.top - desktopRect.top}px`;
-        i.style.position = 'absolute';
-        i.style.left = x;
-        i.style.top = y;
+        newPositions.push({ icon: i, x, y });
         iconPositions[id] = { x, y };
       });
+
+      // 2. Then apply them
+      newPositions.forEach(({ icon, x, y }) => {
+        icon.style.position = 'absolute';
+        icon.style.left = x;
+        icon.style.top = y;
+      });
+
       setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
       desktop.classList.add('has-absolute-icons');
     }
@@ -652,13 +664,16 @@ export function initDesktop() {
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  setupIcons({ selectedIcons, clearSelection });
+  // A function to refresh icons, bound to the correct scope
+  desktop.refreshIcons = () => setupIcons({ selectedIcons, clearSelection });
+
+  desktop.refreshIcons();
 
   desktop.addEventListener('contextmenu', (e) => {
     // Show desktop context menu only if not clicking on an icon
     if (e.target === desktop) {
       e.preventDefault();
-      showDesktopContextMenu(e);
+      showDesktopContextMenu(e, { selectedIcons, clearSelection });
     }
   });
 

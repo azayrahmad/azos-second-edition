@@ -6,7 +6,6 @@ import { apps, appClasses } from '../config/apps.js';
 import { ICONS } from '../config/icons.js';
 import desktopConfig from '../config/desktop.json';
 import { launchApp } from './appManager.js';
-import { setupIcons } from '../components/desktop.js';
 
 export function registerCustomApp(appInfo) {
     class CustomApp extends Application {
@@ -53,7 +52,7 @@ export function registerCustomApp(appInfo) {
                                 label: 'Yes',
                                 action: () => {
                                     deleteCustomApp(appInfo.id);
-                                    setupIcons();
+                                    document.querySelector('.desktop').refreshIcons();
                                 },
                                 isDefault: true,
                             },
