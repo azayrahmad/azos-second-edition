@@ -1,5 +1,6 @@
 import { convertAniBinaryToCSS } from 'ani-cursor';
-import { cursors } from '../config/cursors';
+import { cursors, cursorThemes } from '../config/cursors';
+import { getCurrentTheme } from './themeManager.js';
 
 const styleMap = new Map();
 
@@ -50,5 +51,27 @@ export function clearAniCursor() {
         styleMap.delete(selector);
         // Also reset the cursor property on the element
         document.querySelector(selector).style.cursor = '';
+    }
+}
+
+export function applyBusyCursor() {
+    const theme = getCurrentTheme();
+    const themeConfig = cursorThemes[theme];
+
+    if (themeConfig && themeConfig['--cursor-wait']?.animated) {
+        applyAniCursor(theme, themeConfig['--cursor-wait'].type);
+    } else {
+        document.body.style.cursor = 'wait';
+    }
+}
+
+export function clearBusyCursor() {
+    const theme = getCurrentTheme();
+    const themeConfig = cursorThemes[theme];
+
+    if (themeConfig && themeConfig['--cursor-wait']?.animated) {
+        clearAniCursor();
+    } else {
+        document.body.style.cursor = '';
     }
 }
