@@ -151,13 +151,14 @@ function applyWallpaper() {
   if (wallpaper) {
     const mode = getWallpaperMode();
     desktop.style.backgroundImage = `url(${wallpaper})`;
-    desktop.style.backgroundPosition = 'center';
+    desktop.style.backgroundPosition = 'left top';
     if (mode === 'stretch') {
       desktop.style.backgroundRepeat = 'no-repeat';
       desktop.style.backgroundSize = '100% 100%';
-    } else if (mode === 'fill') {
-        desktop.style.backgroundRepeat = 'no-repeat';
-        desktop.style.backgroundSize = 'cover';
+    } else if (mode === 'center') {
+      desktop.style.backgroundRepeat = 'no-repeat';
+      desktop.style.backgroundSize = 'auto';
+      desktop.style.backgroundPosition = 'center';
     } else { // 'tile'
       desktop.style.backgroundRepeat = 'repeat';
       desktop.style.backgroundSize = 'auto';
@@ -188,12 +189,12 @@ function setMonitorType(type) {
 }
 
 function applyMonitorType() {
-    const type = getMonitorType();
-    if (type === 'CRT') {
-        document.body.classList.add('scanlines');
-    } else {
-        document.body.classList.remove('scanlines');
-    }
+  const type = getMonitorType();
+  if (type === 'CRT') {
+    document.body.classList.add('scanlines');
+  } else {
+    document.body.classList.remove('scanlines');
+  }
 }
 
 function showDesktopContextMenu(event) {
@@ -229,8 +230,8 @@ function showDesktopContextMenu(event) {
         'MENU_DIVIDER',
         {
           radioItems: [
+            { label: 'Center', value: 'center' },
             { label: 'Tile', value: 'tile' },
-            { label: 'Fill', value: 'fill' },
             { label: 'Stretch', value: 'stretch' },
           ],
           getValue: () => getWallpaperMode(),
@@ -248,8 +249,12 @@ function showDesktopContextMenu(event) {
           value: themeKey,
         })),
         getValue: () => getCurrentTheme(),
-        setValue: (value) => setTheme(value),
-        ariaLabel: 'Color Theme'
+        setValue: (value) => {
+          setTheme(value);
+          applyWallpaper();
+          document.dispatchEvent(new CustomEvent('theme-changed'));
+        },
+        ariaLabel: 'Desktop Theme'
       }],
     },
     {
