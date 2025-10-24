@@ -58,6 +58,7 @@ export function launchWebampApp(app) {
 
     webampInstance.renderWhenReady(webampContainer).then(() => {
       // Webamp is ready, show it
+      webampInstance.skinIsLoaded();
       showWebamp();
 
       // Add focus/blur event listeners to update taskbar button state
