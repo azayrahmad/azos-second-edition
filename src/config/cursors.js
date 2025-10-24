@@ -14,17 +14,17 @@ import dcNWSE from '../assets/cursor/Dangerous Creatures Size NWSE.cur';
 import dcWE from '../assets/cursor/Dangerous Creatures Size WE.cur';
 
 // 60's USA theme
-import usaArrow from '../assets/cursor/The 60\'s USA arrow.cur';
-import usaBeam from '../assets/cursor/The 60\'s USA beam.cur';
-import usaBusy from '../assets/cursor/The 60\'s USA busy.ani';
-import usaHelp from '../assets/cursor/The 60\'s USA help.cur';
-import usaMove from '../assets/cursor/The 60\'s USA move.cur';
-import usaNo from '../assets/cursor/The 60\'s USA no.cur';
-import usaCross from '../assets/cursor/The 60\'s USA cross.cur';
-import usaNESW from '../assets/cursor/The 60\'s USA Size NESW.cur';
-import usaNS from '../assets/cursor/The 60\'s USA Size NS.cur';
-import usaNWSE from '../assets/cursor/The 60\'s USA Size NWSE.cur';
-import usaWE from '../assets/cursor/The 60\'s USA Size WE.cur';
+import usaArrow from '../assets/cursor/The 60s USA arrow.cur';
+import usaBeam from '../assets/cursor/The 60s USA beam.cur';
+import usaBusy from '../assets/cursor/The 60s USA busy.ani';
+import usaHelp from '../assets/cursor/The 60s USA help.cur';
+import usaMove from '../assets/cursor/The 60s USA move.cur';
+import usaNo from '../assets/cursor/The 60s USA no.cur';
+import usaCross from '../assets/cursor/The 60s USA cross.cur';
+import usaNESW from '../assets/cursor/The 60s USA Size NESW.cur';
+import usaNS from '../assets/cursor/The 60s USA Size NS.cur';
+import usaNWSE from '../assets/cursor/The 60s USA Size NWSE.cur';
+import usaWE from '../assets/cursor/The 60s USA Size WE.cur';
 
 export const cursors = {
     dangerousCreatures: {
