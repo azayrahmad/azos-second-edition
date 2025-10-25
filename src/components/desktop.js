@@ -10,47 +10,72 @@ import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/theme
 import { ICONS } from "../config/icons.js";
 import { playSound } from '../utils/soundManager.js';
 
-function getIconId(app, filePath = null) {
-  // Create a unique ID for the icon based on app ID or file path
-  return filePath ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, '-')}` : `app-${app.id}`;
+function getIconId(item, type) {
+    switch (type) {
+        case 'app':
+            return `app-${item.id}`;
+        case 'file':
+            return `file-${item.path.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        case 'folder':
+            return `folder-${item.name.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        default:
+            return `unknown-${Date.now()}`;
+    }
 }
 
-function createDesktopIcon(item, isFile = false) {
-  const app = isFile ? apps.find(a => a.id === item.app) : item;
-  if (!app) return null;
+function createDesktopIcon(item, type = 'app') {
+    const iconDiv = document.createElement("div");
+    iconDiv.className = "desktop-icon";
 
-  const iconDiv = document.createElement("div");
-  iconDiv.className = "desktop-icon";
-  iconDiv.setAttribute("title", isFile ? item.filename : app.title);
+    let iconId, title, iconSrc, label;
 
-  const iconId = getIconId(app, isFile ? item.path : null);
-  iconDiv.setAttribute("data-icon-id", iconId);
+    if (type === 'app') {
+        const app = item;
+        iconId = getIconId(app, 'app');
+        title = app.title;
+        iconSrc = app.icon[32];
+        label = app.title;
+        iconDiv.setAttribute("data-app-id", app.id);
+    } else if (type === 'file') {
+        const app = apps.find(a => a.id === item.app);
+        if (!app) return null;
+        iconId = getIconId(item, 'file');
+        title = item.filename;
+        iconSrc = app.icon[32];
+        label = item.filename;
+        iconDiv.setAttribute("data-app-id", item.app);
+        iconDiv.setAttribute("data-file-path", item.path);
+    } else if (type === 'folder') {
+        iconId = getIconId(item, 'folder');
+        title = item.name;
+        iconSrc = ICONS[item.icon][32];
+        label = item.name;
+        iconDiv.setAttribute("data-folder-name", item.name);
+    }
 
-  iconDiv.setAttribute("data-app-id", app.id);
-  if (isFile) {
-    iconDiv.setAttribute("data-file-path", item.path);
-  }
+    iconDiv.setAttribute("title", title);
+    iconDiv.setAttribute("data-icon-id", iconId);
+    iconDiv.dataset.itemType = type;
 
-  const iconInner = document.createElement("div");
-  iconInner.className = "icon";
+    const iconInner = document.createElement("div");
+    iconInner.className = "icon";
+    const iconImg = document.createElement("img");
+    iconImg.src = iconSrc;
+    iconInner.appendChild(iconImg);
 
-  const iconImg = document.createElement("img");
-  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
-  iconInner.appendChild(iconImg);
+    const iconLabel = document.createElement("div");
+    iconLabel.className = "icon-label";
+    iconLabel.textContent = label;
 
-  const iconLabel = document.createElement("div");
-  iconLabel.className = "icon-label";
-  iconLabel.textContent = isFile ? item.filename : app.title;
+    iconDiv.appendChild(iconInner);
+    iconDiv.appendChild(iconLabel);
 
-  iconDiv.appendChild(iconInner);
-  iconDiv.appendChild(iconLabel);
+    iconDiv.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        // showIconContextMenu(e, item, type);
+    });
 
-  iconDiv.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    showIconContextMenu(e, app); // Context menu might need adjustments for files
-  });
-
-  return iconDiv;
+    return iconDiv;
 }
 
 function showIconContextMenu(event, app) {
@@ -338,27 +363,36 @@ export function setupIcons(options) {
   // Load apps
   const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
   appsToLoad.forEach((app) => {
-    const icon = createDesktopIcon(app, false);
+    const icon = createDesktopIcon(app, 'app');
     if (icon) {
-      const iconId = getIconId(app);
-      configureIcon(icon, app, null, { selectedIcons, clearSelection });
+      const iconId = getIconId(app, 'app');
+      configureIcon(icon, app, 'app', { selectedIcons, clearSelection });
       placeIcon(icon, iconId);
     }
   });
 
   // Load files
   desktopApps.files.forEach((file) => {
-    const icon = createDesktopIcon(file, true);
+    const icon = createDesktopIcon(file, 'file');
     if (icon) {
-      const app = apps.find((a) => a.id === file.app);
-      const iconId = getIconId(app, file.path);
-      configureIcon(icon, app, file.path, { selectedIcons, clearSelection });
+      const iconId = getIconId(file, 'file');
+      configureIcon(icon, file, 'file', { selectedIcons, clearSelection });
       placeIcon(icon, iconId);
+    }
+  });
+
+  // Load folders
+  desktopApps.folders.forEach((folder) => {
+    const icon = createDesktopIcon(folder, 'folder');
+    if (icon) {
+        const iconId = getIconId(folder, 'folder');
+        configureIcon(icon, folder, 'folder', { selectedIcons, clearSelection });
+        placeIcon(icon, iconId);
     }
   });
 }
 
-function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelection }) {
+function configureIcon(icon, item, type, { selectedIcons, clearSelection }) {
   let isDragging = false;
   let wasDragged = false;
   let dragStartX, dragStartY;
@@ -549,7 +583,18 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
       e.preventDefault();
       return;
     }
-    launchApp(app.id, filePath);
+
+    if (type === 'app') {
+        launchApp(item.id);
+    } else if (type === 'file') {
+        if (item.content) {
+          launchApp(item.app, { content: item.content });
+        } else {
+          launchApp(item.app, item.path);
+        }
+    } else if (type === 'folder') {
+        launchApp('explorer', item);
+    }
   });
 }
 

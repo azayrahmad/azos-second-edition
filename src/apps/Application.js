@@ -28,8 +28,8 @@ export class Application {
     async launch(filePath = null) {
         const windowId = this._getWindowId(filePath);
 
-        if (openApps.has(this.id)) {
-            const existingApp = openApps.get(this.id);
+        if (openApps.has(windowId)) {
+            const existingApp = openApps.get(windowId);
             if (existingApp.win) {
                 const $win = $(existingApp.win.element);
                 if ($win.is(':visible')) {
@@ -57,8 +57,14 @@ export class Application {
         openApps.set(this.id, this);
     }
 
-    _getWindowId(filePath) {
-        return filePath ? `${this.id}-${filePath}` : this.id;
+    _getWindowId(launchData) {
+        if (typeof launchData === 'string') {
+            return `${this.id}-${launchData}`; // File path
+        }
+        if (typeof launchData === 'object' && launchData !== null && launchData.name) {
+            return `${this.id}-${launchData.name.replace(/[^a-zA-Z0-9]/g, '-')}`; // Folder object
+        }
+        return this.id;
     }
 
     _createWindow(filePath) {
