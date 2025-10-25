@@ -17,7 +17,7 @@ export function launchApp(appId, filePath = null) {
 
     if (appConfig.appClass) {
         try {
-            const appInstance = new appConfig.appClass(filePath || appConfig);
+            const appInstance = new appConfig.appClass(appConfig);
             appInstance.launch(filePath);
         } catch (error) {
             console.error(`Failed to launch app: ${appId}`, error);

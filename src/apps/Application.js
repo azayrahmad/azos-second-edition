@@ -28,13 +28,8 @@ export class Application {
     launch(filePath = null) {
         const windowId = this._getWindowId(filePath);
 
-        if (openApps.has(this.id)) {
-            const existingApp = openApps.get(this.id);
-
-            if (this.id === 'explorer' && typeof existingApp.updateFolder === 'function') {
-                existingApp.updateFolder(filePath);
-            }
-
+        if (openApps.has(windowId)) {
+            const existingApp = openApps.get(windowId);
             if (existingApp.win) {
                 const $win = $(existingApp.win.element);
                 if ($win.is(':visible')) {
@@ -62,23 +57,18 @@ export class Application {
         openApps.set(this.id, this);
     }
 
-    _getWindowId(filePath) {
-        if (typeof filePath === 'object' && filePath !== null) {
-            return `${this.id}-${filePath.filename || filePath.name || filePath.id}`;
+    _getWindowId(launchData) {
+        if (typeof launchData === 'string') {
+            return `${this.id}-${launchData}`; // File path
         }
-        return filePath ? `${this.id}-${filePath}` : this.id;
+        if (typeof launchData === 'object' && launchData !== null && launchData.name) {
+            return `${this.id}-${launchData.name.replace(/[^a-zA-Z0-9]/g, '-')}`; // Folder object
+        }
+        return this.id;
     }
 
-    _createWindow() {
-        return new $Window({
-            title: this.title,
-            width: this.width,
-            height: this.height,
-            resizable: this.resizable,
-            minimizeButton: this.minimizeButton,
-            maximizeButton: this.maximizeButton,
-            icon: this.icon,
-        });
+    _createWindow(filePath) {
+        throw new Error('Application must implement the _createWindow() method.');
     }
 
     _onLaunch(filePath) {
@@ -87,7 +77,6 @@ export class Application {
 
     _setupWindow(windowId) {
         this.win.element.id = windowId;
-        this.win.element.setAttribute('data-testid', `app-window-${this.id}`);
 
         this.win.onClosed(() => {
             if (this.hasTaskbarButton) {
