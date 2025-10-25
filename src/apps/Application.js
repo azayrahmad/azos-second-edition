@@ -25,7 +25,7 @@ export class Application {
         this.maximizeButton = config.maximizeButton;
     }
 
-    launch(filePath = null) {
+    async launch(filePath = null) {
         const windowId = this._getWindowId(filePath);
 
         if (openApps.has(this.id)) {
@@ -53,7 +53,7 @@ export class Application {
             createTrayIcon(this);
         }
 
-        this._onLaunch(filePath);
+        await this._onLaunch(filePath);
         openApps.set(this.id, this);
     }
 
@@ -65,7 +65,7 @@ export class Application {
         throw new Error('Application must implement the _createWindow() method.');
     }
 
-    _onLaunch(filePath) {
+    async _onLaunch(filePath) {
         // Optional hook for subclasses to implement for post-launch logic
     }
 

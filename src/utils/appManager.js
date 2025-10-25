@@ -1,7 +1,7 @@
 import { apps } from '../config/apps.js';
 import { applyBusyCursor, clearBusyCursor } from './aniCursor.js';
 
-export function launchApp(appId, filePath = null) {
+export async function launchApp(appId, filePath = null) {
     applyBusyCursor();
 
     const appConfig = apps.find(a => a.id === appId);
@@ -10,29 +10,22 @@ export function launchApp(appId, filePath = null) {
         clearBusyCursor();
         return;
     }
-
-    if (appConfig.appClass) {
-        try {
+    try {
+        if (appConfig.appClass) {
             const appInstance = new appConfig.appClass(appConfig);
-            appInstance.launch(filePath);
-        } catch (error) {
-            console.error(`Failed to launch app: ${appId}`, error);
-            alert(`Could not launch ${appId}. See console for details.`);
-        } finally {
-            clearBusyCursor();
-        }
-    } else if (appConfig.action?.type === 'function') {
-        try {
+            await appInstance.launch(filePath);
+        } else if (appConfig.action?.type === 'function') {
             appConfig.action.handler();
-        } catch (error) {
-            console.error(`Failed to launch legacy app: ${appId}`, error);
-        } finally {
-            clearBusyCursor();
+        } else {
+            console.error(`No application class or legacy action found for ID: ${appId}`);
         }
-    } else {
-        console.error(`No application class or legacy action found for ID: ${appId}`);
+    } catch (error) {
+        console.error(`Failed to launch app: ${appId}`, error);
+        alert(`Could not launch ${appId}. See console for details.`);
+    } finally {
         clearBusyCursor();
     }
+
 }
 
 export function handleAppAction(app) {
