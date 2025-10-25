@@ -47,7 +47,7 @@ export function clearAniCursor() {
         }
         styleMap.delete(selector);
         // Also reset the cursor property on the element
-        document.querySelector(selector).style.cursor = '';
+        // document.querySelector(selector).style.cursor = '';
     }
 }
 
