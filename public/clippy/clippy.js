@@ -387,7 +387,7 @@ clippy.Agent.prototype = {
   _setupEvents: function () {
     $(window).on("resize", $.proxy(this.reposition, this));
 
-    this._el.on("mousedown", $.proxy(this._onMouseDown, this));
+    this._el.on("mousedown touchstart", $.proxy(this._onMouseDown, this));
 
     this._el.on("dblclick", $.proxy(this._onDoubleClick, this));
   },
@@ -431,7 +431,7 @@ clippy.Agent.prototype = {
   },
 
   _onMouseDown: function (e) {
-    if (e.which !== 1) return;
+    if (e.type === "mousedown" && e.which !== 1) return;
     e.preventDefault();
     this._startDrag(e);
   },
@@ -447,22 +447,32 @@ clippy.Agent.prototype = {
     this._moveHandle = $.proxy(this._dragMove, this);
     this._upHandle = $.proxy(this._finishDrag, this);
 
-    $(window).on("mousemove", this._moveHandle);
-    $(window).on("mouseup", this._upHandle);
+    const isTouchEvent = e.type.startsWith("touch");
+    const moveEvent = isTouchEvent ? "touchmove" : "mousemove";
+    const upEvent = isTouchEvent ? "touchend" : "mouseup";
+
+    $(window).on(moveEvent, this._moveHandle);
+    $(window).on(upEvent, this._upHandle);
+
 
     this._dragUpdateLoop = window.setTimeout(
       $.proxy(this._updateLocation, this),
-      10,
+      10
     );
   },
 
+  _getEventCoords: function (e) {
+    const originalEvent = e.originalEvent || e;
+    const touch = originalEvent.touches && originalEvent.touches[0];
+    return touch || e;
+  },
+
   _calculateClickOffset: function (e) {
-    var mouseX = e.pageX;
-    var mouseY = e.pageY;
+    const coords = this._getEventCoords(e);
     var o = this._el.offset();
     return {
-      top: mouseY - o.top,
-      left: mouseX - o.left,
+      top: coords.pageY - o.top,
+      left: coords.pageX - o.left,
     };
   },
 
@@ -470,23 +480,29 @@ clippy.Agent.prototype = {
     this._el.css({ top: this._targetY, left: this._taregtX });
     this._dragUpdateLoop = window.setTimeout(
       $.proxy(this._updateLocation, this),
-      10,
+      10
     );
   },
 
   _dragMove: function (e) {
     e.preventDefault();
-    var x = e.clientX - this._offset.left;
-    var y = e.clientY - this._offset.top;
+    const coords = this._getEventCoords(e);
+    var x = coords.clientX - this._offset.left;
+    var y = coords.clientY - this._offset.top;
     this._taregtX = x;
     this._targetY = y;
   },
 
-  _finishDrag: function () {
+  _finishDrag: function (e) {
     window.clearTimeout(this._dragUpdateLoop);
+
+    const isTouchEvent = e.type.startsWith("touch");
+    const moveEvent = isTouchEvent ? "touchmove" : "mousemove";
+    const upEvent = isTouchEvent ? "touchend" : "mouseup";
+
     // remove handles
-    $(window).off("mousemove", this._moveHandle);
-    $(window).off("mouseup", this._upHandle);
+    $(window).off(moveEvent, this._moveHandle);
+    $(window).off(upEvent, this._upHandle);
     // resume animations
     this._balloon.show();
     this.reposition();
