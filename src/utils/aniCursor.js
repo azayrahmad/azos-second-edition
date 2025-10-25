@@ -50,3 +50,30 @@ export function clearAniCursor() {
         document.querySelector(selector).style.cursor = '';
     }
 }
+
+/**
+ * Applies a busy/wait cursor to a specific element.
+ * @param {HTMLElement} [element=document.body] - The element to apply the cursor to.
+ */
+export function applyBusyCursor(element = document.body) {
+  element.classList.add('cursor-busy');
+  element.style.cursor = 'var(--cursor-wait, wait)';
+}
+
+/**
+ * Clears the busy/wait cursor from a specific element.
+ * @param {HTMLElement} [element=document.body] - The element to clear the cursor from.
+ */
+export function clearBusyCursor(element = document.body) {
+  // Use a short timeout to prevent the cursor from reverting too quickly,
+  // ensuring the browser has time to render the change.
+  setTimeout(() => {
+    element.classList.remove('cursor-busy');
+    // Revert to the default cursor for the body, or let other elements inherit.
+    if (element === document.body) {
+      element.style.cursor = 'var(--cursor-default, default)';
+    } else {
+      element.style.cursor = '';
+    }
+  }, 50);
+}
