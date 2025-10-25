@@ -8,6 +8,35 @@ import desktopConfig from '../config/desktop.json';
 import { launchApp } from './appManager.js';
 
 export function registerCustomApp(appInfo) {
+    const existingApp = apps.find(app => app.id === appInfo.id);
+
+    if (existingApp) {
+        // Update existing app's properties
+        existingApp.title = appInfo.title;
+        existingApp.width = appInfo.width || 400;
+        existingApp.height = appInfo.height || 300;
+        // Re-create the app class to capture the new HTML content in the closure
+        existingApp.appClass = class CustomApp extends Application {
+            constructor(config) {
+                super(config);
+            }
+
+            _createWindow() {
+                const win = new $Window({
+                    title: this.title,
+                    outerWidth: this.width,
+                    outerHeight: this.height,
+                    resizable: true,
+                    icons: this.icon,
+                });
+                renderHTML(win.$content[0], appInfo.html);
+                return win;
+            }
+        };
+        appClasses[appInfo.id] = existingApp.appClass;
+        return;
+    }
+
     class CustomApp extends Application {
         constructor(config) {
             super(config);
@@ -16,8 +45,8 @@ export function registerCustomApp(appInfo) {
         _createWindow() {
             const win = new $Window({
                 title: this.title,
-                width: appInfo.width || 400,
-                height: appInfo.height || 300,
+                outerWidth: this.width || 400,
+                outerHeight: this.height || 300,
                 resizable: true,
                 icons: this.icon,
             });
@@ -66,9 +95,12 @@ export function registerCustomApp(appInfo) {
         ],
     };
 
+    if (!desktopConfig.apps.includes(appInfo.id)) {
+        desktopConfig.apps.push(appInfo.id);
+    }
+
     apps.push(newApp);
     appClasses[appInfo.id] = newApp.appClass;
-    desktopConfig.apps.push(appInfo.id);
 }
 
 export function deleteCustomApp(appId) {

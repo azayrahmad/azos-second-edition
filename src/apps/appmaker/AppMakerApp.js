@@ -156,8 +156,8 @@ export class AppMakerApp extends Application {
 
         const previewWindow = new $Window({
             title: appName,
-            width: this.appWidth,
-            height: this.appHeight,
+            outerWidth: this.appWidth,
+            outerHeight: this.appHeight,
             resizable: true,
         });
 
