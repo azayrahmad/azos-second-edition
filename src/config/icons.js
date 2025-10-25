@@ -87,4 +87,24 @@ export const ICONS = {
     16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
     32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
   },
+  'my-computer': {
+    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
+  },
+  'recycle-bin': {
+    16: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
+  },
+  'my-documents': {
+    16: new URL("../assets/icons/directory_open_file_mydocs_small-5.png", import.meta.url).href,
+    32: new URL("../assets/icons/directory_open_file_mydocs-1.png", import.meta.url).href,
+  },
+  'my-apps': {
+    16: new URL("../assets/icons/appwizard-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/appwizard-2.png", import.meta.url).href,
+  },
+  'drive': {
+    16: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
+  },
 };

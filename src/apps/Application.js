@@ -30,6 +30,11 @@ export class Application {
 
         if (openApps.has(this.id)) {
             const existingApp = openApps.get(this.id);
+
+            if (this.id === 'explorer' && typeof existingApp.updateFolder === 'function') {
+                existingApp.updateFolder(filePath);
+            }
+
             if (existingApp.win) {
                 const $win = $(existingApp.win.element);
                 if ($win.is(':visible')) {
@@ -58,11 +63,22 @@ export class Application {
     }
 
     _getWindowId(filePath) {
+        if (typeof filePath === 'object' && filePath !== null) {
+            return `${this.id}-${filePath.filename || filePath.name || filePath.id}`;
+        }
         return filePath ? `${this.id}-${filePath}` : this.id;
     }
 
-    _createWindow(filePath) {
-        throw new Error('Application must implement the _createWindow() method.');
+    _createWindow() {
+        return new $Window({
+            title: this.title,
+            width: this.width,
+            height: this.height,
+            resizable: this.resizable,
+            minimizeButton: this.minimizeButton,
+            maximizeButton: this.maximizeButton,
+            icon: this.icon,
+        });
     }
 
     _onLaunch(filePath) {
@@ -71,6 +87,7 @@ export class Application {
 
     _setupWindow(windowId) {
         this.win.element.id = windowId;
+        this.win.element.setAttribute('data-testid', `app-window-${this.id}`);
 
         this.win.onClosed(() => {
             if (this.hasTaskbarButton) {

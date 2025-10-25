@@ -15,32 +15,34 @@ function getIconId(app, filePath = null) {
   return filePath ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, '-')}` : `app-${app.id}`;
 }
 
-function createDesktopIcon(item, isFile = false) {
+function createDesktopIcon(item, isFile = false, isFolder = false) {
   const app = isFile ? apps.find(a => a.id === item.app) : item;
-  if (!app) return null;
+  if (!app && !isFolder) return null;
 
   const iconDiv = document.createElement("div");
   iconDiv.className = "desktop-icon";
-  iconDiv.setAttribute("title", isFile ? item.filename : app.title);
+  iconDiv.setAttribute("title", isFolder ? item.name : (isFile ? item.filename : app.title));
 
-  const iconId = getIconId(app, isFile ? item.path : null);
+  const iconId = getIconId(isFolder ? { id: item.name } : app, isFile ? item.path : null);
   iconDiv.setAttribute("data-icon-id", iconId);
 
-  iconDiv.setAttribute("data-app-id", app.id);
-  if (isFile) {
-    iconDiv.setAttribute("data-file-path", item.path);
+  if (!isFolder) {
+    iconDiv.setAttribute("data-app-id", app.id);
+    if (isFile) {
+      iconDiv.setAttribute("data-file-path", item.path);
+    }
   }
 
   const iconInner = document.createElement("div");
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
-  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
+  iconImg.src = (isFolder ? ICONS[item.icon] : app.icon)[32];
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = isFile ? item.filename : app.title;
+  iconLabel.textContent = isFolder ? item.name : (isFile ? item.filename : app.title);
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
@@ -356,6 +358,16 @@ export function setupIcons(options) {
       placeIcon(icon, iconId);
     }
   });
+
+  // Load folders
+  desktopApps.folders.forEach((folder) => {
+    const icon = createDesktopIcon(folder, false, true);
+    if (icon) {
+      const iconId = getIconId({ id: 'explorer' }, folder.name);
+      configureIcon(icon, { id: 'explorer', folder }, folder.name, { selectedIcons, clearSelection });
+      placeIcon(icon, iconId);
+    }
+  });
 }
 
 function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelection }) {
@@ -549,7 +561,7 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
       e.preventDefault();
       return;
     }
-    launchApp(app.id, filePath);
+    launchApp(app.id, app.folder ? app.folder : filePath);
   });
 }
 

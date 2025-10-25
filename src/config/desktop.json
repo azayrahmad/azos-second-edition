@@ -16,5 +16,44 @@
       "app": "pdfviewer",
       "path": "Resume.pdf"
     }
+  ],
+  "folders": [
+    {
+      "name": "My Computer",
+      "icon": "my-computer",
+      "children": [
+        {
+          "name": "C:",
+          "icon": "drive",
+          "children": []
+        },
+        {
+          "name": "A:",
+          "icon": "drive",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Recycle Bin",
+      "icon": "recycle-bin",
+      "children": []
+    },
+    {
+      "name": "My Documents",
+      "icon": "my-documents",
+      "children": [
+        {
+          "filename": "readme.txt",
+          "app": "notepad",
+          "content": "# azOS, Second Edition\n\nazOS, Second Edition is a web-based operating system interface designed to emulate a classic desktop environment. This project was born out of a sense of nostalgia and a desire to explore integrating modern LLM technology into a retro-style UI.\n\n## Project Goal\n\nThe main purpose of this project is to create a space for experimenting with AI and other web technologies, all wrapped in a user interface that harks back to the early days of my computer experience. It serves as a reminder of what sparked my passion for software engineering in the first place.\n\n## Technologies Used\n\n*   **Vite**: For fast and efficient frontend development.\n*   **98.css**: A CSS library for faithfully recreating Windows 98 GUI components.\n*   **os-gui**: A CSS/JS library for creating the retro desktop GUI components.\n\n## Getting Started\n\nTo run this project locally, follow these steps:\n\n1.  **Install Dependencies:**\n    ```bash\n    npm install\n    ```\n\n2.  **Run the Development Server:**\n    ```bash\n    npm run dev\n    ```\n    The application will be available at `http://localhost:5173` (or another port if 5173 is in use).\n\n## How to Add Applications\n\nInstructions for adding new applications to the desktop environment have been moved. Please refer to the [Application Development Guide](./src/apps/README.md) for details."
+        }
+      ]
+    },
+    {
+      "name": "My Apps",
+      "icon": "my-apps",
+      "children": []
+    }
   ]
 }

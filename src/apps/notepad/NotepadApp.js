@@ -1,4 +1,5 @@
 import { Application } from '../Application.js';
+import { apps } from '../../config/apps.js';
 import './notepad.css';
 import '../../components/notepad-editor.css';
 import { languages } from '../../config/languages.js';
@@ -7,24 +8,10 @@ import { NotepadEditor } from '../../components/NotepadEditor.js';
 import { renderHTML } from '../../utils/domUtils.js';
 
 export class NotepadApp extends Application {
-    constructor(config) {
+    constructor(fileOrConfig) {
+        const config = fileOrConfig.app ? { ...fileOrConfig, ...apps.find(a => a.id === fileOrConfig.app) } : fileOrConfig;
         super(config);
-    }
-
-    _createWindow() {
-        const win = new $Window({
-            title: this.title,
-            outerWidth: this.width,
-            outerHeight: this.height,
-            resizable: this.resizable,
-            icons: this.icon,
-        });
-
-        const menuBar = this._createMenuBar();
-        win.setMenuBar(menuBar);
-
-        win.$content.append('<div class="notepad-container"></div>');
-        return win;
+        this.file = fileOrConfig.app ? fileOrConfig : null;
     }
 
     _createMenuBar() {
@@ -142,6 +129,7 @@ export class NotepadApp extends Application {
     }
 
     _onLaunch() {
+        this.win.$content.append('<div class="notepad-container"></div>');
         const container = this.win.$content.find('.notepad-container')[0];
         this.editor = new NotepadEditor(container, {
             win: this.win,
@@ -153,7 +141,7 @@ export class NotepadApp extends Application {
 
         this.fileHandle = null;
         this.isDirty = false;
-        this.fileName = 'Untitled';
+        this.fileName = this.file ? this.file.filename : 'Untitled';
         this.findState = {
             term: '',
             caseSensitive: false,
@@ -161,6 +149,12 @@ export class NotepadApp extends Application {
         };
 
         this.updateTitle();
+
+        if (this.file && this.file.content) {
+            this.editor.setValue(this.file.content);
+            this.isDirty = false;
+            this.updateTitle();
+        }
 
         const notepadContainer = this.win.$content.find('.notepad-container')[0];
         notepadContainer.addEventListener('dragover', (e) => {
