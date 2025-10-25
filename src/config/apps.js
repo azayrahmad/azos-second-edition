@@ -1,4 +1,5 @@
 import { AboutApp } from '../apps/about/AboutApp.js';
+import BlogApp from "../apps/blog/BlogApp.js";
 import { AppMakerApp } from '../apps/appmaker/AppMakerApp.js';
 import { NotepadApp } from '../apps/notepad/NotepadApp.js';
 import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
@@ -13,6 +14,7 @@ import { ICONS } from './icons.js';
 
 export const appClasses = {
   'about': AboutApp,
+  'blog': BlogApp,
   'appmaker': AppMakerApp,
   'notepad': NotepadApp,
   'pdfviewer': PdfViewerApp,
@@ -30,6 +32,15 @@ export const apps = [
     appClass: AppMakerApp,
     width: 600,
     height: 400,
+    resizable: true,
+  },
+  {
+    id: "blog",
+    title: "Blog",
+    icon: ICONS.notepad,
+    appClass: BlogApp,
+    width: 800,
+    height: 600,
     resizable: true,
   },
   {
