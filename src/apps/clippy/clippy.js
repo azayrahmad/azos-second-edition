@@ -1,4 +1,5 @@
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
+import { applyBusyCursor, clearBusyCursor } from '../../utils/aniCursor.js';
 
 window.clippyAppInstance = null;
 let currentAgentName = getItem(LOCAL_STORAGE_KEYS.CLIPPY_AGENT_NAME) || "Clippy";
@@ -298,6 +299,12 @@ export function launchClippyApp(app, agentName = currentAgentName) {
     const originalSpeakAndAnimate = agent.speakAndAnimate;
     agent.speakAndAnimate = function (text, animation, options) {
       agent.isSpeaking = true;
+
+      const clippyEl = agent._el[0];
+      const balloonEl = agent._balloon._balloon[0];
+      applyBusyCursor(clippyEl);
+      applyBusyCursor(balloonEl);
+
       const originalCallback = options?.callback;
       const newOptions = {
         ...options,
@@ -306,6 +313,8 @@ export function launchClippyApp(app, agentName = currentAgentName) {
             originalCallback();
           }
           agent.isSpeaking = false;
+          clearBusyCursor(clippyEl);
+          clearBusyCursor(balloonEl);
         },
       };
       return originalSpeakAndAnimate.call(this, text, animation, newOptions);
