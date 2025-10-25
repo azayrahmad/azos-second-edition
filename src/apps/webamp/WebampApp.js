@@ -1,6 +1,7 @@
 import { Application } from '../Application.js';
 import { createTaskbarButton, removeTaskbarButton, updateTaskbarButton } from '../../components/taskbar.js';
 import { ICONS } from '../../config/icons.js';
+import { openApps } from '../Application.js';
 
 let webampInstance = null;
 let webampContainer = null;
@@ -125,7 +126,6 @@ export class WebampApp extends Application {
         isMinimized = false;
 
         // Remove from open apps list
-        const { openApps } = require('../Application.js');
         openApps.delete(this.id);
     }
 }
