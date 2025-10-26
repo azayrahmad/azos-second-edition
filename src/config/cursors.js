@@ -4,6 +4,7 @@
 import dcArrow from '../assets/cursor/Dangerous Creatures arrow.cur';
 import dcBeam from '../assets/cursor/Dangerous Creatures beam.cur';
 import dcBusy from '../assets/cursor/Dangerous Creatures busy.ani';
+import dcWait from '../assets/cursor/Dangerous Creatures wait.ani';
 import dcHelp from '../assets/cursor/Dangerous Creatures help.cur';
 import dcMove from '../assets/cursor/Dangerous Creatures move.cur';
 import dcNo from '../assets/cursor/Dangerous Creatures no.cur';
@@ -17,6 +18,7 @@ import dcWE from '../assets/cursor/Dangerous Creatures Size WE.cur';
 import usaArrow from '../assets/cursor/The 60s USA arrow.cur';
 import usaBeam from '../assets/cursor/The 60s USA beam.cur';
 import usaBusy from '../assets/cursor/The 60s USA busy.ani';
+import usaWait from '../assets/cursor/The 60s USA wait.ani';
 import usaHelp from '../assets/cursor/The 60s USA help.cur';
 import usaMove from '../assets/cursor/The 60s USA move.cur';
 import usaNo from '../assets/cursor/The 60s USA no.cur';
@@ -31,6 +33,7 @@ export const cursors = {
         arrow: dcArrow,
         beam: dcBeam,
         busy: dcBusy,
+        wait: dcWait,
         help: dcHelp,
         move: dcMove,
         no: dcNo,
@@ -44,6 +47,7 @@ export const cursors = {
         arrow: usaArrow,
         beam: usaBeam,
         busy: usaBusy,
+        wait: usaWait,
         help: usaHelp,
         move: usaMove,
         no: usaNo,

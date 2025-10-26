@@ -1,13 +1,13 @@
 import { apps } from '../config/apps.js';
-import { applyBusyCursor, clearBusyCursor } from './aniCursor.js';
+import { applyWaitCursor, clearWaitCursor } from './aniCursor.js';
 
 export async function launchApp(appId, filePath = null) {
-    applyBusyCursor();
+    applyWaitCursor();
 
     const appConfig = apps.find(a => a.id === appId);
     if (!appConfig) {
         console.error(`No application config found for ID: ${appId}`);
-        clearBusyCursor();
+        clearWaitCursor();
         return;
     }
     try {
@@ -23,7 +23,7 @@ export async function launchApp(appId, filePath = null) {
         console.error(`Failed to launch app: ${appId}`, error);
         alert(`Could not launch ${appId}. See console for details.`);
     } finally {
-        clearBusyCursor();
+        clearWaitCursor();
     }
 
 }

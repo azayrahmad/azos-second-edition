@@ -77,3 +77,27 @@ export function clearBusyCursor(element = document.body) {
     }
   }, 50);
 }
+
+/**
+ * Applies a wait/progress cursor to a specific element.
+ * @param {HTMLElement} [element=document.body] - The element to apply the cursor to.
+ */
+export function applyWaitCursor(element = document.body) {
+  element.classList.add('cursor-wait');
+  element.style.cursor = 'var(--cursor-progress, progress)';
+}
+
+/**
+ * Clears the wait/progress cursor from a specific element.
+ * @param {HTMLElement} [element=document.body] - The element to clear the cursor from.
+ */
+export function clearWaitCursor(element = document.body) {
+  setTimeout(() => {
+    element.classList.remove('cursor-wait');
+    if (element === document.body) {
+      element.style.cursor = 'var(--cursor-default, default)';
+    } else {
+      element.style.cursor = '';
+    }
+  }, 50);
+}
