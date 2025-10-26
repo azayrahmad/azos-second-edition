@@ -847,6 +847,11 @@ so I think I'll imitate that. (I might change it later) */
   background-position: calc(var(--scrollbar-button-inner-size) * -0 + 1px) 1px; /* down */
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ButtonFace) var(--Scrollbar);
+}
+
 ::-webkit-scrollbar,
 ::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-button {
