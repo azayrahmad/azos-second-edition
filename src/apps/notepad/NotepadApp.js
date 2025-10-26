@@ -2,9 +2,13 @@ import { Application } from '../Application.js';
 import './notepad.css';
 import '../../components/notepad-editor.css';
 import { languages } from '../../config/languages.js';
+import { HIGHLIGHT_JS_THEMES } from '../../config/highlight-js-themes.js';
+import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
 import { renderHTML } from '../../utils/domUtils.js';
+
+const DEFAULT_THEME = 'atom-one-light';
 
 export class NotepadApp extends Application {
     constructor(config) {
@@ -122,6 +126,16 @@ export class NotepadApp extends Application {
                     ]
                 },
                 {
+                    label: "&Theme",
+                    submenu: [
+                        {
+                            radioItems: HIGHLIGHT_JS_THEMES.map(theme => ({ label: theme, value: theme })),
+                            getValue: () => this.currentTheme,
+                            setValue: (value) => this.setTheme(value),
+                        },
+                    ]
+                },
+                {
                     label: "HTML/Markdown Preview",
                     action: () => this.previewMarkdown(),
                 },
@@ -210,6 +224,33 @@ export class NotepadApp extends Application {
                 this.showUnsavedChangesDialogOnClose();
             }
         });
+
+        this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
+        this.setTheme(this.currentTheme, true);
+    }
+
+    setTheme(theme, isInitialLoad = false) {
+        if (!isInitialLoad && theme === this.currentTheme) return;
+
+        const themeUrl = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${theme}.min.css`;
+        const existingLink = document.getElementById('highlightjs-theme');
+
+        if (existingLink) {
+            existingLink.href = themeUrl;
+        } else {
+            const link = document.createElement('link');
+            link.id = 'highlightjs-theme';
+            link.rel = 'stylesheet';
+            link.href = themeUrl;
+            document.head.appendChild(link);
+        }
+
+        this.currentTheme = theme;
+        setItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME, theme);
+
+        if (!isInitialLoad) {
+            this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
+        }
     }
 
     toggleWordWrap() {
