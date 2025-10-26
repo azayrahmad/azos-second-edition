@@ -1,27 +1,27 @@
-import { AboutApp } from '../apps/about/AboutApp.js';
-import { AppMakerApp } from '../apps/appmaker/AppMakerApp.js';
-import { NotepadApp } from '../apps/notepad/NotepadApp.js';
-import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
-import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
-import { ClippyApp } from '../apps/clippy/ClippyApp.js';
-import { WebampApp } from '../apps/webamp/WebampApp.js';
-import { ImageResizerApp } from '../apps/image-resizer/ImageResizerApp.js';
-import { ExplorerApp } from '../apps/explorer/ExplorerApp.js';
-import { ShowDialogWindow } from '../components/DialogWindow.js';
+import { AboutApp } from "../apps/about/AboutApp.js";
+import { AppMakerApp } from "../apps/appmaker/AppMakerApp.js";
+import { NotepadApp } from "../apps/notepad/NotepadApp.js";
+import { PdfViewerApp } from "../apps/pdfviewer/PdfViewerApp.js";
+import { TipOfTheDayApp } from "../apps/tipOfTheDay/TipOfTheDayApp.js";
+import { ClippyApp } from "../apps/clippy/ClippyApp.js";
+import { WebampApp } from "../apps/webamp/WebampApp.js";
+import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
+import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
+import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
-import { ICONS } from './icons.js';
+import { ICONS } from "./icons.js";
 
 export const appClasses = {
-  'about': AboutApp,
-  'appmaker': AppMakerApp,
-  'notepad': NotepadApp,
-  'pdfviewer': PdfViewerApp,
-  'tipOfTheDay': TipOfTheDayApp,
-  'clippy': ClippyApp,
-  'webamp': WebampApp,
-  'image-resizer': ImageResizerApp,
-  'explorer': ExplorerApp,
+  about: AboutApp,
+  appmaker: AppMakerApp,
+  notepad: NotepadApp,
+  pdfviewer: PdfViewerApp,
+  tipOfTheDay: TipOfTheDayApp,
+  clippy: ClippyApp,
+  webamp: WebampApp,
+  "image-resizer": ImageResizerApp,
+  explorer: ExplorerApp,
 };
 
 export const apps = [
@@ -100,7 +100,7 @@ export const apps = [
     hasTray: true,
     tray: {
       contextMenu: getClippyMenuItems,
-    }
+    },
   },
   {
     id: "webamp",
@@ -110,7 +110,7 @@ export const apps = [
     hasTaskbarButton: true,
     tray: {
       contextMenu: getWebampMenuItems,
-    }
+    },
   },
   {
     id: "alertTest",
@@ -124,7 +124,7 @@ export const apps = [
           text: "The alert works.",
           soundEvent: "SystemHand",
           contentIconUrl: ICONS.about[32],
-          buttons: [{ label: 'OK', isDefault: true }],
+          buttons: [{ label: "OK", isDefault: true }],
         });
       },
     },

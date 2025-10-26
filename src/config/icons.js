@@ -37,11 +37,18 @@ export const ICONS = {
   },
   computer: {
     16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
+      .href,
   },
   folder: {
-    16: new URL("../assets/icons/directory_open_file_mydocs_small-5.png", import.meta.url).href,
-    32: new URL("../assets/icons/directory_open_file_mydocs-1.png", import.meta.url).href,
+    16: new URL(
+      "../assets/icons/directory_open_file_mydocs_small-5.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/directory_open_file_mydocs-1.png",
+      import.meta.url,
+    ).href,
   },
   warning: {
     16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
@@ -87,23 +94,50 @@ export const ICONS = {
     16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
     32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
   },
-  'my-computer': {
+  "my-computer": {
     16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
+      .href,
   },
-  'recycle-bin': {
+  "recycle-bin": {
     16: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
     32: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
   },
-  'my-documents': {
-    16: new URL("../assets/icons/directory_open_file_mydocs_small-5.png", import.meta.url).href,
-    32: new URL("../assets/icons/directory_open_file_mydocs-1.png", import.meta.url).href,
+  "my-documents": {
+    16: new URL(
+      "../assets/icons/directory_open_file_mydocs_small-5.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/directory_open_file_mydocs-1.png",
+      import.meta.url,
+    ).href,
   },
-  'my-apps': {
+  folder: {
+    16: new URL(
+      "../assets/icons/directory_open_file_mydocs_small-5.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/directory_open_file_mydocs-1.png",
+      import.meta.url,
+    ).href,
+  },
+  file: {
+    16: new URL(
+      "../assets/icons/directory_open_file_mydocs_small-5.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/directory_open_file_mydocs-1.png",
+      import.meta.url,
+    ).href,
+  },
+  "my-apps": {
     16: new URL("../assets/icons/appwizard-0.png", import.meta.url).href,
     32: new URL("../assets/icons/appwizard-2.png", import.meta.url).href,
   },
-  'drive': {
+  drive: {
     16: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
     32: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
   },

@@ -1,62 +1,113 @@
 <!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/src/assets/icons/windows-4.png"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>azOS Second Edition</title>
+        <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
+        <link rel="stylesheet" href="/src/styles/98.css" />
+        <link href="./os-gui/layout.css" rel="stylesheet" type="text/css" />
+        <link href="./os-gui/windows-98.css" rel="stylesheet" type="text/css" />
+        <link
+            href="./os-gui/dialog-window.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="./os-gui/windows-default.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            id="peggys-pastels-theme"
+            href="./os-gui/peggys-pastels.css"
+            rel="stylesheet"
+            type="text/css"
+            disabled
+        />
+        <link
+            id="blue-theme"
+            href="./os-gui/blue.css"
+            rel="stylesheet"
+            type="text/css"
+            disabled
+        />
+        <link
+            id="60s-usa-theme"
+            href="./os-gui/60s-usa.css"
+            rel="stylesheet"
+            type="text/css"
+            disabled
+        />
+        <link
+            id="dangerous-creatures-theme"
+            href="./os-gui/dangerous-creatures.css"
+            rel="stylesheet"
+            type="text/css"
+            disabled
+        />
+        <link
+            id="memphis-milano-theme"
+            href="./os-gui/memphis-milano.css"
+            rel="stylesheet"
+            type="text/css"
+            disabled
+        />
 
-<head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/assets/icons/windows-4.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>azOS Second Edition</title>
-    <link rel="stylesheet" href="/src/styles/scanlines-css.css" />
-    <link rel="stylesheet" href="/src/styles/98.css" />
-    <link href="./os-gui/layout.css" rel="stylesheet" type="text/css" />
-    <link href="./os-gui/windows-98.css" rel="stylesheet" type="text/css" />
-    <link href="./os-gui/dialog-window.css" rel="stylesheet" type="text/css" />
-    <link href="./os-gui/windows-default.css" rel="stylesheet" type="text/css" />
-    <link id="peggys-pastels-theme" href="./os-gui/peggys-pastels.css" rel="stylesheet" type="text/css" disabled />
-    <link id="blue-theme" href="./os-gui/blue.css" rel="stylesheet" type="text/css" disabled />
-    <link id="60s-usa-theme" href="./os-gui/60s-usa.css" rel="stylesheet" type="text/css" disabled />
-    <link id="dangerous-creatures-theme" href="./os-gui/dangerous-creatures.css" rel="stylesheet" type="text/css" disabled />
+        <link href="./os-gui/Toolbar.css" rel="stylesheet" type="text/css" />
+        <link
+            href="./os-gui/address-bar.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link rel="stylesheet" href="/src/styles/desktop.css" />
+        <link rel="stylesheet" href="/src/styles/taskbar.css" />
+        <link rel="stylesheet" href="./clippy/clippy.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+        <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
+        <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
+        <script src="https://unpkg.com/prettier@2.8.8/parser-css.js"></script>
+        <script>
+            // The parser scripts populate a global `prettierPlugins` object.
+            // We need to convert it to an array to pass to prettier.format().
+            if (
+                typeof prettierPlugins === "object" &&
+                prettierPlugins !== null
+            ) {
+                window.prettierPlugins = Object.values(prettierPlugins);
+            } else {
+                window.prettierPlugins = [];
+            }
+        </script>
+        <script src="./os-gui/MenuBar.js"></script>
+        <script src="./jquery-3.3.1.js"></script>
+        <script src="./os-gui/$Window.js"></script>
+        <script src="./os-gui/MenuList.js"></script>
+        <script src="./os-gui/Toolbar.js"></script>
+        <script src="./os-gui/AddressBar.js"></script>
+        <script src="./clippy/clippy.js"></script>
+        <script src="./clippy/clippy_extensions_complete.js"></script>
+    </head>
 
-    <link href="./os-gui/Toolbar.css" rel="stylesheet" type="text/css" />
-    <link href="./os-gui/address-bar.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="/src/styles/desktop.css" />
-    <link rel="stylesheet" href="/src/styles/taskbar.css" />
-    <link rel="stylesheet" href="./clippy/clippy.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
-    <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
-    <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
-    <script src="https://unpkg.com/prettier@2.8.8/parser-css.js"></script>
-    <script>
-        // The parser scripts populate a global `prettierPlugins` object.
-        // We need to convert it to an array to pass to prettier.format().
-        if (typeof prettierPlugins === 'object' && prettierPlugins !== null) {
-            window.prettierPlugins = Object.values(prettierPlugins);
-        } else {
-            window.prettierPlugins = [];
-        }
-    </script>
-    <script src="./os-gui/MenuBar.js"></script>
-    <script src="./jquery-3.3.1.js"></script>
-    <script src="./os-gui/$Window.js"></script>
-    <script src="./os-gui/MenuList.js"></script>
-    <script src="./os-gui/Toolbar.js"></script>
-    <script src="./os-gui/AddressBar.js"></script>
-    <script src="./clippy/clippy.js"></script>
-    <script src="./clippy/clippy_extensions_complete.js"></script>
-</head>
-
-<body class="scanlines">
-    <div id="app-container" class="app-container">
-        <div id="desktop-area" class="desktop-area">
-            <div class="desktop"></div>
+    <body class="scanlines">
+        <div id="app-container" class="app-container">
+            <div id="desktop-area" class="desktop-area">
+                <div class="desktop"></div>
+            </div>
         </div>
-    </div>
 
-    <div class="taskbar"></div>
-    <script type="module" src="/src/main.js"></script>
-</body>
-
+        <div class="taskbar"></div>
+        <script type="module" src="/src/main.js"></script>
+    </body>
 </html>
