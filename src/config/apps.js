@@ -28,7 +28,7 @@ export const apps = [
   {
     id: "explorer",
     title: "Explorer",
-    icon: ICONS.explorer,
+    icon: ICONS.folder,
     appClass: ExplorerApp,
     width: 600,
     height: 400,
