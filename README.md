@@ -1,21 +1,22 @@
 # azOS, Second Edition
 
-azOS, Second Edition is a web-based operating system interface designed to emulate a classic desktop environment. This project was born out of a sense of nostalgia and a desire to explore integrating modern LLM technology into a retro-style UI.
+azOS, Second Edition is a web-based operating system interface designed to emulate Windows Classic. This project was born out of my love for Windows Classic (9x/NT era) and my interest in LLM.
 
 ## Live Demo
 
-Experience azOS Second Edition live: **[azosh.vercel.app](https://azosh.vercel.app/)**
+Experience azOS Second Edition live: **[azOS Second Edition](https://azayrahmad.github.io/azos-second-edition/)**
 
 ## Screenshots
 
 *Desktop with Clippy and Notepad*
-![Desktop with Clippy and Notepad](./screenshots/desktop-clippy-notepad.png)
+![Desktop with Clippy and Notepad](./screenshots/desktop-with-clippy-notepad.PNG)
 
-*Notepad with Markdown Preview*
-![Notepad with Markdown Preview](./screenshots/notepad-markdown-preview.png)
+*Desktop with Clippy and Notepad*
+![Desktop with Winamp and App Maker and CRT filter enabled](./screenshots/desktop-with-appmaker-webamp.PNG)
+
 
 *Desktop Context Menu with Theme Options*
-![Desktop Context Menu with Theme Options](./screenshots/desktop-context-menu.png)
+![Desktop Context Menu with Theme Options](./screenshots/desktop-context-menu.PNG)
 
 ## Features
 
@@ -26,6 +27,7 @@ Experience azOS Second Edition live: **[azosh.vercel.app](https://azosh.vercel.a
 - **Customizable Environment**: Personalize the desktop with different themes, wallpapers, and cursor styles.
 - **File System Support**: Open and save files with modern browser APIs.
 - **Developer Tools**: Includes a code editor with syntax highlighting, formatting, and Markdown preview.
+- **Progressive Web App**: Install it on your machine as a desktop application.
 
 ## Featured Applications
 
