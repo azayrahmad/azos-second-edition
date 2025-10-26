@@ -206,7 +206,10 @@ export class AppMakerApp extends Application {
                         }
                         setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, savedApps);
 
-                        setupIcons();
+                        const desktop = document.querySelector('.desktop');
+                        if (desktop && typeof desktop.refreshIcons === 'function') {
+                            desktop.refreshIcons();
+                        }
                     },
                     isDefault: true,
                 },

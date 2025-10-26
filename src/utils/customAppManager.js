@@ -7,6 +7,13 @@ import { ICONS } from '../config/icons.js';
 import desktopConfig from '../config/desktop.json';
 import { launchApp } from './appManager.js';
 
+export function setupIcons() {
+    const desktop = document.querySelector('.desktop');
+    if (desktop && typeof desktop.refreshIcons === 'function') {
+        desktop.refreshIcons();
+    }
+}
+
 export function registerCustomApp(appInfo) {
     const existingApp = apps.find(app => app.id === appInfo.id);
 
@@ -34,6 +41,7 @@ export function registerCustomApp(appInfo) {
             }
         };
         appClasses[appInfo.id] = existingApp.appClass;
+        setupIcons();
         return;
     }
 
@@ -79,10 +87,7 @@ export function registerCustomApp(appInfo) {
                         buttons: [
                             {
                                 label: 'Yes',
-                                action: () => {
-                                    deleteCustomApp(appInfo.id);
-                                    document.querySelector('.desktop').refreshIcons();
-                                },
+                                action: () => deleteCustomApp(appInfo.id),
                                 isDefault: true,
                             },
                             {
@@ -101,6 +106,7 @@ export function registerCustomApp(appInfo) {
 
     apps.push(newApp);
     appClasses[appInfo.id] = newApp.appClass;
+    setupIcons();
 }
 
 export function deleteCustomApp(appId) {
@@ -119,4 +125,5 @@ export function deleteCustomApp(appId) {
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
     const newSavedApps = savedApps.filter(app => app.id !== appId);
     setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, newSavedApps);
+    setupIcons();
 }
