@@ -7,6 +7,7 @@ const themes = {
     blue: 'Blue',
     '60s-usa': '60s USA',
     'dangerous-creatures': 'Dangerous Creatures',
+    'memphis-milano': 'Memphis Milano',
 };
 
 const themeIds = Object.keys(themes).filter(key => key !== 'default').map(key => `${key}-theme`);

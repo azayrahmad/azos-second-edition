@@ -1,0 +1,45 @@
+:root {
+    --surface: #ffffff;
+    --button-highlight: #ffffff;
+    --button-face: #f0f0f0;
+    --button-shadow: #808080;
+    --window-frame: #000000;
+    --dialog-blue: #000080;
+    --dialog-gray: #808080;
+    --text-color: #000000;
+    --text-color-inverted: #ffffff;
+    --text-color-disabled: #808080;
+    --text-color-disabled-shadow: #ffffff;
+    --border-dark: #808080;
+    --border-light: #c0c0c0;
+    --border-lightest: #ffffff;
+    --border-darkest: #000000;
+    --header-gradient-start: #000080;
+    --header-gradient-end: #1084d0;
+    --header-gradient-start-inactive: #808080;
+    --header-gradient-end-inactive: #c0c0c0;
+    --tooltip: #ffffc8;
+}
+
+[data-theme="memphis-milano"] {
+    --surface: #FDF1D8;
+    --button-highlight: #FFFFFF;
+    --button-face: #FFB8D2;
+    --button-shadow: #9D6A7E;
+    --window-frame: #000000;
+    --dialog-blue: #00A3A0;
+    --dialog-gray: #B6B6B6;
+    --text-color: #000000;
+    --text-color-inverted: #FFFFFF;
+    --text-color-disabled: #9D6A7E;
+    --text-color-disabled-shadow: #FFFFFF;
+    --border-dark: #9D6A7E;
+    --border-light: #FFDDEB;
+    --border-lightest: #FFFFFF;
+    --border-darkest: #000000;
+    --header-gradient-start: #8ED9D9;
+    --header-gradient-end: #00A3A0;
+    --header-gradient-start-inactive: #B6B6B6;
+    --header-gradient-end-inactive: #E0E0E0;
+    --tooltip: #FFFFC8;
+}
