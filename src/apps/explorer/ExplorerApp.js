@@ -14,6 +14,7 @@ export class ExplorerApp extends Application {
     });
     this.folder = folder;
     this.history = [folder];
+    this.selectedIcons = new Set();
   }
 
   updateFolder(folder) {
@@ -26,9 +27,15 @@ export class ExplorerApp extends Application {
   }
 
   _onLaunch(folder) {
+    const sunkenPanel = document.createElement('div');
+    sunkenPanel.className = 'sunken-panel';
+    this.win.element.appendChild(sunkenPanel);
+
     this.win.content = document.createElement("div");
     this.win.content.className = "explorer-content";
-    this.win.element.appendChild(this.win.content);
+    sunkenPanel.appendChild(this.win.content);
+
+    this.setupSelection(this.win.content);
 
     this.win.title(folder.name);
     const menuBar = new MenuBar({
@@ -62,8 +69,124 @@ export class ExplorerApp extends Application {
     }
   }
 
+  clearSelection() {
+    this.selectedIcons.forEach(icon => {
+      const iconImg = icon.querySelector(".icon img");
+      const iconLabel = icon.querySelector(".icon-label");
+      if (iconImg) iconImg.classList.remove("highlighted-icon");
+      if (iconLabel) {
+        iconLabel.classList.remove("highlighted-label", "selected");
+      }
+    });
+    this.selectedIcons.clear();
+  }
+
+  setupSelection(container) {
+    let lasso;
+    let isLassoing = false;
+    let wasLassoing = false;
+    let lassoStartX, lassoStartY;
+
+    function isIntersecting(rect1, rect2) {
+      return !(rect1.right < rect2.left ||
+               rect1.left > rect2.right ||
+               rect1.bottom < rect2.top ||
+               rect1.top > rect2.bottom);
+    }
+
+    container.addEventListener('mousedown', (e) => {
+      if (e.target !== container) return;
+      if (e.button !== 0) return;
+
+      isLassoing = true;
+      lassoStartX = e.clientX;
+      lassoStartY = e.clientY;
+
+      lasso = document.createElement('div');
+      lasso.className = 'lasso';
+      lasso.style.left = `${lassoStartX}px`;
+      lasso.style.top = `${lassoStartY}px`;
+      container.appendChild(lasso);
+
+      this.clearSelection();
+      e.preventDefault();
+
+      const onMouseMove = (moveEvent) => {
+        if (!isLassoing) return;
+
+        const currentX = moveEvent.clientX;
+        const currentY = moveEvent.clientY;
+
+        const width = Math.abs(currentX - lassoStartX);
+        const height = Math.abs(currentY - lassoStartY);
+        const left = Math.min(currentX, lassoStartX);
+        const top = Math.min(currentY, lassoStartY);
+
+        lasso.style.width = `${width}px`;
+        lasso.style.height = `${height}px`;
+        lasso.style.left = `${left}px`;
+        lasso.style.top = `${top}px`;
+
+        const lassoRect = lasso.getBoundingClientRect();
+        const icons = container.querySelectorAll('.desktop-icon');
+
+        icons.forEach(icon => {
+          const iconRect = icon.getBoundingClientRect();
+          const iconImg = icon.querySelector(".icon img");
+          const iconLabel = icon.querySelector(".icon-label");
+
+          if (isIntersecting(lassoRect, iconRect)) {
+            if (!this.selectedIcons.has(icon)) {
+              this.selectedIcons.add(icon);
+              if (iconImg) iconImg.classList.add("highlighted-icon");
+              if (iconLabel) {
+                iconLabel.classList.add("highlighted-label", "selected");
+              }
+            }
+          } else {
+            if (this.selectedIcons.has(icon)) {
+              this.selectedIcons.delete(icon);
+              if (iconImg) iconImg.classList.remove("highlighted-icon");
+              if (iconLabel) {
+                iconLabel.classList.remove("highlighted-label", "selected");
+              }
+            }
+          }
+        });
+      };
+
+      const onMouseUp = () => {
+        isLassoing = false;
+        wasLassoing = true;
+        if (lasso && lasso.parentElement) {
+          lasso.parentElement.removeChild(lasso);
+        }
+        lasso = null;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+         setTimeout(() => {
+          wasLassoing = false;
+        }, 0);
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+
+    container.addEventListener('click', (e) => {
+      if (wasLassoing) {
+        wasLassoing = false;
+        return;
+      }
+      if (e.target === container && !isLassoing && !e.target.closest('.desktop-icon')) {
+        this.clearSelection();
+      }
+    });
+  }
+
   renderFolderContents(container, folder) {
     container.innerHTML = ""; // Clear existing content
+    this.clearSelection();
 
     folder.children.forEach((item) => {
       const icon = this.createIcon(item);
@@ -92,6 +215,14 @@ export class ExplorerApp extends Application {
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(iconLabel);
+
+    iconDiv.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.clearSelection();
+        this.selectedIcons.add(iconDiv);
+        iconImg.classList.add("highlighted-icon");
+        iconLabel.classList.add("highlighted-label", "selected");
+    });
 
     iconDiv.addEventListener("dblclick", () => {
       if (item.children) {
