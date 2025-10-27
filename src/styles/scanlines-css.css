@@ -1,5 +1,5 @@
 /* REGULAR SCANLINES SETTINGS */
-/* 
+/*
     width of 1 scanline: 2px
     emulates a damage-your-eyes bad pre-2000 CRT screen: true
     frames-per-second: 60
@@ -19,14 +19,14 @@
 .scanlines:after {
     display: block;
     pointer-events: none;
-    content: '';
+    content: "";
     position: absolute;
 }
 
 /* unique scanline travelling on the screen */
 .scanlines:before {
     width: 100%;
-    height: 2px; /* $scan-width * 1 */
+    height: 1px; /* $scan-width * 1 */
     z-index: 2147483649; /* $scan-z-index + 1 */
     background: rgba(0, 0, 0, 0.3); /* $scan-color */
     opacity: 0.75; /* $scan-opacity */
@@ -47,7 +47,7 @@
     );
     background-size: 100% 4px; /* $scan-width*2 */
     animation: scanlines 1s steps(60) infinite; /* $scan-fps */
-}  
+}
 
 /* ANIMATE UNIQUE SCANLINE */
 @keyframes scanline {
