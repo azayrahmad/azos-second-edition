@@ -1775,6 +1775,22 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 			$w.center();
 		}
 
+		const desktopWidth = innerWidth;
+		const windowWidth = $w.outerWidth();
+		const windowLeft = $w.position().left;
+
+		if (windowLeft + windowWidth > desktopWidth) {
+			let newWidth = desktopWidth - 10;
+			const minWidth = options.minOuterWidth ?? 100;
+			if (newWidth < minWidth) {
+				newWidth = minWidth;
+			}
+			$w.outerWidth(newWidth);
+			$w.css({
+				left: (desktopWidth - $w.outerWidth()) / 2 + window.scrollX,
+			});
+		}
+
 		// mustHaveMethods($w, windowInterfaceMethods);
 
 		return $w;
