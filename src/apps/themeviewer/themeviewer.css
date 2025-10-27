@@ -1,0 +1,147 @@
+.theme-viewer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--ButtonFace);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.preview-section {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px inset var(--ButtonShadow);
+    background-color: var(--Window);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.controls-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--ButtonText);
+}
+
+.controls-section label {
+    margin-right: 10px;
+}
+
+.controls-section select {
+    flex-grow: 1;
+    /* --- FIX: Force visibility of the select element --- */
+    visibility: visible !important;
+    display: block !important;
+}
+
+.button-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.cascading-windows-container {
+    position: relative;
+    width: 270px; /* Adjust as needed */
+    height: 170px; /* Adjust as needed */
+    transform: scale(1.1); /* Slightly larger preview */
+}
+
+/* --- Isolated Preview Styles --- */
+.static-window-preview {
+    position: absolute;
+    width: 250px;
+    height: 150px;
+    border: 1px solid var(--preview-WindowFrame, #000);
+    background-color: var(--preview-Window, #fff);
+    color: var(--preview-WindowText, #000);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Pixelated MS Sans Serif', Arial;
+    font-size: 11px;
+}
+
+.static-window-preview.inactive {
+    top: 0;
+    left: 0;
+}
+
+.static-window-preview.active {
+    top: 20px;
+    left: 20px;
+}
+
+.static-window-preview .window-titlebar {
+    background: linear-gradient(to right, var(--preview-GradientActiveTitle, var(--preview-ActiveTitle)), var(--preview-ActiveTitle));
+    color: var(--preview-TitleText);
+    padding: 3px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.static-window-preview.inactive .window-titlebar {
+    background: linear-gradient(to right, var(--preview-GradientInactiveTitle, var(--preview-InactiveTitle)), var(--preview-InactiveTitle));
+    color: var(--preview-InactiveTitleText);
+}
+
+.static-window-preview .window-buttons {
+    display: flex;
+}
+
+.static-window-preview .window-button {
+    display: block;
+    width: 16px;
+    height: 14px;
+    padding: 0;
+    margin: 2px 0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--preview-ButtonHilight) var(--preview-ButtonShadow) var(--preview-ButtonShadow) var(--preview-ButtonHilight);
+    background-color: var(--preview-ButtonFace);
+}
+
+.static-window-preview .window-button-icon {
+    display: block;
+    width: 12px;
+    height: 10px;
+    position: relative;
+    pointer-events: none;
+    margin: 1px;
+}
+
+.static-window-preview .window-button-icon::before,
+.static-window-preview .window-button-icon::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    mask-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAKCAYAAADo3z3CAAAAoUlEQVRIS9VVWw7AIAib9z/0FpZgCOFRgpluf9MClhYdV++7gfDhYLxYDw+UyiHd5F8S5lr6zNa6Xpv/KwhHOahQpLB1+CwfycgYrwmE0WK8MTsIR1aOGsR+NYkkYzN5/pGwVA9xA/diq8LeHCKuQxQ+aoYt2yJWtpSNZth0edRpGVC5eGQcSg4hXLml3fdpBeHs8evWyPKX9ruXVqnYCeAHA8IyC9K2kmkAAAAASUVORK5CYII=");
+    -webkit-mask-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAKCAYAAADo3z3CAAAAoUlEQVRIS9VVWw7AIAib9z/0FpZgCOFRgpluf9MClhYdV++7gfDhYLxYDw+UyiHd5F8S5lr6zNa6Xpv/KwhHOahQpLB1+CwfycgYrwmE0WK8MTsIR1aOGsR+NYkkYzN5/pGwVA9xA/diq8LeHCKuQxQ+aoYt2yJWtpSNZth0edRpGVC5eGQcSg4hXLml3fdpBeHs8evWyPKX9ruXVqnYCeAHA8IyC9K2kmkAAAAASUVORK5CYII=");
+    mask-position: var(--sprite-x) 0;
+    -webkit-mask-position: var(--sprite-x) 0;
+    background-color: var(--preview-ButtonText);
+}
+
+.window-minimize-button .window-button-icon { --sprite-x: -39px; }
+.window-maximize-button .window-button-icon { --sprite-x: -26px; }
+.window-close-button .window-button-icon { --sprite-x: -13px; }
+
+.static-window-preview .window-content {
+    padding: 10px;
+    flex-grow: 1;
+}
+
+.static-window-preview button {
+    background-color: var(--preview-ButtonFace);
+    color: var(--preview-ButtonText);
+    border: 1px solid;
+    border-color: var(--preview-ButtonHilight) var(--preview-ButtonShadow) var(--preview-ButtonShadow) var(--preview-ButtonHilight);
+    padding: 2px 8px;
+}
