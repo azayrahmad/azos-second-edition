@@ -152,6 +152,14 @@
 		$w.$content = $(E("div")).addClass("window-content").appendTo($w);
 		$w.$content.attr("tabIndex", "-1");
 		$w.$content.css("outline", "none");
+
+		if (window.OverlayScrollbars) {
+			window.OverlayScrollbars($w.$content[0], {
+				scrollbars: {
+					theme: 'os-theme-win98'
+				}
+			});
+		}
 		if (options.toolWindow) {
 			$w.addClass("tool-window");
 		}

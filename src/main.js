@@ -1,6 +1,10 @@
 import './styles/cursors.css';
 import './style.css'
+import { OverlayScrollbars } from 'overlayscrollbars';
+import 'overlayscrollbars/overlayscrollbars.css';
 import { setupCounter } from './counter.js'
+
+window.OverlayScrollbars = OverlayScrollbars;
 import { initDesktop } from './components/desktop.js'
 import { getItem, LOCAL_STORAGE_KEYS } from './utils/localStorage.js';
 import { apps, appClasses } from './config/apps.js';
