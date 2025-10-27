@@ -119,12 +119,13 @@
 			/** @type {HTMLElement & { $window: OSGUI$Window; }}*/(
 				/** @type {unknown} */(E("div"))
 				)
-			).addClass("window os-window").appendTo("body"));
+			).addClass("os-window").appendTo("body"));
+		const $window_frame = $(E("div")).addClass("window").appendTo($w);
 		// TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
 		$w[0].$window = $w;
 		$w.element = $w[0];
 		$w[0].id = `os-window-${Math.random().toString(36).substr(2, 9)}`;
-		$w.$titlebar = $(E("div")).addClass("window-titlebar").appendTo($w);
+		$w.$titlebar = $(E("div")).addClass("window-titlebar").appendTo($window_frame);
 		$w.$title_area = $(E("div")).addClass("window-title-area").appendTo($w.$titlebar);
 		$w.$title = $(E("span")).addClass("window-title").appendTo($w.$title_area);
 		if (options.toolWindow) {
@@ -149,7 +150,7 @@
 			$w.$x.attr("aria-label", "Close window");
 			$w.$x.append("<span class='window-button-icon'></span>");
 		}
-		$w.$content = $(E("div")).addClass("window-content").appendTo($w);
+		$w.$content = $(E("div")).addClass("window-content").appendTo($window_frame);
 		$w.$content.attr("tabIndex", "-1");
 		$w.$content.css("outline", "none");
 		if (options.toolWindow) {
@@ -381,7 +382,7 @@
 		};
 		$w.blur = () => {
 			stopShowingAsFocused();
-			if (document.activeElement && document.activeElement.closest(".window") == $w[0]) {
+			if (document.activeElement && document.activeElement.closest(".os-window") == $w[0]) {
 				document.activeElement.blur();
 			}
 		};
@@ -842,14 +843,12 @@
 				};
 
 				$w.addClass("maximized");
-				const $desktopArea = $(".desktop-area");
-				const desktopRect = $desktopArea[0].getBoundingClientRect();
 				$w.css({
 					position: "fixed",
-					top: desktopRect.top,
-					left: desktopRect.left,
-					width: desktopRect.width,
-					height: desktopRect.height,
+					top: "0",
+					left: "0",
+					width: "100%",
+					height: "100%",
 				});
 			};
 			const instantly_unmaximize = () => {
@@ -1742,7 +1741,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 			// (Also: modals should steal focus / be brought to the front when focusing the parent window, and the parent window's content should be inert/uninteractive)
 
 			// Focus next-topmost window
-			var $next_topmost = $($(".window:visible").toArray().sort((a, b) => b.style.zIndex - a.style.zIndex)[0]);
+			var $next_topmost = $($(".os-window:visible").toArray().sort((a, b) => b.style.zIndex - a.style.zIndex)[0]);
 			$next_topmost.triggerHandler("refocus-window");
 
 			// Cleanup
@@ -1762,7 +1761,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 			}
 			if (menu_bar) {
 				$w.$titlebar.after(menu_bar.element);
-				menu_bar.setKeyboardScope($w[0]);
+				menu_bar.setKeyboardScope($w.element);
 				current_menu_bar = menu_bar;
 			}
 		};

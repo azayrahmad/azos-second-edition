@@ -343,6 +343,9 @@ body > .window-titlebar {
 
 .os-window .window-titlebar,
 body > .window-titlebar {
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
   /* font-family: 'Segoe UI', sans-serif; */
   font-size: 12px;
 }
@@ -392,15 +395,19 @@ body > .window-titlebar {
   );
 }
 .os-window {
-
-  /* Needed for when maximized, otherwise would be provided by %outset-deep */
+  /* This is the container for the window, providing the border and shadow. */
+}
+.window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background: rgb(192, 192, 192);
   background: var(--ButtonFace);
-
-  /* background: var(--Window); */
-  /*color: var(--WindowText);*/
-  /*border: 1px solid var(--WindowFrame);*/
-  /* TODO: use window-specific theme colors; also different types of windows */
+}
+.window-content {
+	flex: 1;
+	position: relative; /* for positioned children */
+	min-height: 0; /* needed for flexbox layout */
 }
 .os-window:not(.maximized) {
   border-style: solid;
@@ -524,19 +531,18 @@ body > .window-titlebar {
 .os-window.tool-window .window-titlebar {
   height: 15px;
 }
+.os-window .window-title-area {
+	flex: 1;
+	min-width: 0;
+	margin-left: 2px;
+}
 .os-window .window-title {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: inline-block !important;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding-left: 2px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
+	min-width: 0;
+	margin-left: 2px;
 }
 
 .menus {
