@@ -10,10 +10,11 @@ export class ThemeViewer extends Application {
 
     _createWindow() {
         const win = new $Window({
+            id: this.id,
             title: this.title,
             width: this.width || 600,
             height: this.height || 500,
-            resizable: this.resizable,
+            resizable: true,
             icons: this.icon,
         });
 
@@ -50,15 +51,18 @@ export class ThemeViewer extends Application {
             if (themeId === 'default') continue;
 
             const themeName = themeList[themeId];
-            const cssPath = `public/os-gui/${themeId}.css`;
+            const cssPath = `os-gui/${themeId}.css`; // Use relative path
 
             try {
                 const response = await fetch(cssPath);
+                 if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const css = await response.text();
                 const colors = this.parseThemeColors(css);
                 this.themes[themeName] = { id: themeId, colors: colors };
             } catch (error) {
-                console.error(`Failed to load theme: ${themeName}`, error);
+                console.error(`Failed to load theme CSS for '${themeName}' from '${cssPath}':`, error);
             }
         }
     }
@@ -74,59 +78,79 @@ export class ThemeViewer extends Application {
             while ((match = colorRegex.exec(rootMatch[1])) !== null) {
                 const key = match[1];
                 const value = match[2].trim();
-                if (value.startsWith('rgb')) {
-                    colors[key] = value;
-                }
+                colors[key] = value;
             }
         }
         return colors;
     }
 
     renderThemes(container) {
-        let html = '<div class="header"><h1>Theme Viewer</h1></div>';
+        container.innerHTML = '<div class="header"><h1>Theme Viewer</h1></div>';
 
         for (const themeName in this.themes) {
-            const { id, colors } = this.themes[themeName];
-            html += `
-                <div class="theme-preview">
-                    <div class="theme-header">
-                        <h2>${themeName}</h2>
-                        <button class="apply-theme-btn" data-theme-name="${themeName}">Apply</button>
-                    </div>
-                    <div class="preview-container">
-                        <div class="window-preview" style="background-color: ${colors['Window'] || '#fff'}; color: ${colors['WindowText'] || '#000'}; border: 1px solid ${colors['WindowFrame'] || '#000'};">
-                            <div class="title-bar" style="background: linear-gradient(to right, ${colors['GradientActiveTitle'] || colors['ActiveTitle'] || '#008'}, ${colors['ActiveTitle'] || '#008'}); color: ${colors['TitleText'] || '#fff'};">
-                                <span>Active Window</span>
-                                <div class="title-buttons">
-                                    <span class="title-button">_</span>
-                                    <span class="title-button">[]</span>
-                                    <span class="title-button">X</span>
+            const theme = this.themes[themeName];
+            const themePreviewEl = document.createElement('div');
+            themePreviewEl.className = 'theme-preview';
+
+            // Map theme colors to the new --preview- variables for the active window
+            let activeStyle = '';
+            for (const [key, value] of Object.entries(theme.colors)) {
+                activeStyle += `--preview-${key}: ${value};\n`;
+            }
+
+            // Create a separate style string for the inactive window
+            let inactiveStyle = activeStyle;
+            inactiveStyle += `--preview-ActiveTitle: ${theme.colors['InactiveTitle'] || '#808080'};\n`;
+            inactiveStyle += `--preview-GradientActiveTitle: ${theme.colors['GradientInactiveTitle'] || '#c0c0c0'};\n`;
+            inactiveStyle += `--preview-TitleText: ${theme.colors['InactiveTitleText'] || '#c0c0c0'};\n`;
+
+
+            themePreviewEl.innerHTML = `
+                <div class="theme-header">
+                    <h2>${themeName}</h2>
+                    <button class="apply-theme-btn" data-theme-name="${themeName}">Apply</button>
+                </div>
+                <div class="preview-container">
+                    <div class="cascading-windows-container">
+                        <div class="static-window-preview inactive" style="${inactiveStyle}">
+                            <div class="window-titlebar">
+                                <span class="window-title">Inactive Window</span>
+                            </div>
+                        </div>
+                        <div class="static-window-preview active" style="${activeStyle}">
+                            <div class="window-titlebar">
+                                <span class="window-title">Active Window</span>
+                                <div class="window-buttons">
+                                    <button class="window-button window-minimize-button">
+                                        <span class="window-button-icon"></span>
+                                    </button>
+                                    <button class="window-button window-maximize-button">
+                                        <span class="window-button-icon"></span>
+                                    </button>
+                                    <button class="window-button window-close-button">
+                                        <span class="window-button-icon"></span>
+                                    </button>
                                 </div>
                             </div>
                             <div class="window-content">
                                 <p>Window Text</p>
-                                <button style="background-color: ${colors['ButtonFace'] || '#ccc'}; color: ${colors['ButtonText'] || '#000'}; border: 1px solid ${colors['ButtonShadow'] || '#000'};">Button</button>
+                                <button>Button</button>
                             </div>
                         </div>
-                        <div class="color-palette">
-            `;
-
-            for (const colorName in colors) {
-                html += `
-                    <div class="color-swatch">
-                        <div class="color-box" style="background-color: ${colors[colorName]};"></div>
-                        <span class="color-name">${colorName}</span>
                     </div>
-                `;
-            }
-
-            html += `
-                        </div>
+                    <div class="color-palette">
+                        ${Object.entries(theme.colors)
+                            .filter(([key, value]) => value.startsWith('rgb'))
+                            .map(([colorName, colorValue]) => `
+                                <div class="color-swatch">
+                                    <div class="color-box" style="background-color: ${colorValue};"></div>
+                                    <span class="color-name">${colorName}</span>
+                                </div>
+                            `).join('')}
                     </div>
                 </div>
             `;
+            container.appendChild(themePreviewEl);
         }
-
-        container.innerHTML = html;
     }
 }
