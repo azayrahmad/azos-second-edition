@@ -1,5 +1,6 @@
 import './styles/cursors.css';
 import './style.css'
+import { themes } from './config/themes.js';
 import { setupCounter } from './counter.js'
 import { initDesktop } from './components/desktop.js'
 import { getItem, LOCAL_STORAGE_KEYS } from './utils/localStorage.js';
@@ -94,10 +95,24 @@ function loadCustomApps() {
     });
 }
 
+function loadThemeStylesheets() {
+    Object.values(themes).forEach(theme => {
+        if (theme.id === 'default') return;
+
+        const link = document.createElement('link');
+        link.id = `${theme.id}-theme`;
+        link.rel = 'stylesheet';
+        link.href = `./os-gui/${theme.stylesheet}`;
+        link.disabled = true;
+        document.head.appendChild(link);
+    });
+}
+
 // Initialize the OS
 console.log('azOS initialized');
 
 playSound('WindowsLogon');
+loadThemeStylesheets();
 loadCustomApps();
 taskbar.init();
 initDesktop();
