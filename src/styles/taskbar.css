@@ -61,12 +61,14 @@
 }
 
 .taskbar-app-area {
+    padding-left: 3px;
     display: flex;
     flex-wrap: nowrap;
     overflow: hidden;
     width: auto;
     flex-grow: 1;
     justify-content: flex-start;
+    gap: 3px;
 }
 
 .taskbar-button {
