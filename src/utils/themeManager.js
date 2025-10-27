@@ -1,5 +1,7 @@
 import { getItem, setItem, removeItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
 import { THEME_WALLPAPERS } from "../config/wallpapers.js";
+import { ShowDialogWindow } from "../components/DialogWindow.js";
+import { applyBusyCursor, clearBusyCursor } from "./aniCursor.js";
 
 const themes = {
     default: 'Default',
@@ -35,15 +37,28 @@ export function applyTheme() {
 }
 
 export function setTheme(theme) {
-    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, theme);
-    applyTheme();
+    applyBusyCursor(document.body);
+    const dialog = ShowDialogWindow({
+        title: 'Theme',
+        text: 'Applying theme...',
+        modal: true,
+        buttons: [],
+    });
 
-    const wallpaper = THEME_WALLPAPERS[theme];
-    if (wallpaper) {
-        setItem(LOCAL_STORAGE_KEYS.WALLPAPER, wallpaper);
-    } else {
-        removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
-    }
-    document.dispatchEvent(new CustomEvent('wallpaper-changed'));
-    document.dispatchEvent(new CustomEvent('theme-changed'));
+    setTimeout(() => {
+        setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, theme);
+        applyTheme();
+
+        const wallpaper = THEME_WALLPAPERS[theme];
+        if (wallpaper) {
+            setItem(LOCAL_STORAGE_KEYS.WALLPAPER, wallpaper);
+        } else {
+            removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
+        }
+        document.dispatchEvent(new CustomEvent('wallpaper-changed'));
+        document.dispatchEvent(new CustomEvent('theme-changed'));
+
+        dialog.close();
+        clearBusyCursor(document.body);
+    }, 50);
 }
