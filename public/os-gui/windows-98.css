@@ -1115,7 +1115,7 @@ so I think I'll imitate that. (I might change it later) */
 }
 
 /* OverlayScrollbars styles */
-.os-scrollbar {
+.os-theme-win98 {
   --os-size: 13px;
   --os-padding-perpendicular: 0;
   --os-padding-axis: 0;
@@ -1129,7 +1129,7 @@ so I think I'll imitate that. (I might change it later) */
   --os-handle-min-size: 10px;
 }
 
-.os-scrollbar-handle {
+.os-theme-win98 .os-scrollbar-handle {
   border-top: 1px solid var(--ButtonFace);
   border-left: 1px solid var(--ButtonFace);
   border-right: 1px solid var(--ButtonDkShadow);
@@ -1138,7 +1138,7 @@ so I think I'll imitate that. (I might change it later) */
     -1px -1px 0 var(--ButtonShadow) inset;
 }
 
-.os-scrollbar-button {
+.os-theme-win98 .os-scrollbar-button {
   background-color: var(--ButtonFace);
   border-top: 1px solid var(--ButtonFace);
   border-left: 1px solid var(--ButtonFace);
@@ -1153,30 +1153,30 @@ so I think I'll imitate that. (I might change it later) */
   box-sizing: border-box;
 }
 
-.os-scrollbar-button:not(.disabled):hover:active {
+.os-theme-win98 .os-scrollbar-button:not(.disabled):hover:active {
   border: 1px solid var(--ButtonShadow);
   box-shadow: none;
 }
 
-.os-scrollbar-button.os-scrollbar-button-disabled {
+.os-theme-win98 .os-scrollbar-button.os-scrollbar-button-disabled {
   background-image: var(--scrollbar-arrows-GrayText),
     var(--scrollbar-arrows-ButtonHilight);
 }
 
-.os-scrollbar-horizontal .os-scrollbar-button-decrement {
+.os-theme-win98.os-scrollbar-horizontal .os-scrollbar-button-decrement {
   background-position: calc(var(--scrollbar-button-inner-size) * -3 + 1px) 1px;
 }
-.os-scrollbar-horizontal .os-scrollbar-button-increment {
+.os-theme-win98.os-scrollbar-horizontal .os-scrollbar-button-increment {
   background-position: calc(var(--scrollbar-button-inner-size) * -2 + 1px) 1px;
 }
-.os-scrollbar-vertical .os-scrollbar-button-decrement {
+.os-theme-win98.os-scrollbar-vertical .os-scrollbar-button-decrement {
   background-position: calc(var(--scrollbar-button-inner-size) * -1 + 1px) 1px;
 }
-.os-scrollbar-vertical .os-scrollbar-button-increment {
+.os-theme-win98.os-scrollbar-vertical .os-scrollbar-button-increment {
   background-position: calc(var(--scrollbar-button-inner-size) * -0 + 1px) 1px;
 }
 
-.os-scrollbar-corner {
+.os-theme-win98 .os-scrollbar-corner {
   background-color: var(--ButtonFace);
 }
 

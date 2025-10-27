@@ -154,7 +154,11 @@
 		$w.$content.css("outline", "none");
 
 		if (window.OverlayScrollbars) {
-			window.OverlayScrollbars($w.$content[0], {});
+			window.OverlayScrollbars($w.$content[0], {
+				scrollbars: {
+					theme: 'os-theme-win98'
+				}
+			});
 		}
 		if (options.toolWindow) {
 			$w.addClass("tool-window");
