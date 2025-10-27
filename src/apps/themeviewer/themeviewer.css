@@ -1,55 +1,52 @@
 .theme-viewer-container {
-    padding: 10px;
-    height: 100%;
-    overflow-y: auto;
-    background-color: var(--ButtonFace);
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 20px;
-    color: var(--ButtonText);
-}
-
-.theme-preview {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid var(--ButtonShadow);
-    background-color: var(--Window);
-}
-
-.theme-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--ButtonFace);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.preview-section {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    border-bottom: 1px solid var(--ButtonShadow);
-    padding-bottom: 5px;
+    border: 1px inset var(--ButtonShadow);
+    background-color: var(--Window);
+    padding: 10px;
     margin-bottom: 10px;
 }
 
-.theme-preview h2 {
-    margin: 0;
-    color: var(--WindowText);
-}
-
-.apply-theme-btn {
-    padding: 5px 10px;
-    border: 1px solid var(--ButtonShadow);
-    background-color: var(--ButtonFace);
-    color: var(--ButtonText);
-    cursor: pointer;
-}
-
-.preview-container {
+.controls-section {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--ButtonText);
+}
+
+.controls-section label {
+    margin-right: 10px;
+}
+
+.controls-section select {
+    flex-grow: 1;
+    /* --- FIX: Force visibility of the select element --- */
+    visibility: visible !important;
+    display: block !important;
+}
+
+.button-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
 }
 
 .cascading-windows-container {
     position: relative;
-    width: 270px;
-    height: 170px;
-    flex-shrink: 0;
+    width: 270px; /* Adjust as needed */
+    height: 170px; /* Adjust as needed */
+    transform: scale(1.1); /* Slightly larger preview */
 }
 
 /* --- Isolated Preview Styles --- */
@@ -147,30 +144,4 @@
     border: 1px solid;
     border-color: var(--preview-ButtonHilight) var(--preview-ButtonShadow) var(--preview-ButtonShadow) var(--preview-ButtonHilight);
     padding: 2px 8px;
-}
-/* --- End Isolated Preview Styles --- */
-
-
-.color-palette {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    flex-grow: 1;
-}
-
-.color-swatch {
-    display: flex;
-    align-items: center;
-}
-
-.color-box {
-    width: 20px;
-    height: 20px;
-    border: 1px solid var(--ButtonShadow);
-    margin-right: 5px;
-}
-
-.color-name {
-    font-size: 12px;
-    color: var(--WindowText);
 }

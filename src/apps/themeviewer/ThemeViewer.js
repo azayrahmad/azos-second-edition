@@ -1,68 +1,95 @@
 import { Application } from '../Application.js';
-import { getThemes, setTheme } from '../../utils/themeManager.js';
+import { getThemes, setTheme, getCurrentTheme } from '../../utils/themeManager.js';
 import './themeviewer.css';
 
 export class ThemeViewer extends Application {
     constructor(config) {
         super(config);
         this.themes = {};
+        this.selectedThemeId = null;
+        this.previewContainer = null;
+        this.themeSelector = null;
     }
 
     _createWindow() {
         const win = new $Window({
             id: this.id,
             title: this.title,
-            width: this.width || 600,
-            height: this.height || 500,
-            resizable: true,
+            width: 400,
+            height: 500,
+            resizable: false,
             icons: this.icon,
         });
 
-        win.$content.html('<div class="theme-viewer-container"></div>');
+        win.$content.html(`
+            <div class="theme-viewer-container">
+                <div class="preview-section"></div>
+                <div class="controls-section">
+                    <label for="theme-select">Theme:</label>
+                    <select id="theme-select"></select>
+                </div>
+                <div class="button-bar">
+                    <button class="ok-btn">OK</button>
+                    <button class="cancel-btn">Cancel</button>
+                    <button class="apply-btn">Apply</button>
+                </div>
+            </div>
+        `);
         return win;
     }
 
     async _onLaunch() {
-        try {
-            const container = this.win.$content.find('.theme-viewer-container')[0];
-            container.innerHTML = '<h1>Theme Viewer</h1><p>Loading themes...</p>';
+        this.previewContainer = this.win.$content.find('.preview-section')[0];
+        this.themeSelector = this.win.$content.find('#theme-select')[0];
+        const buttonBar = this.win.$content.find('.button-bar')[0];
 
-            await this.loadThemes();
-            this.renderThemes(container);
+        await this.loadThemes();
+        this.populateThemeSelector();
+        this.updatePreview(this.selectedThemeId);
 
-            container.addEventListener('click', (e) => {
-                if (e.target.classList.contains('apply-theme-btn')) {
-                    const themeName = e.target.dataset.themeName;
-                    const themeList = getThemes();
-                    const themeId = Object.keys(themeList).find(key => themeList[key] === themeName);
-                    if (themeId) {
-                        setTheme(themeId);
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error in ThemeViewer._onLaunch:', error);
-        }
+        // Event Listeners
+        this.themeSelector.addEventListener('change', (e) => {
+            this.selectedThemeId = e.target.value;
+            this.updatePreview(this.selectedThemeId);
+        });
+
+        buttonBar.addEventListener('click', (e) => {
+            if (e.target.classList.contains('ok-btn')) {
+                setTheme(this.selectedThemeId);
+                this.win.close();
+            } else if (e.target.classList.contains('cancel-btn')) {
+                this.win.close();
+            } else if (e.target.classList.contains('apply-btn')) {
+                setTheme(this.selectedThemeId);
+            }
+        });
     }
 
     async loadThemes() {
         const themeList = getThemes();
-        for (const themeId in themeList) {
-            if (themeId === 'default') continue;
+        const themePromises = Object.entries(themeList).map(async ([themeId, themeName]) => {
+            if (themeId === 'default') return null;
 
-            const themeName = themeList[themeId];
-            const cssPath = `os-gui/${themeId}.css`; // Use relative path
-
+            const cssPath = `os-gui/${themeId}.css`;
             try {
                 const response = await fetch(cssPath);
-                 if (!response.ok) {
+                if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const css = await response.text();
                 const colors = this.parseThemeColors(css);
-                this.themes[themeName] = { id: themeId, colors: colors };
+                return { themeId, themeName, colors };
             } catch (error) {
                 console.error(`Failed to load theme CSS for '${themeName}' from '${cssPath}':`, error);
+                return null;
+            }
+        });
+
+        const loadedThemes = await Promise.all(themePromises);
+
+        for (const themeData of loadedThemes) {
+            if (themeData) {
+                this.themes[themeData.themeId] = { name: themeData.themeName, colors: themeData.colors };
             }
         }
     }
@@ -84,73 +111,60 @@ export class ThemeViewer extends Application {
         return colors;
     }
 
-    renderThemes(container) {
-        container.innerHTML = '<div class="header"><h1>Theme Viewer</h1></div>';
+    populateThemeSelector() {
+        const currentThemeId = getCurrentTheme();
+        this.selectedThemeId = currentThemeId;
 
-        for (const themeName in this.themes) {
-            const theme = this.themes[themeName];
-            const themePreviewEl = document.createElement('div');
-            themePreviewEl.className = 'theme-preview';
-
-            // Map theme colors to the new --preview- variables for the active window
-            let activeStyle = '';
-            for (const [key, value] of Object.entries(theme.colors)) {
-                activeStyle += `--preview-${key}: ${value};\n`;
+        for (const themeId in this.themes) {
+            const option = document.createElement('option');
+            option.value = themeId;
+            option.textContent = this.themes[themeId].name;
+            if (themeId === currentThemeId) {
+                option.selected = true;
             }
-
-            // Create a separate style string for the inactive window
-            let inactiveStyle = activeStyle;
-            inactiveStyle += `--preview-ActiveTitle: ${theme.colors['InactiveTitle'] || '#808080'};\n`;
-            inactiveStyle += `--preview-GradientActiveTitle: ${theme.colors['GradientInactiveTitle'] || '#c0c0c0'};\n`;
-            inactiveStyle += `--preview-TitleText: ${theme.colors['InactiveTitleText'] || '#c0c0c0'};\n`;
-
-
-            themePreviewEl.innerHTML = `
-                <div class="theme-header">
-                    <h2>${themeName}</h2>
-                    <button class="apply-theme-btn" data-theme-name="${themeName}">Apply</button>
-                </div>
-                <div class="preview-container">
-                    <div class="cascading-windows-container">
-                        <div class="static-window-preview inactive" style="${inactiveStyle}">
-                            <div class="window-titlebar">
-                                <span class="window-title">Inactive Window</span>
-                            </div>
-                        </div>
-                        <div class="static-window-preview active" style="${activeStyle}">
-                            <div class="window-titlebar">
-                                <span class="window-title">Active Window</span>
-                                <div class="window-buttons">
-                                    <button class="window-button window-minimize-button">
-                                        <span class="window-button-icon"></span>
-                                    </button>
-                                    <button class="window-button window-maximize-button">
-                                        <span class="window-button-icon"></span>
-                                    </button>
-                                    <button class="window-button window-close-button">
-                                        <span class="window-button-icon"></span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="window-content">
-                                <p>Window Text</p>
-                                <button>Button</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="color-palette">
-                        ${Object.entries(theme.colors)
-                            .filter(([key, value]) => value.startsWith('rgb'))
-                            .map(([colorName, colorValue]) => `
-                                <div class="color-swatch">
-                                    <div class="color-box" style="background-color: ${colorValue};"></div>
-                                    <span class="color-name">${colorName}</span>
-                                </div>
-                            `).join('')}
-                    </div>
-                </div>
-            `;
-            container.appendChild(themePreviewEl);
+            this.themeSelector.appendChild(option);
         }
+    }
+
+    updatePreview(themeId) {
+        const theme = this.themes[themeId];
+        if (!theme) {
+            this.previewContainer.innerHTML = '<p>Theme not found.</p>';
+            return;
+        }
+
+        let activeStyle = '';
+        for (const [key, value] of Object.entries(theme.colors)) {
+            activeStyle += `--preview-${key}: ${value};\n`;
+        }
+
+        let inactiveStyle = activeStyle;
+        inactiveStyle += `--preview-ActiveTitle: ${theme.colors['InactiveTitle'] || '#808080'};\n`;
+        inactiveStyle += `--preview-GradientActiveTitle: ${theme.colors['GradientInactiveTitle'] || '#c0c0c0'};\n`;
+        inactiveStyle += `--preview-TitleText: ${theme.colors['InactiveTitleText'] || '#c0c0c0'};\n`;
+
+        this.previewContainer.innerHTML = `
+            <div class="cascading-windows-container">
+                <div class="static-window-preview inactive" style="${inactiveStyle}">
+                    <div class="window-titlebar">
+                        <span class="window-title">Inactive Window</span>
+                    </div>
+                </div>
+                <div class="static-window-preview active" style="${activeStyle}">
+                    <div class="window-titlebar">
+                        <span class="window-title">Active Window</span>
+                        <div class="window-buttons">
+                            <button class="window-button window-minimize-button"><span class="window-button-icon"></span></button>
+                            <button class="window-button window-maximize-button"><span class="window-button-icon"></span></button>
+                            <button class="window-button window-close-button"><span class="window-button-icon"></span></button>
+                        </div>
+                    </div>
+                    <div class="window-content">
+                        <p>Window Text</p>
+                        <button>Button</button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 }
