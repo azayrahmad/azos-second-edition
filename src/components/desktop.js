@@ -3,20 +3,32 @@
  */
 import { init } from "./taskbar.js";
 import { apps } from "../config/apps.js";
-import { getItem, setItem, removeItem, LOCAL_STORAGE_KEYS } from '../utils/localStorage.js';
+import {
+  getItem,
+  setItem,
+  removeItem,
+  LOCAL_STORAGE_KEYS,
+} from "../utils/localStorage.js";
 import desktopApps from "../config/desktop.json";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
-import { getThemes, getCurrentTheme, setTheme, applyTheme } from "../utils/themeManager.js";
+import {
+  getThemes,
+  getCurrentTheme,
+  setTheme,
+  applyTheme,
+} from "../utils/themeManager.js";
 import { ICONS } from "../config/icons.js";
-import { playSound } from '../utils/soundManager.js';
+import { playSound } from "../utils/soundManager.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
-  return filePath ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, '-')}` : `app-${app.id}`;
+  return filePath
+    ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, "-")}`
+    : `app-${app.id}`;
 }
 
 function createDesktopIcon(item, isFile = false) {
-  const app = isFile ? apps.find(a => a.id === item.app) : item;
+  const app = isFile ? apps.find((a) => a.id === item.app) : item;
   if (!app) return null;
 
   const iconDiv = document.createElement("div");
@@ -74,7 +86,7 @@ function showIconContextMenu(event, app) {
             newItem.click = () => showProperties(app);
             break;
           default:
-            newItem.click = () => { };
+            newItem.click = () => {};
             break;
         }
       } else if (typeof newItem.action === "function") {
@@ -117,9 +129,9 @@ function showIconContextMenu(event, app) {
 }
 
 function setWallpaper() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
   input.onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -136,37 +148,38 @@ function setWallpaper() {
 }
 
 function getWallpaperMode() {
-  return getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || 'tile';
+  return getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || "tile";
 }
 
 function setWallpaperMode(mode) {
   setItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE, mode);
   applyWallpaper();
-  document.dispatchEvent(new CustomEvent('wallpaper-changed'));
+  document.dispatchEvent(new CustomEvent("wallpaper-changed"));
 }
 
 function applyWallpaper() {
   const wallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
-  const desktop = document.querySelector('.desktop');
+  const desktop = document.querySelector(".desktop");
   if (wallpaper) {
     const mode = getWallpaperMode();
     desktop.style.backgroundImage = `url(${wallpaper})`;
-    desktop.style.backgroundPosition = 'left top';
-    if (mode === 'stretch') {
-      desktop.style.backgroundRepeat = 'no-repeat';
-      desktop.style.backgroundSize = '100% 100%';
-    } else if (mode === 'center') {
-      desktop.style.backgroundRepeat = 'no-repeat';
-      desktop.style.backgroundSize = 'auto';
-      desktop.style.backgroundPosition = 'center';
-    } else { // 'tile'
-      desktop.style.backgroundRepeat = 'repeat';
-      desktop.style.backgroundSize = 'auto';
+    desktop.style.backgroundPosition = "left top";
+    if (mode === "stretch") {
+      desktop.style.backgroundRepeat = "no-repeat";
+      desktop.style.backgroundSize = "100% 100%";
+    } else if (mode === "center") {
+      desktop.style.backgroundRepeat = "no-repeat";
+      desktop.style.backgroundSize = "auto";
+      desktop.style.backgroundPosition = "center";
+    } else {
+      // 'tile'
+      desktop.style.backgroundRepeat = "repeat";
+      desktop.style.backgroundSize = "auto";
     }
-    desktop.style.backgroundColor = ''; // Remove solid color
+    desktop.style.backgroundColor = ""; // Remove solid color
   } else {
-    desktop.style.backgroundImage = '';
-    desktop.style.backgroundColor = 'var(--desktop-bg)'; // Restore solid color
+    desktop.style.backgroundImage = "";
+    desktop.style.backgroundColor = "var(--desktop-bg)"; // Restore solid color
   }
 }
 
@@ -176,24 +189,24 @@ function removeWallpaper() {
 }
 
 function getMonitorType() {
-  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || 'CRT';
+  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || "CRT";
 }
 
 function setMonitorType(type) {
   setItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE, type);
-  if (type === 'CRT') {
-    document.body.classList.add('scanlines');
+  if (type === "CRT") {
+    document.body.classList.add("scanlines");
   } else {
-    document.body.classList.remove('scanlines');
+    document.body.classList.remove("scanlines");
   }
 }
 
 function applyMonitorType() {
   const type = getMonitorType();
-  if (type === 'CRT') {
-    document.body.classList.add('scanlines');
+  if (type === "CRT") {
+    document.body.classList.add("scanlines");
   } else {
-    document.body.classList.remove('scanlines');
+    document.body.classList.remove("scanlines");
   }
 }
 
@@ -202,7 +215,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 
   const menuItems = [
     {
-      label: 'Sort Icons',
+      label: "Sort Icons",
       click: () => {
         // Remove saved positions and redraw icons
         removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
@@ -210,69 +223,73 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       },
     },
     {
-      label: 'Empty Recycle Bin',
+      label: "Empty Recycle Bin",
       click: () => {
-        playSound('EmptyRecycleBin');
+        playSound("EmptyRecycleBin");
       },
     },
-    'MENU_DIVIDER',
+    "MENU_DIVIDER",
     {
-      label: 'Wallpaper',
+      label: "Wallpaper",
       submenu: [
         {
-          label: 'Set Wallpaper...',
+          label: "Set Wallpaper...",
           click: setWallpaper,
         },
         {
-          label: 'Remove Wallpaper',
+          label: "Remove Wallpaper",
           click: removeWallpaper,
         },
-        'MENU_DIVIDER',
+        "MENU_DIVIDER",
         {
           radioItems: [
-            { label: 'Center', value: 'center' },
-            { label: 'Tile', value: 'tile' },
-            { label: 'Stretch', value: 'stretch' },
+            { label: "Center", value: "center" },
+            { label: "Tile", value: "tile" },
+            { label: "Stretch", value: "stretch" },
           ],
           getValue: () => getWallpaperMode(),
           setValue: (value) => setWallpaperMode(value),
-          ariaLabel: 'Wallpaper Mode'
+          ariaLabel: "Wallpaper Mode",
         },
       ],
     },
-    'MENU_DIVIDER',
+    "MENU_DIVIDER",
     {
-      label: 'Theme',
-      submenu: [{
-        radioItems: Object.keys(themes).map(themeKey => ({
-          label: themes[themeKey],
-          value: themeKey,
-        })),
-        getValue: () => getCurrentTheme(),
-        setValue: (value) => {
-          setTheme(value);
-          applyWallpaper();
-          document.dispatchEvent(new CustomEvent('theme-changed'));
+      label: "Theme",
+      submenu: [
+        {
+          radioItems: Object.keys(themes).map((themeKey) => ({
+            label: themes[themeKey],
+            value: themeKey,
+          })),
+          getValue: () => getCurrentTheme(),
+          setValue: (value) => {
+            setTheme(value);
+            applyWallpaper();
+            document.dispatchEvent(new CustomEvent("theme-changed"));
+          },
+          ariaLabel: "Desktop Theme",
         },
-        ariaLabel: 'Desktop Theme'
-      }],
+      ],
     },
     {
-      label: 'Monitor Type',
-      submenu: [{
-        radioItems: [
-          { label: 'TFT', value: 'TFT' },
-          { label: 'CRT', value: 'CRT' },
-        ],
-        getValue: () => getMonitorType(),
-        setValue: (value) => setMonitorType(value),
-        ariaLabel: 'Monitor Type'
-      }],
-    }
+      label: "Monitor Type",
+      submenu: [
+        {
+          radioItems: [
+            { label: "TFT", value: "TFT" },
+            { label: "CRT", value: "CRT" },
+          ],
+          getValue: () => getMonitorType(),
+          setValue: (value) => setMonitorType(value),
+          ariaLabel: "Monitor Type",
+        },
+      ],
+    },
   ];
 
-  const existingMenus = document.querySelectorAll('.menu-popup');
-  existingMenus.forEach(menu => menu.remove());
+  const existingMenus = document.querySelectorAll(".menu-popup");
+  existingMenus.forEach((menu) => menu.remove());
 
   const menu = new MenuList(menuItems);
   document.body.appendChild(menu.element);
@@ -283,7 +300,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     // When the theme changes, we need to manually trigger an update on the menu
     // to re-evaluate the 'check' state of all theme items.
     if (menu.activeSubmenu) {
-      menu.activeSubmenu.element.dispatchEvent(new CustomEvent('update', {}));
+      menu.activeSubmenu.element.dispatchEvent(new CustomEvent("update", {}));
     }
   };
 
@@ -292,18 +309,18 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const handleWallpaperChange = updateActiveSubmenu;
 
   const closeMenu = (e) => {
-    if (!menu.element.contains(e.target) && !e.target.closest('.menu-popup')) {
+    if (!menu.element.contains(e.target) && !e.target.closest(".menu-popup")) {
       menu.closeAll();
-      document.removeEventListener('click', closeMenu);
-      document.removeEventListener('theme-changed', handleThemeChange); // Clean up listener
-      document.removeEventListener('wallpaper-changed', handleWallpaperChange);
+      document.removeEventListener("click", closeMenu);
+      document.removeEventListener("theme-changed", handleThemeChange); // Clean up listener
+      document.removeEventListener("wallpaper-changed", handleWallpaperChange);
     }
   };
 
   setTimeout(() => {
-    document.addEventListener('click', closeMenu);
-    document.addEventListener('theme-changed', handleThemeChange);
-    document.addEventListener('wallpaper-changed', handleWallpaperChange);
+    document.addEventListener("click", closeMenu);
+    document.addEventListener("theme-changed", handleThemeChange);
+    document.addEventListener("wallpaper-changed", handleWallpaperChange);
   }, 0);
 }
 
@@ -321,9 +338,9 @@ export function setupIcons(options) {
 
   // If there are any saved positions, we are in manual mode.
   if (Object.keys(iconPositions).length > 0) {
-    desktop.classList.add('has-absolute-icons');
+    desktop.classList.add("has-absolute-icons");
   } else {
-    desktop.classList.remove('has-absolute-icons');
+    desktop.classList.remove("has-absolute-icons");
   }
 
   const placeIcon = (icon, iconId) => {
@@ -358,7 +375,12 @@ export function setupIcons(options) {
   });
 }
 
-function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelection }) {
+function configureIcon(
+  icon,
+  app,
+  filePath = null,
+  { selectedIcons, clearSelection },
+) {
   let isDragging = false;
   let wasDragged = false;
   let dragStartX, dragStartY;
@@ -369,9 +391,9 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
   const iconId = icon.getAttribute("data-icon-id");
 
   const handleDragStart = (e) => {
-    if (e.type === 'mousedown' && e.button !== 0) return;
+    if (e.type === "mousedown" && e.button !== 0) return;
 
-    if (e.type === 'mousedown') {
+    if (e.type === "mousedown") {
       e.preventDefault();
     }
 
@@ -380,13 +402,13 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
     isLongPress = false;
     dragOffsets.clear();
 
-    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
 
     dragStartX = clientX;
     dragStartY = clientY;
 
-    if (e.type === 'touchstart') {
+    if (e.type === "touchstart") {
       longPressTimer = setTimeout(() => {
         isLongPress = true;
         const touch = e.touches[0];
@@ -402,17 +424,17 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
     const desktop = icon.parentElement;
     const desktopRect = desktop.getBoundingClientRect();
 
-    if (!desktop.classList.contains('has-absolute-icons')) {
+    if (!desktop.classList.contains("has-absolute-icons")) {
       // Force browser to calculate layout before we read positions
       desktop.offsetHeight;
 
-      const allIcons = Array.from(desktop.querySelectorAll('.desktop-icon'));
+      const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
       const iconPositions = {};
       const newPositions = [];
 
       // 1. Read all positions first
-      allIcons.forEach(i => {
-        const id = i.getAttribute('data-icon-id');
+      allIcons.forEach((i) => {
+        const id = i.getAttribute("data-icon-id");
         const rect = i.getBoundingClientRect();
         const x = `${rect.left - desktopRect.left}px`;
         const y = `${rect.top - desktopRect.top}px`;
@@ -422,13 +444,13 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
 
       // 2. Then apply them
       newPositions.forEach(({ icon, x, y }) => {
-        icon.style.position = 'absolute';
+        icon.style.position = "absolute";
         icon.style.left = x;
         icon.style.top = y;
       });
 
       setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
-      desktop.classList.add('has-absolute-icons');
+      desktop.classList.add("has-absolute-icons");
     }
 
     // If the clicked icon is not part of the current selection,
@@ -437,22 +459,26 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
       clearSelection();
       selectedIcons.add(icon);
       icon.querySelector(".icon img")?.classList.add("highlighted-icon");
-      icon.querySelector(".icon-label")?.classList.add("highlighted-label", "selected");
+      icon
+        .querySelector(".icon-label")
+        ?.classList.add("highlighted-label", "selected");
     }
 
     // Prepare all selected icons for dragging
-    selectedIcons.forEach(selectedIcon => {
+    selectedIcons.forEach((selectedIcon) => {
       const iconRect = selectedIcon.getBoundingClientRect();
       const offsetX = clientX - iconRect.left;
       const offsetY = clientY - iconRect.top;
       dragOffsets.set(selectedIcon, { offsetX, offsetY });
     });
 
-    if (e.type === 'mousedown') {
+    if (e.type === "mousedown") {
       document.addEventListener("mousemove", handleDragMove);
       document.addEventListener("mouseup", handleDragEnd);
-    } else if (e.type === 'touchstart') {
-      document.addEventListener("touchmove", handleDragMove, { passive: false });
+    } else if (e.type === "touchstart") {
+      document.addEventListener("touchmove", handleDragMove, {
+        passive: false,
+      });
       document.addEventListener("touchend", handleDragEnd);
     }
   };
@@ -460,10 +486,13 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
   const handleDragMove = (e) => {
     if (!isDragging) return;
 
-    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+    const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
 
-    if (Math.abs(clientX - dragStartX) > 5 || Math.abs(clientY - dragStartY) > 5) {
+    if (
+      Math.abs(clientX - dragStartX) > 5 ||
+      Math.abs(clientY - dragStartY) > 5
+    ) {
       clearTimeout(longPressTimer);
       if (!wasDragged) {
         wasDragged = true;
@@ -473,14 +502,14 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
 
     if (!wasDragged) return;
 
-    if (e.type === 'touchmove') {
+    if (e.type === "touchmove") {
       e.preventDefault();
     }
 
     const desktop = icon.parentElement;
     const desktopRect = desktop.getBoundingClientRect();
 
-    selectedIcons.forEach(selectedIcon => {
+    selectedIcons.forEach((selectedIcon) => {
       const { offsetX, offsetY } = dragOffsets.get(selectedIcon);
       const iconRect = selectedIcon.getBoundingClientRect();
 
@@ -501,8 +530,8 @@ function configureIcon(icon, app, filePath = null, { selectedIcons, clearSelecti
 
     if (wasDragged) {
       const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
-      selectedIcons.forEach(selectedIcon => {
-        const id = selectedIcon.getAttribute('data-icon-id');
+      selectedIcons.forEach((selectedIcon) => {
+        const id = selectedIcon.getAttribute("data-icon-id");
         iconPositions[id] = {
           x: selectedIcon.style.left,
           y: selectedIcon.style.top,
@@ -559,7 +588,7 @@ export function initDesktop() {
   applyTheme();
   applyWallpaper();
   applyMonitorType();
-  const desktop = document.querySelector('.desktop');
+  const desktop = document.querySelector(".desktop");
   let lasso;
   let isLassoing = false;
   let wasLassoing = false;
@@ -567,7 +596,7 @@ export function initDesktop() {
   let selectedIcons = new Set();
 
   function clearSelection() {
-    selectedIcons.forEach(icon => {
+    selectedIcons.forEach((icon) => {
       const iconImg = icon.querySelector(".icon img");
       const iconLabel = icon.querySelector(".icon-label");
       if (iconImg) iconImg.classList.remove("highlighted-icon");
@@ -579,13 +608,15 @@ export function initDesktop() {
   }
 
   function isIntersecting(rect1, rect2) {
-    return !(rect1.right < rect2.left ||
-             rect1.left > rect2.right ||
-             rect1.bottom < rect2.top ||
-             rect1.top > rect2.bottom);
+    return !(
+      rect1.right < rect2.left ||
+      rect1.left > rect2.right ||
+      rect1.bottom < rect2.top ||
+      rect1.top > rect2.bottom
+    );
   }
 
-  desktop.addEventListener('mousedown', (e) => {
+  desktop.addEventListener("mousedown", (e) => {
     if (e.target !== desktop) return; // Only start lasso on desktop itself
     if (e.button !== 0) return; // Only for left click
 
@@ -593,8 +624,8 @@ export function initDesktop() {
     lassoStartX = e.clientX;
     lassoStartY = e.clientY;
 
-    lasso = document.createElement('div');
-    lasso.className = 'lasso';
+    lasso = document.createElement("div");
+    lasso.className = "lasso";
     lasso.style.left = `${lassoStartX}px`;
     lasso.style.top = `${lassoStartY}px`;
     desktop.appendChild(lasso);
@@ -619,9 +650,9 @@ export function initDesktop() {
       lasso.style.top = `${top}px`;
 
       const lassoRect = lasso.getBoundingClientRect();
-      const icons = document.querySelectorAll('.desktop-icon');
+      const icons = document.querySelectorAll(".desktop-icon");
 
-      icons.forEach(icon => {
+      icons.forEach((icon) => {
         const iconRect = icon.getBoundingClientRect();
         const iconImg = icon.querySelector(".icon img");
         const iconLabel = icon.querySelector(".icon-label");
@@ -653,15 +684,15 @@ export function initDesktop() {
         lasso.parentElement.removeChild(lasso);
       }
       lasso = null;
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-       setTimeout(() => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      setTimeout(() => {
         wasLassoing = false;
       }, 0);
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
   });
 
   // A function to refresh icons, bound to the correct scope
@@ -669,7 +700,7 @@ export function initDesktop() {
 
   desktop.refreshIcons();
 
-  desktop.addEventListener('contextmenu', (e) => {
+  desktop.addEventListener("contextmenu", (e) => {
     // Show desktop context menu only if not clicking on an icon
     if (e.target === desktop) {
       e.preventDefault();
@@ -678,12 +709,16 @@ export function initDesktop() {
   });
 
   // Add click handler to desktop to deselect icons
-  desktop.addEventListener('click', (e) => {
+  desktop.addEventListener("click", (e) => {
     if (wasLassoing) {
       wasLassoing = false;
       return;
     }
-    if (e.target === desktop && !isLassoing && !e.target.closest('.desktop-icon')) {
+    if (
+      e.target === desktop &&
+      !isLassoing &&
+      !e.target.closest(".desktop-icon")
+    ) {
       clearSelection();
     }
   });
@@ -692,8 +727,14 @@ export function initDesktop() {
 
   const showTipsAtStartup = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);
 
-  console.log('Show Tips at Startup:', showTipsAtStartup);
-  if (showTipsAtStartup === null || showTipsAtStartup === 'true' || showTipsAtStartup === true) {
-    launchApp('tipOfTheDay');
+  console.log("Show Tips at Startup:", showTipsAtStartup);
+  if (
+    showTipsAtStartup === null ||
+    showTipsAtStartup === "true" ||
+    showTipsAtStartup === true
+  ) {
+    launchApp("tipOfTheDay");
   }
+
+  document.addEventListener("wallpaper-changed", applyWallpaper);
 }
