@@ -81,4 +81,21 @@ export const soundSchemes = {
     WindowsLogoff: '',
     StartNavigation: '',
   },
+  'Inside Your Computer': {
+    Default: 'Inside your Computer default sound.wav',
+    AppGPFault: 'Inside your Computer program error.wav',
+    Maximize: 'Inside your Computer maximize.wav',
+    MenuCommand: 'Inside your Computer menu command.wav',
+    MenuPopup: 'Inside your Computer menu popup.wav',
+    Minimize: 'Inside your Computer minimize.wav',
+    RestoreDown: 'Inside your Computer restore down.wav',
+    RestoreUp: 'Inside your Computer restore up.wav',
+    SystemAsterisk: 'Inside your Computer asterisk.wav',
+    SystemExclamation: 'Inside your Computer exclamation.wav',
+    SystemExit: 'Inside your Computer startup.wav',
+    SystemHand: 'Inside your Computer critical stop.wav',
+    SystemQuestion: 'Inside your Computer question.wav',
+    WindowsLogon: 'Inside your Computer startup.wav',
+    EmptyRecycleBin: 'Inside your Computer empty recycle bin.wav',
+  }
 };

@@ -30,6 +30,9 @@ const cursorThemes = {
     cursors.dangerousCreatures,
   ),
   "60s-usa": createCursorTheme("60s-usa", cursors.usa60s),
+  "inside-your-computer": createCursorTheme(
+    "inside-your-computer",
+    cursors.insideYourComputer)
 };
 
 const allCursorProperties = Object.keys(

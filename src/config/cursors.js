@@ -31,6 +31,20 @@ import usaNS from "../assets/cursor/The 60s USA Size NS.cur";
 import usaNWSE from "../assets/cursor/The 60s USA Size NWSE.cur";
 import usaWE from "../assets/cursor/The 60s USA Size WE.cur";
 
+// Inside your Computer theme
+import computerArrow from "../assets/cursor/Inside your Computer arrow.cur";
+import computerBeam from "../assets/cursor/Inside your Computer beam.cur";
+import computerBusy from "../assets/cursor/Inside your Computer busy.ani";
+import computerWait from "../assets/cursor/Inside your Computer wait.ani";
+import computerHelp from "../assets/cursor/Inside your Computer help.cur";
+import computerMove from "../assets/cursor/Inside your Computer move.cur";
+import computerNo from "../assets/cursor/Inside your Computer no.cur";
+import computerCross from "../assets/cursor/Inside your Computer cross.cur";
+import computerNESW from "../assets/cursor/Inside your Computer Size NESW.cur";
+import computerNS from "../assets/cursor/Inside your Computer Size NS.cur";
+import computerNWSE from "../assets/cursor/Inside your Computer Size NWSE.cur";
+import computerWE from "../assets/cursor/Inside your Computer Size WE.cur";
+
 export const cursors = {
   default: {
     busy: defaultBusy,
@@ -63,5 +77,19 @@ export const cursors = {
     sizeNS: usaNS,
     sizeNWSE: usaNWSE,
     sizeWE: usaWE,
+  },
+  insideYourComputer: {
+    arrow: computerArrow,
+    beam: computerBeam,
+    busy: computerBusy,
+    wait: computerWait,
+    help: computerHelp,
+    move: computerMove,
+    no: computerNo,
+    cross: computerCross,
+    sizeNESW: computerNESW,
+    sizeNS: computerNS,
+    sizeNWSE: computerNWSE,
+    sizeWE: computerWE,
   },
 };
