@@ -1,0 +1,99 @@
+.theme-viewer-container {
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: var(--ButtonFace);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--ButtonText);
+}
+
+.theme-preview {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid var(--ButtonShadow);
+    background-color: var(--Window);
+}
+
+.theme-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--ButtonShadow);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.theme-preview h2 {
+    margin: 0;
+    color: var(--WindowText);
+}
+
+.apply-theme-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--ButtonShadow);
+    background-color: var(--ButtonFace);
+    color: var(--ButtonText);
+    cursor: pointer;
+}
+
+.preview-container {
+    display: flex;
+    gap: 20px;
+}
+
+.window-preview {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 5px;
+    font-weight: bold;
+}
+
+.title-buttons {
+    display: flex;
+}
+
+.title-button {
+    margin-left: 3px;
+    border: 1px solid var(--ButtonShadow);
+    padding: 0 3px;
+    background-color: var(--ButtonFace);
+    color: var(--ButtonText);
+}
+
+.window-content {
+    padding: 10px;
+}
+
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.color-swatch {
+    display: flex;
+    align-items: center;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--ButtonShadow);
+    margin-right: 5px;
+}
+
+.color-name {
+    font-size: 12px;
+    color: var(--WindowText);
+}
