@@ -6,6 +6,7 @@ import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
 import { ClippyApp } from '../apps/clippy/ClippyApp.js';
 import { WebampApp } from '../apps/webamp/WebampApp.js';
 import { ImageResizerApp } from '../apps/image-resizer/ImageResizerApp.js';
+import { ImageViewerApp } from '../apps/imageviewer/ImageViewerApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -20,6 +21,7 @@ export const appClasses = {
   'clippy': ClippyApp,
   'webamp': WebampApp,
   'image-resizer': ImageResizerApp,
+  'image-viewer': ImageViewerApp,
 };
 
 export const apps = [
@@ -79,6 +81,15 @@ export const apps = [
     appClass: ImageResizerApp,
     width: 920,
     height: 720,
+    resizable: true,
+  },
+  {
+    id: "image-viewer",
+    title: "Image Viewer",
+    icon: ICONS.imageViewer,
+    appClass: ImageViewerApp,
+    width: 400,
+    height: 300,
     resizable: true,
   },
   {
