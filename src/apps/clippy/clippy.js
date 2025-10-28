@@ -238,150 +238,158 @@ export function launchClippyApp(app, agentName = currentAgentName) {
   }
   const appInstance = app || window.clippyAppInstance;
 
+  const loadNewAgent = () => {
+    // Ensure the menu is removed if it exists
+    const existingMenus = document.querySelectorAll(".menu-popup");
+    existingMenus.forEach((menu) => menu.remove());
+
+    clippy.load(agentName, function (agent) {
+      window.clippyAgent = agent;
+
+      const ttsUserPref =
+        getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+      agent.setTTSEnabled(ttsUserPref);
+
+      agent.show();
+
+      let contextMenuOpened = false;
+
+      const ttsEnabled = agent.isTTSEnabled();
+      if (ttsEnabled) {
+        const setDefaultVoice = () => {
+          const voices = agent.getTTSVoices();
+          if (voices.length > 0) {
+            // Improved voice selection logic
+            const englishVoices = voices.filter((v) =>
+              v.lang.startsWith("en"),
+            );
+
+            // Prioritize male-sounding voices by name patterns
+            let defaultVoice = englishVoices.find(
+              (v) =>
+                v.name.toLowerCase().includes("male") ||
+                v.name.toLowerCase().includes("david") ||
+                v.name.toLowerCase().includes("alex") ||
+                v.name.toLowerCase().includes("fred") ||
+                v.name.toLowerCase().includes("daniel") ||
+                v.name.toLowerCase().includes("george") ||
+                v.name.toLowerCase().includes("paul") ||
+                v.name.toLowerCase().includes("tom") ||
+                v.name.toLowerCase().includes("mark") ||
+                v.name.toLowerCase().includes("james") ||
+                v.name.toLowerCase().includes("michael"),
+            );
+
+            // If no male voice found, prefer voices that are NOT obviously female
+            if (!defaultVoice) {
+              const femaleNames = [
+                "zira",
+                "hazel",
+                "samantha",
+                "susan",
+                "karen",
+                "sara",
+                "emma",
+                "lucy",
+                "anna",
+              ];
+              const nonFemaleVoices = englishVoices.filter(
+                (v) =>
+                  !femaleNames.some((name) =>
+                    v.name.toLowerCase().includes(name),
+                  ) && !v.name.toLowerCase().includes("female"),
+              );
+
+              if (nonFemaleVoices.length > 0) {
+                defaultVoice = nonFemaleVoices[0]; // Take first non-female voice
+              } else {
+                defaultVoice = englishVoices[0]; // Fallback to any English voice
+              }
+            }
+
+            agent.setTTSOptions({
+              voice: defaultVoice,
+              rate: 0.9,
+              pitch: 0.9,
+              volume: 0.8,
+            });
+          }
+        };
+        if (window.speechSynthesis.getVoices().length) {
+          setDefaultVoice();
+        } else {
+          window.speechSynthesis.addEventListener(
+            "voiceschanged",
+            setDefaultVoice,
+            { once: true },
+          );
+        }
+      }
+
+      agent.isSpeaking = false; // Initial state
+
+      // Wrap the original speakAndAnimate function
+      const originalSpeakAndAnimate = agent.speakAndAnimate;
+      agent.speakAndAnimate = function (text, animation, options) {
+        agent.isSpeaking = true;
+
+        const clippyEl = agent._el[0];
+        const balloonEl = agent._balloon._balloon[0];
+        applyBusyCursor(clippyEl);
+        applyBusyCursor(balloonEl);
+
+        const originalCallback = options?.callback;
+        const newOptions = {
+          ...options,
+          callback: () => {
+            if (originalCallback) {
+              originalCallback();
+            }
+            agent.isSpeaking = false;
+            clearBusyCursor(clippyEl);
+            clearBusyCursor(balloonEl);
+          },
+        };
+        return originalSpeakAndAnimate.call(this, text, animation, newOptions);
+      };
+
+      agent.speakAndAnimate(
+        "Hey, there. Want quick answers to your questions? Just click me.",
+        "Explain",
+        { useTTS: ttsEnabled },
+      );
+
+      agent._el.on("click", (e) => {
+        if (contextMenuOpened) {
+          contextMenuOpened = false;
+          return;
+        }
+        if (agent.isSpeaking) return;
+        // Also check if a context menu is open
+        if (document.querySelector(".menu-popup")) return;
+        showClippyInputBalloon();
+      });
+
+      agent._el.on("contextmenu", function (e) {
+        if (agent.isSpeaking) return;
+        e.preventDefault();
+        contextMenuOpened = true;
+        showClippyContextMenu(e, appInstance);
+      });
+    });
+  };
+
   if (window.clippyAgent) {
-    // Gracefully hide and remove the current agent before loading a new one
-    window.clippyAgent.hide(() => {
+    const agent = window.clippyAgent;
+    agent.hide(() => {
       $(".clippy, .clippy-balloon").remove();
+      window.clippyAgent = null;
+      loadNewAgent();
     });
   } else {
     $(".clippy, .clippy-balloon").remove();
+    loadNewAgent();
   }
-
-  // Ensure the menu is removed if it exists
-  const existingMenus = document.querySelectorAll(".menu-popup");
-  existingMenus.forEach((menu) => menu.remove());
-
-  clippy.load(agentName, function (agent) {
-    window.clippyAgent = agent;
-
-    const ttsUserPref = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
-    agent.setTTSEnabled(ttsUserPref);
-
-    agent.show();
-
-    let contextMenuOpened = false;
-
-    const ttsEnabled = agent.isTTSEnabled();
-    if (ttsEnabled) {
-      const setDefaultVoice = () => {
-        const voices = agent.getTTSVoices();
-        if (voices.length > 0) {
-          // Improved voice selection logic
-          const englishVoices = voices.filter((v) => v.lang.startsWith("en"));
-
-          // Prioritize male-sounding voices by name patterns
-          let defaultVoice = englishVoices.find(
-            (v) =>
-              v.name.toLowerCase().includes("male") ||
-              v.name.toLowerCase().includes("david") ||
-              v.name.toLowerCase().includes("alex") ||
-              v.name.toLowerCase().includes("fred") ||
-              v.name.toLowerCase().includes("daniel") ||
-              v.name.toLowerCase().includes("george") ||
-              v.name.toLowerCase().includes("paul") ||
-              v.name.toLowerCase().includes("tom") ||
-              v.name.toLowerCase().includes("mark") ||
-              v.name.toLowerCase().includes("james") ||
-              v.name.toLowerCase().includes("michael"),
-          );
-
-          // If no male voice found, prefer voices that are NOT obviously female
-          if (!defaultVoice) {
-            const femaleNames = [
-              "zira",
-              "hazel",
-              "samantha",
-              "susan",
-              "karen",
-              "sara",
-              "emma",
-              "lucy",
-              "anna",
-            ];
-            const nonFemaleVoices = englishVoices.filter(
-              (v) =>
-                !femaleNames.some((name) =>
-                  v.name.toLowerCase().includes(name),
-                ) && !v.name.toLowerCase().includes("female"),
-            );
-
-            if (nonFemaleVoices.length > 0) {
-              defaultVoice = nonFemaleVoices[0]; // Take first non-female voice
-            } else {
-              defaultVoice = englishVoices[0]; // Fallback to any English voice
-            }
-          }
-
-          agent.setTTSOptions({
-            voice: defaultVoice,
-            rate: 0.9,
-            pitch: 0.9,
-            volume: 0.8,
-          });
-        }
-      };
-      if (window.speechSynthesis.getVoices().length) {
-        setDefaultVoice();
-      } else {
-        window.speechSynthesis.addEventListener(
-          "voiceschanged",
-          setDefaultVoice,
-          { once: true },
-        );
-      }
-    }
-
-    agent.isSpeaking = false; // Initial state
-
-    // Wrap the original speakAndAnimate function
-    const originalSpeakAndAnimate = agent.speakAndAnimate;
-    agent.speakAndAnimate = function (text, animation, options) {
-      agent.isSpeaking = true;
-
-      const clippyEl = agent._el[0];
-      const balloonEl = agent._balloon._balloon[0];
-      applyBusyCursor(clippyEl);
-      applyBusyCursor(balloonEl);
-
-      const originalCallback = options?.callback;
-      const newOptions = {
-        ...options,
-        callback: () => {
-          if (originalCallback) {
-            originalCallback();
-          }
-          agent.isSpeaking = false;
-          clearBusyCursor(clippyEl);
-          clearBusyCursor(balloonEl);
-        },
-      };
-      return originalSpeakAndAnimate.call(this, text, animation, newOptions);
-    };
-
-    agent.speakAndAnimate(
-      "Hey, there. Want quick answers to your questions? Just click me.",
-      "Explain",
-      { useTTS: ttsEnabled },
-    );
-
-    agent._el.on("click", (e) => {
-      if (contextMenuOpened) {
-        contextMenuOpened = false;
-        return;
-      }
-      if (agent.isSpeaking) return;
-      // Also check if a context menu is open
-      if (document.querySelector(".menu-popup")) return;
-      showClippyInputBalloon();
-    });
-
-    agent._el.on("contextmenu", function (e) {
-      if (agent.isSpeaking) return;
-      e.preventDefault();
-      contextMenuOpened = true;
-      showClippyContextMenu(e, appInstance);
-    });
-  });
 }
 
 function startTutorial(agent) {
