@@ -733,6 +733,9 @@ function MenuBar(menus) {
 
 
 					open_submenu = (highlight_first = true) => {
+						if (typeof window.playSound === 'function') {
+							window.playSound('MenuPopup');
+						}
 						if (submenu_popup_el.style.display !== "none") {
 							return;
 						}
@@ -878,6 +881,9 @@ function MenuBar(menus) {
 					just_activated = true;
 					setTimeout(() => { just_activated = false; }, 10);
 
+					if (typeof window.playSound === 'function') {
+						window.playSound('MenuCommand');
+					}
 					if (item.checkbox) {
 						if (item.checkbox.toggle) {
 							item.checkbox.toggle();
@@ -1024,6 +1030,9 @@ function MenuBar(menus) {
 			}
 		});
 		function open_top_level_menu(type = "other") {
+			if (typeof window.playSound === 'function') {
+				window.playSound('MenuPopup');
+			}
 
 			const new_index = Object.keys(menus).indexOf(menus_key);
 			if (new_index === top_level_menu_index && menu_button_el.getAttribute("aria-expanded") === "true") {
