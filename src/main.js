@@ -12,6 +12,7 @@ import desktopConfig from "./config/desktop.json";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
+import { setTheme } from "./utils/themeManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -156,6 +157,7 @@ async function initializeOS() {
 
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
+  window.setTheme = setTheme;
   console.log("azOS initialized");
 
   playSound("WindowsLogon");
