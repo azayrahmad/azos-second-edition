@@ -27,7 +27,18 @@
         this.parentMenuPopup = options.parentMenuPopup;
         this.getDirection = options.getDirection || (() => "ltr");
         this.sendInfoEvent = options.sendInfoEvent || (() => {});
-        this.closeMenus = options.closeMenus || (() => {});
+        this.closeMenus = options.closeMenus || (() => {
+            // This default implementation is for context menus, so they can close themselves.
+            let menu = this;
+            while (menu.parentMenuPopup) {
+                menu = menu.parentMenuPopup;
+            }
+            menu.close(false); // hide all menus in tree
+            // and remove the root menu from the DOM
+            if (menu.element.parentElement) {
+                menu.element.parentElement.removeChild(menu.element);
+            }
+        });
         this.refocusOutsideMenus = options.refocusOutsideMenus || (() => {});
 
         this.menuItems = menu_items;
@@ -63,6 +74,17 @@
 
         menu_popup_el.addEventListener("focusin", () => {
             menu_popup_el.focus({ preventScroll: true });
+        });
+
+        menu_popup_el.addEventListener("focusout", (e) => {
+            // If focus moves to something that is not a menu popup, close.
+            // e.relatedTarget can be null if the window loses focus.
+            if (
+                !e.relatedTarget ||
+                (!e.relatedTarget.closest(".menu-popup") && !e.relatedTarget.closest(".menu-button"))
+            ) {
+                this.closeMenus();
+            }
         });
     }
 
@@ -100,6 +122,7 @@
         if (window.active_menu_popup === this) {
             window.active_menu_popup = this.parentMenuPopup;
         }
+        this.element.dispatchEvent(new CustomEvent("close", { bubbles: true }));
     };
 
     MenuPopup.prototype.buildMenu = function(parent_element) {

@@ -115,17 +115,7 @@ function showIconContextMenu(event, app) {
   menu.element.style.top = `${event.pageY}px`;
   menu.show();
 
-  const closeMenu = (e) => {
-    if (!menu.element.contains(e.target)) {
-      menu.hide();
-      if (menu.element.parentNode) {
-        document.body.removeChild(menu.element);
-      }
-      document.removeEventListener("click", closeMenu);
-    }
-  };
-
-  document.addEventListener("click", closeMenu);
+  // The menu now handles its own closing logic.
 }
 
 function setWallpaper() {
@@ -304,24 +294,18 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     }
   };
 
-  // Consolidate event handlers for state changes that affect the menu
   const handleThemeChange = updateActiveSubmenu;
   const handleWallpaperChange = updateActiveSubmenu;
 
-  const closeMenu = (e) => {
-    if (!menu.element.contains(e.target) && !e.target.closest(".menu-popup")) {
-      menu.closeAll();
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("theme-changed", handleThemeChange); // Clean up listener
-      document.removeEventListener("wallpaper-changed", handleWallpaperChange);
-    }
+  const onCleanup = () => {
+    document.removeEventListener("theme-changed", handleThemeChange);
+    document.removeEventListener("wallpaper-changed", handleWallpaperChange);
+    menu.element.removeEventListener("close", onCleanup);
   };
 
-  setTimeout(() => {
-    document.addEventListener("click", closeMenu);
-    document.addEventListener("theme-changed", handleThemeChange);
-    document.addEventListener("wallpaper-changed", handleWallpaperChange);
-  }, 0);
+  document.addEventListener("theme-changed", handleThemeChange);
+  document.addEventListener("wallpaper-changed", handleWallpaperChange);
+  menu.element.addEventListener("close", onCleanup);
 }
 
 function showProperties(app) {
