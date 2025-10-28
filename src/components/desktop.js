@@ -179,7 +179,7 @@ function applyWallpaper() {
     desktop.style.backgroundColor = ""; // Remove solid color
   } else {
     desktop.style.backgroundImage = "";
-    desktop.style.backgroundColor = "var(--desktop-bg)"; // Restore solid color
+    desktop.style.backgroundColor = "var(--Background)"; // Restore solid color
   }
 }
 
