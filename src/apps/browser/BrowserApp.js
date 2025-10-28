@@ -111,7 +111,8 @@ export class BrowserApp extends Application {
             url = 'http://' + url;
         }
 
-        this.iframe.src = url;
+        const waybackUrl = `https://web.archive.org/web/19980101000000*/${url}`;
+        this.iframe.src = waybackUrl;
         this.addressBar.value = url;
 
         if (this.history[this.historyIndex] !== url) {
@@ -150,7 +151,11 @@ export class BrowserApp extends Application {
     }
 
     reloadPage() {
-        this.iframe.src = this.iframe.src;
+        const url = this.history[this.historyIndex];
+        if (url) {
+            const waybackUrl = `https://web.archive.org/web/19980101000000*/${url}`;
+            this.iframe.src = waybackUrl;
+        }
     }
 
     copySelection() {
