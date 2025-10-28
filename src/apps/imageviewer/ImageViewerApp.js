@@ -1,4 +1,5 @@
 import { Application } from '../Application.js';
+import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import './imageviewer.css';
 
 export class ImageViewerApp extends Application {
@@ -36,6 +37,10 @@ export class ImageViewerApp extends Application {
                     label: "&Open...",
                     action: () => this.openFile(),
                 },
+                {
+                    label: "&Save",
+                    action: () => this.saveFile(),
+                },
                 "MENU_DIVIDER",
                 {
                     label: "E&xit",
@@ -57,6 +62,12 @@ export class ImageViewerApp extends Application {
                     label: "&Reset Zoom",
                     shortcutLabel: "Ctrl+0",
                     action: () => this.resetZoom(),
+                },
+            ],
+            "&Edit": [
+                {
+                    label: "&Resize...",
+                    action: () => this.showResizeDialog(),
                 },
             ],
             "&Help": [
@@ -102,6 +113,20 @@ export class ImageViewerApp extends Application {
             }
         };
         input.click();
+    }
+
+    saveFile() {
+        if (!this.img || !this.img.src) {
+            alert("There is no image to save.");
+            return;
+        }
+
+        const link = document.createElement('a');
+        link.href = this.img.src;
+        link.download = this.file ? `resized-${this.file.name}` : 'resized-image.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     _adjustWindowSize(img) {
@@ -160,5 +185,102 @@ export class ImageViewerApp extends Application {
             this.img.style.maxWidth = this.zoomLevel === 1 ? '100%' : 'none';
             this.img.style.maxHeight = this.zoomLevel === 1 ? '100%' : 'none';
         }
+    }
+
+    showResizeDialog() {
+        if (!this.img || !this.img.src) {
+            alert("Please open an image first.");
+            return;
+        }
+
+        const originalWidth = this.img.naturalWidth;
+        const originalHeight = this.img.naturalHeight;
+
+        const dialogContent = `
+            <div class="resize-controls">
+                <div class="field-row-stacked">
+                    <label for="widthInput">Width (px):</label>
+                    <input type="number" id="widthInput" min="1" value="${originalWidth}">
+                </div>
+                <div class="field-row-stacked">
+                    <label for="heightInput">Height (px):</label>
+                    <input type="number" id="heightInput" min="1" value="${originalHeight}">
+                </div>
+                <div class="field-row" style="margin-top: 10px;">
+                    <input type="checkbox" id="aspectRatio" checked>
+                    <label for="aspectRatio">Keep Aspect Ratio</label>
+                </div>
+            </div>
+        `;
+
+        const dialog = ShowDialogWindow({
+            title: "Resize Image",
+            text: dialogContent,
+            modal: true,
+            buttons: [
+                {
+                    label: "Resize",
+                    action: (win) => {
+                        const widthInput = win.$content.find('#widthInput')[0];
+                        const heightInput = win.$content.find('#heightInput')[0];
+                        const newWidth = parseInt(widthInput.value, 10);
+                        const newHeight = parseInt(heightInput.value, 10);
+                        this.resizeImage(newWidth, newHeight);
+                    },
+                    isDefault: true,
+                },
+                {
+                    label: "Cancel",
+                    action: () => { },
+                }
+            ]
+        });
+
+        // Add aspect ratio logic
+        const widthInput = dialog.$content.find('#widthInput')[0];
+        const heightInput = dialog.$content.find('#heightInput')[0];
+        const aspectRatioCheckbox = dialog.$content.find('#aspectRatio')[0];
+        let isUpdatingDimensions = false;
+
+        const updateDimensions = (event) => {
+            if (isUpdatingDimensions || !aspectRatioCheckbox.checked) return;
+
+            isUpdatingDimensions = true;
+            const ratio = originalHeight / originalWidth;
+            if (event.target === widthInput) {
+                heightInput.value = Math.round(widthInput.value * ratio);
+            } else {
+                widthInput.value = Math.round(heightInput.value / ratio);
+            }
+            isUpdatingDimensions = false;
+        };
+
+        widthInput.addEventListener('input', updateDimensions);
+        heightInput.addEventListener('input', updateDimensions);
+    }
+
+    resizeImage(width, height) {
+        if (!this.img || !this.img.src || !width || !height) {
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        // Draw the resized image onto the canvas
+        ctx.drawImage(this.img, 0, 0, width, height);
+
+        // Get the new image as a data URL
+        const dataUrl = canvas.toDataURL(); // Defaults to PNG
+
+        // Update the image source
+        this.img.src = dataUrl;
+        this.img.onload = () => {
+            // Reset zoom and adjust window after resize
+            this.resetZoom();
+            this._adjustWindowSize(this.img);
+        };
     }
 }
