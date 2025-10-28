@@ -151,6 +151,9 @@
          */
         attachItemEvents(itemEl, item) {
             const item_action = () => {
+                if (typeof window.playSound === 'function') {
+                    window.playSound('MenuCommand');
+                }
                 if (item.checkbox) {
                     if (item.checkbox.toggle) {
                         item.checkbox.toggle();
@@ -169,6 +172,9 @@
             if (item.click) {
                 itemEl.addEventListener('click', (e) => {
                     if (!this.isDisabled(item)) {
+                        if (typeof window.playSound === 'function') {
+                            window.playSound('MenuCommand');
+                        }
                         item.click(e);
                         // Only close if it's not a checkbox.
                         if (!item.checkbox) {
@@ -310,6 +316,9 @@
          * @param {number} [y]
          */
         show(x, y) {
+            if (typeof window.playSound === 'function') {
+                window.playSound('MenuPopup');
+            }
             this.element.style.display = 'block';
 
             // Force a reflow to ensure the element is rendered and has dimensions
