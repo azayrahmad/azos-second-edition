@@ -258,15 +258,13 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       label: "Theme",
       submenu: [
         {
-          radioItems: Object.keys(themes).map((themeKey) => ({
-            label: themes[themeKey],
-            value: themeKey,
+          radioItems: Object.values(themes).map(theme => ({
+            label: theme.name,
+            value: theme.id,
           })),
           getValue: () => getCurrentTheme(),
           setValue: (value) => {
             setTheme(value);
-            applyWallpaper();
-            document.dispatchEvent(new CustomEvent("theme-changed"));
           },
           ariaLabel: "Desktop Theme",
         },

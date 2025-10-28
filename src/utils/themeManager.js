@@ -1,19 +1,8 @@
 import { getItem, setItem, removeItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
-import { THEME_WALLPAPERS } from "../config/wallpapers.js";
+import { themes } from "../config/themes.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "./aniCursor.js";
-
-const themes = {
-    default: 'Default',
-    'peggys-pastels': "Peggy's Pastels",
-    blue: 'Blue',
-    '60s-usa': '60s USA',
-    'dangerous-creatures': 'Dangerous Creatures',
-    'memphis-milano': 'Memphis Milano',
-    'inside-your-computer': 'Inside Your Computer',
-};
-
-const themeIds = Object.keys(themes).filter(key => key !== 'default').map(key => `${key}-theme`);
+import { applyCursor } from './cursorManager.js';
 
 export function getThemes() {
     return themes;
@@ -23,21 +12,21 @@ export function getCurrentTheme() {
     return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || 'default';
 }
 
-import { applyCursor } from './cursorManager.js';
-
 export function applyTheme() {
-    applyCursor(getCurrentTheme());
-    const savedTheme = getCurrentTheme();
+    const savedThemeKey = getCurrentTheme();
+    applyCursor(savedThemeKey);
 
-    themeIds.forEach(id => {
-        const stylesheet = document.getElementById(id);
+    Object.values(themes).forEach(theme => {
+        if (theme.id === 'default') return;
+
+        const stylesheet = document.getElementById(`${theme.id}-theme`);
         if (stylesheet) {
-            stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
+            stylesheet.disabled = (theme.id !== savedThemeKey);
         }
     });
 }
 
-export function setTheme(theme) {
+export function setTheme(themeKey) {
     applyBusyCursor(document.body);
     const dialog = ShowDialogWindow({
         title: 'Theme',
@@ -47,12 +36,12 @@ export function setTheme(theme) {
     });
 
     setTimeout(() => {
-        setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, theme);
+        setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
         applyTheme();
 
-        const wallpaper = THEME_WALLPAPERS[theme];
-        if (wallpaper) {
-            setItem(LOCAL_STORAGE_KEYS.WALLPAPER, wallpaper);
+        const theme = themes[themeKey];
+        if (theme && theme.wallpaper) {
+            setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
         } else {
             removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
         }
