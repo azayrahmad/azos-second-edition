@@ -1,0 +1,49 @@
+.browser-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    border-bottom: 1px solid var(--border-light);
+    background-color: var(--button-face);
+    box-shadow: inset 0 -1px 0 var(--border-dark);
+}
+
+.address-bar-container {
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+}
+
+.address-bar, .address-bar-dropdown {
+    font-family: 'Pixelated MS Sans Serif', 'Fixedsys Excelsior 3.01', 'MS Sans Serif';
+    font-size: 11px;
+    padding: 3px;
+    border: 1px solid var(--border-dark);
+    box-shadow: inset 1px 1px 0 var(--border-light);
+    background-color: var(--background-color, white);
+    color: var(--text-color, black);
+    flex-grow: 1;
+}
+
+.address-bar {
+    width: 300px;
+}
+
+.address-bar-dropdown {
+    width: 300px;
+}
+
+.iframe-container {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    padding: 1px;
+    border: 1px solid var(--border-dark);
+    box-shadow: inset 1px 1px 0 var(--border-light);
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: white;
+}
