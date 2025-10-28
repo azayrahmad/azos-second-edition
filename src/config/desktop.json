@@ -8,7 +8,8 @@
     "clippy",
     "webamp",
     "alertTest",
-    "appmaker"
+    "appmaker",
+    "browser"
   ],
   "files": [
     {
