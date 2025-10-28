@@ -343,12 +343,21 @@ export function setupIcons(options) {
 
   const placeIcon = (icon, iconId) => {
     if (iconPositions[iconId]) {
-      icon.style.position = "absolute";
-      icon.style.left = iconPositions[iconId].x;
-      icon.style.top = iconPositions[iconId].y;
+        icon.style.position = 'absolute';
+        icon.style.left = iconPositions[iconId].x;
+        icon.style.top = iconPositions[iconId].y;
+    } else if (desktop.classList.contains('has-absolute-icons')) {
+        // If we're in manual mode but this icon has no position, find one for it.
+        const { x, y } = findNextOpenPosition(desktop, iconPositions);
+        icon.style.position = 'absolute';
+        icon.style.left = `${x}px`;
+        icon.style.top = `${y}px`;
+        // And save it for consistency
+        iconPositions[iconId] = { x: `${x}px`, y: `${y}px` };
+        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
     desktop.appendChild(icon);
-  };
+};
 
   // Load apps
   const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
@@ -371,6 +380,42 @@ export function setupIcons(options) {
       placeIcon(icon, iconId);
     }
   });
+}
+
+function findNextOpenPosition(desktop, iconPositions) {
+    const desktopRect = desktop.getBoundingClientRect();
+    const iconWidth = 75; // Average icon width
+    const iconHeight = 75; // Average icon height
+    const paddingTop = 5;
+    const paddingLeft = 5;
+
+    const cols = Math.floor((desktopRect.width - paddingLeft) / iconWidth);
+    const rows = Math.floor((desktopRect.height - paddingTop) / iconHeight);
+
+    const occupiedSlots = new Set();
+    Object.values(iconPositions).forEach(pos => {
+        const x = parseInt(pos.x, 10);
+        const y = parseInt(pos.y, 10);
+        if (!isNaN(x) && !isNaN(y)) {
+            const col = Math.round((x - paddingLeft) / iconWidth);
+            const row = Math.round((y - paddingTop) / iconHeight);
+            occupiedSlots.add(`${col},${row}`);
+        }
+    });
+
+    for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+            if (!occupiedSlots.has(`${c},${r}`)) {
+                return {
+                    x: paddingLeft + c * iconWidth,
+                    y: paddingTop + r * iconHeight,
+                };
+            }
+        }
+    }
+
+    // Fallback if no slot is found (e.g., desktop is full)
+    return { x: paddingLeft, y: paddingTop };
 }
 
 function configureIcon(
