@@ -1,8 +1,13 @@
-import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
-import { applyBusyCursor, clearBusyCursor } from '../../utils/aniCursor.js';
+import {
+  getItem,
+  setItem,
+  LOCAL_STORAGE_KEYS,
+} from "../../utils/localStorage.js";
+import { applyBusyCursor, clearBusyCursor } from "../../utils/aniCursor.js";
 
 window.clippyAppInstance = null;
-let currentAgentName = getItem(LOCAL_STORAGE_KEYS.CLIPPY_AGENT_NAME) || "Clippy";
+let currentAgentName =
+  getItem(LOCAL_STORAGE_KEYS.CLIPPY_AGENT_NAME) || "Clippy";
 let inputBalloonTimeout = null;
 
 function setCurrentAgentName(name) {
@@ -85,19 +90,29 @@ async function askClippy(agent, question) {
   if (!question || question.trim().length === 0) return;
 
   const ttsEnabled = agent.isTTSEnabled();
-  agent.speakAndAnimate("Let me think about it...", "Thinking", { useTTS: ttsEnabled });
+  agent.speakAndAnimate("Let me think about it...", "Thinking", {
+    useTTS: ttsEnabled,
+  });
 
   try {
     const encodedQuestion = encodeURIComponent(question.trim());
-    const response = await fetch(`https://resume-chat-api-nine.vercel.app/api/clippy-helper?query=${encodedQuestion}`);
+    const response = await fetch(
+      `https://resume-chat-api-nine.vercel.app/api/clippy-helper?query=${encodedQuestion}`,
+    );
     const data = await response.json();
 
     for (const fragment of data) {
       const cleanAnswer = fragment.answer.replace(/\*\*/g, "");
-      await agent.speakAndAnimate(cleanAnswer, fragment.animation, { useTTS: ttsEnabled });
+      await agent.speakAndAnimate(cleanAnswer, fragment.animation, {
+        useTTS: ttsEnabled,
+      });
     }
   } catch (error) {
-    agent.speakAndAnimate("Sorry, I couldn't get an answer for that at this time!", "Wave", { useTTS: ttsEnabled });
+    agent.speakAndAnimate(
+      "Sorry, I couldn't get an answer for that at this time!",
+      "Wave",
+      { useTTS: ttsEnabled },
+    );
     console.error("API Error:", error);
   }
 }
@@ -133,7 +148,8 @@ export function getClippyMenuItems(app) {
       checkbox: {
         check: () => getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true,
         toggle: () => {
-          const currentState = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+          const currentState =
+            getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
           const newState = !currentState;
           setItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED, newState);
           if (agent) agent.setTTSEnabled(newState);
@@ -145,7 +161,7 @@ export function getClippyMenuItems(app) {
       label: "A&gent",
       submenu: [
         {
-          radioItems: AGENT_NAMES.map(name => ({ label: name, value: name })),
+          radioItems: AGENT_NAMES.map((name) => ({ label: name, value: name })),
           getValue: () => currentAgentName,
           setValue: (value) => {
             if (currentAgentName !== value) {
@@ -171,8 +187,8 @@ export function getClippyMenuItems(app) {
                   appInstance.close();
                 }
               });
-            }
-          }
+            },
+          },
         );
       },
     },
@@ -185,12 +201,12 @@ export function showClippyContextMenu(event, app) {
   existingMenus.forEach((menu) => menu.remove());
 
   const menuItems = getClippyMenuItems(app);
-  const menu = new MenuList(menuItems, { defaultLabel: 'Ask Clippy' });
+  const menu = new MenuList(menuItems, { defaultLabel: "Ask Clippy" });
   document.body.appendChild(menu.element);
 
-  // Set z-index if Win98System is available
-  if (window.Win98System) {
-    menu.element.style.zIndex = window.Win98System.incrementZIndex();
+  // Set z-index if System is available
+  if (window.System) {
+    menu.element.style.zIndex = window.System.incrementZIndex();
   }
 
   // Position and show the menu
@@ -251,29 +267,42 @@ export function launchClippyApp(app, agentName = currentAgentName) {
         const voices = agent.getTTSVoices();
         if (voices.length > 0) {
           // Improved voice selection logic
-          const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+          const englishVoices = voices.filter((v) => v.lang.startsWith("en"));
 
           // Prioritize male-sounding voices by name patterns
-          let defaultVoice = englishVoices.find(v =>
-            v.name.toLowerCase().includes('male') ||
-            v.name.toLowerCase().includes('david') ||
-            v.name.toLowerCase().includes('alex') ||
-            v.name.toLowerCase().includes('fred') ||
-            v.name.toLowerCase().includes('daniel') ||
-            v.name.toLowerCase().includes('george') ||
-            v.name.toLowerCase().includes('paul') ||
-            v.name.toLowerCase().includes('tom') ||
-            v.name.toLowerCase().includes('mark') ||
-            v.name.toLowerCase().includes('james') ||
-            v.name.toLowerCase().includes('michael')
+          let defaultVoice = englishVoices.find(
+            (v) =>
+              v.name.toLowerCase().includes("male") ||
+              v.name.toLowerCase().includes("david") ||
+              v.name.toLowerCase().includes("alex") ||
+              v.name.toLowerCase().includes("fred") ||
+              v.name.toLowerCase().includes("daniel") ||
+              v.name.toLowerCase().includes("george") ||
+              v.name.toLowerCase().includes("paul") ||
+              v.name.toLowerCase().includes("tom") ||
+              v.name.toLowerCase().includes("mark") ||
+              v.name.toLowerCase().includes("james") ||
+              v.name.toLowerCase().includes("michael"),
           );
 
           // If no male voice found, prefer voices that are NOT obviously female
           if (!defaultVoice) {
-            const femaleNames = ['zira', 'hazel', 'samantha', 'susan', 'karen', 'sara', 'emma', 'lucy', 'anna'];
-            const nonFemaleVoices = englishVoices.filter(v =>
-              !femaleNames.some(name => v.name.toLowerCase().includes(name)) &&
-              !v.name.toLowerCase().includes('female')
+            const femaleNames = [
+              "zira",
+              "hazel",
+              "samantha",
+              "susan",
+              "karen",
+              "sara",
+              "emma",
+              "lucy",
+              "anna",
+            ];
+            const nonFemaleVoices = englishVoices.filter(
+              (v) =>
+                !femaleNames.some((name) =>
+                  v.name.toLowerCase().includes(name),
+                ) && !v.name.toLowerCase().includes("female"),
             );
 
             if (nonFemaleVoices.length > 0) {
@@ -283,13 +312,22 @@ export function launchClippyApp(app, agentName = currentAgentName) {
             }
           }
 
-          agent.setTTSOptions({ voice: defaultVoice, rate: 0.9, pitch: 0.9, volume: 0.8 });
+          agent.setTTSOptions({
+            voice: defaultVoice,
+            rate: 0.9,
+            pitch: 0.9,
+            volume: 0.8,
+          });
         }
       };
       if (window.speechSynthesis.getVoices().length) {
         setDefaultVoice();
       } else {
-        window.speechSynthesis.addEventListener('voiceschanged', setDefaultVoice, { once: true });
+        window.speechSynthesis.addEventListener(
+          "voiceschanged",
+          setDefaultVoice,
+          { once: true },
+        );
       }
     }
 
@@ -323,7 +361,7 @@ export function launchClippyApp(app, agentName = currentAgentName) {
     agent.speakAndAnimate(
       "Hey, there. Want quick answers to your questions? Just click me.",
       "Explain",
-      { useTTS: ttsEnabled }
+      { useTTS: ttsEnabled },
     );
 
     agent._el.on("click", (e) => {
@@ -333,7 +371,7 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       }
       if (agent.isSpeaking) return;
       // Also check if a context menu is open
-      if (document.querySelector('.menu-popup')) return;
+      if (document.querySelector(".menu-popup")) return;
       showClippyInputBalloon();
     });
 
@@ -375,44 +413,61 @@ function startTutorial(agent) {
     agent.play(animation, 3000, callback);
   };
 
-  const appMakerIcon = getElementTopLeft('.desktop-icon[data-app-id="appmaker"]');
+  const appMakerIcon = getElementTopLeft(
+    '.desktop-icon[data-app-id="appmaker"]',
+  );
   const notepadIcon = getElementTopLeft('.desktop-icon[data-app-id="notepad"]');
-  const assistantIcon = getElementTopLeft('.desktop-icon[data-app-id="clippy"]');
-  const startButton = getElementCenter('.start-button');
+  const assistantIcon = getElementTopLeft(
+    '.desktop-icon[data-app-id="clippy"]',
+  );
+  const startButton = getElementCenter(".start-button");
   const iconsArea = { x: 40, y: 100 };
 
   const sequence = [];
 
   // 1. Welcome
-  sequence.push(
-    (done) => agent.speakAndAnimate("Hi! I'm your assistant. Let me give you a quick tour of azOS.", "Explain", { useTTS: ttsEnabled, callback: done })
+  sequence.push((done) =>
+    agent.speakAndAnimate(
+      "Hi! I'm your assistant. Let me give you a quick tour of azOS.",
+      "Explain",
+      { useTTS: ttsEnabled, callback: done },
+    ),
   );
 
   // 2. Desktop Icons
-  sequence.push(
-    (done) => agent._el.animate({ top: iconsArea.y, left: iconsArea.x + 100 }, 1500, done)
+  sequence.push((done) =>
+    agent._el.animate(
+      { top: iconsArea.y, left: iconsArea.x + 100 },
+      1500,
+      done,
+    ),
   );
-  sequence.push(
-    (done) => playGesture(iconsArea.x, iconsArea.y, done)
+  sequence.push((done) => playGesture(iconsArea.x, iconsArea.y, done));
+  sequence.push((done) =>
+    agent.speakAndAnimate(
+      "On the left, you'll find desktop icons. Double-click them to launch apps.",
+      "Explain",
+      { useTTS: ttsEnabled, callback: done },
+    ),
   );
-  sequence.push(
-    (done) => agent.speakAndAnimate("On the left, you'll find desktop icons. Double-click them to launch apps.", "Explain", { useTTS: ttsEnabled, callback: done })
-  );
-
 
   // 3. Start Menu
   if (startButton) {
-    sequence.push(
-      (done) => agent._el.animate({ top: startButton.y - 80, left: startButton.x + 80 }, 1500, done)
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: startButton.y - 80, left: startButton.x + 80 },
+        1500,
+        done,
+      ),
     );
-    sequence.push(
-      (done) => playGesture(startButton.x, startButton.y, () => {
-        const startButtonEl = document.querySelector('.start-button');
+    sequence.push((done) =>
+      playGesture(startButton.x, startButton.y, () => {
+        const startButtonEl = document.querySelector(".start-button");
         if (startButtonEl) {
-          startButtonEl.classList.add('active');
+          startButtonEl.classList.add("active");
           setTimeout(() => {
             startButtonEl.click();
-            startButtonEl.classList.remove('active');
+            startButtonEl.classList.remove("active");
             setTimeout(() => {
               // Close the menu by clicking the button again
               startButtonEl.click();
@@ -422,21 +477,31 @@ function startTutorial(agent) {
         } else {
           done();
         }
-      })
+      }),
     );
-    sequence.push(
-      (done) => agent.speakAndAnimate("The Start button gives you access to all your programs.", "Explain", { useTTS: ttsEnabled, callback: done })
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "The Start button gives you access to all your programs.",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
     );
   }
 
   // 4. App Maker
   if (appMakerIcon) {
-    const appMakerIconEl = document.querySelector('.desktop-icon[data-app-id="appmaker"]');
-    sequence.push(
-      (done) => agent._el.animate({ top: appMakerIcon.y, left: appMakerIcon.x + 80 }, 1500, done)
+    const appMakerIconEl = document.querySelector(
+      '.desktop-icon[data-app-id="appmaker"]',
     );
-    sequence.push(
-      (done) => playGesture(appMakerIcon.x, appMakerIcon.y, () => {
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: appMakerIcon.y, left: appMakerIcon.x + 80 },
+        1500,
+        done,
+      ),
+    );
+    sequence.push((done) =>
+      playGesture(appMakerIcon.x, appMakerIcon.y, () => {
         if (appMakerIconEl) {
           const iconImg = appMakerIconEl.querySelector(".icon img");
           const iconLabel = appMakerIconEl.querySelector(".icon-label");
@@ -446,58 +511,82 @@ function startTutorial(agent) {
           }
         }
         setTimeout(done, 500);
-      })
+      }),
     );
-    sequence.push(
-      (done) => agent.speakAndAnimate("With App Maker, you can create your own applications!", "Explain", { useTTS: ttsEnabled, callback: done })
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "With App Maker, you can create your own applications!",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
     );
-    sequence.push(
-      (done) => {
-        if (appMakerIconEl) {
-          const iconImg = appMakerIconEl.querySelector(".icon img");
-          const iconLabel = appMakerIconEl.querySelector(".icon-label");
-          if (iconImg) iconImg.classList.remove("highlighted-icon");
-          if (iconLabel) {
-            iconLabel.classList.remove("highlighted-label", "selected");
-          }
+    sequence.push((done) => {
+      if (appMakerIconEl) {
+        const iconImg = appMakerIconEl.querySelector(".icon img");
+        const iconLabel = appMakerIconEl.querySelector(".icon-label");
+        if (iconImg) iconImg.classList.remove("highlighted-icon");
+        if (iconLabel) {
+          iconLabel.classList.remove("highlighted-label", "selected");
         }
-        done();
       }
-    );
+      done();
+    });
   }
 
   // 5. Notepad
   if (notepadIcon) {
-    sequence.push(
-      (done) => agent._el.animate({ top: notepadIcon.y, left: notepadIcon.x + 80 }, 1500, done)
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: notepadIcon.y, left: notepadIcon.x + 80 },
+        1500,
+        done,
+      ),
     );
-    sequence.push(
-      (done) => playGesture(notepadIcon.x, notepadIcon.y, done)
-    );
-    sequence.push(
-      (done) => agent.speakAndAnimate("Notepad is a simple text editor for notes and code.", "Explain", { useTTS: ttsEnabled, callback: done })
+    sequence.push((done) => playGesture(notepadIcon.x, notepadIcon.y, done));
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "Notepad is a simple text editor for notes and code.",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
     );
   }
 
   // 6. Assistant
   if (assistantIcon) {
-    sequence.push(
-      (done) => agent._el.animate({ top: assistantIcon.y, left: assistantIcon.x + 80 }, 1500, done)
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: assistantIcon.y, left: assistantIcon.x + 80 },
+        1500,
+        done,
+      ),
     );
-    sequence.push(
-      (done) => playGesture(assistantIcon.x, assistantIcon.y, done)
+    sequence.push((done) =>
+      playGesture(assistantIcon.x, assistantIcon.y, done),
     );
-    sequence.push(
-      (done) => agent.speakAndAnimate("And this is me! Right-click me for options or left-click to ask a question.", "Congratulate", { useTTS: ttsEnabled, callback: done })
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "And this is me! Right-click me for options or left-click to ask a question.",
+        "Congratulate",
+        { useTTS: ttsEnabled, callback: done },
+      ),
     );
   }
 
   // 7. Return home
-  sequence.push(
-    (done) => agent._el.animate({ top: initialPos.top, left: initialPos.left }, 2000, done)
+  sequence.push((done) =>
+    agent._el.animate(
+      { top: initialPos.top, left: initialPos.left },
+      2000,
+      done,
+    ),
   );
-  sequence.push(
-    (done) => agent.speakAndAnimate("That's the tour! Let me know if you need anything else.", "Wave", { useTTS: ttsEnabled, callback: done })
+  sequence.push((done) =>
+    agent.speakAndAnimate(
+      "That's the tour! Let me know if you need anything else.",
+      "Wave",
+      { useTTS: ttsEnabled, callback: done },
+    ),
   );
 
   // --- Sequence Executor ---

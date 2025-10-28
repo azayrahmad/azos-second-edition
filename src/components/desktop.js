@@ -258,7 +258,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       label: "Theme",
       submenu: [
         {
-          radioItems: Object.values(themes).map(theme => ({
+          radioItems: Object.values(themes).map((theme) => ({
             label: theme.name,
             value: theme.id,
           })),
@@ -582,7 +582,7 @@ function configureIcon(
 
 // Initialize desktop behavior
 export function initDesktop() {
-  console.log("Initializing Win98 Desktop Manager...");
+  console.log("Initializing Desktop Manager...");
   applyTheme();
   applyWallpaper();
   applyMonitorType();

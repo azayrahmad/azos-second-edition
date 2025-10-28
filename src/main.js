@@ -80,9 +80,7 @@ class WindowManagerSystem {
 }
 
 // Initialize the systems
-const system = new WindowManagerSystem();
-window.Win98System = system;
-window.Win98WindowManager = system; // Using same instance for both since they're closely related
+window.System = new WindowManagerSystem();
 
 async function initializeOS() {
   // Create and show the progress window using the $Window constructor

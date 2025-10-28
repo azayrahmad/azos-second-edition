@@ -9,7 +9,7 @@ import { ICONS } from "../config/icons.js";
 import { apps } from "../config/apps.js";
 import startMenuApps from "../config/startmenu.json";
 import { launchApp } from "../utils/appManager.js";
-import { playSound } from '../utils/soundManager.js';
+import { playSound } from "../utils/soundManager.js";
 
 // Constants
 const SELECTORS = {
@@ -273,31 +273,12 @@ class StartMenu {
   }
 
   /**
-   * Handle menu item clicks
-   */
-  handleMenuItemClick(event) {
-    try {
-      if (
-        typeof Win98AppManager !== "undefined" &&
-        Win98AppManager.createAndOpenApp
-      ) {
-        Win98AppManager.createAndOpenApp(event);
-      } else {
-        console.warn("Win98AppManager not available");
-      }
-      this.hide();
-    } catch (error) {
-      console.error("Failed to handle menu item click:", error);
-    }
-  }
-
-  /**
    * Handle shutdown action
    */
   handleShutdown() {
     console.log("Shutting down azOS...");
     if (confirm("Are you sure you want to shut down?")) {
-      playSound('SystemExit');
+      playSound("SystemExit");
       setTimeout(() => location.reload(), 500);
     }
     this.hide();
