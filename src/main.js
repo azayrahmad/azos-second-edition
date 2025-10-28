@@ -155,6 +155,7 @@ async function initializeOS() {
   progressWindow.close();
 
   window.ShowDialogWindow = ShowDialogWindow;
+  window.playSound = playSound;
   console.log("azOS initialized");
 
   playSound("WindowsLogon");

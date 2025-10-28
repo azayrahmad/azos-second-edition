@@ -674,6 +674,7 @@
 			}
 			if ($w.is(":visible")) {
 				if (minimize_target_el && !$w.hasClass("minimized-without-taskbar")) {
+					window.playSound?.("Minimize");
 					const before_rect = $w.$titlebar[0].getBoundingClientRect();
 					const after_rect = minimize_target_el.getBoundingClientRect();
 					$w.animateTitlebar(before_rect, after_rect, () => {
@@ -692,9 +693,11 @@
 					const spacing = 10;
 					if ($w.hasClass("minimized-without-taskbar")) {
 						// unminimizing
+						window.playSound?.("RestoreUp");
 						minimize_slots[$w._minimize_slot_index] = null;
 					} else {
 						// minimizing
+						window.playSound?.("Minimize");
 						let i = 0;
 						while (minimize_slots[i]) {
 							i++;
@@ -805,6 +808,7 @@
 				return;
 			}
 			if ($w.is(":hidden")) {
+				window.playSound?.("RestoreUp");
 				const before_rect = minimize_target_el.getBoundingClientRect();
 				$w.show();
 				const after_rect = $w.$titlebar[0].getBoundingClientRect();
@@ -830,6 +834,12 @@
 			if ($w.hasClass("minimized-without-taskbar")) {
 				$w.minimize();
 				return;
+			}
+
+			if ($w.hasClass("maximized")) {
+				window.playSound?.("RestoreDown");
+			} else {
+				window.playSound?.("Maximize");
 			}
 
 			const instantly_maximize = () => {
