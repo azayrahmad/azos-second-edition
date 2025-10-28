@@ -22,6 +22,9 @@ export function registerCustomApp(appInfo) {
         existingApp.title = appInfo.title;
         existingApp.width = appInfo.width || 400;
         existingApp.height = appInfo.height || 300;
+        if (appInfo.icon) {
+            existingApp.icon = { 16: appInfo.icon, 32: appInfo.icon };
+        }
         // Re-create the app class to capture the new HTML content in the closure
         existingApp.appClass = class CustomApp extends Application {
             constructor(config) {
@@ -66,7 +69,7 @@ export function registerCustomApp(appInfo) {
     const newApp = {
         id: appInfo.id,
         title: appInfo.title,
-        icon: ICONS.appmaker,
+        icon: appInfo.icon ? { 16: appInfo.icon, 32: appInfo.icon } : ICONS.appmaker,
         appClass: CustomApp,
         width: appInfo.width || 400,
         height: appInfo.height || 300,

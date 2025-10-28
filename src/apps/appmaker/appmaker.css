@@ -19,6 +19,22 @@
   margin-bottom: 10px;
 }
 
+.icon-input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.icon-inputs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#appIconUrl {
+    flex-grow: 1;
+}
+
 #editor-container {
   flex-grow: 1;
   display: flex;

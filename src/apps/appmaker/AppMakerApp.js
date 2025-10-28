@@ -112,10 +112,50 @@ export class AppMakerApp extends Application {
         this.appNameInput.addEventListener('input', () => this._updateTitle());
 
         const editorContainer = container.querySelector('#editor-container');
-
         this.editor = new NotepadEditor(editorContainer, {
             win: this.win,
             language: 'html'
+        });
+
+        this.appIconPreview = container.querySelector('#appIconPreview');
+        this.appIconUrlInput = container.querySelector('#appIconUrl');
+        const uploadButton = container.querySelector('#uploadButton');
+        this.appIconFileInput = container.querySelector('#appIconFile');
+
+        this.appIconUrlInput.addEventListener('input', () => {
+            const url = this.appIconUrlInput.value.trim();
+            if (url) {
+                this.appIconPreview.src = url;
+                this.appIconPreview.style.display = 'block';
+                this.appIcon = url;
+                this.appIconFileInput.value = ''; // Clear file input
+            } else {
+                this.appIconPreview.style.display = 'none';
+                this.appIcon = null;
+            }
+        });
+
+        this.appIconPreview.onerror = () => {
+            this.appIconPreview.style.display = 'none';
+            this.appIcon = null;
+        };
+
+        uploadButton.addEventListener('click', () => {
+            this.appIconFileInput.click();
+        });
+
+        this.appIconFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.appIconPreview.src = e.target.result;
+                    this.appIconPreview.style.display = 'block';
+                    this.appIcon = e.target.result; // This is the data URL
+                    this.appIconUrlInput.value = ''; // Clear URL input
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
         this._updateTitle();
@@ -193,6 +233,7 @@ export class AppMakerApp extends Application {
                             html: appHtml,
                             width: this.appWidth,
                             height: this.appHeight,
+                            icon: this.appIcon,
                         };
 
                         registerCustomApp(appInfo);
@@ -226,6 +267,18 @@ export class AppMakerApp extends Application {
                 <div class="input-container">
                     <label for="appName">App Name:</label>
                     <input type="text" id="appName" class="app-name-input" placeholder="Enter app name">
+
+                    <label>App Icon:</label>
+                    <div class="icon-input-container">
+                        <img id="appIconPreview" src="" alt="Icon Preview" style="width: 32px; height: 32px; display: none; border: 1px solid #ccc; margin-right: 10px;"/>
+                        <div class="icon-inputs">
+                            <input type="text" id="appIconUrl" placeholder="Enter image URL">
+                            <span style="margin: 0 5px;">or</span>
+                            <button id="uploadButton">Upload File</button>
+                            <input type="file" id="appIconFile" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+
                     <label for="appHtml">HTML Content:</label>
                     <div id="editor-container"></div>
                 </div>
