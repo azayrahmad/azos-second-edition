@@ -9,7 +9,8 @@
     "webamp",
     "alertTest",
     "appmaker",
-    "image-viewer"
+    "image-viewer",
+    "theme"
   ],
   "files": [
     {

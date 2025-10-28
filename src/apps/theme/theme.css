@@ -1,0 +1,55 @@
+
+.theme-app-container {
+  padding: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-app-container .field-row-stacked {
+  margin-bottom: 10px;
+}
+
+.theme-app-container label {
+    margin-bottom: 5px;
+    display: block;
+}
+
+.theme-preview {
+  flex-grow: 1;
+  margin-bottom: 10px;
+  min-height: 0; /* Important for flexbox scrolling */
+}
+
+.color-swatches {
+  height: 180px;
+  background-color: var(--button-face);
+  border: 1px solid var(--button-shadow);
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.swatch-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+.swatch-color {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--button-shadow);
+  margin-right: 8px;
+}
+
+.swatch-name {
+  text-transform: capitalize;
+}
+
+.theme-app-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 5px;
+  border-top: 1px solid var(--button-highlight);
+}

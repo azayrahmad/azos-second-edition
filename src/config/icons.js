@@ -91,4 +91,8 @@ export const ICONS = {
     16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
     32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
   },
+  theme: {
+    16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
+  },
 };

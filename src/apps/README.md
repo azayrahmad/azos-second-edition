@@ -6,6 +6,7 @@ This guide provides instructions on how to add new applications to azOS Second E
 
 - **[About](./about/README.md)**: A simple utility that displays information about the azOS Second Edition operating system.
 - **[Clippy](./clippy/README.md)**: An interactive AI assistant that can answer questions about Aziz Rahmad's resume and professional background.
+- **[Desktop Theme](./theme/README.md)**: An application to change the desktop theme and preview theme colors.
 - **[Notepad](./notepad/README.md)**: A powerful text editor with syntax highlighting, code formatting, and Markdown preview.
 - **[PDF Viewer](./pdfviewer/README.md)**: A simple application for viewing PDF documents.
 - **[Tip of the Day](./tipOfTheDay/README.md)**: A helpful utility that displays useful hints and tricks to the user upon startup.
