@@ -26,8 +26,10 @@
 
         show(x, y) {
             this.element.style.display = 'block';
+            this.element.style.zIndex = MenuPopup.getNewZIndex();
             void this.element.offsetHeight;
             this.element.dispatchEvent(new CustomEvent("update", {}));
+            this.element.focus({preventScroll: true});
 
             if (x !== undefined && y !== undefined) {
                 this.positionAt(x, y);

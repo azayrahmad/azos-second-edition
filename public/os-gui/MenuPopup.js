@@ -6,12 +6,6 @@
     }
 
     let internal_z_counter = 1;
-    function get_new_menu_z_index() {
-        if (typeof $Window !== "undefined") {
-            return ($Window.Z_INDEX++) + 1000; // MAX_MENU_NESTING
-        }
-        return (++internal_z_counter) + 1000;
-    }
 
     /**
      * A floating menu popup.
@@ -87,6 +81,13 @@
             }
         });
     }
+
+    MenuPopup.getNewZIndex = function() {
+        if (typeof $Window !== "undefined") {
+            return ($Window.Z_INDEX++) + 1000; // MAX_MENU_NESTING
+        }
+        return (++internal_z_counter) + 1000;
+    };
 
     MenuPopup.prototype.highlight = function (index_or_element) {
         let item_el;
@@ -293,7 +294,7 @@
 
                 item_el.setAttribute("aria-expanded", "true");
                 submenu_popup_el.style.display = "";
-                submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
+                submenu_popup_el.style.zIndex = `${MenuPopup.getNewZIndex()}`;
                 submenu_popup_el.setAttribute("dir", this.getDirection());
 
                 if (window.inheritTheme) {
