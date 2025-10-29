@@ -1,6 +1,67 @@
+// Default sounds
+import chimes from '../assets/audio/CHIMES.WAV';
+import chord from '../assets/audio/CHORD.WAV';
+import ding from '../assets/audio/DING.WAV';
+import logoff from '../assets/audio/LOGOFF.WAV';
+import notify from '../assets/audio/NOTIFY.WAV';
+import recycle from '../assets/audio/RECYCLE.WAV';
+import start from '../assets/audio/START.WAV';
+import tada from '../assets/audio/TADA.WAV';
+import theMicrosoftSound from '../assets/audio/The Microsoft Sound.wav';
+
+// 60's USA sounds
+import the60sUsaAsterisk from "../assets/audio/the 60's usa asterisk.wav";
+import the60sUsaBeep from "../assets/audio/the 60's usa beep.wav";
+import the60sUsaCriticalStop from "../assets/audio/the 60's usa critical stop.wav";
+import the60sUsaEmptyRecycleBin from "../assets/audio/the 60's usa empty recycle bin.wav";
+import the60sUsaExclamation from "../assets/audio/the 60's usa exclamation.wav";
+import the60sUsaExitWindows from "../assets/audio/the 60's usa exit windows.wav";
+import the60sUsaMaximize from "../assets/audio/the 60's usa maximize.wav";
+import the60sUsaMenuCommand from "../assets/audio/the 60's usa menu command.wav";
+import the60sUsaMenuPopup from "../assets/audio/the 60's usa menu popup.wav";
+import the60sUsaMinimize from "../assets/audio/the 60's usa minimize.wav";
+import the60sUsaProgramError from "../assets/audio/the 60's usa program error.wav";
+import the60sUsaQuestion from "../assets/audio/the 60's usa question.wav";
+import the60sUsaRestoreDown from "../assets/audio/the 60's usa restore down.wav";
+import the60sUsaRestoreUp from "../assets/audio/the 60's usa restore up.wav";
+import the60sUsaStartup from "../assets/audio/the 60's usa startup.wav";
+
+// Dangerous Creatures sounds
+import dangerousCreaturesAsterisk from '../assets/audio/Dangerous Creatures asterisk.wav';
+import dangerousCreaturesBeep from '../assets/audio/Dangerous Creatures beep.wav';
+import dangerousCreaturesCriticalStop from '../assets/audio/Dangerous Creatures critical stop.wav';
+import dangerousCreaturesDefaultSound from '../assets/audio/Dangerous Creatures default sound.wav';
+import dangerousCreaturesEmptyRecycleBin from '../assets/audio/Dangerous Creatures empty recycle bin.wav';
+import dangerousCreaturesExclamation from '../assets/audio/Dangerous Creatures exclamation.wav';
+import dangerousCreaturesMaximize from '../assets/audio/Dangerous Creatures maximize.wav';
+import dangerousCreaturesMenuCommand from '../assets/audio/Dangerous Creatures menu command.wav';
+import dangerousCreaturesMenuPopup from '../assets/audio/Dangerous Creatures menu popup.wav';
+import dangerousCreaturesMinimize from '../assets/audio/Dangerous Creatures minimize.wav';
+import dangerousCreaturesProgramError from '../assets/audio/Dangerous Creatures program error.wav';
+import dangerousCreaturesQuestion from '../assets/audio/Dangerous Creatures question.wav';
+import dangerousCreaturesStartup from '../assets/audio/Dangerous Creatures startup.wav';
+
+// Inside your Computer sounds
+import insideYourComputerAsterisk from '../assets/audio/Inside your Computer asterisk.wav';
+import insideYourComputerBeep from '../assets/audio/Inside your Computer beep.wav';
+import insideYourComputerCriticalStop from '../assets/audio/Inside your Computer critical stop.wav';
+import insideYourComputerDefaultSound from '../assets/audio/Inside your Computer default sound.wav';
+import insideYourComputerEmptyRecycleBin from "../assets/audio/Inside your Computer empty recycle bin.wav";
+import insideYourComputerExclamation from "../assets/audio/Inside your Computer exclamation.wav";
+import insideYourComputerExitWindows from "../assets/audio/Inside your Computer exit windows.wav";
+import insideYourComputerMaximize from "../assets/audio/Inside your Computer maximize.wav";
+import insideYourComputerMenuCommand from "../assets/audio/Inside your Computer menu command.wav";
+import insideYourComputerMenuPopup from "../assets/audio/Inside your Computer menu popup.wav";
+import insideYourComputerMinimize from "../assets/audio/Inside your Computer minimize.wav";
+import insideYourComputerProgramError from "../assets/audio/Inside your Computer program error.wav";
+import insideYourComputerQuestion from "../assets/audio/Inside your Computer question.wav";
+import insideYourComputerRestoreDown from "../assets/audio/Inside your Computer restore down.wav";
+import insideYourComputerRestoreUp from "../assets/audio/Inside your Computer restore up.wav";
+import insideYourComputerStartup from "../assets/audio/Inside your Computer startup.wav";
+
 export const soundSchemes = {
   Default: {
-    Default: 'ding.wav',
+    Default: ding,
     AppGPFault: '',
     Maximize: '',
     MenuCommand: '',
@@ -8,39 +69,39 @@ export const soundSchemes = {
     Minimize: '',
     RestoreDown: '',
     RestoreUp: '',
-    SystemAsterisk: 'chord.wav',
-    SystemExclamation: 'chord.wav',
-    SystemExit: 'tada.wav',
-    SystemHand: 'chord.wav',
-    SystemQuestion: 'chord.wav',
-    WindowsLogon: 'the microsoft sound.wav',
-    EmptyRecycleBin: 'ding.wav',
+    SystemAsterisk: chord,
+    SystemExclamation: chord,
+    SystemExit: tada,
+    SystemHand: chord,
+    SystemQuestion: chord,
+    WindowsLogon: theMicrosoftSound,
+    EmptyRecycleBin: ding,
     ChangeTheme: '',
     DeviceConnect: '',
     DeviceDisconnect: '',
     DeviceFail: '',
-    LowBatteryAlarm: 'ding.wav',
-    MailBeep: 'chimes.wav',
+    LowBatteryAlarm: ding,
+    MailBeep: chimes,
     SystemNotification: '',
     WindowsLogoff: '',
-    StartNavigation: 'start.wav',
+    StartNavigation: start,
   },
   '60s USA': {
-    Default: "the 60's usa beep.wav",
-    AppGPFault: "the 60's usa program error.wav",
-    Maximize: "the 60's usa maximize.wav",
-    MenuCommand: "the 60's usa menu command.wav",
-    MenuPopup: "the 60's usa menu popup.wav",
-    Minimize: "the 60's usa minimize.wav",
-    RestoreDown: "the 60's usa restore down.wav",
-    RestoreUp: "the 60's usa restore up.wav",
-    SystemAsterisk: "the 60's usa asterisk.wav",
-    SystemExclamation: "the 60's usa exclamation.wav",
-    SystemExit: "the 60's usa exit windows.wav",
-    SystemHand: "the 60's usa critical stop.wav",
-    SystemQuestion: "the 60's usa question.wav",
-    WindowsLogon: "the 60's usa startup.wav",
-    EmptyRecycleBin: "the 60's usa empty recycle bin.wav",
+    Default: the60sUsaBeep,
+    AppGPFault: the60sUsaProgramError,
+    Maximize: the60sUsaMaximize,
+    MenuCommand: the60sUsaMenuCommand,
+    MenuPopup: the60sUsaMenuPopup,
+    Minimize: the60sUsaMinimize,
+    RestoreDown: the60sUsaRestoreDown,
+    RestoreUp: the60sUsaRestoreUp,
+    SystemAsterisk: the60sUsaAsterisk,
+    SystemExclamation: the60sUsaExclamation,
+    SystemExit: the60sUsaExitWindows,
+    SystemHand: the60sUsaCriticalStop,
+    SystemQuestion: the60sUsaQuestion,
+    WindowsLogon: the60sUsaStartup,
+    EmptyRecycleBin: the60sUsaEmptyRecycleBin,
     ChangeTheme: '',
     DeviceConnect: '',
     DeviceDisconnect: '',
@@ -51,26 +112,26 @@ export const soundSchemes = {
     WindowsLogoff: '',
   },
   'Dangerous Creatures': {
-    Default: 'Dangerous Creatures default sound.wav',
-    AppGPFault: 'Dangerous Creatures program error.wav',
-    Maximize: 'Dangerous Creatures maximize.wav',
-    MenuCommand: 'Dangerous Creatures menu command.wav',
-    MenuPopup: 'Dangerous Creatures menu popup.wav',
-    Minimize: 'Dangerous Creatures minimize.wav',
+    Default: dangerousCreaturesDefaultSound,
+    AppGPFault: dangerousCreaturesProgramError,
+    Maximize: dangerousCreaturesMaximize,
+    MenuCommand: dangerousCreaturesMenuCommand,
+    MenuPopup: dangerousCreaturesMenuPopup,
+    Minimize: dangerousCreaturesMinimize,
     Open: '',
     Close: '',
-    RestoreDown: 'Dangerous Creatures minimize.wav',
-    RestoreUp: 'Dangerous Creatures maximize.wav',
+    RestoreDown: dangerousCreaturesMinimize,
+    RestoreUp: dangerousCreaturesMaximize,
     RingIn: '',
     Ringout: '',
-    SystemAsterisk: 'Dangerous Creatures asterisk.wav',
-    SystemDefault: 'Dangerous Creatures beep.wav',
-    SystemExclamation: 'Dangerous Creatures exclamation.wav',
-    SystemExit: 'Dangerous Creatures startup.wav',
-    SystemHand: 'Dangerous Creatures critical stop.wav',
-    SystemQuestion: 'Dangerous Creatures question.wav',
-    WindowsLogon: 'Dangerous Creatures startup.wav',
-    EmptyRecycleBin: 'Dangerous Creatures empty recycle bin.wav',
+    SystemAsterisk: dangerousCreaturesAsterisk,
+    SystemDefault: dangerousCreaturesBeep,
+    SystemExclamation: dangerousCreaturesExclamation,
+    SystemExit: dangerousCreaturesStartup,
+    SystemHand: dangerousCreaturesCriticalStop,
+    SystemQuestion: dangerousCreaturesQuestion,
+    WindowsLogon: dangerousCreaturesStartup,
+    EmptyRecycleBin: dangerousCreaturesEmptyRecycleBin,
     ChangeTheme: '',
     DeviceConnect: '',
     DeviceDisconnect: '',
@@ -82,20 +143,20 @@ export const soundSchemes = {
     StartNavigation: '',
   },
   'Inside Your Computer': {
-    Default: 'Inside your Computer default sound.wav',
-    AppGPFault: 'Inside your Computer program error.wav',
-    Maximize: 'Inside your Computer maximize.wav',
-    MenuCommand: 'Inside your Computer menu command.wav',
-    MenuPopup: 'Inside your Computer menu popup.wav',
-    Minimize: 'Inside your Computer minimize.wav',
-    RestoreDown: 'Inside your Computer restore down.wav',
-    RestoreUp: 'Inside your Computer restore up.wav',
-    SystemAsterisk: 'Inside your Computer asterisk.wav',
-    SystemExclamation: 'Inside your Computer exclamation.wav',
-    SystemExit: 'Inside your Computer startup.wav',
-    SystemHand: 'Inside your Computer critical stop.wav',
-    SystemQuestion: 'Inside your Computer question.wav',
-    WindowsLogon: 'Inside your Computer startup.wav',
-    EmptyRecycleBin: 'Inside your Computer empty recycle bin.wav',
+    Default: insideYourComputerDefaultSound,
+    AppGPFault: insideYourComputerProgramError,
+    Maximize: insideYourComputerMaximize,
+    MenuCommand: insideYourComputerMenuCommand,
+    MenuPopup: insideYourComputerMenuPopup,
+    Minimize: insideYourComputerMinimize,
+    RestoreDown: insideYourComputerRestoreDown,
+    RestoreUp: insideYourComputerRestoreUp,
+    SystemAsterisk: insideYourComputerAsterisk,
+    SystemExclamation: insideYourComputerExclamation,
+    SystemExit: insideYourComputerStartup,
+    SystemHand: insideYourComputerCriticalStop,
+    SystemQuestion: insideYourComputerQuestion,
+    WindowsLogon: insideYourComputerStartup,
+    EmptyRecycleBin: insideYourComputerEmptyRecycleBin,
   }
 };
