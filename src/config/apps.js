@@ -7,6 +7,7 @@ import { ClippyApp } from '../apps/clippy/ClippyApp.js';
 import { WebampApp } from '../apps/webamp/WebampApp.js';
 import { ImageResizerApp } from '../apps/image-resizer/ImageResizerApp.js';
 import { ImageViewerApp } from '../apps/imageviewer/ImageViewerApp.js';
+import { VideoPlayerApp } from '../apps/videoplayer/VideoPlayerApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -22,6 +23,7 @@ export const appClasses = {
   'webamp': WebampApp,
   'image-resizer': ImageResizerApp,
   'image-viewer': ImageViewerApp,
+  'video-player': VideoPlayerApp,
 };
 
 export const apps = [
@@ -111,6 +113,15 @@ export const apps = [
     tray: {
       contextMenu: getWebampMenuItems,
     }
+  },
+  {
+    id: "video-player",
+    title: "Video Player",
+    icon: ICONS.videoPlayer,
+    appClass: VideoPlayerApp,
+    width: 640,
+    height: 480,
+    resizable: true,
   },
   {
     id: "alertTest",

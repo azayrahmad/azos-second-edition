@@ -39,6 +39,10 @@ export const ICONS = {
     16: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
     32: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
   },
+  videoPlayer: {
+    16: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+    32: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+  },
   computer: {
     16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
     32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url).href,
