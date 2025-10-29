@@ -9,7 +9,7 @@ import { getCurrentTheme, getThemes } from "./themeManager.js";
 export function playSound(eventName) {
   const themeId = getCurrentTheme();
   const themes = getThemes();
-  const themeName = themes[themeId].name || "Default";
+  const themeName = themes[themeId]?.name || "Default";
   const currentScheme = soundSchemes[themeName];
   const defaultScheme = soundSchemes["Default"];
 
