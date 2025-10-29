@@ -1,4 +1,6 @@
 import { Application } from '../Application.js';
+import { NotepadEditor } from '../../components/NotepadEditor.js';
+import { MenuBar } from '/public/os-gui/MenuBar.js';
 
 export class ThemeToCssApp extends Application {
     constructor(info) {
@@ -19,87 +21,114 @@ export class ThemeToCssApp extends Application {
             id: this.info.id,
         });
 
-        const content = `
-            <div class="themetocss-main-content" style="padding: 10px; display: flex; flex-direction: column; height: 100%;">
-                <p>Select a .theme file to convert it to CSS.</p>
-                <button class="load-theme-btn">Load Theme File</button>
-                <textarea class="css-output" style="width: 100%; flex-grow: 1; margin-top: 10px;" readonly></textarea>
-            </div>
-        `;
-        win.$content.html(content);
+        const menuBar = this._createMenuBar(win);
+        win.setMenuBar(menuBar);
 
-        this._init(win);
+        this.editor = new NotepadEditor(win.$content[0], { win });
+        this.editor.setLanguage('css');
+        this.editor.setValue('/* Open a .theme file to see the CSS output */');
 
         return win;
     }
 
-    _init(win) {
-        const $loadButton = win.$content.find('.load-theme-btn');
-        const $outputTextArea = win.$content.find('.css-output');
-        let isParserLoaded = false;
-
-        const loadParserScript = () => {
-            return new Promise((resolve, reject) => {
-                if (window.parseThemeFileString && window.makeThemeCSSFile) {
-                    resolve();
-                    return;
+    _createMenuBar(win) {
+        return new MenuBar({
+            "&File": [
+                {
+                    label: "&Open",
+                    action: () => this._openFile(),
+                },
+                {
+                    label: "&Save",
+                    action: () => this._saveFile(),
+                },
+                {
+                    label: "E&xit",
+                    action: () => win.close(),
                 }
+            ]
+        });
+    }
 
-                if (document.querySelector('script[src="./os-gui/parse-theme.js"]')) {
-                    // Script is already loading/loaded, but functions are not yet on window.
-                    // This is a simple poll, could be improved with a more robust event system.
-                    const interval = setInterval(() => {
-                        if (window.parseThemeFileString && window.makeThemeCSSFile) {
-                            clearInterval(interval);
-                            resolve();
-                        }
-                    }, 100);
-                    return;
-                }
-
-                const script = document.createElement('script');
-                script.src = './os-gui/parse-theme.js';
-                script.onload = () => {
-                    isParserLoaded = true;
-                    resolve();
-                };
-                script.onerror = () => reject(new Error('Failed to load theme parser script.'));
-                document.head.appendChild(script);
-            });
-        };
-
-        const handleFileSelect = (event) => {
+    async _openFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.theme,.themepack';
+        input.onchange = async (event) => {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const themeContent = e.target.result;
                 try {
-                    await loadParserScript();
+                    await this._loadParserScript();
                     const cssProperties = window.parseThemeFileString(themeContent);
                     if (cssProperties) {
                         const cssFileContent = window.makeThemeCSSFile(cssProperties);
-                        $outputTextArea.val(cssFileContent);
+                        this.editor.setValue(cssFileContent);
                     } else {
-                        $outputTextArea.val('Error: Failed to parse theme file. See console for details.');
+                        this.editor.setValue('/* Error: Failed to parse theme file. See console for details. */');
                     }
                 } catch (error) {
                     console.error(error);
-                    $outputTextArea.val(`Error: ${error.message}`);
+                    this.editor.setValue(`/* Error: ${error.message} */`);
                 }
             };
             reader.readAsText(file);
         };
+        input.click();
+    }
 
-        $loadButton.on('click', () => {
-            const $fileInput = $('<input type="file" accept=".theme,.themepack" style="display: none;">');
-            win.$content.append($fileInput);
-            $fileInput.on('change',. handleFileSelect);
-            $fileInput.trigger('click');
-            $fileInput.remove();
+    async _saveFile() {
+        const content = this.editor.getValue();
+        const blob = new Blob([content], { type: 'text/css' });
+
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: 'theme.css',
+                types: [{
+                    description: 'CSS Files',
+                    accept: { 'text/css': ['.css'] },
+                }],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+        } catch (err) {
+            // Fallback for browsers that don't support the API
+            if (err.name !== 'AbortError') {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'theme.css';
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }
+        }
+    }
+
+    _loadParserScript() {
+        return new Promise((resolve, reject) => {
+            if (window.parseThemeFileString && window.makeThemeCSSFile) {
+                resolve();
+                return;
+            }
+
+            if (document.querySelector('script[src="./os-gui/parse-theme.js"]')) {
+                const interval = setInterval(() => {
+                    if (window.parseThemeFileString && window.makeThemeCSSFile) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 100);
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = './os-gui/parse-theme.js';
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load theme parser script.'));
+            document.head.appendChild(script);
         });
     }
 }
