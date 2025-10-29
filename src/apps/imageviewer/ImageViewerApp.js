@@ -41,6 +41,10 @@ export class ImageViewerApp extends Application {
           label: "&Save",
           action: () => this.saveFile(),
         },
+        {
+          label: "Save &As...",
+          action: () => this.saveFileAs(),
+        },
         "MENU_DIVIDER",
         {
           label: "E&xit",
@@ -139,6 +143,58 @@ export class ImageViewerApp extends Application {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  async saveFileAs() {
+    if (!this.img || !this.img.src) {
+      alert("There is no image to save.");
+      return;
+    }
+
+    try {
+      if ("showSaveFilePicker" in window) {
+        const response = await fetch(this.img.src);
+        const blob = await response.blob();
+
+        const defaultFileName = this.file ? this.file.name : "image.png";
+        const fileExtension = defaultFileName.split(".").pop();
+        const suggestedName = defaultFileName;
+        const fileType = blob.type;
+
+        const options = {
+          suggestedName: suggestedName,
+          types: [
+            {
+              description: "Image Files",
+              accept: {
+                [fileType]: ["." + fileExtension],
+              },
+            },
+          ],
+        };
+
+        const fileHandle = await window.showSaveFilePicker(options);
+        const writableStream = await fileHandle.createWritable();
+        await writableStream.write(blob);
+        await writableStream.close();
+        console.log("Image saved successfully with File System Access API.");
+      } else {
+        const link = document.createElement("a");
+        link.href = this.img.src;
+        link.download = this.file ? this.file.name : "image.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log("Image downloaded (showSaveFilePicker not supported).");
+      }
+    } catch (error) {
+      if (error.name === "AbortError") {
+        console.log("Save operation aborted by user.");
+      } else {
+        console.error("Error saving file:", error);
+        alert("Could not save the image. Please try again.");
+      }
+    }
   }
 
   _adjustWindowSize(img) {
