@@ -173,6 +173,8 @@ export class ThemeToCssApp extends Application {
         const img = document.createElement("img");
         img.className = "swatch-image";
         img.src = value.slice(5, -2); // Correctly slice url("...")
+        if (img.src.startsWith("data:image/svg+xml"))
+          img.src = img.src.slice(0, -9);
         swatchItem.appendChild(img);
       }
 
