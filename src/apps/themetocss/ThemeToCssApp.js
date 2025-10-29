@@ -1,5 +1,6 @@
 import { Application } from "../Application.js";
 import { NotepadEditor } from "../../components/NotepadEditor.js";
+import "./themetocss.css";
 
 export class ThemeToCssApp extends Application {
   constructor(config) {
@@ -19,7 +20,11 @@ export class ThemeToCssApp extends Application {
     const menuBar = this._createMenuBar(win);
     win.setMenuBar(menuBar);
 
-    this.editor = new NotepadEditor(win.$content[0], { win });
+    const container = document.createElement("div");
+    container.className = "themetocss-container";
+    win.$content.append(container);
+
+    this.editor = new NotepadEditor(container, { win });
     this.editor.setLanguage("css");
     this.editor.setValue("/* Open a .theme file to see the CSS output */");
 

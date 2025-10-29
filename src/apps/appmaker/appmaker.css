@@ -1,18 +1,7 @@
 .appmaker-container {
-  height: 100%;
-}
-.main-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.input-container {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 .app-name-input {
