@@ -136,7 +136,7 @@ export const apps = [
     title: "Theme to CSS",
     icon: ICONS.themetocss,
     appClass: ThemeToCssApp,
-    width: 450,
+    width: 700,
     height: 350,
     resizable: true,
   },
