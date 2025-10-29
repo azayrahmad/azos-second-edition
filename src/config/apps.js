@@ -1,47 +1,49 @@
-import { AboutApp } from '../apps/about/AboutApp.js';
-import { AppMakerApp } from '../apps/appmaker/AppMakerApp.js';
-import { NotepadApp } from '../apps/notepad/NotepadApp.js';
-import { PdfViewerApp } from '../apps/pdfviewer/PdfViewerApp.js';
-import { TipOfTheDayApp } from '../apps/tipOfTheDay/TipOfTheDayApp.js';
-import { ClippyApp } from '../apps/clippy/ClippyApp.js';
-import { WebampApp } from '../apps/webamp/WebampApp.js';
-import { ImageResizerApp } from '../apps/image-resizer/ImageResizerApp.js';
-import { ImageViewerApp } from '../apps/imageviewer/ImageViewerApp.js';
-import { ThemeToCssApp } from '../apps/themetocss/ThemeToCssApp.js';
-import { ShowDialogWindow } from '../components/DialogWindow.js';
+import { AboutApp } from "../apps/about/AboutApp.js";
+import { AppMakerApp } from "../apps/appmaker/AppMakerApp.js";
+import { NotepadApp } from "../apps/notepad/NotepadApp.js";
+import { PdfViewerApp } from "../apps/pdfviewer/PdfViewerApp.js";
+import { TipOfTheDayApp } from "../apps/tipOfTheDay/TipOfTheDayApp.js";
+import { ClippyApp } from "../apps/clippy/ClippyApp.js";
+import { WebampApp } from "../apps/webamp/WebampApp.js";
+import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
+import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
+import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
+import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
-import { ICONS } from './icons.js';
+import { ICONS } from "./icons.js";
 
 export const appClasses = {
-  'about': AboutApp,
-  'appmaker': AppMakerApp,
-  'notepad': NotepadApp,
-  'pdfviewer': PdfViewerApp,
-  'tipOfTheDay': TipOfTheDayApp,
-  'clippy': ClippyApp,
-  'webamp': WebampApp,
-  'image-resizer': ImageResizerApp,
-  'image-viewer': ImageViewerApp,
-  'themetocss': ThemeToCssApp,
+  about: AboutApp,
+  appmaker: AppMakerApp,
+  notepad: NotepadApp,
+  pdfviewer: PdfViewerApp,
+  tipOfTheDay: TipOfTheDayApp,
+  clippy: ClippyApp,
+  webamp: WebampApp,
+  "image-resizer": ImageResizerApp,
+  "image-viewer": ImageViewerApp,
+  themetocss: ThemeToCssApp,
 };
 
 export const apps = [
-  {
-    id: "appmaker",
-    title: "App Maker",
-    icon: ICONS.appmaker,
-    appClass: AppMakerApp,
-    width: 600,
-    height: 500,
-    resizable: true,
-  },
   {
     id: "about",
     title: "About",
     icon: ICONS.about,
     appClass: AboutApp,
     width: 500,
+    height: 300,
+    resizable: false,
+    minimizeButton: false,
+    maximizeButton: false,
+  },
+  {
+    id: "tipOfTheDay",
+    title: "Tip of the Day",
+    icon: ICONS.tip,
+    appClass: TipOfTheDayApp,
+    width: 400,
     height: 300,
     resizable: false,
     minimizeButton: false,
@@ -55,17 +57,6 @@ export const apps = [
     width: 800,
     height: 600,
     resizable: true,
-  },
-  {
-    id: "tipOfTheDay",
-    title: "Tip of the Day",
-    icon: ICONS.tip,
-    appClass: TipOfTheDayApp,
-    width: 400,
-    height: 300,
-    resizable: false,
-    minimizeButton: false,
-    maximizeButton: false,
   },
   {
     id: "notepad",
@@ -102,7 +93,7 @@ export const apps = [
     hasTray: true,
     tray: {
       contextMenu: getClippyMenuItems,
-    }
+    },
   },
   {
     id: "webamp",
@@ -112,7 +103,16 @@ export const apps = [
     hasTaskbarButton: true,
     tray: {
       contextMenu: getWebampMenuItems,
-    }
+    },
+  },
+  {
+    id: "appmaker",
+    title: "App Maker",
+    icon: ICONS.appmaker,
+    appClass: AppMakerApp,
+    width: 600,
+    height: 500,
+    resizable: true,
   },
   {
     id: "alertTest",
@@ -126,7 +126,7 @@ export const apps = [
           text: "The alert works.",
           soundEvent: "SystemHand",
           contentIconUrl: ICONS.about[32],
-          buttons: [{ label: 'OK', isDefault: true }],
+          buttons: [{ label: "OK", isDefault: true }],
         });
       },
     },
