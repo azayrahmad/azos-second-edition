@@ -271,7 +271,7 @@ button:not(:disabled):active img {
 .system-tray {
     height: 22px;
     background: var(--ButtonFace, #c0c0c0);
-    border: 1px solid var(--ButtonLight, #dfdfdf);
+    border: 1px solid var(--ButtonHilight, #dfdfdf);
     border-left: 1px solid var(--ButtonShadow, #808080);
     border-top: 1px solid var(--ButtonShadow, #808080);
     margin: 2px;
