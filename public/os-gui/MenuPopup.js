@@ -44,6 +44,17 @@
             menu_popup_el.focus({ preventScroll: true });
         });
 
+        menu_popup_el.addEventListener("focusout", (event) => {
+            if (event.relatedTarget && !menu_popup_el.contains(event.relatedTarget)) {
+                if (
+                    !event.relatedTarget.closest || // for documentElement, etc.
+                    !event.relatedTarget.closest(".menu-popup, .menus")
+                ) {
+                    options.closeMenus();
+                }
+            }
+        });
+
         let last_item_el;
         this.highlight = (index_or_element) => {
             let item_el;
@@ -279,6 +290,11 @@
                             item.checkbox.toggle();
                         }
                         menu_popup_el.dispatchEvent(new CustomEvent("update", {}));
+                        // Radio buttons should close the menu, but checkboxes shouldn't.
+                        if (item.checkbox.type === "radio") {
+                            options.closeMenus();
+                            options.refocus_outside_menus();
+                        }
                     } else if (item.action) {
                         options.closeMenus();
                         options.refocus_outside_menus();
