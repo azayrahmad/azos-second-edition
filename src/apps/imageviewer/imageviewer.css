@@ -14,3 +14,10 @@
     max-height: 100%;
     object-fit: contain;
 }
+
+.resize-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+}
