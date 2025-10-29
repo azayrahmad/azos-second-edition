@@ -1,0 +1,14 @@
+.themetocss-app .themetocss-main-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.themetocss-app .css-output {
+    flex-grow: 1;
+    margin-top: 10px;
+    font-family: monospace;
+    white-space: pre;
+    overflow: auto;
+}

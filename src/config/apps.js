@@ -7,6 +7,7 @@ import { ClippyApp } from '../apps/clippy/ClippyApp.js';
 import { WebampApp } from '../apps/webamp/WebampApp.js';
 import { ImageResizerApp } from '../apps/image-resizer/ImageResizerApp.js';
 import { ImageViewerApp } from '../apps/imageviewer/ImageViewerApp.js';
+import { ThemeToCssApp } from '../apps/themetocss/ThemeToCssApp.js';
 import { ShowDialogWindow } from '../components/DialogWindow.js';
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -22,6 +23,7 @@ export const appClasses = {
   'webamp': WebampApp,
   'image-resizer': ImageResizerApp,
   'image-viewer': ImageViewerApp,
+  'themetocss': ThemeToCssApp,
 };
 
 export const apps = [
@@ -128,5 +130,14 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "themetocss",
+    title: "Theme to CSS",
+    icon: ICONS.themetocss,
+    appClass: ThemeToCssApp,
+    width: 450,
+    height: 350,
+    resizable: true,
   },
 ];
