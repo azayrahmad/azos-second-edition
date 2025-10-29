@@ -8,6 +8,7 @@ This guide provides instructions on how to add new applications to azOS Second E
 - **[Clippy](./clippy/README.md)**: An interactive AI assistant that can answer questions about Aziz Rahmad's resume and professional background.
 - **[Notepad](./notepad/README.md)**: A powerful text editor with syntax highlighting, code formatting, and Markdown preview.
 - **[PDF Viewer](./pdfviewer/README.md)**: A simple application for viewing PDF documents.
+- **[Theme to CSS](./themetocss/README.md)**: A developer utility to convert `.theme` INI files into CSS.
 - **[Tip of the Day](./tipOfTheDay/README.md)**: A helpful utility that displays useful hints and tricks to the user upon startup.
 - **[Webamp](./webamp/README.md)**: A faithful recreation of the classic Winamp music player that runs directly on the desktop.
 
