@@ -24,11 +24,40 @@ export class ThemeToCssApp extends Application {
     container.className = "themetocss-container";
     win.$content.append(container);
 
-    this.editor = new NotepadEditor(container, { win });
+    const editorPane = document.createElement("div");
+    editorPane.className = "themetocss-editor-pane";
+    container.append(editorPane);
+
+    this.editor = new NotepadEditor(editorPane, { win });
     this.editor.setLanguage("css");
     this.editor.setValue("/* Open a .theme file to see the CSS output */");
 
+    this.previewPane = document.createElement("div");
+    this.previewPane.className = "themetocss-preview-pane";
+    container.append(this.previewPane);
+
+    this._createPreview();
+
     return win;
+  }
+
+  _createPreview() {
+    this.previewPane.innerHTML = `
+      <div class="os-window preview-window">
+        <div class="title-bar">
+          <div class="title-bar-text">Preview Window</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window-body">
+          <p>This is a preview of the theme.</p>
+          <button>OK</button>
+        </div>
+      </div>
+    `;
   }
 
   _createMenuBar(win) {
@@ -67,6 +96,13 @@ export class ThemeToCssApp extends Application {
           if (cssProperties) {
             const cssFileContent = window.makeThemeCSSFile(cssProperties);
             this.editor.setValue(cssFileContent);
+
+            const previewWindow = this.previewPane.querySelector('.preview-window');
+            if (previewWindow) {
+              for (const [key, value] of Object.entries(cssProperties)) {
+                previewWindow.style.setProperty(key, value);
+              }
+            }
           } else {
             this.editor.setValue(
               "/* Error: Failed to parse theme file. See console for details. */",

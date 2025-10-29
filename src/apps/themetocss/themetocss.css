@@ -1,5 +1,60 @@
 .themetocss-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.themetocss-editor-pane {
+  flex: 1;
+  border-right: 2px solid var(--button-shadow);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.themetocss-preview-pane {
+  flex: 1;
+  padding: 10px;
+  background-color: var(--desktop-background-color);
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-window {
+  width: 90%;
+  height: 90%;
+  box-shadow: var(--surface-shadow);
+  border: 1px solid var(--surface-border-color);
+  background-color: var(--button-face);
+  color: var(--button-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+.preview-window .title-bar {
+  background: var(--title-bar-bg);
+  color: var(--title-bar-text-color);
+  padding: 2px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 18px;
+}
+
+.preview-window .title-bar-text {
+  font-weight: bold;
+  color: var(--title-bar-text-color);
+}
+
+.preview-window .window-body {
+  padding: 10px;
+  text-align: center;
+}
+
+.preview-window button {
+  min-width: 75px;
+  height: 23px;
+  margin-top: 10px;
 }
