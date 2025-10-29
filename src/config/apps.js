@@ -33,7 +33,7 @@ export const apps = [
     icon: ICONS.appmaker,
     appClass: AppMakerApp,
     width: 600,
-    height: 400,
+    height: 500,
     resizable: true,
   },
   {
