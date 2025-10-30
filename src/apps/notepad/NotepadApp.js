@@ -100,6 +100,13 @@ export class NotepadApp extends Application {
                         toggle: () => this.toggleWordWrap(),
                     },
                 },
+                {
+                    label: "Line &Numbers",
+                    checkbox: {
+                        check: () => this.lineNumbersVisible,
+                        toggle: () => this.toggleLineNumbers(),
+                    },
+                },
             ],
             "&Search": [
                 {
@@ -227,6 +234,17 @@ export class NotepadApp extends Application {
 
         this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
         this.setTheme(this.currentTheme, true);
+
+        const lineNumbersEnabled = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_LINE_NUMBERS) === 'true';
+        this.lineNumbersVisible = lineNumbersEnabled;
+        this.editor.toggleLineNumbers(this.lineNumbersVisible);
+    }
+
+    toggleLineNumbers() {
+        this.lineNumbersVisible = !this.lineNumbersVisible;
+        this.editor.toggleLineNumbers(this.lineNumbersVisible);
+        setItem(LOCAL_STORAGE_KEYS.NOTEPAD_LINE_NUMBERS, this.lineNumbersVisible);
+        this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
     }
 
     setTheme(theme, isInitialLoad = false) {

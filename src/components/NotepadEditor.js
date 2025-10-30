@@ -12,6 +12,7 @@ export class NotepadEditor {
     _getHTML() {
         return `
             <div class="editor-wrapper">
+                <div class="line-numbers" aria-hidden="true"></div>
                 <pre><code class="highlighted"></code></pre>
                 <textarea class="codeInput" spellcheck="false"></textarea>
             </div>
@@ -25,9 +26,11 @@ export class NotepadEditor {
     _initEditor() {
         this.isDirty = false;
         this.wordWrap = false;
+        this.lineNumbersVisible = false;
 
         this.codeInput = this.container.querySelector('.codeInput');
         this.highlighted = this.container.querySelector('.highlighted');
+        this.lineNumbers = this.container.querySelector('.line-numbers');
         this.statusText = this.container.querySelector('.statusText');
         this.lineCount = this.container.querySelector('.lineCount');
         this.currentLanguage = this.options.language || 'text';
@@ -94,6 +97,26 @@ export class NotepadEditor {
         preElement.scrollLeft = this.codeInput.scrollLeft;
         this.highlighted.scrollTop = this.codeInput.scrollTop;
         this.highlighted.scrollLeft = this.codeInput.scrollLeft;
+        if (this.lineNumbersVisible) {
+            this.lineNumbers.scrollTop = this.codeInput.scrollTop;
+        }
+    }
+
+    toggleLineNumbers(isVisible) {
+        this.lineNumbersVisible = isVisible;
+        this.container.querySelector('.editor-wrapper').classList.toggle('show-line-numbers', isVisible);
+        this.updateLineNumbers();
+        this.syncPadding();
+    }
+
+    updateLineNumbers() {
+        if (!this.lineNumbersVisible) {
+            this.lineNumbers.innerHTML = '';
+            return;
+        }
+
+        const lineCount = this.codeInput.value.split('\n').length;
+        this.lineNumbers.innerHTML = Array.from({ length: lineCount }, (_, i) => `<span>${i + 1}</span>`).join('');
     }
 
     updateHighlight() {
@@ -106,6 +129,7 @@ export class NotepadEditor {
             hljs.highlightElement(this.highlighted);
         }
         this.lineCount.textContent = `Lines: ${code.split('\n').length}`;
+        this.updateLineNumbers();
         this.syncScroll();
     }
 
