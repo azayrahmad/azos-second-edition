@@ -121,3 +121,83 @@ export const cursors = {
     sizeWE: sportsWE,
   },
 };
+
+/**
+ * Creates a cursor theme configuration object for CSS custom properties.
+ * If a cursor type is not provided in `cursorSet`, it defaults to the corresponding
+ * system cursor keyword (e.g., 'auto', 'text').
+ * @param {object} cursorSet - An object containing paths to cursor files for a theme.
+ * @returns {object} A theme configuration object.
+ */
+function createCursorTheme(cursorSet) {
+  const defaultAnimatedCursors = {
+    "--cursor-wait": { value: "wait", animated: true, type: "busy" },
+    "--cursor-progress": { value: "progress", animated: true, type: "wait" },
+  };
+
+  const baseCursors = {
+    "--cursor-default": {
+      value: cursorSet.arrow ? `url(${cursorSet.arrow}), auto` : "auto",
+    },
+    "--cursor-pointer": {
+      value: cursorSet.arrow ? `url(${cursorSet.arrow}), pointer` : "pointer",
+    },
+    "--cursor-text": {
+      value: cursorSet.beam ? `url(${cursorSet.beam}), text` : "text",
+    },
+    "--cursor-help": {
+      value: cursorSet.help ? `url(${cursorSet.help}), help` : "help",
+    },
+    "--cursor-move": {
+      value: cursorSet.move ? `url(${cursorSet.move}), move` : "move",
+    },
+    "--cursor-not-allowed": {
+      value: cursorSet.no ? `url(${cursorSet.no}), not-allowed` : "not-allowed",
+    },
+    "--cursor-crosshair": {
+      value: cursorSet.cross
+        ? `url(${cursorSet.cross}), crosshair`
+        : "crosshair",
+    },
+    "--cursor-nesw-resize": {
+      value: cursorSet.sizeNESW
+        ? `url(${cursorSet.sizeNESW}), nesw-resize`
+        : "nesw-resize",
+    },
+    "--cursor-ns-resize": {
+      value: cursorSet.sizeNS
+        ? `url(${cursorSet.sizeNS}), ns-resize`
+        : "ns-resize",
+    },
+    "--cursor-nwse-resize": {
+      value: cursorSet.sizeNWSE
+        ? `url(${cursorSet.sizeNWSE}), nwse-resize`
+        : "nwse-resize",
+    },
+    "--cursor-we-resize": {
+      value: cursorSet.sizeWE
+        ? `url(${cursorSet.sizeWE}), ew-resize`
+        : "ew-resize",
+    },
+  };
+
+  return { ...baseCursors, ...defaultAnimatedCursors };
+}
+
+export const cursorThemes = {
+  // The 'default' theme will use system defaults for static cursors,
+  // and the animated cursors defined in cursors.default.
+  default: createCursorTheme(cursors.default),
+  "dangerous-creatures": createCursorTheme(cursors.dangerousCreatures),
+  "60s-usa": createCursorTheme(cursors.usa60s),
+  "inside-your-computer": createCursorTheme(cursors.insideYourComputer),
+  sports: createCursorTheme(cursors.sports),
+};
+
+export const themeNameToCursorKeyMap = {
+  default: "default",
+  "dangerous-creatures": "dangerousCreatures",
+  "60s-usa": "usa60s",
+  "inside-your-computer": "insideYourComputer",
+  sports: "sports",
+};

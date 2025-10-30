@@ -1,43 +1,11 @@
 import { convertAniBinaryToCSS } from "ani-cursor";
-import { cursors } from "../config/cursors.js";
+import {
+  cursors,
+  cursorThemes,
+  themeNameToCursorKeyMap,
+} from "../config/cursors.js";
 
 const styleMap = new Map();
-
-function createCursorTheme(themeName, cursorSet) {
-  return {
-    "--cursor-default": { value: `url(${cursorSet.arrow}), auto` },
-    "--cursor-pointer": { value: `url(${cursorSet.arrow}), pointer` },
-    "--cursor-text": { value: `url(${cursorSet.beam}), text` },
-    "--cursor-wait": { value: "wait", animated: true, type: "busy" },
-    "--cursor-progress": { value: "progress", animated: true, type: "wait" },
-    "--cursor-help": { value: `url(${cursorSet.help}), help` },
-    "--cursor-move": { value: `url(${cursorSet.move}), move` },
-    "--cursor-not-allowed": { value: `url(${cursorSet.no}), not-allowed` },
-    "--cursor-crosshair": { value: `url(${cursorSet.cross}), crosshair` },
-    "--cursor-nesw-resize": {
-      value: `url(${cursorSet.sizeNESW}), nesw-resize`,
-    },
-    "--cursor-ns-resize": { value: `url(${cursorSet.sizeNS}), ns-resize` },
-    "--cursor-nwse-resize": {
-      value: `url(${cursorSet.sizeNWSE}), nwse-resize`,
-    },
-    "--cursor-we-resize": { value: `url(${cursorSet.sizeWE}), ew-resize` },
-  };
-}
-
-const cursorThemes = {
-  default: createCursorTheme("default", cursors.default),
-  "dangerous-creatures": createCursorTheme(
-    "dangerous-creatures",
-    cursors.dangerousCreatures,
-  ),
-  "60s-usa": createCursorTheme("60s-usa", cursors.usa60s),
-  "inside-your-computer": createCursorTheme(
-    "inside-your-computer",
-    cursors.insideYourComputer,
-  ),
-  sports: createCursorTheme("sports", cursors.sports),
-};
 
 const allCursorProperties = Object.keys(
   cursorThemes[Object.keys(cursorThemes)[0]],
@@ -45,20 +13,22 @@ const allCursorProperties = Object.keys(
 let currentTheme = "default";
 
 export async function applyAniCursor(theme, cursorType) {
-  const themeKeyMap = {
-    default: "default",
-    "60s-usa": "usa60s",
-    "dangerous-creatures": "dangerousCreatures",
-    "inside-your-computer": "insideYourComputer",
-    sports: "sports",
-    // Add other theme mappings here
-  };
-  const themeKey = themeKeyMap[theme] || themeKeyMap.default || theme;
+  // Map the incoming theme name (kebab-case) to the internal `cursors` object key (camelCase).
+  const themeKey = themeNameToCursorKeyMap[theme] || theme; // Fallback to theme if no specific mapping exists
+
+  // `cursorType` directly corresponds to the key in the cursors object (e.g., 'busy', 'wait')
   const cursorUrl = cursors[themeKey]?.[cursorType];
 
   if (!cursorUrl) {
+    // If a specific theme doesn't have an animated cursor, fall back to default if it exists.
+    if (cursors.default?.[cursorType]) {
+      // console.log(`Falling back to default animated cursor for theme: ${theme}, type: ${cursorType}`);
+      // When falling back, use 'default' as the themeKey, not the original 'theme'
+      await applyAniCursor("default", cursorType); // Recursively call with default theme
+      return;
+    }
     console.warn(
-      `Animated cursor not found for theme: ${theme}, type: ${cursorType}`,
+      `Animated cursor not found for theme: ${theme}, type: ${cursorType}. No default fallback.`,
     );
     return;
   }
