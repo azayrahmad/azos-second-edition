@@ -37,6 +37,9 @@
     menuPopup.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
 
     menuPopup.element.style.display = "block";
+    if (typeof window.playSound === "function") {
+      window.playSound("MenuPopup");
+    }
     void menuPopup.element.offsetHeight; // force reflow
 
     const positionAt = (x, y) => {
