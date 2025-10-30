@@ -1,6 +1,7 @@
 import dangerousCreaturesWallpaper from "../assets/img/wallpapers/Dangerous Creatures wallpaper.jpg";
 import the60sUSAWallpaper from "../assets/img/wallpapers/The 60s USA wallpaper.jpg";
 import insideYourComputerWallpaper from "../assets/img/wallpapers/Inside your Computer wallpaper.jpg";
+import sportsWallpaper from "../assets/img/wallpapers/Sports wallpaper.jpg";
 
 export const themes = {
   default: {
@@ -56,7 +57,7 @@ export const themes = {
     id: "sports",
     name: "Sports",
     stylesheet: "sports.css",
-    // wallpaper: null,
-    //soundScheme: 'Sports',
+    wallpaper: sportsWallpaper,
+    soundScheme: "Sports",
   },
 };

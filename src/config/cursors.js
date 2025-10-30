@@ -45,6 +45,20 @@ import computerNS from "../assets/cursor/Inside your Computer Size NS.cur";
 import computerNWSE from "../assets/cursor/Inside your Computer Size NWSE.cur";
 import computerWE from "../assets/cursor/Inside your Computer Size WE.cur";
 
+// Sports theme
+import sportsArrow from "../assets/cursor/Sports arrow.cur";
+import sportsBeam from "../assets/cursor/Sports beam.cur";
+import sportsBusy from "../assets/cursor/Sports busy.ani";
+import sportsWait from "../assets/cursor/Sports wait.ani";
+import sportsHelp from "../assets/cursor/Sports help.cur";
+import sportsMove from "../assets/cursor/Sports move.cur";
+import sportsNo from "../assets/cursor/Sports no.cur";
+import sportsCross from "../assets/cursor/Sports cross.cur";
+import sportsNESW from "../assets/cursor/Sports Size NESW.cur";
+import sportsNS from "../assets/cursor/Sports Size NS.cur";
+import sportsNWSE from "../assets/cursor/Sports Size NWSE.cur";
+import sportsWE from "../assets/cursor/Sports Size WE.cur";
+
 export const cursors = {
   default: {
     busy: defaultBusy,
@@ -91,5 +105,19 @@ export const cursors = {
     sizeNS: computerNS,
     sizeNWSE: computerNWSE,
     sizeWE: computerWE,
+  },
+  sports: {
+    arrow: sportsArrow,
+    beam: sportsBeam,
+    busy: sportsBusy,
+    wait: sportsWait,
+    help: sportsHelp,
+    move: sportsMove,
+    no: sportsNo,
+    cross: sportsCross,
+    sizeNESW: sportsNESW,
+    sizeNS: sportsNS,
+    sizeNWSE: sportsNWSE,
+    sizeWE: sportsWE,
   },
 };

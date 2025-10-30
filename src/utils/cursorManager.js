@@ -32,7 +32,9 @@ const cursorThemes = {
   "60s-usa": createCursorTheme("60s-usa", cursors.usa60s),
   "inside-your-computer": createCursorTheme(
     "inside-your-computer",
-    cursors.insideYourComputer)
+    cursors.insideYourComputer,
+  ),
+  sports: createCursorTheme("sports", cursors.sports),
 };
 
 const allCursorProperties = Object.keys(

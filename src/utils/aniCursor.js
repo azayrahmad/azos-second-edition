@@ -9,6 +9,7 @@ export async function applyAniCursor(theme, cursorType) {
     "60s-usa": "usa60s",
     "dangerous-creatures": "dangerousCreatures",
     "inside-your-computer": "insideYourComputer",
+    sports: "sports",
     // Add other theme mappings here
   };
   const themeKey = themeKeyMap[theme] || themeKeyMap.default || theme;
