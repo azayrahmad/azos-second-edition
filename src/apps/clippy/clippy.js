@@ -196,40 +196,8 @@ export function getClippyMenuItems(app) {
 }
 
 export function showClippyContextMenu(event, app) {
-  // Remove any existing menus first (only one context menu at a time)
-  const existingMenus = document.querySelectorAll(".menu-popup");
-  existingMenus.forEach((menu) => menu.remove());
-
   const menuItems = getClippyMenuItems(app);
-  const menu = new MenuList(menuItems, { defaultLabel: "Ask Clippy" });
-  document.body.appendChild(menu.element);
-
-  // Set z-index if System is available
-  if (window.System) {
-    menu.element.style.zIndex = window.System.incrementZIndex();
-  }
-
-  // Position and show the menu
-  const menuHeight = menu.element.offsetHeight;
-  menu.show(event.pageX, event.pageY - menuHeight);
-
-  // Handle click outside to close
-  const closeMenu = (e) => {
-    if (!menu.element.contains(e.target)) {
-      menu.hide();
-      if (menu.element.parentNode) {
-        document.body.removeChild(menu.element);
-      }
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("contextmenu", closeMenu);
-    }
-  };
-
-  // Use setTimeout to prevent immediate closing
-  setTimeout(() => {
-    document.addEventListener("click", closeMenu);
-    document.addEventListener("contextmenu", closeMenu);
-  }, 0);
+  new window.ContextMenu(menuItems, event);
 }
 
 export function launchClippyApp(app, agentName = currentAgentName) {

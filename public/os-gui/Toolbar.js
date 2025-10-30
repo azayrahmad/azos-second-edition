@@ -115,26 +115,9 @@
                 this.closeActiveMenu();
             }
 
-            const menu = new MenuList(item.submenu, {
-                parentEl: parentEl,
-                className: 'toolbar-submenu'
-            });
-            this.activeMenu = menu;
-            document.body.appendChild(menu.element);
-
             const parentRect = parentEl.getBoundingClientRect();
-            menu.show(parentRect.left, parentRect.bottom);
-
-            const closeMenu = (e) => {
-                if (!menu.element.contains(e.target) && !parentEl.contains(e.target)) {
-                    this.closeActiveMenu();
-                    document.removeEventListener("click", closeMenu, true);
-                }
-            };
-
-            setTimeout(() => {
-                document.addEventListener("click", closeMenu, true);
-            }, 0);
+            const event = { pageX: parentRect.left, pageY: parentRect.bottom };
+            this.activeMenu = new window.ContextMenu(item.submenu, event);
         }
 
         closeActiveMenu() {
