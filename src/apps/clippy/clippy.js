@@ -131,15 +131,16 @@ export function getClippyMenuItems(app) {
   return [
     {
       label: "&Animate",
-      click: () => agent.animate(),
+      action: () => agent.animate(),
     },
     {
       label: "&Ask Clippy",
-      click: () => showClippyInputBalloon(),
+      default: true,
+      action: () => showClippyInputBalloon(),
     },
     {
       label: "&Tutorial",
-      click: () => {
+      action: () => {
         startTutorial(agent);
       },
     },
@@ -175,7 +176,7 @@ export function getClippyMenuItems(app) {
     "MENU_DIVIDER",
     {
       label: "&Close",
-      click: () => {
+      action: () => {
         agent.speakAndAnimate(
           "Goodbye! Just open me again if you need any help!",
           "Wave",
