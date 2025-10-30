@@ -266,17 +266,18 @@ class Taskbar {
       const contextMenuItems = [
         {
           label: "Restore",
-          default: true,
           enabled: isMinimized,
-          click: () => {
+          action: () => {
             if (typeof System !== "undefined" && isMinimized) {
               System.restoreWindow(win);
             }
           },
         },
+        MENU_DIVIDER,
         {
           label: "Close",
-          click: () => {
+          default: true,
+          action: () => {
             win.$window.close();
           },
         },

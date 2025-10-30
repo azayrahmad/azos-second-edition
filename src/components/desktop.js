@@ -66,6 +66,7 @@ function createDesktopIcon(item, isFile = false) {
 }
 
 function showIconContextMenu(event, app) {
+  console.log("Showing app context menu");
   let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
 
@@ -80,26 +81,27 @@ function showIconContextMenu(event, app) {
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
           case "open":
-            newItem.click = () => launchApp(app.id);
+            console.log("Opening app");
+            newItem.action = () => launchApp(app.id);
             break;
           case "properties":
-            newItem.click = () => showProperties(app);
+            newItem.action = () => showProperties(app);
             break;
           default:
-            newItem.click = () => {};
+            newItem.action = () => {};
             break;
         }
       } else if (typeof newItem.action === "function") {
-        newItem.click = newItem.action;
+        // newItem.click = newItem.action;
       }
-      delete newItem.action;
+      // delete newItem.action;
       return newItem;
     });
   } else {
     menuItems = [
       {
         label: "&Open",
-        click: () => handleAppAction(app),
+        action: () => handleAppAction(app),
       },
     ];
   }
@@ -298,21 +300,21 @@ export function setupIcons(options) {
 
   const placeIcon = (icon, iconId) => {
     if (iconPositions[iconId]) {
-        icon.style.position = 'absolute';
-        icon.style.left = iconPositions[iconId].x;
-        icon.style.top = iconPositions[iconId].y;
-    } else if (desktop.classList.contains('has-absolute-icons')) {
-        // If we're in manual mode but this icon has no position, find one for it.
-        const { x, y } = findNextOpenPosition(desktop, iconPositions);
-        icon.style.position = 'absolute';
-        icon.style.left = `${x}px`;
-        icon.style.top = `${y}px`;
-        // And save it for consistency
-        iconPositions[iconId] = { x: `${x}px`, y: `${y}px` };
-        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      icon.style.position = "absolute";
+      icon.style.left = iconPositions[iconId].x;
+      icon.style.top = iconPositions[iconId].y;
+    } else if (desktop.classList.contains("has-absolute-icons")) {
+      // If we're in manual mode but this icon has no position, find one for it.
+      const { x, y } = findNextOpenPosition(desktop, iconPositions);
+      icon.style.position = "absolute";
+      icon.style.left = `${x}px`;
+      icon.style.top = `${y}px`;
+      // And save it for consistency
+      iconPositions[iconId] = { x: `${x}px`, y: `${y}px` };
+      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
     desktop.appendChild(icon);
-};
+  };
 
   // Load apps
   const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
@@ -338,39 +340,39 @@ export function setupIcons(options) {
 }
 
 function findNextOpenPosition(desktop, iconPositions) {
-    const desktopRect = desktop.getBoundingClientRect();
-    const iconWidth = 75; // Average icon width
-    const iconHeight = 75; // Average icon height
-    const paddingTop = 5;
-    const paddingLeft = 5;
+  const desktopRect = desktop.getBoundingClientRect();
+  const iconWidth = 75; // Average icon width
+  const iconHeight = 75; // Average icon height
+  const paddingTop = 5;
+  const paddingLeft = 5;
 
-    const cols = Math.floor((desktopRect.width - paddingLeft) / iconWidth);
-    const rows = Math.floor((desktopRect.height - paddingTop) / iconHeight);
+  const cols = Math.floor((desktopRect.width - paddingLeft) / iconWidth);
+  const rows = Math.floor((desktopRect.height - paddingTop) / iconHeight);
 
-    const occupiedSlots = new Set();
-    Object.values(iconPositions).forEach(pos => {
-        const x = parseInt(pos.x, 10);
-        const y = parseInt(pos.y, 10);
-        if (!isNaN(x) && !isNaN(y)) {
-            const col = Math.round((x - paddingLeft) / iconWidth);
-            const row = Math.round((y - paddingTop) / iconHeight);
-            occupiedSlots.add(`${col},${row}`);
-        }
-    });
-
-    for (let c = 0; c < cols; c++) {
-        for (let r = 0; r < rows; r++) {
-            if (!occupiedSlots.has(`${c},${r}`)) {
-                return {
-                    x: paddingLeft + c * iconWidth,
-                    y: paddingTop + r * iconHeight,
-                };
-            }
-        }
+  const occupiedSlots = new Set();
+  Object.values(iconPositions).forEach((pos) => {
+    const x = parseInt(pos.x, 10);
+    const y = parseInt(pos.y, 10);
+    if (!isNaN(x) && !isNaN(y)) {
+      const col = Math.round((x - paddingLeft) / iconWidth);
+      const row = Math.round((y - paddingTop) / iconHeight);
+      occupiedSlots.add(`${col},${row}`);
     }
+  });
 
-    // Fallback if no slot is found (e.g., desktop is full)
-    return { x: paddingLeft, y: paddingTop };
+  for (let c = 0; c < cols; c++) {
+    for (let r = 0; r < rows; r++) {
+      if (!occupiedSlots.has(`${c},${r}`)) {
+        return {
+          x: paddingLeft + c * iconWidth,
+          y: paddingTop + r * iconHeight,
+        };
+      }
+    }
+  }
+
+  // Fallback if no slot is found (e.g., desktop is full)
+  return { x: paddingLeft, y: paddingTop };
 }
 
 function configureIcon(
