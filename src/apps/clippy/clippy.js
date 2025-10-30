@@ -3,7 +3,7 @@ import {
   setItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
-import { applyBusyCursor, clearBusyCursor } from "../../utils/aniCursor.js";
+import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 
 window.clippyAppInstance = null;
 let currentAgentName =
