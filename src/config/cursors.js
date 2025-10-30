@@ -151,6 +151,12 @@ function createCursorTheme(cursorSet) {
     "--cursor-move": {
       value: cursorSet.move ? `url(${cursorSet.move}), move` : "move",
     },
+    "--cursor-grab": {
+      value: "grab",
+    },
+    "--cursor-grabbing": {
+      value: cursorSet.move ? `url(${cursorSet.move}), grabbing` : "grabbing",
+    },
     "--cursor-not-allowed": {
       value: cursorSet.no ? `url(${cursorSet.no}), not-allowed` : "not-allowed",
     },
