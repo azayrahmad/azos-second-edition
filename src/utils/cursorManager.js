@@ -111,7 +111,6 @@ export function clearWaitCursor(element = document.body) {
 }
 
 export function applyCursorTheme(theme) {
-  currentTheme = theme;
   const root = document.documentElement;
   let themeConfig = getCursorThemes(theme);
   if (!themeConfig) themeConfig = getCursorThemes("default");
