@@ -266,7 +266,6 @@ class Taskbar {
       const contextMenuItems = [
         {
           label: "Restore",
-          default: true,
           enabled: isMinimized,
           click: () => {
             if (typeof System !== "undefined" && isMinimized) {
@@ -276,6 +275,7 @@ class Taskbar {
         },
         {
           label: "Close",
+          default: true,
           click: () => {
             win.$window.close();
           },

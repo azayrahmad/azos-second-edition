@@ -126,6 +126,9 @@
                 } else if (item.item) {
                     label_el.appendChild(AccessKeys.toFragment(item.item));
                 }
+                if (item.default) {
+                    label_el.classList.add("menu-item-default");
+                }
                 if (item.shortcutLabel) {
                     shortcut_el.textContent = item.shortcutLabel;
                 } else if (item.shortcut) {

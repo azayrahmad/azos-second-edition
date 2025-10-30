@@ -17,6 +17,7 @@ import {
   setTheme,
   applyTheme,
 } from "../utils/themeManager.js";
+import { deleteCustomApp } from "../utils/customAppManager.js";
 import { ICONS } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
 
@@ -66,16 +67,39 @@ function createDesktopIcon(item, isFile = false) {
 }
 
 function showIconContextMenu(event, app) {
-  let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
+  if (!appConfig) return;
 
-  const contextMenu = appConfig.contextMenu;
+  const baseItems = [
+    {
+      label: "&Open",
+      click: () => handleAppAction(app),
+      default: true,
+    },
+  ];
 
-  if (contextMenu) {
-    menuItems = contextMenu.map((item) => {
-      if (typeof item === "string") {
-        return item;
-      }
+  if (appConfig.isCustom) {
+    baseItems.push({
+      label: "&Delete",
+      click: () => {
+        // You'll need a way to get the iconId or a unique identifier here
+        // For now, assuming you can derive it or have access to it.
+        const iconElement = event.currentTarget; // The element that was right-clicked
+        const iconId = iconElement.getAttribute("data-icon-id");
+        if (
+          confirm(`Are you sure you want to delete ${appConfig.title}?`) &&
+          typeof deleteCustomApp === "function"
+        ) {
+          deleteCustomApp(app.id);
+        }
+      },
+    });
+  }
+
+  let menuItems = baseItems;
+  if (appConfig.contextMenu) {
+    const customItems = appConfig.contextMenu.map((item) => {
+      if (typeof item === "string") return item;
       const newItem = { ...item };
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
@@ -92,16 +116,13 @@ function showIconContextMenu(event, app) {
       } else if (typeof newItem.action === "function") {
         newItem.click = newItem.action;
       }
-      delete newItem.action;
+      delete newItem.action; // Remove the original action property
       return newItem;
     });
-  } else {
-    menuItems = [
-      {
-        label: "&Open",
-        click: () => handleAppAction(app),
-      },
-    ];
+    // Add a separator if there are custom items
+    if (customItems.length > 0) {
+      menuItems = [...baseItems, "MENU_DIVIDER", ...customItems];
+    }
   }
 
   new window.ContextMenu(menuItems, event);
