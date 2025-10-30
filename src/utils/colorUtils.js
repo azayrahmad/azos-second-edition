@@ -7,7 +7,7 @@ class Color {
 
   toString() {
     return `rgb(${Math.round(this.r)}, ${Math.round(this.g)}, ${Math.round(
-      this.b
+      this.b,
     )})`;
   }
 
@@ -79,13 +79,13 @@ class Color {
 
   multiply(matrix) {
     const newR = this.clamp(
-      this.r * matrix[0] + this.g * matrix[1] + this.b * matrix[2]
+      this.r * matrix[0] + this.g * matrix[1] + this.b * matrix[2],
     );
     const newG = this.clamp(
-      this.r * matrix[3] + this.g * matrix[4] + this.b * matrix[5]
+      this.r * matrix[3] + this.g * matrix[4] + this.b * matrix[5],
     );
     const newB = this.clamp(
-      this.r * matrix[6] + this.g * matrix[7] + this.b * matrix[8]
+      this.r * matrix[6] + this.g * matrix[7] + this.b * matrix[8],
     );
     this.r = newR;
     this.g = newG;
@@ -284,9 +284,9 @@ class Solver {
       return Math.round(filters[idx] * multiplier);
     }
     return `invert(${fmt(0)}%) sepia(${fmt(1)}%) saturate(${fmt(
-      2
+      2,
     )}%) hue-rotate(${fmt(3, 3.6)}deg) brightness(${fmt(4)}%) contrast(${fmt(
-      5
+      5,
     )}%)`;
   }
 }
@@ -308,9 +308,22 @@ function hexToRgb(hex) {
     : null;
 }
 
-export function computeFilterForHex(hex) {
-  const rgb = hexToRgb(hex);
-  if (rgb.length !== 3) {
+function rgbStringToColor(rgbString) {
+  const match = rgbString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  if (!match) {
+    return null;
+  }
+  const rgb = [
+    parseInt(match[1], 10),
+    parseInt(match[2], 10),
+    parseInt(match[3], 10),
+  ];
+  return new Color(rgb[0], rgb[1], rgb[2]);
+}
+
+export function computeFilterForHex(rgbString) {
+  const rgb = rgbStringToColor(rgbString);
+  if (!rgb || rgb.length !== 3) {
     return null;
   }
 
