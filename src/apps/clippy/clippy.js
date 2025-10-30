@@ -3,7 +3,7 @@ import {
   setItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
-import { applyBusyCursor, clearBusyCursor } from "../../utils/aniCursor.js";
+import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 
 window.clippyAppInstance = null;
 let currentAgentName =
@@ -131,15 +131,16 @@ export function getClippyMenuItems(app) {
   return [
     {
       label: "&Animate",
-      click: () => agent.animate(),
+      action: () => agent.animate(),
     },
     {
       label: "&Ask Clippy",
-      click: () => showClippyInputBalloon(),
+      default: true,
+      action: () => showClippyInputBalloon(),
     },
     {
       label: "&Tutorial",
-      click: () => {
+      action: () => {
         startTutorial(agent);
       },
     },
@@ -175,7 +176,7 @@ export function getClippyMenuItems(app) {
     "MENU_DIVIDER",
     {
       label: "&Close",
-      click: () => {
+      action: () => {
         agent.speakAndAnimate(
           "Goodbye! Just open me again if you need any help!",
           "Wave",
@@ -196,40 +197,8 @@ export function getClippyMenuItems(app) {
 }
 
 export function showClippyContextMenu(event, app) {
-  // Remove any existing menus first (only one context menu at a time)
-  const existingMenus = document.querySelectorAll(".menu-popup");
-  existingMenus.forEach((menu) => menu.remove());
-
   const menuItems = getClippyMenuItems(app);
-  const menu = new MenuList(menuItems, { defaultLabel: "Ask Clippy" });
-  document.body.appendChild(menu.element);
-
-  // Set z-index if System is available
-  if (window.System) {
-    menu.element.style.zIndex = window.System.incrementZIndex();
-  }
-
-  // Position and show the menu
-  const menuHeight = menu.element.offsetHeight;
-  menu.show(event.pageX, event.pageY - menuHeight);
-
-  // Handle click outside to close
-  const closeMenu = (e) => {
-    if (!menu.element.contains(e.target)) {
-      menu.hide();
-      if (menu.element.parentNode) {
-        document.body.removeChild(menu.element);
-      }
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("contextmenu", closeMenu);
-    }
-  };
-
-  // Use setTimeout to prevent immediate closing
-  setTimeout(() => {
-    document.addEventListener("click", closeMenu);
-    document.addEventListener("contextmenu", closeMenu);
-  }, 0);
+  new window.ContextMenu(menuItems, event);
 }
 
 export function launchClippyApp(app, agentName = currentAgentName) {

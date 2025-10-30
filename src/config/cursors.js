@@ -45,12 +45,26 @@ import computerNS from "../assets/cursor/Inside your Computer Size NS.cur";
 import computerNWSE from "../assets/cursor/Inside your Computer Size NWSE.cur";
 import computerWE from "../assets/cursor/Inside your Computer Size WE.cur";
 
+// Sports theme
+import sportsArrow from "../assets/cursor/Sports arrow.cur";
+import sportsBeam from "../assets/cursor/Sports beam.cur";
+import sportsBusy from "../assets/cursor/Sports busy.ani";
+import sportsWait from "../assets/cursor/Sports wait.ani";
+import sportsHelp from "../assets/cursor/Sports help.cur";
+import sportsMove from "../assets/cursor/Sports move.cur";
+import sportsNo from "../assets/cursor/Sports no.cur";
+import sportsCross from "../assets/cursor/Sports cross.cur";
+import sportsNESW from "../assets/cursor/Sports Size NESW.cur";
+import sportsNS from "../assets/cursor/Sports Size NS.cur";
+import sportsNWSE from "../assets/cursor/Sports Size NWSE.cur";
+import sportsWE from "../assets/cursor/Sports Size WE.cur";
+
 export const cursors = {
   default: {
     busy: defaultBusy,
     wait: defaultWait,
   },
-  dangerousCreatures: {
+  "dangerous-creatures": {
     arrow: dcArrow,
     beam: dcBeam,
     busy: dcBusy,
@@ -64,7 +78,7 @@ export const cursors = {
     sizeNWSE: dcNWSE,
     sizeWE: dcWE,
   },
-  usa60s: {
+  "60s-usa": {
     arrow: usaArrow,
     beam: usaBeam,
     busy: usaBusy,
@@ -78,7 +92,7 @@ export const cursors = {
     sizeNWSE: usaNWSE,
     sizeWE: usaWE,
   },
-  insideYourComputer: {
+  "inside-your-computer": {
     arrow: computerArrow,
     beam: computerBeam,
     busy: computerBusy,
@@ -92,4 +106,82 @@ export const cursors = {
     sizeNWSE: computerNWSE,
     sizeWE: computerWE,
   },
+  sports: {
+    arrow: sportsArrow,
+    beam: sportsBeam,
+    busy: sportsBusy,
+    wait: sportsWait,
+    help: sportsHelp,
+    move: sportsMove,
+    no: sportsNo,
+    cross: sportsCross,
+    sizeNESW: sportsNESW,
+    sizeNS: sportsNS,
+    sizeNWSE: sportsNWSE,
+    sizeWE: sportsWE,
+  },
 };
+
+/**
+ * Creates a cursor theme configuration object for CSS custom properties.
+ * If a cursor type is not provided in `cursorSet`, it defaults to the corresponding
+ * system cursor keyword (e.g., 'auto', 'text').
+ * @param {object} cursorSet - An object containing paths to cursor files for a theme.
+ * @returns {object} A theme configuration object.
+ */
+function createCursorTheme(cursorSet) {
+  const defaultAnimatedCursors = {
+    "--cursor-wait": { value: "wait", animated: true, type: "busy" },
+    "--cursor-progress": { value: "progress", animated: true, type: "wait" },
+  };
+
+  const baseCursors = {
+    "--cursor-default": {
+      value: cursorSet.arrow ? `url(${cursorSet.arrow}), auto` : "auto",
+    },
+    "--cursor-pointer": {
+      value: cursorSet.arrow ? `url(${cursorSet.arrow}), pointer` : "pointer",
+    },
+    "--cursor-text": {
+      value: cursorSet.beam ? `url(${cursorSet.beam}), text` : "text",
+    },
+    "--cursor-help": {
+      value: cursorSet.help ? `url(${cursorSet.help}), help` : "help",
+    },
+    "--cursor-move": {
+      value: cursorSet.move ? `url(${cursorSet.move}), move` : "move",
+    },
+    "--cursor-not-allowed": {
+      value: cursorSet.no ? `url(${cursorSet.no}), not-allowed` : "not-allowed",
+    },
+    "--cursor-crosshair": {
+      value: cursorSet.cross
+        ? `url(${cursorSet.cross}), crosshair`
+        : "crosshair",
+    },
+    "--cursor-nesw-resize": {
+      value: cursorSet.sizeNESW
+        ? `url(${cursorSet.sizeNESW}), nesw-resize`
+        : "nesw-resize",
+    },
+    "--cursor-ns-resize": {
+      value: cursorSet.sizeNS
+        ? `url(${cursorSet.sizeNS}), ns-resize`
+        : "ns-resize",
+    },
+    "--cursor-nwse-resize": {
+      value: cursorSet.sizeNWSE
+        ? `url(${cursorSet.sizeNWSE}), nwse-resize`
+        : "nwse-resize",
+    },
+    "--cursor-we-resize": {
+      value: cursorSet.sizeWE
+        ? `url(${cursorSet.sizeWE}), ew-resize`
+        : "ew-resize",
+    },
+  };
+
+  return { ...baseCursors, ...defaultAnimatedCursors };
+}
+
+export const getCursorThemes = (themeId) => createCursorTheme(cursors[themeId]);

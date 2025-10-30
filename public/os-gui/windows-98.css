@@ -620,6 +620,9 @@ so I think I'll imitate that. (I might change it later) */
 .menu-popup td {
     padding: 0 1px;
 }
+.menu-item-default {
+    font-weight: bold;
+}
 .menu-item {
     padding: 1px 3px;
     margin: 2px;
