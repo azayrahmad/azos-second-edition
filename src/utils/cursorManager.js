@@ -1,4 +1,5 @@
-import { cursors } from "../config/cursors.js";
+import { themes } from "../config/themes.js";
+import { cursorSchemes } from "../config/cursor-schemes.js";
 import { applyAniCursor, clearAniCursor } from "./aniCursor.js";
 
 function createCursorTheme(themeName, cursorSet) {
@@ -23,37 +24,25 @@ function createCursorTheme(themeName, cursorSet) {
   };
 }
 
-const cursorThemes = {
-  default: createCursorTheme("default", cursors.default),
-  "dangerous-creatures": createCursorTheme(
-    "dangerous-creatures",
-    cursors.dangerousCreatures,
-  ),
-  "60s-usa": createCursorTheme("60s-usa", cursors.usa60s),
-  "inside-your-computer": createCursorTheme(
-    "inside-your-computer",
-    cursors.insideYourComputer,
-  ),
-  sports: createCursorTheme("sports", cursors.sports),
-};
-
 const allCursorProperties = Object.keys(
-  cursorThemes[Object.keys(cursorThemes)[0]],
+  createCursorTheme("default", cursorSchemes.Default),
 );
 let currentTheme = "default";
 
-export function applyCursor(theme) {
-  currentTheme = theme;
+export function applyCursor(themeKey) {
+  currentTheme = themeKey;
   const root = document.documentElement;
-  var themeConfig = cursorThemes[theme];
-  if (!themeConfig) themeConfig = cursorThemes.default;
+  const theme = themes[themeKey] || themes.default;
+  const cursorSchemeName = theme.cursorScheme || "Default";
+  const cursorSet = cursorSchemes[cursorSchemeName] || cursorSchemes.Default;
+  const themeConfig = createCursorTheme(cursorSchemeName, cursorSet);
 
   clearAniCursor();
 
   if (themeConfig) {
     for (const [property, config] of Object.entries(themeConfig)) {
       if (config.animated) {
-        applyAniCursor(theme, config.type);
+        applyAniCursor(themeKey, config.type);
       } else {
         root.style.setProperty(property, config.value);
       }
