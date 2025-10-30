@@ -199,7 +199,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const menuItems = [
     {
       label: "Sort Icons",
-      click: () => {
+      action: () => {
         // Remove saved positions and redraw icons
         removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
         setupIcons({ selectedIcons, clearSelection });
@@ -207,7 +207,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     },
     {
       label: "Empty Recycle Bin",
-      click: () => {
+      action: () => {
         playSound("EmptyRecycleBin");
       },
     },
@@ -217,11 +217,11 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       submenu: [
         {
           label: "Set Wallpaper...",
-          click: setWallpaper,
+          action: setWallpaper,
         },
         {
           label: "Remove Wallpaper",
-          click: removeWallpaper,
+          action: removeWallpaper,
         },
         "MENU_DIVIDER",
         {
