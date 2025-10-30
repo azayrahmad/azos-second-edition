@@ -3,9 +3,7 @@ import { cursors, getCursorThemes } from "../config/cursors.js";
 
 const styleMap = new Map();
 
-let currentTheme = "default";
-
-export async function applyAniCursor(theme, cursorType) {
+export async function applyAniCursorTheme(theme, cursorType) {
   // `cursorType` directly corresponds to the key in the cursors object (e.g., 'busy', 'wait')
   const cursorUrl = cursors[theme]?.[cursorType];
 
@@ -14,7 +12,7 @@ export async function applyAniCursor(theme, cursorType) {
     if (cursors.default?.[cursorType]) {
       // console.log(`Falling back to default animated cursor for theme: ${theme}, type: ${cursorType}`);
       // When falling back, use 'default' as the themeKey, not the original 'theme'
-      await applyAniCursor("default", cursorType); // Recursively call with default theme
+      await applyAniCursorTheme("default", cursorType); // Recursively call with default theme
       return;
     }
     console.warn(
@@ -112,7 +110,7 @@ export function clearWaitCursor(element = document.body) {
   }, 50);
 }
 
-export function applyCursor(theme) {
+export function applyCursorTheme(theme) {
   currentTheme = theme;
   const root = document.documentElement;
   let themeConfig = getCursorThemes(theme);
@@ -123,7 +121,7 @@ export function applyCursor(theme) {
   if (themeConfig) {
     for (const [property, config] of Object.entries(themeConfig)) {
       if (config.animated) {
-        applyAniCursor(theme, config.type);
+        applyAniCursorTheme(theme, config.type);
       } else {
         root.style.setProperty(property, config.value);
       }

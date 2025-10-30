@@ -7,7 +7,7 @@ import {
 import { themes } from "../config/themes.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
-import { applyCursor } from "./cursorManager.js";
+import { applyCursorTheme } from "./cursorManager.js";
 
 export function getThemes() {
   return themes;
@@ -19,7 +19,7 @@ export function getCurrentTheme() {
 
 export function applyTheme() {
   const savedThemeKey = getCurrentTheme();
-  applyCursor(savedThemeKey);
+  applyCursorTheme(savedThemeKey);
 
   Object.values(themes).forEach((theme) => {
     if (theme.id === "default") return;
