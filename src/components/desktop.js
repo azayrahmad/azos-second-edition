@@ -83,6 +83,7 @@ function showIconContextMenu(event, app) {
           case "open":
             console.log("Opening app");
             newItem.action = () => launchApp(app.id);
+            newItem.default = true;
             break;
           case "properties":
             newItem.action = () => showProperties(app);
@@ -101,6 +102,7 @@ function showIconContextMenu(event, app) {
     menuItems = [
       {
         label: "&Open",
+        default: true,
         action: () => handleAppAction(app),
       },
     ];
