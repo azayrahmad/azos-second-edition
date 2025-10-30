@@ -253,6 +253,10 @@
                 }
               }
             }
+            submenu_popup_rect = submenu_popup_el.getBoundingClientRect(); // Recalculate after horizontal adjustments
+            if (submenu_popup_rect.bottom > innerHeight) {
+              submenu_popup_el.style.top = `${Math.max(0, innerHeight - submenu_popup_rect.height) + window.scrollY}px`;
+            }
             submenu_popup_el.focus({ preventScroll: true });
             options.setActiveMenuPopup(submenu_popup);
           };
