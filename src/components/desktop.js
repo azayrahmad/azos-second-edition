@@ -104,28 +104,7 @@ function showIconContextMenu(event, app) {
     ];
   }
 
-  const existingMenus = document.querySelectorAll(".menu-popup");
-  existingMenus.forEach((menu) => menu.remove());
-
-  const menu = new MenuList(menuItems);
-  document.body.appendChild(menu.element);
-
-  menu.element.style.position = "absolute";
-  menu.element.style.left = `${event.pageX}px`;
-  menu.element.style.top = `${event.pageY}px`;
-  menu.show();
-
-  const closeMenu = (e) => {
-    if (!menu.element.contains(e.target)) {
-      menu.hide();
-      if (menu.element.parentNode) {
-        document.body.removeChild(menu.element);
-      }
-      document.removeEventListener("click", closeMenu);
-    }
-  };
-
-  document.addEventListener("click", closeMenu);
+  new window.ContextMenu(menuItems, event);
 }
 
 function setWallpaper() {
@@ -286,40 +265,16 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     },
   ];
 
-  const existingMenus = document.querySelectorAll(".menu-popup");
-  existingMenus.forEach((menu) => menu.remove());
-
-  const menu = new MenuList(menuItems);
-  document.body.appendChild(menu.element);
-
-  menu.show(event.clientX, event.clientY);
-
-  const updateActiveSubmenu = () => {
-    // When the theme changes, we need to manually trigger an update on the menu
-    // to re-evaluate the 'check' state of all theme items.
+  const menu = new window.ContextMenu(menuItems, event);
+  const handleThemeChange = () => {
     if (menu.activeSubmenu) {
       menu.activeSubmenu.element.dispatchEvent(new CustomEvent("update", {}));
     }
   };
+  const handleWallpaperChange = handleThemeChange; // Same logic
 
-  // Consolidate event handlers for state changes that affect the menu
-  const handleThemeChange = updateActiveSubmenu;
-  const handleWallpaperChange = updateActiveSubmenu;
-
-  const closeMenu = (e) => {
-    if (!menu.element.contains(e.target) && !e.target.closest(".menu-popup")) {
-      menu.closeAll();
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("theme-changed", handleThemeChange); // Clean up listener
-      document.removeEventListener("wallpaper-changed", handleWallpaperChange);
-    }
-  };
-
-  setTimeout(() => {
-    document.addEventListener("click", closeMenu);
-    document.addEventListener("theme-changed", handleThemeChange);
-    document.addEventListener("wallpaper-changed", handleWallpaperChange);
-  }, 0);
+  document.addEventListener("theme-changed", handleThemeChange);
+  document.addEventListener("wallpaper-changed", handleWallpaperChange);
 }
 
 function showProperties(app) {
