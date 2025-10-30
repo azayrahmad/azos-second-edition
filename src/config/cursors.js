@@ -184,4 +184,5 @@ function createCursorTheme(cursorSet) {
   return { ...baseCursors, ...defaultAnimatedCursors };
 }
 
-export const getCursorThemes = (themeId) => createCursorTheme(cursors[themeId]);
+export const getCursorThemes = (themeId) =>
+  createCursorTheme(cursors[themeId] || cursors["default"]);

@@ -31,7 +31,7 @@
     --shadow-dark: var(--ButtonDkShadow);
     --shadow-medium-light: var(--ButtonLight);
     --shadow-medium-dark: var(--ButtonShadow);
-    --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%)
+    --icon-highlight-filter: sepia(100%) hue-rotate(180deg) saturate(2000%)
         brightness(0.6);
     --text-shadow: 1px 1px var(--ButtonDkShadow);
     --icon-label-font-size: 11px;
@@ -113,7 +113,7 @@ html {
 }
 
 .highlighted-icon {
-    filter: var(--icon-filter);
+    filter: var(--icon-highlight-filter);
 }
 
 .highlighted-label {
