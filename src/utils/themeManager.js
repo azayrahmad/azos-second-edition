@@ -8,6 +8,7 @@ import { themes } from "../config/themes.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
 import { applyCursorTheme } from "./cursorManager.js";
+import { computeFilterForHex } from "./colorUtils.js";
 
 export function getThemes() {
   return themes;
@@ -29,6 +30,19 @@ export function applyTheme() {
       stylesheet.disabled = theme.id !== savedThemeKey;
     }
   });
+
+  // Must be in a timeout to allow the new theme's CSS to be applied
+  setTimeout(() => {
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+    const highlightColor = computedStyle.getPropertyValue("--Hilight").trim();
+    if (highlightColor) {
+      const result = computeFilterForHex(highlightColor);
+      if (result && result.filter) {
+        root.style.setProperty("--icon-highlight-filter", result.filter);
+      }
+    }
+  }, 0);
 }
 
 export function setTheme(themeKey) {
