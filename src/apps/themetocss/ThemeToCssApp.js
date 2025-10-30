@@ -43,16 +43,14 @@ export class ThemeToCssApp extends Application {
 
   _createPreview() {
     this.previewPane.innerHTML = `
-      <div class="os-window preview-window">
-        <div class="title-bar">
-          <div class="title-bar-text">Preview Window</div>
-          <div class="title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Maximize"></button>
-            <button aria-label="Close"></button>
-          </div>
+      <div class="window os-window preview-window">
+        <div class="window-titlebar">
+          <span class="window-title">Preview Window</span>
+          <button class="window-minimize-button window-action-minimize window-button" aria-label="Minimize window"><span class="window-button-icon"></span></button>
+          <button class="window-maximize-button window-action-maximize window-button" aria-label="Maximize or restore window"><span class="window-button-icon"></span></button>
+          <button class="window-close-button window-action-close window-button" aria-label="Close window"><span class="window-button-icon"></span></button>
         </div>
-        <div class="window-body">
+        <div class="window-content">
           <p>This is a preview of the theme.</p>
           <button>OK</button>
         </div>

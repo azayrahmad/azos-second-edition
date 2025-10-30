@@ -33,7 +33,7 @@
   font-size: var(--font-size);
 }
 
-.preview-window .title-bar {
+.preview-window .window-titlebar {
   background: var(--title-bar-bg);
   color: var(--title-bar-text-color);
   padding: 2px 4px;
@@ -43,12 +43,12 @@
   height: 18px;
 }
 
-.preview-window .title-bar-text {
+.preview-window .window-title {
   font-weight: bold;
   color: var(--title-bar-text-color);
 }
 
-.preview-window .window-body {
+.preview-window .window-content {
   padding: 10px;
   text-align: center;
 }
