@@ -10,6 +10,7 @@ export const themes = {
     stylesheet: "windows-default.css",
     wallpaper: null,
     soundScheme: "Default",
+    cursorScheme: "Default",
   },
   "peggys-pastels": {
     id: "peggys-pastels",
@@ -17,6 +18,7 @@ export const themes = {
     stylesheet: "peggys-pastels.css",
     wallpaper: null,
     soundScheme: "Default",
+    cursorScheme: "Default",
   },
   blue: {
     id: "blue",
@@ -24,6 +26,7 @@ export const themes = {
     stylesheet: "blue.css",
     wallpaper: null,
     soundScheme: "Default",
+    cursorScheme: "Default",
   },
   "60s-usa": {
     id: "60s-usa",
@@ -31,6 +34,7 @@ export const themes = {
     stylesheet: "60s-usa.css",
     wallpaper: the60sUSAWallpaper,
     soundScheme: "60s USA",
+    cursorScheme: "60s USA",
   },
   "dangerous-creatures": {
     id: "dangerous-creatures",
@@ -38,6 +42,7 @@ export const themes = {
     stylesheet: "dangerous-creatures.css",
     wallpaper: dangerousCreaturesWallpaper,
     soundScheme: "Dangerous Creatures",
+    cursorScheme: "Dangerous Creatures",
   },
   //'memphis-milano': {
   //  id: 'memphis-milano',
@@ -52,6 +57,7 @@ export const themes = {
     stylesheet: "inside-your-computer.css",
     wallpaper: insideYourComputerWallpaper,
     soundScheme: "Inside Your Computer",
+    cursorScheme: "Inside Your Computer",
   },
   sports: {
     id: "sports",
@@ -59,5 +65,6 @@ export const themes = {
     stylesheet: "sports.css",
     wallpaper: sportsWallpaper,
     soundScheme: "Sports",
+    cursorScheme: "Sports",
   },
 };

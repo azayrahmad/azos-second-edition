@@ -1,4 +1,4 @@
-// src/cursors/cursor.js
+// src/config/cursor-schemes.js
 // Default theme
 import defaultBusy from "../assets/cursor/HOURGLASS.ani";
 import defaultWait from "../assets/cursor/APPSTARTS.ani";
@@ -59,12 +59,12 @@ import sportsNS from "../assets/cursor/Sports Size NS.cur";
 import sportsNWSE from "../assets/cursor/Sports Size NWSE.cur";
 import sportsWE from "../assets/cursor/Sports Size WE.cur";
 
-export const cursors = {
-  default: {
+export const cursorSchemes = {
+  Default: {
     busy: defaultBusy,
     wait: defaultWait,
   },
-  dangerousCreatures: {
+  "Dangerous Creatures": {
     arrow: dcArrow,
     beam: dcBeam,
     busy: dcBusy,
@@ -78,7 +78,7 @@ export const cursors = {
     sizeNWSE: dcNWSE,
     sizeWE: dcWE,
   },
-  usa60s: {
+  "60s USA": {
     arrow: usaArrow,
     beam: usaBeam,
     busy: usaBusy,
@@ -92,7 +92,7 @@ export const cursors = {
     sizeNWSE: usaNWSE,
     sizeWE: usaWE,
   },
-  insideYourComputer: {
+  "Inside Your Computer": {
     arrow: computerArrow,
     beam: computerBeam,
     busy: computerBusy,
@@ -106,7 +106,7 @@ export const cursors = {
     sizeNWSE: computerNWSE,
     sizeWE: computerWE,
   },
-  sports: {
+  Sports: {
     arrow: sportsArrow,
     beam: sportsBeam,
     busy: sportsBusy,
