@@ -1,11 +1,8 @@
 import { convertAniBinaryToCSS } from "ani-cursor";
-import { cursors, cursorThemes } from "../config/cursors.js";
+import { cursors, getCursorThemes } from "../config/cursors.js";
 
 const styleMap = new Map();
 
-const allCursorProperties = Object.keys(
-  cursorThemes[Object.keys(cursorThemes)[0]],
-);
 let currentTheme = "default";
 
 export async function applyAniCursor(theme, cursorType) {
@@ -118,8 +115,8 @@ export function clearWaitCursor(element = document.body) {
 export function applyCursor(theme) {
   currentTheme = theme;
   const root = document.documentElement;
-  let themeConfig = cursorThemes[theme];
-  if (!themeConfig) themeConfig = cursorThemes.default;
+  let themeConfig = getCursorThemes(theme);
+  if (!themeConfig) themeConfig = getCursorThemes("default");
 
   clearAniCursor();
 
@@ -132,7 +129,7 @@ export function applyCursor(theme) {
       }
     }
   } else {
-    for (const property of allCursorProperties) {
+    for (const property of getCursorThemes(theme)) {
       root.style.removeProperty(property);
     }
   }

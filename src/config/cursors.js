@@ -184,12 +184,4 @@ function createCursorTheme(cursorSet) {
   return { ...baseCursors, ...defaultAnimatedCursors };
 }
 
-export const cursorThemes = {
-  // The 'default' theme will use system defaults for static cursors,
-  // and the animated cursors defined in cursors.default.
-  default: createCursorTheme(cursors.default),
-  "dangerous-creatures": createCursorTheme(cursors["dangerous-creatures"]),
-  "60s-usa": createCursorTheme(cursors["60s-usa"]),
-  "inside-your-computer": createCursorTheme(cursors["inside-your-computer"]),
-  sports: createCursorTheme(cursors.sports),
-};
+export const getCursorThemes = (themeId) => createCursorTheme(cursors[themeId]);
