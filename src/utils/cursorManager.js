@@ -1,9 +1,5 @@
 import { convertAniBinaryToCSS } from "ani-cursor";
-import {
-  cursors,
-  cursorThemes,
-  themeNameToCursorKeyMap,
-} from "../config/cursors.js";
+import { cursors, cursorThemes } from "../config/cursors.js";
 
 const styleMap = new Map();
 
@@ -13,11 +9,8 @@ const allCursorProperties = Object.keys(
 let currentTheme = "default";
 
 export async function applyAniCursor(theme, cursorType) {
-  // Map the incoming theme name (kebab-case) to the internal `cursors` object key (camelCase).
-  const themeKey = themeNameToCursorKeyMap[theme] || theme; // Fallback to theme if no specific mapping exists
-
   // `cursorType` directly corresponds to the key in the cursors object (e.g., 'busy', 'wait')
-  const cursorUrl = cursors[themeKey]?.[cursorType];
+  const cursorUrl = cursors[theme]?.[cursorType];
 
   if (!cursorUrl) {
     // If a specific theme doesn't have an animated cursor, fall back to default if it exists.

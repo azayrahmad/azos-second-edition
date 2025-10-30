@@ -64,7 +64,7 @@ export const cursors = {
     busy: defaultBusy,
     wait: defaultWait,
   },
-  dangerousCreatures: {
+  "dangerous-creatures": {
     arrow: dcArrow,
     beam: dcBeam,
     busy: dcBusy,
@@ -78,7 +78,7 @@ export const cursors = {
     sizeNWSE: dcNWSE,
     sizeWE: dcWE,
   },
-  usa60s: {
+  "60s-usa": {
     arrow: usaArrow,
     beam: usaBeam,
     busy: usaBusy,
@@ -92,7 +92,7 @@ export const cursors = {
     sizeNWSE: usaNWSE,
     sizeWE: usaWE,
   },
-  insideYourComputer: {
+  "inside-your-computer": {
     arrow: computerArrow,
     beam: computerBeam,
     busy: computerBusy,
@@ -188,16 +188,8 @@ export const cursorThemes = {
   // The 'default' theme will use system defaults for static cursors,
   // and the animated cursors defined in cursors.default.
   default: createCursorTheme(cursors.default),
-  "dangerous-creatures": createCursorTheme(cursors.dangerousCreatures),
-  "60s-usa": createCursorTheme(cursors.usa60s),
-  "inside-your-computer": createCursorTheme(cursors.insideYourComputer),
+  "dangerous-creatures": createCursorTheme(cursors["dangerous-creatures"]),
+  "60s-usa": createCursorTheme(cursors["60s-usa"]),
+  "inside-your-computer": createCursorTheme(cursors["inside-your-computer"]),
   sports: createCursorTheme(cursors.sports),
-};
-
-export const themeNameToCursorKeyMap = {
-  default: "default",
-  "dangerous-creatures": "dangerousCreatures",
-  "60s-usa": "usa60s",
-  "inside-your-computer": "insideYourComputer",
-  sports: "sports",
 };
