@@ -19,6 +19,7 @@ import {
 } from "../utils/themeManager.js";
 import { ICONS } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
+import { ShowDialogWindow } from "./DialogWindow.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -104,6 +105,10 @@ function showIconContextMenu(event, app) {
         label: "&Open",
         default: true,
         action: () => handleAppAction(app),
+      },
+      {
+        label: "&Properties",
+        action: () => showProperties(app),
       },
     ];
   }
@@ -282,8 +287,12 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 }
 
 function showProperties(app) {
-  console.log(`Show properties for: ${app.title}`);
-  // TODO: Implement properties dialog
+  ShowDialogWindow({
+    title: `${app.title} Properties`,
+    contentIconUrl: app.icon[32],
+    text: `<b>${app.title}</b>`,
+    buttons: [{ label: "OK", isDefault: true }],
+  });
 }
 
 export function setupIcons(options) {
