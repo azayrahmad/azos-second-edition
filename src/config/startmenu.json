@@ -7,5 +7,6 @@
   "clippy",
   "webamp",
   "image-viewer",
-  "themetocss"
+  "themetocss",
+  "themeswitcher"
 ]

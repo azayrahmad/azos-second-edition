@@ -1,0 +1,55 @@
+.theme-switcher-container {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: var(--ButtonFace);
+}
+
+.theme-switcher-container .field-row:first-child {
+  flex-grow: 1;
+}
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 150px;
+}
+
+select#theme-select {
+  width: 100%;
+  height: 21px; /* Match standard input height */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* Make space for the custom arrow */
+  padding-right: 20px;
+}
+
+/* The custom arrow button, styled like a scrollbar button */
+.select-arrow {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 17px;
+  height: 17px;
+  padding: 0;
+  pointer-events: none;
+
+  /* Styles from .scrollbar-button in windows-98.css */
+  background-color: var(--ButtonFace);
+  border-top: 1px solid var(--ButtonFace);
+  border-left: 1px solid var(--ButtonFace);
+  border-right: 1px solid var(--ButtonDkShadow);
+  border-bottom: 1px solid var(--ButtonDkShadow);
+  box-shadow: 1px 1px 0 var(--ButtonHilight) inset, -1px -1px 0 var(--ButtonShadow) inset;
+
+  /* Arrow sprite from windows-98.css */
+  background-image: var(--scrollbar-arrows-ButtonText);
+  image-rendering: pixelated;
+
+  /* Position for the "down" arrow */
+  background-position: calc(var(--scrollbar-button-inner-size) * -0 + 1px) 1px;
+  background-repeat: no-repeat;
+}

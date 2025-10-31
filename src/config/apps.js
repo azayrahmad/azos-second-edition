@@ -8,6 +8,7 @@ import { WebampApp } from "../apps/webamp/WebampApp.js";
 import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
+import { ThemeSwitcherApp } from "../apps/themeswitcher/ThemeSwitcherApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -24,6 +25,7 @@ export const appClasses = {
   "image-resizer": ImageResizerApp,
   "image-viewer": ImageViewerApp,
   themetocss: ThemeToCssApp,
+  themeswitcher: ThemeSwitcherApp,
 };
 
 export const apps = [
@@ -139,5 +141,14 @@ export const apps = [
     width: 700,
     height: 350,
     resizable: true,
+  },
+  {
+    id: "themeswitcher",
+    title: "Theme Switcher",
+    icon: ICONS.themeSwitcher,
+    appClass: ThemeSwitcherApp,
+    width: 250,
+    height: 150,
+    resizable: false,
   },
 ];
