@@ -197,10 +197,9 @@ button:not(:disabled):active img {
 }
 
 .start-menu li {
-    height: 22px;
-    width: 132px;
-    padding: 7px 10px;
-
+    height: 32px;
+    padding: 0px 5px;
+    padding-left: 0;
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -209,9 +208,9 @@ button:not(:disabled):active img {
     text-decoration: none;
 }
 .start-menu li img {
-    width: 24px;
-    height: 24px;
-    margin-right: 14px;
+    width: 32px;
+    height: 32px;
+    margin-right: 7px;
 }
 .start-menu li:hover {
     background-color: var(--Hilight, #0000a8);

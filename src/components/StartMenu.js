@@ -84,16 +84,18 @@ class StartMenu {
   }
 
   getStartMenuHTML() {
-    const dynamicItemsHTML = startMenuConfig.map(item => {
-      const hasSubmenu = item.submenu && item.submenu.length > 0;
-      return `
-        <li class="start-menu-item ${hasSubmenu ? 'has-submenu' : ''}" role="menuitem" tabindex="0" data-id="${this.escapeHtml(item.label)}">
+    const dynamicItemsHTML = startMenuConfig
+      .map((item) => {
+        const hasSubmenu = item.submenu && item.submenu.length > 0;
+        return `
+        <li class="start-menu-item ${hasSubmenu ? "has-submenu" : ""}" role="menuitem" tabindex="0" data-id="${this.escapeHtml(item.label)}">
           <img src="${item.icon}" alt="${this.escapeHtml(item.label)}">
           <span>${this.escapeHtml(item.label)}</span>
-          ${hasSubmenu ? '<span class="submenu-arrow"></span>' : ''}
+          ${hasSubmenu ? '<span class="submenu-arrow"></span>' : ""}
         </li>
       `;
-    }).join('');
+      })
+      .join("");
 
     return `
       <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
@@ -102,14 +104,14 @@ class StartMenu {
         </div>
         <ul class="start-menu-list">
           <li role="menuitem" tabindex="0" data-action="home">
-            <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
+            <img src="${ICONS.windowsUpdate[16]}" alt="Computer" loading="lazy">
             <span>aziz rahmad</span>
           </li>
           <div class="start-menu-divider" role="separator"></div>
           ${dynamicItemsHTML}
           <div class="start-menu-divider" role="separator"></div>
           <li class="logoff-menu-item" role="menuitem" tabindex="0">
-            <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
+            <img src="${ICONS.logoff[16]}" alt="Log off" loading="lazy">
             <span id="logofftext">Log Off Guest...</span>
           </li>
           <li role="menuitem" tabindex="0" data-action="shutdown">
@@ -148,6 +150,8 @@ class StartMenu {
         setActiveMenuPopup: (menu) => {
           activeMenu = menu;
         },
+        send_info_event: () => {},
+        refocus_outside_menus: () => {},
       });
 
       document.body.appendChild(activeMenu.element);
@@ -169,7 +173,7 @@ class StartMenu {
     const closeMenu = (useTimeout = false) => {
       const doClose = () => {
         if (activeMenu) {
-          this.openSubmenus = this.openSubmenus.filter(m => m !== activeMenu);
+          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
           activeMenu.close();
           activeMenu = null;
         }
@@ -189,14 +193,16 @@ class StartMenu {
   }
 
   bindMenuItems() {
-    startMenuConfig.forEach(itemConfig => {
-      const menuItem = document.querySelector(`.start-menu-item[data-id="${this.escapeHtml(itemConfig.label)}"]`);
+    startMenuConfig.forEach((itemConfig) => {
+      const menuItem = document.querySelector(
+        `.start-menu-item[data-id="${this.escapeHtml(itemConfig.label)}"]`,
+      );
       if (!menuItem) return;
 
       if (itemConfig.submenu) {
         this.attachSubmenu(menuItem, itemConfig.submenu);
       } else if (itemConfig.action) {
-        this.addTrackedEventListener(menuItem, 'click', () => {
+        this.addTrackedEventListener(menuItem, "click", () => {
           itemConfig.action();
           this.hide();
         });
@@ -306,7 +312,7 @@ class StartMenu {
     startMenu.setAttribute("aria-hidden", "true");
     this.isVisible = false;
 
-    this.openSubmenus.forEach(menu => menu.close());
+    this.openSubmenus.forEach((menu) => menu.close());
     this.openSubmenus = [];
   }
 
