@@ -1,5 +1,9 @@
 import { Application } from "../Application.js";
-import { getThemes, setTheme, getCurrentTheme } from "../../utils/themeManager.js";
+import {
+  getThemes,
+  setTheme,
+  getCurrentTheme,
+} from "../../utils/themeManager.js";
 import "./themeswitcher.css";
 
 export class ThemeSwitcherApp extends Application {
@@ -15,7 +19,7 @@ export class ThemeSwitcherApp extends Application {
     // Add a data attribute to the window for easier selection in tests
     win.element.dataset.appId = this.id;
 
-    win.$content.innerHTML = `
+    win.$content.html(`
       <div class="theme-switcher-container">
         <div class="field-row">
           <label for="theme-select">Choose a theme:</label>
@@ -28,28 +32,28 @@ export class ThemeSwitcherApp extends Application {
           <button id="apply-theme-btn">Apply</button>
         </div>
       </div>
-    `;
+    `);
     return win;
   }
 
   _onLaunch() {
-    const select = this.win.$content.find('#theme-select')[0];
-    const applyBtn = this.win.$content.find('#apply-theme-btn')[0];
+    const select = this.win.$content.find("#theme-select");
+    const applyBtn = this.win.$content.find("#apply-theme-btn");
     const themes = getThemes();
     const currentTheme = getCurrentTheme();
 
     for (const theme of Object.values(themes)) {
-      const option = document.createElement('option');
+      const option = document.createElement("option");
       option.value = theme.id;
       option.textContent = theme.name;
       if (theme.id === currentTheme) {
         option.selected = true;
       }
-      select.appendChild(option);
+      select.append(option);
     }
 
-    applyBtn.addEventListener('click', () => {
-      const selectedTheme = select.value;
+    applyBtn.on("click", () => {
+      const selectedTheme = select.val();
       setTheme(selectedTheme);
     });
   }
