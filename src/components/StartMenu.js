@@ -75,9 +75,6 @@ class StartMenu {
     });
   }
 
-  /**
-   * Render the start menu HTML
-   */
   render() {
     const startMenuWrapper = document.querySelector(".start-menu-wrapper");
     if (!startMenuWrapper) {
@@ -86,76 +83,118 @@ class StartMenu {
 
     startMenuWrapper.innerHTML = this.getStartMenuHTML();
   }
-  /**
-   * Generate app menu items HTML from apps configuration
-   */
-  generateAppMenuItems() {
-    const appsToLoad = apps.filter((app) => startMenuApps.includes(app.id));
-    return appsToLoad
-      .map(
-        (app) => `
-          <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
-              <img src="${app.icon[16]}" alt="${app.title}" loading="lazy">
-              <span>${app.title}</span>
-          </li>
-      `,
-      )
-      .join("");
-  }
-  /**
-   * Generate start menu HTML template
-   */
+
   getStartMenuHTML() {
     return `
-       <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
-         <div class="blue-rectangle">
-           <img src="${windowsStartMenuBar}" alt="Start Menu Bar" loading="lazy" />
-         </div>
-         <ul class="start-menu-list">
-           <li role="menuitem" tabindex="0" data-action="home">
-             <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
-             <span>aziz rahmad</span>
-           </li>
-           <div class="start-menu-divider" role="separator"></div>
-           ${this.generateAppMenuItems()}
-           <div class="start-menu-divider" role="separator"></div>
-           <li class="logoff-menu-item" role="menuitem" tabindex="0">
-             <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
-             <span id="logofftext">Log Off Guest...</span>
-           </li>
-           <li role="menuitem" tabindex="0" data-action="shutdown">
-             <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
-             <span>Shut Down...</span>
-           </li>
-         </ul>
-       </div>`;
+      <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
+        <div class="blue-rectangle">
+          <img src="${windowsStartMenuBar}" alt="Start Menu Bar" loading="lazy" />
+        </div>
+        <ul class="start-menu-list">
+          <li role="menuitem" tabindex="0" data-action="home">
+            <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
+            <span>aziz rahmad</span>
+          </li>
+          <div class="start-menu-divider" role="separator"></div>
+          <li class="start-menu-item has-submenu" role="menuitem" tabindex="0" data-action="programs">
+            <img src="${ICONS.programs[16]}" alt="Programs">
+            <span>Programs</span>
+            <span class="submenu-arrow"></span>
+          </li>
+          <div class="start-menu-divider" role="separator"></div>
+          <li class="logoff-menu-item" role="menuitem" tabindex="0">
+            <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
+            <span id="logofftext">Log Off Guest...</span>
+          </li>
+          <li role="menuitem" tabindex="0" data-action="shutdown">
+            <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
+            <span>Shut Down...</span>
+          </li>
+        </ul>
+      </div>`;
   }
 
-  /**
-   * Bind all start menu event listeners
-   */
   bindEvents() {
-    this.bindMenuItemEvents();
     this.bindSpecialActionEvents();
     this.bindKeyboardEvents();
     this.bindOutsideClickEvents();
+    this.bindProgramsMenu();
   }
 
-  /**
-   * Bind start menu item click events
-   */ bindMenuItemEvents() {
-    const startMenuItems = document.querySelectorAll(
-      ".start-menu-item[data-app-id]",
-    );
-    startMenuItems.forEach((item) => {
-      this.addTrackedEventListener(item, "click", (event) => {
-        const appId = item.getAttribute("data-app-id");
-        if (appId) {
-          launchApp(appId);
-          this.hide();
-        }
+  bindProgramsMenu() {
+    const programsItem = document.querySelector('[data-action="programs"]');
+    const appsToLoad = apps.filter((app) => startMenuApps.includes(app.id));
+    const submenuItems = appsToLoad.map((app) => ({
+      label: app.title,
+      icon: app.icon[16],
+      action: () => {
+        launchApp(app.id);
+        this.hide();
+      },
+    }));
+
+    let activeMenu = null;
+    let closeTimeout;
+
+    const openMenu = () => {
+      clearTimeout(closeTimeout);
+      if (activeMenu) return;
+
+      activeMenu = new window.MenuPopup(submenuItems, {
+        parentMenuPopup: null,
+        handleKeyDown: (e) => {
+          if (e.key === "Escape") {
+            closeMenu();
+          }
+        },
+        closeMenus: () => {
+          closeMenu();
+        },
+        setActiveMenuPopup: (menu) => {
+          activeMenu = menu;
+        },
       });
+
+      document.body.appendChild(activeMenu.element);
+      const rect = programsItem.getBoundingClientRect();
+      activeMenu.element.style.left = `${rect.right}px`;
+      activeMenu.element.style.top = `${rect.top}px`;
+      activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
+
+      this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
+        clearTimeout(closeTimeout);
+      });
+
+      this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
+        closeMenu(true);
+      });
+      this.programsMenu = activeMenu;
+    };
+
+    const closeMenu = (useTimeout = false) => {
+      if (useTimeout) {
+        closeTimeout = setTimeout(() => {
+          if (activeMenu) {
+            activeMenu.close();
+            activeMenu = null;
+            this.programsMenu = null;
+          }
+        }, 100);
+      } else {
+        if (activeMenu) {
+          activeMenu.close();
+          activeMenu = null;
+          this.programsMenu = null;
+        }
+      }
+    };
+
+    this.addTrackedEventListener(programsItem, "pointerenter", openMenu);
+    this.addTrackedEventListener(programsItem, "pointerleave", () => {
+      closeMenu(true);
     });
+
+    this.programsMenu = activeMenu;
   }
 
   /**
@@ -259,6 +298,10 @@ class StartMenu {
     startButton.setAttribute("aria-pressed", "false"); // Added
     startMenu.setAttribute("aria-hidden", "true");
     this.isVisible = false;
+    if (this.programsMenu) {
+      this.programsMenu.close();
+      this.programsMenu = null;
+    }
   }
 
   /**

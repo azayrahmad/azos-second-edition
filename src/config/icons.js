@@ -95,4 +95,8 @@ export const ICONS = {
     16: new URL("../assets/icons/word_001.ico", import.meta.url).href,
     32: new URL("../assets/icons/word_001.ico", import.meta.url).href,
   },
+  programs: {
+    16: new URL("../assets/icons/directory_open_file_mydocs_small-5.png", import.meta.url).href,
+    32: new URL("../assets/icons/directory_open_file_mydocs-1.png", import.meta.url).href,
+  },
 };

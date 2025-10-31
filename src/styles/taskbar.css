@@ -305,3 +305,12 @@ button:not(:disabled):active img {
     background: silver;
     min-height: 23px;
 }
+
+.submenu-arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 0 4px 4px;
+    border-color: transparent transparent transparent var(--ButtonText, black);
+    margin-left: auto;
+}

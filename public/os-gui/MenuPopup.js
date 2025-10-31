@@ -134,6 +134,15 @@
         item_el.appendChild(label_el);
         item_el.appendChild(shortcut_el);
         item_el.appendChild(submenu_area_el);
+        if (item.icon) {
+          const icon_el = E("img", {
+            src: item.icon,
+            width: 16,
+            height: 16,
+            style: "margin-right: 4px;",
+          });
+          label_el.appendChild(icon_el);
+        }
         if (item.label) {
           label_el.appendChild(AccessKeys.toFragment(item.label));
         } else if (item.item) {
