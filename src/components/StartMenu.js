@@ -6,9 +6,7 @@
 // Import icons
 import windowsStartMenuBar from "../assets/img/win98start.png";
 import { ICONS } from "../config/icons.js";
-import { apps } from "../config/apps.js";
-import startMenuApps from "../config/startmenu.json";
-import { launchApp } from "../utils/appManager.js";
+import startMenuConfig from "../config/startmenu.js";
 import { playSound } from "../utils/soundManager.js";
 
 // Constants
@@ -34,6 +32,7 @@ class StartMenu {
   constructor() {
     this.isVisible = false;
     this.eventListeners = new Map();
+    this.openSubmenus = [];
   }
 
   /**
@@ -85,6 +84,19 @@ class StartMenu {
   }
 
   getStartMenuHTML() {
+    const dynamicItemsHTML = startMenuConfig
+      .map((item) => {
+        const hasSubmenu = item.submenu && item.submenu.length > 0;
+        return `
+        <li class="start-menu-item ${hasSubmenu ? "has-submenu" : ""}" role="menuitem" tabindex="0" data-id="${this.escapeHtml(item.label)}">
+          <img src="${item.icon}" alt="${this.escapeHtml(item.label)}">
+          <span>${this.escapeHtml(item.label)}</span>
+          ${hasSubmenu ? '<span class="submenu-arrow"></span>' : ""}
+        </li>
+      `;
+      })
+      .join("");
+
     return `
       <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
         <div class="blue-rectangle">
@@ -92,18 +104,14 @@ class StartMenu {
         </div>
         <ul class="start-menu-list">
           <li role="menuitem" tabindex="0" data-action="home">
-            <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
+            <img src="${ICONS.windowsUpdate[16]}" alt="Computer" loading="lazy">
             <span>aziz rahmad</span>
           </li>
           <div class="start-menu-divider" role="separator"></div>
-          <li class="start-menu-item has-submenu" role="menuitem" tabindex="0" data-action="programs">
-            <img src="${ICONS.programs[16]}" alt="Programs">
-            <span>Programs</span>
-            <span class="submenu-arrow"></span>
-          </li>
+          ${dynamicItemsHTML}
           <div class="start-menu-divider" role="separator"></div>
           <li class="logoff-menu-item" role="menuitem" tabindex="0">
-            <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
+            <img src="${ICONS.logoff[16]}" alt="Log off" loading="lazy">
             <span id="logofftext">Log Off Guest...</span>
           </li>
           <li role="menuitem" tabindex="0" data-action="shutdown">
@@ -118,21 +126,10 @@ class StartMenu {
     this.bindSpecialActionEvents();
     this.bindKeyboardEvents();
     this.bindOutsideClickEvents();
-    this.bindProgramsMenu();
+    this.bindMenuItems();
   }
 
-  bindProgramsMenu() {
-    const programsItem = document.querySelector('[data-action="programs"]');
-    const appsToLoad = apps.filter((app) => startMenuApps.includes(app.id));
-    const submenuItems = appsToLoad.map((app) => ({
-      label: app.title,
-      icon: app.icon[16],
-      action: () => {
-        launchApp(app.id);
-        this.hide();
-      },
-    }));
-
+  attachSubmenu(menuItem, submenuItems) {
     let activeMenu = null;
     let closeTimeout;
 
@@ -153,13 +150,16 @@ class StartMenu {
         setActiveMenuPopup: (menu) => {
           activeMenu = menu;
         },
+        send_info_event: () => {},
+        refocus_outside_menus: () => {},
       });
 
       document.body.appendChild(activeMenu.element);
-      const rect = programsItem.getBoundingClientRect();
+      const rect = menuItem.getBoundingClientRect();
       activeMenu.element.style.left = `${rect.right}px`;
       activeMenu.element.style.top = `${rect.top}px`;
       activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
+      this.openSubmenus.push(activeMenu);
 
       this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
         clearTimeout(closeTimeout);
@@ -168,33 +168,46 @@ class StartMenu {
       this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
         closeMenu(true);
       });
-      this.programsMenu = activeMenu;
     };
 
     const closeMenu = (useTimeout = false) => {
-      if (useTimeout) {
-        closeTimeout = setTimeout(() => {
-          if (activeMenu) {
-            activeMenu.close();
-            activeMenu = null;
-            this.programsMenu = null;
-          }
-        }, 100);
-      } else {
+      const doClose = () => {
         if (activeMenu) {
+          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
           activeMenu.close();
           activeMenu = null;
-          this.programsMenu = null;
         }
+      };
+
+      if (useTimeout) {
+        closeTimeout = setTimeout(doClose, 100);
+      } else {
+        doClose();
       }
     };
 
-    this.addTrackedEventListener(programsItem, "pointerenter", openMenu);
-    this.addTrackedEventListener(programsItem, "pointerleave", () => {
+    this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
+    this.addTrackedEventListener(menuItem, "pointerleave", () => {
       closeMenu(true);
     });
+  }
 
-    this.programsMenu = activeMenu;
+  bindMenuItems() {
+    startMenuConfig.forEach((itemConfig) => {
+      const menuItem = document.querySelector(
+        `.start-menu-item[data-id="${this.escapeHtml(itemConfig.label)}"]`,
+      );
+      if (!menuItem) return;
+
+      if (itemConfig.submenu) {
+        this.attachSubmenu(menuItem, itemConfig.submenu);
+      } else if (itemConfig.action) {
+        this.addTrackedEventListener(menuItem, "click", () => {
+          itemConfig.action();
+          this.hide();
+        });
+      }
+    });
   }
 
   /**
@@ -298,10 +311,9 @@ class StartMenu {
     startButton.setAttribute("aria-pressed", "false"); // Added
     startMenu.setAttribute("aria-hidden", "true");
     this.isVisible = false;
-    if (this.programsMenu) {
-      this.programsMenu.close();
-      this.programsMenu = null;
-    }
+
+    this.openSubmenus.forEach((menu) => menu.close());
+    this.openSubmenus = [];
   }
 
   /**

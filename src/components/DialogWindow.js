@@ -127,4 +127,12 @@ function ShowDialogWindow(options) {
     return win;
 }
 
-export { ShowDialogWindow };
+function ShowComingSoonDialog(title) {
+    ShowDialogWindow({
+        title: title,
+        text: 'Coming soon.',
+        modal: true,
+    });
+}
+
+export { ShowDialogWindow, ShowComingSoonDialog };
