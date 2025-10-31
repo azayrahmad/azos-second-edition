@@ -134,22 +134,34 @@ class StartMenu {
     }));
 
     let activeMenu = null;
+    let openTimeout;
     let closeTimeout;
 
+    const performClose = () => {
+      if (activeMenu) {
+        activeMenu.close();
+        activeMenu = null;
+        this.programsMenu = null;
+      }
+    };
+
+    const scheduleClose = () => {
+      clearTimeout(openTimeout);
+      clearTimeout(closeTimeout);
+      closeTimeout = setTimeout(performClose, 500);
+    };
+
     const openMenu = () => {
+      clearTimeout(openTimeout);
       clearTimeout(closeTimeout);
       if (activeMenu) return;
 
       activeMenu = new window.MenuPopup(submenuItems, {
         parentMenuPopup: null,
         handleKeyDown: (e) => {
-          if (e.key === "Escape") {
-            closeMenu();
-          }
+          if (e.key === "Escape") performClose();
         },
-        closeMenus: () => {
-          closeMenu();
-        },
+        closeMenus: () => performClose(),
         setActiveMenuPopup: (menu) => {
           activeMenu = menu;
         },
@@ -160,41 +172,35 @@ class StartMenu {
       activeMenu.element.style.left = `${rect.right}px`;
       activeMenu.element.style.top = `${rect.top}px`;
       activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
+      this.programsMenu = activeMenu;
 
       this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
         clearTimeout(closeTimeout);
       });
 
       this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
-        closeMenu(true);
+        scheduleClose();
       });
-      this.programsMenu = activeMenu;
     };
 
-    const closeMenu = (useTimeout = false) => {
-      if (useTimeout) {
-        closeTimeout = setTimeout(() => {
-          if (activeMenu) {
-            activeMenu.close();
-            activeMenu = null;
-            this.programsMenu = null;
-          }
-        }, 100);
-      } else {
-        if (activeMenu) {
-          activeMenu.close();
-          activeMenu = null;
-          this.programsMenu = null;
-        }
+    this.addTrackedEventListener(programsItem, "pointerenter", () => {
+      clearTimeout(closeTimeout);
+      if (!activeMenu) {
+        openTimeout = setTimeout(openMenu, 500);
       }
-    };
-
-    this.addTrackedEventListener(programsItem, "pointerenter", openMenu);
-    this.addTrackedEventListener(programsItem, "pointerleave", () => {
-      closeMenu(true);
     });
 
-    this.programsMenu = activeMenu;
+    this.addTrackedEventListener(programsItem, "pointerleave", () => {
+      scheduleClose();
+    });
+
+    this.addTrackedEventListener(programsItem, "click", () => {
+      if (activeMenu) {
+        performClose();
+      } else {
+        openMenu();
+      }
+    });
   }
 
   /**
