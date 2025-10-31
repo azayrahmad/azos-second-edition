@@ -106,6 +106,10 @@ function showIconContextMenu(event, app) {
         default: true,
         action: () => handleAppAction(app),
       },
+      {
+        label: "&Properties",
+        action: () => showProperties(app),
+      },
     ];
   }
 
