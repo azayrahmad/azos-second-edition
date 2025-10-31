@@ -130,65 +130,16 @@ class StartMenu {
   }
 
   attachSubmenu(menuItem, submenuItems) {
-    let activeMenu = null;
-    let closeTimeout;
-
-    const openMenu = () => {
-      clearTimeout(closeTimeout);
-      if (activeMenu) return;
-
-      activeMenu = new window.MenuPopup(submenuItems, {
-        parentMenuPopup: null,
-        handleKeyDown: (e) => {
-          if (e.key === "Escape") {
-            closeMenu();
-          }
-        },
-        closeMenus: () => {
-          closeMenu();
-        },
-        setActiveMenuPopup: (menu) => {
-          activeMenu = menu;
-        },
-        send_info_event: () => {},
-        refocus_outside_menus: () => {},
-      });
-
-      document.body.appendChild(activeMenu.element);
-      const rect = menuItem.getBoundingClientRect();
-      activeMenu.element.style.left = `${rect.right}px`;
-      activeMenu.element.style.top = `${rect.top}px`;
-      activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
-      this.openSubmenus.push(activeMenu);
-
-      this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
-        clearTimeout(closeTimeout);
-      });
-
-      this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
-        closeMenu(true);
-      });
-    };
-
-    const closeMenu = (useTimeout = false) => {
-      const doClose = () => {
-        if (activeMenu) {
-          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
-          activeMenu.close();
-          activeMenu = null;
+    window.makeSubmenu(menuItem, submenuItems, {
+      handleKeyDown: (e) => {
+        if (e.key === "Escape") {
+          this.hide();
         }
-      };
-
-      if (useTimeout) {
-        closeTimeout = setTimeout(doClose, 100);
-      } else {
-        doClose();
-      }
-    };
-
-    this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
-    this.addTrackedEventListener(menuItem, "pointerleave", () => {
-      closeMenu(true);
+      },
+      closeMenus: () => {
+        this.hide();
+      },
+      // The rest of the options are optional and can be added if needed
     });
   }
 
