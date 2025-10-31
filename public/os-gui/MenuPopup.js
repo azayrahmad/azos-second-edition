@@ -130,19 +130,21 @@
         const label_el = E("td", { class: "menu-item-label" });
         const shortcut_el = E("td", { class: "menu-item-shortcut" });
         const submenu_area_el = E("td", { class: "menu-item-submenu-area" });
-        item_el.appendChild(checkbox_area_el);
-        item_el.appendChild(label_el);
-        item_el.appendChild(shortcut_el);
-        item_el.appendChild(submenu_area_el);
+
         if (item.icon) {
           const icon_el = E("img", {
             src: item.icon,
             width: 16,
             height: 16,
-            style: "margin-right: 4px;",
+            style: "margin-right: 4px; margin-left: 2px;",
           });
-          label_el.appendChild(icon_el);
+          item_el.appendChild(icon_el);
+        } else {
+          item_el.appendChild(checkbox_area_el);
         }
+        item_el.appendChild(label_el);
+        item_el.appendChild(shortcut_el);
+        item_el.appendChild(submenu_area_el);
         if (item.label) {
           label_el.appendChild(AccessKeys.toFragment(item.label));
         } else if (item.item) {
