@@ -1,0 +1,30 @@
+.task-manager-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.task-list {
+    flex-grow: 1;
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.task-list li.selected {
+    background-color: var(--header-background);
+    color: var(--header-text);
+}
+
+.button-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.button-bar button {
+    margin-left: 5px;
+}
