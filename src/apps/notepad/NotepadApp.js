@@ -27,7 +27,14 @@ export class NotepadApp extends Application {
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
 
-        win.$content.append('<div class="notepad-container"></div>');
+        const mainContainerHTML = `
+            <div class="notepad-main-container">
+                <div class="line-numbers-gutter"></div>
+                <div class="notepad-container"></div>
+            </div>
+        `;
+        win.$content.append(mainContainerHTML);
+
         return win;
     }
 
@@ -164,8 +171,11 @@ export class NotepadApp extends Application {
 
     _onLaunch() {
         const container = this.win.$content.find('.notepad-container')[0];
+        const lineNumbersGutter = this.win.$content.find('.line-numbers-gutter')[0];
+
         this.editor = new NotepadEditor(container, {
             win: this.win,
+            lineNumbersElement: lineNumbersGutter,
             onInput: () => {
                 this.isDirty = true;
                 this.updateTitle();

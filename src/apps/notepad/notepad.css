@@ -1,3 +1,7 @@
+.notepad-main-container > .notepad-container {
+    flex-grow: 1;
+}
+
 .notepad-container {
   display: flex;
   flex-direction: column;
@@ -17,4 +21,35 @@
   overflow: auto;
   user-select: text;
   flex-direction: column;
+}
+
+.notepad-main-container {
+    display: flex;
+    height: 100%;
+}
+
+.line-numbers-gutter {
+    display: none;
+    width: 40px;
+    padding: 8px 4px 8px 0;
+    background: var(--ButtonFace);
+    color: var(--ButtonShadow);
+    font-family: "Fixedsys Excelsior", monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: right;
+    border-right: 1px solid var(--ButtonShadow);
+    user-select: none;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.line-numbers-gutter::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.line-numbers-gutter span {
+    display: block;
+    padding-right: 4px;
 }

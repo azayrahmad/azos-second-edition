@@ -5,6 +5,7 @@ export class NotepadEditor {
     constructor(container, options = {}) {
         this.container = container;
         this.options = options;
+        this.lineNumbers = options.lineNumbersElement; // Expect an external element
         this.container.innerHTML = this._getHTML();
         this._initEditor();
     }
@@ -12,7 +13,6 @@ export class NotepadEditor {
     _getHTML() {
         return `
             <div class="editor-wrapper">
-                <div class="line-numbers" aria-hidden="true"></div>
                 <pre><code class="highlighted"></code></pre>
                 <textarea class="codeInput" spellcheck="false"></textarea>
             </div>
@@ -26,11 +26,9 @@ export class NotepadEditor {
     _initEditor() {
         this.isDirty = false;
         this.wordWrap = false;
-        this.lineNumbersVisible = false;
 
         this.codeInput = this.container.querySelector('.codeInput');
         this.highlighted = this.container.querySelector('.highlighted');
-        this.lineNumbers = this.container.querySelector('.line-numbers');
         this.statusText = this.container.querySelector('.statusText');
         this.lineCount = this.container.querySelector('.lineCount');
         this.currentLanguage = this.options.language || 'text';
@@ -97,21 +95,21 @@ export class NotepadEditor {
         preElement.scrollLeft = this.codeInput.scrollLeft;
         this.highlighted.scrollTop = this.codeInput.scrollTop;
         this.highlighted.scrollLeft = this.codeInput.scrollLeft;
-        if (this.lineNumbersVisible) {
+        if (this.lineNumbers) {
             this.lineNumbers.scrollTop = this.codeInput.scrollTop;
         }
     }
 
     toggleLineNumbers(isVisible) {
-        this.lineNumbersVisible = isVisible;
-        this.container.querySelector('.editor-wrapper').classList.toggle('show-line-numbers', isVisible);
-        this.updateLineNumbers();
-        this.syncPadding();
+        if (this.lineNumbers) {
+            this.lineNumbers.style.display = isVisible ? 'block' : 'none';
+            this.updateLineNumbers();
+        }
     }
 
     updateLineNumbers() {
-        if (!this.lineNumbersVisible) {
-            this.lineNumbers.innerHTML = '';
+        if (!this.lineNumbers || this.lineNumbers.style.display === 'none') {
+            if (this.lineNumbers) this.lineNumbers.innerHTML = '';
             return;
         }
 
