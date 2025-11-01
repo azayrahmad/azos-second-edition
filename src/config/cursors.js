@@ -155,7 +155,7 @@ function createCursorTheme(cursorSet) {
       value: "grab",
     },
     "--cursor-grabbing": {
-      value: cursorSet.move ? `url(${cursorSet.move}), grabbing` : "grabbing",
+      value: "grabbing",
     },
     "--cursor-not-allowed": {
       value: cursorSet.no ? `url(${cursorSet.no}), not-allowed` : "not-allowed",
