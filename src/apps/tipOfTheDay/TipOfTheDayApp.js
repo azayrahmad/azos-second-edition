@@ -4,13 +4,6 @@ import { apps } from '../../config/apps.js';
 import { launchApp } from '../../utils/appManager.js';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 
-const tips = apps.reduce((acc, app) => {
-    if (app.tips) {
-        return acc.concat(app.tips);
-    }
-    return acc;
-}, []);
-
 export class TipOfTheDayApp extends Application {
     constructor(config) {
         super(config);
@@ -32,6 +25,13 @@ export class TipOfTheDayApp extends Application {
     }
 
     _onLaunch() {
+        const tips = apps.reduce((acc, app) => {
+            if (app.tips) {
+                return acc.concat(app.tips);
+            }
+            return acc;
+        }, []);
+
         const contentElement = this.win.$content[0];
         let currentTipIndex = Math.floor(Math.random() * tips.length);
 
