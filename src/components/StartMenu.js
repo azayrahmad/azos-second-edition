@@ -133,15 +133,26 @@ class StartMenu {
     let activeMenu = null;
     let closeTimeout;
 
+    const isTouchDevice = () =>
+      "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    const closeAllSubmenus = (exceptThisOne = null) => {
+      this.openSubmenus.forEach((menu) => {
+        if (menu !== exceptThisOne) {
+          menu.close();
+          if (menu.element && menu.element.parentNode) {
+            menu.element.remove();
+          }
+        }
+      });
+      this.openSubmenus = exceptThisOne ? [exceptThisOne] : [];
+    };
+
     const openMenu = () => {
       clearTimeout(closeTimeout);
       if (activeMenu) return;
 
-      // Close any other open submenus immediately
-      if (this.openSubmenus.length > 0) {
-        [...this.openSubmenus].forEach((menu) => menu.close());
-        this.openSubmenus = [];
-      }
+      closeAllSubmenus();
 
       activeMenu = new window.MenuPopup(submenuItems, {
         parentMenuPopup: null,
@@ -170,35 +181,64 @@ class StartMenu {
       }
       this.openSubmenus.push(activeMenu);
 
-      this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
-        clearTimeout(closeTimeout);
-      });
+      if (!isTouchDevice()) {
+        this.addTrackedEventListener(
+          activeMenu.element,
+          "pointerenter",
+          () => {
+            clearTimeout(closeTimeout);
+          },
+        );
 
-      this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
-        closeMenu(true);
-      });
+        this.addTrackedEventListener(
+          activeMenu.element,
+          "pointerleave",
+          () => {
+            closeMenu(true);
+          },
+        );
+      }
     };
 
     const closeMenu = (useTimeout = false) => {
       const doClose = () => {
         if (activeMenu) {
-          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
+          const index = this.openSubmenus.indexOf(activeMenu);
+          if (index > -1) {
+            this.openSubmenus.splice(index, 1);
+          }
           activeMenu.close();
+          if (activeMenu.element && activeMenu.element.parentNode) {
+            activeMenu.element.remove();
+          }
           activeMenu = null;
         }
       };
 
-      if (useTimeout) {
+      if (useTimeout && !isTouchDevice()) {
         closeTimeout = setTimeout(doClose, 100);
       } else {
         doClose();
       }
     };
 
-    this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
-    this.addTrackedEventListener(menuItem, "pointerleave", () => {
-      closeMenu(true);
-    });
+    const toggleMenu = (event) => {
+      event.stopPropagation();
+      if (activeMenu) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    };
+
+    if (isTouchDevice()) {
+      this.addTrackedEventListener(menuItem, "click", toggleMenu);
+    } else {
+      this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
+      this.addTrackedEventListener(menuItem, "pointerleave", () => {
+        closeMenu(true);
+      });
+    }
   }
 
   bindMenuItems() {
