@@ -137,6 +137,12 @@ class StartMenu {
       clearTimeout(closeTimeout);
       if (activeMenu) return;
 
+      // Close any other open submenus immediately
+      if (this.openSubmenus.length > 0) {
+        [...this.openSubmenus].forEach((menu) => menu.close());
+        this.openSubmenus = [];
+      }
+
       activeMenu = new window.MenuPopup(submenuItems, {
         parentMenuPopup: null,
         handleKeyDown: (e) => {
@@ -159,6 +165,9 @@ class StartMenu {
       activeMenu.element.style.left = `${rect.right}px`;
       activeMenu.element.style.top = `${rect.top}px`;
       activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
+      if (typeof window.playSound === "function") {
+        window.playSound("MenuPopup");
+      }
       this.openSubmenus.push(activeMenu);
 
       this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
