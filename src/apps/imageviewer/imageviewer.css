@@ -15,6 +15,10 @@
     object-fit: contain;
 }
 
+.image-viewer-container.pannable {
+    cursor: var(--cursor-grab, grab);
+}
+
 .resize-controls {
     display: flex;
     flex-direction: column;

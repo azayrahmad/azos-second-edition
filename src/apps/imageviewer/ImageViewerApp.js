@@ -8,6 +8,13 @@ export class ImageViewerApp extends Application {
     this.file = null;
     this.zoomLevel = 1;
     this.zoomStep = 0.1;
+
+    // Panning state
+    this.isPanning = false;
+    this.startX = 0;
+    this.startY = 0;
+    this.scrollLeft = 0;
+    this.scrollTop = 0;
   }
 
   _createWindow(file) {
@@ -84,6 +91,7 @@ export class ImageViewerApp extends Application {
 
   async _onLaunch(file) {
     this.img = this.win.$content.find("img")[0];
+    const imageContainer = this.win.$content.find(".image-viewer-container")[0];
 
     if (file) {
       this.loadFile(file);
@@ -91,15 +99,56 @@ export class ImageViewerApp extends Application {
       console.log("Image Viewer launched without a file.");
     }
 
-    const imageContainer = this.win.$content.find(".image-viewer-container")[0];
     imageContainer.addEventListener("wheel", (e) => {
-      e.preventDefault(); // Prevent page scrolling
+      e.preventDefault();
       if (e.deltaY < 0) {
         this.zoomIn();
       } else {
         this.zoomOut();
       }
     });
+
+    const startPanning = (e) => {
+      if (this._isPannable()) {
+        e.preventDefault();
+        this.isPanning = true;
+        const point = e.touches ? e.touches[0] : e;
+        this.startX = point.pageX - imageContainer.offsetLeft;
+        this.startY = point.pageY - imageContainer.offsetTop;
+        this.scrollLeft = imageContainer.scrollLeft;
+        this.scrollTop = imageContainer.scrollTop;
+        imageContainer.style.cursor = "var(--cursor-grabbing, grabbing)";
+      }
+    };
+
+    const stopPanning = () => {
+      this.isPanning = false;
+      if (this._isPannable()) {
+        imageContainer.style.cursor = "var(--cursor-grab, grab)";
+      }
+    };
+
+    const doPan = (e) => {
+      if (!this.isPanning) return;
+      e.preventDefault();
+      const point = e.touches ? e.touches[0] : e;
+      const x = point.pageX - imageContainer.offsetLeft;
+      const y = point.pageY - imageContainer.offsetTop;
+      const walkX = (x - this.startX) * 2;
+      const walkY = (y - this.startY) * 2;
+      imageContainer.scrollLeft = this.scrollLeft - walkX;
+      imageContainer.scrollTop = this.scrollTop - walkY;
+    };
+
+    // Panning Listeners
+    imageContainer.addEventListener("mousedown", startPanning);
+    imageContainer.addEventListener("mouseup", stopPanning);
+    imageContainer.addEventListener("mouseleave", stopPanning);
+    imageContainer.addEventListener("mousemove", doPan);
+    imageContainer.addEventListener("touchstart", startPanning, { passive: false });
+    imageContainer.addEventListener("touchend", stopPanning);
+    imageContainer.addEventListener("touchcancel", stopPanning);
+    imageContainer.addEventListener("touchmove", doPan, { passive: false });
   }
 
   loadFile(file) {
@@ -111,6 +160,7 @@ export class ImageViewerApp extends Application {
       this.img.onload = () => {
         this.resetZoom();
         this._adjustWindowSize(this.img);
+        this._updatePannableState();
       };
     };
     reader.readAsDataURL(file);
@@ -262,6 +312,21 @@ export class ImageViewerApp extends Application {
       this.img.style.transform = `scale(${this.zoomLevel})`;
       this.img.style.maxWidth = this.zoomLevel === 1 ? "100%" : "none";
       this.img.style.maxHeight = this.zoomLevel === 1 ? "100%" : "none";
+      this._updatePannableState();
+    }
+  }
+
+  _isPannable() {
+    const imageContainer = this.win.$content.find(".image-viewer-container")[0];
+    return imageContainer.scrollWidth > imageContainer.clientWidth || imageContainer.scrollHeight > imageContainer.clientHeight;
+  }
+
+  _updatePannableState() {
+    const imageContainer = this.win.$content.find(".image-viewer-container")[0];
+    if (this._isPannable()) {
+      imageContainer.classList.add("pannable");
+    } else {
+      imageContainer.classList.remove("pannable");
     }
   }
 
