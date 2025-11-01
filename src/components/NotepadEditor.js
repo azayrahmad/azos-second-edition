@@ -5,6 +5,7 @@ export class NotepadEditor {
     constructor(container, options = {}) {
         this.container = container;
         this.options = options;
+        this.lineNumbers = options.lineNumbersElement; // Expect an external element
         this.container.innerHTML = this._getHTML();
         this._initEditor();
     }
@@ -94,6 +95,26 @@ export class NotepadEditor {
         preElement.scrollLeft = this.codeInput.scrollLeft;
         this.highlighted.scrollTop = this.codeInput.scrollTop;
         this.highlighted.scrollLeft = this.codeInput.scrollLeft;
+        if (this.lineNumbers) {
+            this.lineNumbers.scrollTop = this.codeInput.scrollTop;
+        }
+    }
+
+    toggleLineNumbers(isVisible) {
+        if (this.lineNumbers) {
+            this.lineNumbers.style.display = isVisible ? 'block' : 'none';
+            this.updateLineNumbers();
+        }
+    }
+
+    updateLineNumbers() {
+        if (!this.lineNumbers || this.lineNumbers.style.display === 'none') {
+            if (this.lineNumbers) this.lineNumbers.innerHTML = '';
+            return;
+        }
+
+        const lineCount = this.codeInput.value.split('\n').length;
+        this.lineNumbers.innerHTML = Array.from({ length: lineCount }, (_, i) => `<span>${i + 1}</span>`).join('');
     }
 
     updateHighlight() {
@@ -106,6 +127,7 @@ export class NotepadEditor {
             hljs.highlightElement(this.highlighted);
         }
         this.lineCount.textContent = `Lines: ${code.split('\n').length}`;
+        this.updateLineNumbers();
         this.syncScroll();
     }
 

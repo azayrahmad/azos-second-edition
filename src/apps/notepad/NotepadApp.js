@@ -27,7 +27,14 @@ export class NotepadApp extends Application {
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
 
-        win.$content.append('<div class="notepad-container"></div>');
+        const mainContainerHTML = `
+            <div class="notepad-main-container">
+                <div class="line-numbers-gutter"></div>
+                <div class="notepad-container"></div>
+            </div>
+        `;
+        win.$content.append(mainContainerHTML);
+
         return win;
     }
 
@@ -100,6 +107,13 @@ export class NotepadApp extends Application {
                         toggle: () => this.toggleWordWrap(),
                     },
                 },
+                {
+                    label: "Line &Numbers",
+                    checkbox: {
+                        check: () => this.lineNumbersVisible,
+                        toggle: () => this.toggleLineNumbers(),
+                    },
+                },
             ],
             "&Search": [
                 {
@@ -157,8 +171,11 @@ export class NotepadApp extends Application {
 
     _onLaunch() {
         const container = this.win.$content.find('.notepad-container')[0];
+        const lineNumbersGutter = this.win.$content.find('.line-numbers-gutter')[0];
+
         this.editor = new NotepadEditor(container, {
             win: this.win,
+            lineNumbersElement: lineNumbersGutter,
             onInput: () => {
                 this.isDirty = true;
                 this.updateTitle();
@@ -227,6 +244,17 @@ export class NotepadApp extends Application {
 
         this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
         this.setTheme(this.currentTheme, true);
+
+        const lineNumbersEnabled = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_LINE_NUMBERS) === 'true';
+        this.lineNumbersVisible = lineNumbersEnabled;
+        this.editor.toggleLineNumbers(this.lineNumbersVisible);
+    }
+
+    toggleLineNumbers() {
+        this.lineNumbersVisible = !this.lineNumbersVisible;
+        this.editor.toggleLineNumbers(this.lineNumbersVisible);
+        setItem(LOCAL_STORAGE_KEYS.NOTEPAD_LINE_NUMBERS, this.lineNumbersVisible);
+        this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
     }
 
     setTheme(theme, isInitialLoad = false) {
