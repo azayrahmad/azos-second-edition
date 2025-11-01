@@ -69,6 +69,7 @@
     flex-grow: 1;
     justify-content: flex-start;
     gap: 3px;
+    min-width: 0;
 }
 
 .taskbar-button {

@@ -1,5 +1,6 @@
 import { Application, openApps } from '../Application.js';
 import { launchClippyApp } from './clippy.js';
+import { appManager } from '../../utils/appManager.js';
 
 export class ClippyApp extends Application {
     constructor(config) {
@@ -17,6 +18,9 @@ export class ClippyApp extends Application {
     }
 
     close() {
+        // Always delegate closing to the appManager to ensure consistent state
+        appManager.closeApp(this.id);
+
         const agent = window.clippyAgent;
         if (agent) {
             agent.hide();
@@ -27,7 +31,6 @@ export class ClippyApp extends Application {
                 trayIcon.remove();
             }
             window.clippyAgent = null;
-            openApps.delete(this.id);
         }
     }
 }
