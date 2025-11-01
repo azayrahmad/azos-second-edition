@@ -1,5 +1,6 @@
 import { Application } from '../Application.js';
 import { ShowComingSoonDialog } from '../../components/DialogWindow.js';
+import { appManager } from '../../utils/appManager.js';
 
 export class TaskManagerApp extends Application {
     async _onLaunch() {
@@ -7,31 +8,31 @@ export class TaskManagerApp extends Application {
         this._updateTaskList();
         this._setupEventDelegation();
 
-        this.observer = new MutationObserver(() => this._updateTaskList());
-        this.observer.observe(document.body, { childList: true, subtree: true });
-
-        this.win.onClosed(() => {
-            if (this.observer) {
-                this.observer.disconnect();
-            }
-        });
+        // Custom event listener for app changes
+        document.addEventListener('app-launched', () => this._updateTaskList());
+        document.addEventListener('app-closed', () => this._updateTaskList());
     }
 
     _updateTaskList() {
         const taskList = this.win.$content.find('.task-list');
-        const selectedWin = this.win.$content.find('.task-list li.selected').data('win');
+        const selectedAppId = this.win.$content.find('.task-list li.selected').data('appId');
         taskList.empty();
 
-        const openWindows = $w.all.filter(win => win.id !== 'taskmanager' && win.el.style.display !== 'none' && !win.el.classList.contains('os-window-dialog'));
+        const runningApps = appManager.getRunningApps();
 
-        openWindows.forEach(appWin => {
-            const listItem = $(`<li>${appWin.title}</li>`);
-            listItem.data('win', appWin);
-            if (selectedWin && appWin.id === selectedWin.id) {
+        for (const [appId, appInstance] of Object.entries(runningApps)) {
+            if (appId === 'taskmanager') continue;
+
+            const appConfig = appManager.getAppConfig(appId);
+            const title = appInstance.win ? appInstance.win.title : appConfig.title;
+
+            const listItem = $(`<li>${title}</li>`);
+            listItem.data('appId', appId);
+            if (selectedAppId && appId === selectedAppId) {
                 listItem.addClass('selected');
             }
             taskList.append(listItem);
-        });
+        }
 
         const isItemSelected = taskList.find('li.selected').length > 0;
         this.win.$content.find('.end-task-btn').prop('disabled', !isItemSelected);
@@ -54,8 +55,8 @@ export class TaskManagerApp extends Application {
         content.on('click', '.end-task-btn', () => {
             const selectedItem = content.find('.task-list li.selected');
             if (selectedItem.length) {
-                const winToClose = selectedItem.data('win');
-                winToClose.close(true); // Force close
+                const appId = selectedItem.data('appId');
+                appManager.closeApp(appId);
             }
         });
 
