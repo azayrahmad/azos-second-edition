@@ -74,6 +74,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
   },
+  themeinstaller: {
+    16: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
+  },
   systray: {
     16: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
     32: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,

@@ -12,7 +12,8 @@ const startMenuAppIds = [
   "clippy",
   "webamp",
   "image-viewer",
-  "themetocss"
+  "themetocss",
+  "themeinstaller"
 ];
 
 const programApps = apps
