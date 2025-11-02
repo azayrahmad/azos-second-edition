@@ -8,7 +8,6 @@ import { apps, appClasses } from "./config/apps.js";
 import { ICONS } from "./config/icons.js";
 import { Application } from "./apps/Application.js";
 import { registerCustomApp } from "./utils/customAppManager.js";
-import desktopConfig from "./config/desktop.json";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
