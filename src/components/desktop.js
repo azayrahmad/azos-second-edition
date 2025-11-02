@@ -9,7 +9,7 @@ import {
   removeItem,
   LOCAL_STORAGE_KEYS,
 } from "../utils/localStorage.js";
-import desktopApps from "../config/desktop.json";
+import { getDesktopContents } from "../utils/directory.js";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import {
   getThemes,
@@ -300,6 +300,7 @@ export function setupIcons(options) {
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
+  const desktopApps = getDesktopContents();
   const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
 
   // If there are any saved positions, we are in manual mode.
