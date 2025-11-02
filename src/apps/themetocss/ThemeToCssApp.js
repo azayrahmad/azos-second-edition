@@ -56,7 +56,29 @@ export class ThemeToCssApp extends Application {
           action: () => win.close(),
         },
       ],
+      "&Edit": [
+        {
+          label: "&Apply Theme",
+          action: () => this._applyTheme(),
+        },
+      ],
     });
+  }
+
+  _applyTheme() {
+    const cssContent = this.editor.getValue();
+
+    // Remove existing transient styles to prevent stacking
+    const existingStyle = document.getElementById("transient-theme-styles");
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    // Create and inject the new style tag
+    const style = document.createElement("style");
+    style.id = "transient-theme-styles";
+    style.textContent = cssContent;
+    document.head.appendChild(style);
   }
 
   async _openFile() {

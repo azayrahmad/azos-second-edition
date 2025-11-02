@@ -22,6 +22,14 @@ clippy.Agent = function (path, data, sounds) {
 };
 
 clippy.Agent.prototype = {
+  _wasDragged: false,
+  _touchTimer: null,
+  _touchStartX: 0,
+  _touchStartY: 0,
+  _longPressFired: false,
+  _touchMoveHandle: null,
+  _touchEndHandle: null,
+
   /**************************** API ************************************/
 
   /***
@@ -387,7 +395,8 @@ clippy.Agent.prototype = {
   _setupEvents: function () {
     $(window).on("resize", $.proxy(this.reposition, this));
 
-    this._el.on("mousedown touchstart", $.proxy(this._onMouseDown, this));
+    this._el.on("mousedown", $.proxy(this._onMouseDown, this));
+    this._el.on("touchstart", $.proxy(this._onTouchStart, this));
 
     this._el.on("dblclick", $.proxy(this._onDoubleClick, this));
   },
@@ -430,8 +439,61 @@ clippy.Agent.prototype = {
     this._balloon.reposition();
   },
 
+  _onTouchStart: function (e) {
+    e.preventDefault();
+    this._wasDragged = false;
+    this._longPressFired = false;
+    const coords = this._getEventCoords(e);
+    this._touchStartX = coords.pageX;
+    this._touchStartY = coords.pageY;
+
+    this._touchTimer = window.setTimeout($.proxy(function () {
+      this._longPressFired = true;
+      // Trigger a contextmenu event, making sure to pass touch coordinates
+      const contextMenuEvent = $.Event("contextmenu");
+      contextMenuEvent.pageX = this._touchStartX;
+      contextMenuEvent.pageY = this._touchStartY;
+      this._el.trigger(contextMenuEvent);
+    }, this), 750);
+
+    this._touchMoveHandle = $.proxy(this._onTouchMove, this);
+    this._touchEndHandle = $.proxy(this._onTouchEnd, this);
+
+    $(window).on("touchmove", this._touchMoveHandle);
+    $(window).on("touchend", this._touchEndHandle);
+  },
+
+  _onTouchMove: function (e) {
+    const coords = this._getEventCoords(e);
+    const dx = Math.abs(coords.pageX - this._touchStartX);
+    const dy = Math.abs(coords.pageY - this._touchStartY);
+
+    if (dx > 10 || dy > 10) {
+      this._wasDragged = true;
+      window.clearTimeout(this._touchTimer);
+      // Unbind touch handlers to prevent conflicts
+      $(window).off("touchmove", this._touchMoveHandle);
+      $(window).off("touchend", this._touchEndHandle);
+      // It's a drag, start the drag logic
+      this._startDrag(e);
+    }
+  },
+
+  _onTouchEnd: function (e) {
+    window.clearTimeout(this._touchTimer);
+    $(window).off("touchmove", this._touchMoveHandle);
+    $(window).off("touchend", this._touchEndHandle);
+
+    if (this._wasDragged || this._longPressFired) {
+      return;
+    }
+
+    // It's a tap, trigger a click event
+    this._el.trigger("click");
+  },
+
   _onMouseDown: function (e) {
-    if (e.type === "mousedown" && e.which !== 1) return;
+    if (e.which !== 1) return;
     e.preventDefault();
     this._startDrag(e);
   },
