@@ -41,6 +41,12 @@ export function setTheme(themeKey) {
   });
 
   setTimeout(() => {
+    // Clear any temporary theme styles from the Theme to CSS app
+    const transientStyle = document.getElementById("transient-theme-styles");
+    if (transientStyle) {
+      transientStyle.remove();
+    }
+
     setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
     applyTheme();
 
