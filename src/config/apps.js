@@ -7,6 +7,7 @@ import { ClippyApp } from "../apps/clippy/ClippyApp.js";
 import { WebampApp } from "../apps/webamp/WebampApp.js";
 import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
+import { ThemeInstallerApp } from "../apps/themeinstaller/ThemeInstallerApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
@@ -23,6 +24,7 @@ export const appClasses = {
   webamp: WebampApp,
   "image-resizer": ImageResizerApp,
   "image-viewer": ImageViewerApp,
+  themeinstaller: ThemeInstallerApp,
   themetocss: ThemeToCssApp,
 };
 
@@ -160,6 +162,15 @@ export const apps = [
     appClass: ThemeToCssApp,
     width: 700,
     height: 350,
+    resizable: true,
+  },
+  {
+    id: "themeinstaller",
+    title: "Theme Installer",
+    icon: ICONS.themeinstaller,
+    appClass: ThemeInstallerApp,
+    width: 400,
+    height: 300,
     resizable: true,
   },
 ];
