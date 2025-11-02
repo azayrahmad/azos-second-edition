@@ -1,22 +1,27 @@
 .appmaker-container {
-  height: 100%;
-}
-.main-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.input-container {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 .app-name-input {
   margin-bottom: 10px;
+}
+
+.icon-input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.icon-inputs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#appIconUrl {
+    flex-grow: 1;
 }
 
 #editor-container {

@@ -1,48 +1,59 @@
-import { getItem, setItem, removeItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
-import { THEME_WALLPAPERS } from "../config/wallpapers.js";
-
-const themes = {
-    default: 'Default',
-    'peggys-pastels': "Peggy's Pastels",
-    blue: 'Blue',
-    '60s-usa': '60s USA',
-    'dangerous-creatures': 'Dangerous Creatures',
-};
-
-const themeIds = Object.keys(themes).filter(key => key !== 'default').map(key => `${key}-theme`);
+import {
+  getItem,
+  setItem,
+  removeItem,
+  LOCAL_STORAGE_KEYS,
+} from "./localStorage.js";
+import { themes } from "../config/themes.js";
+import { ShowDialogWindow } from "../components/DialogWindow.js";
+import { applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
+import { applyCursorTheme } from "./cursorManager.js";
 
 export function getThemes() {
-    return themes;
+  return themes;
 }
 
 export function getCurrentTheme() {
-    return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || 'default';
+  return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || "default";
 }
-
-import { applyCursor } from './cursorManager.js';
 
 export function applyTheme() {
-    applyCursor(getCurrentTheme());
-    const savedTheme = getCurrentTheme();
+  const savedThemeKey = getCurrentTheme();
+  applyCursorTheme(savedThemeKey);
 
-    themeIds.forEach(id => {
-        const stylesheet = document.getElementById(id);
-        if (stylesheet) {
-            stylesheet.disabled = (stylesheet.id !== `${savedTheme}-theme`);
-        }
-    });
+  Object.values(themes).forEach((theme) => {
+    if (theme.id === "default") return;
+
+    const stylesheet = document.getElementById(`${theme.id}-theme`);
+    if (stylesheet) {
+      stylesheet.disabled = theme.id !== savedThemeKey;
+    }
+  });
 }
 
-export function setTheme(theme) {
-    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, theme);
+export function setTheme(themeKey) {
+  applyBusyCursor(document.body);
+  const dialog = ShowDialogWindow({
+    title: "Theme",
+    text: "Applying theme...",
+    modal: true,
+    buttons: [],
+  });
+
+  setTimeout(() => {
+    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
     applyTheme();
 
-    const wallpaper = THEME_WALLPAPERS[theme];
-    if (wallpaper) {
-        setItem(LOCAL_STORAGE_KEYS.WALLPAPER, wallpaper);
+    const theme = themes[themeKey];
+    if (theme && theme.wallpaper) {
+      setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
     } else {
-        removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
+      removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
     }
-    document.dispatchEvent(new CustomEvent('wallpaper-changed'));
-    document.dispatchEvent(new CustomEvent('theme-changed'));
+    document.dispatchEvent(new CustomEvent("wallpaper-changed"));
+    document.dispatchEvent(new CustomEvent("theme-changed"));
+
+    dialog.close();
+    clearBusyCursor(document.body);
+  }, 50);
 }

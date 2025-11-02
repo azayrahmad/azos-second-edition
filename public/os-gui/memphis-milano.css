@@ -1,0 +1,81 @@
+:root {
+    --ActiveBorder: #FF6F61;        /* coral red */
+    --ActiveTitle: #00B5B0;         /* bright teal */
+    --AppWorkspace: #F5E14D;        /* sunny yellow */
+    --Background: #00B5B0;          /* teal */
+    --ButtonAlternateFace: #FCEADE; /* soft cream */
+    --ButtonDkShadow: #000000;      /* deep black */
+    --ButtonFace: #FFB3C6;          /* bubblegum pink */
+    --ButtonHilight: #FFFFFF;       /* white highlight */
+    --ButtonLight: #F5E14D;         /* yellow accent */
+    --ButtonShadow: #5A4FCF;        /* purple shadow */
+    --ButtonText: #000000;          /* text black */
+    --GradientActiveTitle: #00B5B0; /* teal gradient */
+    --GradientInactiveTitle: #E0E0E0; /* gray inactive */
+    --GrayText: #808080;            /* neutral gray */
+    --Hilight: #FF6F61;             /* coral highlight */
+    --HilightText: #FFFFFF;         /* white on highlight */
+    --HotTrackingColor: #5A4FCF;    /* pop purple link */
+    --InactiveBorder: #FFD700;      /* golden accent */
+    --InactiveTitle: #B6B6B6;       /* muted gray */
+    --InactiveTitleText: #E0E0E0;   /* light gray */
+    --InfoText: #000000;            /* black text */
+    --InfoWindow: #FCEADE;          /* light cream */
+    --Menu: #FFB3C6;                /* pink menu */
+    --MenuText: #000000;            /* black text */
+    --Scrollbar: #5A4FCF;           /* purple scrollbar */
+    --TitleText: #FFFFFF;           /* white title */
+    --Window: #F5E14D;              /* yellow window */
+    --WindowFrame: #000000;         /* black frame */
+    --WindowText: #000000;          /* black text */
+}
+
+:root {
+  --checker: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAG0lEQVQYV2P8/////4MHDzIwHjhw4L+9vT0DAHAFCj6esq3FAAAAAElFTkSuQmCC");
+
+  /* Coral outer border, turquoise mid, yellow inner */
+  --button-active-border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'%3E
+  <path d='M0 0h256v256H0z' fill='%23FF6F61'/>
+  <path d='M32 32h192v192H32z' fill='%2300B8D9'/>
+  <path d='M64 64h128v128H64z' fill='%23FFEB3B'/>
+  %3C/svg%3E") 64 / 2px;
+
+  /* White outer, black mid, pink inner, lavender core */
+  --button-normal-border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'%3E
+  <path d='M0 0h224v32H32v192H0z' fill='%23FFFFFF'/>
+  <path d='M224 0h32v256H0v-32h224z' fill='%23000000'/>
+  <path d='M32 32h160v32H64v128H32z' fill='%23F8C8DC'/>
+  <path d='M192 32h32v192H32v-32h160z' fill='%23F4E1F2'/>
+  <path d='M64 64h128v128H64z' fill='%23FFEB3B'/>
+  %3C/svg%3E") 64 / 2px;
+
+  /* Turquoise + pink + cream */
+  --inset-deep-border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'%3E
+  <path d='M0 0h224v32H32v192H0z' fill='%2300B8D9'/>
+  <path d='M224 0h32v256H0v-32h224z' fill='%23FF6F61'/>
+  <path d='M32 32h160v32H64v128H32z' fill='%23FFF8E1'/>
+  <path d='M192 32h32v192H32v-32h160z' fill='%23FBD4FF'/>
+  <path d='M64 64h128v128H64z' fill='%2300A3E0'/>
+  %3C/svg%3E") 64 / 2px;
+
+  /* Default: coral outer, turquoise mid, pink inner */
+  --button-default-border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'%3E
+  <path d='M0 0h256v256H0z' fill='%23FF6F61'/>
+  <path d='M32 32h160v32H64v128H32z' fill='%2300B8D9'/>
+  <path d='M64 64h96v32H96v64H64z' fill='%23FBD4FF'/>
+  <path d='M160 64h32v128H64v-32h96z' fill='%23FFEB3B'/>
+  <path d='M96 96h64v64H96z' fill='%23FFFFFF'/>
+  %3C/svg%3E") 96 / 3px;
+
+  /* Active: black outer, yellow mid, turquoise inner */
+  --button-default-active-border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'%3E
+  <path d='M0 0h256v256H0z' fill='%23000000'/>
+  <path d='M32 32h192v192H32z' fill='%23FFEB3B'/>
+  <path d='M64 64h128v128H64z' fill='%2300B8D9'/>
+  %3C/svg%3E") 64 / 2px;
+
+  /* Scroll arrows recolored to Memphis brights */
+  --scrollbar-arrows-ButtonText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAW0lEQVQ4T2NkGGSAcZC5h4FWDvrPwEC02ShqkR0EkkAHuBxMyEKYWYQ8jKEOXQOyo/A5BuZwqqvBZiA+3xMbilQLIWqlcUJRimwPzjRELcdQZA6hREeR4eRoBgBoXhAK6oiMhwAAAABJRU5ErkJggg==");
+  --scrollbar-arrows-GrayText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAYElEQVQ4T2NkGGSAcZC5h4EmDmpoaPjf0NBAlNnoauGaQBLooYXLUEIWwswi5Chs6lB8gewofI6BOZwWajCCFZ/viQ1FqoUQtRI4oShFtgdnGqKWYyg1h6icQKklpOgHAM9mQArEvm5+AAAAAElFTkSuQmCC");
+  --scrollbar-arrows-ButtonHilight: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAYElEQVQ4T2NkGGSAcZC5h4EmDvr///9/RkZGosxGVwvXBJJADy1chhKyEGYWIUdhU4fiC2RH4XMMzOG0UIMRrPh8T2woUi2EqJXACUUpsj040xC1HEOpOUTlBEotIUU/AKXFQAqyTJ6DAAAAAElFTkSuQmCC");
+}

@@ -6,10 +6,8 @@
 // Import icons
 import windowsStartMenuBar from "../assets/img/win98start.png";
 import { ICONS } from "../config/icons.js";
-import { apps } from "../config/apps.js";
-import startMenuApps from "../config/startmenu.json";
-import { launchApp } from "../utils/appManager.js";
-import { playSound } from '../utils/soundManager.js';
+import startMenuConfig from "../config/startmenu.js";
+import { playSound } from "../utils/soundManager.js";
 
 // Constants
 const SELECTORS = {
@@ -34,6 +32,7 @@ class StartMenu {
   constructor() {
     this.isVisible = false;
     this.eventListeners = new Map();
+    this.openSubmenus = [];
   }
 
   /**
@@ -75,9 +74,6 @@ class StartMenu {
     });
   }
 
-  /**
-   * Render the start menu HTML
-   */
   render() {
     const startMenuWrapper = document.querySelector(".start-menu-wrapper");
     if (!startMenuWrapper) {
@@ -86,75 +82,140 @@ class StartMenu {
 
     startMenuWrapper.innerHTML = this.getStartMenuHTML();
   }
-  /**
-   * Generate app menu items HTML from apps configuration
-   */
-  generateAppMenuItems() {
-    const appsToLoad = apps.filter((app) => startMenuApps.includes(app.id));
-    return appsToLoad
-      .map(
-        (app) => `
-          <li class="start-menu-item" role="menuitem" tabindex="0" data-app-id="${app.id}">
-              <img src="${app.icon[16]}" alt="${app.title}" loading="lazy">
-              <span>${app.title}</span>
-          </li>
-      `,
-      )
-      .join("");
-  }
-  /**
-   * Generate start menu HTML template
-   */
+
   getStartMenuHTML() {
+    const dynamicItemsHTML = startMenuConfig
+      .map((item) => {
+        const hasSubmenu = item.submenu && item.submenu.length > 0;
+        return `
+        <li class="start-menu-item ${hasSubmenu ? "has-submenu" : ""}" role="menuitem" tabindex="0" data-id="${this.escapeHtml(item.label)}">
+          <img src="${item.icon}" alt="${this.escapeHtml(item.label)}">
+          <span>${this.escapeHtml(item.label)}</span>
+          ${hasSubmenu ? '<span class="submenu-arrow"></span>' : ""}
+        </li>
+      `;
+      })
+      .join("");
+
     return `
-       <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
-         <div class="blue-rectangle">
-           <img src="${windowsStartMenuBar}" alt="Start Menu Bar" loading="lazy" />
-         </div>
-         <ul class="start-menu-list">
-           <li role="menuitem" tabindex="0" data-action="home">
-             <img src="${ICONS.computer[16]}" alt="Computer" loading="lazy">
-             <span>aziz rahmad</span>
-           </li>
-           <div class="start-menu-divider" role="separator"></div>
-           ${this.generateAppMenuItems()}
-           <div class="start-menu-divider" role="separator"></div>
-           <li class="logoff-menu-item" role="menuitem" tabindex="0">
-             <img src="${ICONS.key[16]}" alt="Log off" loading="lazy">
-             <span id="logofftext">Log Off Guest...</span>
-           </li>
-           <li role="menuitem" tabindex="0" data-action="shutdown">
-             <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
-             <span>Shut Down...</span>
-           </li>
-         </ul>
-       </div>`;
+      <div id="start-menu" class="start-menu ${CLASSES.HIDDEN}">
+        <div class="blue-rectangle">
+          <img src="${windowsStartMenuBar}" alt="Start Menu Bar" loading="lazy" />
+        </div>
+        <ul class="start-menu-list">
+          <li role="menuitem" tabindex="0" data-action="home">
+            <img src="${ICONS.windowsUpdate[16]}" alt="Computer" loading="lazy">
+            <span>aziz rahmad</span>
+          </li>
+          <div class="start-menu-divider" role="separator"></div>
+          ${dynamicItemsHTML}
+          <div class="start-menu-divider" role="separator"></div>
+          <li class="logoff-menu-item" role="menuitem" tabindex="0">
+            <img src="${ICONS.logoff[16]}" alt="Log off" loading="lazy">
+            <span id="logofftext">Log Off Guest...</span>
+          </li>
+          <li role="menuitem" tabindex="0" data-action="shutdown">
+            <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
+            <span>Shut Down...</span>
+          </li>
+        </ul>
+      </div>`;
   }
 
-  /**
-   * Bind all start menu event listeners
-   */
   bindEvents() {
-    this.bindMenuItemEvents();
     this.bindSpecialActionEvents();
     this.bindKeyboardEvents();
     this.bindOutsideClickEvents();
+    this.bindMenuItems();
   }
 
-  /**
-   * Bind start menu item click events
-   */ bindMenuItemEvents() {
-    const startMenuItems = document.querySelectorAll(
-      ".start-menu-item[data-app-id]",
-    );
-    startMenuItems.forEach((item) => {
-      this.addTrackedEventListener(item, "click", (event) => {
-        const appId = item.getAttribute("data-app-id");
-        if (appId) {
-          launchApp(appId);
-          this.hide();
-        }
+  attachSubmenu(menuItem, submenuItems) {
+    let activeMenu = null;
+    let closeTimeout;
+
+    const openMenu = () => {
+      clearTimeout(closeTimeout);
+      if (activeMenu) return;
+
+      // Close any other open submenus immediately
+      if (this.openSubmenus.length > 0) {
+        [...this.openSubmenus].forEach((menu) => menu.close());
+        this.openSubmenus = [];
+      }
+
+      activeMenu = new window.MenuPopup(submenuItems, {
+        parentMenuPopup: null,
+        handleKeyDown: (e) => {
+          if (e.key === "Escape") {
+            closeMenu();
+          }
+        },
+        closeMenus: () => {
+          closeMenu();
+        },
+        setActiveMenuPopup: (menu) => {
+          activeMenu = menu;
+        },
+        send_info_event: () => {},
+        refocus_outside_menus: () => {},
       });
+
+      document.body.appendChild(activeMenu.element);
+      const rect = menuItem.getBoundingClientRect();
+      activeMenu.element.style.left = `${rect.right}px`;
+      activeMenu.element.style.top = `${rect.top}px`;
+      activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
+      if (typeof window.playSound === "function") {
+        window.playSound("MenuPopup");
+      }
+      this.openSubmenus.push(activeMenu);
+
+      this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
+        clearTimeout(closeTimeout);
+      });
+
+      this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
+        closeMenu(true);
+      });
+    };
+
+    const closeMenu = (useTimeout = false) => {
+      const doClose = () => {
+        if (activeMenu) {
+          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
+          activeMenu.close();
+          activeMenu = null;
+        }
+      };
+
+      if (useTimeout) {
+        closeTimeout = setTimeout(doClose, 100);
+      } else {
+        doClose();
+      }
+    };
+
+    this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
+    this.addTrackedEventListener(menuItem, "pointerleave", () => {
+      closeMenu(true);
+    });
+  }
+
+  bindMenuItems() {
+    startMenuConfig.forEach((itemConfig) => {
+      const menuItem = document.querySelector(
+        `.start-menu-item[data-id="${this.escapeHtml(itemConfig.label)}"]`,
+      );
+      if (!menuItem) return;
+
+      if (itemConfig.submenu) {
+        this.attachSubmenu(menuItem, itemConfig.submenu);
+      } else if (itemConfig.action) {
+        this.addTrackedEventListener(menuItem, "click", () => {
+          itemConfig.action();
+          this.hide();
+        });
+      }
     });
   }
 
@@ -259,6 +320,9 @@ class StartMenu {
     startButton.setAttribute("aria-pressed", "false"); // Added
     startMenu.setAttribute("aria-hidden", "true");
     this.isVisible = false;
+
+    this.openSubmenus.forEach((menu) => menu.close());
+    this.openSubmenus = [];
   }
 
   /**
@@ -273,31 +337,12 @@ class StartMenu {
   }
 
   /**
-   * Handle menu item clicks
-   */
-  handleMenuItemClick(event) {
-    try {
-      if (
-        typeof Win98AppManager !== "undefined" &&
-        Win98AppManager.createAndOpenApp
-      ) {
-        Win98AppManager.createAndOpenApp(event);
-      } else {
-        console.warn("Win98AppManager not available");
-      }
-      this.hide();
-    } catch (error) {
-      console.error("Failed to handle menu item click:", error);
-    }
-  }
-
-  /**
    * Handle shutdown action
    */
   handleShutdown() {
     console.log("Shutting down azOS...");
     if (confirm("Are you sure you want to shut down?")) {
-      playSound('SystemExit');
+      playSound("SystemExit");
       setTimeout(() => location.reload(), 500);
     }
     this.hide();

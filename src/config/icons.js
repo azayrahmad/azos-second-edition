@@ -35,7 +35,16 @@ export const ICONS = {
     16: new URL("../assets/icons/kodak_imaging-0.png", import.meta.url).href,
     32: new URL("../assets/icons/kodak_imaging-0.png", import.meta.url).href,
   },
+  imageViewer: {
+    16: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
+  },
   computer: {
+    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
+      .href,
+  },
+  explorer: {
     16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
     32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
       .href,
@@ -55,8 +64,8 @@ export const ICONS = {
     32: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
   },
   shutdown: {
-    16: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
-    32: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
+    16: new URL("../assets/icons/SHELL32_28.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_28.ico", import.meta.url).href,
   },
   windows: {
     16: new URL("../assets/icons/windows-4.png", import.meta.url).href,
@@ -94,51 +103,44 @@ export const ICONS = {
     16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
     32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
   },
-  "my-computer": {
-    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
-      .href,
+  themetocss: {
+    16: new URL("../assets/icons/word_001.ico", import.meta.url).href,
+    32: new URL("../assets/icons/word_001.ico", import.meta.url).href,
   },
-  "recycle-bin": {
-    16: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
-    32: new URL("../assets/icons/shut_down_normal-0.png", import.meta.url).href,
+  programs: {
+    16: new URL("../assets/icons/SHELL32_20.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_20.ico", import.meta.url).href,
   },
-  "my-documents": {
-    16: new URL(
-      "../assets/icons/directory_open_file_mydocs_small-5.png",
-      import.meta.url,
-    ).href,
-    32: new URL(
-      "../assets/icons/directory_open_file_mydocs-1.png",
-      import.meta.url,
-    ).href,
+  favorites: {
+    16: new URL("../assets/icons/SHELL32_44.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_44.ico", import.meta.url).href,
   },
-  folder: {
-    16: new URL(
-      "../assets/icons/directory_open_file_mydocs_small-5.png",
-      import.meta.url,
-    ).href,
-    32: new URL(
-      "../assets/icons/directory_open_file_mydocs-1.png",
-      import.meta.url,
-    ).href,
+  documents: {
+    16: new URL("../assets/icons/SHELL32_21.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_21.ico", import.meta.url).href,
   },
-  file: {
-    16: new URL(
-      "../assets/icons/directory_open_file_mydocs_small-5.png",
-      import.meta.url,
-    ).href,
-    32: new URL(
-      "../assets/icons/directory_open_file_mydocs-1.png",
-      import.meta.url,
-    ).href,
+  settings: {
+    16: new URL("../assets/icons/SHELL32_22.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_22.ico", import.meta.url).href,
   },
-  "my-apps": {
-    16: new URL("../assets/icons/appwizard-0.png", import.meta.url).href,
-    32: new URL("../assets/icons/appwizard-2.png", import.meta.url).href,
+  find: {
+    16: new URL("../assets/icons/SHELL32_23.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_23.ico", import.meta.url).href,
   },
-  drive: {
-    16: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
-    32: new URL("../assets/icons/SYSTRAY_220.ico", import.meta.url).href,
+  help: {
+    16: new URL("../assets/icons/SHELL32_24.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_24.ico", import.meta.url).href,
+  },
+  run: {
+    16: new URL("../assets/icons/SHELL32_25.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_25.ico", import.meta.url).href,
+  },
+  logoff: {
+    16: new URL("../assets/icons/SHELL32_45.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_45.ico", import.meta.url).href,
+  },
+  windowsUpdate: {
+    16: new URL("../assets/icons/SHELL32_47.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_47.ico", import.meta.url).href,
   },
 };

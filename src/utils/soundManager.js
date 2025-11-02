@@ -1,6 +1,5 @@
-import { soundSchemes } from '../config/sound-schemes.js';
-import sounds from '../config/sounds.js';
-import { getCurrentTheme, getThemes } from './themeManager.js';
+import { soundSchemes } from "../config/sound-schemes.js";
+import { getCurrentTheme, getThemes } from "./themeManager.js";
 
 /**
  * Plays a sound based on the given event name and the current theme's sound scheme.
@@ -9,27 +8,20 @@ import { getCurrentTheme, getThemes } from './themeManager.js';
 export function playSound(eventName) {
   const themeId = getCurrentTheme();
   const themes = getThemes();
-  const themeName = themes[themeId] || 'Default';
+  const themeName = themes[themeId]?.name || "Default";
   const currentScheme = soundSchemes[themeName];
-  const defaultScheme = soundSchemes['Default'];
+  const defaultScheme = soundSchemes["Default"];
 
-  // Determine the sound file name with fallbacks
-  const soundFileName =
+  // Determine the sound file url with fallbacks
+  const soundUrl =
     (currentScheme && currentScheme[eventName]) ||
     (defaultScheme && defaultScheme[eventName]);
 
   // If no sound was found after all checks, exit.
-  if (!soundFileName) {
+  if (!soundUrl) {
     return;
   }
 
-  const soundId = soundFileName
-    .toLowerCase()
-    .replace('.wav', '')
-    .replace(/\s/g, '_');
-
-  if (sounds[soundId]) {
-    const audio = new Audio(sounds[soundId]);
-    audio.play().catch(e => console.error('Error playing sound:', e));
-  }
+  const audio = new Audio(soundUrl);
+  audio.play().catch((e) => console.error("Error playing sound:", e));
 }

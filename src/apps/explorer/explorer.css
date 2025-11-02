@@ -1,8 +1,90 @@
-.explorer-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
-  padding: 10px;
+.explorer-app {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  overflow-y: auto;
+  background-color: var(--ButtonFace);
+  overflow: hidden;
+}
+
+.explorer-app * {
+  box-sizing: border-box;
+}
+
+.menubar-container {
+  /* The MenuBar component will handle its own styling */
+  flex-shrink: 0;
+}
+
+.toolbar-container {
+  flex-shrink: 0;
+  border-top: 1px solid var(--ButtonHighlight);
+  border-bottom: 1px solid var(--ButtonShadow);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolbar-button {
+  width: 24px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-button img {
+  width: 16px;
+  height: 16px;
+}
+
+.toolbar-button:disabled img {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.address-bar-container {
+  flex-shrink: 0;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.address-bar-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.address-bar-container label {
+  font-size: 11px; /* Standard UI font size */
+}
+
+.address-bar-container input {
+  flex-grow: 1;
+}
+
+.main-content-container {
+  flex-grow: 1;
+  margin: 4px;
+  background-color: var(--Window);
+  border: 1px solid var(--ButtonShadow);
+  border-top-color: var(--ButtonDkShadow);
+  border-left-color: var(--ButtonDkShadow);
+  overflow: auto;
+  padding: 4px;
+
+  /* Horizontal grid layout */
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 80px);
+  grid-template-columns: repeat(auto-fill, 80px); /* Fallback, will be overridden by item size */
+  grid-auto-columns: 80px;
+  gap: 4px;
+  align-content: start;
+}
+
+.main-content-container .desktop-icon:hover {
+    background-color: var(--ButtonHighlight);
+    border: 1px dotted var(--ButtonShadow);
 }

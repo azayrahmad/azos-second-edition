@@ -6,7 +6,9 @@ import { TipOfTheDayApp } from "../apps/tipOfTheDay/TipOfTheDayApp.js";
 import { ClippyApp } from "../apps/clippy/ClippyApp.js";
 import { WebampApp } from "../apps/webamp/WebampApp.js";
 import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
+import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
+import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -21,28 +23,12 @@ export const appClasses = {
   clippy: ClippyApp,
   webamp: WebampApp,
   "image-resizer": ImageResizerApp,
+  "image-viewer": ImageViewerApp,
   explorer: ExplorerApp,
+  themetocss: ThemeToCssApp,
 };
 
 export const apps = [
-  {
-    id: "explorer",
-    title: "Explorer",
-    icon: ICONS.folder,
-    appClass: ExplorerApp,
-    width: 600,
-    height: 400,
-    resizable: true,
-  },
-  {
-    id: "appmaker",
-    title: "App Maker",
-    icon: ICONS.appmaker,
-    appClass: AppMakerApp,
-    width: 600,
-    height: 400,
-    resizable: true,
-  },
   {
     id: "about",
     title: "About",
@@ -55,15 +41,6 @@ export const apps = [
     maximizeButton: false,
   },
   {
-    id: "pdfviewer",
-    title: "PDF Viewer",
-    icon: ICONS.pdf,
-    appClass: PdfViewerApp,
-    width: 800,
-    height: 600,
-    resizable: true,
-  },
-  {
     id: "tipOfTheDay",
     title: "Tip of the Day",
     icon: ICONS.tip,
@@ -73,6 +50,22 @@ export const apps = [
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    tips: [
+      "To open a file or an application from desktop, double-click the icon.",
+      "To close a window, click the X in the top-right corner.",
+    ],
+  },
+  {
+    id: "pdfviewer",
+    title: "PDF Viewer",
+    icon: ICONS.pdf,
+    appClass: PdfViewerApp,
+    width: 800,
+    height: 600,
+    resizable: true,
+    tips: [
+      "You can open PDF files by double-clicking them on the desktop or in the file explorer.",
+    ],
   },
   {
     id: "notepad",
@@ -82,6 +75,12 @@ export const apps = [
     width: 600,
     height: 400,
     resizable: true,
+    tips: [
+      "Notepad can be used for more than just text. It also supports syntax highlighting for various programming languages.",
+      "In Notepad, you can format your code using the 'Format' option in the 'File' menu.",
+      "You can preview Markdown files in Notepad by selecting 'Preview Markdown' from the 'View' menu.",
+      "Notepad can copy text with syntax highlighting. Use 'Copy with Formatting' from the 'Edit' menu.",
+    ],
   },
   {
     id: "image-resizer",
@@ -93,6 +92,15 @@ export const apps = [
     resizable: true,
   },
   {
+    id: "image-viewer",
+    title: "Image Viewer",
+    icon: ICONS.imageViewer,
+    appClass: ImageViewerApp,
+    width: 400,
+    height: 300,
+    resizable: true,
+  },
+  {
     id: "clippy",
     title: "Assistant",
     icon: ICONS.clippy,
@@ -101,6 +109,11 @@ export const apps = [
     tray: {
       contextMenu: getClippyMenuItems,
     },
+    tips: [
+      "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Assistant</a> for assistance with azOS features.",
+      "You can ask Clippy about Aziz's resume by clicking on it.",
+      "Right-click on Clippy to see more options, like changing the agent or making it animate.",
+    ],
   },
   {
     id: "webamp",
@@ -111,6 +124,19 @@ export const apps = [
     tray: {
       contextMenu: getWebampMenuItems,
     },
+    tips: [
+      "Webamp is a music player that looks and feels like the classic Winamp.",
+      "You can minimize and restore Webamp using its button in the taskbar.",
+    ],
+  },
+  {
+    id: "appmaker",
+    title: "App Maker",
+    icon: ICONS.appmaker,
+    appClass: AppMakerApp,
+    width: 600,
+    height: 500,
+    resizable: true,
   },
   {
     id: "alertTest",
@@ -128,5 +154,23 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "themetocss",
+    title: "Theme to CSS",
+    icon: ICONS.themetocss,
+    appClass: ThemeToCssApp,
+    width: 700,
+    height: 350,
+    resizable: true,
+  },
+  {
+    id: "explorer",
+    title: "Explorer",
+    icon: ICONS.explorer,
+    appClass: ExplorerApp,
+    width: 640,
+    height: 480,
+    resizable: true,
   },
 ];

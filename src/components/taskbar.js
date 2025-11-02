@@ -266,63 +266,24 @@ class Taskbar {
       const contextMenuItems = [
         {
           label: "Restore",
-          default: true,
           enabled: isMinimized,
-          click: () => {
-            if (typeof Win98WindowManager !== "undefined" && isMinimized) {
-              Win98WindowManager.restoreWindow(win);
+          action: () => {
+            if (typeof System !== "undefined" && isMinimized) {
+              System.restoreWindow(win);
             }
           },
         },
+        MENU_DIVIDER,
         {
           label: "Close",
-          click: () => {
+          default: true,
+          action: () => {
             win.$window.close();
           },
         },
       ];
 
-      // Remove any existing menus
-      const existingMenus = document.querySelectorAll(".menu-popup");
-      existingMenus.forEach((menu) => menu.remove());
-
-      const contextMenu = new MenuList(contextMenuItems);
-      document.body.appendChild(contextMenu.element);
-
-      // Set a z-index higher than the taskbar
-      if (window.Win98System) {
-        contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
-      }
-
-      // Position and show the menu
-      const menuHeight = contextMenu.element.offsetHeight;
-      contextMenu.show(e.clientX, e.clientY - menuHeight);
-
-      // Hide menu when clicking outside or pressing Escape
-      const hideMenu = (event) => {
-        const clickOutside = event.type === 'click' && !contextMenu.element.contains(event.target);
-        const escapePressed = event.type === 'keydown' && event.key === 'Escape';
-
-        if (clickOutside || escapePressed) {
-          if (escapePressed) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-          }
-          contextMenu.hide();
-          document.removeEventListener("click", hideMenu);
-          document.removeEventListener('keydown', hideMenu);
-          if (contextMenu.element.parentNode) {
-            document.body.removeChild(contextMenu.element);
-          }
-        }
-      };
-
-      // Add slight delay to prevent immediate hiding
-      setTimeout(() => {
-        document.addEventListener("click", hideMenu);
-        document.addEventListener('keydown', hideMenu);
-      }, 0);
+      new window.ContextMenu(contextMenuItems, e);
     });
 
     taskbarAppArea.appendChild(taskbarButton);
@@ -341,17 +302,17 @@ class Taskbar {
       });
 
       // Listen for title changes to update the taskbar button
-      $(win).on('title-change', () => {
+      $(win).on("title-change", () => {
         const newTitle = win.$window.title();
         const button = document.querySelector(
           `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
         );
         if (button) {
           button.title = newTitle;
-          const iconImg = button.querySelector('img');
+          const iconImg = button.querySelector("img");
           button.innerHTML = `
             <span class="taskbar-button-content">
-              ${iconImg ? iconImg.outerHTML : ''}
+              ${iconImg ? iconImg.outerHTML : ""}
               <span class="taskbar-button-text">${this.escapeHtml(newTitle)}</span>
             </span>
           `;
@@ -375,8 +336,8 @@ class Taskbar {
   }
 
   /**
- * Update taskbar button state
- */
+   * Update taskbar button state
+   */
   updateTaskbarButton(windowId, isActive = false, isMinimized = false) {
     const button = document.querySelector(
       `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
@@ -385,9 +346,9 @@ class Taskbar {
 
     // Add/remove selected class based on window focus state
     if (isActive) {
-      button.classList.add('selected');
+      button.classList.add("selected");
     } else {
-      button.classList.remove('selected');
+      button.classList.remove("selected");
     }
   }
 
@@ -401,7 +362,7 @@ class Taskbar {
     }
 
     try {
-      if (typeof Win98System !== "undefined" && typeof Win98WindowManager !== "undefined") {
+      if (typeof System !== "undefined") {
         const $win = $(win);
         if ($win.is(":visible")) {
           // If window is visible, either minimize or focus based on current state
@@ -409,19 +370,19 @@ class Taskbar {
 
           if (isActive) {
             // Window is focused, so minimize it
-            Win98WindowManager.minimizeWindow(win);
+            System.minimizeWindow(win);
             this.updateTaskbarButton(windowId, false, true);
           } else {
             // Window is not focused, so bring it to front and focus it
             $win.trigger("refocus-window");
-            win.style.zIndex = Win98System.incrementZIndex();
-            Win98WindowManager.updateTitleBarClasses(win);
+            win.style.zIndex = System.incrementZIndex();
+            System.updateTitleBarClasses(win);
             this.updateTaskbarButton(windowId, true, false);
           }
         } else {
           // Window is hidden/minimized, restore it and focus
-          win.style.zIndex = Win98System.incrementZIndex();
-          Win98WindowManager.restoreWindow(win);
+          win.style.zIndex = System.incrementZIndex();
+          System.restoreWindow(win);
           // Focus the window after restoration
           setTimeout(() => {
             $win.trigger("refocus-window");
@@ -429,7 +390,7 @@ class Taskbar {
           }, 0);
         }
       } else {
-        console.warn("Win98System or Win98WindowManager not available");
+        console.warn("System not available");
       }
     } catch (error) {
       console.error("Failed to handle taskbar button click:", error);
@@ -446,20 +407,20 @@ class Taskbar {
     const allMinimized = Array.from(windows).every((win) => win.isMinimized);
 
     try {
-      if (typeof Win98WindowManager !== "undefined") {
+      if (typeof System !== "undefined") {
         if (allMinimized) {
           // Restore all windows
           windows.forEach((win) => {
-            Win98WindowManager.restoreWindow(win);
+            System.restoreWindow(win);
           });
         } else {
           // Minimize all windows
           windows.forEach((win) => {
-            Win98WindowManager.minimizeWindow(win, true);
+            System.minimizeWindow(win, true);
           });
         }
       } else {
-        console.warn("Win98WindowManager not available");
+        console.warn("System not available");
       }
     } catch (error) {
       console.error("Failed to toggle desktop:", error);
@@ -600,40 +561,16 @@ export function createTrayIcon(app) {
 
     if (app.tray?.contextMenu) {
       // Use centralized function for clippy context menu
-      if (app.id === 'clippy') {
+      if (app.id === "clippy") {
         showClippyContextMenu(e);
       } else {
         // Handle other tray icons normally
-        const menuItems = typeof app.tray.contextMenu === 'function'
-          ? app.tray.contextMenu()
-          : app.tray.contextMenu;
+        const menuItems =
+          typeof app.tray.contextMenu === "function"
+            ? app.tray.contextMenu()
+            : app.tray.contextMenu;
 
-        const existingMenus = document.querySelectorAll(".menu-popup");
-        existingMenus.forEach((menu) => menu.remove());
-
-        const contextMenu = new MenuList(menuItems);
-        document.body.appendChild(contextMenu.element);
-
-        if (window.Win98System) {
-          contextMenu.element.style.zIndex = window.Win98System.incrementZIndex();
-        }
-
-        const menuHeight = contextMenu.element.offsetHeight;
-        contextMenu.show(e.clientX, e.clientY - menuHeight);
-
-        const hideMenu = (event) => {
-          if (!contextMenu.element.contains(event.target)) {
-            contextMenu.hide();
-            document.removeEventListener("click", hideMenu);
-            if (contextMenu.element.parentNode) {
-              document.body.removeChild(contextMenu.element);
-            }
-          }
-        };
-
-        setTimeout(() => {
-          document.addEventListener("click", hideMenu);
-        }, 0);
+        new window.ContextMenu(menuItems, e);
       }
     }
   });
