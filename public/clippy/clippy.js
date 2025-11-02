@@ -449,8 +449,11 @@ clippy.Agent.prototype = {
 
     this._touchTimer = window.setTimeout($.proxy(function () {
       this._longPressFired = true;
-      // Trigger a contextmenu event
-      this._el.trigger("contextmenu");
+      // Trigger a contextmenu event, making sure to pass touch coordinates
+      const contextMenuEvent = $.Event("contextmenu");
+      contextMenuEvent.pageX = this._touchStartX;
+      contextMenuEvent.pageY = this._touchStartY;
+      this._el.trigger(contextMenuEvent);
     }, this), 750);
 
     this._touchMoveHandle = $.proxy(this._onTouchMove, this);
