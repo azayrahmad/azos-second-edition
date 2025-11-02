@@ -11,7 +11,7 @@ export class SoundSchemeExplorerApp extends Application {
   }
 
   _createWindow() {
-    const win = super._createWindow({
+    const win = new $Window({
       title: "Sound Scheme Explorer",
       width: 400,
       height: 300,
@@ -19,7 +19,7 @@ export class SoundSchemeExplorerApp extends Application {
       id: this.id,
     });
 
-    win.on("open", () => this._onOpen(win));
+    this._onOpen(win);
 
     return win;
   }
@@ -34,7 +34,7 @@ export class SoundSchemeExplorerApp extends Application {
         <div class="sound-list"></div>
       </div>
     `;
-    win.$content.html(content);
+    win.$content.append(content);
     win.$content.addClass("sound-scheme-explorer-content");
 
     this.select = win.$content.find("#sound-scheme-select")[0];
