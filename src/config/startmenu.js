@@ -45,8 +45,9 @@ const startMenuConfig = [
     icon: ICONS.documents[16],
     submenu: [
       {
-        label: '(Empty)',
-        disabled: true,
+        label: 'My Documents',
+        icon: ICONS.folder[16],
+        action: () => launchApp('explorer', '/drive-c/folder-user/folder-documents'),
       },
     ],
   },

@@ -8,6 +8,7 @@ import { WebampApp } from "../apps/webamp/WebampApp.js";
 import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
+import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
@@ -28,6 +29,7 @@ export const appClasses = {
   themetocss: ThemeToCssApp,
   taskmanager: TaskManagerApp,
   soundschemeexplorer: SoundSchemeExplorerApp,
+  explorer: ExplorerApp,
 };
 
 export const apps = [
@@ -183,5 +185,36 @@ export const apps = [
     width: 400,
     height: 300,
     resizable: true,
+  },
+  {
+    id: "explorer",
+    title: "Explorer",
+    icon: ICONS.computer,
+    appClass: ExplorerApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+  },
+  {
+    id: "my-computer",
+    title: "My Computer",
+    icon: ICONS.computer,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "/");
+      },
+    },
+  },
+  {
+    id: "my-documents",
+    title: "My Documents",
+    icon: ICONS.folder,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "/drive-c/folder-user/folder-documents");
+      },
+    },
   },
 ];
