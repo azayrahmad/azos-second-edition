@@ -7,6 +7,7 @@ import { ClippyApp } from "../apps/clippy/ClippyApp.js";
 import { WebampApp } from "../apps/webamp/WebampApp.js";
 import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
+import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
@@ -25,6 +26,7 @@ export const appClasses = {
   "image-resizer": ImageResizerApp,
   "image-viewer": ImageViewerApp,
   themetocss: ThemeToCssApp,
+  taskmanager: TaskManagerApp,
   soundschemeexplorer: SoundSchemeExplorerApp,
 };
 
@@ -163,6 +165,15 @@ export const apps = [
     width: 700,
     height: 350,
     resizable: true,
+  },
+  {
+    id: "taskmanager",
+    title: "Task Manager",
+    icon: ICONS.taskmanager,
+    appClass: TaskManagerApp,
+    width: 300,
+    height: 400,
+    resizable: false,
   },
   {
     id: "soundschemeexplorer",
