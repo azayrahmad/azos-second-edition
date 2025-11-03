@@ -611,6 +611,33 @@ export function initDesktop() {
 
   desktop.refreshIcons();
 
+  document.addEventListener("theme-changed", () => {
+    desktop.refreshIcons();
+  });
+
+  desktop.addEventListener("contextmenu", (e) => {
+    // Show desktop context menu only if not clicking on an icon
+    if (e.target === desktop) {
+      e.preventDefault();
+      showDesktopContextMenu(e, { selectedIcons, clearSelection });
+    }
+  });
+
+  // Add click handler to desktop to deselect icons
+  desktop.addEventListener("click", (e) => {
+    if (wasLassoing) {
+      wasLassoing = false;
+      return;
+    }
+    if (
+      e.target === desktop &&
+      !isLassoing &&
+      !e.target.closest(".desktop-icon")
+    ) {
+      clearSelection();
+    }
+  });
+
   init(); // Initialize the taskbar manager
 
   const showTipsAtStartup = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);

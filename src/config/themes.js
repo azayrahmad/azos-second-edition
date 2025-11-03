@@ -22,6 +22,7 @@ export const themes = {
     stylesheet: "windows-default.css",
     wallpaper: null,
     soundScheme: "Default",
+    iconScheme: "default",
   },
   "peggys-pastels": {
     id: "peggys-pastels",
@@ -29,6 +30,7 @@ export const themes = {
     stylesheet: "peggys-pastels.css",
     wallpaper: null,
     soundScheme: "Default",
+    iconScheme: "default",
   },
   blue: {
     id: "blue",
@@ -36,6 +38,7 @@ export const themes = {
     stylesheet: "blue.css",
     wallpaper: null,
     soundScheme: "Default",
+    iconScheme: "default",
   },
   "60s-usa": {
     id: "60s-usa",
@@ -43,6 +46,7 @@ export const themes = {
     stylesheet: "60s-usa.css",
     wallpaper: the60sUSAWallpaper,
     soundScheme: "60s USA",
+    iconScheme: "60s-usa",
   },
   "dangerous-creatures": {
     id: "dangerous-creatures",
@@ -50,6 +54,7 @@ export const themes = {
     stylesheet: "dangerous-creatures.css",
     wallpaper: dangerousCreaturesWallpaper,
     soundScheme: "Dangerous Creatures",
+    iconScheme: "dangerous-creatures",
   },
   baseball: {
     id: "baseball",
@@ -57,6 +62,7 @@ export const themes = {
     stylesheet: "baseball.css",
     wallpaper: baseballWallpaper,
     soundScheme: "Baseball",
+    iconScheme: "default",
   },
   jungle: {
     id: "jungle",
@@ -64,6 +70,7 @@ export const themes = {
     stylesheet: "jungle.css",
     wallpaper: jungleWallpaper,
     soundScheme: "Jungle",
+    iconScheme: "default",
   },
   space: {
     id: "space",
@@ -71,6 +78,7 @@ export const themes = {
     stylesheet: "space.css",
     wallpaper: spaceWallpaper,
     soundScheme: "Space",
+    iconScheme: "default",
   },
   underwater: {
     id: "underwater",
@@ -78,6 +86,7 @@ export const themes = {
     stylesheet: "underwater.css",
     wallpaper: underwaterWallpaper,
     soundScheme: "Underwater",
+    iconScheme: "default",
   },
   //'memphis-milano': {
   //  id: 'memphis-milano',
@@ -92,6 +101,7 @@ export const themes = {
     stylesheet: "inside-your-computer.css",
     wallpaper: insideYourComputerWallpaper,
     soundScheme: "Inside Your Computer",
+    iconScheme: "inside-your-computer",
   },
   sports: {
     id: "sports",
@@ -99,6 +109,7 @@ export const themes = {
     stylesheet: "sports.css",
     wallpaper: sportsWallpaper,
     soundScheme: "Sports",
+    iconScheme: "sports",
   },
   "leonardo-da-vinci": {
     id: "leonardo-da-vinci",
@@ -106,6 +117,7 @@ export const themes = {
     stylesheet: "leonardo-da-vinci.css",
     wallpaper: leonardoDaVinciWallpaper,
     soundScheme: "Leonardo da Vinci",
+    iconScheme: "leonardo-da-vinci",
   },
   "more-windows": {
     id: "more-windows",
@@ -113,6 +125,7 @@ export const themes = {
     stylesheet: "more-windows.css",
     wallpaper: moreWindowsWallpaper,
     soundScheme: "Default", // Or create a new sound scheme if one exists
+    iconScheme: "more-windows",
   },
   mystery: {
     id: "mystery",
@@ -120,6 +133,7 @@ export const themes = {
     stylesheet: "mystery.css",
     wallpaper: mysteryWallpaper,
     soundScheme: "Mystery",
+    iconScheme: "mystery",
   },
   nature: {
     id: "nature",
@@ -127,6 +141,7 @@ export const themes = {
     stylesheet: "nature.css",
     wallpaper: natureWallpaper,
     soundScheme: "Nature",
+    iconScheme: "nature",
   },
   science: {
     id: "science",
@@ -134,6 +149,7 @@ export const themes = {
     stylesheet: "science.css",
     wallpaper: scienceWallpaper,
     soundScheme: "Science",
+    iconScheme: "science",
   },
   "the-golden-era": {
     id: "the-golden-era",
@@ -141,6 +157,7 @@ export const themes = {
     stylesheet: "the-golden-era.css",
     wallpaper: theGoldenEraWallpaper,
     soundScheme: "The Golden Era",
+    iconScheme: "the-golden-era",
   },
   travel: {
     id: "travel",
@@ -148,6 +165,7 @@ export const themes = {
     stylesheet: "travel.css",
     wallpaper: travelWallpaper,
     soundScheme: "Travel",
+    iconScheme: "travel",
   },
   "windows-98": {
     id: "windows-98",
@@ -155,5 +173,6 @@ export const themes = {
     stylesheet: "win-98.css",
     wallpaper: windows98Wallpaper,
     soundScheme: "Windows 98",
+    iconScheme: "windows-98",
   },
 };
