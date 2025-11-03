@@ -24,7 +24,7 @@ export class TaskManagerApp extends Application {
             if (appId === 'taskmanager') continue;
 
             const appConfig = appManager.getAppConfig(appId);
-            const title = appInstance.win ? appInstance.win.title : appConfig.title;
+            const title = appInstance.win ? appInstance.win.title() : appConfig.title;
 
             const listItem = $(`<li>${title}</li>`);
             listItem.data('appId', appId);
