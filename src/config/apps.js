@@ -34,6 +34,31 @@ export const appClasses = {
 
 export const apps = [
   {
+    id: "my-computer",
+    title: "My Computer",
+    icon: ICONS.computer,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "/");
+      },
+    },
+  },
+  {
+    id: "my-documents",
+    title: "My Documents",
+    icon: ICONS.folder,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp(
+          "explorer",
+          "/drive-c/folder-user/folder-documents",
+        );
+      },
+    },
+  },
+  {
     id: "about",
     title: "About",
     icon: ICONS.about,
@@ -194,27 +219,5 @@ export const apps = [
     width: 640,
     height: 480,
     resizable: true,
-  },
-  {
-    id: "my-computer",
-    title: "My Computer",
-    icon: ICONS.computer,
-    action: {
-      type: "function",
-      handler: () => {
-        window.System.launchApp("explorer", "/");
-      },
-    },
-  },
-  {
-    id: "my-documents",
-    title: "My Documents",
-    icon: ICONS.folder,
-    action: {
-      type: "function",
-      handler: () => {
-        window.System.launchApp("explorer", "/drive-c/folder-user/folder-documents");
-      },
-    },
   },
 ];

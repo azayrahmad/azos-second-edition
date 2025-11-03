@@ -40,6 +40,18 @@ const directory = [
             type: "folder",
             children: [
               {
+                id: "shortcut-to-my-computer",
+                type: "shortcut",
+                targetId: "app-my-computer",
+                name: "My Computer",
+              },
+              {
+                id: "shortcut-to-my-documents",
+                type: "shortcut",
+                targetId: "app-my-documents",
+                name: "My Documents",
+              },
+              {
                 id: "shortcut-to-about",
                 type: "shortcut",
                 targetId: "app-about",
@@ -111,18 +123,6 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-soundschemeexplorer",
                 name: "Sound Scheme Explorer",
-              },
-              {
-                id: "shortcut-to-my-computer",
-                type: "shortcut",
-                targetId: "app-my-computer",
-                name: "My Computer",
-              },
-              {
-                id: "shortcut-to-my-documents",
-                type: "shortcut",
-                targetId: "app-my-documents",
-                name: "My Documents",
               },
             ],
           },

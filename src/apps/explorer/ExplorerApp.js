@@ -43,15 +43,15 @@ export class ExplorerApp extends Application {
   _createWindow() {
     const win = new window.$Window({
       title: this.title,
-      width: this.width,
-      height: this.height,
+      outerWidth: this.width,
+      outerHeight: this.height,
       resizable: this.resizable,
       minimizeButton: this.minimizeButton,
       maximizeButton: this.maximizeButton,
       id: this.id,
     });
     this.win = win;
-
+    console.log("ExplorerApp window created, width:", this.width);
     const menuItems = {
       Go: [
         {
