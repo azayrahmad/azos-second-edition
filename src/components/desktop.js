@@ -208,7 +208,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       action: () => {
         // Remove saved positions and redraw icons
         removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-        setupIcons({ selectedIcons, clearSelection });
+        document.querySelector(".desktop").refreshIcons();
       },
     },
     {
@@ -388,12 +388,7 @@ function findNextOpenPosition(desktop, iconPositions) {
   return { x: paddingLeft, y: paddingTop };
 }
 
-function configureIcon(
-  icon,
-  app,
-  filePath = null,
-  { iconManager },
-) {
+function configureIcon(icon, app, filePath = null, { iconManager }) {
   let isDragging = false;
   let wasDragged = false;
   let dragStartX, dragStartY;
@@ -406,7 +401,6 @@ function configureIcon(
   const handleDragStart = (e) => {
     if (e.type === "mousedown" && e.button !== 0) return;
     if (e.type === "touchstart" && e.touches.length > 1) return;
-
 
     // Allow IconManager to handle selection logic first.
     // We prevent default mousedown behavior and let the icon manager handle it.
