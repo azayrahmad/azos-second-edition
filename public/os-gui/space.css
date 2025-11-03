@@ -1,0 +1,41 @@
+
+/* This is a generated file. */
+/* spell-checker: disable */
+:root {
+	--checker: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGklEQVR4AWI6cOLC/4YJM/4DGScYHCwsGAAAAAD//8/2CaAAAAAGSURBVAMAY6gJAwBR1agAAAAASUVORK5CYII=");
+	--button-active-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h192v192h-192v-192z%22%20fill%3D%22rgb(80%2C%2096%2C%20104)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
+	--button-normal-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(192%2C%20200%2C%20208)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22rgb(80%2C%2096%2C%20104)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
+	--inset-deep-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22rgb(192%2C%20200%2C%20208)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(80%2C%2096%2C%20104)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
+	--button-default-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(192%2C%20200%2C%20208)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h96v32h-64v64h-32v-96z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M160%2064h32v128h-128v-32h96v-96z%22%20fill%3D%22rgb(80%2C%2096%2C%20104)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M96%2096h64v64h-64v-64z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%09%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22256%22%20height%3D%22256%22%20stroke-width%3D%2264%22%20stroke%3D%22rgb(0%2C%200%2C%200)%22%20fill%3D%22none%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 96 / 3px;
+	--button-default-active-border-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%0A%09%09%09%0A%09%09%3Cpath%20d%3D%22M0%200h256v256h-256v-256z%22%20fill%3D%22rgb(0%2C%200%2C%200)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M32%2032h192v192h-192v-192z%22%20fill%3D%22rgb(80%2C%2096%2C%20104)%22%2F%3E%0A%09%09%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22rgb(128%2C%20144%2C%20152)%22%2F%3E%0A%09%09%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22256%22%20height%3D%22256%22%20stroke-width%3D%2264%22%20stroke%3D%22rgb(0%2C%200%2C%200)%22%20fill%3D%22none%22%2F%3E%0A%09%0A%09%09%3C%2Fsvg%3E") 64 / 2px;
+	--scrollbar-arrows-ButtonText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAeUlEQVR4AeRQgQnAIAxz+//nzYCBGNvChMFgYqkmIQ0928fObwJdDxY/aXVDILwyX+gyjviWRgMddBrd/wNuHMROPOqVJuQ0EAwZgh2Ylpv4X7V4Zz4p54FSIYheGODV4fBCFxICLpookOi3n8ugwmnSvhWomF9TNwAAAP//lLtLGQAAAAZJREFUAwAQcBATfPYHLgAAAABJRU5ErkJggg==");
+	--scrollbar-arrows-GrayText: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAg0lEQVR4AeRQwQmAQAxTJ3QEn47k0xHcUMkjpdamHAeCoBB6l8Q03DR87PtHoXlZz9aHj157IQgRKhQ+pZHv9VihY99GhmHGOziAizjBKVQepVkhhLIEJziPGBLv3ouzyqm0W6HKSA1LPMBngCfjPZd5HoX8D73nbJHKit5XCqnlLfwFAAD//1atBFIAAAAGSURBVAMAVcpAE6JOibMAAAAASUVORK5CYII=");
+	--scrollbar-arrows-ButtonHilight: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAJCAYAAABaMo5wAAAAgklEQVR4AeRQMQqAQAxTX+To6NMdHf2RkiGl1qYcB4KgEHqXxDTcNHzs+0ehbT/O1oePXnshCBEqFD6lke/1WKF1mUeGYcY7OICLOMEpVB6lWSGEsgQnOI8YEu/ei7PKqbRbocpIDUs8wGeAJ+M9l3kehfwPvedskcqK3lcKqeUt/AUAAP//StLcnwAAAAZJREFUAwDUQUATGsusjAAAAABJRU5ErkJggg==");
+	--scrollbar-size: 13px;
+	--scrollbar-button-inner-size: 9px;
+	--ActiveTitle: rgb(0, 0, 0);
+	--Background: rgb(0, 0, 0);
+	--Hilight: rgb(0, 0, 0);
+	--HilightText: rgb(0, 255, 0);
+	--TitleText: rgb(0, 255, 0);
+	--Window: rgb(255, 255, 255);
+	--WindowText: rgb(0, 0, 0);
+	--Scrollbar: rgb(192, 200, 208);
+	--InactiveTitle: rgb(80, 96, 104);
+	--Menu: rgb(128, 144, 152);
+	--WindowFrame: rgb(0, 0, 0);
+	--MenuText: rgb(0, 0, 0);
+	--ActiveBorder: rgb(128, 144, 152);
+	--InactiveBorder: rgb(128, 144, 152);
+	--AppWorkspace: rgb(83, 96, 102);
+	--ButtonFace: rgb(128, 144, 152);
+	--ButtonShadow: rgb(80, 96, 104);
+	--GrayText: rgb(80, 96, 104);
+	--ButtonText: rgb(0, 0, 0);
+	--InactiveTitleText: rgb(192, 192, 192);
+	--ButtonHilight: rgb(192, 200, 208);
+	--ButtonDkShadow: rgb(0, 0, 0);
+	--ButtonLight: rgb(128, 144, 152);
+	--InfoText: rgb(0, 0, 0);
+	--InfoWindow: rgb(255, 255, 255);
+}

@@ -142,4 +142,8 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_37.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_37.ico", import.meta.url).href,
   },
+  soundschemeexplorer: {
+    16: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+    32: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+  },
 };

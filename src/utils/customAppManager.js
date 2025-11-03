@@ -4,7 +4,7 @@ import { renderHTML } from './domUtils.js';
 import { Application } from '../apps/Application.js';
 import { apps, appClasses } from '../config/apps.js';
 import { ICONS } from '../config/icons.js';
-import desktopConfig from '../config/desktop.json';
+import { addDesktopShortcut, removeDesktopShortcut } from './directory.js';
 import { launchApp } from './appManager.js';
 
 export function setupIcons() {
@@ -103,9 +103,7 @@ export function registerCustomApp(appInfo) {
         ],
     };
 
-    if (!desktopConfig.apps.includes(appInfo.id)) {
-        desktopConfig.apps.push(appInfo.id);
-    }
+    addDesktopShortcut(appInfo.id, appInfo.title);
 
     apps.push(newApp);
     appClasses[appInfo.id] = newApp.appClass;
@@ -120,10 +118,7 @@ export function deleteCustomApp(appId) {
 
     delete appClasses[appId];
 
-    const desktopIndex = desktopConfig.apps.indexOf(appId);
-    if (desktopIndex > -1) {
-        desktopConfig.apps.splice(desktopIndex, 1);
-    }
+    removeDesktopShortcut(appId);
 
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
     const newSavedApps = savedApps.filter(app => app.id !== appId);

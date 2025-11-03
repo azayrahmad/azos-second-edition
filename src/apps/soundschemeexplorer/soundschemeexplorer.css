@@ -1,0 +1,45 @@
+.sound-scheme-explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  padding: 5px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--ButtonFace);
+}
+
+.sound-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 5px;
+  background-color: var(--Window);
+  color: var(--WindowText);
+}
+
+.sound-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  padding: 2px;
+}
+
+.play-btn {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.play-icon {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid var(--ButtonText);
+  display: inline-block;
+}
