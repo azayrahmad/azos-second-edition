@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
+import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
 
 function findItemByPath(path) {
@@ -113,6 +114,13 @@ export class ExplorerApp extends Application {
     }
 
     this.win.title(item.name);
+    if (item.id === "root") {
+      this.win.setIcons(ICONS.computer);
+    } else if (item.type === "drive") {
+      this.win.setIcons(ICONS.drive);
+    } else if (item.type === "folder") {
+      this.win.setIcons(ICONS.folderOpen);
+    }
     this.content.innerHTML = ""; // Clear previous content
 
     const children = item.children || [];
@@ -152,8 +160,13 @@ export class ExplorerApp extends Application {
     iconInner.className = "icon";
 
     const iconImg = document.createElement("img");
-    // TODO: get proper icon based on file type / folder etc
-    iconImg.src = app.icon ? app.icon[32] : "public/icons/folder-32.png";
+    if (item.type === "drive") {
+      iconImg.src = ICONS.drive[32];
+    } else if (item.type === "folder") {
+      iconImg.src = ICONS.folderClosed[32];
+    } else {
+      iconImg.src = app.icon ? app.icon[32] : ICONS.folderClosed[32];
+    }
     iconInner.appendChild(iconImg);
 
     const iconLabel = document.createElement("div");
