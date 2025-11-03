@@ -3,6 +3,7 @@ import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
 import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
+import { IconManager } from "../../components/IconManager.js";
 
 function findItemByPath(path) {
   if (!path || path === "/") {
@@ -80,6 +81,11 @@ export class ExplorerApp extends Application {
     win.$content.append(content);
     this.content = content;
 
+    this.iconManager = new IconManager(content, {
+      onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
+      onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
+    });
+
     this.navigateTo(this.initialPath);
 
     return win;
@@ -122,6 +128,7 @@ export class ExplorerApp extends Application {
       this.win.setIcons(ICONS.folderOpen);
     }
     this.content.innerHTML = ""; // Clear previous content
+    this.iconManager.clearSelection();
 
     const children = item.children || [];
 
@@ -144,6 +151,7 @@ export class ExplorerApp extends Application {
       }
 
       const icon = this.createExplorerIcon(iconData);
+      this.iconManager.configureIcon(icon);
       this.content.appendChild(icon);
     });
   }
@@ -240,5 +248,37 @@ export class ExplorerApp extends Application {
       );
     if (upButton)
       upButton.classList.toggle("disabled", this.currentPath === "/");
+  }
+
+  showItemContextMenu(event, icon) {
+    const menuItems = [
+      { label: "Open", default: true, action: () => {} },
+      "MENU_DIVIDER",
+      { label: "Cut", action: () => {} },
+      { label: "Copy", action: () => {} },
+      "MENU_DIVIDER",
+      { label: "Delete", action: () => {} },
+      { label: "Rename", action: () => {} },
+      "MENU_DIVIDER",
+      { label: "Properties", action: () => {} },
+    ];
+    new window.ContextMenu(menuItems, event);
+  }
+
+  showBackgroundContextMenu(event) {
+    const menuItems = [
+      {
+        label: "View",
+        submenu: [
+          { label: "Large Icons", action: () => {} },
+          { label: "Details", action: () => {} },
+        ],
+      },
+      "MENU_DIVIDER",
+      { label: "New Folder", action: () => {} },
+      "MENU_DIVIDER",
+      { label: "Paste", action: () => {} },
+    ];
+    new window.ContextMenu(menuItems, event);
   }
 }
