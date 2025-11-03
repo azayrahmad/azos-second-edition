@@ -8,6 +8,7 @@ import { themes } from "../config/themes.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
 import { applyCursorTheme } from "./cursorManager.js";
+import { preloadThemeAssets } from "./assetPreloader.js";
 
 export function getThemes() {
   return themes;
@@ -31,35 +32,28 @@ export function applyTheme() {
   });
 }
 
-export function setTheme(themeKey) {
+export async function setTheme(themeKey) {
   applyBusyCursor(document.body);
-  const dialog = ShowDialogWindow({
-    title: "Theme",
-    text: "Applying theme...",
-    modal: true,
-    buttons: [],
-  });
 
-  setTimeout(() => {
-    // Clear any temporary theme styles from the Theme to CSS app
-    const transientStyle = document.getElementById("transient-theme-styles");
-    if (transientStyle) {
-      transientStyle.remove();
-    }
+  await preloadThemeAssets(themeKey);
 
-    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
-    applyTheme();
+  // Clear any temporary theme styles from the Theme to CSS app
+  const transientStyle = document.getElementById("transient-theme-styles");
+  if (transientStyle) {
+    transientStyle.remove();
+  }
 
-    const theme = themes[themeKey];
-    if (theme && theme.wallpaper) {
-      setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
-    } else {
-      removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
-    }
-    document.dispatchEvent(new CustomEvent("wallpaper-changed"));
-    document.dispatchEvent(new CustomEvent("theme-changed"));
+  setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
+  applyTheme();
 
-    dialog.close();
-    clearBusyCursor(document.body);
-  }, 50);
+  const theme = themes[themeKey];
+  if (theme && theme.wallpaper) {
+    setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
+  } else {
+    removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
+  }
+  document.dispatchEvent(new CustomEvent("wallpaper-changed"));
+  document.dispatchEvent(new CustomEvent("theme-changed"));
+
+  clearBusyCursor(document.body);
 }

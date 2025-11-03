@@ -1,5 +1,6 @@
 import "./styles/cursors.css";
 import "./style.css";
+import "./styles/bootScreen.css";
 import { themes } from "./config/themes.js";
 import { setupCounter } from "./counter.js";
 import { initDesktop } from "./components/desktop.js";
@@ -11,7 +12,9 @@ import { registerCustomApp } from "./utils/customAppManager.js";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
-import { setTheme } from "./utils/themeManager.js";
+import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
+import { showBootScreen, hideBootScreen, updateBootLog } from './components/bootScreen.js';
+import { preloadThemeAssets } from './utils/assetPreloader.js';
 
 // Window Management System
 class WindowManagerSystem {
@@ -83,34 +86,7 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  // Create and show the progress window using the $Window constructor
-  const progressWindow = new $Window({
-    title: "Initializing azOS",
-    outerWidth: 500,
-    resizable: false,
-    maximizeButton: false,
-    minimizeButton: false,
-    closeButton: false,
-  });
-  progressWindow.$content.append(`
-    <div class="progress-bar" style="padding: 10px;">
-      <p class="progress-text">Loading...</p>
-      <div class="progress-indicator segmented" style="width: 100%; box-sizing: border-box;">
-      <span class="progress-indicator-bar" style="width: 0%;"></span>
-    </div>
-  `);
-
-  $("body").append(progressWindow.$window);
-  progressWindow.center();
-
-  // Function to update the progress bar
-  function updateProgress(percentage, text = "Loading...") {
-    if (!progressWindow) return;
-    progressWindow
-      .find(".progress-indicator-bar")
-      .css("width", `${percentage}%`);
-    progressWindow.find(".progress-text").text(text);
-  }
+  showBootScreen();
 
   function loadCustomApps() {
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
@@ -131,28 +107,34 @@ async function initializeOS() {
     });
   }
 
-  // Simulate initialization tasks with progress updates
-  updateProgress(20, "Loading themes...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  updateBootLog("Preloading default theme assets...");
+  await preloadThemeAssets('default');
 
+  const currentTheme = getCurrentTheme();
+  if (currentTheme !== 'default') {
+    updateBootLog(`Preloading ${currentTheme} theme assets...`);
+    await preloadThemeAssets(currentTheme);
+  }
+
+  updateBootLog("Loading theme stylesheets...");
   loadThemeStylesheets();
-  updateProgress(40, "Loading custom applications...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
 
+  updateBootLog("Loading custom applications...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
-  updateProgress(60, "Initializing taskbar...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
 
+  updateBootLog("Initializing taskbar...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
   taskbar.init();
-  updateProgress(80, "Setting up desktop...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
 
+  updateBootLog("Setting up desktop...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
   initDesktop();
-  updateProgress(100, "azOS Ready!");
+
+  updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  // Close the progress window using its own method
-  progressWindow.close();
+  hideBootScreen();
 
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
