@@ -15,6 +15,7 @@ import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { ICONS } from "./icons.js";
+import { getIcon } from "../utils/iconManager.js";
 
 export const appClasses = {
   about: AboutApp,
@@ -36,7 +37,9 @@ export const apps = [
   {
     id: "my-computer",
     title: "My Computer",
-    icon: ICONS.computer,
+    get icon() {
+      return getIcon("myComputer");
+    },
     action: {
       type: "function",
       handler: () => {
