@@ -712,6 +712,10 @@ export function initDesktop() {
 
   desktop.refreshIcons();
 
+  document.addEventListener("theme-changed", () => {
+    desktop.refreshIcons();
+  });
+
   desktop.addEventListener("contextmenu", (e) => {
     // Show desktop context menu only if not clicking on an icon
     if (e.target === desktop) {
