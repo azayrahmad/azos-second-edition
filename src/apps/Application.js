@@ -1,4 +1,5 @@
 import { createTaskbarButton, createTrayIcon } from '../components/taskbar.js';
+import { appManager } from '../utils/appManager.js';
 
 const openWindows = new Map();
 export const openApps = new Map();
@@ -82,6 +83,8 @@ export class Application {
             openWindows.delete(windowId);
             // Also remove from the master app list
             openApps.delete(this.id);
+            // Use appManager to handle app closing
+            appManager.closeApp(this.id);
         });
 
         document.body.appendChild(this.win.element);

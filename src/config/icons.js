@@ -138,4 +138,8 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_47.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_47.ico", import.meta.url).href,
   },
+  taskmanager: {
+    16: new URL("../assets/icons/SHELL32_37.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_37.ico", import.meta.url).href,
+  },
 };
