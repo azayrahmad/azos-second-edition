@@ -40,9 +40,17 @@ export const ICONS = {
     32: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
   },
   computer: {
-    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
+    16: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
       .href,
+    32: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
+  },
+  disketteDrive: {
+    16: new URL("../assets/icons/SHELL32_7.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_7.ico", import.meta.url).href,
+  },
+  drive: {
+    16: new URL("../assets/icons/SHELL32_9.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_9.ico", import.meta.url).href,
   },
   folder: {
     16: new URL(

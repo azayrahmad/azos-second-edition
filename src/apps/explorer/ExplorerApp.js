@@ -75,7 +75,7 @@ export class ExplorerApp extends Application {
     win.setMenuBar(this.menuBar);
 
     const content = document.createElement("div");
-    content.className = "explorer-content";
+    content.className = "explorer-content sunken-panel";
     win.$content.append(content);
     this.content = content;
 
