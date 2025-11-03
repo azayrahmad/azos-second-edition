@@ -10,6 +10,10 @@ import scienceWallpaper from "../assets/img/wallpapers/Science wallpaper.jpg";
 import theGoldenEraWallpaper from "../assets/img/wallpapers/The Golden Era wallpaper.jpg";
 import travelWallpaper from "../assets/img/wallpapers/Travel wallpaper.jpg";
 import windows98Wallpaper from "../assets/img/wallpapers/Windows 98 wallpaper.jpg";
+import baseballWallpaper from "../assets/img/wallpapers/Baseball wallpaper.jpg";
+import jungleWallpaper from "../assets/img/wallpapers/Jungle wallpaper.jpg";
+import spaceWallpaper from "../assets/img/wallpapers/Space wallpaper.jpg";
+import underwaterWallpaper from "../assets/img/wallpapers/Underwater wallpaper.jpg";
 
 export const themes = {
   default: {
@@ -46,6 +50,34 @@ export const themes = {
     stylesheet: "dangerous-creatures.css",
     wallpaper: dangerousCreaturesWallpaper,
     soundScheme: "Dangerous Creatures",
+  },
+  baseball: {
+    id: "baseball",
+    name: "Baseball",
+    stylesheet: "baseball.css",
+    wallpaper: baseballWallpaper,
+    soundScheme: "Baseball",
+  },
+  jungle: {
+    id: "jungle",
+    name: "Jungle",
+    stylesheet: "jungle.css",
+    wallpaper: jungleWallpaper,
+    soundScheme: "Jungle",
+  },
+  space: {
+    id: "space",
+    name: "Space",
+    stylesheet: "space.css",
+    wallpaper: spaceWallpaper,
+    soundScheme: "Space",
+  },
+  underwater: {
+    id: "underwater",
+    name: "Underwater",
+    stylesheet: "underwater.css",
+    wallpaper: underwaterWallpaper,
+    soundScheme: "Underwater",
   },
   //'memphis-milano': {
   //  id: 'memphis-milano',

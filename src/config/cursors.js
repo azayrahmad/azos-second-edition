@@ -187,6 +187,70 @@ import w98WE from "../assets/cursor/Windows 98 Size WE.cur";
 import w98Pen from "../assets/cursor/Windows 98 pen.cur";
 import w98Up from "../assets/cursor/Windows 98 up.cur";
 
+// Baseball
+import baseballArrow from "../assets/cursor/Baseball Normal Select.cur";
+import baseballBeam from "../assets/cursor/Baseball Text Select.cur";
+import baseballBusy from "../assets/cursor/Baseball Working in Background.ani";
+import baseballWait from "../assets/cursor/Baseball Busy.ani";
+import baseballHelp from "../assets/cursor/Baseball Help Select.cur";
+import baseballMove from "../assets/cursor/Baseball Move.cur";
+import baseballNo from "../assets/cursor/Baseball Unavailable.cur";
+import baseballCross from "../assets/cursor/Baseball Precision Select.cur";
+import baseballSizeNESW from "../assets/cursor/Baseball Diagonal Resize 2.cur";
+import baseballSizeNS from "../assets/cursor/Baseball Vertical Resize.cur";
+import baseballSizeNWSE from "../assets/cursor/Baseball Diagonal Resize 1.cur";
+import baseballSizeWE from "../assets/cursor/Baseball Horizontal Resize.cur";
+import baseballPen from "../assets/cursor/Baseball Handwriting.cur";
+import baseballUp from "../assets/cursor/Baseball Alternate Select.cur";
+
+// Jungle
+import jungleArrow from "../assets/cursor/Jungle Normal Select.cur";
+import jungleBeam from "../assets/cursor/Jungle Text Select.cur";
+import jungleBusy from "../assets/cursor/Jungle Working in Background.ani";
+import jungleWait from "../assets/cursor/Jungle Busy.ani";
+import jungleHelp from "../assets/cursor/Jungle Help Select.cur";
+import jungleMove from "../assets/cursor/Jungle Move.cur";
+import jungleNo from "../assets/cursor/Jungle Unavailable.cur";
+import jungleCross from "../assets/cursor/Jungle Precision Select.cur";
+import jungleSizeNESW from "../assets/cursor/Jungle Diagonal Resize 2.cur";
+import jungleSizeNS from "../assets/cursor/Jungle Vertical Resize.cur";
+import jungleSizeNWSE from "../assets/cursor/Jungle Diagonal Resize 1.cur";
+import jungleSizeWE from "../assets/cursor/Jungle Horizontal Resize.cur";
+import junglePen from "../assets/cursor/Jungle Handwriting.cur";
+import jungleUp from "../assets/cursor/Jungle Alternate Select.cur";
+
+// Space
+import spaceArrow from "../assets/cursor/Space Normal Select.cur";
+import spaceBeam from "../assets/cursor/Space Text Select.cur";
+import spaceBusy from "../assets/cursor/Space Working in Background.ani";
+import spaceWait from "../assets/cursor/Space Busy.ani";
+import spaceHelp from "../assets/cursor/Space Help Select.cur";
+import spaceMove from "../assets/cursor/Space Move.cur";
+import spaceNo from "../assets/cursor/Space Unavailable.cur";
+import spaceCross from "../assets/cursor/Space Precision Select.cur";
+import spaceSizeNESW from "../assets/cursor/Space Diagonal Resize 2.cur";
+import spaceSizeNS from "../assets/cursor/Space Vertical Resize.cur";
+import spaceSizeNWSE from "../assets/cursor/Space Diagonal Resize 1.cur";
+import spaceSizeWE from "../assets/cursor/Space Horizontal Resize.cur";
+import spacePen from "../assets/cursor/Space Handwriting.cur";
+import spaceUp from "../assets/cursor/Space Alternate Select.cur";
+
+// Underwater
+import underwaterArrow from "../assets/cursor/Underwater Normal Select.cur";
+import underwaterBeam from "../assets/cursor/Underwater Text Select.cur";
+import underwaterBusy from "../assets/cursor/Underwater Working in Background.ani";
+import underwaterWait from "../assets/cursor/Underwater Busy.ani";
+import underwaterHelp from "../assets/cursor/Underwater Help Select.cur";
+import underwaterMove from "../assets/cursor/Underwater Move.cur";
+import underwaterNo from "../assets/cursor/Underwater Unavailable.cur";
+import underwaterCross from "../assets/cursor/Underwater Precision Select.cur";
+import underwaterSizeNESW from "../assets/cursor/Underwater Diagonal Resize 2.cur";
+import underwaterSizeNS from "../assets/cursor/Underwater Vertical Resize.cur";
+import underwaterSizeNWSE from "../assets/cursor/Underwater Diagonal Resize 1.cur";
+import underwaterSizeWE from "../assets/cursor/Underwater Horizontal Resize.cur";
+import underwaterPen from "../assets/cursor/Underwater Handwriting.cur";
+import underwaterUp from "../assets/cursor/Underwater Alternate Select.cur";
+
 export const cursors = {
   default: {
     busy: defaultBusy,
@@ -311,6 +375,70 @@ export const cursors = {
     sizeWE: natureWE,
     pen: naturePen,
     up: natureUp,
+  },
+  baseball: {
+    arrow: baseballArrow,
+    beam: baseballBeam,
+    busy: baseballBusy,
+    wait: baseballWait,
+    help: baseballHelp,
+    move: baseballMove,
+    no: baseballNo,
+    cross: baseballCross,
+    sizeNESW: baseballSizeNESW,
+    sizeNS: baseballSizeNS,
+    sizeNWSE: baseballSizeNWSE,
+    sizeWE: baseballSizeWE,
+    pen: baseballPen,
+    up: baseballUp,
+  },
+  jungle: {
+    arrow: jungleArrow,
+    beam: jungleBeam,
+    busy: jungleBusy,
+    wait: jungleWait,
+    help: jungleHelp,
+    move: jungleMove,
+    no: jungleNo,
+    cross: jungleCross,
+    sizeNESW: jungleSizeNESW,
+    sizeNS: jungleSizeNS,
+    sizeNWSE: jungleSizeNWSE,
+    sizeWE: jungleSizeWE,
+    pen: junglePen,
+    up: jungleUp,
+  },
+  space: {
+    arrow: spaceArrow,
+    beam: spaceBeam,
+    busy: spaceBusy,
+    wait: spaceWait,
+    help: spaceHelp,
+    move: spaceMove,
+    no: spaceNo,
+    cross: spaceCross,
+    sizeNESW: spaceSizeNESW,
+    sizeNS: spaceSizeNS,
+    sizeNWSE: spaceSizeNWSE,
+    sizeWE: spaceSizeWE,
+    pen: spacePen,
+    up: spaceUp,
+  },
+  underwater: {
+    arrow: underwaterArrow,
+    beam: underwaterBeam,
+    busy: underwaterBusy,
+    wait: underwaterWait,
+    help: underwaterHelp,
+    move: underwaterMove,
+    no: underwaterNo,
+    cross: underwaterCross,
+    sizeNESW: underwaterSizeNESW,
+    sizeNS: underwaterSizeNS,
+    sizeNWSE: underwaterSizeNWSE,
+    sizeWE: underwaterSizeWE,
+    pen: underwaterPen,
+    up: underwaterUp,
   },
   science: {
     arrow: scienceArrow,
@@ -446,4 +574,5 @@ function createCursorTheme(cursorSet) {
   return { ...baseCursors, ...defaultAnimatedCursors };
 }
 
-export const getCursorThemes = (themeId) => createCursorTheme(cursors[themeId]);
+export const getCursorThemes = (themeId) =>
+  createCursorTheme(cursors[themeId] || cursors.default);
