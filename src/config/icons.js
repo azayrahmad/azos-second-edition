@@ -62,6 +62,14 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  folderClosed: {
+    16: new URL("../assets/icons/SHELL32_4.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_4.ico", import.meta.url).href,
+  },
+  folderOpen: {
+    16: new URL("../assets/icons/SHELL32_5.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_5.ico", import.meta.url).href,
+  },
   warning: {
     16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
     32: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
