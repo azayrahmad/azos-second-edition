@@ -1,8 +1,9 @@
 export function createPdfViewerContent(filePath) {
-  const dataPath = filePath ? `./files/${filePath}` : '';
-  const title = filePath ? `PDF Viewer - ${filePath}` : 'PDF Viewer';
+  const dataPath = filePath ? filePath.replace('public/', '') : '';
+  const fileName = dataPath.split('/').pop();
+  const title = fileName ? `PDF Viewer - ${fileName}` : 'PDF Viewer';
 
-  return `
+  const content = `
     <div class="pdf-viewer-content" style="width: 100%; height: 100%; padding: 0;">
       ${dataPath ? `
         <object
@@ -20,4 +21,6 @@ export function createPdfViewerContent(filePath) {
       `}
     </div>
   `;
+
+  return { title, content };
 }

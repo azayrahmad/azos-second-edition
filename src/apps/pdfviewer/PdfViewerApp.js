@@ -7,8 +7,10 @@ export class PdfViewerApp extends Application {
     }
 
     _createWindow(filePath) {
+        const { title, content } = createPdfViewerContent(filePath);
+
         const win = new $Window({
-            title: this.title,
+            title: title,
             outerWidth: this.width,
             outerHeight: this.height,
             resizable: this.resizable,
@@ -37,7 +39,6 @@ export class PdfViewerApp extends Application {
         });
         win.setMenuBar(menuBar);
 
-        const content = createPdfViewerContent(filePath);
         win.$content.html(content);
 
         return win;
