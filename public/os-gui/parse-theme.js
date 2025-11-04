@@ -134,6 +134,88 @@ function renderThemeGraphics(cssProperties) {
 	// $("h1").append(arrow_canvas).append(canvas);
 	ctx.restore();
 
+	function generate_svg_data_uri(svg_contents) {
+		return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg_contents)}`;
+	}
+	function generate_url_svg_data_uri(svg_contents) {
+		return `url("${generate_svg_data_uri(svg_contents)}")`;
+	}
+
+	function generate_fieldset_border_svg() {
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h5v5H0V2h2v1h1V2H0" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h4v4H0V1h1v2h2V1H0" />
+		`;
+	}
+
+	function generate_radio_button_svg(active, disabled) {
+		let face_color = getProp("--ButtonHilight");
+		if (active) {
+			face_color = getProp("--ButtonFace");
+		}
+		if (disabled) {
+			face_color = getProp("--ButtonFace");
+		}
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M8 0H4v1H2v1H1v2H0v4h1v2h1V8H1V4h1V2h2V1h4v1h2V1H8V0z" fill="${getProp("--ButtonShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M8 1H4v1H2v2H1v4h1v1h1V8H2V4h1V3h1V2h4v1h2V2H8V1z" fill="${getProp("--ButtonDkShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 3h1v1H9V3zm1 5V4h1v4h-1zm-2 2V9h1V8h1v2H8zm-4 0v1h4v-1H4zm0 0V9H2v1h2z" fill="${getProp("--ButtonLight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M11 2h-1v2h1v4h-1v2H8v1H4v-1H2v1h2v1h4v-1h2v-1h1V8h1V4h-1V2z" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M4 2h4v1h1v1h1v4H9v1H8v1H4V9H3V8H2V4h1V3h1V2z" fill="${face_color}" />
+		`;
+	}
+
+	function generate_radio_dot_svg(disabled) {
+		const color = disabled ? getProp("--ButtonShadow") : getProp("--ButtonText");
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M3 0H1v1H0v2h1v1h2V3h1V1H3V0z" fill="${color}" />
+		`;
+	}
+
+	function generate_checkbox_svg(disabled) {
+		const color = disabled ? getProp("--ButtonShadow") : getProp("--ButtonText");
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M7 0H6v1H5v1H4v1H3v1H2V3H1V2H0v3h1v1h1v1h1V6h1V5h1V4h1V3h1V0z" fill="${color}" />
+		`;
+	}
+
+	function generate_select_arrow_svg() {
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M15 0H0v16h1V1h14V0z" fill="${getProp("--ButtonLight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M2 1H1v14h1V2h12V1H2z" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M16 17H0v-1h15V0h1v17z" fill="${getProp("--ButtonDkShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M15 1h-1v14H1v1h14V1z" fill="${getProp("--ButtonShadow")}" />
+			<path fill="${getProp("--ButtonFace")}" d="M2 2h12v13H2z" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M11 6H4v1h1v1h1v1h1v1h1V9h1V8h1V7h1V6z" fill="${getProp("--ButtonText")}" />
+		`;
+	}
+
+	function generate_range_thumb_svg() {
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v16h2v2h2v2h1v-1H3v-2H1V1h9V0z" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M1 1v15h1v1h1v1h1v1h2v-1h1v-1h1v-1h1V1z" fill="${getProp("--ButtonFace")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 1h1v15H8v2H6v2H5v-1h2v-2h2z" fill="${getProp("--ButtonShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M10 0h1v16H9v2H7v2H5v1h1v-2h2v-2h2z" fill="${getProp("--ButtonDkShadow")}" />
+		`;
+	}
+
+	function generate_range_box_thumb_svg() {
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v20h1V1h9V0z" fill="${getProp("--ButtonHilight")}" />
+			<path fill="${getProp("--ButtonFace")}" d="M1 1h8v18H1z" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 1h1v19H1v-1h8z" fill="${getProp("--ButtonShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M10 0h1v21H0v-1h10z" fill="${getProp("--ButtonDkShadow")}" />
+		`;
+	}
+
+	function generate_select_arrow_active_svg() {
+		return `
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h16v17H0V0zm1 16h14V1H1v15z" fill="${getProp("--ButtonShadow")}" />
+			<path fill="${getProp("--ButtonFace")}" d="M1 1h14v15H1z" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M12 7H5v1h1v1h1v1h1v1h1v-1h1V9h1V8h1V7z" fill="${getProp("--ButtonText")}" />
+		`;
+	}
+
 	/**
 	 * @param {number} border_size 
 	 * @param {string} svg_contents
@@ -193,8 +275,33 @@ function renderThemeGraphics(cssProperties) {
 		<rect x="0" y="0" width="8" height="8" stroke-width="2" stroke="${getProp("--WindowFrame")}" fill="none"/>
 	`);
 
+	var fieldset_border_image = generate_url_svg_data_uri(`<svg width="5" height="5" fill="${getProp("--ButtonShadow")}" xmlns="http://www.w3.org/2000/svg">${generate_fieldset_border_svg()}</svg>`) + " 2";
+	var radio_button_svg = generate_url_svg_data_uri(`<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(false, false)}</svg>`);
+	var radio_button_active_svg = generate_url_svg_data_uri(`<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(true, false)}</svg>`);
+	var radio_button_disabled_svg = generate_url_svg_data_uri(`<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(false, true)}</svg>`);
+	var radio_dot_svg = generate_url_svg_data_uri(`<svg width="4" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_dot_svg(false)}</svg>`);
+	var radio_dot_disabled_svg = generate_url_svg_data_uri(`<svg width="4" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_dot_svg(true)}</svg>`);
+	var checkbox_svg = generate_url_svg_data_uri(`<svg width="7" height="7" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_checkbox_svg(false)}</svg>`);
+	var checkbox_disabled_svg = generate_url_svg_data_uri(`<svg width="7" height="7" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_checkbox_svg(true)}</svg>`);
+	var select_arrow_svg = generate_url_svg_data_uri(`<svg width="16" height="17" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_select_arrow_svg()}</svg>`);
+	var select_arrow_active_svg = generate_url_svg_data_uri(`<svg width="16" height="17" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_select_arrow_active_svg()}</svg>`);
+	var range_thumb_svg = generate_url_svg_data_uri(`<svg width="11" height="21" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_range_thumb_svg()}</svg>`);
+	var range_box_thumb_svg = generate_url_svg_data_uri(`<svg width="11" height="21" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_range_box_thumb_svg()}</svg>`);
+
 	return {
 		"--checker": checker,
+		"--fieldset-border-image": fieldset_border_image,
+		"--radio-button-svg": radio_button_svg,
+		"--radio-button-active-svg": radio_button_active_svg,
+		"--radio-button-disabled-svg": radio_button_disabled_svg,
+		"--radio-dot-svg": radio_dot_svg,
+		"--radio-dot-disabled-svg": radio_dot_disabled_svg,
+		"--checkbox-svg": checkbox_svg,
+		"--checkbox-disabled-svg": checkbox_disabled_svg,
+		"--select-arrow-svg": select_arrow_svg,
+		"--select-arrow-active-svg": select_arrow_active_svg,
+		"--range-thumb-svg": range_thumb_svg,
+		"--range-box-thumb-svg": range_box_thumb_svg,
 		"--button-active-border-image": button_active_border_image,
 		"--button-normal-border-image": button_normal_border_image,
 		"--inset-deep-border-image": inset_deep_border_image,
