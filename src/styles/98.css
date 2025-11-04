@@ -619,3 +619,46 @@ table > tbody > tr > * {
     display: flex;
     flex-direction: column;
 }
+
+menu[role="tablist"] {
+    display: flex;
+    list-style-type: none;
+    margin: 0 0 -2px;
+    padding-left: 3px;
+    position: relative;
+    text-indent: 0;
+}
+menu[role="tablist"] > li {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    box-shadow:
+        inset -1px 0 var(--ButtonDkShadow),
+        inset 1px 1px var(--ButtonLight),
+        inset -2px 0 var(--ButtonShadow),
+        inset 2px 2px var(--ButtonHilight);
+    z-index: 1;
+}
+menu[role="tablist"] > li[aria-selected="true"] {
+    background-color: var(--ButtonFace);
+    margin-left: -3px;
+    margin-top: -2px;
+    padding-bottom: 2px;
+    position: relative;
+    z-index: 8;
+}
+menu[role="tablist"] > li > a {
+    color: var(--ButtonText);
+    display: block;
+    margin: 6px;
+    text-decoration: none;
+}
+menu[role="tablist"] > li[aria-selected="true"] > a:focus {
+    outline: none;
+}
+menu[role="tablist"] > li > a:focus {
+    outline: 1px dotted var(--ButtonText);
+}
+menu[role="tablist"].multirows > li {
+    flex-grow: 1;
+    text-align: center;
+}
