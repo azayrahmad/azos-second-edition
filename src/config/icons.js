@@ -40,9 +40,17 @@ export const ICONS = {
     32: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
   },
   computer: {
-    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
+    16: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
       .href,
+    32: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
+  },
+  disketteDrive: {
+    16: new URL("../assets/icons/SHELL32_7.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_7.ico", import.meta.url).href,
+  },
+  drive: {
+    16: new URL("../assets/icons/SHELL32_9.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_9.ico", import.meta.url).href,
   },
   folder: {
     16: new URL(
@@ -53,6 +61,14 @@ export const ICONS = {
       "../assets/icons/directory_open_file_mydocs-1.png",
       import.meta.url,
     ).href,
+  },
+  folderClosed: {
+    16: new URL("../assets/icons/SHELL32_4.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_4.ico", import.meta.url).href,
+  },
+  folderOpen: {
+    16: new URL("../assets/icons/SHELL32_5.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_5.ico", import.meta.url).href,
   },
   warning: {
     16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
