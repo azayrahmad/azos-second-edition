@@ -3,59 +3,60 @@ import { createTaskbarButton, removeTaskbarButton, updateTaskbarButton } from '.
 import { ICONS } from '../../config/icons.js';
 import { appManager } from '../../utils/appManager.js';
 
-let webampInstance = null;
-let webampContainer = null;
-let webampTaskbarButton = null;
-let isMinimized = false;
-
 export class WebampApp extends Application {
     constructor(config) {
         super(config);
         this.hasTaskbarButton = true;
+
+        // Instance properties instead of module-level variables
+        this.webampInstance = null;
+        this.webampContainer = null;
+        this.webampTaskbarButton = null;
+        this.isMinimized = false;
     }
 
     _createWindow() {
-        // Webamp doesn't use a standard OS-GUI window, it renders directly to the body.
-        // We manage its container and lifecycle here.
-        return null; // Return null to prevent default window creation.
+        // Webamp doesn't use a standard OS-GUI window.
+        return null;
     }
 
     async _onLaunch() {
         return new Promise((resolve, reject) => {
-            if (webampInstance) {
+            // Check instance property for existing instance
+            if (this.webampInstance) {
                 this.showWebamp();
                 return resolve();
             }
 
-            webampContainer = document.createElement('div');
-            webampContainer.id = 'webamp-container';
-            webampContainer.style.position = 'absolute';
-            webampContainer.style.zIndex = $Window.Z_INDEX++;
-            webampContainer.style.left = '50px';
-            webampContainer.style.top = '50px';
-            document.body.appendChild(webampContainer);
+            this.webampContainer = document.createElement('div');
+            this.webampContainer.id = 'webamp-container';
+            this.webampContainer.style.position = 'absolute';
+            this.webampContainer.style.zIndex = $Window.Z_INDEX++;
+            this.webampContainer.style.left = '50px';
+            this.webampContainer.style.top = '50px';
+            document.body.appendChild(this.webampContainer);
 
-            webampContainer.addEventListener('mousedown', () => {
-                webampContainer.style.zIndex = $Window.Z_INDEX++;
+            this.webampContainer.addEventListener('mousedown', () => {
+                this.webampContainer.style.zIndex = $Window.Z_INDEX++;
             }, true);
 
             import('https://unpkg.com/webamp@^2').then((Webamp) => {
                 const { default: WebampClass } = Webamp;
 
-                webampInstance = new WebampClass({
+                this.webampInstance = new WebampClass({
                     initialTracks: [{
                         metaData: { artist: "DJ Mike Llama", title: "Llama Whippin' Intro" },
                         url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3"
                     }]
                 });
 
-                webampInstance.onMinimize(() => this.minimizeWebamp());
-                webampInstance.onClose(() => this.close());
+                this.webampInstance.onMinimize(() => this.minimizeWebamp());
+                this.webampInstance.onClose(() => appManager.closeApp(this.id));
 
-                webampInstance.renderWhenReady(webampContainer).then(() => {
+                this.webampInstance.renderWhenReady(this.webampContainer).then(() => {
                     this.setupTaskbarButton();
                     this.showWebamp();
-                    resolve(); // Resolve the promise once Webamp is ready
+                    resolve();
                 }).catch(reject);
 
             }).catch(reject);
@@ -64,17 +65,17 @@ export class WebampApp extends Application {
 
     setupTaskbarButton() {
         const taskbarButtonId = 'webamp-taskbar-button';
-        webampTaskbarButton = createTaskbarButton(
+        this.webampTaskbarButton = createTaskbarButton(
             taskbarButtonId,
             ICONS.webamp,
             "Winamp"
         );
 
-        if (webampTaskbarButton) {
-            webampTaskbarButton.addEventListener('click', (event) => {
+        if (this.webampTaskbarButton) {
+            this.webampTaskbarButton.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                if (isMinimized) {
+                if (this.isMinimized) {
                     this.showWebamp();
                 } else {
                     this.minimizeWebamp();
@@ -87,11 +88,11 @@ export class WebampApp extends Application {
         const webampElement = document.getElementById('webamp');
         if (!webampElement) return;
 
-        webampElement.style.display = 'block';
-        webampElement.style.visibility = 'visible';
-        isMinimized = false;
-        webampContainer.style.zIndex = $Window.Z_INDEX++;
-        if (webampTaskbarButton) {
+        webampElement.style.setProperty('display', 'block', 'important');
+        webampElement.style.setProperty('visibility', 'visible', 'important');
+        this.isMinimized = false;
+        this.webampContainer.style.zIndex = $Window.Z_INDEX++;
+        if (this.webampTaskbarButton) {
             updateTaskbarButton('webamp-taskbar-button', true, false);
         }
     }
@@ -102,30 +103,27 @@ export class WebampApp extends Application {
 
         webampElement.style.display = 'none';
         webampElement.style.visibility = 'hidden';
-        isMinimized = true;
-        if (webampTaskbarButton) {
+        this.isMinimized = true;
+        if (this.webampTaskbarButton) {
             updateTaskbarButton('webamp-taskbar-button', false, true);
         }
     }
 
     close() {
-        // Delegate to appManager to ensure consistent state
-        appManager.closeApp(this.id);
-
-        if (webampContainer) {
-            webampContainer.remove();
-            webampContainer = null;
+        if (this.webampInstance) {
+            this.webampInstance.dispose();
+            this.webampInstance = null;
         }
 
-        if (webampInstance) {
-            webampInstance.dispose();
-            webampInstance = null;
+        if (this.webampContainer) {
+            this.webampContainer.remove();
+            this.webampContainer = null;
         }
 
-        if (webampTaskbarButton) {
+        if (this.webampTaskbarButton) {
             removeTaskbarButton('webamp-taskbar-button');
-            webampTaskbarButton = null;
+            this.webampTaskbarButton = null;
         }
-        isMinimized = false;
+        this.isMinimized = false;
     }
 }

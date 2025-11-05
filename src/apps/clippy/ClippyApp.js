@@ -18,19 +18,18 @@ export class ClippyApp extends Application {
     }
 
     close() {
-        // Always delegate closing to the appManager to ensure consistent state
-        appManager.closeApp(this.id);
-
         const agent = window.clippyAgent;
         if (agent) {
-            agent.hide();
-            $(".clippy, .clippy-balloon").remove();
-            $(".os-menu").remove();
-            const trayIcon = document.querySelector("#tray-icon-clippy");
-            if (trayIcon) {
-                trayIcon.remove();
-            }
-            window.clippyAgent = null;
+            agent.hide(() => {
+                // Perform cleanup in the callback to avoid race conditions
+                $(".clippy, .clippy-balloon").remove();
+                $(".os-menu").remove();
+                const trayIcon = document.querySelector("#tray-icon-clippy");
+                if (trayIcon) {
+                    trayIcon.remove();
+                }
+                window.clippyAgent = null;
+            });
         }
     }
 }
