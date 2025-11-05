@@ -13,6 +13,7 @@ const startMenuAppIds = [
   "webamp",
   "image-viewer",
   "themetocss",
+  "desktopthemes",
   "soundschemeexplorer"
 ];
 
