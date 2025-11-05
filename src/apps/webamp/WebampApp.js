@@ -50,7 +50,7 @@ export class WebampApp extends Application {
                 });
 
                 webampInstance.onMinimize(() => this.minimizeWebamp());
-                webampInstance.onClose(() => this.close());
+                webampInstance.onClose(() => appManager.closeApp(this.id));
 
                 webampInstance.renderWhenReady(webampContainer).then(() => {
                     this.setupTaskbarButton();
@@ -108,10 +108,7 @@ export class WebampApp extends Application {
         }
     }
 
-    close() {
-        // Delegate to appManager to ensure consistent state
-        appManager.closeApp(this.id);
-
+    _cleanup() {
         if (webampContainer) {
             webampContainer.remove();
             webampContainer = null;
