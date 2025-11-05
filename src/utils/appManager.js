@@ -1,5 +1,6 @@
 import { apps } from "../config/apps.js";
 import { applyWaitCursor, clearWaitCursor } from "./cursorManager.js";
+import { openApps } from '../apps/Application.js';
 
 const appManager = {
     runningApps: {},
@@ -15,15 +16,16 @@ const appManager = {
     closeApp(appId) {
         const appInstance = this.runningApps[appId];
         if (appInstance) {
-            // Remove the app from the registry immediately to prevent recursion
+            // Remove the app from the registries first to prevent re-entry.
             delete this.runningApps[appId];
+            openApps.delete(appId);
             document.dispatchEvent(new CustomEvent('app-closed', { detail: { appId } }));
 
-            // Now, perform the actual closing/cleanup logic
+            // Now, perform the app-specific cleanup.
             if (appInstance.win) {
-                appInstance.win.close(true); // Force close the window
-            } else if (appInstance.close) {
-                appInstance.close(); // For non-windowed apps
+                appInstance.win.close(true); // Force close without firing onClosed.
+            } else if (typeof appInstance._cleanup === 'function') {
+                appInstance._cleanup(); // For non-windowed apps.
             }
         }
     }
