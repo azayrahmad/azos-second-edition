@@ -192,11 +192,13 @@ export class ThemeToCssApp extends Application {
         colorBox.style.backgroundColor = value;
         swatchItem.appendChild(colorBox);
       } else if (value.startsWith("url(")) {
+        // only take the first token (before possible "64 / 2px" stuff)
+        const match = value.trim().match(/^url\((['"]?)(.*?)\1\)/);
+        if (!match) return;
+
         const img = document.createElement("img");
         img.className = "swatch-image";
-        img.src = value.slice(5, -2); // Correctly slice url("...")
-        if (img.src.startsWith("data:image/svg+xml"))
-          img.src = img.src.slice(0, -9);
+        img.src = match[2]; // only the real data URI
         swatchItem.appendChild(img);
       }
 

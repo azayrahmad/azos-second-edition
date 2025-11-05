@@ -17,10 +17,7 @@ export class ClippyApp extends Application {
         launchClippyApp(this);
     }
 
-    close() {
-        // Always delegate closing to the appManager to ensure consistent state
-        appManager.closeApp(this.id);
-
+    _cleanup() {
         const agent = window.clippyAgent;
         if (agent) {
             agent.hide();

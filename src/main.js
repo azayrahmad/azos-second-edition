@@ -15,6 +15,8 @@ import { playSound } from "./utils/soundManager.js";
 import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
 import { showBootScreen, hideBootScreen, updateBootLog } from './components/bootScreen.js';
 import { preloadThemeAssets } from './utils/assetPreloader.js';
+import { setTheme } from "./utils/themeManager.js";
+import { launchApp } from "./utils/appManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -139,6 +141,7 @@ async function initializeOS() {
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
   window.setTheme = setTheme;
+  window.System.launchApp = launchApp;
   console.log("azOS initialized");
 
   playSound("WindowsLogon");

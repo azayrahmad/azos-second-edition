@@ -4,6 +4,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
+import { appManager } from '../../utils/appManager.js';
 
 window.clippyAppInstance = null;
 let currentAgentName =
@@ -185,7 +186,7 @@ export function getClippyMenuItems(app) {
             callback: () => {
               agent.play(agent.getGoodbyeAnimation(), 5000, () => {
                 if (appInstance) {
-                  appInstance.close();
+                  appManager.closeApp(appInstance.id);
                 }
               });
             },
