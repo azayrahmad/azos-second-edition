@@ -36,10 +36,28 @@ export class DesktopThemesApp extends Application {
     this.themeSelector.addEventListener("change", () => {
       this.previewTheme(this.themeSelector.value);
     });
+    this.previewTheme(this.themeSelector.value);
 
     this.previewContainer = document.createElement("div");
     this.previewContainer.className = "preview-container";
     mainContainer.appendChild(this.previewContainer);
+
+    this.shadowRoot = this.previewContainer.attachShadow({ mode: "open" });
+    this.shadowRoot.innerHTML = `
+      <div class="window">
+        <div class="title-bar">
+          <div class="title-bar-text">A Window</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window-body">
+          <p>This is a preview of the theme.</p>
+        </div>
+      </div>
+    `;
 
     const applyButton = document.createElement("button");
     applyButton.textContent = "Apply";
@@ -68,93 +86,24 @@ export class DesktopThemesApp extends Application {
     }
   }
 
-  async previewTheme(themeId) {
+  previewTheme(themeId) {
     const themes = getThemes();
     const theme = themes[themeId];
+
+    // Remove existing theme link
+    const existingLink = this.shadowRoot.querySelector("link");
+    if (existingLink) {
+      existingLink.remove();
+    }
+
     if (!theme || !theme.stylesheet) {
-      this.previewContainer.innerHTML = "No preview available.";
       return;
     }
 
-    try {
-      const response = await fetch(`./os-gui/${theme.stylesheet}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch theme stylesheet: ${response.statusText}`);
-      }
-      const themeContent = await response.text();
-      await this._loadParserScript();
-      const cssProperties = window.parseThemeFileString(themeContent);
-      if (cssProperties) {
-        this._renderSwatches(cssProperties);
-      } else {
-        this.previewContainer.innerHTML = "Error parsing theme file.";
-      }
-    } catch (error) {
-      console.error(error);
-      this.previewContainer.innerHTML = `Error: ${error.message}`;
-    }
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `./os-gui/${theme.stylesheet}`;
+    this.shadowRoot.appendChild(link);
   }
 
-  _loadParserScript() {
-    return new Promise((resolve, reject) => {
-      if (window.parseThemeFileString && window.makeThemeCSSFile) {
-        resolve();
-        return;
-      }
-
-      if (document.querySelector('script[src="./os-gui/parse-theme.js"]')) {
-        const interval = setInterval(() => {
-          if (window.parseThemeFileString && window.makeThemeCSSFile) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = "./os-gui/parse-theme.js";
-      script.onload = () => resolve();
-      script.onerror = () =>
-        reject(new Error("Failed to load theme parser script."));
-      document.head.appendChild(script);
-    });
-  }
-
-  _renderSwatches(cssProperties) {
-    this.previewContainer.innerHTML = ""; // Clear previous swatches
-
-    // Apply all theme properties to the container to resolve CSS variables in SVGs
-    for (const [key, value] of Object.entries(cssProperties)) {
-      this.previewContainer.style.setProperty(key, value);
-    }
-
-    for (const [key, value] of Object.entries(cssProperties)) {
-      const swatchItem = document.createElement("div");
-      swatchItem.className = "swatch-item";
-
-      const nameLabel = document.createElement("div");
-      nameLabel.className = "swatch-name";
-      nameLabel.textContent = key;
-      swatchItem.appendChild(nameLabel);
-
-      if (value.startsWith("rgb")) {
-        const colorBox = document.createElement("div");
-        colorBox.className = "swatch-color";
-        colorBox.style.backgroundColor = value;
-        swatchItem.appendChild(colorBox);
-      } else if (value.startsWith("url(")) {
-        // only take the first token (before possible "64 / 2px" stuff)
-        const match = value.trim().match(/^url\((['"]?)(.*?)\1\)/);
-        if (!match) return;
-
-        const img = document.createElement("img");
-        img.className = "swatch-image";
-        img.src = match[2]; // only the real data URI
-        swatchItem.appendChild(img);
-      }
-
-      this.previewContainer.appendChild(swatchItem);
-    }
-  }
 }

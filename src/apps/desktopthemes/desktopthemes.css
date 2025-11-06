@@ -11,30 +11,8 @@
 
 .desktopthemes-app .preview-container {
   flex-grow: 1;
-  overflow-y: auto;
-  padding: 10px;
-  background-color: var(--canvas-color);
-}
-
-.swatch-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.swatch-name {
-  width: 150px;
-  font-family: monospace;
-}
-
-.swatch-color {
-  width: 100px;
-  height: 20px;
-  border: 1px solid #000;
-}
-
-.swatch-image {
-  max-width: 100px;
-  max-height: 50px;
-  border: 1px solid #000;
+  overflow: hidden;
+  padding: 1rem;
+  background-color: var(--desktop-background, #008080);
+  border: 2px inset var(--border-color, #fff);
 }
