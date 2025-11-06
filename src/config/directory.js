@@ -27,6 +27,7 @@ const directory = [
           { id: "app-explorer", type: "app", appId: "explorer" },
           { id: "app-my-computer", type: "app", appId: "my-computer" },
           { id: "app-my-documents", type: "app", appId: "my-documents" },
+          { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
         ],
       },
       {
@@ -50,6 +51,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-my-documents",
                 name: "My Documents",
+              },
+              {
+                id: "shortcut-to-recycle-bin",
+                type: "shortcut",
+                targetId: "app-recycle-bin",
+                name: "Recycle Bin",
               },
               {
                 id: "shortcut-to-about",

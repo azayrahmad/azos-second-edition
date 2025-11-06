@@ -9,6 +9,7 @@ export const LOCAL_STORAGE_KEYS = {
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
   MONITOR_TYPE: 'monitorType',
+  RECYCLE_BIN: 'recycleBin',
 };
 
 export function getItem(key) {

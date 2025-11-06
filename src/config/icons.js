@@ -162,4 +162,24 @@ export const ICONS = {
     16: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
     32: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
   },
+  recycleBinEmpty: {
+    16: new URL(
+      "../assets/icons/theme-icons/recycle_bin_empty-4.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/theme-icons/recycle_bin_empty-4.png",
+      import.meta.url,
+    ).href,
+  },
+  recycleBinFull: {
+    16: new URL(
+      "../assets/icons/theme-icons/recycle_bin_full-4.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/theme-icons/recycle_bin_full-4.png",
+      import.meta.url,
+    ).href,
+  },
 };
