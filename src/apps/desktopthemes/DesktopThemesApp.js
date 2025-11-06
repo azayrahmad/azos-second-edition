@@ -101,10 +101,11 @@ export class DesktopThemesApp extends Application {
       // Set wallpaper or fallback background
       if (theme.wallpaper) {
         this.previewContainer.style.backgroundImage = `url('${theme.wallpaper}')`;
-        this.previewContainer.style.backgroundColor = '';
+        this.previewContainer.style.backgroundColor = "";
       } else {
-        this.previewContainer.style.backgroundImage = 'none';
-        this.previewContainer.style.backgroundColor = variables['Background'] || '#008080';
+        this.previewContainer.style.backgroundImage = "none";
+        this.previewContainer.style.backgroundColor =
+          variables["Background"] || "#008080";
       }
     }
   }
@@ -145,15 +146,17 @@ export class DesktopThemesApp extends Application {
 
   applyCssVariables(variables) {
     const styleProperties = {
-      '--preview-active-title-bar-bg': variables['ActiveTitle'] || '#000080',
-      '--preview-active-title-bar-text': variables['TitleText'] || '#ffffff',
-      '--preview-window-bg': variables['Window'] || '#c0c0c0',
-      '--preview-window-text': variables['WindowText'] || '#000000',
-      '--preview-button-face': variables['ButtonFace'] || '#c0c0c0',
-      '--preview-button-text': variables['ButtonText'] || '#000000',
-      '--preview-button-highlight': variables['ButtonHilight'] || '#ffffff',
-      '--preview-button-shadow': variables['ButtonShadow'] || '#808080',
-      '--preview-button-dk-shadow': variables['ButtonDkShadow'] || '#000000',
+      "--preview-active-title-bar-bg": variables["ActiveTitle"] || "#000080",
+      "--preview-gradient-active-title-bar-bg":
+        variables["GradientActiveTitle"] || "#000080",
+      "--preview-active-title-bar-text": variables["TitleText"] || "#ffffff",
+      "--preview-window-bg": variables["ButtonFace"] || "#c0c0c0",
+      "--preview-window-text": variables["WindowText"] || "#000000",
+      "--preview-button-face": variables["ButtonFace"] || "#c0c0c0",
+      "--preview-button-text": variables["ButtonText"] || "#000000",
+      "--preview-button-highlight": variables["ButtonHilight"] || "#ffffff",
+      "--preview-button-shadow": variables["ButtonShadow"] || "#808080",
+      "--preview-button-dk-shadow": variables["ButtonDkShadow"] || "#000000",
     };
 
     for (const [property, value] of Object.entries(styleProperties)) {
