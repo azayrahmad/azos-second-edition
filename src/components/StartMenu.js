@@ -272,6 +272,7 @@ class StartMenu {
 
     if (!startMenu || !startButton) return;
 
+    playSound("MenuPopup");
     // Reset animation first to ensure clean state
     startMenu.style.animationName = "";
 
