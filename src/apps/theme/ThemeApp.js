@@ -1,6 +1,6 @@
 import { Application } from '../Application.js';
 import { getThemes, getCurrentTheme, setTheme } from '../../utils/themeManager.js';
-
+import { ICONS } from '../../config/icons.js';
 export class ThemeApp extends Application {
   _createWindow() {
     const win = new $Window({
@@ -27,10 +27,7 @@ export class ThemeApp extends Application {
             ${themeOptions}
           </select>
         </div>
-        <fieldset class="theme-preview">
-            <legend>Preview</legend>
-            <div class="color-swatches"></div>
-        </fieldset>
+        <div class="theme-preview-container"></div>
         <div class="theme-app-buttons">
           <button class="apply-button">Apply</button>
         </div>
@@ -39,10 +36,20 @@ export class ThemeApp extends Application {
 
     const select = win.$content.querySelector('#theme-select');
     const applyButton = win.$content.querySelector('.apply-button');
-    const previewContainer = win.$content.querySelector('.color-swatches');
+    const previewContainer = win.$content.querySelector('.theme-preview-container');
 
     const updatePreview = (themeId) => {
       const theme = themes[themeId];
+      if (!theme) {
+        previewContainer.innerHTML = 'No preview available.';
+        return;
+      }
+
+      // Default theme is special, it doesn't have a separate CSS file with variables
+      if (theme.id === 'default' || !theme.stylesheet) {
+          this._renderPreview(previewContainer, {}, theme);
+          return;
+      }
       if (!theme || !theme.stylesheet) {
         previewContainer.innerHTML = 'No preview available.';
         return;
@@ -65,8 +72,8 @@ export class ThemeApp extends Application {
             return response.text();
         })
         .then(cssText => {
-          const colors = this._parseCssColors(cssText);
-          this._renderSwatches(previewContainer, colors);
+          const themeProps = this._parseThemeProperties(cssText);
+          this._renderPreview(previewContainer, themeProps, theme);
         })
         .catch(err => {
           console.error('Failed to load theme CSS for preview:', err);
@@ -88,54 +95,58 @@ export class ThemeApp extends Application {
     return win;
   }
 
-  _parseCssColors(cssText) {
+  _parseThemeProperties(cssText) {
     const rootRegex = /:root\s*\{([^}]+)\}/;
     const rootMatch = cssText.match(rootRegex);
     if (!rootMatch) return {};
 
     const rootStyles = rootMatch[1];
     const propertyRegex = /(--[\w-]+)\s*:\s*([^;]+);/g;
-    const allColors = {};
+    const props = {};
     let match;
     while ((match = propertyRegex.exec(rootStyles)) !== null) {
-        allColors[match[1]] = match[2].trim();
+      props[match[1]] = match[2].trim();
     }
-
-    const filteredColors = {};
-    const keyColors = [
-        '--button-face',
-        '--button-text',
-        '--window-frame',
-        '--window-text',
-        '--highlight',
-        '--highlight-text',
-        '--title-bar-text',
-        '--inactive-title-bar-text'
-    ];
-    for (const key of keyColors) {
-        if(allColors[key]) {
-            filteredColors[key.replace('--', '')] = allColors[key];
-        }
-    }
-
-    return filteredColors;
+    return props;
   }
 
-  _renderSwatches(container, colors) {
-    if (Object.keys(colors).length === 0) {
-        container.innerHTML = 'No color preview available.';
-        return;
+  _renderPreview(container, themeProps, theme) {
+    // Clear previous preview and reset inline styles
+    container.innerHTML = '';
+    container.style.cssText = '';
+
+    // Apply wallpaper
+    if (theme.wallpaper) {
+        container.style.backgroundImage = `url(${theme.wallpaper})`;
     }
 
-    let swatchesHTML = '';
-    for (const [name, value] of Object.entries(colors)) {
-      swatchesHTML += `
-        <div class="swatch-row">
-            <div class="swatch-color" style="background-color: ${value};"></div>
-            <span class="swatch-name">${name.replace(/-/g, ' ')}</span>
-        </div>
-      `;
+    // Apply CSS variables as inline styles
+    for (const [prop, value] of Object.entries(themeProps)) {
+        container.style.setProperty(prop, value);
     }
-    container.innerHTML = swatchesHTML;
+
+    const infoIconUrl = ICONS.comctl32[32];
+
+    container.innerHTML = `
+      <div class="os-window">
+        <div class="window-titlebar">
+          <div class="window-title">Active Title</div>
+          <div class="window-controls">
+            <button class="window-minimize-button" disabled></button>
+            <button class="window-maximize-button" disabled></button>
+            <button class="window-close-button" disabled></button>
+          </div>
+        </div>
+        <div class="window-content">
+            <div class="message-box">
+                <img src="${infoIconUrl}" alt="Info" class="message-box-icon">
+                <p>Message</p>
+            </div>
+            <div class="button-row">
+                <button disabled>OK</button>
+            </div>
+        </div>
+      </div>
+    `;
   }
 }
