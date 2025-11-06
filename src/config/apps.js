@@ -16,6 +16,7 @@ import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
+import { getRecycleBinItems } from "../utils/recycleBinManager.js";
 
 export const appClasses = {
   about: AboutApp,
@@ -44,6 +45,22 @@ export const apps = [
       type: "function",
       handler: () => {
         window.System.launchApp("explorer", "/");
+      },
+    },
+  },
+  {
+    id: "recycle-bin",
+    title: "Recycle Bin",
+    get icon() {
+      const items = getRecycleBinItems();
+      return items.length > 0
+        ? getIcon("recycleBinFull")
+        : getIcon("recycleBinEmpty");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "//recycle-bin");
       },
     },
   },

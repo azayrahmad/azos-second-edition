@@ -162,4 +162,12 @@ export const ICONS = {
     16: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
     32: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
   },
+  recycleBinEmpty: {
+    16: new URL("../assets/icons/theme-icons/Windows 98 Recycle Empty.ico", import.meta.url).href,
+    32: new URL("../assets/icons/theme-icons/Windows 98 Recycle Empty.ico", import.meta.url).href,
+  },
+  recycleBinFull: {
+    16: new URL("../assets/icons/theme-icons/Windows 98 Recycle Full.ico", import.meta.url).href,
+    32: new URL("../assets/icons/theme-icons/Windows 98 Recycle Full.ico", import.meta.url).href,
+  },
 };

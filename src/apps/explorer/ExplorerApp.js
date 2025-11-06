@@ -4,8 +4,28 @@ import { apps } from "../../config/apps.js";
 import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
 import { IconManager } from "../../components/IconManager.js";
+import {
+  getRecycleBinItems,
+  removeFromRecycleBin,
+} from "../../utils/recycleBinManager.js";
+import { registerCustomApp } from "../../utils/customAppManager.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
 function findItemByPath(path) {
+  if (path === "//recycle-bin") {
+    const recycledItems = getRecycleBinItems();
+    return {
+      id: "recycle-bin",
+      name: "Recycle Bin",
+      type: "folder",
+      children: recycledItems.map((item) => ({
+        ...item,
+        name: item.title,
+        type: "app",
+      })),
+    };
+  }
+
   if (!path || path === "/") {
     return {
       id: "root",
@@ -184,17 +204,19 @@ export class ExplorerApp extends Application {
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(iconLabel);
 
-    iconDiv.addEventListener("dblclick", () => {
-      if (item.type === "folder" || item.type === "drive") {
-        const newPath =
-          this.currentPath === "/"
-            ? `/${item.id}`
-            : `${this.currentPath}/${item.id}`;
-        this.navigateTo(newPath);
-      } else if (item.appId) {
-        launchApp(item.appId);
-      }
-    });
+    if (this.currentPath !== "//recycle-bin") {
+      iconDiv.addEventListener("dblclick", () => {
+        if (item.type === "folder" || item.type === "drive") {
+          const newPath =
+            this.currentPath === "/"
+              ? `/${item.id}`
+              : `${this.currentPath}/${item.id}`;
+          this.navigateTo(newPath);
+        } else if (item.appId) {
+          launchApp(item.appId);
+        }
+      });
+    }
 
     return iconDiv;
   }
@@ -251,18 +273,58 @@ export class ExplorerApp extends Application {
   }
 
   showItemContextMenu(event, icon) {
-    const menuItems = [
-      { label: "Open", default: true, action: () => {} },
-      "MENU_DIVIDER",
-      { label: "Cut", action: () => {} },
-      { label: "Copy", action: () => {} },
-      "MENU_DIVIDER",
-      { label: "Delete", action: () => {} },
-      { label: "Rename", action: () => {} },
-      "MENU_DIVIDER",
-      { label: "Properties", action: () => {} },
-    ];
-    new window.ContextMenu(menuItems, event);
+    const itemId = icon.getAttribute("data-id");
+
+    if (this.currentPath === "//recycle-bin") {
+      const menuItems = [
+        {
+          label: "Restore",
+          default: true,
+          action: () => {
+            const item = getRecycleBinItems().find((i) => i.id === itemId);
+            if (item) {
+              registerCustomApp(item);
+              removeFromRecycleBin(itemId);
+              this.render(this.currentPath);
+            }
+          },
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Delete",
+          action: () => {
+            ShowDialogWindow({
+              title: "Delete Item",
+              text: "Are you sure you want to permanently delete this item?",
+              buttons: [
+                {
+                  label: "Yes",
+                  action: () => {
+                    removeFromRecycleBin(itemId);
+                    this.render(this.currentPath);
+                  },
+                },
+                { label: "No", isDefault: true },
+              ],
+            });
+          },
+        },
+      ];
+      new window.ContextMenu(menuItems, event);
+    } else {
+      const menuItems = [
+        { label: "Open", default: true, action: () => {} },
+        "MENU_DIVIDER",
+        { label: "Cut", action: () => {} },
+        { label: "Copy", action: () => {} },
+        "MENU_DIVIDER",
+        { label: "Delete", action: () => {} },
+        { label: "Rename", action: () => {} },
+        "MENU_DIVIDER",
+        { label: "Properties", action: () => {} },
+      ];
+      new window.ContextMenu(menuItems, event);
+    }
   }
 
   showBackgroundContextMenu(event) {
