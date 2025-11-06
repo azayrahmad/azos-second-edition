@@ -5,6 +5,7 @@ import "./desktopthemes.css";
 export class DesktopThemesApp extends Application {
   constructor(config) {
     super(config);
+    this.themeCssCache = {};
   }
 
   _createWindow() {
@@ -41,19 +42,17 @@ export class DesktopThemesApp extends Application {
     this.previewContainer.className = "preview-container";
     mainContainer.appendChild(this.previewContainer);
 
-    this.shadowRoot = this.previewContainer.attachShadow({ mode: "open" });
-    this.shadowRoot.innerHTML = `
-      <div class="window">
+    this.previewContainer.innerHTML = `
+      <div class="window preview-window">
         <div class="title-bar">
-          <div class="title-bar-text">A Window</div>
+          <div class="title-bar-text">Active Window</div>
           <div class="title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Maximize"></button>
-            <button aria-label="Close"></button>
+            <button aria-label="Close" class="close-button"></button>
           </div>
         </div>
         <div class="window-body">
-          <p>This is a preview of the theme.</p>
+          <p>Message</p>
+          <button>OK</button>
         </div>
       </div>
     `;
@@ -87,24 +86,67 @@ export class DesktopThemesApp extends Application {
     }
   }
 
-  previewTheme(themeId) {
+  async previewTheme(themeId) {
     const themes = getThemes();
     const theme = themes[themeId];
 
-    // Remove existing theme link
-    const existingLink = this.shadowRoot.querySelector("link");
-    if (existingLink) {
-      existingLink.remove();
-    }
+    if (!theme) return;
 
-    if (!theme || !theme.stylesheet) {
-      return;
-    }
+    // Set wallpaper
+    this.previewContainer.style.backgroundImage = `url('${theme.wallpaper.path}')`;
 
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = `./os-gui/${theme.stylesheet}`;
-    this.shadowRoot.appendChild(link);
+    // Apply theme variables
+    const cssText = await this.fetchThemeCss(theme.stylesheet);
+    if (cssText) {
+      const variables = this.parseCssVariables(cssText);
+      this.applyCssVariables(variables);
+    }
   }
 
+  async fetchThemeCss(stylesheet) {
+    if (!stylesheet) return null;
+    const url = `./os-gui/${stylesheet}`;
+    if (this.themeCssCache[url]) {
+      return this.themeCssCache[url];
+    }
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch CSS: ${response.statusText}`);
+      }
+      const cssText = await response.text();
+      this.themeCssCache[url] = cssText;
+      return cssText;
+    } catch (error) {
+      console.error("Error fetching theme CSS:", error);
+      return null;
+    }
+  }
+
+  parseCssVariables(cssText) {
+    const variables = {};
+    const rootBlockMatch = cssText.match(/:root\s*{([^}]+)}/);
+    if (rootBlockMatch) {
+      const variablesText = rootBlockMatch[1];
+      const regex = /--([\w-]+):\s*([^;]+);/g;
+      let match;
+      while ((match = regex.exec(variablesText)) !== null) {
+        variables[match[1]] = match[2].trim();
+      }
+    }
+    return variables;
+  }
+
+  applyCssVariables(variables) {
+    const styleProperties = {
+      '--preview-active-title-bar-bg': variables['active-title-bar-bg'] || '#000080',
+      '--preview-active-title-bar-text': variables['active-title-bar-text'] || '#ffffff',
+      '--preview-window-bg': variables['window-bg'] || '#c0c0c0',
+      '--preview-window-text': variables['window-text'] || '#000000',
+    };
+
+    for (const [property, value] of Object.entries(styleProperties)) {
+      this.previewContainer.style.setProperty(property, value);
+    }
+  }
 }
