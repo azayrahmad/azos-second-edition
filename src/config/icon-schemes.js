@@ -41,7 +41,8 @@ import { ICONS } from "./icons.js";
 export const iconSchemes = {
   default: {
     myComputer: ICONS.computer,
-    recycleBin: ICONS.recycleBinEmpty,
+    recycleBinFull: ICONS.recycleBinFull,
+    recycleBinEmpty: ICONS.recycleBinEmpty,
   },
   "dangerous-creatures": {
     myComputer: {
