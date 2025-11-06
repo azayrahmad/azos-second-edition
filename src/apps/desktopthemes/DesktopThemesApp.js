@@ -36,7 +36,6 @@ export class DesktopThemesApp extends Application {
     this.themeSelector.addEventListener("change", () => {
       this.previewTheme(this.themeSelector.value);
     });
-    this.previewTheme(this.themeSelector.value);
 
     this.previewContainer = document.createElement("div");
     this.previewContainer.className = "preview-container";
@@ -58,6 +57,8 @@ export class DesktopThemesApp extends Application {
         </div>
       </div>
     `;
+
+    this.previewTheme(this.themeSelector.value);
 
     const applyButton = document.createElement("button");
     applyButton.textContent = "Apply";
