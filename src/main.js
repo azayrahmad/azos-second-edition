@@ -13,9 +13,10 @@ import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
 import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
-import { showBootScreen, hideBootScreen, updateBootLog } from './components/bootScreen.js';
+import { hideBootScreen, updateBootLog } from './components/bootScreen.js';
 import { preloadThemeAssets } from './utils/assetPreloader.js';
 import { launchApp } from "./utils/appManager.js";
+import { createMainUI } from './components/ui.js';
 
 // Window Management System
 class WindowManagerSystem {
@@ -87,8 +88,6 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  showBootScreen();
-
   function loadCustomApps() {
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
     savedApps.forEach((appInfo) => {
@@ -123,6 +122,10 @@ async function initializeOS() {
   updateBootLog("Loading custom applications...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
+
+  updateBootLog("Creating main UI...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  createMainUI();
 
   updateBootLog("Initializing taskbar...");
   await new Promise((resolve) => setTimeout(resolve, 50));
