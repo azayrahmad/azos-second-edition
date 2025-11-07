@@ -21,6 +21,10 @@ import { ICONS } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
 import { ShowDialogWindow } from "./DialogWindow.js";
 import { IconManager } from "./IconManager.js";
+import {
+  getRecycleBinItems,
+  emptyRecycleBin,
+} from "../utils/recycleBinManager.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -214,8 +218,24 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     {
       label: "Empty Recycle Bin",
       action: () => {
-        playSound("EmptyRecycleBin");
+        ShowDialogWindow({
+          title: "Confirm Empty Recycle Bin",
+          text: "Are you sure you want to permanently delete all items in the Recycle Bin?",
+          buttons: [
+            {
+              label: "Yes",
+              action: () => {
+                emptyRecycleBin();
+                playSound("EmptyRecycleBin");
+                // The desktop refresh on theme change will update the icon
+                document.dispatchEvent(new CustomEvent("theme-changed"));
+              },
+            },
+            { label: "No", isDefault: true },
+          ],
+        });
       },
+      enabled: () => getRecycleBinItems().length > 0,
     },
     "MENU_DIVIDER",
     {

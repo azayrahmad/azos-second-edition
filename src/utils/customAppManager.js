@@ -6,6 +6,7 @@ import { apps, appClasses } from '../config/apps.js';
 import { ICONS } from '../config/icons.js';
 import { addDesktopShortcut, removeDesktopShortcut } from './directory.js';
 import { launchApp } from './appManager.js';
+import { addToRecycleBin } from './recycleBinManager.js';
 
 export function setupIcons() {
     const desktop = document.querySelector('.desktop');
@@ -112,16 +113,19 @@ export function registerCustomApp(appInfo) {
 
 export function deleteCustomApp(appId) {
     const appIndex = apps.findIndex(app => app.id === appId);
-    if (appIndex > -1) {
-        apps.splice(appIndex, 1);
-    }
+    if (appIndex === -1) return;
 
+    const app = apps[appIndex];
+    addToRecycleBin(app);
+
+    apps.splice(appIndex, 1);
     delete appClasses[appId];
 
     removeDesktopShortcut(appId);
 
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
-    const newSavedApps = savedApps.filter(app => app.id !== appId);
+    const newSavedApps = savedApps.filter(savedApp => savedApp.id !== appId);
     setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, newSavedApps);
+
     setupIcons();
 }

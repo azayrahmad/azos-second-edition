@@ -295,7 +295,7 @@ export const soundSchemes = {
     LowBatteryAlarm: ding,
     MailBeep: chimes,
     SystemNotification: "",
-    WindowsLogoff: "",
+    WindowsLogoff: logoff,
     StartNavigation: start,
   },
   "60s USA": {
