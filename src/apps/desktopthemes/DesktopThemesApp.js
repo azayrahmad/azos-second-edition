@@ -1,5 +1,9 @@
 import { Application } from "../Application.js";
-import { getThemes, setTheme } from "../../utils/themeManager.js";
+import {
+  getThemes,
+  setTheme,
+  getCurrentTheme,
+} from "../../utils/themeManager.js";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
@@ -93,6 +97,7 @@ export class DesktopThemesApp extends Application {
       option.textContent = themes[themeId].name;
       this.themeSelector.appendChild(option);
     }
+    this.themeSelector.value = getCurrentTheme();
   }
 
   async previewTheme(themeId) {

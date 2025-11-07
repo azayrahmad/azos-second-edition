@@ -6,9 +6,9 @@ import {
 } from "./localStorage.js";
 import { themes } from "../config/themes.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
-import { applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
 import { applyCursorTheme } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
+import { ProgressWindow } from "../components/ProgressWindow.js";
 
 export function getThemes() {
   return themes;
@@ -33,9 +33,11 @@ export function applyTheme() {
 }
 
 export async function setTheme(themeKey) {
-  applyBusyCursor(document.body);
+  const progressWindow = new ProgressWindow({ title: "Applying theme..." });
 
-  await preloadThemeAssets(themeKey);
+  await preloadThemeAssets(themeKey, (progress, text) => {
+    progressWindow.update(progress, text);
+  });
 
   // Clear any temporary theme styles from the Theme to CSS app
   const transientStyle = document.getElementById("transient-theme-styles");
@@ -55,5 +57,5 @@ export async function setTheme(themeKey) {
   document.dispatchEvent(new CustomEvent("wallpaper-changed"));
   document.dispatchEvent(new CustomEvent("theme-changed"));
 
-  clearBusyCursor(document.body);
+  progressWindow.close();
 }

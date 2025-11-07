@@ -25,18 +25,19 @@ async function preloadCursor(src) {
     return fetch(src);
 }
 
-export async function preloadThemeAssets(themeId) {
+export async function preloadThemeAssets(themeId, onProgress = () => {}) {
   const theme = themes[themeId];
   if (!theme) {
     console.warn(`Theme not found: ${themeId}`);
+    onProgress(1, 'Theme not found.');
     return;
   }
 
-  const assetPromises = [];
+  const assetsToLoad = [];
 
   // Wallpaper
   if (theme.wallpaper) {
-    assetPromises.push(preloadImage(theme.wallpaper));
+    assetsToLoad.push({ src: theme.wallpaper, type: 'image' });
   }
 
   // Sound scheme
@@ -44,7 +45,7 @@ export async function preloadThemeAssets(themeId) {
   if (soundScheme) {
     for (const sound in soundScheme) {
       if (soundScheme[sound]) {
-        assetPromises.push(preloadAudio(soundScheme[sound]));
+        assetsToLoad.push({ src: soundScheme[sound], type: 'audio' });
       }
     }
   }
@@ -54,10 +55,51 @@ export async function preloadThemeAssets(themeId) {
   if (cursorScheme) {
     for (const cursor in cursorScheme) {
       if (cursorScheme[cursor]) {
-        assetPromises.push(preloadCursor(cursorScheme[cursor]));
+        assetsToLoad.push({ src: cursorScheme[cursor], type: 'cursor' });
       }
     }
   }
 
-  await Promise.all(assetPromises.map(p => p.catch(e => console.warn('Failed to preload asset:', e))));
+  const totalAssets = assetsToLoad.length;
+  if (totalAssets === 0) {
+    onProgress(1, 'No assets to preload.');
+    return;
+  }
+
+  let loadedCount = 0;
+  onProgress(0, 'Starting preloading...');
+
+  const assetPromises = assetsToLoad.map(asset => {
+    let preloadPromise;
+    switch (asset.type) {
+      case 'image':
+        preloadPromise = preloadImage(asset.src);
+        break;
+      case 'audio':
+        preloadPromise = preloadAudio(asset.src);
+        break;
+      case 'cursor':
+        preloadPromise = preloadCursor(asset.src);
+        break;
+      default:
+        preloadPromise = Promise.resolve();
+    }
+
+    return preloadPromise
+      .then(() => {
+        loadedCount++;
+        const progress = loadedCount / totalAssets;
+        const filename = asset.src.split('/').pop();
+        onProgress(progress, `Loading: ${filename}...`);
+      })
+      .catch(error => {
+        loadedCount++;
+        const progress = loadedCount / totalAssets;
+        const filename = asset.src.split('/').pop();
+        onProgress(progress, `Failed: ${filename}`);
+        console.warn(`Failed to preload asset: ${asset.src}`, error);
+      });
+  });
+
+  await Promise.all(assetPromises);
 }
