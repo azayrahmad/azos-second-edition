@@ -203,9 +203,9 @@ export const apps = [
     title: "Desktop Themes",
     icon: ICONS.desktopthemes,
     appClass: DesktopThemesApp,
-    width: 400,
-    height: 400,
-    resizable: true,
+    width: 500,
+    height: 500,
+    resizable: false,
   },
   {
     id: "taskmanager",

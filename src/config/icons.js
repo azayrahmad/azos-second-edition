@@ -114,10 +114,6 @@ export const ICONS = {
     16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
     32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
   },
-  desktopthemes: {
-    16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
-    32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
-  },
   themetocss: {
     16: new URL("../assets/icons/word_001.ico", import.meta.url).href,
     32: new URL("../assets/icons/word_001.ico", import.meta.url).href,
@@ -165,5 +161,9 @@ export const ICONS = {
   soundschemeexplorer: {
     16: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
     32: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+  },
+  desktopthemes: {
+    16: new URL("../assets/icons/themes-2.png", import.meta.url).href,
+    32: new URL("../assets/icons/themes-2.png", import.meta.url).href,
   },
 };
