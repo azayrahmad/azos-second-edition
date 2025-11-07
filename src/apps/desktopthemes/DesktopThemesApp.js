@@ -26,8 +26,14 @@ export class DesktopThemesApp extends Application {
     const controlsContainer = document.createElement("div");
     controlsContainer.className = "controls";
     mainContainer.appendChild(controlsContainer);
+    const themeLabel = document.createElement("label");
+    themeLabel.textContent = "Theme:";
 
     this.themeSelector = document.createElement("select");
+    this.themeSelector.id = "theme-selector"; // Add an ID to the select element
+    themeLabel.setAttribute("for", this.themeSelector.id); // Connect label to select
+
+    controlsContainer.appendChild(themeLabel);
     controlsContainer.appendChild(this.themeSelector);
 
     this.populateThemes();
@@ -58,9 +64,13 @@ export class DesktopThemesApp extends Application {
 
     this.previewTheme(this.themeSelector.value);
 
+    const actionsContainer = document.createElement("div");
+    actionsContainer.className = "actions";
+    mainContainer.appendChild(actionsContainer);
+
     const applyButton = document.createElement("button");
     applyButton.textContent = "Apply";
-    controlsContainer.appendChild(applyButton);
+    actionsContainer.appendChild(applyButton);
 
     applyButton.addEventListener("click", () => {
       setTheme(this.themeSelector.value);
