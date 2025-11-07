@@ -9,6 +9,7 @@ import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
+import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
@@ -29,6 +30,7 @@ export const appClasses = {
   "image-resizer": ImageResizerApp,
   "image-viewer": ImageViewerApp,
   themetocss: ThemeToCssApp,
+  desktopthemes: DesktopThemesApp,
   taskmanager: TaskManagerApp,
   soundschemeexplorer: SoundSchemeExplorerApp,
   explorer: ExplorerApp,
@@ -212,6 +214,15 @@ export const apps = [
     width: 700,
     height: 350,
     resizable: true,
+  },
+  {
+    id: "desktopthemes",
+    title: "Desktop Themes",
+    icon: ICONS.desktopthemes,
+    appClass: DesktopThemesApp,
+    width: 500,
+    height: 500,
+    resizable: false,
   },
   {
     id: "taskmanager",
