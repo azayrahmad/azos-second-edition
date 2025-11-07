@@ -13,14 +13,11 @@ export class DesktopThemesApp extends Application {
       id: this.id,
       title: this.title,
       outerWidth: this.width,
-      outerHeight: this.height,
+      // outerHeight: this.height,
       resizable: this.resizable,
       icons: this.icon,
       className: "desktopthemes-app",
     });
-
-    const menuBar = this._createMenuBar(win);
-    win.setMenuBar(menuBar);
 
     const mainContainer = document.createElement("div");
     mainContainer.className = "main-container";
@@ -43,11 +40,13 @@ export class DesktopThemesApp extends Application {
     mainContainer.appendChild(this.previewContainer);
 
     this.previewContainer.innerHTML = `
-      <div class="window preview-window">
-        <div class="title-bar">
-          <div class="title-bar-text">Active Window</div>
+      <div class="os-window app-window preview-window">
+        <div class="title-bar window-titlebar">
+          <div class="title-bar-text">Message Box</div>
           <div class="title-bar-controls">
-            <button aria-label="Close" class="close-button"></button>
+            <button aria-label="Close" class="close-button window-close-button window-action-close window-button">
+            <span class='window-button-icon'></span>
+            </button>
           </div>
         </div>
         <div class="window-body">
@@ -145,18 +144,26 @@ export class DesktopThemesApp extends Application {
   }
 
   applyCssVariables(variables) {
+    console.log(variables);
     const styleProperties = {
-      "--preview-active-title-bar-bg": variables["ActiveTitle"] || "#000080",
+      "--preview-active-title-bar-bg":
+        variables["ActiveTitle"] || "rgb(0, 0, 128)",
       "--preview-gradient-active-title-bar-bg":
-        variables["GradientActiveTitle"] || "#000080",
-      "--preview-active-title-bar-text": variables["TitleText"] || "#ffffff",
-      "--preview-window-bg": variables["ButtonFace"] || "#c0c0c0",
-      "--preview-window-text": variables["WindowText"] || "#000000",
-      "--preview-button-face": variables["ButtonFace"] || "#c0c0c0",
-      "--preview-button-text": variables["ButtonText"] || "#000000",
-      "--preview-button-highlight": variables["ButtonHilight"] || "#ffffff",
-      "--preview-button-shadow": variables["ButtonShadow"] || "#808080",
-      "--preview-button-dk-shadow": variables["ButtonDkShadow"] || "#000000",
+        variables["GradientActiveTitle"] || "rgb(16, 132, 208)",
+      "--preview-active-title-bar-text":
+        variables["TitleText"] || "rgb(255, 255, 255)",
+      "--preview-window-bg": variables["Window"] || "rgb(255, 255, 255)",
+      "--preview-window-text": variables["WindowText"] || "rgb(0, 0, 0)",
+      "--preview-button-face": variables["ButtonFace"] || "rgb(192, 192, 192)",
+      "--preview-button-text": variables["ButtonText"] || "rgb(0, 0, 0)",
+      "--preview-button-highlight":
+        variables["ButtonHilight"] || "rgb(255, 255, 255)",
+      "--preview-button-shadow":
+        variables["ButtonShadow"] || "rgb(128, 128, 128)",
+      "--preview-button-dk-shadow":
+        variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
+      "--preview-button-normal-border-image":
+        variables["button-normal-border-image"] || "none",
     };
 
     for (const [property, value] of Object.entries(styleProperties)) {

@@ -27,16 +27,17 @@
 }
 
 #desktopthemes .preview-window {
-    width: 280px;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    font-family: "Pixelated MS Sans Serif", "Arial";
-    font-size: 11px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 180px;
     border: 2px solid;
     border-color: var(--preview-button-highlight)
         var(--preview-button-dk-shadow) var(--preview-button-dk-shadow)
         var(--preview-button-highlight);
     background: var(--preview-button-face);
     padding: 1px;
+    border-image: var(--preview-button-normal-border-image);
 }
 
 #desktopthemes .preview-window .title-bar {
@@ -70,7 +71,7 @@
 }
 
 #desktopthemes .preview-window .window-body {
-    background: var(--preview-window-bg, #c0c0c0);
+    background: var(--preview-button-face, #c0c0c0);
     color: var(--preview-window-text, #000);
     padding: 12px;
     text-align: center;
@@ -88,7 +89,7 @@
     border-color: var(--preview-button-highlight)
         var(--preview-button-dk-shadow) var(--preview-button-dk-shadow)
         var(--preview-button-highlight);
-    box-shadow: 1px 1px 0 var(--preview-button-shadow);
     background: var(--preview-button-face);
     color: var(--preview-button-text);
+    border-image: var(--preview-button-normal-border-image);
 }
