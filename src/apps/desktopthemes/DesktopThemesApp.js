@@ -1,11 +1,14 @@
 import { Application } from "../Application.js";
 import { getThemes, setTheme } from "../../utils/themeManager.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
   constructor(config) {
     super(config);
     this.themeCssCache = {};
+    this.previousThemeId = null;
+    this.customThemeProperties = null;
   }
 
   _createWindow() {
@@ -38,7 +41,12 @@ export class DesktopThemesApp extends Application {
 
     this.populateThemes();
     this.themeSelector.addEventListener("change", () => {
-      this.previewTheme(this.themeSelector.value);
+      if (this.themeSelector.value === "load-custom") {
+        this.handleCustomThemeLoad();
+      } else {
+        this.customThemeProperties = null; // Clear custom theme when a standard one is selected
+        this.previewTheme(this.themeSelector.value);
+      }
     });
 
     this.previewContainer = document.createElement("div");
@@ -73,7 +81,11 @@ export class DesktopThemesApp extends Application {
     actionsContainer.appendChild(applyButton);
 
     applyButton.addEventListener("click", () => {
-      setTheme(this.themeSelector.value);
+      if (this.customThemeProperties) {
+        this.applyCustomTheme();
+      } else {
+        setTheme(this.themeSelector.value);
+      }
     });
 
     return win;
@@ -85,6 +97,122 @@ export class DesktopThemesApp extends Application {
     });
   }
 
+  async applyCustomTheme() {
+    // 1. Get the base theme to inherit wallpaper, sounds, etc.
+    const themes = getThemes();
+    const baseTheme = themes[this.previousThemeId] || themes["default"];
+
+    // 2. Generate the full CSS from the parsed properties
+    await this._loadParserScript();
+    const cssContent = window.makeThemeCSSFile(this.customThemeProperties);
+
+    // 3. Remove any existing custom theme styles
+    const existingStyle = document.getElementById("custom-theme-styles");
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    // 4. Create and inject the new style tag
+    const style = document.createElement("style");
+    style.id = "custom-theme-styles";
+    style.textContent = cssContent;
+    document.head.appendChild(style);
+
+    // 5. Create a temporary theme object for setTheme
+    const customTheme = {
+      ...baseTheme,
+      id: "custom",
+      name: "Custom Theme",
+      stylesheet: null, // We are injecting styles manually
+      colors: this.customThemeProperties, // Store the parsed colors
+    };
+
+    // 6. Apply the theme (this will handle wallpaper, sounds, cursors from base)
+    setTheme("custom", customTheme);
+  }
+
+  handleCustomThemeLoad() {
+    this.previousThemeId = this.themeSelector.value;
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".theme";
+    input.onchange = (event) => {
+      const file = event.target.files[0];
+      if (!file) {
+        // User cancelled, revert to the previously selected theme
+        this.themeSelector.value = this.previousThemeId;
+        return;
+      }
+      this.loadFile(file);
+    };
+    input.click();
+  }
+
+  loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const themeContent = e.target.result;
+      try {
+        await this._loadParserScript();
+        const cssProperties = window.parseThemeFileString(themeContent);
+        if (cssProperties) {
+          this.customThemeProperties = cssProperties; // Store original with --
+          this.themeSelector.value = this.previousThemeId; // Revert dropdown
+
+          const normalizedProperties = {};
+          for (const [key, value] of Object.entries(cssProperties)) {
+            normalizedProperties[key.replace(/^--/, "")] = value;
+          }
+
+          this.previewCustomTheme(normalizedProperties); // Use normalized for preview
+        } else {
+          this.themeSelector.value = this.previousThemeId;
+          ShowDialogWindow({
+            title: "Error",
+            text: "Could not parse the selected file. Please ensure it is a valid .theme file.",
+            buttons: [{ label: "OK" }],
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        this.themeSelector.value = this.previousThemeId;
+        ShowDialogWindow({
+          title: "Error",
+          text: `An error occurred: ${error.message}`,
+          buttons: [{ label: "OK" }],
+        });
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  _loadParserScript() {
+    return new Promise((resolve, reject) => {
+      if (window.parseThemeFileString && window.makeThemeCSSFile) {
+        resolve();
+        return;
+      }
+
+      if (document.querySelector('script[src="./os-gui/parse-theme.js"]')) {
+        const interval = setInterval(() => {
+          if (window.parseThemeFileString && window.makeThemeCSSFile) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "./os-gui/parse-theme.js";
+      script.onload = () => resolve();
+      script.onerror = () =>
+        reject(new Error("Failed to load theme parser script."));
+      document.head.appendChild(script);
+    });
+  }
+
   populateThemes() {
     const themes = getThemes();
     for (const themeId in themes) {
@@ -93,9 +221,20 @@ export class DesktopThemesApp extends Application {
       option.textContent = themes[themeId].name;
       this.themeSelector.appendChild(option);
     }
+
+    const separator = document.createElement("option");
+    separator.disabled = true;
+    separator.textContent = "──────────";
+    this.themeSelector.appendChild(separator);
+
+    const loadOption = document.createElement("option");
+    loadOption.value = "load-custom";
+    loadOption.textContent = "<Load Theme>";
+    this.themeSelector.appendChild(loadOption);
   }
 
   async previewTheme(themeId) {
+    this.customThemeProperties = null;
     const themes = getThemes();
     const theme = themes[themeId];
 
@@ -117,6 +256,13 @@ export class DesktopThemesApp extends Application {
           variables["Background"] || "#008080";
       }
     }
+  }
+
+  previewCustomTheme(properties) {
+    this.applyCssVariables(properties);
+    this.previewContainer.style.backgroundImage = "none";
+    this.previewContainer.style.backgroundColor =
+      properties["Background"] || "#008080";
   }
 
   async fetchThemeCss(stylesheet) {
