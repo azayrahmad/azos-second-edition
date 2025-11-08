@@ -633,22 +633,25 @@ export function initDesktop() {
     // Show desktop context menu only if not clicking on an icon
     if (e.target === desktop) {
       e.preventDefault();
-      showDesktopContextMenu(e, { selectedIcons, clearSelection });
+      showDesktopContextMenu(e, {
+        selectedIcons: iconManager.selectedIcons,
+        clearSelection: () => iconManager.clearSelection(),
+      });
     }
   });
 
   // Add click handler to desktop to deselect icons
   desktop.addEventListener("click", (e) => {
-    if (wasLassoing) {
-      wasLassoing = false;
+    if (iconManager.wasLassoing) {
+      iconManager.wasLassoing = false;
       return;
     }
     if (
       e.target === desktop &&
-      !isLassoing &&
+      !iconManager.isLassoing &&
       !e.target.closest(".desktop-icon")
     ) {
-      clearSelection();
+      iconManager.clearSelection();
     }
   });
 
