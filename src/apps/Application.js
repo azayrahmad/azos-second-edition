@@ -13,6 +13,7 @@ export class Application {
         this.id = config.id;
         this.title = config.title;
         this.icon = config.icon;
+        this.isSingleton = config.isSingleton !== false;
         this.hasTaskbarButton = config.hasTaskbarButton !== false;
         this.hasTray = config.hasTray === true;
         this.tray = config.tray;
@@ -28,9 +29,10 @@ export class Application {
 
     async launch(filePath = null) {
         const windowId = this._getWindowId(filePath);
+        const instanceKey = this.isSingleton ? this.id : windowId;
 
-        if (openApps.has(this.id)) {
-            const existingApp = openApps.get(this.id);
+        if (openApps.has(instanceKey)) {
+            const existingApp = openApps.get(instanceKey);
             if (existingApp.win) {
                 const $win = $(existingApp.win.element);
                 if ($win.is(':visible')) {
@@ -46,7 +48,7 @@ export class Application {
         this.win = this._createWindow(filePath);
 
         if (this.win) {
-            this._setupWindow(windowId);
+            this._setupWindow(windowId, instanceKey);
             openWindows.set(windowId, this.win);
         }
 
@@ -55,7 +57,7 @@ export class Application {
         }
 
         await this._onLaunch(filePath);
-        openApps.set(this.id, this);
+        openApps.set(instanceKey, this);
     }
 
     _getWindowId(filePath) {
@@ -70,7 +72,7 @@ export class Application {
         // Optional hook for subclasses to implement for post-launch logic
     }
 
-    _setupWindow(windowId) {
+    _setupWindow(windowId, instanceKey) {
         this.win.element.id = windowId;
 
         this.win.onClosed(() => {
@@ -81,10 +83,24 @@ export class Application {
                 }
             }
             openWindows.delete(windowId);
-            // Also remove from the master app list
-            openApps.delete(this.id);
-            // Use appManager to handle app closing
-            appManager.closeApp(this.id);
+            openApps.delete(instanceKey);
+
+            // Check if this was the last instance of this application type
+            let isLastInstance = true;
+            if (!this.isSingleton) {
+                // For non-singletons, check if any other instances are still in openApps
+                for (const key of openApps.keys()) {
+                    if (key.startsWith(this.id)) {
+                        isLastInstance = false;
+                        break;
+                    }
+                }
+            }
+            // For singletons, isLastInstance remains true, as the only instance was just removed.
+
+            if (isLastInstance) {
+                appManager.closeApp(this.id);
+            }
         });
 
         document.body.appendChild(this.win.element);
