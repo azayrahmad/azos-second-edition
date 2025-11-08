@@ -18,9 +18,18 @@ export function getCurrentTheme() {
   return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || "default";
 }
 
+let temporaryTheme = null;
+
 export function applyTheme() {
   const savedThemeKey = getCurrentTheme();
-  applyCursorTheme(savedThemeKey);
+  const currentTheme = temporaryTheme || themes[savedThemeKey];
+
+  if (currentTheme) {
+    applyCursorTheme(currentTheme.id);
+  } else {
+    applyCursorTheme(savedThemeKey);
+  }
+
 
   Object.values(themes).forEach((theme) => {
     if (theme.id === "default") return;
@@ -32,8 +41,19 @@ export function applyTheme() {
   });
 }
 
-export async function setTheme(themeKey) {
+export async function setTheme(themeKey, themeObject = null) {
   applyBusyCursor(document.body);
+
+  if (themeObject) {
+    temporaryTheme = themeObject;
+  } else {
+    temporaryTheme = null;
+    // Clear any custom theme styles when a standard theme is applied
+    const customStyle = document.getElementById("custom-theme-styles");
+    if (customStyle) {
+      customStyle.remove();
+    }
+  }
 
   await preloadThemeAssets(themeKey);
 
@@ -46,7 +66,7 @@ export async function setTheme(themeKey) {
   setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
   applyTheme();
 
-  const theme = themes[themeKey];
+  const theme = temporaryTheme || themes[themeKey];
   if (theme && theme.wallpaper) {
     setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
   } else {
