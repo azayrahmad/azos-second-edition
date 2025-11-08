@@ -124,6 +124,7 @@ export class IconManager {
   handleClick(e) {
     if (this.wasLassoing) {
         this.wasLassoing = false;
+        e.stopImmediatePropagation();
         return;
     }
     if (
