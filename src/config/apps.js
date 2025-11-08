@@ -90,6 +90,7 @@ export const apps = [
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    isSingleton: true,
   },
   {
     id: "tipOfTheDay",
@@ -101,6 +102,7 @@ export const apps = [
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    isSingleton: true,
     tips: [
       "To open a file or an application from desktop, double-click the icon.",
       "To close a window, click the X in the top-right corner.",
@@ -114,6 +116,7 @@ export const apps = [
     width: 800,
     height: 600,
     resizable: true,
+    isSingleton: false,
     tips: [
       "You can open PDF files by double-clicking them on the desktop or in the file explorer.",
     ],
@@ -126,6 +129,7 @@ export const apps = [
     width: 600,
     height: 400,
     resizable: true,
+    isSingleton: false,
     tips: [
       "Notepad can be used for more than just text. It also supports syntax highlighting for various programming languages.",
       "In Notepad, you can format your code using the 'Format' option in the 'File' menu.",
@@ -141,6 +145,7 @@ export const apps = [
     width: 920,
     height: 720,
     resizable: true,
+    isSingleton: false,
   },
   {
     id: "image-viewer",
@@ -150,6 +155,7 @@ export const apps = [
     width: 400,
     height: 300,
     resizable: true,
+    isSingleton: false,
   },
   {
     id: "clippy",
@@ -157,6 +163,7 @@ export const apps = [
     icon: ICONS.clippy,
     appClass: ClippyApp,
     hasTray: true,
+    isSingleton: true,
     tray: {
       contextMenu: getClippyMenuItems,
     },
@@ -172,6 +179,7 @@ export const apps = [
     icon: ICONS.webamp,
     appClass: WebampApp,
     hasTaskbarButton: true,
+    isSingleton: true,
     tray: {
       contextMenu: getWebampMenuItems,
     },
@@ -188,6 +196,7 @@ export const apps = [
     width: 600,
     height: 500,
     resizable: true,
+    isSingleton: true,
   },
   {
     id: "alertTest",
@@ -214,6 +223,7 @@ export const apps = [
     width: 700,
     height: 350,
     resizable: true,
+    isSingleton: true,
   },
   {
     id: "desktopthemes",
@@ -223,6 +233,7 @@ export const apps = [
     width: 500,
     height: 500,
     resizable: false,
+    isSingleton: true,
   },
   {
     id: "taskmanager",
@@ -232,6 +243,7 @@ export const apps = [
     width: 300,
     height: 400,
     resizable: false,
+    isSingleton: true,
   },
   {
     id: "soundschemeexplorer",
@@ -241,6 +253,7 @@ export const apps = [
     width: 400,
     height: 300,
     resizable: true,
+    isSingleton: true,
   },
   {
     id: "explorer",
@@ -250,5 +263,6 @@ export const apps = [
     width: 640,
     height: 480,
     resizable: true,
+    isSingleton: false,
   },
 ];
