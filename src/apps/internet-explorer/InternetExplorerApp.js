@@ -1,36 +1,37 @@
-import { Application } from '../Application.js';
+import { Application } from "../Application.js";
 
 export class InternetExplorerApp extends Application {
-  async _onLaunch() {
-    const stylePath = `/src/apps/internet-explorer/internet-explorer.css`;
-    if (!document.querySelector(`link[href="${stylePath}"]`)) {
-      const link = window.os_gui_utils.E('link', { rel: 'stylesheet', href: stylePath });
-      document.head.append(link);
-    }
-  }
-
   _createWindow() {
     const win = new window.$Window({
-      title: 'Internet Explorer',
-      width: 800,
-      height: 600,
+      title: "Internet Explorer",
+      outerWidth: 600,
+      outerHeight: 400,
       icons: this.icon,
       id: this.id,
+      resizable: this.resizable,
     });
 
-    const iframe = window.os_gui_utils.E('iframe', { className: 'content-window' });
-    const input = window.os_gui_utils.E('input', { type: 'text', placeholder: 'Enter address' });
+    const iframe = window.os_gui_utils.E("iframe", {
+      className: "content-window",
+      style:
+        "width: 100%; height: 100%; flex-grow: 1; background-color: var(--Window);",
+    });
+    const input = window.os_gui_utils.E("input", {
+      type: "text",
+      placeholder: "Enter address",
+      style: "flex-grow: 1; font-family: 'MSW98UI'; width: 100%;",
+    });
 
     const navigateTo = (url) => {
       let finalUrl = url.trim();
-      if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
         finalUrl = `https://${finalUrl}`;
       }
       input.value = finalUrl;
 
       const waybackUrl = `https://web.archive.org/web/1998/${finalUrl}`;
 
-      iframe.src = 'about:blank';
+      iframe.src = "about:blank";
       setTimeout(() => {
         iframe.src = waybackUrl;
       }, 100);
@@ -38,8 +39,13 @@ export class InternetExplorerApp extends Application {
       // Simple check for failed load
       iframe.onload = () => {
         try {
-          if (iframe.contentWindow.document.title.includes('Not Found') || iframe.contentDocument.body.innerHTML.includes('Wayback Machine doesn')) {
-            iframe.src = '/src/apps/internet-explorer/404.html';
+          if (
+            iframe.contentWindow.document.title.includes("Not Found") ||
+            iframe.contentDocument.body.innerHTML.includes(
+              "Wayback Machine doesn",
+            )
+          ) {
+            iframe.src = "/src/apps/internet-explorer/404.html";
           }
         } catch (e) {
           // Cross-origin error, assume it loaded correctly
@@ -47,25 +53,28 @@ export class InternetExplorerApp extends Application {
       };
     };
 
-    win.setMenuBar(new window.MenuBar({
-      "Go": [
+    win.setMenuBar(
+      new window.MenuBar({
+        Go: [
           {
-            label: 'Back',
+            label: "Back",
             action: () => iframe.contentWindow.history.back(),
           },
           {
-            label: 'Forward',
+            label: "Forward",
             action: () => iframe.contentWindow.history.forward(),
           },
           {
-            label: 'Up',
+            label: "Up",
             action: () => {
               try {
                 const currentUrl = new URL(input.value);
-                const pathParts = currentUrl.pathname.split('/').filter(p => p);
+                const pathParts = currentUrl.pathname
+                  .split("/")
+                  .filter((p) => p);
                 if (pathParts.length > 0) {
                   pathParts.pop();
-                  currentUrl.pathname = pathParts.join('/');
+                  currentUrl.pathname = pathParts.join("/");
                   navigateTo(currentUrl.toString());
                 }
               } catch (e) {
@@ -73,14 +82,22 @@ export class InternetExplorerApp extends Application {
               }
             },
           },
-        ]
-    }));
+        ],
+      }),
+    );
 
-    const addressBar = window.os_gui_utils.E('div', { className: 'address-bar' });
+    const addressBar = window.os_gui_utils.E("div", {
+      className: "address-bar",
+      style: {
+        display: "flex",
+        padding: "4px",
+        borderBottom: "1px solid var(--border-color)",
+      },
+    });
     addressBar.append(input);
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
         navigateTo(input.value);
       }
     });
