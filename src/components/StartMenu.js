@@ -173,10 +173,6 @@ class StartMenu {
       this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
         clearTimeout(closeTimeout);
       });
-
-      this.addTrackedEventListener(activeMenu.element, "pointerleave", () => {
-        closeMenu(true);
-      });
     };
 
     const closeMenu = (useTimeout = false) => {
@@ -196,9 +192,6 @@ class StartMenu {
     };
 
     this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
-    this.addTrackedEventListener(menuItem, "pointerleave", () => {
-      closeMenu(true);
-    });
   }
 
   bindMenuItems() {
