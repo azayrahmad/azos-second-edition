@@ -10,6 +10,7 @@ const startMenuAppIds = [
   "image-viewer",
   "tipOfTheDay",
   "about",
+  "internet-explorer",
 ];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
