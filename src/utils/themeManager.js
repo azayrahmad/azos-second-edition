@@ -9,13 +9,15 @@ import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
 import { applyCursorTheme } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
+import { profileManager } from "./profileManager.js";
 
 export function getThemes() {
   return themes;
 }
 
 export function getCurrentTheme() {
-  return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || "default";
+  const profile = profileManager.getProfile();
+  return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || profile.theme || "default";
 }
 
 export function applyTheme() {

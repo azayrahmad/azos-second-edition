@@ -1,7 +1,8 @@
+import { profileManager } from './profileManager.js';
+
 export const LOCAL_STORAGE_KEYS = {
   DESKTOP_THEME: 'desktop-theme',
   CUSTOM_APPS: 'customApps',
-  SHOW_TIPS_AT_STARTUP: 'showTipsAtStartup',
   CLIPPY_AGENT_NAME: 'clippyAgentName',
   CLIPPY_TTS_ENABLED: 'clippyTTSEnabled',
   NOTEPAD_THEME: 'notepad-theme',
@@ -12,8 +13,12 @@ export const LOCAL_STORAGE_KEYS = {
   RECYCLE_BIN: 'recycleBin',
 };
 
+function getPrefixedKey(key) {
+  return `${profileManager.getProfileName()}_${key}`;
+}
+
 export function getItem(key) {
-  const item = localStorage.getItem(key);
+  const item = localStorage.getItem(getPrefixedKey(key));
   try {
     return JSON.parse(item);
   } catch (e) {
@@ -23,12 +28,12 @@ export function getItem(key) {
 
 export function setItem(key, value) {
   if (typeof value === 'object') {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(getPrefixedKey(key), JSON.stringify(value));
   } else {
-    localStorage.setItem(key, value);
+    localStorage.setItem(getPrefixedKey(key), value);
   }
 }
 
 export function removeItem(key) {
-    localStorage.removeItem(key)
+    localStorage.removeItem(getPrefixedKey(key))
 }

@@ -25,6 +25,7 @@ import {
   getRecycleBinItems,
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
+import { startupManager } from "../utils/startupManager.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -597,7 +598,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
 }
 
 // Initialize desktop behavior
-export function initDesktop() {
+export function initDesktop(profile) {
   console.log("Initializing Desktop Manager...");
   applyTheme();
   applyWallpaper();
@@ -654,16 +655,10 @@ export function initDesktop() {
 
   init(); // Initialize the taskbar manager
 
-  const showTipsAtStartup = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);
-
-  console.log("Show Tips at Startup:", showTipsAtStartup);
-  if (
-    showTipsAtStartup === null ||
-    showTipsAtStartup === "true" ||
-    showTipsAtStartup === true
-  ) {
-    launchApp("tipOfTheDay");
-  }
+  const startupApps = startupManager.getStartupApps();
+  startupApps.forEach(appId => {
+    launchApp(appId);
+  });
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
 }

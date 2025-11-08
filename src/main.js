@@ -17,6 +17,7 @@ import { hideBootScreen, updateBootLog } from './components/bootScreen.js';
 import { preloadThemeAssets } from './utils/assetPreloader.js';
 import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from './components/ui.js';
+import { profileManager } from "./utils/profileManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -88,6 +89,9 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
+  profileManager.init();
+  const profile = profileManager.getProfile();
+
   function loadCustomApps() {
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
     savedApps.forEach((appInfo) => {
@@ -133,7 +137,7 @@ async function initializeOS() {
 
   updateBootLog("Setting up desktop...");
   await new Promise((resolve) => setTimeout(resolve, 50));
-  initDesktop();
+  initDesktop(profile);
 
   updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));
