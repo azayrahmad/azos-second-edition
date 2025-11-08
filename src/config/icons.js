@@ -7,6 +7,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
   },
+  "internet-explorer": {
+    16: new URL("../assets/icons/msie1-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/msie1-1.png", import.meta.url).href,
+  },
   about: {
     16: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
     32: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,

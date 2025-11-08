@@ -9,6 +9,7 @@ import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
+import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
@@ -34,6 +35,7 @@ export const appClasses = {
   taskmanager: TaskManagerApp,
   soundschemeexplorer: SoundSchemeExplorerApp,
   explorer: ExplorerApp,
+  "internet-explorer": InternetExplorerApp,
 };
 
 export const apps = [
@@ -264,5 +266,14 @@ export const apps = [
     height: 480,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "internet-explorer",
+    title: "Internet Explorer",
+    icon: ICONS["internet-explorer"],
+    appClass: InternetExplorerApp,
+    width: 800,
+    height: 600,
+    resizable: true,
   },
 ];
