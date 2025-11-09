@@ -24,24 +24,48 @@ export class InternetExplorerApp extends Application {
 
     const statusText = window.os_gui_utils.E("p", {
       className: "status-bar-field",
-      style: {
-        flex: "1",
-        padding: "2px 4px",
-        border: "1px inset",
-        marginBlockStart: "0",
-        marginBlockEnd: "0",
-      }
+      style:
+        "flex: 1; padding: 2px 4px; border: 1px inset; margin-block-start: 0; margin-block-end: 0;",
     });
     statusText.textContent = "Done";
 
     const statusBar = window.os_gui_utils.E("div", {
       className: "status-bar",
-      style: {
-        display: "flex",
-        gap: "2px",
-      }
+      style: "display: flex; gap: 2px;",
     });
     statusBar.append(statusText);
+
+    // Assign iframe.onload handler once, outside the navigation function.
+    iframe.onload = () => {
+      // If the iframe has loaded our custom 404 page, explicitly set the status.
+      // This happens after a redirect from a failed Wayback Machine attempt.
+      if (iframe.src.includes("/src/apps/internet-explorer/404.html")) {
+        statusText.textContent = "Page not found.";
+        return;
+      }
+
+      try {
+        // Attempt to check content for 404 indicators from Wayback Machine or the target site.
+        if (
+          iframe.contentWindow.document.title.includes("Not Found") ||
+          iframe.contentDocument.body.innerHTML.includes(
+            "Wayback Machine doesn",
+          )
+        ) {
+          // If a 404 is detected, redirect to our internal 404 page.
+          // This will trigger the onload handler again, caught by the check above.
+          iframe.src = "/src/apps/internet-explorer/404.html";
+          statusText.textContent = "Page not found.";
+        } else {
+          // If no specific error detected, assume successful load.
+          statusText.textContent = "Done";
+        }
+      } catch (e) {
+        // Cross-origin access errors prevent inspecting iframe content.
+        // In this case, assume the page loaded (or at least we can't determine otherwise).
+        statusText.textContent = "Done";
+      }
+    };
 
     const navigateTo = (url) => {
       let finalUrl = url.trim();
@@ -54,33 +78,7 @@ export class InternetExplorerApp extends Application {
 
       statusText.textContent = "Connecting to site...";
       iframe.src = "about:blank";
-      setTimeout(() => {
-        iframe.src = waybackUrl;
-      }, 100);
-
-      // Simple check for failed load
-      iframe.onload = () => {
-        if (iframe.src.includes("/404.html")) {
-          return;
-        }
-
-        try {
-          if (
-            iframe.contentWindow.document.title.includes("Not Found") ||
-            iframe.contentDocument.body.innerHTML.includes(
-              "Wayback Machine doesn",
-            )
-          ) {
-            iframe.src = "/src/apps/internet-explorer/404.html";
-            statusText.textContent = "Page not found.";
-          } else {
-            statusText.textContent = "Done";
-          }
-        } catch (e) {
-          // Cross-origin error, assume it loaded correctly
-          statusText.textContent = "Done";
-        }
-      };
+      iframe.src = waybackUrl;
     };
 
     win.setMenuBar(
