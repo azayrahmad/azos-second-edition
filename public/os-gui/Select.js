@@ -1,4 +1,4 @@
-import { E } from '/public/os-gui/utils.js';
+const { E } = window.os_gui_utils;
 
 export class Select {
     constructor(options = []) {
