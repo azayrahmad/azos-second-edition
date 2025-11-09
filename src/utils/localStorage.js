@@ -1,5 +1,7 @@
 export const LOCAL_STORAGE_KEYS = {
   DESKTOP_THEME: 'desktop-theme',
+  CUSTOM_THEMES: 'customThemes',
+  CUSTOM_THEMES: 'customThemes',
   CUSTOM_APPS: 'customApps',
   SHOW_TIPS_AT_STARTUP: 'showTipsAtStartup',
   CLIPPY_AGENT_NAME: 'clippyAgentName',
