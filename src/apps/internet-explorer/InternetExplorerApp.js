@@ -11,8 +11,6 @@ export class InternetExplorerApp extends Application {
       resizable: this.resizable,
     });
 
-    win.addStylesheet('src/apps/internet-explorer/internet-explorer.css');
-
     const iframe = window.os_gui_utils.E("iframe", {
       className: "content-window",
       style:
@@ -24,10 +22,25 @@ export class InternetExplorerApp extends Application {
       style: "flex-grow: 1; font-family: 'MSW98UI'; width: 100%;",
     });
 
-    const statusText = window.os_gui_utils.E("p", { className: "status-bar-field" });
+    const statusText = window.os_gui_utils.E("p", {
+      className: "status-bar-field",
+      style: {
+        flex: "1",
+        padding: "2px 4px",
+        border: "1px inset",
+        marginBlockStart: "0",
+        marginBlockEnd: "0",
+      }
+    });
     statusText.textContent = "Done";
 
-    const statusBar = window.os_gui_utils.E("div", { className: "status-bar" });
+    const statusBar = window.os_gui_utils.E("div", {
+      className: "status-bar",
+      style: {
+        display: "flex",
+        gap: "2px",
+      }
+    });
     statusBar.append(statusText);
 
     const navigateTo = (url) => {
