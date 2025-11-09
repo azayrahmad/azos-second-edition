@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { getThemes, setTheme } from "../../utils/themeManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { Select } from "/public/os-gui/Select.js";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
@@ -32,20 +33,26 @@ export class DesktopThemesApp extends Application {
     const themeLabel = document.createElement("label");
     themeLabel.textContent = "Theme:";
 
-    this.themeSelector = document.createElement("select");
-    this.themeSelector.id = "theme-selector"; // Add an ID to the select element
-    themeLabel.setAttribute("for", this.themeSelector.id); // Connect label to select
+    const themes = getThemes();
+    const themeOptions = Object.keys(themes).map(themeId => ({
+        value: themeId,
+        label: themes[themeId].name
+    }));
 
+    themeOptions.push({ separator: true });
+    themeOptions.push({ value: 'load-custom', label: '<Load Theme>' });
+
+    this.themeSelector = new Select(themeOptions);
     controlsContainer.appendChild(themeLabel);
-    controlsContainer.appendChild(this.themeSelector);
+    controlsContainer.appendChild(this.themeSelector.element);
 
-    this.populateThemes();
-    this.themeSelector.addEventListener("change", () => {
-      if (this.themeSelector.value === "load-custom") {
+    this.themeSelector.element.addEventListener("change", (e) => {
+        const selectedThemeId = e.detail.value;
+      if (selectedThemeId === "load-custom") {
         this.handleCustomThemeLoad();
       } else {
         this.customThemeProperties = null; // Clear custom theme when a standard one is selected
-        this.previewTheme(this.themeSelector.value);
+        this.previewTheme(selectedThemeId);
       }
     });
 
@@ -141,7 +148,7 @@ export class DesktopThemesApp extends Application {
       const file = event.target.files[0];
       if (!file) {
         // User cancelled, revert to the previously selected theme
-        this.themeSelector.value = this.previousThemeId;
+        this.themeSelector.setValue(this.previousThemeId);
         return;
       }
       this.loadFile(file);
@@ -158,7 +165,7 @@ export class DesktopThemesApp extends Application {
         const cssProperties = window.parseThemeFileString(themeContent);
         if (cssProperties) {
           this.customThemeProperties = cssProperties; // Store original with --
-          this.themeSelector.value = this.previousThemeId; // Revert dropdown
+          this.themeSelector.setValue(this.previousThemeId); // Revert dropdown
 
           const normalizedProperties = {};
           for (const [key, value] of Object.entries(cssProperties)) {
@@ -167,7 +174,7 @@ export class DesktopThemesApp extends Application {
 
           this.previewCustomTheme(normalizedProperties); // Use normalized for preview
         } else {
-          this.themeSelector.value = this.previousThemeId;
+          this.themeSelector.setValue(this.previousThemeId);
           ShowDialogWindow({
             title: "Error",
             text: "Could not parse the selected file. Please ensure it is a valid .theme file.",
@@ -176,7 +183,7 @@ export class DesktopThemesApp extends Application {
         }
       } catch (error) {
         console.error(error);
-        this.themeSelector.value = this.previousThemeId;
+        this.themeSelector.setValue(this.previousThemeId);
         ShowDialogWindow({
           title: "Error",
           text: `An error occurred: ${error.message}`,
@@ -211,26 +218,6 @@ export class DesktopThemesApp extends Application {
         reject(new Error("Failed to load theme parser script."));
       document.head.appendChild(script);
     });
-  }
-
-  populateThemes() {
-    const themes = getThemes();
-    for (const themeId in themes) {
-      const option = document.createElement("option");
-      option.value = themeId;
-      option.textContent = themes[themeId].name;
-      this.themeSelector.appendChild(option);
-    }
-
-    const separator = document.createElement("option");
-    separator.disabled = true;
-    separator.textContent = "──────────";
-    this.themeSelector.appendChild(separator);
-
-    const loadOption = document.createElement("option");
-    loadOption.value = "load-custom";
-    loadOption.textContent = "<Load Theme>";
-    this.themeSelector.appendChild(loadOption);
   }
 
   async previewTheme(themeId) {
@@ -288,7 +275,7 @@ export class DesktopThemesApp extends Application {
   parseCssVariables(cssText) {
     const variables = {};
     const rootBlockMatch = cssText.match(/:root\s*{([^}]+)}/);
-    if (rootBlockMatch) {
+    if (rootBlock-match) {
       const variablesText = rootBlockMatch[1];
       const regex = /--([\w-]+):\s*([^;]+);/g;
       let match;
