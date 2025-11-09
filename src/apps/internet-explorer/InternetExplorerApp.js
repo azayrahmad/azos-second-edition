@@ -11,6 +11,8 @@ export class InternetExplorerApp extends Application {
       resizable: this.resizable,
     });
 
+    win.addStylesheet('src/apps/internet-explorer/internet-explorer.css');
+
     const iframe = window.os_gui_utils.E("iframe", {
       className: "content-window",
       style:
@@ -22,6 +24,12 @@ export class InternetExplorerApp extends Application {
       style: "flex-grow: 1; font-family: 'MSW98UI'; width: 100%;",
     });
 
+    const statusText = window.os_gui_utils.E("p", { className: "status-bar-field" });
+    statusText.textContent = "Done";
+
+    const statusBar = window.os_gui_utils.E("div", { className: "status-bar" });
+    statusBar.append(statusText);
+
     const navigateTo = (url) => {
       let finalUrl = url.trim();
       if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
@@ -31,6 +39,7 @@ export class InternetExplorerApp extends Application {
 
       const waybackUrl = `https://web.archive.org/web/1998/${finalUrl}`;
 
+      statusText.textContent = "Connecting to site...";
       iframe.src = "about:blank";
       setTimeout(() => {
         iframe.src = waybackUrl;
@@ -38,6 +47,10 @@ export class InternetExplorerApp extends Application {
 
       // Simple check for failed load
       iframe.onload = () => {
+        if (iframe.src.includes("/404.html")) {
+          return;
+        }
+
         try {
           if (
             iframe.contentWindow.document.title.includes("Not Found") ||
@@ -46,9 +59,13 @@ export class InternetExplorerApp extends Application {
             )
           ) {
             iframe.src = "/src/apps/internet-explorer/404.html";
+            statusText.textContent = "Page not found.";
+          } else {
+            statusText.textContent = "Done";
           }
         } catch (e) {
           // Cross-origin error, assume it loaded correctly
+          statusText.textContent = "Done";
         }
       };
     };
@@ -102,7 +119,7 @@ export class InternetExplorerApp extends Application {
       }
     });
 
-    win.$content.append(addressBar, iframe);
+    win.$content.append(addressBar, iframe, statusBar);
 
     return win;
   }
