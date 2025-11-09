@@ -12,7 +12,12 @@ const startMenuAppIds = [
   "about",
   "internet-explorer",
 ];
-const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
+const settingsAppIds = [
+  "desktopthemes",
+  "soundschemeexplorer",
+  "themetocss",
+  "mousepointers",
+];
 
 function getAppList(appListIds) {
   return appListIds
