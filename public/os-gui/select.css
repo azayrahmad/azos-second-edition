@@ -1,0 +1,110 @@
+.select-container {
+    position: relative;
+    display: inline-flex;
+    width: 200px;
+    height: 21px;
+    font-family: "Pixelated MS Sans Serif", "Fixedsys Excelsior 3.01", "MS Sans Serif";
+    font-size: 11px;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    background-color: #fff;
+    border: 1px solid;
+    border-color: #808080 #dfdfdf #dfdfdf #808080;
+    box-shadow: inset 1px 1px 0 #000;
+}
+
+.select-container:focus {
+    outline: none;
+}
+
+.select-display {
+    flex-grow: 1;
+    padding: 3px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+    min-width: 0;
+    line-height: 1;
+}
+
+.select-button {
+    width: 17px;
+    height: 17px;
+    margin: 1px;
+    box-sizing: border-box;
+    border: 1px solid;
+    border-color: #fff #000 #000 #fff;
+    background: #c0c0c0;
+    box-shadow: inset 1px 1px #dfdfdf, inset -1px -1px grey;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.select-button:active, .select-button.active {
+    box-shadow: inset -1px -1px 0 #fff, inset 1px 1px 0 grey;
+    border-color: #000 #fff #fff #000;
+}
+
+
+/* Arrow */
+.select-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid black;
+}
+
+
+.select-options {
+    display: none;
+    position: absolute;
+    top: calc(100% + 1px);
+    left: -1px;
+    right: -1px;
+    background: white;
+    border: 1px solid;
+    border-color: #808080 #fff #fff #808080;
+    box-shadow: 1px 1px 0 #000;
+    box-sizing: border-box;
+    z-index: 1000;
+    max-height: 150px;
+}
+
+.select-option {
+    padding: 2px 4px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.select-option:hover,
+.select-option.focused {
+    background-color: #000080; /* navy */
+    color: white;
+}
+
+.select-option.disabled {
+    color: #808080; /* gray */
+    cursor: default;
+}
+
+.select-option.disabled:hover,
+.select-option.disabled.focused {
+    background-color: transparent;
+    color: #808080;
+}
+
+.select-separator {
+    height: 1px;
+    background-color: #808080;
+    margin: 4px 1px;
+    border-bottom: 1px solid #fff;
+}

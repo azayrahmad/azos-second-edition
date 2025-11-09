@@ -2,7 +2,7 @@ import { Application } from "../Application.js";
 import { soundSchemes } from "../../config/sound-schemes.js";
 import { themes } from "../../config/themes.js";
 import { getCurrentTheme } from "../../utils/themeManager.js";
-import { playSound } from "../../utils/soundManager.js";
+import { Select } from "/public/os-gui/Select.js";
 
 export class SoundSchemeExplorerApp extends Application {
   constructor(options) {
@@ -28,8 +28,7 @@ export class SoundSchemeExplorerApp extends Application {
     const content = `
       <div class="sound-scheme-explorer">
         <div class="toolbar">
-          <label for="sound-scheme-select">Sound Scheme:</label>
-          <select id="sound-scheme-select"></select>
+          <label>Sound Scheme:</label>
         </div>
         <div class="sound-list"></div>
       </div>
@@ -37,32 +36,29 @@ export class SoundSchemeExplorerApp extends Application {
     win.$content.append(content);
     win.$content.addClass("sound-scheme-explorer-content");
 
-    this.select = win.$content.find("#sound-scheme-select")[0];
+    const toolbar = win.$content.find(".toolbar")[0];
     this.soundList = win.$content.find(".sound-list")[0];
 
-    this._populateSchemes();
+    const schemeOptions = Object.keys(soundSchemes).map(name => ({
+        value: name,
+        label: name
+    }));
+
+    this.select = new Select(schemeOptions);
+    toolbar.appendChild(this.select.element);
+
     this._setDefaultScheme();
 
-    this.select.addEventListener("change", () =>
-      this._updateSoundList(this.select.value),
+    this.select.element.addEventListener("change", (e) =>
+      this._updateSoundList(e.detail.value),
     );
-  }
-
-  _populateSchemes() {
-    const schemeNames = Object.keys(soundSchemes);
-    schemeNames.forEach((name) => {
-      const option = document.createElement("option");
-      option.value = name;
-      option.textContent = name;
-      this.select.appendChild(option);
-    });
   }
 
   _setDefaultScheme() {
     const currentThemeKey = getCurrentTheme();
     const currentTheme = themes[currentThemeKey];
     this.currentSchemeName = currentTheme.soundScheme || "Default";
-    this.select.value = this.currentSchemeName;
+    this.select.setValue(this.currentSchemeName);
     this._updateSoundList(this.currentSchemeName);
   }
 
