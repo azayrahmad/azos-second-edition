@@ -20,7 +20,7 @@ export class DesktopThemesApp extends Application {
     this.boundPopulateThemes = this.populateThemes.bind(this);
     document.addEventListener(
       "custom-themes-changed",
-      this.boundPopulateThemes
+      this.boundPopulateThemes,
     );
   }
 
@@ -37,7 +37,7 @@ export class DesktopThemesApp extends Application {
     win.on("close", () => {
       document.removeEventListener(
         "custom-themes-changed",
-        this.boundPopulateThemes
+        this.boundPopulateThemes,
       );
     });
 
@@ -71,7 +71,7 @@ export class DesktopThemesApp extends Application {
     this.saveButton.addEventListener("click", () => this.handleSaveTheme());
     this.deleteButton.addEventListener("click", () => this.handleDeleteTheme());
     this.themeSelector.addEventListener("change", () =>
-      this.handleThemeSelection()
+      this.handleThemeSelection(),
     );
 
     this.populateThemes();
@@ -175,12 +175,16 @@ export class DesktopThemesApp extends Application {
       const themeContent = e.target.result;
       try {
         await this._loadParserScript();
-        const cssProperties = window.parseThemeFileString(themeContent);
-        if (cssProperties) {
-          this.customThemeProperties = cssProperties;
-          this.addTemporaryThemeOption();
-          this.themeSelector.value = "current-settings";
-          this.handleThemeSelection(); // Use the handler to update state
+        const colors = window.getColorsFromThemeFile(themeContent);
+        if (colors) {
+          this._showThemeWizard(colors, (updatedColors) => {
+            const cssProperties =
+              window.generateThemePropertiesFromColors(updatedColors);
+            this.customThemeProperties = cssProperties;
+            this.addTemporaryThemeOption();
+            this.themeSelector.value = "current-settings";
+            this.handleThemeSelection(); // Use the handler to update state
+          });
         } else {
           this.themeSelector.value = this.previousThemeId;
           ShowDialogWindow({
@@ -225,7 +229,9 @@ export class DesktopThemesApp extends Application {
       finalName = `${name} (${counter++})`;
     }
 
-    const newThemeId = `custom-${finalName.toLowerCase().replace(/\s+/g, "-")}`;
+    const newThemeId = `custom-${finalName
+      .toLowerCase()
+      .replace(/\s+/g, "-")}`;
     const newTheme = {
       ...themes.default,
       id: newThemeId,
@@ -301,7 +307,7 @@ export class DesktopThemesApp extends Application {
 
   removeTemporaryThemeOption() {
     const option = this.themeSelector.querySelector(
-      'option[value="current-settings"]'
+      'option[value="current-settings"]',
     );
     if (option) {
       option.remove();
@@ -326,7 +332,9 @@ export class DesktopThemesApp extends Application {
     this.themeSelector.innerHTML = "";
 
     const themes = getThemes();
-    const sortedThemes = Object.entries(themes).sort(([, a], [, b]) => a.name.localeCompare(b.name));
+    const sortedThemes = Object.entries(themes).sort(([, a], [, b]) =>
+      a.name.localeCompare(b.name),
+    );
 
     for (const [id, theme] of sortedThemes) {
       const option = document.createElement("option");
@@ -346,9 +354,9 @@ export class DesktopThemesApp extends Application {
     this.themeSelector.appendChild(loadOption);
 
     if (this.themeSelector.querySelector(`option[value="${lastSelected}"]`)) {
-        this.themeSelector.value = lastSelected;
+      this.themeSelector.value = lastSelected;
     } else {
-        this.themeSelector.value = getCurrentTheme();
+      this.themeSelector.value = getCurrentTheme();
     }
     this.handleThemeSelection();
   }
@@ -359,25 +367,29 @@ export class DesktopThemesApp extends Application {
 
     let variables = {};
     if (theme.isCustom && theme.colors) {
-        for (const [key, value] of Object.entries(theme.colors)) {
-            variables[key.replace(/^--/, "")] = value;
-        }
+      for (const [key, value] of Object.entries(theme.colors)) {
+        variables[key.replace(/^--/, "")] = value;
+      }
     } else if (theme.stylesheet) {
-        const cssText = await this.fetchThemeCss(theme.stylesheet);
-        if (cssText) {
-            variables = this.parseCssVariables(cssText);
-        }
+      const cssText = await this.fetchThemeCss(theme.stylesheet);
+      if (cssText) {
+        variables = this.parseCssVariables(cssText);
+      }
     }
 
     this.applyCssVariables(variables);
-    this.previewContainer.style.backgroundImage = theme.wallpaper ? `url('${theme.wallpaper}')` : "none";
-    this.previewContainer.style.backgroundColor = variables["Background"] || "#008080";
+    this.previewContainer.style.backgroundImage = theme.wallpaper
+      ? `url('${theme.wallpaper}')`
+      : "none";
+    this.previewContainer.style.backgroundColor =
+      variables["Background"] || "#008080";
   }
 
   previewCustomTheme(properties) {
     this.applyCssVariables(properties);
     this.previewContainer.style.backgroundImage = "none";
-    this.previewContainer.style.backgroundColor = properties["Background"] || "#008080";
+    this.previewContainer.style.backgroundColor =
+      properties["Background"] || "#008080";
   }
 
   async fetchThemeCss(stylesheet) {
@@ -386,7 +398,8 @@ export class DesktopThemesApp extends Application {
     if (this.themeCssCache[url]) return this.themeCssCache[url];
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`Failed to fetch CSS: ${response.statusText}`);
+      if (!response.ok)
+        throw new Error(`Failed to fetch CSS: ${response.statusText}`);
       const cssText = await response.text();
       this.themeCssCache[url] = cssText;
       return cssText;
@@ -412,19 +425,127 @@ export class DesktopThemesApp extends Application {
 
   applyCssVariables(variables) {
     const styleProperties = {
-      "--preview-active-title-bar-bg": variables["ActiveTitle"] || "rgb(0, 0, 128)",
-      "--preview-gradient-active-title-bar-bg": variables["GradientActiveTitle"] || "rgb(16, 132, 208)",
-      "--preview-active-title-bar-text": variables["TitleText"] || "rgb(255, 255, 255)",
+      "--preview-active-title-bar-bg":
+        variables["ActiveTitle"] || "rgb(0, 0, 128)",
+      "--preview-gradient-active-title-bar-bg":
+        variables["GradientActiveTitle"] || "rgb(16, 132, 208)",
+      "--preview-active-title-bar-text":
+        variables["TitleText"] || "rgb(255, 255, 255)",
       "--preview-window-bg": variables["Window"] || "rgb(255, 255, 255)",
       "--preview-window-text": variables["WindowText"] || "rgb(0, 0, 0)",
       "--preview-button-face": variables["ButtonFace"] || "rgb(192, 192, 192)",
       "--preview-button-text": variables["ButtonText"] || "rgb(0, 0, 0)",
-      "--preview-button-highlight": variables["ButtonHilight"] || "rgb(255, 255, 255)",
-      "--preview-button-shadow": variables["ButtonShadow"] || "rgb(128, 128, 128)",
-      "--preview-button-dk-shadow": variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
+      "--preview-button-highlight":
+        variables["ButtonHilight"] || "rgb(255, 255, 255)",
+      "--preview-button-shadow":
+        variables["ButtonShadow"] || "rgb(128, 128, 128)",
+      "--preview-button-dk-shadow":
+        variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
     };
     for (const [property, value] of Object.entries(styleProperties)) {
       this.previewContainer.style.setProperty(property, value);
     }
+  }
+
+  _rgbToHex(rgbString) {
+    const match = rgbString.match(/rgb\((\d+), (\d+), (\d+)\)/);
+    if (!match) return "#000000";
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  _hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  _showThemeWizard(colors, callback) {
+    const wizardWin = new $Window({
+      title: "Theme Wizard",
+      outerWidth: 400,
+      outerHeight: 500,
+      resizable: true,
+      icons: this.icon,
+      className: "theme-wizard-app",
+    });
+
+    let currentColors = JSON.parse(JSON.stringify(colors)); // Deep copy
+
+    const showStep1 = () => {
+      wizardWin.$content.html(""); // Clear content
+
+      const colorListContainer = document.createElement("div");
+      colorListContainer.className = "color-list-container";
+
+      currentColors.forEach((color) => {
+        const colorItem = document.createElement("div");
+        colorItem.className = "color-item";
+
+        const colorLabel = document.createElement("label");
+        colorLabel.textContent = color.name;
+        colorItem.appendChild(colorLabel);
+
+        const colorInput = document.createElement("input");
+        colorInput.type = "color";
+        colorInput.value = this._rgbToHex(color.value);
+        colorInput.addEventListener("change", (event) => {
+          color.value = this._hexToRgb(event.target.value);
+        });
+        colorItem.appendChild(colorInput);
+
+        colorListContainer.appendChild(colorItem);
+      });
+
+      wizardWin.$content.append(colorListContainer);
+
+      const buttonContainer = document.createElement("div");
+      buttonContainer.className = "wizard-buttons";
+
+      const nextButton = document.createElement("button");
+      nextButton.textContent = "Next";
+      nextButton.addEventListener("click", showStep2);
+      buttonContainer.appendChild(nextButton);
+
+      const cancelButton = document.createElement("button");
+      cancelButton.textContent = "Cancel";
+      cancelButton.addEventListener("click", () => wizardWin.close());
+      buttonContainer.appendChild(cancelButton);
+
+      wizardWin.$content.append(buttonContainer);
+    };
+
+    const showStep2 = () => {
+      wizardWin.$content.html(""); // Clear content
+
+      const confirmationText = document.createElement("p");
+      confirmationText.textContent =
+        "The theme will be previewed. Click Finish to apply the changes.";
+      wizardWin.$content.append(confirmationText);
+
+      const buttonContainer = document.createElement("div");
+      buttonContainer.className = "wizard-buttons";
+
+      const backButton = document.createElement("button");
+      backButton.textContent = "Back";
+      backButton.addEventListener("click", showStep1);
+      buttonContainer.appendChild(backButton);
+
+      const finishButton = document.createElement("button");
+      finishButton.textContent = "Finish";
+      finishButton.addEventListener("click", () => {
+        callback(currentColors);
+        wizardWin.close();
+      });
+      buttonContainer.appendChild(finishButton);
+
+      wizardWin.$content.append(buttonContainer);
+    };
+
+    showStep1();
   }
 }
