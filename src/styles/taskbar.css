@@ -44,7 +44,8 @@
     align-items: center;
     margin: 0;
     font-weight: bold;
-    font-family: "MSW98UI", sans-serif;
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-title);
 }
 
 .start-button {
@@ -83,7 +84,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: "MSW98UI", sans-serif;
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-title);
 }
 
 .taskbar-button.selected {
@@ -282,9 +284,9 @@ button:not(:disabled):active img {
 .taskbar-clock {
     width: 60px;
     text-align: center;
-    font-size: 12px;
+    font-size: var(--font-size-menu);
     user-select: none;
-    font-family: "MSW98UI", sans-serif;
+    font-family: var(--font-family-menu);
 }
 
 .tooltip-custom {

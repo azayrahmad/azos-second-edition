@@ -63,6 +63,14 @@
     --Window: rgb(255, 255, 255);
     --WindowFrame: rgb(0, 0, 0);
     --WindowText: rgb(0, 0, 0);
+
+    /* Typography */
+    --font-family-base: "MSW98UI", sans-serif;
+    --font-size-base: 12px;
+    --font-family-title: var(--font-family-base);
+    --font-size-title: 12px;
+    --font-family-menu: var(--font-family-base);
+    --font-size-menu: 12px;
 }
 
 .inset-deep {
@@ -356,8 +364,8 @@ body > .window-titlebar {
 
 .os-window .window-titlebar,
 body > .window-titlebar {
-    /* font-family: 'Segoe UI', sans-serif; */
-    font-size: 12px;
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-title);
 }
 .os-window.rtl .window-titlebar {
     background: linear-gradient(
@@ -563,8 +571,8 @@ body > .window-titlebar {
 }
 .menus *,
 .menu-popup * {
-    /* font-family: "Segoe UI", sans-serif; */
-    font-size: 12px;
+    font-family: var(--font-family-menu);
+    font-size: var(--font-size-menu);
 }
 .menu-button {
     box-sizing: border-box;
@@ -577,7 +585,7 @@ body > .window-titlebar {
     /* @extend button.lightweight; */
     background: rgb(192, 192, 192);
     background: var(--Menu);
-    font-family: "MSW98UI", sans-serif;
+    font-family: var(--font-family-menu);
 }
 /* Note: In Windows 98, normal menu bars have an inset highlight if you use Esc and then the arrow keys,
 whereas Explorer's menu bars are outset and match the hover effect, which I feel makes more sense,
