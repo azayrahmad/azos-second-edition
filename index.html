@@ -62,18 +62,128 @@
         <script src="./os-gui/AddressBar.js"></script>
         <script src="./clippy/clippy.js"></script>
         <script src="./clippy/clippy_extensions_complete.js"></script>
+        <style>
+            #boot-log div {
+                white-space: pre-wrap;
+            }
+            #boot-screen {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                color: #aaaaaa;
+                font-family: "IBM BIOS", Courier, monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                padding: 2em;
+                box-sizing: border-box;
+                overflow-y: auto;
+                z-index: 9999;
+                cursor: none;
+            }
+            #boot-screen-left {
+                flex-grow: 1;
+                margin-right: 20px; /* Some spacing between columns */
+            }
+            #boot-screen-right {
+                width: 130px; /* Approximate width of the Energy Star logo */
+                flex-shrink: 0;
+                display: flex;
+                align-items: flex-end;
+                justify-content: flex-end;
+            }
+            #boot-screen-right img {
+                width: 130px; /* Specific width for the Energy Star logo */
+                height: 130px; /* Specific height for the Energy Star logo */
+            }
+            #bios-info-row {
+                display: flex;
+                align-items: flex-start;
+                margin-bottom: 20px;
+                flex-direction: row;
+            }
+            .bios-text-content {
+                display: flex;
+                flex-direction: column;
+                white-space: pre-wrap;
+                line-height: 1.2;
+            }
+            #bios-text-column {
+                /* Adjusting this from .bios-text-content for more specificity if needed */
+                flex-grow: 1;
+                white-space: pre-wrap;
+                line-height: 1.2;
+            }
+            #initial-boot-message {
+                position: absolute;
+                color: inherit;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+            #boot-screen-content {
+                display: none;
+                height: 100%;
+                width: 100%;
+            }
+            #boot-screen-main-flex-container {
+                display: flex;
+                height: 100%;
+                gap: 20px;
+            }
+            #boot-screen-left-column {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            #bios-logo-column {
+                width: 20px;
+                flex-shrink: 0;
+                margin-right: 10px;
+            }
+        </style>
     </head>
 
     <body class="scanlines">
-        <div id="boot-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: black; color: white; font-family: monospace; padding: 20px; box-sizing: border-box; z-index: 9999; cursor: none;">
-            <div id="bios-header" style="white-space: pre; margin-bottom: 20px;">
-AZ-BIOS (c) 1998 Aztec Computer Inc.
-Version 1.2.3.4
-Processor: Pentium II 300MHz
-Memory: 64MB
-<div id="browser-info"></div>
-</div>
-            <div id="boot-log"></div>
+        <div id="boot-screen">
+            <!-- Initial boot message, visible by default -->
+            <div id="initial-boot-message">Initializing azOS...</div>
+
+            <!-- Main boot screen content (two columns), initially hidden, shown by main.js -->
+            <div id="boot-screen-content">
+                <div id="boot-screen-main-flex-container">
+                    <!-- Left Column for boot text -->
+                    <div id="boot-screen-left-column">
+                        <!-- Award BIOS info row -->
+                        <div id="bios-info-row">
+                            <div id="bios-logo-column">
+                                <img
+                                    src="/img/award.png"
+                                    alt="Award BIOS Logo"
+                                />
+                            </div>
+                            <div id="bios-text-column">
+                                Award Modular BIOS v4.51PG, An Energy Star
+                                Ally<br />
+                                Copyright (C) 1984-85, Award Software, Inc.
+                            </div>
+                        </div>
+                        <!-- Browser Info (will be updated by main.js) -->
+                        <!--<div id="browser-info" style="margin-top: 10px"></div>-->
+                        <!-- Boot Log (will be updated by main.js) -->
+                        <div id="boot-log" style="flex-grow: 1"></div>
+                    </div>
+
+                    <!-- Right Column for Energy Star logo -->
+                    <div id="boot-screen-right-column">
+                        <img src="/img/energystar.png" alt="Energy Star" />
+                    </div>
+                </div>
+            </div>
         </div>
         <script type="module" src="/src/main.js"></script>
     </body>

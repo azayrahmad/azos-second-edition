@@ -1,6 +1,6 @@
 import "./styles/cursors.css";
 import "./style.css";
-import "./styles/bootScreen.css";
+
 import { themes } from "./config/themes.js";
 import { setupCounter } from "./counter.js";
 import { initDesktop } from "./components/desktop.js";
@@ -13,10 +13,14 @@ import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
 import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
-import { hideBootScreen, updateBootLog, promptToContinue } from './components/bootScreen.js';
-import { preloadThemeAssets } from './utils/assetPreloader.js';
+import {
+  hideBootScreen,
+  updateBootLog,
+  promptToContinue,
+} from "./components/bootScreen.js";
+import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
-import { createMainUI } from './components/ui.js';
+import { createMainUI } from "./components/ui.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -88,9 +92,20 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  const browserInfoEl = document.getElementById('browser-info');
+  // Hide the initial "Initializing azOS..." message
+  document.getElementById("initial-boot-message").style.display = "none";
+  // Show the main boot screen content with two columns
+  document.getElementById("boot-screen-content").style.display = "flex";
+
+  // Insert BIOS info
+  const biosTextColumn = document.getElementById("bios-text-column");
+  if (biosTextColumn) {
+    biosTextColumn.innerHTML = `Award Modular BIOS v4.51PG, An Energy Star Ally<br/>Copyright (C) 1984-85, Award Software, Inc.`;
+  }
+
+  const browserInfoEl = document.getElementById("browser-info");
   if (browserInfoEl) {
-    browserInfoEl.textContent = `Client: ${navigator.userAgent}`;
+    //browserInfoEl.textContent = `Client: ${navigator.userAgent}`;
   }
 
   function loadCustomApps() {
@@ -113,17 +128,19 @@ async function initializeOS() {
   }
 
   updateBootLog("Detecting keyboard... OK");
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise((resolve) => setTimeout(resolve, 500));
   updateBootLog("Detecting mouse... OK");
-  await new Promise(resolve => setTimeout(resolve, 500));
-  updateBootLog(`Connecting to network... ${navigator.onLine ? 'OK' : 'Offline'}`);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  updateBootLog(
+    `Connecting to network... ${navigator.onLine ? "OK" : "Offline"}`,
+  );
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   updateBootLog("Preloading default theme assets... OK");
-  await preloadThemeAssets('default');
+  await preloadThemeAssets("default");
 
   const currentTheme = getCurrentTheme();
-  if (currentTheme !== 'default') {
+  if (currentTheme !== "default") {
     updateBootLog(`Preloading ${currentTheme} theme assets... OK`);
     await preloadThemeAssets(currentTheme);
   }
