@@ -5,7 +5,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from "./localStorage.js";
 import { themes } from "../config/themes.js";
-import { applyCursorTheme } from "./cursorManager.js";
+import { applyCursorTheme, applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
 
 let temporaryTheme = null;
@@ -102,35 +102,40 @@ export function applyTheme() {
 
 
 export async function setTheme(themeKey, themeObject = null) {
-  if (themeObject) {
-    temporaryTheme = themeObject;
-    // Special handling for the temporary theme from the app
-    if (themeObject.id === "custom") {
+  applyBusyCursor(document.body);
+  try {
+    if (themeObject) {
+      temporaryTheme = themeObject;
+      // Special handling for the temporary theme from the app
+      if (themeObject.id === "custom") {
+        const customStyle = document.getElementById("custom-theme-styles");
+        if (customStyle) {
+          // The app is responsible for updating the content of this style tag
+        }
+      }
+    } else {
+      temporaryTheme = null;
       const customStyle = document.getElementById("custom-theme-styles");
-      if (customStyle) {
-        // The app is responsible for updating the content of this style tag
+      if (customStyle) customStyle.remove();
+    }
+
+    await preloadThemeAssets(themeKey);
+
+    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
+    applyTheme();
+
+    const theme = temporaryTheme || getThemes()[themeKey];
+    if (theme) {
+      if (theme.wallpaper) {
+        setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
+      } else {
+        removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
       }
     }
-  } else {
-    temporaryTheme = null;
-    const customStyle = document.getElementById("custom-theme-styles");
-    if (customStyle) customStyle.remove();
+
+    document.dispatchEvent(new CustomEvent("wallpaper-changed"));
+    document.dispatchEvent(new CustomEvent("theme-changed"));
+  } finally {
+    clearBusyCursor(document.body);
   }
-
-  await preloadThemeAssets(themeKey);
-
-  setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
-  applyTheme();
-
-  const theme = temporaryTheme || getThemes()[themeKey];
-  if (theme) {
-    if (theme.wallpaper) {
-      setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
-    } else {
-      removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
-    }
-  }
-
-  document.dispatchEvent(new CustomEvent("wallpaper-changed"));
-  document.dispatchEvent(new CustomEvent("theme-changed"));
 }
