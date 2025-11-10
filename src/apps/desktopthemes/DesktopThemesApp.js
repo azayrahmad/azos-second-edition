@@ -203,14 +203,13 @@ export class DesktopThemesApp extends Application {
 
   handleSaveTheme() {
     ShowDialogWindow({
-      title: "Save Scheme",
-      text: "Save this theme as:",
-      input: { value: this.originalFilename },
+      title: "Save Theme",
+      text: `Do you want to save this theme as "${this.originalFilename}"?`,
       buttons: [
         {
           label: "OK",
-          action: (inputValue) => {
-            if (inputValue) this.saveTheme(inputValue);
+          action: () => {
+            this.saveTheme(this.originalFilename);
           },
         },
         { label: "Cancel" },
