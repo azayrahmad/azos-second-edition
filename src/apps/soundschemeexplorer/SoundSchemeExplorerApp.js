@@ -61,7 +61,7 @@ export class SoundSchemeExplorerApp extends Application {
   _setDefaultScheme() {
     const currentThemeKey = getCurrentTheme();
     const currentTheme = themes[currentThemeKey];
-    this.currentSchemeName = currentTheme.soundScheme || "Default";
+    this.currentSchemeName = currentTheme?.soundScheme || "Default";
     this.select.value = this.currentSchemeName;
     this._updateSoundList(this.currentSchemeName);
   }
