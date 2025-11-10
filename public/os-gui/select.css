@@ -76,6 +76,7 @@
     box-sizing: border-box;
     z-index: 1000;
     max-height: 150px;
+    overflow-y: auto;
 }
 
 .select-option {

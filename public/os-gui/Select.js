@@ -14,13 +14,6 @@ export class Select {
 
         this.element.append(this.display, this.button, this.optionsContainer);
 
-        // Initialize OverlayScrollbars
-        this.scrollbars = window.OverlayScrollbars(this.optionsContainer, {
-            scrollbars: {
-                theme: 'os-theme-win98'
-            }
-        });
-
         this._populateOptions();
         this._bindEvents();
 
@@ -30,12 +23,11 @@ export class Select {
     }
 
     _populateOptions() {
-        const viewport = this.scrollbars.elements().viewport;
-        viewport.innerHTML = ''; // Clear previous options
+        this.optionsContainer.innerHTML = ''; // Clear previous options
         this.options.forEach((option, index) => {
             if (option.separator) {
                 const separatorEl = E('div', { className: 'select-separator' });
-                viewport.append(separatorEl);
+                this.optionsContainer.append(separatorEl);
                 return;
             }
 
@@ -55,7 +47,7 @@ export class Select {
                     this.element.focus(); // Return focus to the main element
                 });
             }
-            viewport.append(optionEl);
+            this.optionsContainer.append(optionEl);
         });
     }
 
@@ -127,13 +119,14 @@ export class Select {
     }
 
     _updateFocusedOption() {
-        const options = this.scrollbars.elements().viewport.querySelectorAll('.select-option');
-        options.forEach((opt, index) => {
-            // This mapping is tricky because of separators. Let's find the actual index.
-            const value = opt.dataset.value;
-            const optionIndex = this.options.findIndex(o => o.value === value);
+        const options = this.optionsContainer.querySelectorAll('.select-option');
+        let optionElIndex = 0;
+        for (let i = 0; i < this.options.length; i++) {
+            const option = this.options[i];
+            if (option.separator || option.disabled) continue;
 
-            if (optionIndex === this.focusedIndex) {
+            const opt = options[optionElIndex];
+            if (i === this.focusedIndex) {
                 opt.classList.add('focused');
                 if (this.optionsContainer.scrollHeight > this.optionsContainer.clientHeight) {
                     opt.scrollIntoView({ block: 'nearest' });
@@ -141,7 +134,8 @@ export class Select {
             } else {
                 opt.classList.remove('focused');
             }
-        });
+            optionElIndex++;
+        }
     }
 
     setValue(value) {
@@ -179,7 +173,7 @@ export class Select {
         this.button.classList.remove('active');
         this.optionsContainer.style.display = 'none';
         this.focusedIndex = -1;
-        const options = this.scrollbars.elements().viewport.querySelectorAll('.select-option');
+        const options = this.optionsContainer.querySelectorAll('.select-option');
         options.forEach(opt => opt.classList.remove('focused'));
     }
 }
