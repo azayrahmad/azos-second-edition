@@ -13,7 +13,7 @@ import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
 import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
-import { hideBootScreen, updateBootLog } from './components/bootScreen.js';
+import { hideBootScreen, updateBootLog, promptToContinue } from './components/bootScreen.js';
 import { preloadThemeAssets } from './utils/assetPreloader.js';
 import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from './components/ui.js';
@@ -88,6 +88,11 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
+  const browserInfoEl = document.getElementById('browser-info');
+  if (browserInfoEl) {
+    browserInfoEl.textContent = `Client: ${navigator.userAgent}`;
+  }
+
   function loadCustomApps() {
     const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
     savedApps.forEach((appInfo) => {
@@ -107,37 +112,45 @@ async function initializeOS() {
     });
   }
 
-  updateBootLog("Preloading default theme assets...");
+  updateBootLog("Detecting keyboard... OK");
+  await new Promise(resolve => setTimeout(resolve, 500));
+  updateBootLog("Detecting mouse... OK");
+  await new Promise(resolve => setTimeout(resolve, 500));
+  updateBootLog(`Connecting to network... ${navigator.onLine ? 'OK' : 'Offline'}`);
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  updateBootLog("Preloading default theme assets... OK");
   await preloadThemeAssets('default');
 
   const currentTheme = getCurrentTheme();
   if (currentTheme !== 'default') {
-    updateBootLog(`Preloading ${currentTheme} theme assets...`);
+    updateBootLog(`Preloading ${currentTheme} theme assets... OK`);
     await preloadThemeAssets(currentTheme);
   }
 
-  updateBootLog("Loading theme stylesheets...");
+  updateBootLog("Loading theme stylesheets... OK");
   loadThemeStylesheets();
 
-  updateBootLog("Loading custom applications...");
+  updateBootLog("Loading custom applications... OK");
   await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
 
-  updateBootLog("Creating main UI...");
+  updateBootLog("Creating main UI... OK");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
 
-  updateBootLog("Initializing taskbar...");
+  updateBootLog("Initializing taskbar... OK");
   await new Promise((resolve) => setTimeout(resolve, 50));
   taskbar.init();
 
-  updateBootLog("Setting up desktop...");
+  updateBootLog("Setting up desktop... OK");
   await new Promise((resolve) => setTimeout(resolve, 50));
   initDesktop();
 
   updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));
 
+  await promptToContinue();
   hideBootScreen();
 
   window.ShowDialogWindow = ShowDialogWindow;
