@@ -23,6 +23,7 @@ export const themes = {
     wallpaper: null,
     soundScheme: "Default",
     iconScheme: "default",
+    cursorScheme: "windows-98",
   },
   "peggys-pastels": {
     id: "peggys-pastels",
@@ -31,6 +32,7 @@ export const themes = {
     wallpaper: null,
     soundScheme: "Default",
     iconScheme: "default",
+    cursorScheme: "windows-98",
   },
   blue: {
     id: "blue",
@@ -39,6 +41,7 @@ export const themes = {
     wallpaper: null,
     soundScheme: "Default",
     iconScheme: "default",
+    cursorScheme: "windows-98",
   },
   "60s-usa": {
     id: "60s-usa",
@@ -47,6 +50,7 @@ export const themes = {
     wallpaper: the60sUSAWallpaper,
     soundScheme: "60s USA",
     iconScheme: "60s-usa",
+    cursorScheme: "60s-usa",
   },
   "dangerous-creatures": {
     id: "dangerous-creatures",
@@ -55,6 +59,7 @@ export const themes = {
     wallpaper: dangerousCreaturesWallpaper,
     soundScheme: "Dangerous Creatures",
     iconScheme: "dangerous-creatures",
+    cursorScheme: "dangerous-creatures",
   },
   baseball: {
     id: "baseball",
@@ -63,6 +68,7 @@ export const themes = {
     wallpaper: baseballWallpaper,
     soundScheme: "Baseball",
     iconScheme: "default",
+    cursorScheme: "baseball",
   },
   jungle: {
     id: "jungle",
@@ -71,6 +77,7 @@ export const themes = {
     wallpaper: jungleWallpaper,
     soundScheme: "Jungle",
     iconScheme: "default",
+    cursorScheme: "jungle",
   },
   space: {
     id: "space",
@@ -79,6 +86,7 @@ export const themes = {
     wallpaper: spaceWallpaper,
     soundScheme: "Space",
     iconScheme: "default",
+    cursorScheme: "space",
   },
   underwater: {
     id: "underwater",
@@ -87,6 +95,7 @@ export const themes = {
     wallpaper: underwaterWallpaper,
     soundScheme: "Underwater",
     iconScheme: "default",
+    cursorScheme: "underwater",
   },
   //'memphis-milano': {
   //  id: 'memphis-milano',
@@ -102,6 +111,7 @@ export const themes = {
     wallpaper: insideYourComputerWallpaper,
     soundScheme: "Inside Your Computer",
     iconScheme: "inside-your-computer",
+    cursorScheme: "inside-your-computer",
   },
   sports: {
     id: "sports",
@@ -110,6 +120,7 @@ export const themes = {
     wallpaper: sportsWallpaper,
     soundScheme: "Sports",
     iconScheme: "sports",
+    cursorScheme: "sports",
   },
   "leonardo-da-vinci": {
     id: "leonardo-da-vinci",
@@ -118,6 +129,7 @@ export const themes = {
     wallpaper: leonardoDaVinciWallpaper,
     soundScheme: "Leonardo da Vinci",
     iconScheme: "leonardo-da-vinci",
+    cursorScheme: "leonardo-da-vinci",
   },
   "more-windows": {
     id: "more-windows",
@@ -126,6 +138,7 @@ export const themes = {
     wallpaper: moreWindowsWallpaper,
     soundScheme: "Default", // Or create a new sound scheme if one exists
     iconScheme: "more-windows",
+    cursorScheme: "more-windows",
   },
   mystery: {
     id: "mystery",
@@ -134,6 +147,7 @@ export const themes = {
     wallpaper: mysteryWallpaper,
     soundScheme: "Mystery",
     iconScheme: "mystery",
+    cursorScheme: "mystery",
   },
   nature: {
     id: "nature",
@@ -142,6 +156,7 @@ export const themes = {
     wallpaper: natureWallpaper,
     soundScheme: "Nature",
     iconScheme: "nature",
+    cursorScheme: "nature",
   },
   science: {
     id: "science",
@@ -150,6 +165,7 @@ export const themes = {
     wallpaper: scienceWallpaper,
     soundScheme: "Science",
     iconScheme: "science",
+    cursorScheme: "science",
   },
   "the-golden-era": {
     id: "the-golden-era",
@@ -158,6 +174,7 @@ export const themes = {
     wallpaper: theGoldenEraWallpaper,
     soundScheme: "The Golden Era",
     iconScheme: "the-golden-era",
+    cursorScheme: "the-golden-era",
   },
   travel: {
     id: "travel",
@@ -166,6 +183,7 @@ export const themes = {
     wallpaper: travelWallpaper,
     soundScheme: "Travel",
     iconScheme: "travel",
+    cursorScheme: "travel",
   },
   "windows-98": {
     id: "windows-98",
@@ -174,5 +192,6 @@ export const themes = {
     wallpaper: windows98Wallpaper,
     soundScheme: "Windows 98",
     iconScheme: "windows-98",
+    cursorScheme: "windows-98",
   },
 };

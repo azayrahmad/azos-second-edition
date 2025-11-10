@@ -15,6 +15,7 @@
   "dependencies": {
     "@playwright/test": "^1.56.1",
     "ani-cursor": "^0.0.5",
+    "icojs": "^0.16.1",
     "os-gui": "^0.7.3"
   }
 }

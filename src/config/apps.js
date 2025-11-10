@@ -13,6 +13,7 @@ import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerA
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
+import { MousePointersApp } from "../apps/mousepointers/MousePointersApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -34,6 +35,7 @@ export const appClasses = {
   desktopthemes: DesktopThemesApp,
   taskmanager: TaskManagerApp,
   soundschemeexplorer: SoundSchemeExplorerApp,
+  mousepointers: MousePointersApp,
   explorer: ExplorerApp,
   "internet-explorer": InternetExplorerApp,
 };
@@ -252,6 +254,16 @@ export const apps = [
     title: "Sound Scheme Explorer",
     icon: ICONS.soundschemeexplorer,
     appClass: SoundSchemeExplorerApp,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: true,
+  },
+  {
+    id: "mousepointers",
+    title: "Mouse Pointers",
+    icon: ICONS.mousepointers,
+    appClass: MousePointersApp,
     width: 400,
     height: 300,
     resizable: true,
