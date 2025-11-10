@@ -3,7 +3,8 @@ import { ICONS } from '../../config/icons.js';
 import * as themeManager from '../../utils/themeManager.js';
 import { themes } from '../../config/themes.js';
 import { cursors } from '../../config/cursors.js';
-import '/public/lib/ani-cursor/ani-cursor.js';
+import { parseICO } from 'icojs';
+import { convertAniBinaryToCSS } from 'ani-cursor';
 
 export class MousePointersApp extends Application {
     _createWindow() {
@@ -29,7 +30,7 @@ export class MousePointersApp extends Application {
 
         this.themeSelect = win.$content.find('#theme-select');
         this.cursorList = win.$content.find('.cursor-list');
-        this.win = win; // Store win reference
+        this.win = win;
 
         this._loadThemes();
         this.themeSelect.on('change', (e) => this._loadCursors(e.target.value));
@@ -39,9 +40,7 @@ export class MousePointersApp extends Application {
 
     _loadThemes() {
         const currentThemeId = themeManager.getCurrentTheme();
-        const availableThemes = themeManager.getThemes();
-
-        for (const [id, theme] of Object.entries(availableThemes)) {
+        for (const [id, theme] of Object.entries(themes)) {
             if (theme.cursorScheme) {
                 const option = document.createElement('option');
                 option.value = id;
@@ -80,6 +79,7 @@ export class MousePointersApp extends Application {
         const results = await Promise.all(cursorPromises);
         this.cursorList.html('');
 
+        let styleSheetContent = '';
         const styleSheet = document.createElement('style');
         document.head.appendChild(styleSheet);
         this.win.on('closed', () => styleSheet.remove());
@@ -94,8 +94,10 @@ export class MousePointersApp extends Application {
             preview.style.width = '32px';
             preview.style.height = '32px';
             preview.style.border = '1px solid var(--button-shadow)';
-            preview.style.backgroundRepeat = 'no-repeat';
-            preview.style.backgroundPosition = 'center';
+            preview.style.display = 'flex';
+            preview.style.alignItems = 'center';
+            preview.style.justifyContent = 'center';
+            preview.style.backgroundColor = 'var(--canvas-color, #fff)';
 
             const nameEl = document.createElement('span');
             nameEl.textContent = cursor.name;
@@ -104,16 +106,25 @@ export class MousePointersApp extends Application {
             if (cursor.buffer) {
                 const byteArray = new Uint8Array(cursor.buffer);
                 if (cursor.path.endsWith('.cur')) {
-                    const dataUrl = aniCursor.curUrlFromByteArray(byteArray);
-                    preview.style.backgroundImage = `url(${dataUrl})`;
+                    try {
+                        const images = await parseICO(cursor.buffer, 'image/png');
+                        if (images.length > 0) {
+                            const img = document.createElement('img');
+                            const blob = new Blob([images[0].buffer], { type: 'image/png' });
+                            img.src = URL.createObjectURL(blob);
+                            preview.appendChild(img);
+                        }
+                    } catch (e) {
+                        console.error('Failed to process .cur file', cursor.name, e);
+                        nameEl.textContent += ' (load error)';
+                    }
                 } else if (cursor.path.endsWith('.ani')) {
                     try {
-                        const css = aniCursor.convertAniBinaryToCSS(byteArray);
-                        const spriteSheetUrl = await aniCursor.aniToSpriteSheetUrl(byteArray);
-
-                        styleSheet.innerHTML += css.css;
-                        preview.style.backgroundImage = `url(${spriteSheetUrl})`;
-                        preview.style.animation = `${css.animationName} 1s infinite`;
+                        const safeClassName = `cursor-preview-${themeId}-${cursor.name.replace(/\s+/g, '-')}`;
+                        const css = convertAniBinaryToCSS(byteArray);
+                        styleSheetContent += css.replace(':root', `.${safeClassName}`);
+                        item.classList.add(safeClassName);
+                        preview.innerHTML = `<span style="font-size: 10px; color: var(--button-text-light);">Hover</span>`;
                     } catch (e) {
                          console.error('Failed to process .ani file', cursor.name, e);
                          nameEl.textContent += ' (load error)';
@@ -127,5 +138,6 @@ export class MousePointersApp extends Application {
             item.appendChild(nameEl);
             this.cursorList.append(item);
         }
+        styleSheet.innerHTML = styleSheetContent;
     }
 }
