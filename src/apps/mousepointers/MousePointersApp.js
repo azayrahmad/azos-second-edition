@@ -18,6 +18,12 @@ export class MousePointersApp extends Application {
             icons: this.icon,
         });
 
+        this._onOpen(win);
+
+        return win;
+    }
+
+    _onOpen(win) {
         win.$content.html(`
             <div class="mopo-app" style="padding: 10px; display: flex; flex-direction: column; height: 100%;">
                 <div class="field-row" style="margin-bottom: 10px; display: flex; align-items: center;">
@@ -28,40 +34,41 @@ export class MousePointersApp extends Application {
             </div>
         `);
 
-        this.themeSelect = win.$content.find('#theme-select');
-        this.cursorList = win.$content.find('.cursor-list');
+        this.select = win.$content.find('#theme-select')[0];
+        this.cursorList = win.$content.find('.cursor-list')[0];
         this.win = win;
 
-        this._loadThemes();
-        this.themeSelect.on('change', (e) => this._loadCursors(e.target.value));
+        this._populateThemes();
+        this._setDefaultTheme();
 
-        return win;
+        this.select.addEventListener('change', () => this._loadCursors(this.select.value));
     }
 
-    _loadThemes() {
-        const currentThemeId = themeManager.getCurrentTheme();
+    _populateThemes() {
         for (const [id, theme] of Object.entries(themes)) {
             if (theme.cursorScheme) {
                 const option = document.createElement('option');
                 option.value = id;
                 option.textContent = theme.name;
-                if (id === currentThemeId) {
-                    option.selected = true;
-                }
-                this.themeSelect.append(option);
+                this.select.appendChild(option);
             }
         }
-        this._loadCursors(this.themeSelect.val());
+    }
+
+    _setDefaultTheme() {
+        const currentThemeKey = themeManager.getCurrentTheme();
+        this.select.value = currentThemeKey;
+        this._loadCursors(currentThemeKey);
     }
 
     async _loadCursors(themeId) {
-        this.cursorList.html('Loading...');
+        this.cursorList.innerHTML = 'Loading...';
         const theme = themes[themeId];
         const cursorSchemeId = theme.cursorScheme;
         const cursorSet = cursors[cursorSchemeId];
 
         if (!cursorSet) {
-            this.cursorList.html('This theme has no cursor scheme.');
+            this.cursorList.innerHTML = 'This theme has no cursor scheme.';
             return;
         }
 
@@ -77,7 +84,7 @@ export class MousePointersApp extends Application {
         });
 
         const results = await Promise.all(cursorPromises);
-        this.cursorList.html('');
+        this.cursorList.innerHTML = '';
 
         let styleSheetContent = '';
         const styleSheet = document.createElement('style');
