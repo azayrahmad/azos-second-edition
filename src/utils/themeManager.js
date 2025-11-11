@@ -7,6 +7,7 @@ import {
 import { themes } from "../config/themes.js";
 import { applyCursorTheme, applyBusyCursor, clearBusyCursor } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
+import { profileManager } from "./profileManager.js";
 
 let temporaryTheme = null;
 
@@ -34,7 +35,8 @@ export function getThemes() {
 }
 
 export function getCurrentTheme() {
-  return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || "default";
+  const profile = profileManager.getProfile();
+  return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || profile.theme || "default";
 }
 
 function applyStylesheet(themeId, cssContent) {

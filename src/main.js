@@ -21,6 +21,7 @@ import {
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from "./components/ui.js";
+import { profileManager } from "./utils/profileManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -136,6 +137,10 @@ async function initializeOS() {
   );
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
+  updateBootLog("Loading profile... OK");
+  profileManager.init();
+  const profile = profileManager.getProfile();
+
   updateBootLog("Preloading default theme assets... OK");
   await preloadThemeAssets("default");
 
@@ -162,7 +167,7 @@ async function initializeOS() {
 
   updateBootLog("Setting up desktop... OK");
   await new Promise((resolve) => setTimeout(resolve, 50));
-  initDesktop();
+  initDesktop(profile);
 
   updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));

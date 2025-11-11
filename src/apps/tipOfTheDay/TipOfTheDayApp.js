@@ -2,7 +2,7 @@ import { Application } from '../Application.js';
 import { tipOfTheDayContent } from './tipOfTheDay.js';
 import { apps } from '../../config/apps.js';
 import { launchApp } from '../../utils/appManager.js';
-import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
+import { startupManager } from '../../utils/startupManager.js';
 
 export class TipOfTheDayApp extends Application {
     constructor(config) {
@@ -74,17 +74,14 @@ export class TipOfTheDayApp extends Application {
 
         const showTipsCheckbox = contentElement.querySelector('#show-tips');
         if (showTipsCheckbox) {
-            let showTips = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);
-
-            if (showTips === null) {
-                showTips = 'true';
-                setItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP, showTips);
-            }
-
-            showTipsCheckbox.checked = (showTips === 'true' || showTips === true);
+            showTipsCheckbox.checked = startupManager.isStartupApp('tipOfTheDay');
 
             showTipsCheckbox.addEventListener('change', () => {
-                setItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP, showTipsCheckbox.checked);
+                if (showTipsCheckbox.checked) {
+                    startupManager.addStartupApp('tipOfTheDay');
+                } else {
+                    startupManager.removeStartupApp('tipOfTheDay');
+                }
             });
         }
     }
