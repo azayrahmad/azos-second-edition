@@ -1,16 +1,17 @@
 .animated-logo {
   width: 38px;
-  height: 38px;
+  height: 20px;
   background-image: url("../assets/img/Bitmap304.bmp");
+  background-color: black;
   background-repeat: no-repeat;
   animation: play 1.5s steps(41) infinite;
 }
 
 @keyframes play {
   from {
-    background-position: 0 0;
+    background-position: 0 -9px;
   }
   to {
-    background-position: 0 -1558px;
+    background-position: 0 -1567px;
   }
 }
