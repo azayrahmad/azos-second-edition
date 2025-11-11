@@ -18,7 +18,11 @@ import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
-import { getRecycleBinItems } from "../utils/recycleBinManager.js";
+import { playSound } from "../utils/soundManager.js";
+import {
+  getRecycleBinItems,
+  emptyRecycleBin,
+} from "../utils/recycleBinManager.js";
 
 export const appClasses = {
   about: AboutApp,
@@ -67,6 +71,39 @@ export const apps = [
         window.System.launchApp("explorer", "//recycle-bin");
       },
     },
+    contextMenu: [
+      {
+        label: "Empty Recycle Bin",
+        action: () => {
+          ShowDialogWindow({
+            title: "Confirm Empty Recycle Bin",
+            text: "Are you sure you want to permanently delete all items in the Recycle Bin?",
+            buttons: [
+              {
+                label: "Yes",
+                action: () => {
+                  emptyRecycleBin();
+                  playSound("EmptyRecycleBin");
+                  document.dispatchEvent(new CustomEvent("theme-changed")); // To refresh icon
+                },
+              },
+              { label: "No", isDefault: true },
+            ],
+          });
+        },
+        enabled: () => getRecycleBinItems().length > 0,
+      },
+      "MENU_DIVIDER",
+      {
+        label: "&Open",
+        action: "open",
+        default: true,
+      },
+      {
+        label: "&Properties",
+        action: "properties",
+      },
+    ],
   },
   {
     id: "my-documents",
