@@ -152,7 +152,9 @@ function renderThemeGraphics(cssProperties) {
   ctx.restore();
 
   function generate_svg_data_uri(svg_contents) {
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg_contents)}`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      svg_contents,
+    )}`;
   }
   function generate_url_svg_data_uri(svg_contents) {
     return `url("${generate_svg_data_uri(svg_contents)}")`;
@@ -160,7 +162,9 @@ function renderThemeGraphics(cssProperties) {
 
   function generate_fieldset_border_svg() {
     return `
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h5v5H0V2h2v1h1V2H0" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h5v5H0V2h2v1h1V2H0" fill="${getProp(
+        "--ButtonHilight",
+      )}" />
 			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h4v4H0V1h1v2h2V1H0" />
 		`;
   }
@@ -174,10 +178,18 @@ function renderThemeGraphics(cssProperties) {
       face_color = getProp("--ButtonFace");
     }
     return `
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M8 0H4v1H2v1H1v2H0v4h1v2h1V8H1V4h1V2h2V1h4v1h2V1H8V0z" fill="${getProp("--ButtonShadow")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M8 1H4v1H2v2H1v4h1v1h1V8H2V4h1V3h1V2h4v1h2V2H8V1z" fill="${getProp("--ButtonDkShadow")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 3h1v1H9V3zm1 5V4h1v4h-1zm-2 2V9h1V8h1v2H8zm-4 0v1h4v-1H4zm0 0V9H2v1h2z" fill="${getProp("--ButtonLight")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M11 2h-1v2h1v4h-1v2H8v1H4v-1H2v1h2v1h4v-1h2v-1h1V8h1V4h-1V2z" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M8 0H4v1H2v1H1v2H0v4h1v2h1V8H1V4h1V2h2V1h4v1h2V1H8V0z" fill="${getProp(
+        "--ButtonShadow",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M8 1H4v1H2v2H1v4h1v1h1V8H2V4h1V3h1V2h4v1h2V2H8V1z" fill="${getProp(
+        "--ButtonDkShadow",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 3h1v1H9V3zm1 5V4h1v4h-1zm-2 2V9h1V8h1v2H8zm-4 0v1h4v-1H4zm0 0V9H2v1h2z" fill="${getProp(
+        "--ButtonLight",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M11 2h-1v2h1v4h-1v2H8v1H4v-1H2v1h2v1h4v-1h2v-1h1V8h1V4h-1V2z" fill="${getProp(
+        "--ButtonHilight",
+      )}" />
 			<path fill-rule="evenodd" clip-rule="evenodd" d="M4 2h4v1h1v1h1v4H9v1H8v1H4V9H3V8H2V4h1V3h1V2z" fill="${face_color}" />
 		`;
   }
@@ -202,38 +214,66 @@ function renderThemeGraphics(cssProperties) {
 
   function generate_select_arrow_svg() {
     return `
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M15 0H0v16h1V1h14V0z" fill="${getProp("--ButtonLight")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M2 1H1v14h1V2h12V1H2z" fill="${getProp("--ButtonHilight")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M16 17H0v-1h15V0h1v17z" fill="${getProp("--ButtonDkShadow")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M15 1h-1v14H1v1h14V1z" fill="${getProp("--ButtonShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M15 0H0v16h1V1h14V0z" fill="${getProp(
+        "--ButtonLight",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M2 1H1v14h1V2h12V1H2z" fill="${getProp(
+        "--ButtonHilight",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M16 17H0v-1h15V0h1v17z" fill="${getProp(
+        "--ButtonDkShadow",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M15 1h-1v14H1v1h14V1z" fill="${getProp(
+        "--ButtonShadow",
+      )}" />
 			<path fill="${getProp("--ButtonFace")}" d="M2 2h12v13H2z" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M11 6H4v1h1v1h1v1h1v1h1V9h1V8h1V7h1V6z" fill="${getProp("--ButtonText")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M11 6H4v1h1v1h1v1h1v1h1V9h1V8h1V7h1V6z" fill="${getProp(
+        "--ButtonText",
+      )}" />
 		`;
   }
 
   function generate_range_thumb_svg() {
     return `
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v16h2v2h2v2h1v-1H3v-2H1V1h9V0z" fill="${getProp("--ButtonHilight")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M1 1v15h1v1h1v1h1v1h2v-1h1v-1h1v-1h1V1z" fill="${getProp("--ButtonFace")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 1h1v15H8v2H6v2H5v-1h2v-2h2z" fill="${getProp("--ButtonShadow")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M10 0h1v16H9v2H7v2H5v1h1v-2h2v-2h2z" fill="${getProp("--ButtonDkShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v16h2v2h2v2h1v-1H3v-2H1V1h9V0z" fill="${getProp(
+        "--ButtonHilight",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M1 1v15h1v1h1v1h1v1h2v-1h1v-1h1v-1h1V1z" fill="${getProp(
+        "--ButtonFace",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 1h1v15H8v2H6v2H5v-1h2v-2h2z" fill="${getProp(
+        "--ButtonShadow",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M10 0h1v16H9v2H7v2H5v1h1v-2h2v-2h2z" fill="${getProp(
+        "--ButtonDkShadow",
+      )}" />
 		`;
   }
 
   function generate_range_box_thumb_svg() {
     return `
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v20h1V1h9V0z" fill="${getProp("--ButtonHilight")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0v20h1V1h9V0z" fill="${getProp(
+        "--ButtonHilight",
+      )}" />
 			<path fill="${getProp("--ButtonFace")}" d="M1 1h8v18H1z" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 1h1v19H1v-1h8z" fill="${getProp("--ButtonShadow")}" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M10 0h1v21H0v-1h10z" fill="${getProp("--ButtonDkShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M9 1h1v19H1v-1h8z" fill="${getProp(
+        "--ButtonShadow",
+      )}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M10 0h1v21H0v-1h10z" fill="${getProp(
+        "--ButtonDkShadow",
+      )}" />
 		`;
   }
 
   function generate_select_arrow_active_svg() {
     return `
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h16v17H0V0zm1 16h14V1H1v15z" fill="${getProp("--ButtonShadow")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h16v17H0V0zm1 16h14V1H1v15z" fill="${getProp(
+        "--ButtonShadow",
+      )}" />
 			<path fill="${getProp("--ButtonFace")}" d="M1 1h14v15H1z" />
-			<path fill-rule="evenodd" clip-rule="evenodd" d="M12 7H5v1h1v1h1v1h1v1h1v-1h1V9h1V8h1V7z" fill="${getProp("--ButtonText")}" />
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M12 7H5v1h1v1h1v1h1v1h1v-1h1V9h1V8h1V7z" fill="${getProp(
+        "--ButtonText",
+      )}" />
 		`;
   }
 
@@ -255,7 +295,11 @@ function renderThemeGraphics(cssProperties) {
     // 	</g>
     // </svg>`;
     var svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="${view_size}px" height="${view_size}px" viewBox="0 0 ${view_size} ${view_size}">
-			${svg_contents.replace(/(d|x|y|width|height|stroke-width)="[^"]*"/g, (attr) => attr.replace(/\d+/g, (n) => `${Number(n) * scale}`))}
+			${svg_contents.replace(
+        /(d|x|y|width|height|stroke-width)="[^"]*"/g,
+        (attr) =>
+          attr.replace(/\d+/g, (n) => `${Number(n) * scale}`),
+      )}
 		</svg>`;
     var url = `data:image/svg+xml,${encodeURIComponent(svg)}`;
     return `url("${url}") ${slice_size} / ${border_size}px`;
@@ -275,7 +319,9 @@ function renderThemeGraphics(cssProperties) {
 		<path d="M0 0h8v8h-8v-8z" fill="${getProp("--ButtonDkShadow")}"/>
 		<path d="M1 1h6v6h-6v-6z" fill="${getProp("--ButtonShadow")}"/>
 		<path d="M2 2h4v4h-4v-4z" fill="${getProp("--ButtonFace")}"/>
-		<rect x="0" y="0" width="8" height="8" stroke-width="2" stroke="${getProp("--WindowFrame")}" fill="none"/>
+		<rect x="0" y="0" width="8" height="8" stroke-width="2" stroke="${getProp(
+      "--WindowFrame",
+    )}" fill="none"/>
 	`,
   );
   // TODO: rename
@@ -307,38 +353,59 @@ function renderThemeGraphics(cssProperties) {
 		<path d="M2 2h3v1h-2v2h-1v-3z" fill="${getProp("--ButtonLight")}"/>
 		<path d="M5 2h1v4h-4v-1h3v-3z" fill="${getProp("--ButtonShadow")}"/>
 		<path d="M3 3h2v2h-2v-2z" fill="${getProp("--ButtonFace")}"/>
-		<rect x="0" y="0" width="8" height="8" stroke-width="2" stroke="${getProp("--WindowFrame")}" fill="none"/>
+		<rect x="0" y="0" width="8" height="8" stroke-width="2" stroke="${getProp(
+      "--WindowFrame",
+    )}" fill="none"/>
 	`,
   );
 
   var fieldset_border_image =
     generate_url_svg_data_uri(
-      `<svg width="5" height="5" fill="${getProp("--ButtonShadow")}" xmlns="http://www.w3.org/2000/svg">${generate_fieldset_border_svg()}</svg>`,
+      `<svg width="5" height="5" fill="${getProp(
+        "--ButtonShadow",
+      )}" xmlns="http://www.w3.org/2000/svg">${generate_fieldset_border_svg()}</svg>`,
     ) + " 2";
 
   console.log("Compare");
   console.log(fieldset_border_image);
   console.log(button_active_border_image);
   var radio_button_svg = generate_url_svg_data_uri(
-    `<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(false, false)}</svg>`,
+    `<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(
+      false,
+      false,
+    )}</svg>`,
   );
   var radio_button_active_svg = generate_url_svg_data_uri(
-    `<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(true, false)}</svg>`,
+    `<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(
+      true,
+      false,
+    )}</svg>`,
   );
   var radio_button_disabled_svg = generate_url_svg_data_uri(
-    `<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(false, true)}</svg>`,
+    `<svg width="12" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_button_svg(
+      false,
+      true,
+    )}</svg>`,
   );
   var radio_dot_svg = generate_url_svg_data_uri(
-    `<svg width="4" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_dot_svg(false)}</svg>`,
+    `<svg width="4" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_dot_svg(
+      false,
+    )}</svg>`,
   );
   var radio_dot_disabled_svg = generate_url_svg_data_uri(
-    `<svg width="4" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_dot_svg(true)}</svg>`,
+    `<svg width="4" height="4" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_radio_dot_svg(
+      true,
+    )}</svg>`,
   );
   var checkbox_svg = generate_url_svg_data_uri(
-    `<svg width="7" height="7" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_checkbox_svg(false)}</svg>`,
+    `<svg width="7" height="7" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_checkbox_svg(
+      false,
+    )}</svg>`,
   );
   var checkbox_disabled_svg = generate_url_svg_data_uri(
-    `<svg width="7" height="7" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_checkbox_svg(true)}</svg>`,
+    `<svg width="7" height="7" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_checkbox_svg(
+      true,
+    )}</svg>`,
   );
   var select_arrow_svg = generate_url_svg_data_uri(
     `<svg width="16" height="17" fill="none" xmlns="http://www.w3.org/2000/svg">${generate_select_arrow_svg()}</svg>`,
@@ -371,7 +438,8 @@ function renderThemeGraphics(cssProperties) {
     "--button-normal-border-image": button_normal_border_image,
     "--inset-deep-border-image": inset_deep_border_image,
     "--button-default-border-image": button_default_border_image,
-    "--button-default-active-border-image": button_default_active_border_image,
+    "--button-default-active-border-image":
+      button_default_active_border_image,
     "--scrollbar-arrows-ButtonText": scrollbar_arrows_ButtonText,
     "--scrollbar-arrows-GrayText": scrollbar_arrows_GrayText,
     "--scrollbar-arrows-ButtonHilight": scrollbar_arrows_ButtonHilight,
@@ -481,45 +549,66 @@ function inheritTheme(target, source) {
 
 /**
  * @param {string} themeIni
+ * @returns {{name: string, value: string}[] | undefined}
+ */
+function getColorsFromThemeFile(themeIni) {
+  const theme = parseINIString(themeIni);
+  const colorsSection = theme["Control Panel\\Colors"];
+  if (!colorsSection) {
+    // Using console.error instead of alert to avoid blocking UI in case of errors.
+    console.error("Invalid theme file, no [Control Panel\\Colors] section");
+    return undefined;
+  }
+  if (typeof colorsSection !== "object") {
+    console.error(
+      "Invalid theme file, 'Control Panel\\Colors' is not a section",
+    );
+    return undefined;
+  }
+
+  const colors = [];
+  for (const k in colorsSection) {
+    // for .themepack file support, just ignore bad keys that were parsed
+    if (!k.match(/\W/)) {
+      colors.push({
+        name: k,
+        value: `rgb(${colorsSection[k].split(" ").join(", ")})`,
+      });
+    }
+  }
+  return colors;
+}
+
+/**
+ * @param {{name: string, value: string}[]} colors
+ * @returns {Record<string, string>}
+ */
+function generateThemePropertiesFromColors(colors) {
+  /** @type {Record<string, string>} */
+  const cssProperties = {};
+  for (const color of colors) {
+    cssProperties[`--${color.name}`] = color.value;
+  }
+
+  return Object.assign(renderThemeGraphics(cssProperties), cssProperties);
+}
+
+/**
+ * @param {string} themeIni
  * @returns {Record<string, string> | undefined}
  */
 function parseThemeFileString(themeIni) {
   // .theme is a renamed .ini text file
   // .themepack is a renamed .cab file, and parsing it as .ini seems to work well enough for the most part, as the .ini data appears in plain,
   // but it may not if compression is enabled for the .cab file
-  var theme = parseINIString(themeIni);
-  var colors = theme["Control Panel\\Colors"];
+  const colors = getColorsFromThemeFile(themeIni);
   if (!colors) {
     alert("Invalid theme file, no [Control Panel\\Colors] section");
-    console.log(theme);
+    console.log(parseINIString(themeIni));
     return;
   }
-  if (typeof colors !== "object") {
-    alert("Invalid theme file, 'Control Panel\\Colors' is not a section");
-    console.log(theme);
-    return;
-  }
-  for (var k in colors) {
-    // for .themepack file support, just ignore bad keys that were parsed
-    if (k.match(/\W/)) {
-      delete colors[k];
-    } else {
-      colors[k] = `rgb(${colors[k].split(" ").join(", ")})`;
-    }
-  }
 
-  /** @type {Record<string, string>} */
-  var cssProperties = {};
-  for (var k in colors) {
-    cssProperties[`--${k}`] = colors[k];
-  }
-
-  cssProperties = Object.assign(
-    renderThemeGraphics(cssProperties),
-    cssProperties,
-  );
-
-  return cssProperties;
+  return generateThemePropertiesFromColors(colors);
 }
 
 /**
