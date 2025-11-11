@@ -1,4 +1,5 @@
 import { Application } from "../Application.js";
+import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 
 export class InternetExplorerApp extends Application {
   async _onLaunch(filePath) {
@@ -77,38 +78,50 @@ export class InternetExplorerApp extends Application {
       this.iframe.src = waybackUrl;
     };
 
-    win.setMenuBar(
-      new window.MenuBar({
-        Go: [
-          {
-            label: "Back",
-            action: () => this.iframe.contentWindow.history.back(),
-          },
-          {
-            label: "Forward",
-            action: () => this.iframe.contentWindow.history.forward(),
-          },
-          {
-            label: "Up",
-            action: () => {
-              try {
-                const currentUrl = new URL(this.input.value);
-                const pathParts = currentUrl.pathname
-                  .split("/")
-                  .filter((p) => p);
-                if (pathParts.length > 0) {
-                  pathParts.pop();
-                  currentUrl.pathname = pathParts.join("/");
-                  this.navigateTo(currentUrl.toString());
-                }
-              } catch (e) {
-                // Invalid URL in address bar, do nothing
+    const menuBar = new window.MenuBar({
+      Go: [
+        {
+          label: "Back",
+          action: () => this.iframe.contentWindow.history.back(),
+        },
+        {
+          label: "Forward",
+          action: () => this.iframe.contentWindow.history.forward(),
+        },
+        {
+          label: "Up",
+          action: () => {
+            try {
+              const currentUrl = new URL(this.input.value);
+              const pathParts = currentUrl.pathname
+                .split("/")
+                .filter((p) => p);
+              if (pathParts.length > 0) {
+                pathParts.pop();
+                currentUrl.pathname = pathParts.join("/");
+                this.navigateTo(currentUrl.toString());
               }
-            },
+            } catch (e) {
+              // Invalid URL in address bar, do nothing
+            }
           },
-        ],
-      }),
-    );
+        },
+      ],
+    });
+    win.setMenuBar(menuBar);
+
+    const logo = new AnimatedLogo();
+    const menuBarContainer = document.createElement("div");
+    menuBarContainer.style.display = "flex";
+    menuBarContainer.style.alignItems = "center";
+    menuBarContainer.style.width = "100%";
+    menuBarContainer.style.justifyContent = "space-between";
+
+    // Wrap the existing menu bar element
+    const menuBarElement = menuBar.element;
+    menuBarElement.parentNode.insertBefore(menuBarContainer, menuBarElement);
+    menuBarContainer.appendChild(menuBarElement);
+    menuBarContainer.appendChild(logo);
 
     const addressBar = window.os_gui_utils.E("div", {
       className: "address-bar",
