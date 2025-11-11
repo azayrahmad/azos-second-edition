@@ -8,20 +8,25 @@ function hideBootScreen() {
 function updateBootLog(message, append = false) {
   const bootLogEl = document.getElementById("boot-log");
   if (bootLogEl) {
+    // Remove the previous cursor if it exists
+    const existingCursor = bootLogEl.querySelector(".blinking-cursor-container");
+    if (existingCursor) {
+      existingCursor.remove();
+    }
+
     if (append && bootLogEl.lastChild) {
+      // Append message to the last log entry
       bootLogEl.lastChild.innerHTML += message;
     } else {
+      // Create a new log entry
       const newLogEntry = document.createElement("div");
       newLogEntry.innerHTML = message;
       bootLogEl.appendChild(newLogEntry);
     }
-  }
-}
 
-function addFinalBlinkingCursor() {
-  const bootLogEl = document.getElementById("boot-log");
-  if (bootLogEl) {
+    // Add the blinking cursor at the end
     const cursorEl = document.createElement("div");
+    cursorEl.className = "blinking-cursor-container";
     cursorEl.innerHTML = '<span class="blinking-cursor">_</span>';
     bootLogEl.appendChild(cursorEl);
   }
@@ -31,6 +36,14 @@ function promptToContinue() {
   return new Promise((resolve) => {
     const bootLogEl = document.getElementById("boot-log");
     if (bootLogEl) {
+      // Remove the blinking cursor before showing the prompt
+      const existingCursor = bootLogEl.querySelector(
+        ".blinking-cursor-container",
+      );
+      if (existingCursor) {
+        existingCursor.remove();
+      }
+
       const promptEl = document.createElement("div");
       let countdown = 10;
       promptEl.textContent = `Press any key to continue... ${countdown}`;
@@ -59,9 +72,4 @@ function promptToContinue() {
   });
 }
 
-export {
-  hideBootScreen,
-  updateBootLog,
-  promptToContinue,
-  addFinalBlinkingCursor,
-};
+export { hideBootScreen, updateBootLog, promptToContinue };

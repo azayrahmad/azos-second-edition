@@ -17,7 +17,6 @@ import {
   hideBootScreen,
   updateBootLog,
   promptToContinue,
-  addFinalBlinkingCursor,
 } from "./components/bootScreen.js";
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
@@ -181,7 +180,6 @@ async function initializeOS() {
   updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  addFinalBlinkingCursor();
   await promptToContinue();
   hideBootScreen();
 
