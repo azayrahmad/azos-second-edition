@@ -132,22 +132,22 @@ async function initializeOS() {
   let logElement = startBootProcessStep("Detecting keyboard...");
   await new Promise((resolve) => setTimeout(resolve, 500));
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Detecting mouse...");
   await new Promise((resolve) => setTimeout(resolve, 500));
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Connecting to network...");
   await new Promise((resolve) => setTimeout(resolve, 1000));
   finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Preloading default theme assets...");
   await preloadThemeAssets("default");
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   const currentTheme = getCurrentTheme();
   if (currentTheme !== "default") {
@@ -156,37 +156,37 @@ async function initializeOS() {
     );
     await preloadThemeAssets(currentTheme);
     finalizeBootProcessStep(logElement, "OK");
-    showBlinkingCursor();
+    // showBlinkingCursor();
   }
 
   logElement = startBootProcessStep("Loading theme stylesheets...");
   loadThemeStylesheets();
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Loading custom applications...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Creating main UI...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Initializing taskbar...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   taskbar.init();
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   logElement = startBootProcessStep("Setting up desktop...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   await initDesktop();
   finalizeBootProcessStep(logElement, "OK");
-  showBlinkingCursor();
+  // showBlinkingCursor();
 
   const bootLogEl = document.getElementById("boot-log");
   if (bootLogEl) {
