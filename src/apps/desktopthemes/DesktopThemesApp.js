@@ -5,6 +5,7 @@ import {
   saveCustomTheme,
   deleteCustomTheme,
   getCurrentTheme,
+  loadThemeParser,
 } from "../../utils/themeManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./desktopthemes.css";
@@ -127,7 +128,7 @@ export class DesktopThemesApp extends Application {
   async applyCustomTheme() {
     const themes = getThemes();
     const baseTheme = themes["default"];
-    await this._loadParserScript();
+    await loadThemeParser();
     const cssContent = window.makeThemeCSSFile(this.customThemeProperties);
 
     const existingStyle = document.getElementById("custom-theme-styles");
@@ -176,7 +177,7 @@ export class DesktopThemesApp extends Application {
     reader.onload = async (e) => {
       const themeContent = e.target.result;
       try {
-        await this._loadParserScript();
+        await loadThemeParser();
         const colors = window.getColorsFromThemeFile(themeContent);
         const wallpaper = window.getWallpaperFromThemeFile(themeContent);
         if (colors) {
@@ -321,19 +322,6 @@ export class DesktopThemesApp extends Application {
     if (option) {
       option.remove();
     }
-  }
-
-  _loadParserScript() {
-    return new Promise((resolve, reject) => {
-      if (window.parseThemeFileString) {
-        return resolve();
-      }
-      const script = document.createElement("script");
-      script.src = "./os-gui/parse-theme.js";
-      script.onload = resolve;
-      script.onerror = () => reject(new Error("Failed to load theme parser."));
-      document.head.appendChild(script);
-    });
   }
 
   populateThemes() {

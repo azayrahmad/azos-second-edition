@@ -162,7 +162,7 @@ async function initializeOS() {
 
   updateBootLog("Setting up desktop... OK");
   await new Promise((resolve) => setTimeout(resolve, 50));
-  initDesktop();
+  await initDesktop();
 
   updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));
