@@ -125,3 +125,14 @@ h1 {
 button {
   cursor: var(--cursor-default);
 }
+
+.blinking-cursor {
+  animation: blink 1s step-start 0s infinite;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
