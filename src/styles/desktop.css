@@ -34,7 +34,7 @@
     --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%)
         brightness(0.6);
     --text-shadow: 1px 1px var(--ButtonDkShadow);
-    --icon-label-font-size: 11px;
+    --icon-label-font-size: 12px;
 }
 
 .hidden {
@@ -47,7 +47,7 @@ html {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    font-family: "MSW98UI", sans-serif;
+    font-family: var(--font-family-base);
     background-color: var(--AppWorkspace);
     image-rendering: pixelated;
     font-smooth: never;
@@ -109,7 +109,8 @@ html {
 }
 
 .desktop-icon .icon-label {
-    font-size: var(--icon-label-font-size);
+    font-family: var(--font-family-menu);
+    font-size: var(--font-size-menu);
 }
 
 .highlighted-icon {
@@ -119,9 +120,9 @@ html {
 .highlighted-label {
     background-color: var(--highlight-blue);
     color: var(--highlight-text);
-    /* }
+}
 
-.selected { */
+.selected {
     border: 1px dotted var(--HilightText);
 }
 
