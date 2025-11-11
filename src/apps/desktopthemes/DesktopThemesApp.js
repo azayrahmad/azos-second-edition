@@ -75,8 +75,6 @@ export class DesktopThemesApp extends Application {
       this.handleThemeSelection(),
     );
 
-    this.populateThemes();
-
     this.previewContainer = document.createElement("div");
     this.previewContainer.className = "preview-container";
     mainContainer.appendChild(this.previewContainer);
@@ -98,7 +96,7 @@ export class DesktopThemesApp extends Application {
       </div>
     `;
 
-    this.previewTheme(this.themeSelector.value);
+    this.populateThemes();
 
     const actionsContainer = document.createElement("div");
     actionsContainer.className = "actions";
