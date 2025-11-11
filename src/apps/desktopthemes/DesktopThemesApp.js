@@ -140,12 +140,14 @@ export class DesktopThemesApp extends Application {
     style.textContent = cssContent;
     document.head.appendChild(style);
 
+    const { wallpaper, ...colors } = this.customThemeProperties;
     const customTheme = {
       ...baseTheme,
       id: "custom",
       name: "Current Windows settings",
       stylesheet: null,
-      colors: this.customThemeProperties,
+      colors: colors,
+      wallpaper: wallpaper,
     };
 
     setTheme("custom", customTheme);
@@ -237,12 +239,14 @@ export class DesktopThemesApp extends Application {
     const newThemeId = `custom-${finalName
       .toLowerCase()
       .replace(/\s+/g, "-")}`;
+    const { wallpaper, ...colors } = this.customThemeProperties;
     const newTheme = {
       ...themes.default,
       id: newThemeId,
       name: finalName,
       stylesheet: null,
-      colors: this.customThemeProperties,
+      colors: colors,
+      wallpaper: wallpaper,
       isCustom: true,
     };
 
