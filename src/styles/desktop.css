@@ -109,6 +109,7 @@ html {
 }
 
 .desktop-icon .icon-label {
+    font-family: var(--font-family-menu);
     font-size: var(--font-size-menu);
 }
 
@@ -119,9 +120,9 @@ html {
 .highlighted-label {
     background-color: var(--highlight-blue);
     color: var(--highlight-text);
-    /* }
+}
 
-.selected { */
+.selected {
     border: 1px dotted var(--HilightText);
 }
 

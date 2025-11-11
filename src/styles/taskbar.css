@@ -205,7 +205,8 @@ button:not(:disabled):active img {
     padding-left: 0;
     display: flex;
     align-items: center;
-    font-size: 12px;
+    font-family: var(--font-family-menu);
+    font-size: var(--font-size-menu);
     margin: 1px;
     margin-left: 0;
     text-decoration: none;
