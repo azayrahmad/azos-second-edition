@@ -10,6 +10,7 @@ import {
 } from "../../utils/recycleBinManager.js";
 import { registerCustomApp } from "../../utils/customAppManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 
 function findItemByPath(path) {
   if (path === "//recycle-bin") {
@@ -94,7 +95,17 @@ export class ExplorerApp extends Application {
       ],
     };
     this.menuBar = new MenuBar(menuItems);
-    win.setMenuBar(this.menuBar);
+    const logo = new AnimatedLogo();
+
+    const menuBarContainer = document.createElement("div");
+    menuBarContainer.style.display = "flex";
+    menuBarContainer.style.alignItems = "center";
+    menuBarContainer.style.width = "100%";
+    menuBarContainer.style.justifyContent = "space-between";
+    menuBarContainer.appendChild(this.menuBar.element);
+    menuBarContainer.appendChild(logo);
+
+    win.setMenuBar(menuBarContainer);
 
     const content = document.createElement("div");
     content.className = "explorer-content sunken-panel";
