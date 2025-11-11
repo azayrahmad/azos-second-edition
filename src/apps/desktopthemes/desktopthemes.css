@@ -150,3 +150,15 @@
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
 }
+
+.wallpaper-container {
+    padding: 10px;
+}
+
+.wallpaper-preview {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1px solid var(--button-shadow);
+    margin-top: 10px;
+}
