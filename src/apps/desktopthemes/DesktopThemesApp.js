@@ -467,9 +467,9 @@ export class DesktopThemesApp extends Application {
   _showThemeWizard(colors, callback) {
     const wizardWin = new $Window({
       title: "Theme Wizard",
-      outerWidth: 400,
-      outerHeight: 500,
-      resizable: true,
+      outerWidth: 350,
+      outerHeight: 400,
+      resizable: false,
       icons: this.icon,
       className: "theme-wizard-app",
     });
@@ -486,10 +486,6 @@ export class DesktopThemesApp extends Application {
         const colorItem = document.createElement("div");
         colorItem.className = "color-item";
 
-        const colorLabel = document.createElement("label");
-        colorLabel.textContent = color.name;
-        colorItem.appendChild(colorLabel);
-
         const colorInput = document.createElement("input");
         colorInput.type = "color";
         colorInput.value = this._rgbToHex(color.value);
@@ -497,6 +493,10 @@ export class DesktopThemesApp extends Application {
           color.value = this._hexToRgb(event.target.value);
         });
         colorItem.appendChild(colorInput);
+
+        const colorLabel = document.createElement("label");
+        colorLabel.textContent = color.name;
+        colorItem.appendChild(colorLabel);
 
         colorListContainer.appendChild(colorItem);
       });
