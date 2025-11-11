@@ -15,7 +15,9 @@ import { playSound } from "./utils/soundManager.js";
 import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
 import {
   hideBootScreen,
-  updateBootLog,
+  startBootProcessStep,
+  finalizeBootProcessStep,
+  showBlinkingCursor,
   promptToContinue,
 } from "./components/bootScreen.js";
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
@@ -127,44 +129,71 @@ async function initializeOS() {
     });
   }
 
-  updateBootLog("Detecting keyboard... OK");
+  let logElement = startBootProcessStep("Detecting keyboard...");
   await new Promise((resolve) => setTimeout(resolve, 500));
-  updateBootLog("Detecting mouse... OK");
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  updateBootLog(
-    `Connecting to network... ${navigator.onLine ? "OK" : "Offline"}`,
-  );
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
-  updateBootLog("Preloading default theme assets... OK");
+  logElement = startBootProcessStep("Detecting mouse...");
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
+
+  logElement = startBootProcessStep("Connecting to network...");
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
+  // showBlinkingCursor();
+
+  logElement = startBootProcessStep("Preloading default theme assets...");
   await preloadThemeAssets("default");
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
   const currentTheme = getCurrentTheme();
   if (currentTheme !== "default") {
-    updateBootLog(`Preloading ${currentTheme} theme assets... OK`);
+    logElement = startBootProcessStep(
+      `Preloading ${currentTheme} theme assets...`,
+    );
     await preloadThemeAssets(currentTheme);
+    finalizeBootProcessStep(logElement, "OK");
+    // showBlinkingCursor();
   }
 
-  updateBootLog("Loading theme stylesheets... OK");
+  logElement = startBootProcessStep("Loading theme stylesheets...");
   loadThemeStylesheets();
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
-  updateBootLog("Loading custom applications... OK");
+  logElement = startBootProcessStep("Loading custom applications...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
-  updateBootLog("Creating main UI... OK");
+  logElement = startBootProcessStep("Creating main UI...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
-  updateBootLog("Initializing taskbar... OK");
+  logElement = startBootProcessStep("Initializing taskbar...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   taskbar.init();
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
-  updateBootLog("Setting up desktop... OK");
+  logElement = startBootProcessStep("Setting up desktop...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   await initDesktop();
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
-  updateBootLog("azOS Ready!");
+  const bootLogEl = document.getElementById("boot-log");
+  if (bootLogEl) {
+      const finalMessage = document.createElement("div");
+      finalMessage.textContent = "azOS Ready!";
+      bootLogEl.appendChild(finalMessage);
+  }
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   await promptToContinue();
