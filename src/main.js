@@ -127,42 +127,55 @@ async function initializeOS() {
     });
   }
 
-  updateBootLog("Detecting keyboard... OK");
+  updateBootLog("Detecting keyboard... ");
   await new Promise((resolve) => setTimeout(resolve, 500));
-  updateBootLog("Detecting mouse... OK");
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  updateBootLog(
-    `Connecting to network... ${navigator.onLine ? "OK" : "Offline"}`,
-  );
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  updateBootLog("OK", true);
 
-  updateBootLog("Preloading default theme assets... OK");
+  updateBootLog("Detecting mouse... ");
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  updateBootLog("OK", true);
+
+  updateBootLog("Connecting to network... ");
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  updateBootLog(navigator.onLine ? "OK" : "Offline", true);
+
+  updateBootLog("Preloading default theme assets... ");
   await preloadThemeAssets("default");
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  updateBootLog("OK", true);
 
   const currentTheme = getCurrentTheme();
   if (currentTheme !== "default") {
-    updateBootLog(`Preloading ${currentTheme} theme assets... OK`);
+    updateBootLog(`Preloading ${currentTheme} theme assets... `);
     await preloadThemeAssets(currentTheme);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    updateBootLog("OK", true);
   }
 
-  updateBootLog("Loading theme stylesheets... OK");
+  updateBootLog("Loading theme stylesheets... ");
   loadThemeStylesheets();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  updateBootLog("OK", true);
 
-  updateBootLog("Loading custom applications... OK");
+  updateBootLog("Loading custom applications... ");
   await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
+  updateBootLog("OK", true);
 
-  updateBootLog("Creating main UI... OK");
+  updateBootLog("Creating main UI... ");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
+  updateBootLog("OK", true);
 
-  updateBootLog("Initializing taskbar... OK");
+  updateBootLog("Initializing taskbar... ");
   await new Promise((resolve) => setTimeout(resolve, 50));
   taskbar.init();
+  updateBootLog("OK", true);
 
-  updateBootLog("Setting up desktop... OK");
+  updateBootLog("Setting up desktop... ");
   await new Promise((resolve) => setTimeout(resolve, 50));
   initDesktop();
+  updateBootLog("OK", true);
 
   updateBootLog("azOS Ready!");
   await new Promise((resolve) => setTimeout(resolve, 50));
