@@ -580,6 +580,24 @@ function getColorsFromThemeFile(themeIni) {
 }
 
 /**
+ * @param {string} themeIni
+ * @returns {string | undefined}
+ */
+function getWallpaperFromThemeFile(themeIni) {
+  const theme = parseINIString(themeIni);
+  const desktopSection = theme["Control Panel\\Desktop"];
+  if (!desktopSection || typeof desktopSection !== "object") {
+    return undefined;
+  }
+  const wallpaperPath = desktopSection["Wallpaper"];
+  if (wallpaperPath) {
+    // Extract filename from the path
+    return wallpaperPath.split("\\").pop();
+  }
+  return undefined;
+}
+
+/**
  * @param {{name: string, value: string}[]} colors
  * @returns {Record<string, string>}
  */

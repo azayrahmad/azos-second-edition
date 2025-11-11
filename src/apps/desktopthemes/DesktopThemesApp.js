@@ -176,11 +176,16 @@ export class DesktopThemesApp extends Application {
       try {
         await this._loadParserScript();
         const colors = window.getColorsFromThemeFile(themeContent);
+        const wallpaper = window.getWallpaperFromThemeFile(themeContent);
         if (colors) {
-          this._showThemeWizard(colors, (updatedColors) => {
-            const cssProperties =
-              window.generateThemePropertiesFromColors(updatedColors);
-            this.customThemeProperties = cssProperties;
+          this._showThemeWizard(colors, wallpaper, (updatedTheme) => {
+            const cssProperties = window.generateThemePropertiesFromColors(
+              updatedTheme.colors,
+            );
+            this.customThemeProperties = {
+              ...cssProperties,
+              wallpaper: updatedTheme.wallpaper,
+            };
             this.addTemporaryThemeOption();
             this.themeSelector.value = "current-settings";
             this.handleThemeSelection(); // Use the handler to update state
@@ -387,7 +392,9 @@ export class DesktopThemesApp extends Application {
 
   previewCustomTheme(properties) {
     this.applyCssVariables(properties);
-    this.previewContainer.style.backgroundImage = "none";
+    this.previewContainer.style.backgroundImage = properties.wallpaper
+      ? `url('${properties.wallpaper}')`
+      : "none";
     this.previewContainer.style.backgroundColor =
       properties["Background"] || "#008080";
   }
@@ -464,7 +471,7 @@ export class DesktopThemesApp extends Application {
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  _showThemeWizard(colors, callback) {
+  _showThemeWizard(colors, wallpaper, callback) {
     const wizardWin = new $Window({
       title: "Theme Wizard",
       outerWidth: 350,
@@ -475,6 +482,8 @@ export class DesktopThemesApp extends Application {
     });
 
     let currentColors = JSON.parse(JSON.stringify(colors)); // Deep copy
+    let currentWallpaper = wallpaper;
+    let wallpaperDataUrl = null;
 
     const showStep1 = () => {
       wizardWin.$content.html(""); // Clear content
@@ -522,6 +531,62 @@ export class DesktopThemesApp extends Application {
     const showStep2 = () => {
       wizardWin.$content.html(""); // Clear content
 
+      const wallpaperContainer = document.createElement("div");
+      wallpaperContainer.className = "wallpaper-container";
+
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      wallpaperContainer.appendChild(fileInput);
+
+      const preview = document.createElement("img");
+      preview.className = "wallpaper-preview";
+      preview.style.display = "none";
+      wallpaperContainer.appendChild(preview);
+
+      if (currentWallpaper) {
+        const initialWallpaperText = document.createElement("p");
+        initialWallpaperText.textContent = `Current wallpaper: ${currentWallpaper}`;
+        wallpaperContainer.insertBefore(
+          initialWallpaperText,
+          fileInput.nextSibling,
+        );
+      }
+
+      fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            wallpaperDataUrl = e.target.result;
+            preview.src = wallpaperDataUrl;
+            preview.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      wizardWin.$content.append(wallpaperContainer);
+
+      const buttonContainer = document.createElement("div");
+      buttonContainer.className = "wizard-buttons";
+
+      const backButton = document.createElement("button");
+      backButton.textContent = "Back";
+      backButton.addEventListener("click", showStep1);
+      buttonContainer.appendChild(backButton);
+
+      const nextButton = document.createElement("button");
+      nextButton.textContent = "Next";
+      nextButton.addEventListener("click", showStep3);
+      buttonContainer.appendChild(nextButton);
+
+      wizardWin.$content.append(buttonContainer);
+    };
+
+    const showStep3 = () => {
+      wizardWin.$content.html(""); // Clear content
+
       const confirmationText = document.createElement("p");
       confirmationText.textContent =
         "The theme will be previewed. Click Finish to apply the changes.";
@@ -532,13 +597,13 @@ export class DesktopThemesApp extends Application {
 
       const backButton = document.createElement("button");
       backButton.textContent = "Back";
-      backButton.addEventListener("click", showStep1);
+      backButton.addEventListener("click", showStep2);
       buttonContainer.appendChild(backButton);
 
       const finishButton = document.createElement("button");
       finishButton.textContent = "Finish";
       finishButton.addEventListener("click", () => {
-        callback(currentColors);
+        callback({ colors: currentColors, wallpaper: wallpaperDataUrl });
         wizardWin.close();
       });
       buttonContainer.appendChild(finishButton);
