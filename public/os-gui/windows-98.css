@@ -65,7 +65,7 @@
     --WindowText: rgb(0, 0, 0);
 
     /* Typography */
-    --font-family-base: "MS Sans Serif", sans-serif;
+    --font-family-base: "MSW98UI", sans-serif;
     --font-size-base: 12px;
     --font-family-title: var(--font-family-base);
     --font-size-title: 12px;
