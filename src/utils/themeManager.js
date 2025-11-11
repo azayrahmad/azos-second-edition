@@ -9,6 +9,26 @@ import { applyCursorTheme, applyBusyCursor, clearBusyCursor } from "./cursorMana
 import { preloadThemeAssets } from "./assetPreloader.js";
 
 let temporaryTheme = null;
+let parserPromise = null;
+
+export function loadThemeParser() {
+  if (!parserPromise) {
+    parserPromise = new Promise((resolve, reject) => {
+      if (window.makeThemeCSSFile) {
+        return resolve();
+      }
+      const script = document.createElement("script");
+      script.src = "./os-gui/parse-theme.js";
+      script.onload = resolve;
+      script.onerror = () => {
+        parserPromise = null; // Reset on error
+        reject(new Error("Failed to load theme parser."));
+      };
+      document.head.appendChild(script);
+    });
+  }
+  return parserPromise;
+}
 
 export function getCustomThemes() {
   return getItem(LOCAL_STORAGE_KEYS.CUSTOM_THEMES) || {};
@@ -56,7 +76,7 @@ function removeStylesheet(themeId) {
   }
 }
 
-export function applyTheme() {
+export async function applyTheme() {
   const savedThemeKey = getCurrentTheme();
   const allThemes = getThemes();
   const currentTheme = temporaryTheme || allThemes[savedThemeKey];
@@ -85,6 +105,7 @@ export function applyTheme() {
 
     if (currentTheme.isCustom) {
       // It's a saved custom theme, generate and apply its CSS
+      await loadThemeParser();
       if (window.makeThemeCSSFile && currentTheme.colors) {
         const cssContent = window.makeThemeCSSFile(currentTheme.colors);
         applyStylesheet(currentTheme.id, cssContent);

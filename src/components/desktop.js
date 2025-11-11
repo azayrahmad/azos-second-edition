@@ -574,9 +574,9 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
 }
 
 // Initialize desktop behavior
-export function initDesktop() {
+export async function initDesktop() {
   console.log("Initializing Desktop Manager...");
-  applyTheme();
+  await applyTheme();
   applyWallpaper();
   applyMonitorType();
   const desktop = document.querySelector(".desktop");
