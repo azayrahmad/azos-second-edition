@@ -95,17 +95,20 @@ export class ExplorerApp extends Application {
       ],
     };
     this.menuBar = new MenuBar(menuItems);
-    const logo = new AnimatedLogo();
+    win.setMenuBar(this.menuBar);
 
+    const logo = new AnimatedLogo();
     const menuBarContainer = document.createElement("div");
     menuBarContainer.style.display = "flex";
     menuBarContainer.style.alignItems = "center";
     menuBarContainer.style.width = "100%";
     menuBarContainer.style.justifyContent = "space-between";
-    menuBarContainer.appendChild(this.menuBar.element);
-    menuBarContainer.appendChild(logo);
 
-    win.setMenuBar(menuBarContainer);
+    // Wrap the existing menu bar element
+    const menuBarElement = this.menuBar.element;
+    menuBarElement.parentNode.insertBefore(menuBarContainer, menuBarElement);
+    menuBarContainer.appendChild(menuBarElement);
+    menuBarContainer.appendChild(logo);
 
     const content = document.createElement("div");
     content.className = "explorer-content sunken-panel";

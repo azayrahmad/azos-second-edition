@@ -108,17 +108,20 @@ export class InternetExplorerApp extends Application {
         },
       ],
     });
-    const logo = new AnimatedLogo();
+    win.setMenuBar(menuBar);
 
+    const logo = new AnimatedLogo();
     const menuBarContainer = document.createElement("div");
     menuBarContainer.style.display = "flex";
     menuBarContainer.style.alignItems = "center";
     menuBarContainer.style.width = "100%";
     menuBarContainer.style.justifyContent = "space-between";
-    menuBarContainer.appendChild(menuBar.element);
-    menuBarContainer.appendChild(logo);
 
-    win.setMenuBar(menuBarContainer);
+    // Wrap the existing menu bar element
+    const menuBarElement = menuBar.element;
+    menuBarElement.parentNode.insertBefore(menuBarContainer, menuBarElement);
+    menuBarContainer.appendChild(menuBarElement);
+    menuBarContainer.appendChild(logo);
 
     const addressBar = window.os_gui_utils.E("div", {
       className: "address-bar",
