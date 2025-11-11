@@ -2,6 +2,8 @@ import { profileManager } from './profileManager.js';
 
 export const LOCAL_STORAGE_KEYS = {
   DESKTOP_THEME: 'desktop-theme',
+  CUSTOM_THEMES: 'customThemes',
+  CUSTOM_THEMES: 'customThemes',
   CUSTOM_APPS: 'customApps',
   CLIPPY_AGENT_NAME: 'clippyAgentName',
   CLIPPY_TTS_ENABLED: 'clippyTTSEnabled',

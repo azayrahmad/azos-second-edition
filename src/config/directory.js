@@ -28,6 +28,7 @@ const directory = [
           { id: "app-my-computer", type: "app", appId: "my-computer" },
           { id: "app-my-documents", type: "app", appId: "my-documents" },
           { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
+          { id: "app-internet-explorer", type: "app", appId: "internet-explorer" },
         ],
       },
       {
@@ -130,6 +131,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-soundschemeexplorer",
                 name: "Sound Scheme Explorer",
+              },
+              {
+                id: "shortcut-to-internet-explorer",
+                type: "shortcut",
+                targetId: "app-internet-explorer",
+                name: "Internet Explorer",
               },
             ],
           },

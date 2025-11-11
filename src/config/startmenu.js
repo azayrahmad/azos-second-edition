@@ -10,6 +10,7 @@ const startMenuAppIds = [
   "image-viewer",
   "tipOfTheDay",
   "about",
+  "internet-explorer",
 ];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
@@ -35,8 +36,14 @@ const startMenuConfig = [
     icon: ICONS.favorites[16],
     submenu: [
       {
-        label: "(Empty)",
-        disabled: true,
+        label: "Google",
+        icon: ICONS.documents[16],
+        action: () => launchApp("internet-explorer", "google.com"),
+      },
+      {
+        label: "Yahoo",
+        icon: ICONS.documents[16],
+        action: () => launchApp("internet-explorer", "yahoo.com"),
       },
     ],
   },

@@ -217,29 +217,6 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       },
     },
     {
-      label: "Empty Recycle Bin",
-      action: () => {
-        ShowDialogWindow({
-          title: "Confirm Empty Recycle Bin",
-          text: "Are you sure you want to permanently delete all items in the Recycle Bin?",
-          buttons: [
-            {
-              label: "Yes",
-              action: () => {
-                emptyRecycleBin();
-                playSound("EmptyRecycleBin");
-                // The desktop refresh on theme change will update the icon
-                document.dispatchEvent(new CustomEvent("theme-changed"));
-              },
-            },
-            { label: "No", isDefault: true },
-          ],
-        });
-      },
-      enabled: () => getRecycleBinItems().length > 0,
-    },
-    "MENU_DIVIDER",
-    {
       label: "Wallpaper",
       submenu: [
         {
