@@ -4,14 +4,13 @@ import { ShowComingSoonDialog } from "../components/DialogWindow.js";
 import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
-  "notepad",
-  "clippy",
   "webamp",
   "image-viewer",
   "tipOfTheDay",
   "about",
   "internet-explorer",
 ];
+const accessoriesAppIds = ["notepad", "clippy"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
 function getAppList(appListIds) {
@@ -29,7 +28,14 @@ const startMenuConfig = [
   {
     label: "Programs",
     icon: ICONS.programs[16],
-    submenu: getAppList(startMenuAppIds),
+    submenu: [
+      {
+        label: "Accessories",
+        icon: ICONS.programs[16],
+        submenu: getAppList(accessoriesAppIds),
+      },
+      ...getAppList(startMenuAppIds),
+    ],
   },
   {
     label: "Favorites",
