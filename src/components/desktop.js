@@ -16,6 +16,7 @@ import {
   getCurrentTheme,
   setTheme,
   applyTheme,
+  getActiveTheme,
 } from "../utils/themeManager.js";
 import { ICONS } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
@@ -151,7 +152,8 @@ function setWallpaperMode(mode) {
 }
 
 function applyWallpaper() {
-  const wallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
+  const theme = getActiveTheme();
+  const wallpaper = theme.wallpaper;
   const desktop = document.querySelector(".desktop");
   if (wallpaper) {
     const mode = getWallpaperMode();
