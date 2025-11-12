@@ -54,7 +54,15 @@ export function getThemes() {
 }
 
 export function getCurrentTheme() {
-  return getItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME) || "default";
+  const savedTheme = getItem(LOCAL_STORAGE_KEYS.CURRENT_THEME);
+  if (savedTheme) {
+    return savedTheme;
+  }
+
+  // Fallback for first-time users or cleared storage
+  const defaultTheme = themes["default"];
+  setItem(LOCAL_STORAGE_KEYS.CURRENT_THEME, defaultTheme);
+  return defaultTheme;
 }
 
 function applyStylesheet(themeId, cssContent) {
@@ -77,81 +85,70 @@ function removeStylesheet(themeId) {
 }
 
 export async function applyTheme() {
-  const savedThemeKey = getCurrentTheme();
-  const allThemes = getThemes();
-  const currentTheme = temporaryTheme || allThemes[savedThemeKey];
+  const currentTheme = getCurrentTheme();
 
-  // Remove all custom theme styles first
+  // Disable all built-in theme stylesheets first
+  for (const theme of Object.values(themes)) {
+    const stylesheet = document.getElementById(`${theme.id}-theme`);
+    if (stylesheet) stylesheet.disabled = true;
+  }
+  // Remove all custom theme styles
   const customThemes = getCustomThemes();
   for (const themeId in customThemes) {
     removeStylesheet(themeId);
   }
 
-  // Disable all built-in theme stylesheets
-  for (const theme of Object.values(themes)) {
-    if (theme.id === "default") continue;
-    const stylesheet = document.getElementById(`${theme.id}-theme`);
-    if (stylesheet) stylesheet.disabled = true;
-  }
-
-  // Clear temporary theme object if we are applying a saved theme
-  if (!temporaryTheme) {
-    const customStyle = document.getElementById("custom-theme-styles");
-    if (customStyle) customStyle.remove();
-  }
-
   if (currentTheme) {
     applyCursorTheme(currentTheme.id);
 
-    if (currentTheme.isCustom) {
-      // It's a saved custom theme, generate and apply its CSS
+    if (currentTheme.stylesheet && themes[currentTheme.id]) {
+      // It's a built-in theme, enable its stylesheet
+      const stylesheet = document.getElementById(`${currentTheme.id}-theme`);
+      if (stylesheet) stylesheet.disabled = false;
+    } else {
+      // It's a custom or modified theme, generate and apply its CSS
       await loadThemeParser();
       if (window.makeThemeCSSFile && currentTheme.colors) {
         const cssContent = window.makeThemeCSSFile(currentTheme.colors);
-        applyStylesheet(currentTheme.id, cssContent);
+        // Use a consistent ID for the "current" theme's style element
+        applyStylesheet("current-theme", cssContent);
       }
-    } else if (themes[savedThemeKey]) {
-      // It's a built-in theme, enable its stylesheet
-      const stylesheet = document.getElementById(`${savedThemeKey}-theme`);
-      if (stylesheet) stylesheet.disabled = false;
     }
-    // Note: The temporary theme (`id: 'custom'`) is handled by `setTheme` directly
   } else {
-    applyCursorTheme(savedThemeKey); // Fallback
+    // Fallback to default if something goes wrong
+    const defaultTheme = themes["default"];
+    const stylesheet = document.getElementById(`${defaultTheme.id}-theme`);
+    if (stylesheet) stylesheet.disabled = false;
+    applyCursorTheme(defaultTheme.id);
   }
 }
 
 
-export async function setTheme(themeKey, themeObject = null) {
+export async function setTheme(themeId, themeObject = null) {
   applyBusyCursor(document.body);
   try {
+    let themeToApply;
     if (themeObject) {
-      temporaryTheme = themeObject;
-      // Special handling for the temporary theme from the app
-      if (themeObject.id === "custom") {
-        const customStyle = document.getElementById("custom-theme-styles");
-        if (customStyle) {
-          // The app is responsible for updating the content of this style tag
-        }
-      }
+      themeToApply = themeObject;
     } else {
-      temporaryTheme = null;
-      const customStyle = document.getElementById("custom-theme-styles");
-      if (customStyle) customStyle.remove();
+      const allThemes = getThemes();
+      themeToApply = allThemes[themeId];
     }
 
-    await preloadThemeAssets(themeKey);
+    if (!themeToApply) {
+      console.error(`Theme '${themeId}' not found.`);
+      return;
+    }
 
-    setItem(LOCAL_STORAGE_KEYS.DESKTOP_THEME, themeKey);
-    applyTheme();
+    setItem(LOCAL_STORAGE_KEYS.CURRENT_THEME, themeToApply);
 
-    const theme = temporaryTheme || getThemes()[themeKey];
-    if (theme) {
-      if (theme.wallpaper) {
-        setItem(LOCAL_STORAGE_KEYS.WALLPAPER, theme.wallpaper);
-      } else {
-        removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
-      }
+    await preloadThemeAssets(themeToApply.id);
+    await applyTheme();
+
+    if (themeToApply.wallpaper) {
+      setItem(LOCAL_STORAGE_KEYS.WALLPAPER, themeToApply.wallpaper);
+    } else {
+      removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
     }
 
     document.dispatchEvent(new CustomEvent("wallpaper-changed"));

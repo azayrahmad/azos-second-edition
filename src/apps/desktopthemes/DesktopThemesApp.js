@@ -14,8 +14,6 @@ export class DesktopThemesApp extends Application {
   constructor(config) {
     super(config);
     this.themeCssCache = {};
-    this.previousThemeId = null;
-    this.customThemeProperties = null;
     this.originalFilename = "";
 
     this.boundPopulateThemes = this.populateThemes.bind(this);
@@ -75,8 +73,6 @@ export class DesktopThemesApp extends Application {
       this.handleThemeSelection(),
     );
 
-    this.populateThemes();
-
     this.previewContainer = document.createElement("div");
     this.previewContainer.className = "preview-container";
     mainContainer.appendChild(this.previewContainer);
@@ -98,7 +94,7 @@ export class DesktopThemesApp extends Application {
       </div>
     `;
 
-    this.previewTheme(this.themeSelector.value);
+    this.populateThemes();
 
     const actionsContainer = document.createElement("div");
     actionsContainer.className = "actions";
@@ -108,12 +104,10 @@ export class DesktopThemesApp extends Application {
     applyButton.textContent = "Apply";
     actionsContainer.appendChild(applyButton);
 
-    applyButton.addEventListener("click", () => {
-      if (this.themeSelector.value === "current-settings") {
-        this.applyCustomTheme();
-      } else {
-        setTheme(this.themeSelector.value);
-      }
+    applyButton.addEventListener("click", async () => {
+      await setTheme(this.themeSelector.value);
+      this.themeSelector.value = "current-settings";
+      this.handleThemeSelection();
     });
 
     return win;
@@ -125,45 +119,13 @@ export class DesktopThemesApp extends Application {
     });
   }
 
-  async applyCustomTheme() {
-    const themes = getThemes();
-    const baseTheme = themes["default"];
-    await loadThemeParser();
-    const cssContent = window.makeThemeCSSFile(this.customThemeProperties);
-
-    const existingStyle = document.getElementById("custom-theme-styles");
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-
-    const style = document.createElement("style");
-    style.id = "custom-theme-styles";
-    style.textContent = cssContent;
-    document.head.appendChild(style);
-
-    const { wallpaper, ...colors } = this.customThemeProperties;
-    const customTheme = {
-      ...baseTheme,
-      id: "custom",
-      name: "Current Windows settings",
-      stylesheet: null,
-      colors: colors,
-      wallpaper: wallpaper,
-    };
-
-    setTheme("custom", customTheme);
-  }
-
   handleCustomThemeLoad() {
-    this.previousThemeId = this.themeSelector.value;
-
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".theme";
     input.onchange = (event) => {
       const file = event.target.files[0];
       if (!file) {
-        this.themeSelector.value = this.previousThemeId;
         return;
       }
       this.loadFile(file);
@@ -185,16 +147,19 @@ export class DesktopThemesApp extends Application {
             const cssProperties = window.generateThemePropertiesFromColors(
               updatedTheme.colors,
             );
-            this.customThemeProperties = {
-              ...cssProperties,
+            const newTheme = {
+              ...getCurrentTheme(),
+              id: "current-settings",
+              name: "Current Windows settings",
+              stylesheet: null,
+              colors: cssProperties,
               wallpaper: updatedTheme.wallpaper,
+              isCustom: true,
             };
-            this.addTemporaryThemeOption();
-            this.themeSelector.value = "current-settings";
-            this.handleThemeSelection(); // Use the handler to update state
+            setTheme("current-settings", newTheme);
+            this.populateThemes();
           });
         } else {
-          this.themeSelector.value = this.previousThemeId;
           ShowDialogWindow({
             title: "Error",
             text: "Could not parse the selected file.",
@@ -202,7 +167,6 @@ export class DesktopThemesApp extends Application {
           });
         }
       } catch (error) {
-        this.themeSelector.value = this.previousThemeId;
         ShowDialogWindow({
           title: "Error",
           text: `An error occurred: ${error.message}`,
@@ -240,21 +204,17 @@ export class DesktopThemesApp extends Application {
     const newThemeId = `custom-${finalName
       .toLowerCase()
       .replace(/\s+/g, "-")}`;
-    const { wallpaper, ...colors } = this.customThemeProperties;
+
+    const currentTheme = getCurrentTheme();
     const newTheme = {
-      ...themes.default,
+      ...currentTheme,
       id: newThemeId,
       name: finalName,
-      stylesheet: null,
-      colors: colors,
-      wallpaper: wallpaper,
       isCustom: true,
     };
 
     saveCustomTheme(newThemeId, newTheme);
-
-    // We don't call populateThemes directly anymore, the event listener handles it.
-    // The event listener will call populateThemes, which will then restore the selection.
+    this.populateThemes();
     this.themeSelector.value = newThemeId;
   }
 
@@ -282,46 +242,18 @@ export class DesktopThemesApp extends Application {
 
   handleThemeSelection() {
     const selectedValue = this.themeSelector.value;
-    const selectedTheme = getThemes()[selectedValue];
+    const allThemes = getThemes();
+    const selectedTheme = allThemes[selectedValue];
 
     if (selectedValue === "load-custom") {
       this.handleCustomThemeLoad();
       return;
     }
 
-    this.saveButton.disabled = selectedValue !== "current-settings";
+    this.saveButton.disabled = false;
     this.deleteButton.disabled = !selectedTheme?.isCustom;
 
-    if (selectedValue === "current-settings") {
-      const normalizedProperties = {};
-      for (const [key, value] of Object.entries(this.customThemeProperties)) {
-        normalizedProperties[key.replace(/^--/, "")] = value;
-      }
-      this.previewCustomTheme(normalizedProperties);
-    } else {
-      this.removeTemporaryThemeOption();
-      this.customThemeProperties = null;
-      this.previewTheme(selectedValue);
-    }
-  }
-
-  addTemporaryThemeOption() {
-    if (!this.themeSelector.querySelector('option[value="current-settings"]')) {
-      const option = document.createElement("option");
-      option.value = "current-settings";
-      option.textContent = "Current Windows settings";
-      const separator = this.themeSelector.querySelector("option[disabled]");
-      this.themeSelector.insertBefore(option, separator);
-    }
-  }
-
-  removeTemporaryThemeOption() {
-    const option = this.themeSelector.querySelector(
-      'option[value="current-settings"]',
-    );
-    if (option) {
-      option.remove();
-    }
+    this.previewTheme(selectedValue);
   }
 
   populateThemes() {
@@ -333,7 +265,15 @@ export class DesktopThemesApp extends Application {
       a.name.localeCompare(b.name),
     );
 
+    // Add "Current Windows settings" at the top
+    const currentSettingsOption = document.createElement("option");
+    currentSettingsOption.value = "current-settings";
+    currentSettingsOption.textContent = "Current Windows settings";
+    this.themeSelector.appendChild(currentSettingsOption);
+
+
     for (const [id, theme] of sortedThemes) {
+        if(id === "current-settings") continue;
       const option = document.createElement("option");
       option.value = id;
       option.textContent = theme.name;
@@ -350,16 +290,18 @@ export class DesktopThemesApp extends Application {
     loadOption.textContent = "<Load Theme>";
     this.themeSelector.appendChild(loadOption);
 
-    if (this.themeSelector.querySelector(`option[value="${lastSelected}"]`)) {
-      this.themeSelector.value = lastSelected;
-    } else {
-      this.themeSelector.value = getCurrentTheme();
-    }
+    this.themeSelector.value = "current-settings";
+
     this.handleThemeSelection();
   }
 
   async previewTheme(themeId) {
-    const theme = getThemes()[themeId];
+    let theme;
+    if (themeId === "current-settings") {
+        theme = getCurrentTheme();
+    } else {
+        theme = getThemes()[themeId];
+    }
     if (!theme) return;
 
     let variables = {};
@@ -380,15 +322,6 @@ export class DesktopThemesApp extends Application {
       : "none";
     this.previewContainer.style.backgroundColor =
       variables["Background"] || "#008080";
-  }
-
-  previewCustomTheme(properties) {
-    this.applyCssVariables(properties);
-    this.previewContainer.style.backgroundImage = properties.wallpaper
-      ? `url('${properties.wallpaper}')`
-      : "none";
-    this.previewContainer.style.backgroundColor =
-      properties["Background"] || "#008080";
   }
 
   async fetchThemeCss(stylesheet) {
