@@ -1967,6 +1967,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     };
     /** @param {boolean} [force] */
     $w.close = (force) => {
+      window.playSound?.("Close");
       if (force && force !== true) {
         throw new TypeError(
           "force must be a boolean or undefined, not " +

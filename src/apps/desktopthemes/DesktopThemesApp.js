@@ -105,7 +105,22 @@ export class DesktopThemesApp extends Application {
     actionsContainer.appendChild(applyButton);
 
     applyButton.addEventListener("click", async () => {
-      await setTheme(this.themeSelector.value);
+        const selectedValue = this.themeSelector.value;
+        if (selectedValue === "current-settings") {
+            await setTheme(selectedValue, getCurrentTheme());
+        } else {
+            const allThemes = getThemes();
+            const selectedTheme = allThemes[selectedValue];
+            const newTheme = {
+                ...getCurrentTheme(),
+                ...selectedTheme,
+                id: "current-settings",
+                name: "Current Windows settings",
+                isCustom: true,
+            };
+            await setTheme("current-settings", newTheme);
+        }
+
       this.themeSelector.value = "current-settings";
       this.handleThemeSelection();
     });

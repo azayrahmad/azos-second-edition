@@ -543,7 +543,7 @@ export const soundSchemes = {
     MenuPopup: jungleMenuPopup,
     Minimize: jungleMinimize,
     Open: jungleOpenProgram,
-    close: jungleCloseProgram,
+    Close: jungleCloseProgram,
     RestoreDown: jungleRestoreDown,
     RestoreUp: jungleRestoreUp,
     SystemAsterisk: jungleAsterisk,
