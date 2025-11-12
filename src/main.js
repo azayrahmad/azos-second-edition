@@ -140,9 +140,9 @@ async function initializeOS() {
   await preloadThemeAssets("default");
 
   const currentTheme = getCurrentTheme();
-  if (currentTheme !== "default") {
-    updateBootLog(`Preloading ${currentTheme} theme assets... OK`);
-    await preloadThemeAssets(currentTheme);
+  if (currentTheme.id !== "default") {
+    updateBootLog(`Preloading ${currentTheme.name} theme assets... OK`);
+    await preloadThemeAssets(currentTheme.id);
   }
 
   updateBootLog("Loading theme stylesheets... OK");
