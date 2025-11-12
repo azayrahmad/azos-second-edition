@@ -190,4 +190,8 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  pinball: {
+    16: new URL("../../public/icons/pinball.png", import.meta.url).href,
+    32: new URL("../../public/icons/pinball.png", import.meta.url).href,
+  },
 };

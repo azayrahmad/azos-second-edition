@@ -11,6 +11,7 @@ const startMenuAppIds = [
   "tipOfTheDay",
   "about",
   "internet-explorer",
+  "pinball",
 ];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
