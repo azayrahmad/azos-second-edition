@@ -277,7 +277,7 @@ export const apps = [
   {
     id: "taskmanager",
     title: "Task Manager",
-    icon: ICONS.taskmanager,
+    icon: ICONS.windows,
     appClass: TaskManagerApp,
     width: 300,
     height: 400,

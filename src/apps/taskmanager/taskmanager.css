@@ -1,15 +1,16 @@
 .task-manager-content {
     display: flex;
     flex-direction: column;
+    width: 320px;
     height: 100%;
-    padding: 10px;
+    padding: 5px;
     box-sizing: border-box;
 }
 
 .task-list-container {
-    height: 200px;
+    height: 150px;
     overflow-y: auto;
-    border: 1px solid var(--border-light);
+    background-color: var(--Window);
 }
 
 .task-list {
@@ -17,17 +18,18 @@
     border-collapse: collapse;
 }
 
-.task-list tr.highlighted {
-    background-color: var(--header-background);
-    color: var(--header-text);
+.task-list > tbody > tr > * {
+    height: 14px;
+    padding: 0;
 }
 
 .button-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     margin-top: 10px;
 }
 
 .button-bar button {
-    margin-left: 5px;
+    padding: 3px 5px;
+    min-width: 100px;
 }
