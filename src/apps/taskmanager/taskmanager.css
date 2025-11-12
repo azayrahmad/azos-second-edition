@@ -6,15 +6,18 @@
     box-sizing: border-box;
 }
 
-.task-list {
-    flex-grow: 1;
-    list-style: none;
-    padding: 5px;
-    margin: 0;
+.task-list-container {
+    height: 200px;
     overflow-y: auto;
+    border: 1px solid var(--border-light);
 }
 
-.task-list li.selected {
+.task-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.task-list tr.highlighted {
     background-color: var(--header-background);
     color: var(--header-text);
 }
