@@ -364,9 +364,11 @@ export class DesktopThemesApp extends Application {
 
     let variables = {};
     if (theme.isCustom && theme.colors) {
-      for (const [key, value] of Object.entries(theme.colors)) {
-        variables[key.replace(/^--/, "")] = value;
-      }
+      variables = this.parseCssVariables(
+        `:root { ${Object.entries(theme.colors)
+          .map(([key, value]) => `${key}: ${value};`)
+          .join(" ")} }`,
+      );
     } else if (theme.stylesheet) {
       const cssText = await this.fetchThemeCss(theme.stylesheet);
       if (cssText) {
