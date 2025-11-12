@@ -1,6 +1,5 @@
 export const LOCAL_STORAGE_KEYS = {
-  DESKTOP_THEME: 'desktop-theme',
-  CUSTOM_THEMES: 'customThemes',
+  CURRENT_THEME: 'current-theme',
   CUSTOM_THEMES: 'customThemes',
   CUSTOM_APPS: 'customApps',
   SHOW_TIPS_AT_STARTUP: 'showTipsAtStartup',
