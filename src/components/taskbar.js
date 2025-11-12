@@ -169,7 +169,7 @@ class Taskbar {
    * Bind taskbar app area events
    */
   bindTaskbarAppAreaEvents() {
-    const taskbarAppArea = document.querySelector(SELECTORS.TASKBAR_APP_AREA);
+    const taskbarAppArea = document.querySelector(SELECTORS.TASKBAR);
     this.addTrackedEventListener(taskbarAppArea, "contextmenu", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -178,7 +178,7 @@ class Taskbar {
         {
           label: "Task Manager",
           action: () => {
-            launchApp('taskmanager');
+            launchApp("taskmanager");
           },
         },
       ];
