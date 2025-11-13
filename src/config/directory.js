@@ -29,6 +29,7 @@ const directory = [
           { id: "app-my-documents", type: "app", appId: "my-documents" },
           { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
           { id: "app-internet-explorer", type: "app", appId: "internet-explorer" },
+          { id: "app-minesweeper", type: "app", appId: "minesweeper" },
         ],
       },
       {
@@ -137,6 +138,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-internet-explorer",
                 name: "Internet Explorer",
+              },
+              {
+                id: "shortcut-to-minesweeper",
+                type: "shortcut",
+                targetId: "app-minesweeper",
+                name: "Minesweeper",
               },
             ],
           },

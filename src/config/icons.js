@@ -190,4 +190,8 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  minesweeper: {
+    16: new URL("../assets/icons/minesweeper.png", import.meta.url).href,
+    32: new URL("../assets/icons/minesweeper.png", import.meta.url).href,
+  },
 };

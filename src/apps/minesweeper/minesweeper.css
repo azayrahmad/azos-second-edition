@@ -1,0 +1,97 @@
+.minesweeper-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--ButtonFace, #c0c0c0);
+    padding: 5px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.seven-segment {
+    font-family: 'DSEG7-Classic', monospace;
+    background-color: black;
+    color: red;
+    padding: 2px 4px;
+    font-size: 20px;
+    letter-spacing: 1px;
+    border: 1px solid;
+    border-color: var(--ButtonShadow, #808080) var(--ButtonHighlight, #ffffff) var(--ButtonHighlight, #ffffff) var(--ButtonShadow, #808080);
+}
+
+.smiley-face {
+    width: 26px;
+    height: 26px;
+    background-image: url('https://win98icons.alexmeub.com/icons/png/user_monitor-1.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 2px outset var(--ButtonHighlight, #ffffff);
+}
+
+.smiley-face.happy { background-image: url('https://win98icons.alexmeub.com/icons/png/user_monitor-1.png'); }
+.smiley-face.surprised { background-image: url('https://win98icons.alexmeub.com/icons/png/msg_question-0.png'); }
+.smiley-face.dead { background-image: url('https://win98icons.alexmeub.com/icons/png/msg_error-0.png'); }
+.smiley-face.cool { background-image: url('https://win98icons.alexmeub.com/icons/png/user_sunglasses-1.png'); }
+
+
+.game-board {
+    display: grid;
+}
+
+.cell {
+  width: 16px;
+  height: 16px;
+  border: 1px solid;
+  border-color: var(--ButtonHighlight, #ffffff) var(--ButtonShadow, #808080) var(--ButtonShadow, #808080) var(--ButtonHighlight, #ffffff);
+  background-color: var(--ButtonFace, #c0c0c0);
+  text-align: center;
+  line-height: 16px;
+  font-weight: bold;
+  font-family: "Arial", sans-serif;
+  font-size: 12px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.cell.revealed {
+  border: 1px solid var(--ButtonShadow, #808080);
+}
+
+.cell.mine {
+  background-color: red;
+  background-image: url('https://win98icons.alexmeub.com/icons/png/bomb.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.cell.flagged {
+  background-image: url('https://win98icons.alexmeub.com/icons/png/flag.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.cell.question {
+  background-image: url('https://win98icons.alexmeub.com/icons/png/help_question_mark-0.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.cell.c1 { color: #0000ff; }
+.cell.c2 { color: #008000; }
+.cell.c3 { color: #ff0000; }
+.cell.c4 { color: #000080; }
+.cell.c5 { color: #800000; }
+.cell.c6 { color: #008080; }
+.cell.c7 { color: #000000; }
+.cell.c8 { color: #808080; }

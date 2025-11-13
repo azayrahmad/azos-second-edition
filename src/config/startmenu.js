@@ -10,7 +10,7 @@ const startMenuAppIds = [
   "about",
   "internet-explorer",
 ];
-const accessoriesAppIds = ["notepad", "clippy"];
+const accessoriesAppIds = ["notepad", "clippy", "minesweeper"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
 function getAppList(appListIds) {
