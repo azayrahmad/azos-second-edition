@@ -23,8 +23,12 @@ import {
   getRecycleBinItems,
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
+import { DosEmulatorApp } from "../apps/dos-emulator/DosEmulatorApp.js";
+import { DoomApp } from "../apps/doom/DoomApp.js";
 
 export const appClasses = {
+  dosEmulator: DosEmulatorApp,
+  doom: DoomApp,
   about: AboutApp,
   appmaker: AppMakerApp,
   notepad: NotepadApp,
@@ -313,5 +317,25 @@ export const apps = [
     height: 600,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "dos-emulator",
+    title: "DOS Emulator",
+    icon: ICONS.dosEmulator,
+    appClass: DosEmulatorApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
+  },
+  {
+    id: "doom",
+    title: "Doom",
+    icon: ICONS.doom,
+    appClass: DoomApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: true,
   },
 ];

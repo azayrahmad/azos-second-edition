@@ -29,6 +29,8 @@ const directory = [
           { id: "app-my-documents", type: "app", appId: "my-documents" },
           { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
           { id: "app-internet-explorer", type: "app", appId: "internet-explorer" },
+          { id: "app-dos-emulator", type: "app", appId: "dos-emulator" },
+          { id: "app-doom", type: "app", appId: "doom" },
         ],
       },
       {
@@ -137,6 +139,18 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-internet-explorer",
                 name: "Internet Explorer",
+              },
+              {
+                id: "shortcut-to-dos-emulator",
+                type: "shortcut",
+                targetId: "app-dos-emulator",
+                name: "DOS Emulator",
+              },
+              {
+                id: "shortcut-to-doom",
+                type: "shortcut",
+                targetId: "app-doom",
+                name: "Doom",
               },
             ],
           },

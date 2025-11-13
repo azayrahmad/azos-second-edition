@@ -11,6 +11,7 @@ const startMenuAppIds = [
   "internet-explorer",
 ];
 const accessoriesAppIds = ["notepad", "clippy"];
+const gamesAppIds = ["doom", "dos-emulator"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
 function getAppList(appListIds) {
@@ -33,6 +34,11 @@ const startMenuConfig = [
         label: "Accessories",
         icon: ICONS.programs[16],
         submenu: getAppList(accessoriesAppIds),
+      },
+      {
+        label: "Games",
+        icon: ICONS.programs[16],
+        submenu: getAppList(gamesAppIds),
       },
       ...getAppList(startMenuAppIds),
     ],

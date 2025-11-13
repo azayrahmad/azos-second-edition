@@ -190,4 +190,12 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  dosEmulator: {
+    16: new URL("../assets/icons/dos-emulator-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/dos-emulator-32.png", import.meta.url).href,
+  },
+  doom: {
+    16: new URL("../assets/icons/doom-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/doom-32.png", import.meta.url).href,
+  },
 };
