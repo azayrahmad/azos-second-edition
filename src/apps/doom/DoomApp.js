@@ -41,8 +41,15 @@ export class DoomApp extends Application {
 
     _onLaunch() {
         const container = this.win.$content.find('.dos-emulator-container')[0];
+        const doomZipUrl = "https://js-dos.com/cdn/upload/DOOM-@evilution.zip";
+
         Dos(container, {
-            url: "https://js-dos.com/cdn/upload/DOOM-@evilution.zip",
+            dosboxConf: `
+                [autoexec]
+                mount c ${doomZipUrl}
+                c:
+                doom
+            `,
         });
     }
 }
