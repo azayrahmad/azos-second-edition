@@ -121,39 +121,40 @@
 
             function monitorScore() {
                 const POINTER_SIZE = 4;
-                const SCORE_OFFSET = 0x22068;
-                const GAME_STATE_OFFSET = 0x22050;
+                const GAME_MODE_OFFSET = 24;
+                const MAIN_TABLE_OFFSET = 28;
+                const PLAYER_SCORES_OFFSET = 88;
+                const SCORE_OFFSET = 4;
 
-                let scorePtr;
-                let gameStatePtr;
-                let lastScore = -1;
-                let wasGameOver = true;
+                let gameModePtr, mainTablePtr, playerScoresPtr, scorePtr;
+                let lastGameMode = -1;
 
                 const intervalId = setInterval(() => {
                     if (Module.HEAP32) {
-                        if (!scorePtr) {
+                        if (!gameModePtr) {
                             const base = Module.asm.get_g_pb_pinball_table();
                             if (!base) return;
-                            scorePtr = (base + SCORE_OFFSET) / POINTER_SIZE;
-                            gameStatePtr = (base + GAME_STATE_OFFSET) / POINTER_SIZE;
+                            gameModePtr = (base + GAME_MODE_OFFSET) / POINTER_SIZE;
+                            mainTablePtr = (base + MAIN_TABLE_OFFSET) / POINTER_SIZE;
+                            const mainTable = Module.HEAP32[mainTablePtr];
+                            playerScoresPtr = (mainTable + PLAYER_SCORES_OFFSET) / POINTER_SIZE;
                         }
 
-                        const score = Module.HEAP32[scorePtr];
-                        const isGameOver = Module.HEAP32[gameStatePtr] === 1;
+                        const gameMode = Module.HEAP32[gameModePtr];
 
-                        if (score !== lastScore) {
-                            lastScore = score;
-                        }
-
-                        // Game just ended
-                        if (isGameOver && !wasGameOver) {
+                        if (gameMode === 2 && lastGameMode !== 2) {
+                            const scores = [];
+                            for (let i = 0; i < 4; i++) {
+                                scorePtr = (playerScoresPtr + i * 28 + SCORE_OFFSET) / POINTER_SIZE;
+                                scores.push(Module.HEAP32[scorePtr]);
+                            }
                             parent.postMessage({
                                 type: 'PINBALL_GAME_OVER',
-                                payload: { score: lastScore }
+                                payload: { scores }
                             }, window.location.origin);
                         }
 
-                        wasGameOver = isGameOver;
+                        lastGameMode = gameMode;
                     }
                 }, 1000); // Check every second
             }

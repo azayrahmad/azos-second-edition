@@ -125,18 +125,25 @@ export class PinballApp extends Application {
     }
   }
 
-  _handleGameOver(score) {
-    const lowestScore =
-      this.highScores.length < 10 ? 0 : this.highScores[9].score;
+  _handleGameOver(scores) {
+    let newHighScore = false;
+    for (const score of scores) {
+      const lowestScore =
+        this.highScores.length < 10 ? 0 : this.highScores[9].score;
 
-    if (score > lowestScore) {
-      // Prompt for name
-      const name = prompt("New high score! Enter your name:", "Player");
-      if (name) {
-        this.highScores.push({ name, score });
-        this._saveHighScores();
-        this._showHighScoresDialog();
+      if (score > lowestScore) {
+        // Prompt for name
+        const name = prompt("New high score! Enter your name:", "Player");
+        if (name) {
+          this.highScores.push({ name, score });
+          newHighScore = true;
+        }
       }
+    }
+
+    if (newHighScore) {
+      this._saveHighScores();
+      this._showHighScoresDialog();
     }
   }
 
