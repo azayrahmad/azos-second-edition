@@ -10,6 +10,7 @@ import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
+import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
@@ -40,6 +41,7 @@ export const appClasses = {
   soundschemeexplorer: SoundSchemeExplorerApp,
   explorer: ExplorerApp,
   "internet-explorer": InternetExplorerApp,
+  pinball: PinballApp,
 };
 
 export const apps = [
@@ -313,5 +315,15 @@ export const apps = [
     height: 600,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "pinball",
+    title: "3D Pinball for Windows - Space Cadet",
+    icon: ICONS.pinball,
+    appClass: PinballApp,
+    width: 600,
+    height: 400,
+    resizable: false,
+    isSingleton: true,
   },
 ];

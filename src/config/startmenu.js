@@ -9,6 +9,7 @@ const startMenuAppIds = [
   "tipOfTheDay",
   "about",
   "internet-explorer",
+  "pinball",
 ];
 const accessoriesAppIds = ["notepad", "clippy"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
