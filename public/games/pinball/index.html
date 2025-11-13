@@ -121,40 +121,45 @@
 
             function monitorScore() {
                 const POINTER_SIZE = 4;
+                const MAX_BALL_COUNT_OFFSET = 184;
                 const GAME_MODE_OFFSET = 24;
-                const MAIN_TABLE_OFFSET = 28;
                 const PLAYER_SCORES_OFFSET = 88;
                 const SCORE_OFFSET = 4;
 
-                let gameModePtr, mainTablePtr, playerScoresPtr, scorePtr;
+                let mainTablePtr, gameModePtr, playerScoresPtr, scorePtr;
                 let lastGameMode = -1;
 
                 const intervalId = setInterval(() => {
                     if (Module.HEAP32) {
-                        if (!gameModePtr) {
-                            const base = Module.asm.get_g_pb_pinball_table();
-                            if (!base) return;
-                            gameModePtr = (base + GAME_MODE_OFFSET) / POINTER_SIZE;
-                            mainTablePtr = (base + MAIN_TABLE_OFFSET) / POINTER_SIZE;
-                            const mainTable = Module.HEAP32[mainTablePtr];
-                            playerScoresPtr = (mainTable + PLAYER_SCORES_OFFSET) / POINTER_SIZE;
-                        }
-
-                        const gameMode = Module.HEAP32[gameModePtr];
-
-                        if (gameMode === 2 && lastGameMode !== 2) {
-                            const scores = [];
-                            for (let i = 0; i < 4; i++) {
-                                scorePtr = (playerScoresPtr + i * 28 + SCORE_OFFSET) / POINTER_SIZE;
-                                scores.push(Module.HEAP32[scorePtr]);
+                        if (!mainTablePtr) {
+                            for (let i = 0; i < Module.HEAP32.length - 4; i++) {
+                                if (Module.HEAP32[i] === 3 && Module.HEAP32[i+1] === 0 && Module.HEAP32[i+2] === 0 && Module.HEAP32[i+3] === 0) {
+                                    mainTablePtr = i * POINTER_SIZE - MAX_BALL_COUNT_OFFSET;
+                                    const base = Module.asm.get_g_pb_pinball_table();
+                                    gameModePtr = (base + GAME_MODE_OFFSET) / POINTER_SIZE;
+                                    playerScoresPtr = (mainTablePtr + PLAYER_SCORES_OFFSET) / POINTER_SIZE;
+                                    break;
+                                }
                             }
-                            parent.postMessage({
-                                type: 'PINBALL_GAME_OVER',
-                                payload: { scores }
-                            }, window.location.origin);
                         }
 
-                        lastGameMode = gameMode;
+                        if (mainTablePtr) {
+                            const gameMode = Module.HEAP32[gameModePtr];
+
+                            if (gameMode === 2 && lastGameMode !== 2) {
+                                const scores = [];
+                                for (let i = 0; i < 4; i++) {
+                                    scorePtr = (playerScoresPtr + i * 28 + SCORE_OFFSET) / POINTER_SIZE;
+                                    scores.push(Module.HEAP32[scorePtr]);
+                                }
+                                parent.postMessage({
+                                    type: 'PINBALL_GAME_OVER',
+                                    payload: { scores }
+                                }, window.location.origin);
+                            }
+
+                            lastGameMode = gameMode;
+                        }
                     }
                 }, 1000); // Check every second
             }
