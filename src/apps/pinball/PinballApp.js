@@ -19,6 +19,13 @@ export class PinballApp extends Application {
         const menuBar = this._createMenuBar();
         win.setMenuBar(menuBar);
 
+        // Prevent the game from pausing when the menu is clicked
+        win.menu_bar.addEventListener('mouseup', () => {
+            setTimeout(() => {
+                this.iframe.contentWindow.focus();
+            }, 0);
+        });
+
         const iframe = document.createElement('iframe');
         iframe.src = 'games/pinball/index.html';
         iframe.style.width = '100%';
@@ -28,6 +35,11 @@ export class PinballApp extends Application {
         win.$content.append(iframe);
 
         this.iframe = iframe;
+
+        // Focus the window when the iframe is focused
+        iframe.contentWindow.addEventListener('focus', () => {
+            this.win.focus();
+        });
 
         return win;
     }
@@ -87,6 +99,9 @@ export class PinballApp extends Application {
     }
 
     sendKey(key) {
+        // Ensure the iframe is focused before sending the key
+        this.iframe.contentWindow.focus();
+
         // To send a key to the iframe, we need to dispatch the event on its contentWindow
         const event = new KeyboardEvent('keydown', { key: key, code: key, bubbles: true, cancelable: true });
         this.iframe.contentWindow.dispatchEvent(event);
