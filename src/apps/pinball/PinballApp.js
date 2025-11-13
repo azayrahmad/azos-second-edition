@@ -1,9 +1,19 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { getItem, setItem } from "../../utils/localStorage.js";
+
+const HIGH_SCORES_KEY = "pinballHighScores";
 
 export class PinballApp extends Application {
   constructor(config) {
     super(config);
+    this.highScores = getItem(HIGH_SCORES_KEY) || [];
+  }
+
+  _saveHighScores() {
+    this.highScores.sort((a, b) => b.score - a.score);
+    this.highScores = this.highScores.slice(0, 10); // Keep top 10
+    setItem(HIGH_SCORES_KEY, this.highScores);
   }
 
   _createWindow() {
@@ -41,6 +51,10 @@ export class PinballApp extends Application {
           label: "&New Game",
           shortcutLabel: "F2",
           action: () => this.sendKey("F2"),
+        },
+        {
+          label: "&High Scores",
+          action: () => this._showHighScoresDialog(),
         },
         "MENU_DIVIDER",
         {
@@ -87,6 +101,43 @@ export class PinballApp extends Application {
   _onLaunch() {
     // Most of the logic is now handled by the iframe
     this.win.focus();
+
+    window.addEventListener("message", this._handleGameMessage.bind(this));
+
+    this.win.on("close", () => {
+      window.removeEventListener(
+        "message",
+        this._handleGameMessage.bind(this)
+      );
+    });
+  }
+
+  _handleGameMessage(event) {
+    // Basic security: check the origin of the message
+    if (event.origin !== window.location.origin) {
+      return;
+    }
+
+    const { type, payload } = event.data;
+
+    if (type === "PINBALL_GAME_OVER") {
+      this._handleGameOver(payload.score);
+    }
+  }
+
+  _handleGameOver(score) {
+    const lowestScore =
+      this.highScores.length < 10 ? 0 : this.highScores[9].score;
+
+    if (score > lowestScore) {
+      // Prompt for name
+      const name = prompt("New high score! Enter your name:", "Player");
+      if (name) {
+        this.highScores.push({ name, score });
+        this._saveHighScores();
+        this._showHighScoresDialog();
+      }
+    }
   }
 
   sendKey(key) {
@@ -127,6 +178,45 @@ export class PinballApp extends Application {
       title: "Player Keys",
       text: dialogText,
       buttons: [{ label: "OK", isDefault: true }],
+    });
+  }
+
+  _showHighScoresDialog() {
+    const scores = this.highScores
+      .map(
+        (score, i) =>
+          `<tr><td style="text-align: right; padding-right: 1em;">${
+            i + 1
+          }.</td><td>${score.name}</td><td style="text-align: right;">${score.score.toLocaleString()}</td></tr>`
+      )
+      .join("");
+
+    const dialogText = `
+            <div style="padding: 0 20px;">
+                <p>High scores for 3D Pinball:</p>
+                <table style="width: 100%;">
+                    ${scores || "<tr><td colspan='3'>No scores yet!</td></tr>"}
+                </table>
+            </div>
+        `;
+    ShowDialogWindow({
+      title: "High Scores",
+      text: dialogText,
+      buttons: [
+        {
+          label: "OK",
+          isDefault: true,
+        },
+        {
+          label: "Reset Scores",
+          action: () => {
+            this.highScores = [];
+            this._saveHighScores();
+            this.win.close(); // Close and reopen to refresh
+            this._showHighScoresDialog();
+          },
+        },
+      ],
     });
   }
 }

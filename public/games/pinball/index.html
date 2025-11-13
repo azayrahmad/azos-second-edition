@@ -114,8 +114,49 @@
                     document.getElementById("status").style.display = "none";
                     document.getElementById("progress").style.display = "none";
                     document.getElementById("canvas").style.display = "block";
+                    // Start score monitoring
+                    monitorScore();
                 },
             };
+
+            function monitorScore() {
+                const POINTER_SIZE = 4;
+                const SCORE_OFFSET = 0x22068;
+                const GAME_STATE_OFFSET = 0x22050;
+
+                let scorePtr;
+                let gameStatePtr;
+                let lastScore = -1;
+                let wasGameOver = true;
+
+                const intervalId = setInterval(() => {
+                    if (Module.HEAP32) {
+                        if (!scorePtr) {
+                            const base = Module.asm.get_g_pb_pinball_table();
+                            if (!base) return;
+                            scorePtr = (base + SCORE_OFFSET) / POINTER_SIZE;
+                            gameStatePtr = (base + GAME_STATE_OFFSET) / POINTER_SIZE;
+                        }
+
+                        const score = Module.HEAP32[scorePtr];
+                        const isGameOver = Module.HEAP32[gameStatePtr] === 1;
+
+                        if (score !== lastScore) {
+                            lastScore = score;
+                        }
+
+                        // Game just ended
+                        if (isGameOver && !wasGameOver) {
+                            parent.postMessage({
+                                type: 'PINBALL_GAME_OVER',
+                                payload: { score: lastScore }
+                            }, window.location.origin);
+                        }
+
+                        wasGameOver = isGameOver;
+                    }
+                }, 1000); // Check every second
+            }
 
             Module.setStatus("Downloading...");
             window.onerror = function () {
