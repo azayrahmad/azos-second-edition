@@ -132,6 +132,8 @@
     // TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
     $w[0].$window = $w;
     $w.element = $w[0];
+    /** @type {OSGUI$Window[]} */
+    $w.child_$windows = []; // Initialize as an instance property
     $w[0].id = `os-window-${Math.random().toString(36).substr(2, 9)}`;
     $w.$titlebar = $(E("div")).addClass("window-titlebar").appendTo($w);
     $w.$title_area = $(E("div"))
@@ -396,10 +398,8 @@
     };
     $w.setDimensions(options);
 
-    /** @type {OSGUI$Window[]} */
-    let child_$windows = [];
     $w.addChildWindow = ($child_window) => {
-      child_$windows.push($child_window);
+      $w.child_$windows.push($child_window);
     };
     const showAsFocused = () => {
       if ($w.hasClass("focused")) {
@@ -416,7 +416,7 @@
       $event_target.triggerHandler("blur");
     };
     $w.focus = () => {
-      // showAsFocused();
+      showAsFocused();
       $w.bringToFront();
       refocus();
     };
@@ -483,6 +483,7 @@
       function setupIframe(iframe) {
         if (!focus_update_handlers_by_container.has(iframe)) {
           const iframe_update_focus = make_focus_in_out_handler(iframe, false);
+          $w.iframe = iframe; // Store reference to the primary iframe
           // this also operates as a flag to prevent multiple handlers from being added, or waiting for the iframe to load duplicately
           focus_update_handlers_by_container.set(iframe, iframe_update_focus);
 
@@ -500,9 +501,9 @@
                   callback();
                 } else {
                   // iframe.contentDocument.addEventListener("readystatechange", () => {
-                  // 	if (iframe.contentDocument.readyState == "complete") {
-                  // 		callback();
-                  // 	}
+                  // \tif (iframe.contentDocument.readyState == "complete") {
+                  // \t\tcallback();
+                  // \t}
                   // });
                   setTimeout(() => {
                     wait_for_iframe_load(callback);
@@ -527,6 +528,19 @@
                   "focus",
                   iframe_update_focus,
                 );
+                iframe.contentWindow.addEventListener("focus", () =>
+                  $w.focus(),
+                );
+                iframe.contentWindow.addEventListener("blur", () => {
+                  // Only unfocus the parent window if focus is not moving to another part of the parent window itself.
+                  // This prevents the parent window from unfocusing when focus moves from the iframe to the window's titlebar, for example.
+                  if (
+                    !document.activeElement ||
+                    !$w.$window[0].contains(document.activeElement)
+                  ) {
+                    stopShowingAsFocused();
+                  }
+                });
                 observeIframes(iframe.contentDocument);
               });
             } catch (error) {
@@ -718,7 +732,26 @@
               }
             }
           } else if (is_root) {
-            stopShowingAsFocused();
+            // The root window (the $Window component itself)
+            // If the focus leaves the window, and it's not going into a child iframe
+            // which is also part of this window's logical focus, then stop showing as focused.
+            // When focus moves into an iframe, the `newly_focused.tagName === "IFRAME"` block above
+            // will handle setting `last_focus_by_container` for the iframe, and
+            // the iframe's own focus listener (added in `setupIframe`) will call `$w.focus()`,
+            // which in turn calls `showAsFocused()`.
+            // So, this `stopShowingAsFocused()` should only happen if the focus genuinely
+            // leaves the entire window and its descendant iframes.
+
+            // Check if the newly focused element is within a child iframe of this window
+            const isFocusInChildIframe = $w.child_$windows.some(
+              (childWin) =>
+                childWin.iframe?.contentWindow.document.activeElement &&
+                childWin.iframe.contentWindow.document.contains(newly_focused),
+            );
+
+            if (!isFocusInChildIframe) {
+              stopShowingAsFocused();
+            }
           }
         };
       }
@@ -1013,7 +1046,7 @@
       $w.css({
         zIndex: $Window.Z_INDEX++,
       });
-      for (const $childWindow of child_$windows) {
+      for (const $childWindow of $w.child_$windows) {
         $childWindow.bringToFront();
       }
     };

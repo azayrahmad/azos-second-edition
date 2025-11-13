@@ -17,7 +17,7 @@ export class PinballApp extends Application {
     });
 
     const menuBar = this._createMenuBar();
-    // win.setMenuBar(menuBar);
+    win.setMenuBar(menuBar);
 
     const iframe = document.createElement("iframe");
     iframe.src = "games/pinball/index.html";
@@ -25,9 +25,11 @@ export class PinballApp extends Application {
     iframe.style.height = "100%";
     iframe.style.border = "none";
 
-    win.$content.append(iframe);
+    // Instead of appending, set the inner HTML to allow $Window.js to observe
+    win.$content.html(iframe.outerHTML);
 
-    this.iframe = iframe;
+    // Get the actual iframe element that was added to the DOM
+    this.iframe = win.$content.find("iframe")[0];
 
     return win;
   }
@@ -84,6 +86,7 @@ export class PinballApp extends Application {
 
   _onLaunch() {
     // Most of the logic is now handled by the iframe
+    this.win.focus();
   }
 
   sendKey(key) {
