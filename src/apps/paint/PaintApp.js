@@ -26,6 +26,6 @@ export class PaintApp extends Application {
     }
 
     _onLaunch() {
-        // No specific launch logic needed for a simple iframe app
+        this.win.focus();
     }
 }
