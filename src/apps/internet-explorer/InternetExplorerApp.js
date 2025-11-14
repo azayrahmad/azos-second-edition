@@ -1,7 +1,7 @@
-import { Application } from "../Application.js";
+import { IFrameApplication } from "../IFrameApplication.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 
-export class InternetExplorerApp extends Application {
+export class InternetExplorerApp extends IFrameApplication {
   async _onLaunch(filePath) {
     const url = filePath || "microsoft.com";
     this.navigateTo(url);
@@ -140,6 +140,8 @@ export class InternetExplorerApp extends Application {
     });
 
     win.$content.append(addressBar, this.iframe, statusBar);
+
+    this._setupIframeForInactivity(this.iframe);
 
     return win;
   }
