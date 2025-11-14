@@ -318,7 +318,7 @@ export const apps = [
   },
   {
     id: "pinball",
-    title: "3D Pinball for Windows - Space Cadet",
+    title: "Pinball",
     icon: ICONS.pinball,
     appClass: PinballApp,
     width: 600,

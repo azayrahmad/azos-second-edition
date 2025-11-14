@@ -25,17 +25,19 @@
                 border: 0 none;
                 background-color: #000;
             }
-            #status {
-                margin: 20px;
+            #splash-image {
+                /* display at native size */
             }
         </style>
     </head>
     <body>
         <div class="emscripten-container">
-            <div class="emscripten" id="status">Downloading...</div>
-            <div class="emscripten">
-                <progress hidden id="progress" max="100" value="0"></progress>
-            </div>
+            <img
+                id="splash-image"
+                src="./SPLASH_BITMAP.bmp"
+                alt="3D Pinball for Windows - Space Cadet"
+                style="display: block"
+            />
             <canvas
                 class="emscripten"
                 id="canvas"
@@ -46,9 +48,6 @@
         </div>
 
         <script>
-            var statusElement = document.getElementById("status");
-            var progressElement = document.getElementById("progress");
-
             var Module = {
                 preRun: [],
                 postRun: [],
@@ -73,25 +72,20 @@
                 setStatus: function (text) {
                     if (!Module.setStatus.last)
                         Module.setStatus.last = { time: Date.now(), text: "" };
-                    if (text === Module.setStatus.last.text) return;
-                    var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                    if (text === Module.setStatus.last.text) return; // Prevent duplicate console logs for the same status
+
                     var now = Date.now();
-                    if (m && now - Module.setStatus.last.time < 30) return;
+                    // Throttle logging to avoid excessive console output for rapid updates
+                    if (now - Module.setStatus.last.time < 30) return;
+
                     Module.setStatus.last.time = now;
                     Module.setStatus.last.text = text;
-                    if (m) {
-                        text = m[1];
-                        progressElement.value = parseInt(m[2]) * 100;
-                        progressElement.max = parseInt(m[4]) * 100;
-                        progressElement.hidden = false;
+
+                    if (text === "") {
+                        console.log("Loading complete.");
                     } else {
-                        progressElement.hidden = true;
-                        if (text === "") {
-                            document.getElementById("canvas").style.display =
-                                "block";
-                        }
+                        console.log("Loading status: " + text);
                     }
-                    statusElement.innerHTML = text;
                 },
                 totalDependencies: 0,
                 monitorRunDependencies: function (left) {
@@ -99,25 +93,23 @@
                         this.totalDependencies,
                         left,
                     );
-                    Module.setStatus(
-                        left
-                            ? "Preparing... (" +
-                                  (this.totalDependencies - left) +
-                                  "/" +
-                                  this.totalDependencies +
-                                  ")"
-                            : "All downloads complete.",
-                    );
+                    const statusText = left
+                        ? "Preparing... (" +
+                          (this.totalDependencies - left) +
+                          "/" +
+                          this.totalDependencies +
+                          ")"
+                        : "All downloads complete.";
+                    console.log(statusText);
                 },
                 // ✅ Add this: ensure canvas is revealed when runtime is ready
                 onRuntimeInitialized: function () {
-                    document.getElementById("status").style.display = "none";
-                    document.getElementById("progress").style.display = "none";
+                    document.getElementById("splash-image").style.display =
+                        "none";
                     document.getElementById("canvas").style.display = "block";
                 },
             };
 
-            Module.setStatus("Downloading...");
             window.onerror = function () {
                 Module.setStatus("Exception thrown, see JavaScript console");
                 Module.setStatus = function (text) {
