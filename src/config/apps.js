@@ -10,6 +10,7 @@ import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
+import { MircApp } from "../apps/mirc/MircApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
@@ -42,6 +43,7 @@ export const appClasses = {
   explorer: ExplorerApp,
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
+  mirc: MircApp,
 };
 
 export const apps = [
@@ -325,5 +327,15 @@ export const apps = [
     height: 400,
     resizable: false,
     isSingleton: true,
+  },
+  {
+    id: "mirc",
+    title: "mIRC",
+    icon: ICONS.mirc,
+    appClass: MircApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
   },
 ];

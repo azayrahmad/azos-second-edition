@@ -194,4 +194,8 @@ export const ICONS = {
     16: new URL("../assets/icons/PINBALL.ico", import.meta.url).href,
     32: new URL("../assets/icons/PINBALL.ico", import.meta.url).href,
   },
+  mirc: {
+    16: new URL("../assets/icons/notepad-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/NOTEPAD_1.ico", import.meta.url).href,
+  },
 };
