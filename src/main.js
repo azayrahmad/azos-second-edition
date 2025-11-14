@@ -200,6 +200,11 @@ async function initializeOS() {
   await promptToContinue();
   hideBootScreen();
 
+  const desktopEl = document.querySelector(".desktop");
+  if (desktopEl) {
+      desktopEl.classList.add("fade-in");
+  }
+
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
   window.setTheme = setTheme;

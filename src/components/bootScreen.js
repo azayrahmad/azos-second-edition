@@ -3,7 +3,10 @@ let lastCursorElement = null;
 function hideBootScreen() {
     const bootScreenEl = document.getElementById("boot-screen");
     if (bootScreenEl) {
-        bootScreenEl.remove();
+        bootScreenEl.classList.add("fade-out");
+        bootScreenEl.addEventListener("animationend", () => {
+            bootScreenEl.remove();
+        });
     }
 }
 
