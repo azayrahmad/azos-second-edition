@@ -14,6 +14,7 @@ import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
+import { PaintApp } from "../apps/paint/PaintApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -42,6 +43,7 @@ export const appClasses = {
   explorer: ExplorerApp,
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
+  paint: PaintApp,
 };
 
 export const apps = [
@@ -325,5 +327,15 @@ export const apps = [
     height: 400,
     resizable: false,
     isSingleton: true,
+  },
+  {
+    id: "paint",
+    title: "Paint",
+    icon: ICONS.paint,
+    appClass: PaintApp,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
   },
 ];
