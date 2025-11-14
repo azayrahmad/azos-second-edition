@@ -30,6 +30,7 @@ export class PinballApp extends Application {
 
     // Get the actual iframe element that was added to the DOM
     this.iframe = win.$content.find("iframe")[0];
+    this._setupIframeForInactivity(this.iframe);
 
     return win;
   }

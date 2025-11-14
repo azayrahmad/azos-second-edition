@@ -141,6 +141,8 @@ export class InternetExplorerApp extends Application {
 
     win.$content.append(addressBar, this.iframe, statusBar);
 
+    this._setupIframeForInactivity(this.iframe);
+
     return win;
   }
 }
