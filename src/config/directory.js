@@ -30,6 +30,7 @@ const directory = [
           { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
           { id: "app-internet-explorer", type: "app", appId: "internet-explorer" },
           { id: "app-pinball", type: "app", appId: "pinball" },
+          { id: "app-mirc", type: "app", appId: "mirc" },
         ],
       },
       {
@@ -144,6 +145,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-pinball",
                 name: "3D Pinball",
+              },
+              {
+                id: "shortcut-to-mirc",
+                type: "shortcut",
+                targetId: "app-mirc",
+                name: "mIRC",
               },
             ],
           },

@@ -10,6 +10,7 @@ const startMenuAppIds = [
   "about",
   "internet-explorer",
   "pinball",
+  "mirc",
 ];
 const accessoriesAppIds = ["notepad", "clippy"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];

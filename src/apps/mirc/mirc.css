@@ -1,0 +1,56 @@
+/* mIRC styles */
+.mirc-container p {
+    margin: 0;
+}
+
+.mirc-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #c0c0c0; /* Classic grey */
+}
+
+.mirc-status-window {
+    flex: 0 0 100px; /* Fixed height for the status window */
+    margin: 3px;
+    padding: 5px;
+    overflow-y: auto;
+    background-color: white;
+    font-family: 'Fixedsys', monospace;
+}
+
+.mirc-channel-window {
+    flex: 1; /* Takes up the remaining space */
+    display: flex;
+    flex-direction: row;
+}
+
+.mirc-chat-area {
+    flex: 1; /* Takes up the remaining space */
+    margin: 3px;
+    padding: 5px;
+    overflow-y: auto;
+    background-color: white;
+    font-family: 'Fixedsys', monospace;
+}
+
+.mirc-user-list {
+    flex: 0 0 120px; /* Fixed width for the user list */
+    margin: 3px;
+    padding: 5px;
+    overflow-y: auto;
+    background-color: white;
+    font-family: 'Fixedsys', monospace;
+}
+
+.mirc-input-box {
+    flex: 0 0 25px; /* Fixed height for the input box */
+    padding: 3px;
+}
+
+.mirc-input {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 1px solid #808080;
+}
