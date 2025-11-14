@@ -23,6 +23,7 @@ import {
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from "./components/ui.js";
+import screensaver from "./components/screensaver.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -206,6 +207,29 @@ async function initializeOS() {
   console.log("azOS initialized");
 
   playSound("WindowsLogon");
+
+  let inactivityTimer;
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    if (screensaver.active) {
+      screensaver.hide();
+    }
+
+    const timeoutDuration = getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 5 * 60 * 1000;
+
+    inactivityTimer = setTimeout(() => {
+      screensaver.show();
+    }, timeoutDuration);
+  }
+
+  window.System.resetInactivityTimer = resetInactivityTimer;
+
+  window.addEventListener('mousemove', resetInactivityTimer);
+  window.addEventListener('mousedown', resetInactivityTimer);
+  window.addEventListener('keydown', resetInactivityTimer);
+
+  resetInactivityTimer();
 }
 
 initializeOS();
