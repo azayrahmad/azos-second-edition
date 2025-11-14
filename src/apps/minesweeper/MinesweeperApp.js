@@ -8,7 +8,7 @@ export class MinesweeperApp extends Application {
       title: this.title,
       outerWidth: 200,
       outerHeight: 300,
-      resizable: true,
+      resizable: false,
       icons: this.icon,
     });
 
@@ -29,7 +29,7 @@ export class MinesweeperApp extends Application {
     container.appendChild(header);
     win.$content.append(container);
 
-    header.querySelector('.smiley-face').addEventListener('click', () => this.newGame());
+    header.querySelector('.smiley-face').addEventListener('click', () => this.newGame(this.difficulty));
 
     return win;
   }
@@ -102,15 +102,15 @@ export class MinesweeperApp extends Application {
   }
 
   _resizeWindow() {
-    const BORDER_WIDTH = 2;
-    const PADDING = 5;
-    const HEADER_HEIGHT = 36;
+    // This is a more direct and reliable calculation that avoids DOM measurement race conditions.
+    const HEADER_HEIGHT = 46; // Measured height of the .game-header element
+    const PADDING = 10; // Total padding (5px on each side)
     const CELL_SIZE = 16;
 
-    const width = this.cols * CELL_SIZE + (BORDER_WIDTH * 2) + (PADDING * 2);
-    const height = this.rows * CELL_SIZE + HEADER_HEIGHT + (BORDER_WIDTH * 2) + (PADDING * 2);
+    const innerWidth = this.cols * CELL_SIZE + PADDING;
+    const innerHeight = this.rows * CELL_SIZE + HEADER_HEIGHT + PADDING;
 
-    this.win.setDimensions({ outerWidth: width, outerHeight: height });
+    this.win.setDimensions({ innerWidth, innerHeight });
   }
 
   generateBoard() {

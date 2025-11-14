@@ -321,7 +321,7 @@ export const apps = [
     title: "Minesweeper",
     icon: ICONS.minesweeper,
     appClass: MinesweeperApp,
-    resizable: true,
+    resizable: false,
     isSingleton: true,
   },
 ];
