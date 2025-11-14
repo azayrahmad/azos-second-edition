@@ -272,6 +272,25 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
         },
       ],
     },
+    "MENU_DIVIDER",
+    {
+        label: "Screen Saver Wait",
+        submenu: [
+            {
+                radioItems: [
+                    { label: "1 minute", value: 60000 },
+                    { label: "5 minutes", value: 300000 },
+                    { label: "30 minutes", value: 1800000 },
+                    { label: "1 hour", value: 3600000 },
+                ],
+                getValue: () => getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 300000,
+                setValue: (value) => {
+                    setItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT, value);
+                },
+                ariaLabel: "Screen Saver Wait Time",
+            },
+        ],
+    }
   ];
 
   const menu = new window.ContextMenu(menuItems, event);

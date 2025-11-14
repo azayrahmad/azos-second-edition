@@ -10,6 +10,7 @@ export const LOCAL_STORAGE_KEYS = {
   ICON_POSITIONS: 'iconPositions',
   MONITOR_TYPE: 'monitorType',
   RECYCLE_BIN: 'recycleBin',
+  SCREENSAVER_TIMEOUT: 'screensaverTimeout',
 };
 
 export function getItem(key) {
