@@ -11,6 +11,7 @@ export const LOCAL_STORAGE_KEYS = {
   MONITOR_TYPE: 'monitorType',
   RECYCLE_BIN: 'recycleBin',
   SCREENSAVER_TIMEOUT: 'screensaverTimeout',
+  SCREENSAVER: 'screensaver',
 };
 
 export function getItem(key) {
