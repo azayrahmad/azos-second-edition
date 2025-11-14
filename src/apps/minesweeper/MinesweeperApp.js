@@ -104,11 +104,12 @@ export class MinesweeperApp extends Application {
   _resizeWindow() {
     // This is a more direct and reliable calculation that avoids DOM measurement race conditions.
     const HEADER_HEIGHT = 46; // Measured height of the .game-header element
+    const HEADER_MARGIN_BOTTOM = 5; // The margin between the header and the board
     const PADDING = 10; // Total padding (5px on each side)
     const CELL_SIZE = 16;
 
     const innerWidth = this.cols * CELL_SIZE + PADDING;
-    const innerHeight = this.rows * CELL_SIZE + HEADER_HEIGHT + PADDING;
+    const innerHeight = this.rows * CELL_SIZE + HEADER_HEIGHT + HEADER_MARGIN_BOTTOM + PADDING;
 
     this.win.setDimensions({ innerWidth, innerHeight });
   }
