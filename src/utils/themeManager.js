@@ -1,4 +1,9 @@
-import { getItem, setItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
+import {
+  getItem,
+  setItem,
+  removeItem,
+  LOCAL_STORAGE_KEYS,
+} from "./localStorage.js";
 import { themes } from "../config/themes.js";
 import {
   applyCursorTheme,
@@ -137,8 +142,7 @@ export async function applyTheme() {
     if (window.makeThemeCSSFile) {
       const cssContent = window.makeThemeCSSFile(currentTheme.colors);
       // Use 'custom' id for the temporary theme from the app, otherwise the theme's own id.
-      const styleId =
-        currentTheme.id === "custom" ? "custom" : currentTheme.id;
+      const styleId = currentTheme.id === "custom" ? "custom" : currentTheme.id;
       applyStylesheet(styleId, cssContent);
     }
   }
@@ -155,6 +159,15 @@ export async function setTheme(themeKey, themeObject = null) {
       clearBusyCursor(document.body);
       return;
     }
+
+    // Update local storage wallpaper based on the new theme's wallpaper property
+    if (newTheme.wallpaper) {
+      setItem(LOCAL_STORAGE_KEYS.WALLPAPER, newTheme.wallpaper);
+    } else {
+      removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
+    }
+    // Notify the desktop component to re-apply wallpaper based on the new theme
+    document.dispatchEvent(new CustomEvent("theme-changed"));
 
     activeTheme = newTheme; // Update in-memory cache
     setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, newTheme);

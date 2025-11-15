@@ -154,7 +154,7 @@ function setWallpaperMode(mode) {
 
 function applyWallpaper() {
   const theme = getActiveTheme();
-  const wallpaper = theme.wallpaper;
+  const wallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || theme.wallpaper;
   const desktop = document.querySelector(".desktop");
   if (wallpaper) {
     const mode = getWallpaperMode();
@@ -650,6 +650,7 @@ export async function initDesktop() {
 
   document.addEventListener("theme-changed", () => {
     desktop.refreshIcons();
+    applyWallpaper();
   });
 
   desktop.addEventListener("contextmenu", (e) => {
