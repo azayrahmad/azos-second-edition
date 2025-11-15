@@ -1,0 +1,67 @@
+.display-properties-tabs {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.display-properties-tabs .window {
+    flex-grow: 1;
+}
+
+.display-wallpaper-preview {
+    width: 200px;
+    height: 150px;
+    border: 1px solid #000;
+    margin: 0 auto;
+}
+
+.wallpaper-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.wallpaper-list tr {
+    cursor: default;
+}
+
+.wallpaper-list td {
+    padding: 2px 4px;
+}
+
+.wallpaper-list tr.highlighted {
+    background-color: var(--highlight, #000080);
+    color: var(--highlight-text, white);
+}
+
+.display-properties-buttons {
+    text-align: right;
+    padding: 5px;
+}
+
+.wallpaper-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adds space between the paragraph and the options below */
+}
+
+.wallpaper-options {
+    display: flex;
+    gap: 10px; /* Adds space between the wallpaper list and controls */
+}
+
+.wallpaper-list-container {
+    flex-grow: 1; /* Allows the list to take up available space */
+    height: 100px;
+    overflow-y: scroll;
+}
+
+.wallpaper-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Stacks the control buttons vertically */
+}
+
+.wallpaper-controls .field-row {
+    display: flex;
+    flex-direction: column;
+}

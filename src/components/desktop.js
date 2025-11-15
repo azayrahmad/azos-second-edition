@@ -154,7 +154,7 @@ function setWallpaperMode(mode) {
 
 function applyWallpaper() {
   const theme = getActiveTheme();
-  const wallpaper = theme.wallpaper;
+  const wallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || theme.wallpaper;
   const desktop = document.querySelector(".desktop");
   if (wallpaper) {
     const mode = getWallpaperMode();
@@ -312,6 +312,11 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       ],
     },
   ];
+
+  menuItems.push({
+    label: "Properties",
+    action: () => launchApp("display-properties"),
+  });
 
   const menu = new window.ContextMenu(menuItems, event);
   const handleThemeChange = () => {
@@ -645,6 +650,7 @@ export async function initDesktop() {
 
   document.addEventListener("theme-changed", () => {
     desktop.refreshIcons();
+    applyWallpaper();
   });
 
   desktop.addEventListener("contextmenu", (e) => {
