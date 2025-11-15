@@ -313,6 +313,11 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     },
   ];
 
+  menuItems.push({
+    label: "Properties",
+    action: () => launchApp("display-properties"),
+  });
+
   const menu = new window.ContextMenu(menuItems, event);
   const handleThemeChange = () => {
     if (menu.activeSubmenu) {

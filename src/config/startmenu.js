@@ -4,6 +4,7 @@ import { ShowComingSoonDialog } from "../components/DialogWindow.js";
 import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
+  "display-properties",
   "webamp",
   "image-viewer",
   "tipOfTheDay",

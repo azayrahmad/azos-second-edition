@@ -1,0 +1,9 @@
+.display-properties-tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.display-properties-tabs .window {
+  flex-grow: 1;
+}

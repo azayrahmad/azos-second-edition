@@ -31,6 +31,7 @@ const directory = [
           { id: "app-internet-explorer", type: "app", appId: "internet-explorer" },
           { id: "app-pinball", type: "app", appId: "pinball" },
           { id: "app-paint", type: "app", appId: "paint" },
+          { id: "app-display-properties", type: "app", appId: "display-properties" },
         ],
       },
       {
@@ -151,6 +152,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-paint",
                 name: "Paint",
+              },
+              {
+                id: "shortcut-to-display-properties",
+                type: "shortcut",
+                targetId: "app-display-properties",
+                name: "Display Properties",
               },
             ],
           },

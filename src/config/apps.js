@@ -12,6 +12,7 @@ import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
+import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
@@ -44,6 +45,7 @@ export const appClasses = {
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
   paint: PaintApp,
+  "display-properties": DisplayPropertiesApp,
 };
 
 export const apps = [
@@ -337,5 +339,15 @@ export const apps = [
     height: 600,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "display-properties",
+    title: "Display Properties",
+    icon: ICONS.desktopthemes,
+    appClass: DisplayPropertiesApp,
+    width: 480,
+    height: 420,
+    resizable: false,
+    isSingleton: true,
   },
 ];
