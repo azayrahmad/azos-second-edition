@@ -34,7 +34,7 @@
     }
 
     function get_direction() {
-        return window.get_direction ? window.get_direction() : "ltr";
+        return window.OSGUI.config.getDirection();
     }
 
     /**

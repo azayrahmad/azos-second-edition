@@ -414,17 +414,14 @@
           menu_button_el.getAttribute("aria-expanded") === "true"
         )
           return;
-        if (typeof window.playSound === "function") {
-          console.log("MenuPopup");
-          window.playSound("MenuPopup");
-        }
+        OSGUI.config.playSound("MenuPopup");
         close_menus();
         menu_button_el.classList.add("active");
         menu_button_el.setAttribute("aria-expanded", "true");
         menu_popup_el.style.display = "";
         menu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
         menu_popup_el.setAttribute("dir", get_direction());
-        if (window.inheritTheme) window.inheritTheme(menu_popup_el, menus_el);
+        OSGUI.config.inheritTheme(menu_popup_el, menus_el);
         if (!menu_popup_el.parentElement)
           document.body.appendChild(menu_popup_el);
         top_level_highlight(menus_key);

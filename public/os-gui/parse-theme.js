@@ -506,17 +506,6 @@ function getThemeCSSProperties(element) {
 }
 
 /**
- * @param {HTMLElement} target
- * @param {HTMLElement} source
- * @private
- */
-function inheritTheme(target, source) {
-  applyCSSProperties(getThemeCSSProperties(source), {
-    element: target,
-    recurseIntoIframes: true,
-  });
-}
-
 // Parse NonClientMetrics
 // https://docs.microsoft.com/en-us/windows/win32/controls/themesfileformat-overview?redirectedfrom=MSDN#metrics-section
 // https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types

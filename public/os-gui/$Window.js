@@ -190,27 +190,6 @@
     } else if (typeof options.icon === "object" && "tagName" in options.icon) {
       $w.icons = { any: options.icon };
     } else if (options.icon) {
-      // old terrible API using globals that you have to define
-      console.warn(
-        "DEPRECATED: use options.icons instead of options.icon, e.g. new $Window({icons: {16: 'app-16x16.png', any: 'app-icon.svg'}})",
-      );
-      // @ts-ignore
-      if (
-        typeof $Icon !== "undefined" &&
-        typeof TITLEBAR_ICON_SIZE !== "undefined"
-      ) {
-        // @ts-ignore
-        $w.icon_name = options.icon;
-        // @ts-ignore
-        $w.$icon = $Icon(options.icon, TITLEBAR_ICON_SIZE).prependTo(
-          $w.$titlebar,
-        );
-      } else {
-        throw new Error(
-          "Use {icon: img_element} or {icons: {16: url_or_img_element}} options",
-        );
-      }
-    } else {
       $w.icons = {};
     }
     let iconSize = 16;
@@ -286,19 +265,6 @@
       console.warn("DEPRECATED: use $w.icons object instead of $w.icon_name");
       return $w.icon_name;
     };
-    $w.setIconByID = (icon_name) => {
-      console.warn(
-        "DEPRECATED: use $w.setIcons(icons) instead of $w.setIconByID(icon_name)",
-      );
-      var old_$icon = $w.$icon;
-      // @ts-ignore
-      $w.$icon = $Icon(icon_name, TITLEBAR_ICON_SIZE);
-      old_$icon.replaceWith($w.$icon);
-      $w.icon_name = icon_name;
-      $w.task?.updateIcon();
-      $w.trigger("icon-change");
-      return $w;
-    };
     $w.setIcons = (icons) => {
       $w.icons = icons;
       $w.setTitlebarIconSize(iconSize);
@@ -320,9 +286,7 @@
      * @returns {"ltr" | "rtl"} writing/layout direction
      */
     function get_direction() {
-      return window.get_direction
-        ? window.get_direction()
-        : /** @type {"ltr" | "rtl"} */ (getComputedStyle($w[0]).direction);
+      return OSGUI.config.getDirection();
     }
 
     // This is very silly, using jQuery's event handling to implement simpler event handling.
@@ -790,7 +754,7 @@
       }
       if ($w.is(":visible")) {
         if (minimize_target_el && !$w.hasClass("minimized-without-taskbar")) {
-          window.playSound?.("Minimize");
+          OSGUI.config.playSound?.("Minimize");
           const before_rect = $w.$titlebar[0].getBoundingClientRect();
           const after_rect = minimize_target_el.getBoundingClientRect();
           $w.animateTitlebar(before_rect, after_rect, () => {
@@ -809,11 +773,11 @@
           const spacing = 10;
           if ($w.hasClass("minimized-without-taskbar")) {
             // unminimizing
-            window.playSound?.("RestoreUp");
+            OSGUI.config.playSound?.("RestoreUp");
             minimize_slots[$w._minimize_slot_index] = null;
           } else {
             // minimizing
-            window.playSound?.("Minimize");
+            OSGUI.config.playSound?.("Minimize");
             let i = 0;
             while (minimize_slots[i]) {
               i++;
@@ -924,7 +888,7 @@
         return;
       }
       if ($w.is(":hidden")) {
-        window.playSound?.("RestoreUp");
+        OSGUI.config.playSound?.("RestoreUp");
         const before_rect = minimize_target_el.getBoundingClientRect();
         $w.show();
         const after_rect = $w.$titlebar[0].getBoundingClientRect();
@@ -953,9 +917,9 @@
       }
 
       if ($w.hasClass("maximized")) {
-        window.playSound?.("RestoreDown");
+        OSGUI.config.playSound?.("RestoreDown");
       } else {
-        window.playSound?.("Maximize");
+        OSGUI.config.playSound?.("Maximize");
       }
 
       const instantly_maximize = () => {
@@ -968,7 +932,7 @@
         };
 
         $w.addClass("maximized");
-        const $desktopArea = $(".desktop-area");
+        const $desktopArea = $(OSGUI.config.desktopArea);
         const desktopRect = $desktopArea[0].getBoundingClientRect();
         $w.css({
           position: "fixed",
