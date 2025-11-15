@@ -214,9 +214,7 @@
           );
           submenu_popup_el.setAttribute("aria-labelledby", item_el.id);
           open_submenu = (highlight_first = true) => {
-            if (typeof window.playSound === "function") {
-              window.playSound("MenuPopup");
-            }
+            OSGUI.config.playSound("MenuPopup");
             if (submenu_popup_el.style.display !== "none") {
               return;
             }
@@ -228,9 +226,7 @@
             submenu_popup_el.style.display = "";
             submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
             submenu_popup_el.setAttribute("dir", get_direction());
-            if (window.inheritTheme) {
-              window.inheritTheme(submenu_popup_el, menu_popup_el);
-            }
+            OSGUI.config.inheritTheme(submenu_popup_el, menu_popup_el);
             if (!submenu_popup_el.parentElement) {
               document.body.appendChild(submenu_popup_el);
             }
@@ -347,9 +343,7 @@
           setTimeout(() => {
             just_activated = false;
           }, 10);
-          if (typeof window.playSound === "function") {
-            window.playSound("MenuCommand");
-          }
+          OSGUI.config.playSound("MenuCommand");
           if (item.checkbox) {
             if (item.checkbox.toggle) {
               item.checkbox.toggle();

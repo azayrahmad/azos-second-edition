@@ -168,3 +168,94 @@ export async function setTheme(themeKey, themeObject = null) {
     clearBusyCursor(document.body);
   }
 }
+
+function getThemeCSSProperties(element) {
+  const keys = [
+    "--checker",
+    "--button-active-border-image",
+    "--button-normal-border-image",
+    "--inset-deep-border-image",
+    "--button-default-border-image",
+    "--button-default-active-border-image",
+    "--scrollbar-arrows-ButtonText",
+    "--scrollbar-arrows-GrayText",
+    "--scrollbar-arrows-ButtonHilight",
+    "--scrollbar-size",
+    "--scrollbar-button-inner-size",
+    "--ActiveBorder",
+    "--ActiveTitle",
+    "--AppWorkspace",
+    "--Background",
+    "--ButtonAlternateFace",
+    "--ButtonDkShadow",
+    "--ButtonFace",
+    "--ButtonHilight",
+    "--ButtonLight",
+    "--ButtonShadow",
+    "--ButtonText",
+    "--GradientActiveTitle",
+    "--GradientInactiveTitle",
+    "--GrayText",
+    "--Hilight",
+    "--HilightText",
+    "--HotTrackingColor",
+    "--InactiveBorder",
+    "--InactiveTitle",
+    "--InactiveTitleText",
+    "--InfoText",
+    "--InfoWindow",
+    "--Menu",
+    "--MenuText",
+    "--Scrollbar",
+    "--TitleText",
+    "--Window",
+    "--WindowFrame",
+    "--WindowText",
+  ];
+  const style = window.getComputedStyle(element);
+  const result = {};
+  for (const key of keys) {
+    result[key] = style.getPropertyValue(key);
+  }
+  return result;
+}
+
+function applyCSSProperties(cssProperties, options = {}) {
+  let element;
+  let recurseIntoIframes;
+  if ("tagName" in options) {
+    element = options;
+    recurseIntoIframes = false;
+  } else {
+    ({ element = document.documentElement, recurseIntoIframes = false } =
+      options);
+  }
+
+  var getProp = (propName) =>
+    typeof cssProperties.getPropertyValue === "function"
+      ? cssProperties.getPropertyValue(propName)
+      : cssProperties[propName];
+  for (var k in cssProperties) {
+    element.style.setProperty(k, getProp(k));
+  }
+  if (recurseIntoIframes) {
+    var iframes = element.querySelectorAll("iframe");
+    for (var i = 0; i < iframes.length; i++) {
+      try {
+        applyCSSProperties(cssProperties, {
+          element: iframes[i].contentDocument?.documentElement,
+          recurseIntoIframes: true,
+        });
+      } catch (error) {
+        // ignore
+      }
+    }
+  }
+}
+
+export function inheritTheme(target, source) {
+  applyCSSProperties(getThemeCSSProperties(source), {
+    element: target,
+    recurseIntoIframes: true,
+  });
+}

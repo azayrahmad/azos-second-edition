@@ -12,7 +12,7 @@ import { registerCustomApp } from "./utils/customAppManager.js";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
-import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
+import { setTheme, getCurrentTheme, inheritTheme } from "./utils/themeManager.js";
 import {
   hideBootScreen,
   startBootProcessStep,
@@ -200,8 +200,17 @@ async function initializeOS() {
   await promptToContinue();
   hideBootScreen();
 
+  window.OSGUI.init({
+    playSound: playSound,
+    inheritTheme: inheritTheme,
+    desktopArea: document.querySelector(".desktop"),
+    getDirection: () => {
+      //TODO: implement RTL support fully
+      return "ltr";
+    },
+  });
+
   window.ShowDialogWindow = ShowDialogWindow;
-  window.playSound = playSound;
   window.setTheme = setTheme;
   window.System.launchApp = launchApp;
   console.log("azOS initialized");
