@@ -29,7 +29,7 @@ class DisplayPropertiesApp extends Application {
     this.selectedWallpaperMode = getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || 'stretch';
 
     const { win } = this;
-    win.content.innerHTML = `
+    const contentHtml = `
       <div class="display-properties-tabs">
         <menu role="tablist">
           <li role="tab" aria-selected="true"><a href="#background">Background</a></li>
@@ -88,6 +88,8 @@ class DisplayPropertiesApp extends Application {
       </div>
     `;
 
+    win.$content.html(contentHtml);
+
     this._setupTabs(win);
     this._populateWallpaperList(win);
     this._setupButtons(win);
@@ -103,104 +105,88 @@ class DisplayPropertiesApp extends Application {
   }
 
   _setupTabs(win) {
-    const tabs = win.content.querySelectorAll('[role="tab"]');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
-        tab.setAttribute('aria-selected', 'true');
-        const tabPanels = win.content.querySelectorAll('.tab-content');
-        tabPanels.forEach(panel => {
-          panel.hidden = true;
-        });
-        const activePanel = win.content.querySelector(tab.querySelector('a').hash);
-        if (activePanel) {
-          activePanel.hidden = false;
-        }
-      });
+    const $tabs = win.$content.find('[role="tab"]');
+    $tabs.on('click', (e) => {
+        const $clickedTab = $(e.currentTarget);
+        $tabs.attr('aria-selected', 'false');
+        $clickedTab.attr('aria-selected', 'true');
+
+        win.$content.find('.tab-content').hide();
+        const activePanelId = $clickedTab.find('a').attr('href');
+        win.$content.find(activePanelId).show();
     });
   }
 
   _populateWallpaperList(win) {
-    const wallpaperList = win.content.querySelector('.wallpaper-list');
+    const $wallpaperList = win.$content.find('.wallpaper-list');
     const wallpapers = Object.values(themes)
       .filter(theme => theme.wallpaper)
       .map(theme => ({ name: theme.name, path: theme.wallpaper }));
 
     // Add a "None" option
-    const noneOption = document.createElement('li');
-    noneOption.textContent = '(None)';
-    noneOption.dataset.path = 'none';
-    wallpaperList.appendChild(noneOption);
+    $wallpaperList.append('<li data-path="none">(None)</li>');
 
     wallpapers.forEach(({ name, path }) => {
-      const li = document.createElement('li');
-      li.textContent = name;
-      li.dataset.path = path;
-      wallpaperList.appendChild(li);
+        $wallpaperList.append(`<li data-path="${path}">${name}</li>`);
     });
 
-    wallpaperList.addEventListener('click', (e) => {
-      if (e.target.tagName === 'LI') {
-        this.selectedWallpaper = e.target.dataset.path;
+    $wallpaperList.on('click', 'li', (e) => {
+        const $selectedLi = $(e.currentTarget);
+        this.selectedWallpaper = $selectedLi.data('path');
         this._updatePreview(win);
         this._enableApplyButton(win);
 
-        // Highlight selection
-        const currentlySelected = wallpaperList.querySelector('.highlighted');
-        if (currentlySelected) {
-          currentlySelected.classList.remove('highlighted');
-        }
-        e.target.classList.add('highlighted');
-      }
+        $wallpaperList.find('.highlighted').removeClass('highlighted');
+        $selectedLi.addClass('highlighted');
     });
   }
 
   _updatePreview(win) {
-    const preview = win.content.querySelector('.wallpaper-preview');
+    const $preview = win.$content.find('.wallpaper-preview');
     if (this.selectedWallpaper && this.selectedWallpaper !== 'none') {
-      preview.style.backgroundImage = `url(${this.selectedWallpaper})`;
-      preview.style.backgroundSize = 'cover';
+        $preview.css({
+            'background-image': `url(${this.selectedWallpaper})`,
+            'background-size': 'cover'
+        });
     } else {
-      preview.style.backgroundImage = 'none';
+        $preview.css('background-image', 'none');
     }
   }
 
   _setupButtons(win) {
-    const okButton = win.content.querySelector('.ok-button');
-    const cancelButton = win.content.querySelector('.cancel-button');
-    const applyButton = win.content.querySelector('.apply-button');
-    const browseButton = win.content.querySelector('.browse-button');
-    const displayMode = win.content.querySelector('#display-mode');
+    const $okButton = win.$content.find('.ok-button');
+    const $cancelButton = win.$content.find('.cancel-button');
+    const $applyButton = win.$content.find('.apply-button');
+    const $browseButton = win.$content.find('.browse-button');
+    const $displayMode = win.$content.find('#display-mode');
 
-    applyButton.disabled = true;
+    $applyButton.prop('disabled', true);
 
-    okButton.addEventListener('click', () => {
+    $okButton.on('click', () => {
       this._applyChanges();
       this.win.close();
     });
 
-    cancelButton.addEventListener('click', () => {
+    $cancelButton.on('click', () => {
       this.win.close();
     });
 
-    applyButton.addEventListener('click', () => {
+    $applyButton.on('click', () => {
       this._applyChanges();
-      applyButton.disabled = true;
+      $applyButton.prop('disabled', true);
     });
 
-    browseButton.addEventListener('click', () => this._browseForWallpaper(win));
+    $browseButton.on('click', () => this._browseForWallpaper(win));
 
-    displayMode.addEventListener('change', (e) => {
-      this.selectedWallpaperMode = e.target.value;
+    $displayMode.on('change', (e) => {
+      this.selectedWallpaperMode = $(e.target).val();
       this._enableApplyButton(win);
     });
   }
 
   _browseForWallpaper(win) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
+    const $input = $('<input type="file" accept="image/*" />');
+    $input.on('change', (e) => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
@@ -211,12 +197,12 @@ class DisplayPropertiesApp extends Application {
         };
         reader.readAsDataURL(file);
       }
-    };
-    input.click();
+    });
+    $input.trigger('click');
   }
 
   _enableApplyButton(win) {
-    win.content.querySelector('.apply-button').disabled = false;
+    win.$content.find('.apply-button').prop('disabled', false);
   }
 
   _applyChanges() {
