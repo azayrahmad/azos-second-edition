@@ -8,11 +8,24 @@
     flex-grow: 1;
 }
 
-.display-wallpaper-preview {
+.monitor-preview-container {
+    position: relative;
     width: 200px;
     height: 150px;
-    border: 1px solid #000;
     margin: 0 auto;
+    background-image: url("/src/assets/img/display.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.display-wallpaper-preview {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 152px;
+    height: 112px;
+    background-color: var(--Background);
 }
 
 .wallpaper-list {
