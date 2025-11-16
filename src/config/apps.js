@@ -343,7 +343,7 @@ export const apps = [
   {
     id: "display-properties",
     title: "Display Properties",
-    icon: ICONS.desktopthemes,
+    icon: ICONS.displayProperties,
     appClass: DisplayPropertiesApp,
     width: 480,
     height: 420,

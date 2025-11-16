@@ -198,4 +198,8 @@ export const ICONS = {
     16: new URL("../assets/icons/Paint.ico", import.meta.url).href,
     32: new URL("../assets/icons/Paint.ico", import.meta.url).href,
   },
+  displayProperties: {
+    16: new URL("../assets/icons/Display.ico", import.meta.url).href,
+    32: new URL("../assets/icons/Display.ico", import.meta.url).href,
+  },
 };
