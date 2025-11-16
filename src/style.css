@@ -79,7 +79,7 @@ html {
     padding: 0;
     overflow-x: hidden;
     font-family: "MSW98UI", sans-serif;
-    background-color: var(--Background);
+    background-color: black;
     image-rendering: pixelated;
     font-smooth: never;
     cursor: var(--cursor-default);
