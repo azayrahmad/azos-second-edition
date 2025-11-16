@@ -604,7 +604,7 @@ a.href = URL.createObjectURL(blob);
         }
     }
 
-    formatCode() {
+    async formatCode() {
         if (typeof prettier === 'undefined' || typeof prettierPlugins === 'undefined') {
             this.editor.statusText.textContent = 'Prettier library not loaded.';
             setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
@@ -621,7 +621,7 @@ a.href = URL.createObjectURL(blob);
         }
 
         try {
-            const formattedCode = prettier.format(this.editor.getValue(), {
+            const formattedCode = await prettier.format(this.editor.getValue(), {
                 parser: parser,
                 plugins: prettierPlugins,
             });
