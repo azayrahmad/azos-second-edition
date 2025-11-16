@@ -198,6 +198,17 @@ async function initializeOS() {
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   await promptToContinue();
+
+  const bootScreenEl = document.getElementById("boot-screen");
+  if (bootScreenEl) {
+      bootScreenEl.addEventListener("animationend", () => {
+          const desktopEl = document.querySelector(".desktop");
+          if (desktopEl) {
+              desktopEl.classList.add("fade-in");
+          }
+      }, { once: true });
+  }
+
   hideBootScreen();
 
   window.ShowDialogWindow = ShowDialogWindow;

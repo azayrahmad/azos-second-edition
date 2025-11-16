@@ -79,7 +79,7 @@ html {
     padding: 0;
     overflow-x: hidden;
     font-family: "MSW98UI", sans-serif;
-    background-color: var(--Background);
+    background-color: black;
     image-rendering: pixelated;
     font-smooth: never;
     cursor: var(--cursor-default);
@@ -153,4 +153,26 @@ h1 {
 
 button {
     cursor: var(--cursor-default);
+}
+
+.desktop {
+    opacity: 0;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.fade-in {
+    animation: fade-in 1s forwards;
+}
+
+.fade-out {
+    animation: fade-out 1s forwards;
 }
