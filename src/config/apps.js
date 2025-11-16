@@ -12,6 +12,7 @@ import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
+import { MediaPlayerApp } from "../apps/mediaplayer/MediaPlayerApp.js";
 import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
@@ -45,6 +46,7 @@ export const appClasses = {
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
   paint: PaintApp,
+  mediaplayer: MediaPlayerApp,
   "display-properties": DisplayPropertiesApp,
 };
 
@@ -348,6 +350,16 @@ export const apps = [
     width: 480,
     height: 420,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "mediaplayer",
+    title: "Windows Media Player",
+    icon: ICONS.mmsys,
+    appClass: MediaPlayerApp,
+    width: 350,
+    height: 250,
+    resizable: true,
     isSingleton: true,
   },
 ];
