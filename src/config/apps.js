@@ -12,6 +12,7 @@ import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
+import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.jsx";
 import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
@@ -46,6 +47,7 @@ export const appClasses = {
   pinball: PinballApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
+  "media-player": MediaPlayerApp,
 };
 
 export const apps = [
@@ -349,5 +351,15 @@ export const apps = [
     height: 420,
     resizable: false,
     isSingleton: true,
+  },
+  {
+    id: "media-player",
+    title: "Media Player",
+    icon: ICONS.mediaPlayer,
+    appClass: MediaPlayerApp,
+    width: 350,
+    height: 200,
+    resizable: true,
+    isSingleton: false,
   },
 ];

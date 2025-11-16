@@ -198,4 +198,8 @@ export const ICONS = {
     16: new URL("../assets/icons/Paint.ico", import.meta.url).href,
     32: new URL("../assets/icons/Paint.ico", import.meta.url).href,
   },
+  mediaPlayer: {
+    16: new URL("../assets/icons/media-player.png", import.meta.url).href,
+    32: new URL("../assets/icons/media-player.png", import.meta.url).href,
+  },
 };

@@ -12,7 +12,7 @@ const startMenuAppIds = [
   "internet-explorer",
   "pinball",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "media-player"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
 function getAppList(appListIds) {

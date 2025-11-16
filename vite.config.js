@@ -1,10 +1,16 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   assetsInclude: ["**/*.ani"],
   base: "/azos-second-edition/",
   plugins: [
+    react({
+      // Use Preact instead of React
+      jsxImportSource: "preact",
+      jsxRuntime: "automatic",
+    }),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
@@ -31,4 +37,10 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      react: "preact/compat",
+      "react-dom": "preact/compat",
+    },
+  },
 });
