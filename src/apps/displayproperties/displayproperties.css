@@ -10,8 +10,8 @@
 
 .monitor-preview-container {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 184px;
+    height: 170px;
     margin: 0 auto;
     background-image: url("/src/assets/img/display.png");
     background-size: contain;
@@ -21,7 +21,7 @@
 
 .display-wallpaper-preview {
     position: absolute;
-    top: 16px;
+    top: 17px;
     left: 16px;
     width: 152px;
     height: 112px;
