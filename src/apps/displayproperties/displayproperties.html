@@ -42,7 +42,44 @@
                 </fieldset>
             </div>
             <div id="screensaver" class="tab-content" hidden>
-                <p>Coming soon!</p>
+                <div class="monitor-preview-container">
+                    <div class="display-screensaver-preview">
+                        <iframe class="screensaver-preview-iframe" src="about:blank" scrolling="no"></iframe>
+                    </div>
+                </div>
+                <fieldset class="screensaver-fieldset">
+                    <legend>Screen Saver</legend>
+                    <div class="field-row">
+                        <select id="screensaver-select">
+                            <option value="none">(None)</option>
+                        </select>
+                        <button class="settings-button" disabled>Settings...</button>
+                        <button class="preview-button">Preview</button>
+                    </div>
+                    <div class="field-row">
+                        <input type="checkbox" id="password-protected" disabled>
+                        <label for="password-protected">Password protected</label>
+                        <div class="wait-time-container">
+                            <label for="wait-time">Wait:</label>
+                            <div class="widget">
+                                <input type="number" id="wait-time" min="1" value="14">
+                                <div class="arrows">
+                                    <div class="arrow-up"></div>
+                                    <div class="arrow-down"></div>
+                                </div>
+                            </div>
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="energy-settings-fieldset">
+                    <legend>Energy saving features of monitor</legend>
+                    <div class="energy-content">
+                        <img src="/assets/icons/energy-star.png" alt="Energy Star logo" width="32" height="32">
+                        <p>To adjust the power settings for your monitor, click Settings.</p>
+                        <button class="energy-settings-button" disabled>Settings...</button>
+                    </div>
+                </fieldset>
             </div>
             <div id="appearance" class="tab-content" hidden>
                 <p>Coming soon!</p>

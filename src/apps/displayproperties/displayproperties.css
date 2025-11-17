@@ -100,3 +100,59 @@
     display: flex;
     flex-direction: column;
 }
+
+/* Screen Saver Tab Styles */
+.display-screensaver-preview {
+    position: absolute;
+    top: 17px;
+    left: 16px;
+    width: 152px;
+    height: 112px;
+    overflow: hidden;
+    background-color: #000;
+}
+
+.screensaver-preview-iframe {
+    width: 800px; /* Common resolution for old screensavers */
+    height: 600px;
+    border: none;
+    transform: scale(0.19); /* 152px / 800px */
+    transform-origin: top left;
+    pointer-events: none; /* Disable interaction with the preview */
+}
+
+.screensaver-fieldset, .energy-settings-fieldset {
+    margin-top: 10px;
+}
+
+.screensaver-fieldset .field-row,
+.energy-settings-fieldset .energy-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+#screensaver-select {
+    flex-grow: 1;
+}
+
+.screensaver-fieldset .field-row:last-child {
+    margin-bottom: 0;
+}
+
+.wait-time-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto; /* Pushes the wait timer to the right */
+}
+
+.energy-content p {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.energy-content .energy-settings-button {
+    align-self: flex-end;
+}
