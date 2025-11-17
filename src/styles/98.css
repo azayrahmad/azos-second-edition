@@ -520,12 +520,8 @@ summary:focus {
 .tab-window[role="tabpanel"] {
     position: relative;
     z-index: 2;
-    box-shadow:
-        inset -1px 0 var(--ButtonDkShadow),
-        inset 1px 1px var(--ButtonLight),
-        inset -2px 0 var(--ButtonShadow),
-        inset 2px 2px var(--ButtonHilight);
-    padding-left: 3px;
+    margin-left: 1px;
+    margin-top: 1px;
 }
 .sunken-panel {
     border: 2px groove transparent;
