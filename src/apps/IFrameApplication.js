@@ -1,8 +1,36 @@
 import { Application } from "./Application.js";
 
 export class IFrameApplication extends Application {
-  constructor(config) {
+  constructor(config, url) {
     super(config);
+    this.url = url;
+  }
+
+  _createWindow() {
+    const win = new $Window({
+      id: this.id,
+      title: this.title,
+      icons: {
+        16: this.icon[16],
+      },
+      width: this.width,
+      height: this.height,
+      resizable: this.resizable,
+      minimizeButton: this.minimizeButton,
+      maximizeButton: this.maximizeButton,
+    });
+
+    const iframe = document.createElement("iframe");
+    iframe.src = this.url;
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+
+    win.$content.append(iframe);
+
+    this._setupIframeForInactivity(iframe);
+
+    return win;
   }
 
   _setupIframeForInactivity(iframe) {

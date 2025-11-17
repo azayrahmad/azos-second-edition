@@ -5,6 +5,7 @@ import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
   "display-properties",
+  "mediaplayer",
   "webamp",
   "image-viewer",
   "tipOfTheDay",
