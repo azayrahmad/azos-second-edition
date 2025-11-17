@@ -1,6 +1,6 @@
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../utils/localStorage.js';
 
-const SCREENSAVERS = {
+export const SCREENSAVERS = {
   flowerbox: {
     name: 'FlowerBox',
     path: 'screensaver/index.html',
