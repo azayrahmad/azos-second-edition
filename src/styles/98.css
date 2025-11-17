@@ -183,6 +183,8 @@ select {
         inset 2px 2px var(--ButtonDkShadow);
     box-sizing: border-box;
     padding: 3px 4px;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
 }
 select,
 textarea {
@@ -515,9 +517,15 @@ code * {
 summary:focus {
     outline: 1px dotted #000;
 }
-.window[role="tabpanel"] {
+.tab-window[role="tabpanel"] {
     position: relative;
     z-index: 2;
+    box-shadow:
+        inset -1px 0 var(--ButtonDkShadow),
+        inset 1px 1px var(--ButtonLight),
+        inset -2px 0 var(--ButtonShadow),
+        inset 2px 2px var(--ButtonHilight);
+    padding-left: 3px;
 }
 .sunken-panel {
     border: 2px groove transparent;
@@ -648,7 +656,7 @@ menu[role="tablist"] > li[aria-selected="true"] {
 menu[role="tablist"] > li > a {
     color: var(--ButtonText);
     display: block;
-    margin: 6px;
+    margin: 2px 8px;
     text-decoration: none;
 }
 menu[role="tablist"] > li[aria-selected="true"] > a:focus {

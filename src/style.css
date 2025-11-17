@@ -1,13 +1,13 @@
 @font-face {
     font-family: "MSW98UI";
-    src: url("/src/assets/fonts/MSW98UI-Regular.ttf") format("truetype");
+    src: url("/src/assets/fonts/MSW98UI-Regular.woff2") format("woff2");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: "MSW98UI";
-    src: url("/src/assets/fonts/MSW98UI-Bold.ttf") format("truetype");
+    src: url("/src/assets/fonts/MSW98UI-Bold.woff2") format("woff2");
     font-weight: bold;
     font-style: normal;
 }
