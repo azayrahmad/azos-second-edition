@@ -10,6 +10,7 @@ import screensaverManager from "../../components/screensaver.js";
 
 import "./displayproperties.css";
 import contentHtml from "./displayproperties.html?raw";
+import energystar from "../../assets/img/EnergyStarDisplay.png";
 
 class DisplayPropertiesApp extends Application {
   constructor(data) {
@@ -45,6 +46,9 @@ class DisplayPropertiesApp extends Application {
 
     const { win } = this;
     win.$content.html(contentHtml);
+
+    // Set the Energy Star logo src
+    win.$content.find(".energy-star-logo").attr("src", energystar);
 
     this._setupTabs(win);
     this._populateWallpaperList(win);
@@ -233,7 +237,10 @@ class DisplayPropertiesApp extends Application {
 
     // Screensaver settings
     screensaverManager.setCurrentScreensaver(this.selectedScreensaver);
-    setItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT, this.screensaverTimeout * 60000);
+    setItem(
+      LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT,
+      this.screensaverTimeout * 60000,
+    );
   }
 
   // --- Screen Saver Tab ---
