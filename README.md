@@ -48,7 +48,7 @@ For a full list of applications and instructions on how to create your own, refe
 - **Frontend Framework**: Vanilla JavaScript, HTML, and CSS.
 - **Development Server**: [Vite](https://vitejs.dev/) for a fast and modern development experience.
 - **UI Libraries**:
-  - [98.css](https://jdan.github.io/98.css/): A CSS library for recreating the Windows 98 GUI.
+  - [98.css](https://jdan.github.io/98.css/): A CSS library for recreating the Windows 98 GUI.
   - [os-gui](https://os-gui.js.org/): A library for building retro desktop GUI components.
     Note that both libraries have been heavily modified to combine their features and fit the needs of this project.
 - **AI Assistant**:
