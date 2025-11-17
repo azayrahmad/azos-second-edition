@@ -57,12 +57,13 @@ class DisplayPropertiesApp extends Application {
   _setupTabs(win) {
     const $tabs = win.$content.find('[role="tab"]');
     $tabs.on("click", (e) => {
+      e.preventDefault(); // Prevent default link behavior
       const $clickedTab = $(e.currentTarget);
       $tabs.attr("aria-selected", "false");
       $clickedTab.attr("aria-selected", "true");
 
       win.$content.find(".tab-content").hide();
-      const activePanelId = $clickedTab.find("a").attr("href");
+      const activePanelId = $clickedTab.find("a").attr("data-target");
       win.$content.find(activePanelId).show();
     });
   }
