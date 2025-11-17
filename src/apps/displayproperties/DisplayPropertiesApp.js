@@ -51,7 +51,7 @@ class DisplayPropertiesApp extends Application {
     this.selectedWallpaperMode = currentMode;
 
     this._updatePreview(win);
-    win.$content.find("#display-mode").value = currentMode;
+    win.$content.find("#display-mode").val(currentMode);
   }
 
   _setupTabs(win) {
