@@ -49,28 +49,28 @@ For a full list of applications and instructions on how to create your own, refe
 - **Development Server**: [Vite](https://vitejs.dev/) for a fast and modern development experience.
 - **UI Libraries**:
   - [98.css](https://jdan.github.io/98.css/): A CSS library for recreating the Windows 98 GUI.
-  - [os-gui](https://os-gui.js.org/): A library for building retro desktop GUI components.
+  - [os-gui](https://os-gui.js.org/): A library for building retro desktop GUI components.
     Note that both libraries have been heavily modified to combine their features and fit the needs of this project.
 - **AI Assistant**:
-  - [Clippy.js](https://github.com/pi0/clippyjs): The frontend library for the Clippy agent. This also has been heavily modified with TTS and Ask functionality.
-  - **Resume Chat API**: A custom API for processing natural language questions. This has its own repository at [resume-chat-api](https://github.com/azayrahmad/resume-chat-api). I made this specifically to manage LLM feature for the assistant.
+  - [Clippy.js](https://github.com/pi0/clippyjs): The frontend library for the Clippy agent. This also has been heavily modified with TTS and Ask functionality.
+  - **Resume Chat API**: A custom API for processing natural language questions. This has its own repository at [resume-chat-api](https://github.com/azayrahmad/resume-chat-api). I made this specifically to manage LLM feature for the assistant.
 - **External Libraries**:
-  - [Webamp](https://webamp.org/): The web-based Winamp player.
-  - [highlight.js](https://highlightjs.org/): For syntax highlighting in Notepad.
-  - [Prettier](https://prettier.io/): For code formatting.
-  - [Marked.js](https://marked.js.org/): For Markdown to HTML conversion.
+  - [Webamp](https://webamp.org/): The web-based Winamp player.
+  - [highlight.js](https://highlightjs.org/): For syntax highlighting in Notepad.
+  - [Prettier](https://prettier.io/): For code formatting.
+  - [Marked.js](https://marked.js.org/): For Markdown to HTML conversion.
 
 ## Getting Started
 
 To run this project locally, follow these steps:
 
 1.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
+    ```bash
+    npm install
+    ```
 
 2.  **Run the Development Server:**
-    ```bash
-    npm run dev
-    ```
-    The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
