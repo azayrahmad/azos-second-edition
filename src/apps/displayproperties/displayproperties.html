@@ -42,21 +42,69 @@
                 </fieldset>
             </div>
             <div id="screensaver" class="tab-content" hidden>
-                <p>Coming soon!</p>
+              <div class="monitor-preview-container">
+                <div class="display-screensaver-preview"></div>
+              </div>
+              <div class="screensaver-settings-container">
+                <fieldset class="screensaver-selection-fieldset">
+                  <legend>Screen Saver</legend>
+                  <div class="field-row">
+                    <select id="screensaver-dropdown" class="screensaver-dropdown"></select>
+                    <button class="settings-button" disabled>Settings...</button>
+                    <button class="preview-button">Preview</button>
+                  </div>
+                  <div class="field-row password-protected-row">
+                    <input
+                      type="checkbox"
+                      id="password-protected"
+                      class="password-protected-checkbox"
+                      disabled
+                    />
+                    <label for="password-protected">Password protected</label>
+                    <button class="change-button" disabled>Change...</button>
+                    <label for="wait-time">Wait:</label>
+                    <input
+                      type="number"
+                      id="wait-time"
+                      class="wait-time-input"
+                      value="1"
+                      min="1"
+                    />
+                    <span>minutes</span>
+                  </div>
+                </fieldset>
+                <fieldset class="energy-saving-fieldset">
+                  <legend>Energy saving features of monitor</legend>
+                  <div class="energy-saving-content">
+                    <img
+                      src="../../assets/img/energystar.png"
+                      alt="Energy Star"
+                      class="energy-star-logo"
+                    />
+                    <p>
+                      To adjust the power settings for your monitor, click Settings.
+                    </p>
+                    <button class="settings-button" disabled>Settings...</button>
+                  </div>
+                </fieldset>
+              </div>
             </div>
             <div id="appearance" class="tab-content" hidden>
-                <p>Coming soon!</p>
+              <p>Coming soon!</p>
             </div>
             <div id="effects" class="tab-content" hidden>
-                <p>Coming soon!</p>
+              <p>Coming soon!</p>
             </div>
             <div id="web" class="tab-content" hidden>
-                <p>Coming soon!</p>
+              <p>Coming soon!</p>
             </div>
             <div id="settings" class="tab-content" hidden>
-                <p>Coming soon!</p>
+              <p>Coming soon!</p>
             </div>
-        </div>
+          </div>
+        </fieldset>
+      </div>
+
     </div>
 </div>
 <div class="buttons display-properties-buttons">
