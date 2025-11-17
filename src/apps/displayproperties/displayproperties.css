@@ -19,13 +19,61 @@
     background-position: center;
 }
 
-.display-wallpaper-preview {
+.display-wallpaper-preview,
+.display-screensaver-preview {
     position: absolute;
     top: 17px;
     left: 16px;
     width: 152px;
     height: 112px;
     background-color: var(--Background);
+}
+
+#screensaver .tab-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.screensaver-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.screensaver-selection-fieldset,
+.energy-saving-fieldset {
+    padding: 10px;
+}
+
+.screensaver-selection-fieldset .field-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.screensaver-dropdown {
+    flex-grow: 1;
+}
+
+.password-protected-row {
+    margin-top: 10px;
+}
+
+.wait-time-input {
+    width: 50px;
+}
+
+.energy-saving-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.energy-star-logo {
+    width: 48px;
+    height: 48px;
 }
 
 .wallpaper-list {

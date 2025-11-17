@@ -5,6 +5,8 @@ import {
   getItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
+import { SCREENSAVERS } from "../../components/screensaver.js";
+import screensaverManager from "../../components/screensaver.js";
 
 import "./displayproperties.css";
 import contentHtml from "./displayproperties.html?raw";
@@ -36,6 +38,10 @@ class DisplayPropertiesApp extends Application {
     this.selectedWallpaper = null;
     this.selectedWallpaperMode =
       getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || "stretch";
+    this.selectedScreensaver =
+      getItem(LOCAL_STORAGE_KEYS.SCREENSAVER) || "none";
+    this.screensaverTimeout =
+      getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) / 60000 || 1;
 
     const { win } = this;
     win.$content.html(contentHtml);
@@ -43,6 +49,7 @@ class DisplayPropertiesApp extends Application {
     this._setupTabs(win);
     this._populateWallpaperList(win);
     this._setupButtons(win);
+    this._setupScreenSaverTab(win);
 
     // Set initial state
     const currentWallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
@@ -169,6 +176,65 @@ class DisplayPropertiesApp extends Application {
     }
     setItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE, this.selectedWallpaperMode);
     document.dispatchEvent(new CustomEvent("wallpaper-changed"));
+
+    // Screensaver settings
+    screensaverManager.setCurrentScreensaver(this.selectedScreensaver);
+    setItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT, this.screensaverTimeout * 60000);
+  }
+
+  // --- Screen Saver Tab ---
+  _setupScreenSaverTab(win) {
+    const $dropdown = win.$content.find("#screensaver-dropdown");
+    const $previewButton = win.$content.find(".preview-button");
+    const $waitTimeInput = win.$content.find("#wait-time");
+
+    // Populate dropdown
+    Object.keys(SCREENSAVERS).forEach((id) => {
+      const screensaver = SCREENSAVERS[id];
+      const $option = $(`<option value="${id}">${screensaver.name}</option>`);
+      $dropdown.append($option);
+    });
+
+    // Set initial state
+    $dropdown.val(this.selectedScreensaver);
+    $waitTimeInput.val(this.screensaverTimeout);
+    this._updateScreensaverPreview(win);
+
+    // Event listeners
+    $dropdown.on("change", (e) => {
+      this.selectedScreensaver = $(e.target).val();
+      this._updateScreensaverPreview(win);
+      this._enableApplyButton(win);
+    });
+
+    $waitTimeInput.on("change", (e) => {
+      this.screensaverTimeout = parseInt($(e.target).val(), 10);
+      this._enableApplyButton(win);
+    });
+
+    $previewButton.on("click", () => {
+      if (this.selectedScreensaver !== "none") {
+        screensaverManager.show();
+      }
+    });
+  }
+
+  _updateScreensaverPreview(win) {
+    const $preview = win.$content.find(".display-screensaver-preview");
+    $preview.empty();
+
+    const screensaver = SCREENSAVERS[this.selectedScreensaver];
+    if (screensaver && screensaver.path) {
+      const $iframe = $("<iframe>")
+        .attr("src", `${import.meta.env.BASE_URL}${screensaver.path}`)
+        .css({
+          width: "100%",
+          height: "100%",
+          border: "none",
+          "pointer-events": "none", // Make it non-interactive
+        });
+      $preview.append($iframe);
+    }
   }
 }
 
