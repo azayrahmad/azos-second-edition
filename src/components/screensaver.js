@@ -18,6 +18,7 @@ export const SCREENSAVERS = {
 class Screensaver {
   constructor() {
     this.element = null;
+    this.previewElement = null;
     this.active = false;
     this.currentScreensaver = this.getCurrentScreensaver();
   }
@@ -33,7 +34,7 @@ class Screensaver {
 
   show() {
     const screensaver = SCREENSAVERS[this.currentScreensaver];
-    if (!screensaver) {
+    if (!screensaver || !screensaver.path) {
       return;
     }
 
@@ -66,6 +67,42 @@ class Screensaver {
       this.element.style.display = 'none';
     }
     this.active = false;
+  }
+
+  showPreview(id) {
+    this.hidePreview();
+
+    const screensaver = SCREENSAVERS[id];
+    if (!screensaver || !screensaver.path) {
+      return;
+    }
+
+    this.previewElement = document.createElement('iframe');
+    this.previewElement.src = `${import.meta.env.BASE_URL}${screensaver.path}`;
+    this.previewElement.style.position = 'fixed';
+    this.previewElement.style.top = '0';
+    this.previewElement.style.left = '0';
+    this.previewElement.style.width = '100%';
+    this.previewElement.style.height = '100%';
+    this.previewElement.style.border = 'none';
+    this.previewElement.style.zIndex = '9999';
+
+    this.previewElement.onload = () => {
+      const iframeDoc = this.previewElement.contentWindow.document;
+      const hidePreviewCallback = () => this.hidePreview();
+      iframeDoc.addEventListener('mousemove', hidePreviewCallback);
+      iframeDoc.addEventListener('mousedown', hidePreviewCallback);
+      iframeDoc.addEventListener('keydown', hidePreviewCallback);
+    };
+
+    document.body.appendChild(this.previewElement);
+  }
+
+  hidePreview() {
+    if (this.previewElement) {
+      this.previewElement.remove();
+      this.previewElement = null;
+    }
   }
 }
 

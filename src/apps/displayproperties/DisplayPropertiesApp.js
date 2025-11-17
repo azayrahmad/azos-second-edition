@@ -268,7 +268,7 @@ class DisplayPropertiesApp extends Application {
 
     $previewButton.on("click", () => {
       if (this.selectedScreensaver !== "none") {
-        screensaverManager.show();
+        screensaverManager.showPreview(this.selectedScreensaver);
       }
     });
   }
