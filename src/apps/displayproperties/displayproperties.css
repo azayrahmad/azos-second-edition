@@ -31,9 +31,10 @@
     position: absolute;
     top: 17px;
     left: 16px;
-    width: 152px;
-    height: 112px;
+    width: 152px; /* Scaled width for 800x600 aspect ratio */
+    height: 112px; /* Scaled height for 800x600 aspect ratio */
     background-color: var(--Background);
+    overflow: hidden; /* Ensure wallpaper does not spill out */
 }
 
 .wallpaper-list {

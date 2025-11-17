@@ -1,5 +1,5 @@
 import { Application } from "../Application.js";
-import { themes } from "../../config/themes.js";
+import { wallpapers } from "../../config/wallpapers.js";
 import {
   setItem,
   getItem,
@@ -70,9 +70,12 @@ class DisplayPropertiesApp extends Application {
 
   _populateWallpaperList(win) {
     const $wallpaperList = win.$content.find(".wallpaper-list");
-    const wallpapers = Object.values(themes)
-      .filter((theme) => theme.wallpaper)
-      .map((theme) => ({ name: theme.name, path: theme.wallpaper }));
+    const wallpapersToDisplay = wallpapers.default.map((w) => {
+      const formattedName = w.id
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase());
+      return { name: formattedName, path: w.src };
+    });
 
     const tableBody = $("<tbody></tbody>");
 
@@ -80,8 +83,8 @@ class DisplayPropertiesApp extends Application {
     const noneRow = $('<tr data-path="none"><td>(None)</td></tr>');
     tableBody.append(noneRow);
 
-    wallpapers.forEach(({ name, path }) => {
-      const tableRow = $(`<tr data-path="${path}"><td>${name}</td></tr>`);
+    wallpapersToDisplay.forEach(({ name, path }) => {
+      const tableRow = $(`<tr data-path=\"${path}\"><td>${name}</td></tr>`);
       tableBody.append(tableRow);
     });
 
@@ -100,13 +103,62 @@ class DisplayPropertiesApp extends Application {
 
   _updatePreview(win) {
     const $preview = win.$content.find(".display-wallpaper-preview");
+
     if (this.selectedWallpaper && this.selectedWallpaper !== "none") {
-      $preview.css({
-        "background-image": `url(${this.selectedWallpaper})`,
-        "background-size": "cover",
-      });
+      const img = new Image();
+      img.onload = () => {
+        const naturalWidth = img.naturalWidth;
+        const naturalHeight = img.naturalHeight;
+
+        const scaledWidth = naturalWidth / 5;
+        const scaledHeight = naturalHeight / 5;
+
+        const cssProps = {
+          "background-image": `url(${this.selectedWallpaper})`,
+          "background-repeat": "no-repeat",
+          "background-position": "center center", // Default for center/stretch
+        };
+
+        switch (this.selectedWallpaperMode) {
+          case "stretch":
+            // The 1/5th scaled image will stretch to fill the preview area
+            cssProps["background-size"] = "100% 100%";
+            break;
+          case "center":
+            // The 1/5th scaled image will be centered, taking its actual 1/5th size
+            cssProps["background-size"] = `${scaledWidth}px ${scaledHeight}px`;
+            break;
+          case "tile":
+            // The 1/5th scaled image will tile, taking its actual 1/5th size
+            cssProps["background-size"] = `${scaledWidth}px ${scaledHeight}px`;
+            cssProps["background-repeat"] = "repeat";
+            cssProps["background-position"] = "0 0"; // Tiles from top-left
+            break;
+          default:
+            // Default to stretch if mode is unrecognized
+            cssProps["background-size"] = "100% 100%";
+            break;
+        }
+        $preview.css(cssProps);
+      };
+      img.onerror = () => {
+        // Handle error if image fails to load, clear the preview
+        $preview.css({
+          "background-image": "none",
+          "background-size": "auto",
+          "background-repeat": "no-repeat",
+          "background-position": "center center",
+        });
+      };
+      img.src = this.selectedWallpaper;
     } else {
-      $preview.css("background-image", "none");
+      // If selectedWallpaper is "none" or null, clear the background
+      $preview.css({
+        "background-image": "none",
+        "background-size": "auto",
+        "background-repeat": "no-repeat",
+        "background-position": "center center",
+      });
     }
   }
 
@@ -138,6 +190,7 @@ class DisplayPropertiesApp extends Application {
     $displayMode.on("change", (e) => {
       this.selectedWallpaperMode = $(e.target).val();
       this._enableApplyButton(win);
+      this._updatePreview(win); // Update preview immediately when display mode changes
     });
   }
 
