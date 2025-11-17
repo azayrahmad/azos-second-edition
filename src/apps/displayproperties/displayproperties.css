@@ -2,10 +2,18 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    margin: 5px;
+    padding-top: 3px;
 }
 
-.display-properties-tabs .window {
+.display-properties-tabs .tab-window {
     flex-grow: 1;
+}
+
+.display-properties-tabs .tab-window .tab-window-body {
+    flex-grow: 1;
+    padding: 10px;
+    width: 370px;
 }
 
 .monitor-preview-container {
@@ -13,7 +21,7 @@
     width: 184px;
     height: 170px;
     margin: 0 auto;
-    background-image: url("/src/assets/img/display.png");
+    background-image: url("../../assets/img/Display.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -24,9 +32,10 @@
     position: absolute;
     top: 17px;
     left: 16px;
-    width: 152px;
-    height: 112px;
+    width: 152px; /* Scaled width for 800x600 aspect ratio */
+    height: 112px; /* Scaled height for 800x600 aspect ratio */
     background-color: var(--Background);
+    overflow: hidden; /* Ensure wallpaper does not spill out */
 }
 
 #screensaver .tab-content {
@@ -86,7 +95,7 @@
 }
 
 .wallpaper-list td {
-    padding: 2px 4px;
+    padding: 1px 4px;
 }
 
 .wallpaper-list tr.highlighted {
@@ -99,10 +108,23 @@
     padding: 5px;
 }
 
+.display-properties-buttons button,
+.display-properties-tabs button {
+    min-width: 75px;
+    min-height: 23px;
+    font-size: 11px;
+    padding: 2px 12px;
+}
+
+.wallpaper-controls button {
+    min-width: 65px;
+    padding: 2px 5px;
+}
+
 .wallpaper-settings-container {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Adds space between the paragraph and the options below */
+    gap: 3px; /* Adds space between the paragraph and the options below */
 }
 
 .wallpaper-options {

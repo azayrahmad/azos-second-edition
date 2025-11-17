@@ -1,40 +1,45 @@
 <div class="display-properties-tabs">
-  <menu role="tablist">
-    <li role="tab" aria-selected="true"><a href="#background">Background</a></li>
-    <li role="tab"><a href="#screensaver">Screen Saver</a></li>
-    <li role="tab"><a href="#appearance">Appearance</a></li>
-    <li role="tab"><a href="#effects">Effects</a></li>
-    <li role="tab"><a href="#web">Web</a></li>
-    <li role="tab"><a href="#settings">Settings</a></li>
-  </menu>
-  <div class="window" role="tabpanel">
-    <div class="window-body">
-      <div id="background" class="tab-content">
-        <div class="monitor-preview-container">
-          <div class="display-wallpaper-preview"></div>
-        </div>
-        <fieldset>
-          <legend>Wallpaper</legend>
-          <div class="wallpaper-settings-container">
-            <p>Select an HTML Document or a picture:</p>
-            <div class="wallpaper-options">
-              <div class="wallpaper-list-container inset-deep">
-                <table class="wallpaper-list"></table>
-              </div>
-              <div class="wallpaper-controls">
-                <button class="browse-button">Browse...</button>
-                <button class="pattern-button" disabled>
-                  Pattern...
-                </button>
-                <div class="field-row">
-                  <label for="display-mode">Display:</label>
-                  <select id="display-mode">
-                    <option value="stretch">Stretch</option>
-                    <option value="center">Center</option>
-                    <option value="tile">Tile</option>
-                  </select>
+    <menu role="tablist">
+        <li role="tab" aria-selected="true">
+            <a data-target="#background">Background</a>
+        </li>
+        <li role="tab"><a data-target="#screensaver">Screen Saver</a></li>
+        <li role="tab"><a data-target="#appearance">Appearance</a></li>
+        <li role="tab"><a data-target="#effects">Effects</a></li>
+        <li role="tab"><a data-target="#web">Web</a></li>
+        <li role="tab"><a data-target="#settings">Settings</a></li>
+    </menu>
+    <div class="tab-window outset-deep" role="tabpanel">
+        <div class="tab-window-body">
+            <div id="background" class="tab-content">
+                <div class="monitor-preview-container">
+                    <div class="display-wallpaper-preview"></div>
                 </div>
-              </div>
+                <fieldset>
+                    <legend>Wallpaper</legend>
+                    <div class="wallpaper-settings-container">
+                        <span>Select an HTML Document or a picture:</span>
+                        <div class="wallpaper-options">
+                            <div class="wallpaper-list-container inset-deep">
+                                <table class="wallpaper-list"></table>
+                            </div>
+                            <div class="wallpaper-controls">
+                                <button class="browse-button">Browse...</button>
+                                <button class="pattern-button" disabled>
+                                    Pattern...
+                                </button>
+                                <div class="field-row">
+                                    <label for="display-mode">Display:</label>
+                                    <select id="display-mode">
+                                        <option value="stretch">Stretch</option>
+                                        <option value="center">Center</option>
+                                        <option value="tile">Tile</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
           </div>
         </fieldset>
@@ -100,10 +105,9 @@
         <p>Coming soon!</p>
       </div>
     </div>
-  </div>
 </div>
 <div class="buttons display-properties-buttons">
-  <button class="ok-button">OK</button>
-  <button class="cancel-button">Cancel</button>
-  <button class="apply-button">Apply</button>
+    <button class="ok-button default">OK</button>
+    <button class="cancel-button">Cancel</button>
+    <button class="apply-button">&Apply</button>
 </div>
