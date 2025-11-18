@@ -8,6 +8,7 @@ import {
   getRecycleBinItems,
   removeFromRecycleBin,
 } from "../../utils/recycleBinManager.js";
+import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { registerCustomApp } from "../../utils/customAppManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
@@ -23,6 +24,20 @@ function findItemByPath(path) {
         ...item,
         name: item.title,
         type: "app",
+      })),
+    };
+  }
+
+  if (path === "//network-neighborhood") {
+    return {
+      id: "network-neighborhood",
+      name: "Network Neighborhood",
+      type: "folder",
+      children: networkNeighborhood.map((item) => ({
+        ...item,
+        id: item.title.toLowerCase().replace(/\\s+/g, "-"),
+        name: item.title,
+        type: "network",
       })),
     };
   }
@@ -156,6 +171,8 @@ export class ExplorerApp extends Application {
     this.win.title(item.name);
     if (item.id === "root") {
       this.win.setIcons(ICONS.computer);
+    } else if (item.id === "network-neighborhood") {
+      this.win.setIcons(ICONS.networkNeighborhood);
     } else if (item.type === "drive") {
       this.win.setIcons(ICONS.drive);
     } else if (item.type === "folder") {
@@ -206,6 +223,8 @@ export class ExplorerApp extends Application {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
       iconImg.src = ICONS.folderClosed[32];
+    } else if (item.type === "network") {
+      iconImg.src = ICONS["internet-explorer"][32];
     } else {
       iconImg.src = app.icon ? app.icon[32] : ICONS.folderClosed[32];
     }
@@ -220,7 +239,9 @@ export class ExplorerApp extends Application {
 
     if (this.currentPath !== "//recycle-bin") {
       iconDiv.addEventListener("dblclick", () => {
-        if (item.type === "folder" || item.type === "drive") {
+        if (item.url) {
+          window.open(item.url, "_blank");
+        } else if (item.type === "folder" || item.type === "drive") {
           const newPath =
             this.currentPath === "/"
               ? `/${item.id}`
