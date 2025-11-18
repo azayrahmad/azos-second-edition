@@ -3,7 +3,14 @@ let lastCursorElement = null;
 function hideBootScreen() {
     const bootScreenEl = document.getElementById("boot-screen");
     if (bootScreenEl) {
-        bootScreenEl.remove();
+        const contentEl = document.getElementById("boot-screen-content");
+        if (contentEl) {
+            contentEl.style.visibility = "hidden";
+        }
+        bootScreenEl.classList.add("fade-out");
+        setTimeout(() => {
+            bootScreenEl.remove();
+        }, 500);
     }
 }
 
@@ -72,18 +79,21 @@ function promptToContinue() {
                 promptEl.textContent = `Press any key to continue... ${countdown}`;
                 if (countdown <= 0) {
                     clearInterval(timer);
-                    window.removeEventListener("keydown", keydownHandler);
+                    window.removeEventListener("keydown", continueHandler);
+                    window.removeEventListener("touchstart", continueHandler);
                     resolve();
                 }
             }, 1000);
 
-            const keydownHandler = () => {
+            const continueHandler = () => {
                 clearInterval(timer);
-                window.removeEventListener("keydown", keydownHandler);
+                window.removeEventListener("keydown", continueHandler);
+                window.removeEventListener("touchstart", continueHandler);
                 resolve();
             };
 
-            window.addEventListener("keydown", keydownHandler, { once: true });
+            window.addEventListener("keydown", continueHandler, { once: true });
+            window.addEventListener("touchstart", continueHandler, { once: true });
         } else {
             resolve();
         }
