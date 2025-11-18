@@ -45,17 +45,17 @@ const startMenuConfig = [
     submenu: [
       {
         label: "Google",
-        icon: ICONS.documents[16],
+        icon: ICONS.htmlFile[16],
         action: () => launchApp("internet-explorer", "google.com"),
       },
       {
         label: "Yahoo",
-        icon: ICONS.documents[16],
+        icon: ICONS.htmlFile[16],
         action: () => launchApp("internet-explorer", "yahoo.com"),
       },
       {
         label: "Neocities",
-        icon: ICONS.documents[16],
+        icon: ICONS.htmlFile[16],
         action: () =>
           launchApp("internet-explorer", {
             url: "https://neocities.org/",

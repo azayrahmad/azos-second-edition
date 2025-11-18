@@ -206,4 +206,8 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_18.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_18.ico", import.meta.url).href,
   },
+  htmlFile: {
+    16: new URL("../assets/icons/html2-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/html2-3.png", import.meta.url).href,
+  },
 };
