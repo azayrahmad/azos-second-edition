@@ -1,4 +1,3 @@
-
 import { IFrameApplication } from "../IFrameApplication.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 
@@ -127,9 +126,7 @@ export class InternetExplorerApp extends IFrameApplication {
           action: () => {
             try {
               const currentUrl = new URL(this.input.value);
-              const pathParts = currentUrl.pathname
-                .split("/")
-                .filter((p) => p);
+              const pathParts = currentUrl.pathname.split("/").filter((p) => p);
               if (pathParts.length > 0) {
                 pathParts.pop();
                 currentUrl.pathname = pathParts.join("/");
@@ -184,7 +181,7 @@ export class InternetExplorerApp extends IFrameApplication {
   _updateTitle() {
     const baseTitle = "Internet Explorer";
     const retroTitle = this.retroMode ? `${baseTitle} (Retro Mode)` : baseTitle;
-    this.win.setTitle(retroTitle);
+    this.win.title(retroTitle);
     if (this.menuBar) {
       this.menuBar.element.dispatchEvent(new Event("update"));
     }
