@@ -105,9 +105,15 @@ export class DesktopThemesApp extends Application {
         <div class="title-bar window-titlebar">
           <div class="title-bar-text">Inactive Window</div>
           <div class="title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Maximize"></button>
-            <button aria-label="Close"></button>
+            <button aria-label="Minimize" class="window-minimize-button window-action-minimize window-button">
+              <span class='window-button-icon'></span>
+            </button>
+            <button aria-label="Maximize" class="window-maximize-button window-action-maximize window-button">
+              <span class='window-button-icon'></span>
+            </button>
+            <button aria-label="Close" class="close-button window-close-button window-action-close window-button">
+              <span class='window-button-icon'></span>
+            </button>
           </div>
         </div>
         <div class="window-body"></div>
@@ -116,9 +122,15 @@ export class DesktopThemesApp extends Application {
         <div class="title-bar window-titlebar">
           <div class="title-bar-text">Active Window</div>
           <div class="title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Maximize"></button>
-            <button aria-label="Close"></button>
+            <button aria-label="Minimize" class="window-minimize-button window-action-minimize window-button">
+              <span class='window-button-icon'></span>
+            </button>
+            <button aria-label="Maximize" class="window-maximize-button window-action-maximize window-button">
+              <span class='window-button-icon'></span>
+            </button>
+            <button aria-label="Close" class="close-button window-close-button window-action-close window-button">
+              <span class='window-button-icon'></span>
+            </button>
           </div>
         </div>
         <div class="window-body">
@@ -131,6 +143,7 @@ export class DesktopThemesApp extends Application {
           <div class="title-bar-text">Message Box</div>
           <div class="title-bar-controls">
             <button aria-label="Close" class="close-button window-close-button window-action-close window-button">
+              <span class='window-button-icon'></span>
             </button>
           </div>
         </div>
