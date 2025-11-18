@@ -172,8 +172,17 @@
     z-index: 3;
 }
 
+#desktopthemes .message-box-preview .window-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    gap: 5px; /* Space between text and button */
+}
+
 #desktopthemes .message-box-preview .window-body span {
-    text-align: left;
+    text-align: left; /* Center the message text within the flex item */
+    width: 100%; /* Make span take full width to center text within itself */
 }
 
 #desktopthemes .preview-window .title-bar {
@@ -208,6 +217,7 @@
     margin: 1px;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 #desktopthemes .active-window-preview .menu-bar {
@@ -228,7 +238,6 @@
     background-color: var(--preview-window-bg);
     color: var(--preview-window-text);
     flex-grow: 1;
-    padding: 10px;
     margin: 1px;
 }
 
