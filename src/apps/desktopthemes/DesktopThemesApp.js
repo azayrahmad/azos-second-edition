@@ -1,5 +1,6 @@
 import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
+import { iconSchemes } from "../../config/icon-schemes.js";
 import {
   getThemes,
   setTheme,
@@ -518,7 +519,16 @@ export class DesktopThemesApp extends Application {
     await this.handleThemeSelection();
   }
 
-  updatePreviewIcons() {
+  updatePreviewIcons(themeId = "default") {
+    const themes = getThemes();
+    const theme = themes[themeId] || themes.default;
+    const schemeId = theme.iconScheme || "default";
+    const scheme = iconSchemes[schemeId] || iconSchemes.default;
+    const defaultScheme = iconSchemes.default;
+
+    const getIconPath = (iconName) =>
+      scheme[iconName]?.[32] || defaultScheme[iconName]?.[32];
+
     const computerIcon = this.previewContainer.querySelector(
       '[data-icon="my-computer"] img',
     );
@@ -529,16 +539,16 @@ export class DesktopThemesApp extends Application {
       '[data-icon="recycle-bin"] img',
     );
 
-    if (computerIcon) computerIcon.src = ICONS.computer[32];
-    if (networkIcon) networkIcon.src = ICONS.folder[32]; // Using folder as placeholder
-    if (recycleBinIcon) recycleBinIcon.src = ICONS.recycleBinEmpty[32];
+    if (computerIcon) computerIcon.src = getIconPath("myComputer");
+    if (networkIcon) networkIcon.src = getIconPath("networkNeighborhood");
+    if (recycleBinIcon) recycleBinIcon.src = getIconPath("recycleBinEmpty");
   }
 
   async previewTheme(themeId) {
     const theme = getThemes()[themeId];
     if (!theme) return;
 
-    this.updatePreviewIcons();
+    this.updatePreviewIcons(themeId);
 
     let variables = {};
     if (theme.isCustom && theme.colors) {
@@ -561,7 +571,7 @@ export class DesktopThemesApp extends Application {
   }
 
   previewCustomTheme(properties) {
-    this.updatePreviewIcons();
+    this.updatePreviewIcons(); // No themeId, so it uses default icons
     this.applyCssVariables(properties);
     this.previewContainer.style.backgroundImage = properties.wallpaper
       ? `url('${properties.wallpaper}')`
