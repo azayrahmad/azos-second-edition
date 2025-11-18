@@ -275,7 +275,7 @@ export const apps = [
     title: "Desktop Themes",
     icon: ICONS.desktopthemes,
     appClass: DesktopThemesApp,
-    width: 500,
+    width: 550,
     height: 500,
     resizable: false,
     isSingleton: true,
