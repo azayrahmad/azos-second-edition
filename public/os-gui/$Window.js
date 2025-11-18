@@ -1508,49 +1508,47 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     });
 
     $w.applyBounds = () => {
-      // TODO: outerWidth vs width? not sure
-      const bound_width = Math.max(document.body.scrollWidth, innerWidth);
-      const bound_height = Math.max(document.body.scrollHeight, innerHeight);
-      $w.css({
-        left: Math.max(
-          0,
-          Math.min(bound_width - $w.width(), $w.position().left),
-        ),
-        top: Math.max(
-          0,
-          Math.min(bound_height - $w.height(), $w.position().top),
-        ),
-      });
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) return;
+      const rect = desktopArea.getBoundingClientRect();
+      const left = Math.max(rect.left, Math.min(rect.right - $w.width(), $w.position().left));
+      const top = Math.max(rect.top, Math.min(rect.bottom - $w.height(), $w.position().top));
+      $w.css({ left: `${left}px`, top: `${top}px` });
     };
 
     $w.bringTitleBarInBounds = () => {
-      // Try to make the titlebar always accessible
-      const bound_width = Math.max(document.body.scrollWidth, innerWidth);
-      const bound_height = Math.max(document.body.scrollHeight, innerHeight);
-      const min_horizontal_pixels_on_screen = 40; // enough for space past a close button
-      $w.css({
-        left: Math.max(
-          min_horizontal_pixels_on_screen - $w.outerWidth(),
-          Math.min(
-            bound_width - min_horizontal_pixels_on_screen,
-            $w.position().left,
-          ),
-        ),
-        top: Math.max(
-          0,
-          Math.min(
-            bound_height - $w.$titlebar.outerHeight() - 5,
-            $w.position().top,
-          ),
-        ),
-      });
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) return;
+      const rect = desktopArea.getBoundingClientRect();
+      const minHorizontalPixels = 40;
+
+      const left = Math.max(
+        rect.left + minHorizontalPixels - $w.outerWidth(),
+        Math.min(rect.right - minHorizontalPixels, $w.position().left)
+      );
+
+      const top = Math.max(
+        rect.top,
+        Math.min(rect.bottom - $w.$titlebar.outerHeight() - 5, $w.position().top)
+      );
+
+      $w.css({ left: `${left}px`, top: `${top}px` });
     };
 
     $w.center = () => {
-      $w.css({
-        left: (innerWidth - $w.width()) / 2 + window.scrollX,
-        top: (innerHeight - $w.height()) / 2 + window.scrollY,
-      });
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) {
+        $w.css({
+          left: (innerWidth - $w.width()) / 2 + window.scrollX,
+          top: (innerHeight - $w.height()) / 2 + window.scrollY,
+        });
+      } else {
+        const rect = desktopArea.getBoundingClientRect();
+        $w.css({
+          left: rect.left + (rect.width - $w.width()) / 2,
+          top: rect.top + (rect.height - $w.height()) / 2,
+        });
+      }
       $w.applyBounds();
     };
 
