@@ -5,6 +5,10 @@ import {
   getItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
+import {
+  applyBusyCursor,
+  clearBusyCursor,
+} from "../../utils/cursorManager.js";
 import { SCREENSAVERS } from "../../components/screensaver.js";
 import screensaverManager from "../../components/screensaver.js";
 
@@ -76,6 +80,10 @@ class DisplayPropertiesApp extends Application {
       win.$content.find(".tab-content").hide();
       const activePanelId = $clickedTab.find("a").attr("data-target");
       win.$content.find(activePanelId).show();
+
+      if (activePanelId === "#screensaver") {
+        this._updateScreensaverPreview(win);
+      }
     });
   }
 
@@ -259,7 +267,6 @@ class DisplayPropertiesApp extends Application {
     // Set initial state
     $dropdown.val(this.selectedScreensaver);
     $waitTimeInput.val(this.screensaverTimeout);
-    this._updateScreensaverPreview(win);
 
     // Event listeners
     $dropdown.on("change", (e) => {
@@ -286,6 +293,7 @@ class DisplayPropertiesApp extends Application {
 
     const screensaver = SCREENSAVERS[this.selectedScreensaver];
     if (screensaver && screensaver.path) {
+      applyBusyCursor(win.$content[0]);
       const $iframe = $("<iframe>")
         .attr("src", `${import.meta.env.BASE_URL}${screensaver.path}`)
         .css({
@@ -293,6 +301,9 @@ class DisplayPropertiesApp extends Application {
           height: "100%",
           border: "none",
           "pointer-events": "none", // Make it non-interactive
+        })
+        .on("load", () => {
+          clearBusyCursor(win.$content[0]);
         });
       $preview.append($iframe);
     }
