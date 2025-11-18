@@ -203,7 +203,7 @@ export const ICONS = {
     32: new URL("../assets/icons/Display.ico", import.meta.url).href,
   },
   networkNeighborhood: {
-    16: new URL("../assets/icons/RNAUI_106.ico", import.meta.url).href,
-    32: new URL("../assets/icons/RNAUI_106.ico", import.meta.url).href,
+    16: new URL("../assets/icons/SHELL32_18.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_18.ico", import.meta.url).href,
   },
 };
