@@ -9,7 +9,6 @@ import {
   loadThemeParser,
 } from "../../utils/themeManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { AccessKeys } from "/public/os-gui/MenuBar.js";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
@@ -31,7 +30,8 @@ export class DesktopThemesApp extends Application {
     const win = new $Window({
       id: this.id,
       title: this.title,
-      outerWidth: 550, // Increased width to accommodate the new layout
+      outerWidth: 600,
+      outerHeight: 500,
       resizable: this.resizable,
       icons: this.icon,
       className: "desktopthemes-app",
@@ -135,7 +135,7 @@ export class DesktopThemesApp extends Application {
           </div>
         </div>
         <div class="window-body">
-          <p>Message Text</p>
+          <span>Message Text</span>
           <button>OK</button>
         </div>
       </div>
@@ -143,7 +143,6 @@ export class DesktopThemesApp extends Application {
 
     this.previewLabel = document.createElement("div");
     this.previewLabel.className = "preview-label";
-    leftPanel.appendChild(this.previewLabel);
 
     this.populateThemes();
     this.previewTheme(this.themeSelector.value);
@@ -192,7 +191,7 @@ export class DesktopThemesApp extends Application {
       <div class="field-row">
         <input type="checkbox" id="cb-wallpaper" checked disabled />
         <label for="cb-wallpaper">${AccessKeys.toHTML(
-          "Desktop &wallpaper",
+          "Desktop  &wallpaper",
         )}</label>
       </div>
       <div class="field-row">
@@ -223,8 +222,11 @@ export class DesktopThemesApp extends Application {
     actionsContainer.className = "actions";
     win.$content.append(actionsContainer);
 
+    actionsContainer.appendChild(this.previewLabel);
+
     const okButton = document.createElement("button");
     okButton.textContent = "OK";
+    okButton.classList.add("default");
     actionsContainer.appendChild(okButton);
 
     const cancelButton = document.createElement("button");
@@ -371,9 +373,7 @@ export class DesktopThemesApp extends Application {
       finalName = `${name} (${counter++})`;
     }
 
-    const newThemeId = `custom-${finalName
-      .toLowerCase()
-      .replace(/\s+/g, "-")}`;
+    const newThemeId = `custom-${finalName.toLowerCase().replace(/\s+/g, "-")}`;
     const { wallpaper, ...colors } = this.customThemeProperties;
     const newTheme = {
       ...themes.default,
