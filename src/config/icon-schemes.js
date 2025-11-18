@@ -49,6 +49,25 @@ import theGoldenEraNetworkNeighborhood from "../assets/icons/theme-icons/The Gol
 import travelNetworkNeighborhood from "../assets/icons/theme-icons/Travel Network Neighborhood.ico";
 import windows98NetworkNeighborhood from "../assets/icons/theme-icons/Windows 98 Network Neighborhood.ico";
 
+import baseballIcon from "../assets/icons/theme-icons/Baseball My Computer.ico";
+import jungleIcon from "../assets/icons/theme-icons/Jungle My Computer.ico";
+import spaceIcon from "../assets/icons/theme-icons/Space My Computer.ico";
+import underwaterIcon from "../assets/icons/theme-icons/Underwater My Computer.ico";
+
+import baseballRecycleEmpty from "../assets/icons/theme-icons/Baseball Recycle Empty.ico";
+import baseballRecycleFull from "../assets/icons/theme-icons/Baseball Recycle Full.ico";
+import jungleRecycleEmpty from "../assets/icons/theme-icons/Jungle Recycle Empty.ico";
+import jungleRecycleFull from "../assets/icons/theme-icons/Jungle Recycle Full.ico";
+import spaceRecycleEmpty from "../assets/icons/theme-icons/Space Recycle Empty.ico";
+import spaceRecycleFull from "../assets/icons/theme-icons/Space Recycle Full.ico";
+import underwaterRecycleEmpty from "../assets/icons/theme-icons/Underwater Recycle Empty.ico";
+import underwaterRecycleFull from "../assets/icons/theme-icons/Underwater Recycle Full.ico";
+
+import baseballNetworkNeighborhood from "../assets/icons/theme-icons/Baseball Network Neighborhood.ico";
+import jungleNetworkNeighborhood from "../assets/icons/theme-icons/Jungle Network Neighborhood.ico";
+import spaceNetworkNeighborhood from "../assets/icons/theme-icons/Space Network Neighborhood.ico";
+import underwaterNetworkNeighborhood from "../assets/icons/theme-icons/Underwater Network Neighborhood.ico";
+
 import { ICONS } from "./icons.js";
 
 export const iconSchemes = {
@@ -272,6 +291,78 @@ export const iconSchemes = {
     networkNeighborhood: {
       16: windows98NetworkNeighborhood,
       32: windows98NetworkNeighborhood,
+    },
+  },
+  baseball: {
+    myComputer: {
+      16: baseballIcon,
+      32: baseballIcon,
+    },
+    recycleBinEmpty: {
+      16: baseballRecycleEmpty,
+      32: baseballRecycleEmpty,
+    },
+    recycleBinFull: {
+      16: baseballRecycleFull,
+      32: baseballRecycleFull,
+    },
+    networkNeighborhood: {
+      16: baseballNetworkNeighborhood,
+      32: baseballNetworkNeighborhood,
+    },
+  },
+  jungle: {
+    myComputer: {
+      16: jungleIcon,
+      32: jungleIcon,
+    },
+    recycleBinEmpty: {
+      16: jungleRecycleEmpty,
+      32: jungleRecycleEmpty,
+    },
+    recycleBinFull: {
+      16: jungleRecycleFull,
+      32: jungleRecycleFull,
+    },
+    networkNeighborhood: {
+      16: jungleNetworkNeighborhood,
+      32: jungleNetworkNeighborhood,
+    },
+  },
+  space: {
+    myComputer: {
+      16: spaceIcon,
+      32: spaceIcon,
+    },
+    recycleBinEmpty: {
+      16: spaceRecycleEmpty,
+      32: spaceRecycleEmpty,
+    },
+    recycleBinFull: {
+      16: spaceRecycleFull,
+      32: spaceRecycleFull,
+    },
+    networkNeighborhood: {
+      16: spaceNetworkNeighborhood,
+      32: spaceNetworkNeighborhood,
+    },
+  },
+  underwater: {
+    myComputer: {
+      16: underwaterIcon,
+      32: underwaterIcon,
+    },
+    recycleBinEmpty: {
+      16: underwaterRecycleEmpty,
+      32: underwaterRecycleEmpty,
+    },
+    recycleBinFull: {
+      16: underwaterRecycleFull,
+      32: underwaterRecycleFull,
+    },
+    networkNeighborhood: {
+      16: underwaterNetworkNeighborhood,
+      32: underwaterNetworkNeighborhood,
     },
   },
 };

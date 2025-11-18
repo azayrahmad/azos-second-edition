@@ -47,7 +47,7 @@ export const themes = {
     stylesheet: "baseball.css",
     wallpaper: wallpapers.themes.find((w) => w.id === "baseball").src,
     soundScheme: "Baseball",
-    iconScheme: "default",
+    iconScheme: "baseball",
   },
   jungle: {
     id: "jungle",
@@ -55,7 +55,7 @@ export const themes = {
     stylesheet: "jungle.css",
     wallpaper: wallpapers.themes.find((w) => w.id === "jungle").src,
     soundScheme: "Jungle",
-    iconScheme: "default",
+    iconScheme: "jungle",
   },
   space: {
     id: "space",
@@ -63,7 +63,7 @@ export const themes = {
     stylesheet: "space.css",
     wallpaper: wallpapers.themes.find((w) => w.id === "space").src,
     soundScheme: "Space",
-    iconScheme: "default",
+    iconScheme: "space",
   },
   underwater: {
     id: "underwater",
@@ -71,7 +71,7 @@ export const themes = {
     stylesheet: "underwater.css",
     wallpaper: wallpapers.themes.find((w) => w.id === "underwater").src,
     soundScheme: "Underwater",
-    iconScheme: "default",
+    iconScheme: "underwater",
   },
   //'memphis-milano': {
   //  id: 'memphis-milano',
