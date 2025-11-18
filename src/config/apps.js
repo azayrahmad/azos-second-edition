@@ -112,6 +112,19 @@ export const apps = [
     ],
   },
   {
+    id: "network-neighborhood",
+    title: "Network Neighborhood",
+    get icon() {
+      return getIcon("networkNeighborhood");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "//network-neighborhood");
+      },
+    },
+  },
+  {
     id: "my-documents",
     title: "My Documents",
     icon: ICONS.folder,
