@@ -47,7 +47,7 @@ export class Application {
       return;
     }
 
-    this.win = this._createWindow(filePath);
+    this.win = await this._createWindow(filePath);
 
     if (this.win) {
       this._setupWindow(windowId, instanceKey);
