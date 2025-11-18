@@ -9,6 +9,10 @@ import {
   loadThemeParser,
 } from "../../utils/themeManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import {
+  applyBusyCursor,
+  clearBusyCursor,
+} from "../../utils/cursorManager.js";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
@@ -26,7 +30,7 @@ export class DesktopThemesApp extends Application {
     );
   }
 
-  _createWindow() {
+  async _createWindow() {
     const win = new $Window({
       id: this.id,
       title: this.title,
@@ -36,6 +40,7 @@ export class DesktopThemesApp extends Application {
       icons: this.icon,
       className: "desktopthemes-app",
     });
+    this.win = win;
 
     win.on("close", () => {
       document.removeEventListener(
@@ -144,8 +149,7 @@ export class DesktopThemesApp extends Application {
     this.previewLabel = document.createElement("div");
     this.previewLabel.className = "preview-label";
 
-    this.populateThemes();
-    this.previewTheme(this.themeSelector.value);
+    await this.populateThemes();
 
     // --- Right Panel ---
     const rightPanel = document.createElement("div");
@@ -414,32 +418,37 @@ export class DesktopThemesApp extends Application {
     }
   }
 
-  handleThemeSelection() {
-    const selectedValue = this.themeSelector.value;
-    const selectedTheme = getThemes()[selectedValue];
+  async handleThemeSelection() {
+    applyBusyCursor(this.win.$content[0]);
+    try {
+      const selectedValue = this.themeSelector.value;
+      const selectedTheme = getThemes()[selectedValue];
 
-    if (selectedValue === "load-custom") {
-      this.handleCustomThemeLoad();
-      return;
-    }
-
-    this.saveButton.disabled = selectedValue !== "current-settings";
-    this.deleteButton.disabled = !selectedTheme?.isCustom;
-
-    if (selectedValue === "current-settings") {
-      const normalizedProperties = {};
-      for (const [key, value] of Object.entries(this.customThemeProperties)) {
-        normalizedProperties[key.replace(/^--/, "")] = value;
+      if (selectedValue === "load-custom") {
+        this.handleCustomThemeLoad();
+        return;
       }
-      this.previewCustomTheme(normalizedProperties);
-      this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
-    } else {
-      this.removeTemporaryThemeOption();
-      this.customThemeProperties = null;
-      this.previewTheme(selectedValue);
-      this.previewLabel.textContent = `Preview of '${
-        selectedTheme ? selectedTheme.name : ""
-      }'`;
+
+      this.saveButton.disabled = selectedValue !== "current-settings";
+      this.deleteButton.disabled = !selectedTheme?.isCustom;
+
+      if (selectedValue === "current-settings") {
+        const normalizedProperties = {};
+        for (const [key, value] of Object.entries(this.customThemeProperties)) {
+          normalizedProperties[key.replace(/^--/, "")] = value;
+        }
+        await this.previewCustomTheme(normalizedProperties);
+        this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
+      } else {
+        this.removeTemporaryThemeOption();
+        this.customThemeProperties = null;
+        await this.previewTheme(selectedValue);
+        this.previewLabel.textContent = `Preview of '${
+          selectedTheme ? selectedTheme.name : ""
+        }'`;
+      }
+    } finally {
+      clearBusyCursor(this.win.$content[0]);
     }
   }
 
@@ -462,7 +471,7 @@ export class DesktopThemesApp extends Application {
     }
   }
 
-  populateThemes() {
+  async populateThemes() {
     const lastSelected = this.themeSelector.value;
     this.themeSelector.innerHTML = "";
 
@@ -493,7 +502,7 @@ export class DesktopThemesApp extends Application {
     } else {
       this.themeSelector.value = getCurrentTheme();
     }
-    this.handleThemeSelection();
+    await this.handleThemeSelection();
   }
 
   updatePreviewIcons() {
