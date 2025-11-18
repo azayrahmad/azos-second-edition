@@ -13,6 +13,10 @@ export const SCREENSAVERS = {
     name: "3D Maze",
     path: "maze/maze.html",
   },
+  pipes: {
+    name: "3D Pipes",
+    path: "pipes/index.html",
+  },
 };
 
 class Screensaver {
