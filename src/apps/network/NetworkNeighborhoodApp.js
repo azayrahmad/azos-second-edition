@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { ICONS } from "../../config/icons.js";
+import { MenuBar } from "/public/os-gui/MenuBar.js";
 
 export class NetworkNeighborhoodApp extends Application {
   _createWindow() {
@@ -55,7 +56,7 @@ export class NetworkNeighborhoodApp extends Application {
     iconInner.className = "icon";
 
     const iconImg = document.createElement("img");
-    iconImg.src = ICONS.computer[32];
+    iconImg.src = ICONS["internet-explorer"][32];
     iconInner.appendChild(iconImg);
 
     const iconLabel = document.createElement("div");
