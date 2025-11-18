@@ -420,34 +420,36 @@ export class DesktopThemesApp extends Application {
 
   async handleThemeSelection() {
     applyBusyCursor(this.win.$content);
-    const selectedValue = this.themeSelector.value;
-    const selectedTheme = getThemes()[selectedValue];
+    try {
+      const selectedValue = this.themeSelector.value;
+      const selectedTheme = getThemes()[selectedValue];
 
-    if (selectedValue === "load-custom") {
-      this.handleCustomThemeLoad();
-      clearBusyCursor(this.win.$content);
-      return;
-    }
-
-    this.saveButton.disabled = selectedValue !== "current-settings";
-    this.deleteButton.disabled = !selectedTheme?.isCustom;
-
-    if (selectedValue === "current-settings") {
-      const normalizedProperties = {};
-      for (const [key, value] of Object.entries(this.customThemeProperties)) {
-        normalizedProperties[key.replace(/^--/, "")] = value;
+      if (selectedValue === "load-custom") {
+        this.handleCustomThemeLoad();
+        return;
       }
-      await this.previewCustomTheme(normalizedProperties);
-      this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
-    } else {
-      this.removeTemporaryThemeOption();
-      this.customThemeProperties = null;
-      await this.previewTheme(selectedValue);
-      this.previewLabel.textContent = `Preview of '${
-        selectedTheme ? selectedTheme.name : ""
-      }'`;
+
+      this.saveButton.disabled = selectedValue !== "current-settings";
+      this.deleteButton.disabled = !selectedTheme?.isCustom;
+
+      if (selectedValue === "current-settings") {
+        const normalizedProperties = {};
+        for (const [key, value] of Object.entries(this.customThemeProperties)) {
+          normalizedProperties[key.replace(/^--/, "")] = value;
+        }
+        await this.previewCustomTheme(normalizedProperties);
+        this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
+      } else {
+        this.removeTemporaryThemeOption();
+        this.customThemeProperties = null;
+        await this.previewTheme(selectedValue);
+        this.previewLabel.textContent = `Preview of '${
+          selectedTheme ? selectedTheme.name : ""
+        }'`;
+      }
+    } finally {
+      clearBusyCursor(this.win.$content);
     }
-    clearBusyCursor(this.win.$content);
   }
 
   addTemporaryThemeOption() {
