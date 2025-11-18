@@ -65,9 +65,16 @@ html {
     position: relative;
     overflow: hidden;
     box-sizing: border-box;
-    height: calc(
-        100vh - 24px - env(safe-area-inset-bottom) - 1px
-    ); /* Adjust height dynamically */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#desktop-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
 }
 
 .desktop {

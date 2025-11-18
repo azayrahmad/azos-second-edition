@@ -7,10 +7,14 @@ function createMainUI() {
   desktopArea.id = 'desktop-area';
   desktopArea.className = 'desktop-area';
 
+  const desktopWrapper = document.createElement('div');
+  desktopWrapper.id = 'desktop-wrapper';
+
   const desktop = document.createElement('div');
   desktop.className = 'desktop';
 
-  desktopArea.appendChild(desktop);
+  desktopWrapper.appendChild(desktop);
+  desktopArea.appendChild(desktopWrapper);
   appContainer.appendChild(desktopArea);
 
   const taskbar = document.createElement('div');
