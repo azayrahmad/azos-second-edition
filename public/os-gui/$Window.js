@@ -968,8 +968,8 @@
         };
 
         $w.addClass("maximized");
-        const $desktopWrapper = $("#desktop-wrapper");
-        const desktopRect = $desktopWrapper[0].getBoundingClientRect();
+        const $desktopArea = $(".desktop-area");
+        const desktopRect = $desktopArea[0].getBoundingClientRect();
         $w.css({
           position: "fixed",
           top: desktopRect.top,
@@ -1508,18 +1508,18 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     });
 
     $w.applyBounds = () => {
-      const desktopWrapper = document.getElementById("desktop-wrapper");
-      if (!desktopWrapper) return;
-      const rect = desktopWrapper.getBoundingClientRect();
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) return;
+      const rect = desktopArea.getBoundingClientRect();
       const left = Math.max(rect.left, Math.min(rect.right - $w.width(), $w.position().left));
       const top = Math.max(rect.top, Math.min(rect.bottom - $w.height(), $w.position().top));
       $w.css({ left: `${left}px`, top: `${top}px` });
     };
 
     $w.bringTitleBarInBounds = () => {
-      const desktopWrapper = document.getElementById("desktop-wrapper");
-      if (!desktopWrapper) return;
-      const rect = desktopWrapper.getBoundingClientRect();
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) return;
+      const rect = desktopArea.getBoundingClientRect();
       const minHorizontalPixels = 40;
 
       const left = Math.max(
@@ -1536,14 +1536,14 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     };
 
     $w.center = () => {
-      const desktopWrapper = document.getElementById("desktop-wrapper");
-      if (!desktopWrapper) {
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) {
         $w.css({
           left: (innerWidth - $w.width()) / 2 + window.scrollX,
           top: (innerHeight - $w.height()) / 2 + window.scrollY,
         });
       } else {
-        const rect = desktopWrapper.getBoundingClientRect();
+        const rect = desktopArea.getBoundingClientRect();
         $w.css({
           left: rect.left + (rect.width - $w.width()) / 2,
           top: rect.top + (rect.height - $w.height()) / 2,

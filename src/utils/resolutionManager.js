@@ -44,10 +44,10 @@ export function applyResolution() {
   const resolutionId = getCurrentResolution();
   const resolution = RESOLUTIONS[resolutionId];
   const body = document.body;
-  const desktopWrapper = document.getElementById("desktop-wrapper");
+  const screenWrapper = document.getElementById("screen-wrapper");
 
-  if (!desktopWrapper) {
-    console.error("Desktop wrapper element not found!");
+  if (!screenWrapper) {
+    console.error("Screen wrapper element not found!");
     return;
   }
 
@@ -55,22 +55,29 @@ export function applyResolution() {
   body.style.display = "";
   body.style.alignItems = "";
   body.style.justifyContent = "";
-  desktopWrapper.style.width = "";
-  desktopWrapper.style.height = "";
-  desktopWrapper.style.border = "";
-  desktopWrapper.style.boxShadow = "";
-  desktopWrapper.style.overflow = "";
+  body.style.backgroundColor = "";
+  screenWrapper.style.width = "";
+  screenWrapper.style.height = "";
+  screenWrapper.style.border = "";
+  screenWrapper.style.boxShadow = "";
+  screenWrapper.style.overflow = "";
+  screenWrapper.style.flexDirection = "";
+
 
   if (resolutionId !== "fit") {
     body.style.display = "flex";
     body.style.alignItems = "center";
     body.style.justifyContent = "center";
+    body.style.backgroundColor = "var(--Background)";
 
-    desktopWrapper.style.width = `${resolution.width}px`;
-    desktopWrapper.style.height = `${resolution.height}px`;
-    desktopWrapper.style.border = "1px solid var(--border-black, black)";
-    desktopWrapper.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
-    desktopWrapper.style.overflow = "hidden";
+    screenWrapper.style.width = `${resolution.width}px`;
+    screenWrapper.style.height = `${resolution.height}px`;
+    screenWrapper.style.border = "1px solid var(--border-black, black)";
+    screenWrapper.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
+    screenWrapper.style.overflow = "hidden";
+  } else {
+    screenWrapper.style.width = "100%";
+    screenWrapper.style.height = "100%";
   }
 
   document.dispatchEvent(new CustomEvent("resolution-changed"));
