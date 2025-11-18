@@ -23,6 +23,7 @@ import {
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from "./components/ui.js";
+import { applyResolution } from "./utils/resolutionManager.js";
 import screensaver from "./components/screensaver.js";
 
 // Window Management System
@@ -174,6 +175,7 @@ async function initializeOS() {
   logElement = startBootProcessStep("Creating main UI...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
+  applyResolution();
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
 

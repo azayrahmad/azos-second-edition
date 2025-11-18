@@ -1,7 +1,4 @@
 .taskbar {
-    position: fixed; /* Changed from sticky to fixed */
-    bottom: 0; /* Ensure it's pinned to the bottom */
-    left: 0;
     width: 100%;
     height: 24px;
     background: var(--ButtonFace, #c0c0c0);
