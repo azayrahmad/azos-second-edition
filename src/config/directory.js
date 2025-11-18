@@ -32,6 +32,7 @@ const directory = [
           { id: "app-pinball", type: "app", appId: "pinball" },
           { id: "app-paint", type: "app", appId: "paint" },
           { id: "app-display-properties", type: "app", appId: "display-properties" },
+          { id: "app-network-neighborhood", type: "app", appId: "network-neighborhood" },
         ],
       },
       {
@@ -158,6 +159,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-display-properties",
                 name: "Display Properties",
+              },
+              {
+                id: "shortcut-to-network-neighborhood",
+                type: "shortcut",
+                targetId: "app-network-neighborhood",
+                name: "Network Neighborhood",
               },
             ],
           },

@@ -9,6 +9,7 @@ import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
 import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
+import { NetworkNeighborhoodApp } from "../apps/network/NetworkNeighborhoodApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
@@ -42,6 +43,7 @@ export const appClasses = {
   taskmanager: TaskManagerApp,
   soundschemeexplorer: SoundSchemeExplorerApp,
   explorer: ExplorerApp,
+  "network-neighborhood": NetworkNeighborhoodApp,
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
   paint: PaintApp,
@@ -110,6 +112,18 @@ export const apps = [
         action: "properties",
       },
     ],
+  },
+  {
+    id: "network-neighborhood",
+    title: "Network Neighborhood",
+    get icon() {
+      return getIcon("networkNeighborhood");
+    },
+    appClass: NetworkNeighborhoodApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: true,
   },
   {
     id: "my-documents",

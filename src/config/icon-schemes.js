@@ -36,6 +36,19 @@ import travelRecycleFull from "../assets/icons/theme-icons/Travel Recycle Full.i
 import windows98RecycleEmpty from "../assets/icons/theme-icons/Windows 98 Recycle Empty.ico";
 import windows98RecycleFull from "../assets/icons/theme-icons/Windows 98 Recycle Full.ico";
 
+import dangerousCreaturesNetworkNeighborhood from "../assets/icons/theme-icons/Dangerous Creatures Network Neighborhood.ico";
+import insideYourComputerNetworkNeighborhood from "../assets/icons/theme-icons/Inside your Computer Network Neighborhood.ico";
+import leonardoDaVinciNetworkNeighborhood from "../assets/icons/theme-icons/Leonardo da Vinci Network Neighborhood.ico";
+import moreWindowsNetworkNeighborhood from "../assets/icons/theme-icons/More Windows Network Neighborhood.ico";
+import mysteryNetworkNeighborhood from "../assets/icons/theme-icons/Mystery Network Neighborhood.ico";
+import natureNetworkNeighborhood from "../assets/icons/theme-icons/Nature Network Neighborhood.ico";
+import scienceNetworkNeighborhood from "../assets/icons/theme-icons/Science Network Neighborhood.ico";
+import sportsNetworkNeighborhood from "../assets/icons/theme-icons/Sports Network Neighborhood.ico";
+import the60sUSANetworkNeighborhood from "../assets/icons/theme-icons/The 60's USA Network Neighborhood.ico";
+import theGoldenEraNetworkNeighborhood from "../assets/icons/theme-icons/The Golden Era Network Neighborhood.ico";
+import travelNetworkNeighborhood from "../assets/icons/theme-icons/Travel Network Neighborhood.ico";
+import windows98NetworkNeighborhood from "../assets/icons/theme-icons/Windows 98 Network Neighborhood.ico";
+
 import { ICONS } from "./icons.js";
 
 export const iconSchemes = {
@@ -43,6 +56,7 @@ export const iconSchemes = {
     myComputer: ICONS.computer,
     recycleBinFull: ICONS.recycleBinFull,
     recycleBinEmpty: ICONS.recycleBinEmpty,
+    networkNeighborhood: ICONS.networkNeighborhood,
   },
   "dangerous-creatures": {
     myComputer: {
@@ -56,6 +70,10 @@ export const iconSchemes = {
     recycleBinFull: {
       16: dangerousCreaturesRecycleFull,
       32: dangerousCreaturesRecycleFull,
+    },
+    networkNeighborhood: {
+      16: dangerousCreaturesNetworkNeighborhood,
+      32: dangerousCreaturesNetworkNeighborhood,
     },
   },
   "inside-your-computer": {
@@ -71,6 +89,10 @@ export const iconSchemes = {
       16: insideYourComputerRecycleFull,
       32: insideYourComputerRecycleFull,
     },
+    networkNeighborhood: {
+      16: insideYourComputerNetworkNeighborhood,
+      32: insideYourComputerNetworkNeighborhood,
+    },
   },
   "leonardo-da-vinci": {
     myComputer: {
@@ -84,6 +106,10 @@ export const iconSchemes = {
     recycleBinFull: {
       16: leonardoDaVinciRecycleFull,
       32: leonardoDaVinciRecycleFull,
+    },
+    networkNeighborhood: {
+      16: leonardoDaVinciNetworkNeighborhood,
+      32: leonardoDaVinciNetworkNeighborhood,
     },
   },
   "more-windows": {
@@ -99,6 +125,10 @@ export const iconSchemes = {
       16: moreWindowsRecycleFull,
       32: moreWindowsRecycleFull,
     },
+    networkNeighborhood: {
+      16: moreWindowsNetworkNeighborhood,
+      32: moreWindowsNetworkNeighborhood,
+    },
   },
   mystery: {
     myComputer: {
@@ -112,6 +142,10 @@ export const iconSchemes = {
     recycleBinFull: {
       16: mysteryRecycleFull,
       32: mysteryRecycleFull,
+    },
+    networkNeighborhood: {
+      16: mysteryNetworkNeighborhood,
+      32: mysteryNetworkNeighborhood,
     },
   },
   nature: {
@@ -127,6 +161,10 @@ export const iconSchemes = {
       16: natureRecycleFull,
       32: natureRecycleFull,
     },
+    networkNeighborhood: {
+      16: natureNetworkNeighborhood,
+      32: natureNetworkNeighborhood,
+    },
   },
   science: {
     myComputer: {
@@ -140,6 +178,10 @@ export const iconSchemes = {
     recycleBinFull: {
       16: scienceRecycleFull,
       32: scienceRecycleFull,
+    },
+    networkNeighborhood: {
+      16: scienceNetworkNeighborhood,
+      32: scienceNetworkNeighborhood,
     },
   },
   sports: {
@@ -155,6 +197,10 @@ export const iconSchemes = {
       16: sportsRecycleFull,
       32: sportsRecycleFull,
     },
+    networkNeighborhood: {
+      16: sportsNetworkNeighborhood,
+      32: sportsNetworkNeighborhood,
+    },
   },
   "60s-usa": {
     myComputer: {
@@ -168,6 +214,10 @@ export const iconSchemes = {
     recycleBinFull: {
       16: the60sUSARecycleFull,
       32: the60sUSARecycleFull,
+    },
+    networkNeighborhood: {
+      16: the60sUSANetworkNeighborhood,
+      32: the60sUSANetworkNeighborhood,
     },
   },
   "the-golden-era": {
@@ -183,6 +233,10 @@ export const iconSchemes = {
       16: theGoldenEraRecycleFull,
       32: theGoldenEraRecycleFull,
     },
+    networkNeighborhood: {
+      16: theGoldenEraNetworkNeighborhood,
+      32: theGoldenEraNetworkNeighborhood,
+    },
   },
   travel: {
     myComputer: {
@@ -197,6 +251,10 @@ export const iconSchemes = {
       16: travelRecycleFull,
       32: travelRecycleFull,
     },
+    networkNeighborhood: {
+      16: travelNetworkNeighborhood,
+      32: travelNetworkNeighborhood,
+    },
   },
   "windows-98": {
     myComputer: {
@@ -210,6 +268,10 @@ export const iconSchemes = {
     recycleBinFull: {
       16: windows98RecycleFull,
       32: windows98RecycleFull,
+    },
+    networkNeighborhood: {
+      16: windows98NetworkNeighborhood,
+      32: windows98NetworkNeighborhood,
     },
   },
 };
