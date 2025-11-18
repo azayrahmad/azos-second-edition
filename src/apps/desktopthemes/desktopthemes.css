@@ -1,45 +1,93 @@
-#desktopthemes .main-container {
+.desktopthemes-app .window-body {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow: auto;
 }
 
-#desktopthemes .controls {
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
+#desktopthemes .main-container {
     display: flex;
     flex-direction: row;
-
+    flex-grow: 1;
+    padding: 10px;
     gap: 10px;
 }
 
+#desktopthemes .left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#desktopthemes .controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+#desktopthemes .controls label {
+    grid-column: 1 / 2;
+}
+
 #desktopthemes .controls select {
-    align-self: flex-start;
+    grid-column: 2 / 3;
+    width: 100%;
+}
+
+#desktopthemes .controls button {
+    min-width: 65px;
+    min-height: 22px;
+    font-size: var(--font-size-base);
 }
 
 #desktopthemes .preview-container {
-    width: 400px;
-    height: 300px;
-    margin: 10px;
+    flex-grow: 1;
+    width: 394px;
+    min-height: 355px; /* Important for flexbox shrinking */
     border: 2px inset var(--border-color, #fff);
     overflow: hidden;
     position: relative;
     background-size: cover;
     background-position: center;
     display: flex;
-    align-items: flex-start; /* Changed from center */
-    justify-content: flex-start; /* Changed from center */
-    flex-shrink: 0;
-    align-self: flex-start; /* Align the container itself to the left */
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+#desktopthemes .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 220px;
+}
+
+#desktopthemes .right-panel fieldset {
+    padding: 10px;
+}
+
+#desktopthemes .right-panel .previews-fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#desktopthemes .right-panel .previews-fieldset button {
+    width: 100%;
+    font-size: var(--font-size-base);
+    min-height: 22px;
+}
+
+#desktopthemes .right-panel .settings-fieldset {
+    flex-grow: 1;
+}
+
+#desktopthemes .right-panel .settings-fieldset p {
+    margin: 0 0 10px 0;
 }
 
 #desktopthemes .actions {
     padding: 10px;
     display: flex !important;
     justify-content: flex-end;
-    margin-top: auto; /* Pushes it to the bottom */
+    gap: 5px;
 }
 
 #desktopthemes .actions button {
@@ -47,32 +95,141 @@
     min-width: 80px;
 }
 
-#desktopthemes .preview-window {
+#desktopthemes .preview-label {
+    background-color: var(--preview-button-face);
+    padding: 3px;
+    border: 1px solid var(--preview-button-shadow);
+    border-top: 1px solid var(--preview-button-highlight);
+    text-align: center;
+    font-size: 11px;
+}
+
+#desktopthemes .desktop-icons-preview {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 180px;
-    border: 2px solid;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#desktopthemes .desktop-icon-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 80px; /* Increased width for better text fit */
+    text-align: center;
+    color: white; /* Default icon text color */
+}
+
+#desktopthemes .desktop-icon-preview img {
+    width: 32px;
+    height: 32px;
+}
+
+#desktopthemes .desktop-icon-preview span {
+    background-color: transparent;
+    border: 1px dotted transparent;
+    padding: 1px 2px;
+    font-size: 11px;
+}
+
+#desktopthemes .preview-window {
+    box-sizing: border-box;
+    border: 1px solid;
     border-color: var(--preview-button-highlight)
         var(--preview-button-dk-shadow) var(--preview-button-dk-shadow)
         var(--preview-button-highlight);
     background: var(--preview-button-face);
     padding: 1px;
-    border-image: var(--preview-button-normal-border-image);
+}
+
+#desktopthemes .inactive-window-preview {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 200px;
+    height: 150px;
+    z-index: 1;
+}
+
+#desktopthemes .active-window-preview {
+    position: absolute;
+    right: 2px;
+    bottom: 20px;
+    width: 220px;
+    height: 130px;
+    z-index: 2;
+}
+
+#desktopthemes .message-box-preview {
+    position: absolute;
+    right: 60px;
+    bottom: 6px;
+    width: 158px;
+    height: 76px;
+    z-index: 3;
+}
+
+#desktopthemes .message-box-preview .window-body span {
+    text-align: left;
 }
 
 #desktopthemes .preview-window .title-bar {
+    padding: 2px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+#desktopthemes .active-window-preview .title-bar,
+#desktopthemes .message-box-preview .title-bar {
     background: linear-gradient(
         to right,
         var(--preview-active-title-bar-bg) 0%,
         var(--preview-gradient-active-title-bar-bg) 100%
     );
     color: var(--preview-active-title-bar-text, #fff);
+}
+
+#desktopthemes .inactive-window-preview .title-bar {
+    background: linear-gradient(
+        to right,
+        var(--preview-inactive-title-bar-bg, #7f7f7f) 0%,
+        var(--preview-gradient-inactive-title-bar-bg, #b5b5b5) 100%
+    );
+    color: var(--preview-inactive-title-bar-text, #c0c0c0);
+}
+
+#desktopthemes .active-window-preview .window-body {
+    padding: 0;
+    margin: 1px;
+    display: flex;
+    flex-direction: column;
+}
+
+#desktopthemes .active-window-preview .menu-bar {
+    background-color: var(--preview-button-face);
+    color: var(--preview-window-text);
     padding: 2px 4px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
+    gap: 8px;
+}
+
+#desktopthemes .active-window-preview .menu-bar .selected {
+    background-color: var(--preview-active-title-bar-bg);
+    color: var(--preview-active-title-bar-text);
+    padding: 0 2px;
+}
+
+#desktopthemes .active-window-preview .main-content {
+    background-color: var(--preview-window-bg);
+    color: var(--preview-window-text);
+    flex-grow: 1;
+    padding: 10px;
+    margin: 1px;
 }
 
 #desktopthemes .preview-window .title-bar-controls {
@@ -94,8 +251,6 @@
 #desktopthemes .preview-window .window-body {
     background: var(--preview-button-face, #c0c0c0);
     color: var(--preview-window-text, #000);
-    padding: 12px;
-    text-align: center;
     margin: 1px;
 }
 

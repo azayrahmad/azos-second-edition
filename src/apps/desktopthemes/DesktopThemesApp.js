@@ -1,4 +1,5 @@
 import { Application } from "../Application.js";
+import { ICONS } from "../../config/icons.js";
 import {
   getThemes,
   setTheme,
@@ -29,7 +30,8 @@ export class DesktopThemesApp extends Application {
     const win = new $Window({
       id: this.id,
       title: this.title,
-      outerWidth: this.width,
+      outerWidth: 600,
+      outerHeight: 500,
       resizable: this.resizable,
       icons: this.icon,
       className: "desktopthemes-app",
@@ -46,12 +48,17 @@ export class DesktopThemesApp extends Application {
     mainContainer.className = "main-container";
     win.$content.append(mainContainer);
 
+    // --- Left Panel ---
+    const leftPanel = document.createElement("div");
+    leftPanel.className = "left-panel";
+    mainContainer.appendChild(leftPanel);
+
     const controlsContainer = document.createElement("div");
     controlsContainer.className = "controls";
-    mainContainer.appendChild(controlsContainer);
+    leftPanel.appendChild(controlsContainer);
 
     const themeLabel = document.createElement("label");
-    themeLabel.textContent = "Theme:";
+    themeLabel.innerHTML = AccessKeys.toHTML("&Theme:");
     controlsContainer.appendChild(themeLabel);
 
     this.themeSelector = document.createElement("select");
@@ -75,46 +82,175 @@ export class DesktopThemesApp extends Application {
       this.handleThemeSelection(),
     );
 
-    this.populateThemes();
-
     this.previewContainer = document.createElement("div");
     this.previewContainer.className = "preview-container";
-    mainContainer.appendChild(this.previewContainer);
+    leftPanel.appendChild(this.previewContainer);
 
     this.previewContainer.innerHTML = `
-      <div class="os-window app-window preview-window">
+      <div class="desktop-icons-preview">
+        <div class="desktop-icon-preview" data-icon="my-computer">
+          <img src="" alt="My Computer" />
+          <span>My Computer</span>
+        </div>
+        <div class="desktop-icon-preview" data-icon="network">
+          <img src="" alt="Network Neighborhood" />
+          <span>Network Neighborhood</span>
+        </div>
+        <div class="desktop-icon-preview" data-icon="recycle-bin">
+          <img src="" alt="Recycle Bin" />
+          <span>Recycle Bin</span>
+        </div>
+      </div>
+      <div class="os-window app-window preview-window inactive-window-preview">
+        <div class="title-bar window-titlebar">
+          <div class="title-bar-text">Inactive Window</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window-body"></div>
+      </div>
+      <div class="os-window app-window preview-window active-window-preview">
+        <div class="title-bar window-titlebar">
+          <div class="title-bar-text">Active Window</div>
+          <div class="title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window-body">
+            <div class="menu-bar"><span>Normal</span><span>Disabled</span><span class="selected">Selected</span></div>
+            <div class="main-content"><p>Window Text</p></div>
+        </div>
+      </div>
+      <div class="os-window app-window preview-window message-box-preview">
         <div class="title-bar window-titlebar">
           <div class="title-bar-text">Message Box</div>
           <div class="title-bar-controls">
             <button aria-label="Close" class="close-button window-close-button window-action-close window-button">
-            <span class='window-button-icon'></span>
             </button>
           </div>
         </div>
         <div class="window-body">
-          <p>Message</p>
+          <span>Message Text</span>
           <button>OK</button>
         </div>
       </div>
     `;
 
+    this.previewLabel = document.createElement("div");
+    this.previewLabel.className = "preview-label";
+
+    this.populateThemes();
     this.previewTheme(this.themeSelector.value);
 
+    // --- Right Panel ---
+    const rightPanel = document.createElement("div");
+    rightPanel.className = "right-panel";
+    mainContainer.appendChild(rightPanel);
+
+    // Previews Group
+    const previewsFieldset = document.createElement("fieldset");
+    previewsFieldset.className = "previews-fieldset";
+    previewsFieldset.innerHTML = "<legend>Previews</legend>";
+    rightPanel.appendChild(previewsFieldset);
+
+    const screenSaverButton = document.createElement("button");
+    screenSaverButton.textContent = "Screen Saver";
+    screenSaverButton.disabled = true;
+    previewsFieldset.appendChild(screenSaverButton);
+
+    const pointersButton = document.createElement("button");
+    pointersButton.textContent = "Pointers, Sounds, etc...";
+    pointersButton.disabled = true;
+    previewsFieldset.appendChild(pointersButton);
+
+    // Settings Group
+    const settingsFieldset = document.createElement("fieldset");
+    settingsFieldset.className = "settings-fieldset";
+    settingsFieldset.innerHTML = `
+      <legend>Settings</legend>
+      <p>Click OK or Apply to apply the selected settings to Windows 98.</p>
+      <div class="field-row">
+        <input type="checkbox" id="cb-screensaver" checked disabled />
+        <label for="cb-screensaver">${AccessKeys.toHTML(
+          "Screen &saver",
+        )}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-sound" checked disabled />
+        <label for="cb-sound">${AccessKeys.toHTML("&Sound events")}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-mouse" checked disabled />
+        <label for="cb-mouse">${AccessKeys.toHTML("&Mouse pointers")}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-wallpaper" checked disabled />
+        <label for="cb-wallpaper">${AccessKeys.toHTML(
+          "Desktop  &wallpaper",
+        )}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-icons" checked disabled />
+        <label for="cb-icons">${AccessKeys.toHTML("&Icons")}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-colors" checked disabled />
+        <label for="cb-colors">${AccessKeys.toHTML("&Colors")}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-fontnames" checked disabled />
+        <label for="cb-fontnames">${AccessKeys.toHTML(
+          "&Font names and styles",
+        )}</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="cb-fontsizes" checked disabled />
+        <label for="cb-fontsizes">${AccessKeys.toHTML(
+          "Font and window si&zes",
+        )}</label>
+      </div>
+    `;
+    rightPanel.appendChild(settingsFieldset);
+
+    // --- Bottom Action Buttons ---
     const actionsContainer = document.createElement("div");
     actionsContainer.className = "actions";
-    mainContainer.appendChild(actionsContainer);
+    win.$content.append(actionsContainer);
+
+    actionsContainer.appendChild(this.previewLabel);
+
+    const okButton = document.createElement("button");
+    okButton.textContent = "OK";
+    okButton.classList.add("default");
+    actionsContainer.appendChild(okButton);
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+    actionsContainer.appendChild(cancelButton);
 
     const applyButton = document.createElement("button");
     applyButton.textContent = "Apply";
     actionsContainer.appendChild(applyButton);
 
-    applyButton.addEventListener("click", () => {
+    const applyCurrentTheme = () => {
       if (this.themeSelector.value === "current-settings") {
         this.applyCustomTheme();
       } else {
         setTheme(this.themeSelector.value);
       }
+    };
+
+    applyButton.addEventListener("click", applyCurrentTheme);
+    okButton.addEventListener("click", () => {
+      applyCurrentTheme();
+      win.close();
     });
+    cancelButton.addEventListener("click", () => win.close());
 
     return win;
   }
@@ -237,9 +373,7 @@ export class DesktopThemesApp extends Application {
       finalName = `${name} (${counter++})`;
     }
 
-    const newThemeId = `custom-${finalName
-      .toLowerCase()
-      .replace(/\s+/g, "-")}`;
+    const newThemeId = `custom-${finalName.toLowerCase().replace(/\s+/g, "-")}`;
     const { wallpaper, ...colors } = this.customThemeProperties;
     const newTheme = {
       ...themes.default,
@@ -298,10 +432,14 @@ export class DesktopThemesApp extends Application {
         normalizedProperties[key.replace(/^--/, "")] = value;
       }
       this.previewCustomTheme(normalizedProperties);
+      this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
     } else {
       this.removeTemporaryThemeOption();
       this.customThemeProperties = null;
       this.previewTheme(selectedValue);
+      this.previewLabel.textContent = `Preview of '${
+        selectedTheme ? selectedTheme.name : ""
+      }'`;
     }
   }
 
@@ -358,9 +496,27 @@ export class DesktopThemesApp extends Application {
     this.handleThemeSelection();
   }
 
+  updatePreviewIcons() {
+    const computerIcon = this.previewContainer.querySelector(
+      '[data-icon="my-computer"] img',
+    );
+    const networkIcon = this.previewContainer.querySelector(
+      '[data-icon="network"] img',
+    );
+    const recycleBinIcon = this.previewContainer.querySelector(
+      '[data-icon="recycle-bin"] img',
+    );
+
+    if (computerIcon) computerIcon.src = ICONS.computer[32];
+    if (networkIcon) networkIcon.src = ICONS.folder[32]; // Using folder as placeholder
+    if (recycleBinIcon) recycleBinIcon.src = ICONS.recycleBinEmpty[32];
+  }
+
   async previewTheme(themeId) {
     const theme = getThemes()[themeId];
     if (!theme) return;
+
+    this.updatePreviewIcons();
 
     let variables = {};
     if (theme.isCustom && theme.colors) {
@@ -383,6 +539,7 @@ export class DesktopThemesApp extends Application {
   }
 
   previewCustomTheme(properties) {
+    this.updatePreviewIcons();
     this.applyCssVariables(properties);
     this.previewContainer.style.backgroundImage = properties.wallpaper
       ? `url('${properties.wallpaper}')`
@@ -430,6 +587,12 @@ export class DesktopThemesApp extends Application {
         variables["GradientActiveTitle"] || "rgb(16, 132, 208)",
       "--preview-active-title-bar-text":
         variables["TitleText"] || "rgb(255, 255, 255)",
+      "--preview-inactive-title-bar-bg":
+        variables["InactiveTitle"] || "rgb(128, 128, 128)",
+      "--preview-gradient-inactive-title-bar-bg":
+        variables["GradientInactiveTitle"] || "rgb(181, 181, 181)",
+      "--preview-inactive-title-bar-text":
+        variables["InactiveTitleText"] || "rgb(192, 192, 192)",
       "--preview-window-bg": variables["Window"] || "rgb(255, 255, 255)",
       "--preview-window-text": variables["WindowText"] || "rgb(0, 0, 0)",
       "--preview-button-face": variables["ButtonFace"] || "rgb(192, 192, 192)",

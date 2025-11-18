@@ -3,7 +3,7 @@ import { wallpapers } from "./wallpapers.js";
 export const themes = {
   default: {
     id: "default",
-    name: "Default",
+    name: "Windows Default",
     stylesheet: "windows-default.css",
     wallpaper: null,
     soundScheme: "Default",
