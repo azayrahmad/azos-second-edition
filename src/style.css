@@ -154,3 +154,16 @@ h1 {
 button {
     cursor: var(--cursor-default);
 }
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s forwards;
+}
