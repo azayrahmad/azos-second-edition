@@ -2,20 +2,39 @@ import { IFrameApplication } from "../IFrameApplication.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 
 export class InternetExplorerApp extends IFrameApplication {
-  async _onLaunch(filePath) {
-    const url = filePath || "microsoft.com";
+  constructor(options) {
+    super(options);
+    this.retroMode = true;
+  }
+
+  async _onLaunch(data) {
+    let url = "microsoft.com";
+
+    if (typeof data === "string") {
+      url = data;
+    } else if (typeof data === "object" && data !== null) {
+      url = data.url || url;
+      if (data.retroMode === false) {
+        this.retroMode = false;
+        this._updateTitle();
+      }
+    }
     this.navigateTo(url);
   }
 
   _createWindow() {
+    const initialTitle = this.retroMode
+      ? "Internet Explorer (Retro Mode)"
+      : "Internet Explorer";
     const win = new window.$Window({
-      title: "Internet Explorer",
+      title: initialTitle,
       outerWidth: 600,
       outerHeight: 400,
       icons: this.icon,
       id: this.id,
       resizable: this.resizable,
     });
+    this.win = win;
 
     this.iframe = window.os_gui_utils.E("iframe", {
       className: "content-window",
@@ -71,14 +90,28 @@ export class InternetExplorerApp extends IFrameApplication {
       }
       this.input.value = finalUrl;
 
-      const waybackUrl = `https://web.archive.org/web/1998/${finalUrl}`;
+      const targetUrl = this.retroMode
+        ? `https://web.archive.org/web/1998/${finalUrl}`
+        : finalUrl;
 
       this.statusText.textContent = "Connecting to site...";
       this.iframe.src = "about:blank";
-      this.iframe.src = waybackUrl;
+      this.iframe.src = targetUrl;
     };
 
     const menuBar = new window.MenuBar({
+      File: [
+        {
+          label: "Retro Mode",
+          checkbox: {
+            check: () => this.retroMode,
+            toggle: () => {
+              this.retroMode = !this.retroMode;
+              this._updateTitle();
+            },
+          },
+        },
+      ],
       Go: [
         {
           label: "Back",
@@ -93,9 +126,7 @@ export class InternetExplorerApp extends IFrameApplication {
           action: () => {
             try {
               const currentUrl = new URL(this.input.value);
-              const pathParts = currentUrl.pathname
-                .split("/")
-                .filter((p) => p);
+              const pathParts = currentUrl.pathname.split("/").filter((p) => p);
               if (pathParts.length > 0) {
                 pathParts.pop();
                 currentUrl.pathname = pathParts.join("/");
@@ -108,6 +139,7 @@ export class InternetExplorerApp extends IFrameApplication {
         },
       ],
     });
+    this.menuBar = menuBar;
     win.setMenuBar(menuBar);
 
     const logo = new AnimatedLogo();
@@ -144,5 +176,14 @@ export class InternetExplorerApp extends IFrameApplication {
     this._setupIframeForInactivity(this.iframe);
 
     return win;
+  }
+
+  _updateTitle() {
+    const baseTitle = "Internet Explorer";
+    const retroTitle = this.retroMode ? `${baseTitle} (Retro Mode)` : baseTitle;
+    this.win.title(retroTitle);
+    if (this.menuBar) {
+      this.menuBar.element.dispatchEvent(new Event("update"));
+    }
   }
 }

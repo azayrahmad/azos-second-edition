@@ -53,6 +53,15 @@ const startMenuConfig = [
         icon: ICONS.documents[16],
         action: () => launchApp("internet-explorer", "yahoo.com"),
       },
+      {
+        label: "Neocities",
+        icon: ICONS.documents[16],
+        action: () =>
+          launchApp("internet-explorer", {
+            url: "https://neocities.org/",
+            retroMode: false,
+          }),
+      },
     ],
   },
   {
