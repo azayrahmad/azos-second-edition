@@ -12,6 +12,7 @@ export const LOCAL_STORAGE_KEYS = {
   RECYCLE_BIN: 'recycleBin',
   SCREENSAVER_TIMEOUT: 'screensaverTimeout',
   SCREENSAVER: 'screensaver',
+  COLOR_MODE: 'colorMode',
 };
 
 export function getItem(key) {
