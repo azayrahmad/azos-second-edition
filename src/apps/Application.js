@@ -103,8 +103,6 @@ export class Application {
       // For singletons, isLastInstance remains true, as the only instance was just removed.
     });
 
-    document.body.appendChild(this.win.element);
-
     if (this.hasTaskbarButton) {
       const taskbarButton = createTaskbarButton(
         windowId,

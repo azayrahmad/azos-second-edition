@@ -127,7 +127,7 @@
         ),
       )
         .addClass("window os-window")
-        .appendTo("body")
+        .appendTo("#screen")
     );
     // TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
     $w[0].$window = $w;
@@ -968,14 +968,16 @@
         };
 
         $w.addClass("maximized");
-        const $desktopArea = $(".desktop-area");
-        const desktopRect = $desktopArea[0].getBoundingClientRect();
+        const screen = document.getElementById('screen');
+        const screenRect = screen.getBoundingClientRect();
+        const parentRect = screen.offsetParent.getBoundingClientRect();
+
         $w.css({
-          position: "fixed",
-          top: desktopRect.top,
-          left: desktopRect.left,
-          width: desktopRect.width,
-          height: desktopRect.height,
+          position: "absolute", // Changed from fixed
+          top: 0, // Relative to #screen
+          left: 0, // Relative to #screen
+          width: screenRect.width,
+          height: screenRect.height,
         });
       };
       const instantly_unmaximize = () => {
@@ -1508,38 +1510,37 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     });
 
     $w.applyBounds = () => {
-      // TODO: outerWidth vs width? not sure
-      const bound_width = Math.max(document.body.scrollWidth, innerWidth);
-      const bound_height = Math.max(document.body.scrollHeight, innerHeight);
+      const screen = document.getElementById('screen');
+      const rect = screen.getBoundingClientRect();
       $w.css({
         left: Math.max(
           0,
-          Math.min(bound_width - $w.width(), $w.position().left),
+          Math.min(rect.width - $w.width(), $w.position().left),
         ),
         top: Math.max(
           0,
-          Math.min(bound_height - $w.height(), $w.position().top),
+          Math.min(rect.height - $w.height(), $w.position().top),
         ),
       });
     };
 
     $w.bringTitleBarInBounds = () => {
       // Try to make the titlebar always accessible
-      const bound_width = Math.max(document.body.scrollWidth, innerWidth);
-      const bound_height = Math.max(document.body.scrollHeight, innerHeight);
+      const screen = document.getElementById('screen');
+      const rect = screen.getBoundingClientRect();
       const min_horizontal_pixels_on_screen = 40; // enough for space past a close button
       $w.css({
         left: Math.max(
           min_horizontal_pixels_on_screen - $w.outerWidth(),
           Math.min(
-            bound_width - min_horizontal_pixels_on_screen,
+            rect.width - min_horizontal_pixels_on_screen,
             $w.position().left,
           ),
         ),
         top: Math.max(
           0,
           Math.min(
-            bound_height - $w.$titlebar.outerHeight() - 5,
+            rect.height - $w.$titlebar.outerHeight() - 5,
             $w.position().top,
           ),
         ),
@@ -1547,9 +1548,11 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     };
 
     $w.center = () => {
+      const screen = document.getElementById('screen');
+      const rect = screen.getBoundingClientRect();
       $w.css({
-        left: (innerWidth - $w.width()) / 2 + window.scrollX,
-        top: (innerHeight - $w.height()) / 2 + window.scrollY,
+        left: (rect.width - $w.width()) / 2,
+        top: (rect.height - $w.height()) / 2,
       });
       $w.applyBounds();
     };
@@ -1579,9 +1582,10 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         drag_pointer_x = e.clientX ?? drag_pointer_x;
         drag_pointer_y = e.clientY ?? drag_pointer_y;
       }
+      const screenRect = document.getElementById('screen').getBoundingClientRect();
       $w.css({
-        left: drag_pointer_x + scrollX - drag_offset_x,
-        top: drag_pointer_y + scrollY - drag_offset_y,
+        left: drag_pointer_x - screenRect.left - drag_offset_x,
+        top: drag_pointer_y - screenRect.top - drag_offset_y,
       });
     };
     $w.$titlebar.css("touch-action", "none");
@@ -1637,8 +1641,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
       if (customEvent.isDefaultPrevented()) {
         return; // allow custom drag behavior of component windows in jspaint (Tools / Colors)
       }
-      drag_offset_x = e.clientX + scrollX - $w.position().left;
-      drag_offset_y = e.clientY + scrollY - $w.position().top;
+      const screenRect = document.getElementById('screen').getBoundingClientRect();
+      drag_offset_x = e.clientX - screenRect.left - $w.position().left;
+      drag_offset_y = e.clientY - screenRect.top - $w.position().top;
       drag_pointer_x = e.clientX;
       drag_pointer_y = e.clientY;
       drag_pointer_id = e.pointerId ?? e.originalEvent?.pointerId; // originalEvent doesn't exist for triggerHandler()

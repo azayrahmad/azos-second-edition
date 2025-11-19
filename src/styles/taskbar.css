@@ -1,5 +1,5 @@
 .taskbar {
-    position: fixed; /* Changed from sticky to fixed */
+    position: absolute; /* Changed from fixed to absolute */
     bottom: 0; /* Ensure it's pinned to the bottom */
     left: 0;
     width: 100%;
@@ -244,12 +244,11 @@ button:not(:disabled):active img {
 }
 
 .start-menu-wrapper {
-    position: fixed;
-    top: 0;
+    position: absolute;
     bottom: 25px;
     left: 0;
-    right: 0;
-    overflow: hidden;
+    width: 100%;
+    height: calc(100% - 25px);
     pointer-events: none;
     z-index: 9999;
 }

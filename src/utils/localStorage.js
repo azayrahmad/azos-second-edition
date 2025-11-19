@@ -13,6 +13,7 @@ export const LOCAL_STORAGE_KEYS = {
   SCREENSAVER_TIMEOUT: 'screensaverTimeout',
   SCREENSAVER: 'screensaver',
   COLOR_MODE: 'colorMode',
+  SCREEN_RESOLUTION: 'screenResolution',
 };
 
 export function getItem(key) {

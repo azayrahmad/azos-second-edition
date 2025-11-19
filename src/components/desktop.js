@@ -32,6 +32,11 @@ import {
   getColorModes,
 } from "../utils/colorModeManager.js";
 import screensaver from "./screensaver.js";
+import {
+    getAvailableResolutions,
+    setResolution,
+    getCurrentResolutionId,
+} from "../utils/screenManager.js";
 
 function getIconId(app, filePath = null) {
   // Create a unique ID for the icon based on app ID or file path
@@ -291,6 +296,21 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
           ariaLabel: "Monitor Type",
         },
       ],
+    },
+    "MENU_DIVIDER",
+    {
+        label: "Screen Resolution",
+        submenu: [
+            {
+                radioItems: getAvailableResolutions().map((res) => ({
+                    label: res === 'fit' ? 'Fit Screen' : res,
+                    value: res,
+                })),
+                getValue: () => getCurrentResolutionId(),
+                setValue: (value) => setResolution(value),
+                ariaLabel: "Screen Resolution",
+            },
+        ],
     },
     "MENU_DIVIDER",
     {

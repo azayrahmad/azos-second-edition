@@ -16,8 +16,9 @@ function createMainUI() {
   const taskbar = document.createElement('div');
   taskbar.className = 'taskbar';
 
-  document.body.appendChild(appContainer);
-  document.body.appendChild(taskbar);
+  const screen = document.getElementById('screen');
+  screen.appendChild(appContainer);
+  screen.appendChild(taskbar);
 }
 
 export { createMainUI };

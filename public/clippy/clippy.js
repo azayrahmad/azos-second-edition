@@ -12,7 +12,7 @@ clippy.Agent = function (path, data, sounds) {
 
   this._el = $('<div class="clippy"></div>').hide();
 
-  $(document.body).append(this._el);
+  $("#screen").append(this._el);
 
   this._animator = new clippy.Animator(this._el, path, data, sounds);
 
@@ -177,8 +177,9 @@ clippy.Agent.prototype = {
     }
 
     if (this._el.css("top") === "auto" || !this._el.css("left") === "auto") {
-      var left = $(window).width() * 0.8;
-      var top = ($(window).height() + $(document).scrollTop()) * 0.8;
+      const screen = $("#screen");
+      var left = screen.width() * 0.8;
+      var top = screen.height() * 0.8;
       this._el.css({ top: top, left: left });
     }
 
@@ -414,10 +415,11 @@ clippy.Agent.prototype = {
     var bH = this._el.outerHeight();
     var bW = this._el.outerWidth();
 
-    var wW = $(window).width();
-    var wH = $(window).height();
-    var sT = $(window).scrollTop();
-    var sL = $(window).scrollLeft();
+    const screen = $("#screen");
+    var wW = screen.width();
+    var wH = screen.height();
+    var sT = screen.scrollTop();
+    var sL = screen.scrollLeft();
 
     var top = o.top - sT;
     var left = o.left - sL;
