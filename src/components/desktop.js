@@ -26,6 +26,11 @@ import {
   getRecycleBinItems,
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
+import {
+  getAvailableResolutions,
+  getCurrentResolution,
+  setResolution,
+} from "../utils/resolutionManager.js";
 import screensaver from "./screensaver.js";
 
 function getIconId(app, filePath = null) {
@@ -274,6 +279,20 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
       ],
     },
     "MENU_DIVIDER",
+    {
+      label: "Resolution",
+      submenu: [
+        {
+          radioItems: getAvailableResolutions().map((res) => ({
+            ...res,
+            disabled: res.disabled,
+          })),
+          getValue: () => getCurrentResolution(),
+          setValue: (value) => setResolution(value),
+          ariaLabel: "Screen Resolution",
+        },
+      ],
+    },
     {
       label: "Screen Saver",
       submenu: [

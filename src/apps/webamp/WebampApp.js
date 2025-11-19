@@ -33,7 +33,7 @@ export class WebampApp extends Application {
             webampContainer.style.zIndex = $Window.Z_INDEX++;
             webampContainer.style.left = '50px';
             webampContainer.style.top = '50px';
-            document.body.appendChild(webampContainer);
+            document.querySelector('.desktop-area').appendChild(webampContainer);
 
             webampContainer.addEventListener('mousedown', () => {
                 webampContainer.style.zIndex = $Window.Z_INDEX++;

@@ -1,4 +1,7 @@
 function createMainUI() {
+  const screenWrapper = document.createElement('div');
+  screenWrapper.id = 'screen-wrapper';
+
   const appContainer = document.createElement('div');
   appContainer.id = 'app-container';
   appContainer.className = 'app-container';
@@ -16,8 +19,9 @@ function createMainUI() {
   const taskbar = document.createElement('div');
   taskbar.className = 'taskbar';
 
-  document.body.appendChild(appContainer);
-  document.body.appendChild(taskbar);
+  screenWrapper.appendChild(appContainer);
+  screenWrapper.appendChild(taskbar);
+  document.body.appendChild(screenWrapper);
 }
 
 export { createMainUI };
