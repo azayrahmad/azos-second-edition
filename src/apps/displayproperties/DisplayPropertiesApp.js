@@ -20,8 +20,46 @@ import {
 } from "../../utils/screenManager.js";
 
 import "./displayproperties.css";
+import "./color-spectrum.css";
 import contentHtml from "./displayproperties.html?raw";
 import energystar from "../../assets/img/EnergyStarDisplay.png";
+
+const PALETTES = {
+  16: [
+    "#000000",
+    "#0000AA",
+    "#00AA00",
+    "#00AAAA",
+    "#AA0000",
+    "#AA00AA",
+    "#AA5500",
+    "#AAAAAA",
+    "#555555",
+    "#5555FF",
+    "#55FF55",
+    "#55FFFF",
+    "#FF5555",
+    "#FF55FF",
+    "#FFFF55",
+    "#FFFFFF",
+  ],
+  256: (function () {
+    const colors = [];
+    const levels = [0, 51, 102, 153, 204, 255];
+    for (let r = 0; r < levels.length; r++) {
+      for (let g = 0; g < levels.length; g++) {
+        for (let b = 0; b < levels.length; b++) {
+          colors.push(
+            `#${levels[r].toString(16).padStart(2, "0")}${levels[g]
+              .toString(16)
+              .padStart(2, "0")}${levels[b].toString(16).padStart(2, "0")}`,
+          );
+        }
+      }
+    }
+    return colors;
+  })(),
+};
 
 class DisplayPropertiesApp extends Application {
   constructor(data) {
@@ -284,6 +322,7 @@ class DisplayPropertiesApp extends Application {
     const currentColorMode = getCurrentColorMode();
     $colorModeSelect.val(currentColorMode);
     this.selectedColorMode = currentColorMode;
+    this._updateColorSpectrum(this.selectedColorMode);
 
     // Populate resolutions
     const resolutions = getAvailableResolutions();
@@ -303,6 +342,7 @@ class DisplayPropertiesApp extends Application {
     // Event listeners
     $colorModeSelect.on("change", (e) => {
       this.selectedColorMode = $(e.target).val();
+      this._updateColorSpectrum(this.selectedColorMode);
       this._enableApplyButton(win);
     });
 
@@ -315,6 +355,31 @@ class DisplayPropertiesApp extends Application {
       );
       this._enableApplyButton(win);
     });
+  }
+
+  _updateColorSpectrum(modeId) {
+    const $spectrum = this.win.$content.find("#color-spectrum-preview");
+    $spectrum.empty();
+    $spectrum.css("background", "none"); // Clear any previous gradient
+
+    if (PALETTES[modeId]) {
+      PALETTES[modeId].forEach((color) => {
+        const $block = $("<div>")
+          .addClass("color-block")
+          .css("background-color", color);
+        $spectrum.append($block);
+      });
+    } else if (modeId === "high") {
+      $spectrum.css(
+        "background",
+        "linear-gradient(to right, #000, #f00, #0f0, #00f, #ff0, #f0f, #0ff, #fff)",
+      );
+    } else if (modeId === "true") {
+      $spectrum.css(
+        "background",
+        "linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)",
+      );
+    }
   }
 
   // --- Screen Saver Tab ---

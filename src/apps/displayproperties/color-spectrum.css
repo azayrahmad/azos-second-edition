@@ -1,0 +1,11 @@
+#color-spectrum-preview {
+  margin-top: 5px;
+  height: 20px;
+  border: 1px solid var(--button-shadow);
+  box-shadow: var(--inset-shadow-deep);
+  display: flex;
+}
+
+.color-block {
+  flex-grow: 1;
+}
