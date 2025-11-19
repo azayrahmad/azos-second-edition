@@ -1,68 +1,101 @@
-.display-properties-tabs {
+.display-properties-tabs .tab-window-body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin: 5px;
-    padding-top: 3px;
 }
 
-.display-properties-tabs .tab-window {
-    flex-grow: 1;
-}
-
-.display-properties-tabs .tab-window .tab-window-body {
-    flex-grow: 1;
-    padding: 10px;
+.tab-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .monitor-preview-container {
-    position: relative;
-    width: 184px;
-    height: 170px;
-    margin: 0 auto;
-    background-image: url("../../assets/img/Display.png");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
 .display-wallpaper-preview,
-.display-screensaver-preview {
-    position: absolute;
-    top: 17px;
-    left: 16px;
-    width: 152px; /* Scaled width for 800x600 aspect ratio */
-    height: 112px; /* Scaled height for 800x600 aspect ratio */
-    background-color: var(--Background);
-    overflow: hidden; /* Ensure wallpaper does not spill out */
+.display-screensaver-preview,
+.display-settings-preview {
+    width: 160px;
+    height: 120px;
+    background-color: #008080;
+    border: 2px solid var(--ButtonShadow);
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAB3ElEQVRYCe1WwQ6CMBAdL/gA8e/1/38xfoAYPejJ2dsBO6211R5pW2xLy9o5n85zOU2TjG3b/A/s+q6qqlYoihKkPY/jGI1Go1AsStO0KAqD5+A8z/8/AON4vAfgfL9ZkuT6/b7P8/5KknzP1pXw/X4fTNOkuq6ladr367oOaZoK5nkeaZqK7/v/Q3Jd90eS9z0dGAbAcr9fFEVpmna9z/P8k4bZbP5bfN/3d1zXpVBIJBKJ5/ke4DgO6XSa7/sYh8Ow3/d9n+f5k4bZbD683+9S17U0TVNN03EcD8aYj+MZhuG9g3kaY/5+kiSmaXrYn+l+f8z/9vj9/u8fI0zT/K21/j3yvj+e50lVVTf6858BSVL8v5q/L4qiaJp2Xdf5fs/z/Ol+v+94nsf3/Yii6LqunufpG4axLMu2bZ/n+ZN0uVwKxuPx/c/z8DyP67p2XVc2m+1yuaTValEUBc/zWGsN3/f5vg/DMAzD8D1WQgjDMAyCILquG41G6XQ6Ho+n0+nsdjtRFAVBEPBERFH0PO/75/N5k/d9kyRJkuR93/d9lmVpmna9x3G8b3/f9z/P83+S5P1eScMw/P04jjcajWia9uP5+f5+n+f5T5L8X/5N/wE2wZd1sQL6lQAAAABJRU5ErkJggg==');
+    background-size: 32px 32px;
+    background-repeat: repeat;
 }
 
-#screensaver .tab-content {
+.wallpaper-settings-container {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
+.wallpaper-options {
+    display: flex;
+    flex-grow: 1;
+    margin-top: 5px;
+}
+
+.wallpaper-list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    height: 150px; /* Or some other appropriate value */
+}
+
+.wallpaper-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.wallpaper-list td {
+    padding: 2px;
+    cursor: default;
+}
+
+.wallpaper-list .highlighted td {
+    background-color: var(--Selection);
+    color: var(--SelectionText);
+}
+
+.wallpaper-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.buttons.display-properties-buttons {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+}
+
+/* Screen Saver Tab */
 .screensaver-settings-container {
     display: flex;
     flex-direction: column;
-}
-
-.screensaver-selection-fieldset {
-    padding-block-start: 0;
+    gap: 15px;
 }
 
 .screensaver-selection-fieldset .field-row {
-    display: flex;
     align-items: center;
 }
 
 .screensaver-dropdown {
     flex-grow: 1;
+    margin-right: 5px;
 }
 
 .password-protected-row {
-    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .wait-time-input {
@@ -76,69 +109,74 @@
 }
 
 .energy-star-logo {
-    margin: 10px;
+    width: 32px;
+    height: 32px;
 }
 
-.wallpaper-list {
-    width: 100%;
-    border-collapse: collapse;
+/* Settings Tab */
+#settings {
+    position: relative;
+    padding-bottom: 40px;
 }
 
-.wallpaper-list tr {
-    cursor: default;
+#settings .monitor-preview-container {
+    margin-top: 10px;
 }
 
-.wallpaper-list td {
-    padding: 1px 4px;
-}
-
-.wallpaper-list tr.highlighted {
-    background-color: var(--highlight, #000080);
-    color: var(--highlight-text, white);
-}
-
-.display-properties-buttons {
-    text-align: right;
-    padding: 5px;
-}
-
-.display-properties-buttons button,
-.display-properties-tabs button {
-    min-width: 75px;
-    min-height: 23px;
+.display-info {
     font-size: 11px;
-    padding: 2px 12px;
+    padding: 0 10px;
+    text-align: center;
 }
 
-.wallpaper-controls button {
-    min-width: 65px;
-    padding: 2px 5px;
+.display-info p {
+    margin: 0;
 }
 
-.wallpaper-settings-container {
+.settings-controls {
     display: flex;
-    flex-direction: column;
-    gap: 3px; /* Adds space between the paragraph and the options below */
+    justify-content: space-around;
+    padding: 20px 10px;
+    gap: 20px;
 }
 
-.wallpaper-options {
+.colors-fieldset,
+.screen-area-fieldset {
+    padding: 10px;
+}
+
+.colors-fieldset {
+    flex-basis: 45%;
+}
+
+.screen-area-fieldset {
+    flex-basis: 55%;
+}
+
+.colors-fieldset select {
+    width: 100%;
+}
+
+.resolution-slider-container {
     display: flex;
-    gap: 10px; /* Adds space between the wallpaper list and controls */
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
 }
 
-.wallpaper-list-container {
-    flex-grow: 1; /* Allows the list to take up available space */
-    height: 100px;
-    overflow-y: scroll;
+.current-resolution {
+    text-align: center;
+    margin-top: 10px;
 }
 
-.wallpaper-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 5px; /* Stacks the control buttons vertically */
+.extend-checkbox-container {
+    position: absolute;
+    bottom: 40px;
+    left: 20px;
 }
 
-.wallpaper-controls .field-row {
-    display: flex;
-    flex-direction: column;
+.advanced-button {
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
 }

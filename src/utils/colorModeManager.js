@@ -18,7 +18,7 @@ function generateHighColorFilter() {
 
 const COLOR_MODES = {
   'true': {
-    name: 'True Color (24-bit)',
+    name: 'True Color (32 bit)',
     filter: '',
   },
   'high': {

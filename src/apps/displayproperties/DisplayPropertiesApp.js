@@ -8,6 +8,16 @@ import {
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 import { SCREENSAVERS } from "../../components/screensaver.js";
 import screensaverManager from "../../components/screensaver.js";
+import {
+  getColorModes,
+  getCurrentColorMode,
+  setColorMode,
+} from "../../utils/colorModeManager.js";
+import {
+  getAvailableResolutions,
+  setResolution,
+  getCurrentResolutionId,
+} from "../../utils/screenManager.js";
 
 import "./displayproperties.css";
 import contentHtml from "./displayproperties.html?raw";
@@ -55,6 +65,7 @@ class DisplayPropertiesApp extends Application {
     this._populateWallpaperList(win);
     this._setupButtons(win);
     this._setupScreenSaverTab(win);
+    this._setupSettingsTab(win);
 
     // Set initial state
     const currentWallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
@@ -246,6 +257,64 @@ class DisplayPropertiesApp extends Application {
       LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT,
       this.screensaverTimeout * 60000,
     );
+
+    // Settings tab
+    if (this.selectedColorMode) {
+      setColorMode(this.selectedColorMode);
+    }
+    if (this.selectedResolution) {
+      setResolution(this.selectedResolution);
+    }
+  }
+
+  _setupSettingsTab(win) {
+    const $colorModeSelect = win.$content.find("#color-mode-select");
+    const $resolutionSlider = win.$content.find("#resolution-slider");
+    const $currentResolution = win.$content.find(".current-resolution");
+    const $browserInfo = win.$content.find(".browser-info");
+
+    // Populate color modes
+    const colorModes = getColorModes();
+    Object.entries(colorModes).forEach(([id, mode]) => {
+      const $option = $(`<option value="${id}">${mode.name}</option>`);
+      $colorModeSelect.append($option);
+    });
+
+    // Set initial color mode
+    const currentColorMode = getCurrentColorMode();
+    $colorModeSelect.val(currentColorMode);
+    this.selectedColorMode = currentColorMode;
+
+    // Populate resolutions
+    const resolutions = getAvailableResolutions();
+    const currentResolutionId = getCurrentResolutionId();
+    const currentIndex = resolutions.indexOf(currentResolutionId);
+    $resolutionSlider.val(currentIndex > -1 ? currentIndex : resolutions.length - 1);
+    $currentResolution.text(
+      currentResolutionId === "fit"
+        ? "Fit Screen"
+        : `${resolutions[currentIndex]} pixels`,
+    );
+    this.selectedResolution = currentResolutionId;
+
+    // Display browser info
+    $browserInfo.text(navigator.userAgent);
+
+    // Event listeners
+    $colorModeSelect.on("change", (e) => {
+      this.selectedColorMode = $(e.target).val();
+      this._enableApplyButton(win);
+    });
+
+    $resolutionSlider.on("input", (e) => {
+      const index = parseInt($(e.target).val(), 10);
+      const resolution = resolutions[index];
+      this.selectedResolution = resolution;
+      $currentResolution.text(
+        resolution === "fit" ? "Fit Screen" : `${resolution} pixels`,
+      );
+      this._enableApplyButton(win);
+    });
   }
 
   // --- Screen Saver Tab ---
