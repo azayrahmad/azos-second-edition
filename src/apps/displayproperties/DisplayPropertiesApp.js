@@ -5,10 +5,7 @@ import {
   getItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
-import {
-  applyBusyCursor,
-  clearBusyCursor,
-} from "../../utils/cursorManager.js";
+import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 import { SCREENSAVERS } from "../../components/screensaver.js";
 import screensaverManager from "../../components/screensaver.js";
 
@@ -31,8 +28,8 @@ class DisplayPropertiesApp extends Application {
   _createWindow() {
     return new window.$Window({
       title: this.title,
-      width: this.width,
-      height: this.height,
+      outerWidth: this.width,
+      outerHeight: this.height,
       resizable: this.resizable,
       icons: this.icon,
       id: this.id, // Pass the id here

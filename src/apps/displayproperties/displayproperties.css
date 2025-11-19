@@ -13,7 +13,6 @@
 .display-properties-tabs .tab-window .tab-window-body {
     flex-grow: 1;
     padding: 10px;
-    width: 370px;
 }
 
 .monitor-preview-container {
@@ -47,19 +46,15 @@
 .screensaver-settings-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
 }
 
-.screensaver-selection-fieldset,
-.energy-saving-fieldset {
-    padding: 10px;
+.screensaver-selection-fieldset {
+    padding-block-start: 0;
 }
 
 .screensaver-selection-fieldset .field-row {
     display: flex;
     align-items: center;
-    gap: 5px;
 }
 
 .screensaver-dropdown {
