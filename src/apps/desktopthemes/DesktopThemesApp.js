@@ -567,6 +567,23 @@ export class DesktopThemesApp extends Application {
         variables["ButtonShadow"] || "rgb(128, 128, 128)",
       "--preview-button-dk-shadow":
         variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
+
+      // Font properties
+      "--preview-font-family-title":
+        variables["font-family-title"] ||
+        variables["font-family-base"] ||
+        '"MSW98UI", sans-serif',
+      "--preview-font-size-title":
+        variables["font-size-title"] || variables["font-size-base"] || "11px",
+      "--preview-font-family-menu":
+        variables["font-family-menu"] ||
+        variables["font-family-base"] ||
+        '"MSW98UI", sans-serif',
+      "--preview-font-size-menu":
+        variables["font-size-menu"] || variables["font-size-base"] || "11px",
+      "--preview-font-family-base":
+        variables["font-family-base"] || '"MSW98UI", sans-serif',
+      "--preview-font-size-base": variables["font-size-base"] || "11px",
     };
     for (const [property, value] of Object.entries(styleProperties)) {
       this.previewContainer.style.setProperty(property, value);
