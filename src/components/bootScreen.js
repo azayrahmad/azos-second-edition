@@ -89,11 +89,13 @@ function promptToContinue() {
                 clearInterval(timer);
                 window.removeEventListener("keydown", continueHandler);
                 window.removeEventListener("touchstart", continueHandler);
+                window.removeEventListener("click", continueHandler);
                 resolve();
             };
 
             window.addEventListener("keydown", continueHandler, { once: true });
             window.addEventListener("touchstart", continueHandler, { once: true });
+            window.addEventListener("click", continueHandler, { once: true });
         } else {
             resolve();
         }

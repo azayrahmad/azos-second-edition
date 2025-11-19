@@ -175,7 +175,6 @@ async function initializeOS() {
   logElement = startBootProcessStep("Creating main UI...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
-  initColorModeManager(document.body);
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
 
@@ -201,6 +200,11 @@ async function initializeOS() {
 
   await promptToContinue();
   hideBootScreen();
+
+  // Wait for the boot screen to fade out before initializing the color mode manager
+  setTimeout(() => {
+    initColorModeManager(document.body);
+  }, 600);
 
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
