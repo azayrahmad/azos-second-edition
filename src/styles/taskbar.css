@@ -249,7 +249,6 @@ button:not(:disabled):active img {
     left: 0;
     width: 100%;
     height: calc(100% - 25px);
-    overflow: hidden;
     pointer-events: none;
     z-index: 9999;
 }
