@@ -99,12 +99,19 @@ function ShowDialogWindow(options) {
     // Handle modality
     let modalOverlay = null;
     if (modal) {
+        const screen = document.getElementById('screen');
         modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
-        modalOverlay.style.zIndex = $Window.Z_INDEX++;
-        document.body.appendChild(modalOverlay);
+
+        // Use a high z-index, but relative to the window manager's current z-index
+        // This should be just below the dialog window itself.
+        win.css('z-index', $Window.Z_INDEX + 1);
+        modalOverlay.style.zIndex = $Window.Z_INDEX;
+        $Window.Z_INDEX += 2; // Increment for both overlay and window
+
+        screen.appendChild(modalOverlay);
         win.onClosed(() => {
-            document.body.removeChild(modalOverlay);
+            screen.removeChild(modalOverlay);
         });
     }
 

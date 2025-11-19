@@ -25,6 +25,7 @@ import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./components/screensaver.js";
+import { initScreenManager } from "./utils/screenManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -175,6 +176,7 @@ async function initializeOS() {
   logElement = startBootProcessStep("Creating main UI...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
+  initScreenManager(); // Initialize the screen manager
   initColorModeManager(document.body);
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();

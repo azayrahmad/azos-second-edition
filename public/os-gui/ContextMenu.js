@@ -33,7 +33,8 @@
       send_info_event: () => {},
     });
 
-    document.body.appendChild(menuPopup.element);
+    const screen = document.getElementById('screen');
+    screen.appendChild(menuPopup.element);
     menuPopup.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
 
     menuPopup.element.style.display = "block";
@@ -43,21 +44,28 @@
     void menuPopup.element.offsetHeight; // force reflow
 
     const positionAt = (x, y) => {
-      const menuRect = menuPopup.element.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      let finalX = x,
-        finalY = y;
-      if (x + menuRect.width > viewportWidth) {
-        finalX = x - menuRect.width;
-      }
-      if (y + menuRect.height > viewportHeight) {
-        finalY = y - menuRect.height;
-      }
-      finalX = Math.max(0, finalX);
-      finalY = Math.max(0, finalY);
-      menuPopup.element.style.left = `${finalX}px`;
-      menuPopup.element.style.top = `${finalY}px`;
+        const screenRect = screen.getBoundingClientRect();
+        const menuRect = menuPopup.element.getBoundingClientRect();
+
+        // Adjust event coordinates to be relative to the screen
+        const relX = x - screenRect.left;
+        const relY = y - screenRect.top;
+
+        let finalX = relX;
+        let finalY = relY;
+
+        if (relX + menuRect.width > screenRect.width) {
+            finalX = relX - menuRect.width;
+        }
+        if (relY + menuRect.height > screenRect.height) {
+            finalY = relY - menuRect.height;
+        }
+
+        finalX = Math.max(0, finalX);
+        finalY = Math.max(0, finalY);
+
+        menuPopup.element.style.left = `${finalX}px`;
+        menuPopup.element.style.top = `${finalY}px`;
     };
 
     positionAt(event.pageX, event.pageY);

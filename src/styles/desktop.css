@@ -56,8 +56,8 @@ html {
 .app-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
 }
 
@@ -65,9 +65,7 @@ html {
     position: relative;
     overflow: hidden;
     box-sizing: border-box;
-    height: calc(
-        100vh - 24px - env(safe-area-inset-bottom) - 1px
-    ); /* Adjust height dynamically */
+    flex-grow: 1;
 }
 
 .desktop {
