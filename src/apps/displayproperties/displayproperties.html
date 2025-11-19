@@ -81,9 +81,9 @@
                       alt="Energy Star"
                       class="energy-star-logo"
                     />
-                    <p>
+                    <span>
                       To adjust the power settings for your monitor, click Settings.
-                    </p>
+                    </span>
                     <button class="settings-button" disabled>Settings...</button>
                   </div>
                 </fieldset>
@@ -103,8 +103,8 @@
                 <div class="display-settings-preview"></div>
               </div>
               <div class="display-info">
-                  <p>Display:</p>
-                  <p class="browser-info"></p>
+                  <span>Display:</span>
+                  <span class="browser-info"></span>
               </div>
               <div class="settings-controls">
                   <fieldset class="colors-fieldset">
@@ -121,11 +121,13 @@
                       <div class="current-resolution">800 by 600 pixels</div>
                   </fieldset>
               </div>
-              <div class="extend-checkbox-container">
-                  <input type="checkbox" id="extend-checkbox" disabled />
-                  <label for="extend-checkbox">Extend my Windows desktop onto this monitor.</label>
+              <div class="advanced-container">
+                <div class="extend-checkbox-container">
+                    <input type="checkbox" id="extend-checkbox" disabled checked/>
+                    <label for="extend-checkbox">Extend my Windows desktop onto this monitor.</label>
+                </div>
+                <button class="advanced-button" disabled>Advanced...</button>
               </div>
-              <button class="advanced-button" disabled>Advanced...</button>
             </div>
           </div>
         </fieldset>

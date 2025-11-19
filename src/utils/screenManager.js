@@ -1,18 +1,18 @@
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
 
 const RESOLUTIONS = {
-  '640x480': { width: 640, height: 480 },
-  '800x600': { width: 800, height: 600 },
-  '1024x768': { width: 1024, height: 768 },
-  'fit': { width: '100%', height: '100%' },
+  "640 by 480": { width: 640, height: 480 },
+  "800 by 600": { width: 800, height: 600 },
+  "1024 by 768": { width: 1024, height: 768 },
+  fit: { width: "100%", height: "100%" },
 };
 
-const DEFAULT_RESOLUTION = 'fit';
+const DEFAULT_RESOLUTION = "fit";
 
 let currentResolutionId = DEFAULT_RESOLUTION;
 
 function getScreenElement() {
-  return document.getElementById('screen');
+  return document.getElementById("screen");
 }
 
 function getAvailableResolutions() {
@@ -20,7 +20,7 @@ function getAvailableResolutions() {
 }
 
 function getCurrentResolutionId() {
-    return currentResolutionId;
+  return currentResolutionId;
 }
 
 function setResolution(resolutionId) {
@@ -31,13 +31,19 @@ function setResolution(resolutionId) {
 
   const screen = getScreenElement();
   if (!screen) {
-    console.error('#screen element not found.');
+    console.error("#screen element not found.");
     return;
   }
 
   const newResolution = RESOLUTIONS[resolutionId];
-  screen.style.width = typeof newResolution.width === 'number' ? `${newResolution.width}px` : newResolution.width;
-  screen.style.height = typeof newResolution.height === 'number' ? `${newResolution.height}px` : newResolution.height;
+  screen.style.width =
+    typeof newResolution.width === "number"
+      ? `${newResolution.width}px`
+      : newResolution.width;
+  screen.style.height =
+    typeof newResolution.height === "number"
+      ? `${newResolution.height}px`
+      : newResolution.height;
 
   currentResolutionId = resolutionId;
   saveResolution(resolutionId);

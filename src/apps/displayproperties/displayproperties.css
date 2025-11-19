@@ -1,101 +1,68 @@
-.display-properties-tabs .tab-window-body {
+.display-properties-tabs {
     display: flex;
     flex-direction: column;
     height: 100%;
+    margin: 5px;
+    padding-top: 3px;
 }
 
-.tab-content {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+.display-properties-tabs .tab-window {
+    flex-grow: 1;
+}
+
+.display-properties-tabs .tab-window .tab-window-body {
+    flex-grow: 1;
+    padding: 10px;
 }
 
 .monitor-preview-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    margin-bottom: 10px;
+    position: relative;
+    width: 184px;
+    height: 170px;
+    margin: 0 auto;
+    background-image: url("../../assets/img/Display.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .display-wallpaper-preview,
-.display-screensaver-preview,
-.display-settings-preview {
-    width: 160px;
-    height: 120px;
-    background-color: #008080;
-    border: 2px solid var(--ButtonShadow);
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAB3ElEQVRYCe1WwQ6CMBAdL/gA8e/1/38xfoAYPejJ2dsBO6211R5pW2xLy9o5n85zOU2TjG3b/A/s+q6qqlYoihKkPY/jGI1Go1AsStO0KAqD5+A8z/8/AON4vAfgfL9ZkuT6/b7P8/5KknzP1pXw/X4fTNOkuq6ladr367oOaZoK5nkeaZqK7/v/Q3Jd90eS9z0dGAbAcr9fFEVpmna9z/P8k4bZbP5bfN/3d1zXpVBIJBKJ5/ke4DgO6XSa7/sYh8Ow3/d9n+f5k4bZbD683+9S17U0TVNN03EcD8aYj+MZhuG9g3kaY/5+kiSmaXrYn+l+f8z/9vj9/u8fI0zT/K21/j3yvj+e50lVVTf6858BSVL8v5q/L4qiaJp2Xdf5fs/z/Ol+v+94nsf3/Yii6LqunufpG4axLMu2bZ/n+ZN0uVwKxuPx/c/z8DyP67p2XVc2m+1yuaTValEUBc/zWGsN3/f5vg/DMAzD8D1WQgjDMAyCILquG41G6XQ6Ho+n0+nsdjtRFAVBEPBERFH0PO/75/N5k/d9kyRJkuR93/d9lmVpmna9x3G8b3/f9z/P83+S5P1eScMw/P04jjcajWia9uP5+f5+n+f5T5L8X/5N/wE2wZd1sQL6lQAAAABJRU5ErkJggg==');
-    background-size: 32px 32px;
-    background-repeat: repeat;
-}
-
-.wallpaper-settings-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.wallpaper-options {
-    display: flex;
-    flex-grow: 1;
-    margin-top: 5px;
-}
-
-.wallpaper-list-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    height: 150px; /* Or some other appropriate value */
-}
-
-.wallpaper-list {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.wallpaper-list td {
-    padding: 2px;
-    cursor: default;
-}
-
-.wallpaper-list .highlighted td {
-    background-color: var(--Selection);
-    color: var(--SelectionText);
-}
-
-.wallpaper-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-left: 10px;
-}
-
-.buttons.display-properties-buttons {
+.display-screensaver-preview {
     position: absolute;
-    bottom: 12px;
-    right: 12px;
+    top: 17px;
+    left: 16px;
+    width: 152px; /* Scaled width for 800x600 aspect ratio */
+    height: 112px; /* Scaled height for 800x600 aspect ratio */
+    background-color: var(--Background);
+    overflow: hidden; /* Ensure wallpaper does not spill out */
 }
 
-/* Screen Saver Tab */
+#screensaver .tab-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 .screensaver-settings-container {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+}
+
+.screensaver-selection-fieldset {
+    padding-block-start: 0;
 }
 
 .screensaver-selection-fieldset .field-row {
+    display: flex;
     align-items: center;
 }
 
 .screensaver-dropdown {
     flex-grow: 1;
-    margin-right: 5px;
 }
 
 .password-protected-row {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    margin-top: 10px;
 }
 
 .wait-time-input {
@@ -108,49 +75,82 @@
     gap: 10px;
 }
 
-.energy-star-logo {
-    width: 32px;
-    height: 32px;
+.wallpaper-list {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-/* Settings Tab */
-#settings {
-    position: relative;
-    padding-bottom: 40px;
+.wallpaper-list tr {
+    cursor: default;
 }
 
-#settings .monitor-preview-container {
-    margin-top: 10px;
+.wallpaper-list td {
+    padding: 1px 4px;
 }
 
-.display-info {
+.wallpaper-list tr.highlighted {
+    background-color: var(--highlight, #000080);
+    color: var(--highlight-text, white);
+}
+
+.display-properties-buttons {
+    text-align: right;
+    padding: 5px;
+}
+
+.display-properties-buttons button,
+.display-properties-tabs button {
+    min-width: 75px;
+    min-height: 23px;
     font-size: 11px;
-    padding: 0 10px;
-    text-align: center;
+    padding: 2px 12px;
 }
 
-.display-info p {
-    margin: 0;
+.wallpaper-controls button {
+    min-width: 65px;
+    padding: 2px 5px;
+}
+
+.wallpaper-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Adds space between the paragraph and the options below */
+}
+
+.wallpaper-options {
+    display: flex;
+    gap: 10px; /* Adds space between the wallpaper list and controls */
+}
+
+.wallpaper-list-container {
+    flex-grow: 1; /* Allows the list to take up available space */
+    height: 100px;
+    overflow-y: scroll;
+}
+
+.wallpaper-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Stacks the control buttons vertically */
+}
+
+.wallpaper-controls .field-row {
+    display: flex;
+    flex-direction: column;
 }
 
 .settings-controls {
     display: flex;
     justify-content: space-around;
-    padding: 20px 10px;
-    gap: 20px;
+    gap: 10px;
 }
 
-.colors-fieldset,
 .screen-area-fieldset {
-    padding: 10px;
+    flex-basis: 50%;
 }
 
 .colors-fieldset {
-    flex-basis: 45%;
-}
-
-.screen-area-fieldset {
-    flex-basis: 55%;
+    flex-basis: 50%;
 }
 
 .colors-fieldset select {
@@ -169,14 +169,9 @@
     margin-top: 10px;
 }
 
-.extend-checkbox-container {
-    position: absolute;
-    bottom: 40px;
-    left: 20px;
-}
-
-.advanced-button {
-    position: absolute;
-    bottom: 40px;
-    right: 20px;
+.advanced-container {
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+    padding: 10px 0;
 }
