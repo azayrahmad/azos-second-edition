@@ -567,6 +567,7 @@ export class DesktopThemesApp extends Application {
         variables["ButtonShadow"] || "rgb(128, 128, 128)",
       "--preview-button-dk-shadow":
         variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
+      "--preview-hilight-text": variables["HilightText"] || "rgb(0, 0, 0)",
 
       // Font properties
       "--preview-font-family-title":
