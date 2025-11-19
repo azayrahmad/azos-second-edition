@@ -75,10 +75,6 @@
     gap: 10px;
 }
 
-.energy-star-logo {
-    margin: 10px;
-}
-
 .wallpaper-list {
     width: 100%;
     border-collapse: collapse;
@@ -141,4 +137,41 @@
 .wallpaper-controls .field-row {
     display: flex;
     flex-direction: column;
+}
+
+.settings-controls {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.screen-area-fieldset {
+    flex-basis: 50%;
+}
+
+.colors-fieldset {
+    flex-basis: 50%;
+}
+
+.colors-fieldset select {
+    width: 100%;
+}
+
+.resolution-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.current-resolution {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.advanced-container {
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+    padding: 10px 0;
 }
