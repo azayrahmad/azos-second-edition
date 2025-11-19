@@ -1582,9 +1582,10 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         drag_pointer_x = e.clientX ?? drag_pointer_x;
         drag_pointer_y = e.clientY ?? drag_pointer_y;
       }
+      const screenRect = document.getElementById('screen').getBoundingClientRect();
       $w.css({
-        left: drag_pointer_x + scrollX - drag_offset_x,
-        top: drag_pointer_y + scrollY - drag_offset_y,
+        left: drag_pointer_x - screenRect.left - drag_offset_x,
+        top: drag_pointer_y - screenRect.top - drag_offset_y,
       });
     };
     $w.$titlebar.css("touch-action", "none");
@@ -1640,8 +1641,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
       if (customEvent.isDefaultPrevented()) {
         return; // allow custom drag behavior of component windows in jspaint (Tools / Colors)
       }
-      drag_offset_x = e.clientX + scrollX - $w.position().left;
-      drag_offset_y = e.clientY + scrollY - $w.position().top;
+      const screenRect = document.getElementById('screen').getBoundingClientRect();
+      drag_offset_x = e.clientX - screenRect.left - $w.position().left;
+      drag_offset_y = e.clientY - screenRect.top - $w.position().top;
       drag_pointer_x = e.clientX;
       drag_pointer_y = e.clientY;
       drag_pointer_id = e.pointerId ?? e.originalEvent?.pointerId; // originalEvent doesn't exist for triggerHandler()
