@@ -15,6 +15,7 @@
   "dependencies": {
     "@playwright/test": "^1.56.1",
     "ani-cursor": "^0.0.5",
+    "html2canvas": "^1.4.1",
     "os-gui": "^0.7.3"
   }
 }
