@@ -132,8 +132,9 @@
     background-color: transparent;
     border: 1px dotted transparent;
     padding: 1px 2px;
-    font-family: var(--preview-font-family-base);
-    font-size: var(--preview-font-size-base);
+    font-family: var(--preview-font-family-menu);
+    font-size: var(--preview-font-size-menu);
+    color: var(--preview-hilight-text);
 }
 
 #desktopthemes .preview-window {
@@ -192,6 +193,9 @@
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
+}
+
+#desktopthemes .preview-window .title-bar .title-bar-text {
     font-family: var(--preview-font-family-title);
     font-size: var(--preview-font-size-title);
 }
