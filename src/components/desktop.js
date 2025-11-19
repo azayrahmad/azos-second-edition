@@ -26,6 +26,11 @@ import {
   getRecycleBinItems,
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
+import {
+  setColorMode,
+  getCurrentColorMode,
+  getColorModes,
+} from "../utils/colorModeManager.js";
 import screensaver from "./screensaver.js";
 
 function getIconId(app, filePath = null) {
@@ -239,6 +244,20 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
           getValue: () => getWallpaperMode(),
           setValue: (value) => setWallpaperMode(value),
           ariaLabel: "Wallpaper Mode",
+        },
+      ],
+    },
+    {
+      label: "Color Mode",
+      submenu: [
+        {
+          radioItems: Object.entries(getColorModes()).map(([id, mode]) => ({
+            label: mode.name,
+            value: id,
+          })),
+          getValue: () => getCurrentColorMode(),
+          setValue: (value) => setColorMode(value),
+          ariaLabel: "Color Mode",
         },
       ],
     },
