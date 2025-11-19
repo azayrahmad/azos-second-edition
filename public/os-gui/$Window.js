@@ -127,7 +127,7 @@
         ),
       )
         .addClass("window os-window")
-        .appendTo("body")
+        .appendTo(".desktop-area")
     );
     // TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
     $w[0].$window = $w;
@@ -1508,49 +1508,48 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     });
 
     $w.applyBounds = () => {
-      // TODO: outerWidth vs width? not sure
-      const bound_width = Math.max(document.body.scrollWidth, innerWidth);
-      const bound_height = Math.max(document.body.scrollHeight, innerHeight);
-      $w.css({
-        left: Math.max(
-          0,
-          Math.min(bound_width - $w.width(), $w.position().left),
-        ),
-        top: Math.max(
-          0,
-          Math.min(bound_height - $w.height(), $w.position().top),
-        ),
-      });
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) return;
+      const rect = desktopArea.getBoundingClientRect();
+      const parentRect = desktopArea.parentElement.getBoundingClientRect();
+      const left = Math.max(0, Math.min(rect.width - $w.width(), $w.position().left));
+      const top = Math.max(0, Math.min(rect.height - $w.height(), $w.position().top));
+      $w.css({ left: `${left}px`, top: `${top}px` });
     };
 
     $w.bringTitleBarInBounds = () => {
-      // Try to make the titlebar always accessible
-      const bound_width = Math.max(document.body.scrollWidth, innerWidth);
-      const bound_height = Math.max(document.body.scrollHeight, innerHeight);
-      const min_horizontal_pixels_on_screen = 40; // enough for space past a close button
-      $w.css({
-        left: Math.max(
-          min_horizontal_pixels_on_screen - $w.outerWidth(),
-          Math.min(
-            bound_width - min_horizontal_pixels_on_screen,
-            $w.position().left,
-          ),
-        ),
-        top: Math.max(
-          0,
-          Math.min(
-            bound_height - $w.$titlebar.outerHeight() - 5,
-            $w.position().top,
-          ),
-        ),
-      });
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) return;
+      const rect = desktopArea.getBoundingClientRect();
+      const minHorizontalPixels = 40;
+
+      const left = Math.max(
+        minHorizontalPixels - $w.outerWidth(),
+        Math.min(rect.width - minHorizontalPixels, $w.position().left)
+      );
+
+      const top = Math.max(
+        0,
+        Math.min(rect.height - $w.$titlebar.outerHeight() - 5, $w.position().top)
+      );
+
+      $w.css({ left: `${left}px`, top: `${top}px` });
     };
 
     $w.center = () => {
-      $w.css({
-        left: (innerWidth - $w.width()) / 2 + window.scrollX,
-        top: (innerHeight - $w.height()) / 2 + window.scrollY,
-      });
+      const desktopArea = document.querySelector(".desktop-area");
+      if (!desktopArea) {
+        $w.css({
+          left: (innerWidth - $w.width()) / 2,
+          top: (innerHeight - $w.height()) / 2,
+        });
+      } else {
+        const rect = desktopArea.getBoundingClientRect();
+        $w.css({
+          left: (rect.width - $w.width()) / 2,
+          top: (rect.height - $w.height()) / 2,
+        });
+      }
       $w.applyBounds();
     };
 
@@ -1579,9 +1578,11 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         drag_pointer_x = e.clientX ?? drag_pointer_x;
         drag_pointer_y = e.clientY ?? drag_pointer_y;
       }
+      const desktopArea = document.querySelector(".desktop-area");
+      const parentRect = desktopArea.getBoundingClientRect();
       $w.css({
-        left: drag_pointer_x + scrollX - drag_offset_x,
-        top: drag_pointer_y + scrollY - drag_offset_y,
+        left: drag_pointer_x - parentRect.left - drag_offset_x,
+        top: drag_pointer_y - parentRect.top - drag_offset_y,
       });
     };
     $w.$titlebar.css("touch-action", "none");
