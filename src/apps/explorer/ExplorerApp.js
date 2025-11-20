@@ -12,6 +12,37 @@ import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { registerCustomApp } from "../../utils/customAppManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
+import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
+
+const specialFolderIcons = {
+  "/": "my-computer",
+  "//recycle-bin": "recycle-bin",
+  "//network-neighborhood": "network-neighborhood",
+  [SPECIAL_FOLDER_PATHS["my-documents"]]: "my-documents",
+};
+
+function getIconForPath(path) {
+  const appId = specialFolderIcons[path];
+  if (appId) {
+    const app = apps.find((a) => a.id === appId);
+    if (app) {
+      return app.icon;
+    }
+  }
+
+  const item = findItemByPath(path);
+  if (item) {
+    if (item.type === "drive") {
+      return ICONS.drive;
+    }
+    if (item.type === "folder") {
+      return ICONS.folderOpen;
+    }
+  }
+
+  // Default icon if no specific icon is found
+  return ICONS.folder;
+}
 
 function findItemByPath(path) {
   if (path === "//recycle-bin") {
@@ -169,14 +200,9 @@ export class ExplorerApp extends Application {
     }
 
     this.win.title(item.name);
-    if (item.id === "root") {
-      this.win.setIcons(ICONS.computer);
-    } else if (item.id === "network-neighborhood") {
-      this.win.setIcons(ICONS.networkNeighborhood);
-    } else if (item.type === "drive") {
-      this.win.setIcons(ICONS.drive);
-    } else if (item.type === "folder") {
-      this.win.setIcons(ICONS.folderOpen);
+    const icon = getIconForPath(path);
+    if (icon) {
+      this.win.setIcons(icon);
     }
     this.content.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();

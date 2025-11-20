@@ -26,6 +26,7 @@ import {
   getRecycleBinItems,
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
+import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
 
 export const appClasses = {
   about: AboutApp,
@@ -131,10 +132,7 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp(
-          "explorer",
-          "/drive-c/folder-user/folder-documents",
-        );
+        window.System.launchApp("explorer", SPECIAL_FOLDER_PATHS["my-documents"]);
       },
     },
   },
