@@ -342,6 +342,19 @@ class Taskbar {
           `;
         }
       });
+
+      $(win).on("icon-change", () => {
+        const newIcons = win.$window.icons;
+        const button = document.querySelector(
+          `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
+        );
+        if (button && newIcons) {
+          const iconImg = button.querySelector("img");
+          if (iconImg) {
+            iconImg.src = newIcons[16];
+          }
+        }
+      });
     }
     return taskbarButton;
   }
