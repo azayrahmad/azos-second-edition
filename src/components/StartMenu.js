@@ -104,7 +104,7 @@ class StartMenu {
         </div>
         <ul class="start-menu-list">
           <li role="menuitem" tabindex="0" data-action="home">
-            <img src="${ICONS.windowsUpdate[16]}" alt="Computer" loading="lazy">
+            <img src="${ICONS.windowsUpdate[32]}" alt="Computer" loading="lazy">
             <span>aziz rahmad</span>
           </li>
           <div class="start-menu-divider" role="separator"></div>
@@ -160,7 +160,7 @@ class StartMenu {
         refocus_outside_menus: () => {},
       });
 
-      const screen = document.getElementById('screen');
+      const screen = document.getElementById("screen");
       screen.appendChild(activeMenu.element);
       const rect = menuItem.getBoundingClientRect();
       const screenRect = screen.getBoundingClientRect();
