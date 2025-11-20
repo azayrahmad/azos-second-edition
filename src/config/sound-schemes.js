@@ -279,6 +279,8 @@ export const soundSchemes = {
     MenuCommand: "",
     MenuPopup: "",
     Minimize: "",
+    Open: "",
+    Close: "",
     RestoreDown: "",
     RestoreUp: "",
     SystemAsterisk: chord,
