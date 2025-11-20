@@ -20,12 +20,13 @@ function findDesktopFolder() {
  * "Deletes" a file from the desktop by removing its definition
  * from the virtual directory and adding it to the recycle bin.
  * @param {string} filePath - The path of the file to delete (used as contentUrl).
+ * @returns {boolean} - True if the file was deleted, false otherwise.
  */
-export function deleteDesktopFile(filePath) {
+export function deleteDesktopFileByPath(filePath) {
     const desktopFolder = findDesktopFolder();
     if (!desktopFolder || !desktopFolder.children) {
         console.error("Could not find desktop folder in directory configuration.");
-        return;
+        return false;
     }
 
     const fileIndex = desktopFolder.children.findIndex(item => item.type === 'file' && item.contentUrl === filePath);
@@ -33,12 +34,9 @@ export function deleteDesktopFile(filePath) {
     if (fileIndex > -1) {
         const [fileToDelete] = desktopFolder.children.splice(fileIndex, 1);
         addToRecycleBin(fileToDelete);
-
-        const desktop = document.querySelector('.desktop');
-        if (desktop && typeof desktop.refreshIcons === 'function') {
-            desktop.refreshIcons();
-        }
+        return true;
     } else {
         console.warn(`Could not find file to delete with path: ${filePath}`);
+        return false;
     }
 }
