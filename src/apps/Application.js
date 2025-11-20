@@ -101,6 +101,8 @@ export class Application {
         }
       }
       // For singletons, isLastInstance remains true, as the only instance was just removed.
+      //
+      appManager.closeApp(this.id);
     });
 
     if (this.hasTaskbarButton) {
