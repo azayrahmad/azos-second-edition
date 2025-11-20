@@ -78,7 +78,8 @@ class Screensaver {
 
   hide() {
     if (this.element) {
-      this.element.style.display = "none";
+      this.element.remove();
+      this.element = null;
     }
     this.active = false;
   }
