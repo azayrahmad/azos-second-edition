@@ -1,6 +1,7 @@
 import { apps } from "../config/apps.js";
 import { applyWaitCursor, clearWaitCursor } from "./cursorManager.js";
 import { openApps } from '../apps/Application.js';
+import { playSound } from "./soundManager.js";
 
 const appManager = {
     runningApps: {},
@@ -16,6 +17,7 @@ const appManager = {
     closeApp(appId) {
         const appInstance = this.runningApps[appId];
         if (appInstance) {
+            playSound("Close");
             // Remove the app from the registries first to prevent re-entry.
             delete this.runningApps[appId];
             openApps.delete(appId);
@@ -35,6 +37,7 @@ export async function launchApp(appId, filePath = null) {
     applyWaitCursor();
 
     const appConfig = appManager.getAppConfig(appId);
+    playSound("Open");
     if (!appConfig) {
         console.error(`No application config found for ID: ${appId}`);
         clearWaitCursor();
