@@ -29,7 +29,7 @@ function getAppList(appListIds) {
 const startMenuConfig = [
   {
     label: "Programs",
-    icon: ICONS.programs[32],
+    icon: ICONS.programs[16],
     submenu: [
       {
         label: "Accessories",
@@ -41,7 +41,7 @@ const startMenuConfig = [
   },
   {
     label: "Favorites",
-    icon: ICONS.favorites[32],
+    icon: ICONS.favorites[16],
     submenu: [
       {
         label: "Google",
@@ -66,7 +66,7 @@ const startMenuConfig = [
   },
   {
     label: "Documents",
-    icon: ICONS.documents[32],
+    icon: ICONS.documents[16],
     submenu: [
       {
         label: "My Documents",
@@ -78,12 +78,12 @@ const startMenuConfig = [
   },
   {
     label: "Settings",
-    icon: ICONS.settings[32],
+    icon: ICONS.settings[16],
     submenu: getAppList(settingsAppIds),
   },
   {
     label: "Find",
-    icon: ICONS.find[32],
+    icon: ICONS.find[16],
     submenu: [
       {
         label: "(Empty)",
@@ -93,12 +93,12 @@ const startMenuConfig = [
   },
   {
     label: "Help",
-    icon: ICONS.help[32],
+    icon: ICONS.help[16],
     action: () => ShowComingSoonDialog("Help"),
   },
   {
     label: "Run",
-    icon: ICONS.run[32],
+    icon: ICONS.run[16],
     action: () => ShowComingSoonDialog("Run"),
   },
 ];
