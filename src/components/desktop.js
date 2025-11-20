@@ -26,6 +26,8 @@ import {
   getRecycleBinItems,
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
+import { deleteCustomApp } from "../utils/customAppManager.js";
+import { deleteDesktopFile } from "../utils/fileManager.js";
 import {
   setColorMode,
   getCurrentColorMode,
@@ -477,12 +479,17 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   let dragOffsets = new Map();
   let longPressTimer;
   let isLongPress = false;
+  let recycleBinIcon = null;
 
   const iconId = icon.getAttribute("data-icon-id");
 
   const handleDragStart = (e) => {
     if (e.type === "mousedown" && e.button !== 0) return;
     if (e.type === "touchstart" && e.touches.length > 1) return;
+
+    if (icon.dataset.appId === "recycle-bin") return;
+
+    recycleBinIcon = document.querySelector('[data-app-id="recycle-bin"]');
 
     // Allow IconManager to handle selection logic first.
     // We prevent default mousedown behavior and let the icon manager handle it.
@@ -604,23 +611,82 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       selectedIcon.style.left = `${newX}px`;
       selectedIcon.style.top = `${newY}px`;
     });
+
+    if (recycleBinIcon) {
+      const draggedIconRect = icon.getBoundingClientRect();
+      const recycleBinRect = recycleBinIcon.getBoundingClientRect();
+      const isOverRecycleBin = !(
+        draggedIconRect.right < recycleBinRect.left ||
+        draggedIconRect.left > recycleBinRect.right ||
+        draggedIconRect.bottom < recycleBinRect.top ||
+        draggedIconRect.top > recycleBinRect.bottom
+      );
+
+      if (isOverRecycleBin) {
+        recycleBinIcon.classList.add("recycling");
+        recycleBinIcon.setAttribute("title", "Move to Recycle Bin");
+      } else {
+        recycleBinIcon.classList.remove("recycling");
+        recycleBinIcon.setAttribute("title", "Recycle Bin");
+      }
+    }
   };
 
   const handleDragEnd = () => {
     clearTimeout(longPressTimer);
     isDragging = false;
 
+    if (recycleBinIcon) {
+      recycleBinIcon.classList.remove("recycling");
+      recycleBinIcon.setAttribute("title", "Recycle Bin");
+    }
+
     if (wasDragged) {
-      iconManager.wasDragged = true; // Set flag on manager
-      const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
-      iconManager.selectedIcons.forEach((selectedIcon) => {
-        const id = selectedIcon.getAttribute("data-icon-id");
-        iconPositions[id] = {
-          x: selectedIcon.style.left,
-          y: selectedIcon.style.top,
-        };
-      });
-      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      const draggedIconRect = icon.getBoundingClientRect();
+      const recycleBinRect = recycleBinIcon.getBoundingClientRect();
+      const isOverRecycleBin = !(
+        draggedIconRect.right < recycleBinRect.left ||
+        draggedIconRect.left > recycleBinRect.right ||
+        draggedIconRect.bottom < recycleBinRect.top ||
+        draggedIconRect.top > recycleBinRect.bottom
+      );
+
+      if (isOverRecycleBin) {
+        const itemName = app.title;
+        ShowDialogWindow({
+          title: "Confirm File Delete",
+          text: `Are you sure you want to send '${itemName}' to the Recycle Bin?`,
+          buttons: [
+            {
+              label: "Yes",
+              action: () => {
+                const filePath = icon.dataset.filePath;
+                const appId = icon.dataset.appId;
+
+                if (filePath) {
+                  deleteDesktopFile(filePath);
+                } else {
+                  // Assuming only custom apps are deletable this way for now
+                  deleteCustomApp(appId);
+                }
+                playSound("Recycle");
+              },
+            },
+            { label: "No", isDefault: true },
+          ],
+        });
+      } else {
+        iconManager.wasDragged = true; // Set flag on manager
+        const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+        iconManager.selectedIcons.forEach((selectedIcon) => {
+          const id = selectedIcon.getAttribute("data-icon-id");
+          iconPositions[id] = {
+            x: selectedIcon.style.left,
+            y: selectedIcon.style.top,
+          };
+        });
+        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      }
     }
 
     document.removeEventListener("mousemove", handleDragMove);
