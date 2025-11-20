@@ -11,6 +11,7 @@ import {
   clearBusyCursor,
 } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
+import screensaverManager from "../components/screensaver.js";
 
 let parserPromise = null;
 let activeTheme = null; // In-memory cache to avoid repeated localStorage access
@@ -168,6 +169,10 @@ export async function setTheme(themeKey, themeObject = null) {
     }
     // Notify the desktop component to re-apply wallpaper based on the new theme
     document.dispatchEvent(new CustomEvent("theme-changed"));
+
+    if (newTheme.screensaver) {
+      screensaverManager.setCurrentScreensaver(newTheme.screensaver);
+    }
 
     activeTheme = newTheme; // Update in-memory cache
     setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, newTheme);

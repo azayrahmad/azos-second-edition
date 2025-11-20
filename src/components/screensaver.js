@@ -17,6 +17,10 @@ export const SCREENSAVERS = {
     name: "3D Pipes",
     path: "pipes/index.html",
   },
+  space: {
+    name: "Space",
+    path: "plus-screensavers/space/index.html",
+  },
 };
 
 class Screensaver {

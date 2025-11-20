@@ -64,6 +64,7 @@ export const themes = {
     wallpaper: wallpapers.themes.find((w) => w.id === "space").src,
     soundScheme: "Space",
     iconScheme: "space",
+    screensaver: "space",
   },
   underwater: {
     id: "underwater",
