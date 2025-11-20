@@ -15,6 +15,7 @@ export class ImageViewerApp extends Application {
     this.startY = 0;
     this.scrollLeft = 0;
     this.scrollTop = 0;
+    this.backgroundRemoved = false;
   }
 
   _createWindow(file) {
@@ -78,6 +79,10 @@ export class ImageViewerApp extends Application {
         {
           label: "&Resize...",
           action: () => this.showResizeDialog(),
+        },
+        {
+          label: "Remove &Background",
+          action: () => this.removeBackground(),
         },
       ],
       "&Help": [
@@ -187,9 +192,21 @@ export class ImageViewerApp extends Application {
 
     const link = document.createElement("a");
     link.href = this.img.src;
-    link.download = this.file
-      ? `resized-${this.file.name}`
-      : "resized-image.png";
+
+    let downloadName;
+    const originalName = this.file ? this.file.name : "image.png";
+
+    if (this.backgroundRemoved) {
+      const nameWithoutExt =
+        originalName.lastIndexOf(".") !== -1
+          ? originalName.substring(0, originalName.lastIndexOf("."))
+          : originalName;
+      downloadName = `${nameWithoutExt}-modified.png`;
+    } else {
+      downloadName = `resized-${originalName}`;
+    }
+
+    link.download = downloadName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -206,21 +223,29 @@ export class ImageViewerApp extends Application {
         const response = await fetch(this.img.src);
         const blob = await response.blob();
 
-        const defaultFileName = this.file ? this.file.name : "image.png";
-        const fileExtension = defaultFileName.split(".").pop();
-        const suggestedName = defaultFileName;
-        const fileType = blob.type;
+        let suggestedName = this.file ? this.file.name : "image.png";
+        let fileType = blob.type;
+        let fileExtension = suggestedName.split(".").pop();
+
+        let types = [
+          {
+            description: "Image Files",
+            accept: { [fileType]: ["." + fileExtension] },
+          },
+        ];
+
+        if (this.backgroundRemoved) {
+          const nameWithoutExt =
+            suggestedName.lastIndexOf(".") !== -1
+              ? suggestedName.substring(0, suggestedName.lastIndexOf("."))
+              : suggestedName;
+          suggestedName = `${nameWithoutExt}-modified.png`;
+          types = [{ description: "PNG Image", accept: { "image/png": [".png"] } }];
+        }
 
         const options = {
-          suggestedName: suggestedName,
-          types: [
-            {
-              description: "Image Files",
-              accept: {
-                [fileType]: ["." + fileExtension],
-              },
-            },
-          ],
+          suggestedName,
+          types,
         };
 
         const fileHandle = await window.showSaveFilePicker(options);
@@ -229,9 +254,20 @@ export class ImageViewerApp extends Application {
         await writableStream.close();
         console.log("Image saved successfully with File System Access API.");
       } else {
+        // Fallback for browsers that don't support showSaveFilePicker
         const link = document.createElement("a");
         link.href = this.img.src;
-        link.download = this.file ? this.file.name : "image.png";
+        let downloadName = this.file ? this.file.name : "image.png";
+
+        if (this.backgroundRemoved) {
+          const nameWithoutExt =
+            downloadName.lastIndexOf(".") !== -1
+              ? downloadName.substring(0, downloadName.lastIndexOf("."))
+              : downloadName;
+          downloadName = `${nameWithoutExt}-modified.png`;
+        }
+
+        link.download = downloadName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -461,5 +497,39 @@ export class ImageViewerApp extends Application {
       this.resetZoom();
       this._adjustWindowSize(this.img);
     };
+  }
+
+  removeBackground() {
+    if (!this.img || !this.img.src) {
+      alert("Please open an image first.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = this.img;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    ctx.drawImage(img, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const red = data[i];
+      const green = data[i + 1];
+      const blue = data[i + 2];
+
+      // Check for #FF00FF
+      if (red === 255 && green === 0 && blue === 255) {
+        data[i + 3] = 0; // Set alpha to 0
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    this.img.src = canvas.toDataURL("image/png");
+    this.backgroundRemoved = true;
   }
 }
