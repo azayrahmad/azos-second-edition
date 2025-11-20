@@ -64,6 +64,120 @@ document.addEventListener("DOMContentLoaded", function () {
     createSparklingStar();
   }, 1000); // Spawn a new star every 1 second
 
+  // Hubble Space Telescope animation logic
+  const hubble = document.querySelector(".hubble-telescope");
+
+  // Get the dimensions of the hubble image immediately
+  const hubbleWidth = hubble.offsetWidth;
+  const hubbleHeight = hubble.offsetHeight;
+
+  let hubbleBottom;
+  let hubbleRight;
+
+  // Function to set Hubble's starting position randomly on the bottom or right edge
+  function setRandomHubbleStartPosition() {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const minEdgeOffset = 50; // Minimum distance from the top/left edge for the image's leading edge
+
+    // Randomly choose to start from the bottom edge or the right edge
+    if (Math.random() < 0.5) {
+      // Start from bottom edge (hubbleBottom = -hubbleHeight means it's fully off-screen below)
+      hubbleBottom = -hubbleHeight;
+
+      // Calculate the maximum 'right' position such that the image's left edge
+      // is at least 'minEdgeOffset' pixels from the left side of the screen.
+      // Image's left edge is at (windowWidth - hubbleRight - hubbleWidth).
+      // We want (windowWidth - hubbleRight - hubbleWidth) >= minEdgeOffset.
+      // So, hubbleRight <= (windowWidth - hubbleWidth - minEdgeOffset).
+      const maxAllowedHubbleRight = windowWidth - hubbleWidth - minEdgeOffset;
+
+      // The minimum 'right' position is when the image is fully off-screen to the right.
+      const minPossibleHubbleRight = -hubbleWidth;
+
+      // Ensure the max allowed position is not less than the min possible (e.g., if window is too small)
+      const actualMaxHubbleRight = Math.max(
+        minPossibleHubbleRight,
+        maxAllowedHubbleRight,
+      );
+
+      // Generate a random position for hubbleRight within the determined valid range
+      hubbleRight =
+        Math.floor(
+          Math.random() * (actualMaxHubbleRight - minPossibleHubbleRight + 1),
+        ) + minPossibleHubbleRight;
+    } else {
+      // Start from right edge (hubbleRight = -hubbleWidth means it's fully off-screen to the right)
+      hubbleRight = -hubbleWidth;
+
+      // Calculate the maximum 'bottom' position such that the image's top edge
+      // is at least 'minEdgeOffset' pixels from the top side of the screen.
+      // Image's top edge is at (windowHeight - hubbleBottom - hubbleHeight).
+      // We want (windowHeight - hubbleBottom - hubbleHeight) >= minEdgeOffset.
+      // So, hubbleBottom <= (windowHeight - hubbleHeight - minEdgeOffset).
+      const maxAllowedHubbleBottom =
+        windowHeight - hubbleHeight - minEdgeOffset;
+
+      // The minimum 'bottom' position is when the image is fully off-screen below.
+      const minPossibleHubbleBottom = -hubbleHeight;
+
+      // Ensure the max allowed position is not less than the min possible
+      const actualMaxHubbleBottom = Math.max(
+        minPossibleHubbleBottom,
+        maxAllowedHubbleBottom,
+      );
+
+      // Generate a random position for hubbleBottom within the determined valid range
+      hubbleBottom =
+        Math.floor(
+          Math.random() * (actualMaxHubbleBottom - minPossibleHubbleBottom + 1),
+        ) + minPossibleHubbleBottom;
+    }
+  }
+
+  // Set initial position when the script loads
+  setRandomHubbleStartPosition();
+
+  const hubbleSpeed = 0.5; // Pixels per frame (increased speed)
+  // hubbleResetOffset is no longer needed for the reset logic
+
+  let isHubbleAnimating = true; // Flag to control animation state
+
+  function animateHubble() {
+    hubbleBottom += hubbleSpeed;
+    hubbleRight += hubbleSpeed;
+
+    hubble.style.bottom = `${hubbleBottom}px`;
+    hubble.style.right = `${hubbleRight}px`;
+
+    // Get the dimensions of the window (re-read in case of resize)
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    // Check if the hubble has moved completely off-screen (top-left)
+    // It's off-screen when its bottom is above the viewport (hubbleBottom > windowHeight)
+    // or its right is to the left of the viewport (hubbleRight > windowWidth)
+    if (hubbleBottom > windowHeight || hubbleRight > windowWidth) {
+      isHubbleAnimating = false; // Pause the animation
+      setTimeout(() => {
+        setRandomHubbleStartPosition(); // Reset position after delay
+        hubble.style.bottom = `${hubbleBottom}px`; // Apply new position immediately
+        hubble.style.right = `${hubbleRight}px`;
+        isHubbleAnimating = true; // Resume animation
+        requestAnimationFrame(animateHubble); // Restart the loop
+      }, 1000); // 1-second delay
+      return; // Stop further execution for this frame
+    }
+
+    if (isHubbleAnimating) {
+      requestAnimationFrame(animateHubble);
+    }
+  }
+
+  // Start the Hubble animation
+  animateHubble();
+
   // Audio playback logic
   const audio = document.getElementById("background-audio");
   const audioFiles = [

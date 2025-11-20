@@ -86,3 +86,10 @@ body {
 .sparkling-star.animating {
     animation: spark-cycle 1.4s steps(1) forwards;
 }
+
+.hubble-telescope {
+    position: absolute;
+    bottom: -100px; /* Start slightly off-screen */
+    right: -100px; /* Start slightly off-screen */
+    z-index: 10; /* Ensure it's above other elements */
+}
