@@ -1,0 +1,65 @@
+.flowerbox-settings-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  background-color: var(--ButtonFace);
+}
+
+.settings-content {
+  display: flex;
+  flex-grow: 1;
+  gap: 12px;
+}
+
+.left-pane {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.right-pane {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-row,
+.field-row-vertical {
+  display: flex;
+  align-items: center;
+}
+
+.field-row {
+  margin-bottom: 4px;
+}
+
+.field-row-vertical {
+  margin-bottom: 8px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slider-container input[type="range"] {
+  flex-grow: 1;
+}
+
+#shape-select {
+  width: 100%;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ButtonShadow);
+  margin-top: 12px;
+}

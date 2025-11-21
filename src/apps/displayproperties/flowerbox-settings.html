@@ -1,0 +1,82 @@
+<div class="flowerbox-settings-container">
+  <div class="settings-content">
+    <div class="left-pane">
+      <fieldset>
+        <legend>Coloring</legend>
+        <div class="field-row">
+          <input type="radio" id="rb-checkerboard" name="coloring" value="checkerboard" checked>
+          <label for="rb-checkerboard">Checkerboard</label>
+        </div>
+        <div class="field-row">
+          <input type="radio" id="rb-per-side" name="coloring" value="per-side">
+          <label for="rb-per-side">Per Side</label>
+        </div>
+        <div class="field-row">
+          <input type="radio" id="rb-one-color" name="coloring" value="one-color">
+          <label for="rb-one-color">One Color</label>
+        </div>
+      </fieldset>
+
+      <div class="field-row-vertical">
+        <input type="checkbox" id="cb-smooth" name="smooth" checked>
+        <label for="cb-smooth">Smooth</label>
+      </div>
+      <div class="field-row-vertical">
+        <input type="checkbox" id="cb-slanted" name="slanted">
+        <label for="cb-slanted">Slanted</label>
+      </div>
+      <div class="field-row-vertical">
+        <input type="checkbox" id="cb-cycle" name="cycle">
+        <label for="cb-cycle">Cycle</label>
+      </div>
+
+      <fieldset>
+        <legend>Complexity</legend>
+        <div class="slider-container">
+          <span>Min</span>
+          <input type="range" id="complexity-slider" min="0" max="100" value="50">
+          <span>Max</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Size</legend>
+        <div class="slider-container">
+          <span>Smaller</span>
+          <input type="range" id="size-slider" min="0" max="100" value="50">
+          <span>Larger</span>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="right-pane">
+      <div class="field-row-vertical">
+        <input type="checkbox" id="cb-spin" name="spin" checked>
+        <label for="cb-spin">Spin</label>
+      </div>
+      <div class="field-row-vertical">
+        <input type="checkbox" id="cb-bloom" name="bloom" checked>
+        <label for="cb-bloom">Bloom</label>
+      </div>
+      <div class="field-row-vertical">
+        <input type="checkbox" id="cb-two-sided" name="two-sided" disabled>
+        <label for="cb-two-sided">Two-sided</label>
+      </div>
+
+      <fieldset>
+        <legend>Shape</legend>
+        <select id="shape-select">
+          <option value="cube">Cube</option>
+          <option value="tetrahedron">Tetrahedron</option>
+          <option value="pyramids">Pyramids</option>
+          <option value="cylinder">Cylinder</option>
+        </select>
+      </fieldset>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button class="ok-button">OK</button>
+    <button class="cancel-button">Cancel</button>
+  </div>
+</div>
