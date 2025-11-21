@@ -100,6 +100,16 @@ function promptToContinue() {
     });
 }
 
+function showBootError(error) {
+    const bootLogEl = document.getElementById("boot-log");
+    if (bootLogEl) {
+        const errorEntry = document.createElement("div");
+        errorEntry.style.color = "red";
+        errorEntry.textContent = `\nERROR: ${error.message}\n${error.stack}`;
+        bootLogEl.appendChild(errorEntry);
+    }
+}
+
 export {
     hideBootScreen,
     startBootProcessStep,
@@ -107,4 +117,5 @@ export {
     showBlinkingCursor,
     promptToContinue,
     removeLastBlinkingCursor,
+    showBootError,
 };
