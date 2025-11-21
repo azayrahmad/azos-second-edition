@@ -1,0 +1,103 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-image: url("src/images/space.bmp"); /* Assuming the tile image is named star_tile.png */
+    background-repeat: repeat;
+    background-color: black; /* Added a black background color for areas not covered by the tile */
+}
+.top-left-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.top-right-image {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.bottom-left-image {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+.bottom-right-image {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.space-station {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 186px;
+    height: 193px;
+    background-image: url("src/images/station.png");
+    background-repeat: no-repeat;
+    animation: playStation 1s steps(15) infinite; /* 15 frames */
+}
+
+@keyframes playStation {
+    from {
+        background-position-x: 0px;
+    }
+    to {
+        background-position-x: -2790px;
+    }
+}
+
+.sparkling-star {
+    width: 21px;
+    height: 21px;
+    background-image: url("src/images/sparklingstar.png");
+    background-repeat: no-repeat;
+    position: absolute; /* To allow random positioning */
+    z-index: -1;
+}
+
+@keyframes spark-cycle {
+    0% {
+        background-position: 0px 0;
+    } /* Frame 1 */
+    14% {
+        background-position: -21px 0;
+    } /* Frame 2 */
+    28% {
+        background-position: -42px 0;
+    } /* Frame 3 */
+    42% {
+        background-position: -63px 0;
+    } /* Frame 4 (end of forward) */
+    57% {
+        background-position: -42px 0;
+    } /* Frame 3 (reverse) */
+    71% {
+        background-position: -21px 0;
+    } /* Frame 2 (reverse) */
+    85% {
+        background-position: 0px 0;
+    } /* Frame 1 (end of reverse) */
+    100% {
+        background-position: 0px 0;
+    } /* Ensure it stays on Frame 1 at the end */
+}
+
+.sparkling-star.animating {
+    animation: spark-cycle 1.4s steps(1) forwards;
+}
+
+.hubble-telescope {
+    position: absolute;
+    bottom: -100px; /* Start slightly off-screen */
+    right: -100px; /* Start slightly off-screen */
+    z-index: 10; /* Ensure it's above other elements */
+}
+
+.astronaut {
+    position: absolute;
+    display: none; /* Hidden until animated by script */
+    z-index: 11; /* Above Hubble */
+    /* Transform-origin can be useful if we add rotation later */
+    transform-origin: center center;
+}

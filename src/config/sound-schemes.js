@@ -195,6 +195,82 @@ import windows98Question from "../assets/audio/Windows 98 question.wav";
 import windows98RestoreDown from "../assets/audio/Windows 98 restore down.wav";
 import windows98RestoreUp from "../assets/audio/Windows 98 restore up.wav";
 
+// Baseball
+import baseballAsterisk from "../assets/audio/Baseball asterisk.wav";
+import baseballCloseProgram from "../assets/audio/Baseball close program.wav";
+import baseballCriticalStop from "../assets/audio/Baseball critical stop.wav";
+import baseballDefaultSound from "../assets/audio/Baseball default sound.wav";
+import baseballEmptyRecycleBin from "../assets/audio/Baseball empty recycle bin.wav";
+import baseballExclamation from "../assets/audio/Baseball exclamation.wav";
+import baseballExitWindows from "../assets/audio/Baseball exit windows.wav";
+import baseballMaximize from "../assets/audio/Baseball maximize.wav";
+import baseballMenuCommand from "../assets/audio/Baseball menu command.wav";
+import baseballMenuPopup from "../assets/audio/Baseball menu popup.wav";
+import baseballMinimize from "../assets/audio/Baseball minimize.wav";
+import baseballOpenProgram from "../assets/audio/Baseball open program.wav";
+import baseballProgramError from "../assets/audio/Baseball program error.wav";
+import baseballQuestion from "../assets/audio/Baseball question.wav";
+import baseballRestoreDown from "../assets/audio/Baseball restore down.wav";
+import baseballRestoreUp from "../assets/audio/Baseball restore up.wav";
+import baseballStartup from "../assets/audio/Baseball startup.wav";
+
+// Jungle
+import jungleAsterisk from "../assets/audio/Jungle asterisk.wav";
+import jungleCloseProgram from "../assets/audio/Jungle close program.wav";
+import jungleCriticalStop from "../assets/audio/Jungle critical stop.wav";
+import jungleDefaultSound from "../assets/audio/Jungle default sound.wav";
+import jungleEmptyRecycleBin from "../assets/audio/Jungle empty recycle bin.wav";
+import jungleExclamation from "../assets/audio/Jungle exclamation.wav";
+import jungleExitWindows from "../assets/audio/Jungle exit windows.wav";
+import jungleMaximize from "../assets/audio/Jungle maximize.wav";
+import jungleMenuCommand from "../assets/audio/Jungle menu command.wav";
+import jungleMenuPopup from "../assets/audio/Jungle menu popup.wav";
+import jungleMinimize from "../assets/audio/Jungle minimize.wav";
+import jungleOpenProgram from "../assets/audio/Jungle open program.wav";
+import jungleProgramError from "../assets/audio/Jungle program error.wav";
+import jungleQuestion from "../assets/audio/Jungle question.wav";
+import jungleRestoreDown from "../assets/audio/Jungle restore down.wav";
+import jungleRestoreUp from "../assets/audio/Jungle restore up.wav";
+import jungleStartup from "../assets/audio/Jungle startup.wav";
+
+// Space
+import spaceAsterisk from "../assets/audio/Space asterisk.wav";
+import spaceCloseProgram from "../assets/audio/Space close program.wav";
+import spaceCriticalStop from "../assets/audio/Space critical stop.wav";
+import spaceDefaultSound from "../assets/audio/Space default sound.wav";
+import spaceEmptyRecycleBin from "../assets/audio/Space empty recycle bin.wav";
+import spaceExclamation from "../assets/audio/Space exclamation.wav";
+import spaceExitWindows from "../assets/audio/Space exit windows.wav";
+import spaceMaximize from "../assets/audio/Space maximize.wav";
+import spaceMenuCommand from "../assets/audio/Space menu command.wav";
+import spaceMenuPopup from "../assets/audio/Space menu popup.wav";
+import spaceMinimize from "../assets/audio/Space minimize.wav";
+import spaceOpenProgram from "../assets/audio/Space open program.wav";
+import spaceProgramError from "../assets/audio/Space program error.wav";
+import spaceQuestion from "../assets/audio/Space question.wav";
+import spaceRestoreDown from "../assets/audio/Space restore down.wav";
+import spaceRestoreUp from "../assets/audio/Space restore up.wav";
+import spaceStartup from "../assets/audio/Space startup.wav";
+
+// Underwater
+import underwaterAsterisk from "../assets/audio/Underwater asterisk.wav";
+import underwaterCloseProgram from "../assets/audio/Underwater close program.wav";
+import underwaterCriticalStop from "../assets/audio/Underwater critical stop.wav";
+import underwaterDefaultSound from "../assets/audio/Underwater default sound.wav";
+import underwaterEmptyRecycleBin from "../assets/audio/Underwater empty recycle bin.wav";
+import underwaterExclamation from "../assets/audio/Underwater exclamation.wav";
+import underwaterExitWindows from "../assets/audio/Underwater exit windows.wav";
+import underwaterMaximize from "../assets/audio/Underwater maximize.wav";
+import underwaterMenuCommand from "../assets/audio/Underwater menu command.wav";
+import underwaterMenuPopup from "../assets/audio/Underwater menu popup.wav";
+import underwaterMinimize from "../assets/audio/Underwater minimize.wav";
+import underwaterOpenProgram from "../assets/audio/Underwater open program.wav";
+import underwaterProgramError from "../assets/audio/Underwater program error.wav";
+import underwaterQuestion from "../assets/audio/Underwater question.wav";
+import underwaterRestoreDown from "../assets/audio/Underwater restore down.wav";
+import underwaterRestoreUp from "../assets/audio/Underwater restore up.wav";
+import underwaterStartup from "../assets/audio/Underwater startup.wav";
+
 export const soundSchemes = {
   Default: {
     Default: ding,
@@ -203,6 +279,8 @@ export const soundSchemes = {
     MenuCommand: "",
     MenuPopup: "",
     Minimize: "",
+    Open: "",
+    Close: "",
     RestoreDown: "",
     RestoreUp: "",
     SystemAsterisk: chord,
@@ -219,7 +297,7 @@ export const soundSchemes = {
     LowBatteryAlarm: ding,
     MailBeep: chimes,
     SystemNotification: "",
-    WindowsLogoff: "",
+    WindowsLogoff: logoff,
     StartNavigation: start,
   },
   "60s USA": {
@@ -439,5 +517,81 @@ export const soundSchemes = {
     SystemQuestion: windows98Question,
     WindowsLogon: start,
     EmptyRecycleBin: windows98EmptyRecycleBin,
+  },
+  Baseball: {
+    Default: baseballDefaultSound,
+    AppGPFault: baseballProgramError,
+    Maximize: baseballMaximize,
+    MenuCommand: baseballMenuCommand,
+    MenuPopup: baseballMenuPopup,
+    Minimize: baseballMinimize,
+    Open: baseballOpenProgram,
+    Close: baseballCloseProgram,
+    RestoreDown: baseballRestoreDown,
+    RestoreUp: baseballRestoreUp,
+    SystemAsterisk: baseballAsterisk,
+    SystemExclamation: baseballExclamation,
+    SystemExit: baseballExitWindows,
+    SystemHand: baseballCriticalStop,
+    SystemQuestion: baseballQuestion,
+    WindowsLogon: baseballStartup,
+    EmptyRecycleBin: baseballEmptyRecycleBin,
+  },
+  Jungle: {
+    Default: jungleDefaultSound,
+    AppGPFault: jungleProgramError,
+    Maximize: jungleMaximize,
+    MenuCommand: jungleMenuCommand,
+    MenuPopup: jungleMenuPopup,
+    Minimize: jungleMinimize,
+    Open: jungleOpenProgram,
+    Close: jungleCloseProgram,
+    RestoreDown: jungleRestoreDown,
+    RestoreUp: jungleRestoreUp,
+    SystemAsterisk: jungleAsterisk,
+    SystemExclamation: jungleExclamation,
+    SystemExit: jungleExitWindows,
+    SystemHand: jungleCriticalStop,
+    SystemQuestion: jungleQuestion,
+    WindowsLogon: jungleStartup,
+    EmptyRecycleBin: jungleEmptyRecycleBin,
+  },
+  Space: {
+    Default: spaceDefaultSound,
+    AppGPFault: spaceProgramError,
+    Maximize: spaceMaximize,
+    MenuCommand: spaceMenuCommand,
+    MenuPopup: spaceMenuPopup,
+    Minimize: spaceMinimize,
+    Open: spaceOpenProgram,
+    Close: spaceCloseProgram,
+    RestoreDown: spaceRestoreDown,
+    RestoreUp: spaceRestoreUp,
+    SystemAsterisk: spaceAsterisk,
+    SystemExclamation: spaceExclamation,
+    SystemExit: spaceExitWindows,
+    SystemHand: spaceCriticalStop,
+    SystemQuestion: spaceQuestion,
+    WindowsLogon: spaceStartup,
+    EmptyRecycleBin: spaceEmptyRecycleBin,
+  },
+  Underwater: {
+    Default: underwaterDefaultSound,
+    AppGPFault: underwaterProgramError,
+    Maximize: underwaterMaximize,
+    MenuCommand: underwaterMenuCommand,
+    MenuPopup: underwaterMenuPopup,
+    Minimize: underwaterMinimize,
+    Open: underwaterOpenProgram,
+    Close: underwaterCloseProgram,
+    RestoreDown: underwaterRestoreDown,
+    RestoreUp: underwaterRestoreUp,
+    SystemAsterisk: underwaterAsterisk,
+    SystemExclamation: underwaterExclamation,
+    SystemExit: underwaterExitWindows,
+    SystemHand: underwaterCriticalStop,
+    SystemQuestion: underwaterQuestion,
+    WindowsLogon: underwaterStartup,
+    EmptyRecycleBin: underwaterEmptyRecycleBin,
   },
 };

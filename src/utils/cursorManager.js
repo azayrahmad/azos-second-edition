@@ -115,8 +115,6 @@ export function applyCursorTheme(theme) {
   let themeConfig = getCursorThemes(theme);
   if (!themeConfig) themeConfig = getCursorThemes("default");
 
-  clearAniCursor();
-
   if (themeConfig) {
     for (const [property, config] of Object.entries(themeConfig)) {
       if (config.animated) {
@@ -126,6 +124,7 @@ export function applyCursorTheme(theme) {
       }
     }
   } else {
+    clearAniCursor();
     for (const property of getCursorThemes(theme)) {
       root.style.removeProperty(property);
     }

@@ -133,26 +133,15 @@ class StartMenu {
     let activeMenu = null;
     let closeTimeout;
 
-    const isTouchDevice = () =>
-      "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-    const closeAllSubmenus = (exceptThisOne = null) => {
-      this.openSubmenus.forEach((menu) => {
-        if (menu !== exceptThisOne) {
-          menu.close();
-          if (menu.element && menu.element.parentNode) {
-            menu.element.remove();
-          }
-        }
-      });
-      this.openSubmenus = exceptThisOne ? [exceptThisOne] : [];
-    };
-
     const openMenu = () => {
       clearTimeout(closeTimeout);
       if (activeMenu) return;
 
-      closeAllSubmenus();
+      // Close any other open submenus immediately
+      if (this.openSubmenus.length > 0) {
+        [...this.openSubmenus].forEach((menu) => menu.close());
+        this.openSubmenus = [];
+      }
 
       activeMenu = new window.MenuPopup(submenuItems, {
         parentMenuPopup: null,
@@ -171,74 +160,40 @@ class StartMenu {
         refocus_outside_menus: () => {},
       });
 
-      document.body.appendChild(activeMenu.element);
+      const screen = document.getElementById('screen');
+      screen.appendChild(activeMenu.element);
       const rect = menuItem.getBoundingClientRect();
-      activeMenu.element.style.left = `${rect.right}px`;
-      activeMenu.element.style.top = `${rect.top}px`;
+      const screenRect = screen.getBoundingClientRect();
+      activeMenu.element.style.left = `${rect.right - screenRect.left}px`;
+      activeMenu.element.style.top = `${rect.top - screenRect.top}px`;
       activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
       if (typeof window.playSound === "function") {
         window.playSound("MenuPopup");
       }
       this.openSubmenus.push(activeMenu);
 
-      if (!isTouchDevice()) {
-        this.addTrackedEventListener(
-          activeMenu.element,
-          "pointerenter",
-          () => {
-            clearTimeout(closeTimeout);
-          },
-        );
-
-        this.addTrackedEventListener(
-          activeMenu.element,
-          "pointerleave",
-          () => {
-            closeMenu(true);
-          },
-        );
-      }
+      this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
+        clearTimeout(closeTimeout);
+      });
     };
 
     const closeMenu = (useTimeout = false) => {
       const doClose = () => {
         if (activeMenu) {
-          const index = this.openSubmenus.indexOf(activeMenu);
-          if (index > -1) {
-            this.openSubmenus.splice(index, 1);
-          }
+          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
           activeMenu.close();
-          if (activeMenu.element && activeMenu.element.parentNode) {
-            activeMenu.element.remove();
-          }
           activeMenu = null;
         }
       };
 
-      if (useTimeout && !isTouchDevice()) {
+      if (useTimeout) {
         closeTimeout = setTimeout(doClose, 100);
       } else {
         doClose();
       }
     };
 
-    const toggleMenu = (event) => {
-      event.stopPropagation();
-      if (activeMenu) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    };
-
-    if (isTouchDevice()) {
-      this.addTrackedEventListener(menuItem, "click", toggleMenu);
-    } else {
-      this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
-      this.addTrackedEventListener(menuItem, "pointerleave", () => {
-        closeMenu(true);
-      });
-    }
+    this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
   }
 
   bindMenuItems() {
@@ -312,6 +267,7 @@ class StartMenu {
 
     if (!startMenu || !startButton) return;
 
+    playSound("MenuPopup");
     // Reset animation first to ensure clean state
     startMenu.style.animationName = "";
 

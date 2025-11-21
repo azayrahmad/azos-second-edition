@@ -1,14 +1,19 @@
 export const LOCAL_STORAGE_KEYS = {
-  DESKTOP_THEME: 'desktop-theme',
+  ACTIVE_THEME: 'activeTheme',
+  CUSTOM_THEMES: 'customThemes',
   CUSTOM_APPS: 'customApps',
   SHOW_TIPS_AT_STARTUP: 'showTipsAtStartup',
   CLIPPY_AGENT_NAME: 'clippyAgentName',
   CLIPPY_TTS_ENABLED: 'clippyTTSEnabled',
   NOTEPAD_THEME: 'notepad-theme',
-  WALLPAPER: 'wallpaper',
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
   MONITOR_TYPE: 'monitorType',
+  RECYCLE_BIN: 'recycleBin',
+  SCREENSAVER_TIMEOUT: 'screensaverTimeout',
+  SCREENSAVER: 'screensaver',
+  COLOR_MODE: 'colorMode',
+  SCREEN_RESOLUTION: 'screenResolution',
 };
 
 export function getItem(key) {

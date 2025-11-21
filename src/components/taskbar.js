@@ -7,6 +7,7 @@
 import { ICONS } from "../config/icons.js";
 import StartMenu from "./StartMenu.js";
 import { showClippyContextMenu } from "../apps/clippy/clippy.js";
+import { launchApp } from "../utils/appManager.js";
 
 // Constants for better maintainability
 const SELECTORS = {
@@ -161,6 +162,29 @@ class Taskbar {
     this.bindStartButtonEvents();
     this.bindDesktopEvents();
     this.bindExternalLinkEvents();
+    this.bindTaskbarAppAreaEvents();
+  }
+
+  /**
+   * Bind taskbar app area events
+   */
+  bindTaskbarAppAreaEvents() {
+    const taskbarAppArea = document.querySelector(SELECTORS.TASKBAR);
+    this.addTrackedEventListener(taskbarAppArea, "contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const contextMenuItems = [
+        {
+          label: "Task Manager",
+          action: () => {
+            launchApp("taskmanager");
+          },
+        },
+      ];
+
+      new window.ContextMenu(contextMenuItems, e);
+    });
   }
 
   /**
@@ -316,6 +340,19 @@ class Taskbar {
               <span class="taskbar-button-text">${this.escapeHtml(newTitle)}</span>
             </span>
           `;
+        }
+      });
+
+      $(win).on("icon-change", () => {
+        const newIcons = win.$window.icons;
+        const button = document.querySelector(
+          `${SELECTORS.TASKBAR_BUTTON}[for="${windowId}"]`,
+        );
+        if (button && newIcons) {
+          const iconImg = button.querySelector("img");
+          if (iconImg) {
+            iconImg.src = newIcons[16];
+          }
         }
       });
     }

@@ -56,7 +56,29 @@ export class ThemeToCssApp extends Application {
           action: () => win.close(),
         },
       ],
+      "&Edit": [
+        {
+          label: "&Apply Theme",
+          action: () => this._applyTheme(),
+        },
+      ],
     });
+  }
+
+  _applyTheme() {
+    const cssContent = this.editor.getValue();
+
+    // Remove existing transient styles to prevent stacking
+    const existingStyle = document.getElementById("transient-theme-styles");
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    // Create and inject the new style tag
+    const style = document.createElement("style");
+    style.id = "transient-theme-styles";
+    style.textContent = cssContent;
+    document.head.appendChild(style);
   }
 
   async _openFile() {
@@ -170,11 +192,13 @@ export class ThemeToCssApp extends Application {
         colorBox.style.backgroundColor = value;
         swatchItem.appendChild(colorBox);
       } else if (value.startsWith("url(")) {
+        // only take the first token (before possible "64 / 2px" stuff)
+        const match = value.trim().match(/^url\((['"]?)(.*?)\1\)/);
+        if (!match) return;
+
         const img = document.createElement("img");
         img.className = "swatch-image";
-        img.src = value.slice(5, -2); // Correctly slice url("...")
-        if (img.src.startsWith("data:image/svg+xml"))
-          img.src = img.src.slice(0, -9);
+        img.src = match[2]; // only the real data URI
         swatchItem.appendChild(img);
       }
 

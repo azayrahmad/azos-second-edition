@@ -1,0 +1,143 @@
+<div class="display-properties-tabs">
+    <menu role="tablist">
+        <li role="tab" aria-selected="true">
+            <a data-target="#background">Background</a>
+        </li>
+        <li role="tab"><a data-target="#screensaver">Screen Saver</a></li>
+        <li role="tab"><a data-target="#appearance">Appearance</a></li>
+        <li role="tab"><a data-target="#effects">Effects</a></li>
+        <li role="tab"><a data-target="#web">Web</a></li>
+        <li role="tab"><a data-target="#settings">Settings</a></li>
+    </menu>
+    <div class="tab-window outset-deep" role="tabpanel">
+        <div class="tab-window-body">
+            <div id="background" class="tab-content">
+                <div class="monitor-preview-container">
+                    <div class="display-wallpaper-preview"></div>
+                </div>
+                <fieldset>
+                    <legend>Wallpaper</legend>
+                    <div class="wallpaper-settings-container">
+                        <span>Select an HTML Document or a picture:</span>
+                        <div class="wallpaper-options">
+                            <div class="wallpaper-list-container inset-deep">
+                                <table class="wallpaper-list"></table>
+                            </div>
+                            <div class="wallpaper-controls">
+                                <button class="browse-button">Browse...</button>
+                                <button class="pattern-button" disabled>
+                                    Pattern...
+                                </button>
+                                <div class="field-row">
+                                    <label for="display-mode">Display:</label>
+                                    <select id="display-mode">
+                                        <option value="stretch">Stretch</option>
+                                        <option value="center">Center</option>
+                                        <option value="tile">Tile</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="screensaver" class="tab-content" hidden>
+              <div class="monitor-preview-container">
+                <div class="display-screensaver-preview"></div>
+              </div>
+              <div class="screensaver-settings-container">
+                <fieldset class="screensaver-selection-fieldset">
+                  <legend>Screen Saver</legend>
+                  <div class="field-row">
+                    <select id="screensaver-dropdown" class="screensaver-dropdown"></select>
+                    <button class="settings-button" disabled>Settings...</button>
+                    <button class="preview-button">Preview</button>
+                  </div>
+                  <div class="field-row password-protected-row">
+                    <input
+                      type="checkbox"
+                      id="password-protected"
+                      class="password-protected-checkbox"
+                      disabled
+                    />
+                    <label for="password-protected">Password protected</label>
+                    <button class="change-button" disabled>Change...</button>
+                    <label for="wait-time">Wait:</label>
+                    <input
+                      type="number"
+                      id="wait-time"
+                      class="wait-time-input"
+                      value="1"
+                      min="1"
+                    />
+                    <span>minutes</span>
+                  </div>
+                </fieldset>
+                <fieldset class="energy-saving-fieldset">
+                  <legend>Energy saving features of monitor</legend>
+                  <div class="energy-saving-content">
+                    <img
+                      src="../../assets/img/energystar.png"
+                      alt="Energy Star"
+                      class="energy-star-logo"
+                    />
+                    <span>
+                      To adjust the power settings for your monitor, click Settings.
+                    </span>
+                    <button class="settings-button" disabled>Settings...</button>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+            <div id="appearance" class="tab-content" hidden>
+              <p>Coming soon!</p>
+            </div>
+            <div id="effects" class="tab-content" hidden>
+              <p>Coming soon!</p>
+            </div>
+            <div id="web" class="tab-content" hidden>
+              <p>Coming soon!</p>
+            </div>
+            <div id="settings" class="tab-content" hidden>
+              <div class="monitor-preview-container">
+                <div class="display-settings-preview"></div>
+              </div>
+              <div class="display-info">
+                  <span>Display:</span>
+                  <span class="browser-info"></span>
+              </div>
+              <div class="settings-controls">
+                  <fieldset class="colors-fieldset">
+                      <legend>Colors</legend>
+                      <select id="color-mode-select"></select>
+                      <div id="color-spectrum-preview"></div>
+                  </fieldset>
+                  <fieldset class="screen-area-fieldset">
+                      <legend>Screen area</legend>
+                      <div class="resolution-slider-container">
+                          <span>Less</span>
+                          <input id="resolution-slider" type="range" min="0" max="3" value="1" />
+                          <span>More</span>
+                      </div>
+                      <div class="current-resolution">800 by 600 pixels</div>
+                  </fieldset>
+              </div>
+              <div class="advanced-container">
+                <div class="extend-checkbox-container">
+                    <input type="checkbox" id="extend-checkbox" disabled checked/>
+                    <label for="extend-checkbox">Extend my Windows desktop onto this monitor.</label>
+                </div>
+                <button class="advanced-button" disabled>Advanced...</button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+    </div>
+</div>
+<div class="buttons display-properties-buttons">
+    <button class="ok-button default">OK</button>
+    <button class="cancel-button">Cancel</button>
+    <button class="apply-button">&Apply</button>
+</div>

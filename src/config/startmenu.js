@@ -1,83 +1,105 @@
-import { apps } from './apps.js';
-import { launchApp } from '../utils/appManager.js';
-import { ShowComingSoonDialog } from '../components/DialogWindow.js';
-import { ICONS } from './icons.js';
+import { apps } from "./apps.js";
+import { launchApp } from "../utils/appManager.js";
+import { ShowComingSoonDialog } from "../components/DialogWindow.js";
+import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
-  "about",
-  "resume",
-  "tipOfTheDay",
-  "notepad",
-  "image-resizer",
-  "clippy",
+  "display-properties",
   "webamp",
   "image-viewer",
-  "themetocss"
+  "tipOfTheDay",
+  "about",
+  "internet-explorer",
+  "pinball",
 ];
+const accessoriesAppIds = ["notepad", "clippy", "paint"];
+const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
 
-const programApps = apps
-  .filter(app => startMenuAppIds.includes(app.id))
-  .map(app => ({
-    label: app.title,
-    icon: app.icon[16],
-    action: () => launchApp(app.id),
-  }));
+function getAppList(appListIds) {
+  return appListIds
+    .map((id) => apps.find((app) => app.id === id))
+    .filter((app) => app)
+    .map((app) => ({
+      label: app.title,
+      icon: app.icon[16],
+      action: () => launchApp(app.id),
+    }));
+}
 
 const startMenuConfig = [
   {
-    label: 'Programs',
+    label: "Programs",
     icon: ICONS.programs[16],
-    submenu: programApps,
+    submenu: [
+      {
+        label: "Accessories",
+        icon: ICONS.programs[16],
+        submenu: getAppList(accessoriesAppIds),
+      },
+      ...getAppList(startMenuAppIds),
+    ],
   },
   {
-    label: 'Favorites',
+    label: "Favorites",
     icon: ICONS.favorites[16],
     submenu: [
       {
-        label: '(Empty)',
-        disabled: true,
+        label: "Google",
+        icon: ICONS.htmlFile[16],
+        action: () => launchApp("internet-explorer", "google.com"),
+      },
+      {
+        label: "Yahoo",
+        icon: ICONS.htmlFile[16],
+        action: () => launchApp("internet-explorer", "yahoo.com"),
+      },
+      {
+        label: "Neocities",
+        icon: ICONS.htmlFile[16],
+        action: () =>
+          launchApp("internet-explorer", {
+            url: "https://neocities.org/",
+            retroMode: false,
+          }),
       },
     ],
   },
   {
-    label: 'Documents',
+    label: "Documents",
     icon: ICONS.documents[16],
     submenu: [
       {
-        label: '(Empty)',
-        disabled: true,
+        label: "My Documents",
+        icon: ICONS.folder[16],
+        action: () =>
+          launchApp("explorer", "/drive-c/folder-user/folder-documents"),
       },
     ],
   },
   {
-    label: 'Settings',
+    label: "Settings",
     icon: ICONS.settings[16],
-    submenu: [
-      {
-        label: '(Empty)',
-        disabled: true,
-      },
-    ],
+    submenu: getAppList(settingsAppIds),
   },
   {
-    label: 'Find',
+    label: "Find",
     icon: ICONS.find[16],
     submenu: [
       {
-        label: '(Empty)',
+        label: "(Empty)",
         disabled: true,
       },
     ],
   },
   {
-    label: 'Help',
+    label: "Help",
     icon: ICONS.help[16],
-    action: () => ShowComingSoonDialog('Help'),
+    action: () => ShowComingSoonDialog("Help"),
   },
   {
-    label: 'Run',
+    label: "Run",
     icon: ICONS.run[16],
-    action: () => ShowComingSoonDialog('Run'),
+    action: () => ShowComingSoonDialog("Run"),
   },
 ];
 

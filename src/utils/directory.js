@@ -1,0 +1,120 @@
+import directory from '../config/directory.js';
+import { apps } from '../config/apps.js';
+
+function findNodeById(nodes, id) {
+  for (const node of nodes) {
+    if (node.id === id) {
+      return node;
+    }
+    if (node.children) {
+      const found = findNodeById(node.children, id);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return null;
+}
+
+function findDesktopFolder() {
+    const driveC = directory.find(d => d.id === 'drive-c');
+    if (driveC && driveC.children) {
+        const userFolder = driveC.children.find(f => f.id === 'folder-user');
+        if (userFolder && userFolder.children) {
+            return userFolder.children.find(f => f.id === 'folder-desktop');
+        }
+    }
+    return null;
+}
+
+function findProgramFilesFolder() {
+    const driveC = directory.find(d => d.id === 'drive-c');
+    if (driveC && driveC.children) {
+        return driveC.children.find(f => f.id === 'folder-program-files');
+    }
+    return null;
+}
+
+export function getDesktopContents() {
+    const desktopFolder = findDesktopFolder();
+    if (!desktopFolder || !desktopFolder.children) {
+        return { apps: [], files: [] };
+    }
+
+    const desktopApps = [];
+    const desktopFiles = [];
+
+    desktopFolder.children.forEach(item => {
+        if (item.type === 'shortcut') {
+            const targetNode = findNodeById(directory, item.targetId);
+            if (targetNode && targetNode.type === 'app') {
+                const appConfig = apps.find(a => a.id === targetNode.appId);
+                if (appConfig) {
+                    desktopApps.push(appConfig.id);
+                }
+            }
+        } else if (item.type === 'file') {
+            desktopFiles.push({
+                filename: item.name,
+                app: item.openwith,
+                path: item.contentUrl,
+            });
+        }
+    });
+
+    return { apps: desktopApps, files: desktopFiles };
+}
+
+export function addAppDefinition(appId) {
+    const programFilesFolder = findProgramFilesFolder();
+    if (programFilesFolder && programFilesFolder.children) {
+        const appDefinition = { id: `app-${appId}`, type: 'app', appId: appId };
+        const exists = programFilesFolder.children.some(c => c.id === appDefinition.id);
+        if (!exists) {
+            programFilesFolder.children.push(appDefinition);
+        }
+        return appDefinition.id;
+    }
+    return null;
+}
+
+export function removeAppDefinition(appId) {
+    const programFilesFolder = findProgramFilesFolder();
+    if (programFilesFolder && programFilesFolder.children) {
+        const appDefId = `app-${appId}`;
+        const index = programFilesFolder.children.findIndex(c => c.id === appDefId);
+        if (index > -1) {
+            programFilesFolder.children.splice(index, 1);
+        }
+    }
+}
+
+export function addDesktopShortcut(appId, appTitle) {
+    const targetId = addAppDefinition(appId); // Ensure app def exists
+    const desktopFolder = findDesktopFolder();
+
+    if (desktopFolder && desktopFolder.children && targetId) {
+        const shortcut = {
+            id: `shortcut-to-${appId}`,
+            type: 'shortcut',
+            targetId: targetId,
+            name: appTitle,
+        };
+        const exists = desktopFolder.children.some(c => c.id === shortcut.id);
+        if (!exists) {
+            desktopFolder.children.push(shortcut);
+        }
+    }
+}
+
+export function removeDesktopShortcut(appId) {
+    removeAppDefinition(appId); // Also remove the app def
+    const desktopFolder = findDesktopFolder();
+    if (desktopFolder && desktopFolder.children) {
+        const shortcutId = `shortcut-to-${appId}`;
+        const index = desktopFolder.children.findIndex(c => c.id === shortcutId);
+        if (index > -1) {
+            desktopFolder.children.splice(index, 1);
+        }
+    }
+}

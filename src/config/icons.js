@@ -7,6 +7,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_3.ico", import.meta.url).href,
   },
+  "internet-explorer": {
+    16: new URL("../assets/icons/msie1-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/msie1-1.png", import.meta.url).href,
+  },
   about: {
     16: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
     32: new URL("../assets/icons/COMCTL32_20481.ico", import.meta.url).href,
@@ -40,9 +44,17 @@ export const ICONS = {
     32: new URL("../assets/icons/image_viewer-0.png", import.meta.url).href,
   },
   computer: {
-    16: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
-    32: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
+    16: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
       .href,
+    32: new URL("../assets/icons/computer_explorer.ico", import.meta.url).href,
+  },
+  disketteDrive: {
+    16: new URL("../assets/icons/SHELL32_7.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_7.ico", import.meta.url).href,
+  },
+  drive: {
+    16: new URL("../assets/icons/SHELL32_9.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_9.ico", import.meta.url).href,
   },
   folder: {
     16: new URL(
@@ -53,6 +65,14 @@ export const ICONS = {
       "../assets/icons/directory_open_file_mydocs-1.png",
       import.meta.url,
     ).href,
+  },
+  folderClosed: {
+    16: new URL("../assets/icons/SHELL32_4.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_4.ico", import.meta.url).href,
+  },
+  folderOpen: {
+    16: new URL("../assets/icons/SHELL32_5.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_5.ico", import.meta.url).href,
   },
   warning: {
     16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
@@ -137,5 +157,57 @@ export const ICONS = {
   windowsUpdate: {
     16: new URL("../assets/icons/SHELL32_47.ico", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_47.ico", import.meta.url).href,
+  },
+  taskmanager: {
+    16: new URL("../assets/icons/SHELL32_37.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_37.ico", import.meta.url).href,
+  },
+  soundschemeexplorer: {
+    16: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+    32: new URL("../assets/icons/MMSYS_110.ico", import.meta.url).href,
+  },
+  desktopthemes: {
+    16: new URL("../assets/icons/themes-2.png", import.meta.url).href,
+    32: new URL("../assets/icons/themes-2.png", import.meta.url).href,
+  },
+  recycleBinEmpty: {
+    16: new URL(
+      "../assets/icons/theme-icons/recycle_bin_empty-4.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/theme-icons/recycle_bin_empty-4.png",
+      import.meta.url,
+    ).href,
+  },
+  recycleBinFull: {
+    16: new URL(
+      "../assets/icons/theme-icons/recycle_bin_full-4.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/theme-icons/recycle_bin_full-4.png",
+      import.meta.url,
+    ).href,
+  },
+  pinball: {
+    16: new URL("../assets/icons/PINBALL.ico", import.meta.url).href,
+    32: new URL("../assets/icons/PINBALL.ico", import.meta.url).href,
+  },
+  paint: {
+    16: new URL("../assets/icons/Paint.ico", import.meta.url).href,
+    32: new URL("../assets/icons/Paint.ico", import.meta.url).href,
+  },
+  displayProperties: {
+    16: new URL("../assets/icons/Display.ico", import.meta.url).href,
+    32: new URL("../assets/icons/Display.ico", import.meta.url).href,
+  },
+  networkNeighborhood: {
+    16: new URL("../assets/icons/SHELL32_18.ico", import.meta.url).href,
+    32: new URL("../assets/icons/SHELL32_18.ico", import.meta.url).href,
+  },
+  htmlFile: {
+    16: new URL("../assets/icons/html2-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/html2-3.png", import.meta.url).href,
   },
 };

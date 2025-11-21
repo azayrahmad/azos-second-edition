@@ -7,11 +7,26 @@ import { ClippyApp } from "../apps/clippy/ClippyApp.js";
 import { WebampApp } from "../apps/webamp/WebampApp.js";
 import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
 import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
+import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
+import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
+import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
+import { PinballApp } from "../apps/pinball/PinballApp.js";
+import { PaintApp } from "../apps/paint/PaintApp.js";
+import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
+import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
+import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { ICONS } from "./icons.js";
+import { getIcon } from "../utils/iconManager.js";
+import { playSound } from "../utils/soundManager.js";
+import {
+  getRecycleBinItems,
+  emptyRecycleBin,
+} from "../utils/recycleBinManager.js";
+import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
 
 export const appClasses = {
   about: AboutApp,
@@ -24,9 +39,103 @@ export const appClasses = {
   "image-resizer": ImageResizerApp,
   "image-viewer": ImageViewerApp,
   themetocss: ThemeToCssApp,
+  desktopthemes: DesktopThemesApp,
+  taskmanager: TaskManagerApp,
+  soundschemeexplorer: SoundSchemeExplorerApp,
+  explorer: ExplorerApp,
+  "internet-explorer": InternetExplorerApp,
+  pinball: PinballApp,
+  paint: PaintApp,
+  "display-properties": DisplayPropertiesApp,
 };
 
 export const apps = [
+  {
+    id: "my-computer",
+    title: "My Computer",
+    get icon() {
+      return getIcon("myComputer");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "/");
+      },
+    },
+  },
+  {
+    id: "recycle-bin",
+    title: "Recycle Bin",
+    get icon() {
+      const items = getRecycleBinItems();
+      return items.length > 0
+        ? getIcon("recycleBinFull")
+        : getIcon("recycleBinEmpty");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "//recycle-bin");
+      },
+    },
+    contextMenu: [
+      {
+        label: "Empty Recycle Bin",
+        action: () => {
+          ShowDialogWindow({
+            title: "Confirm Empty Recycle Bin",
+            text: "Are you sure you want to permanently delete all items in the Recycle Bin?",
+            buttons: [
+              {
+                label: "Yes",
+                action: () => {
+                  emptyRecycleBin();
+                  playSound("EmptyRecycleBin");
+                  document.dispatchEvent(new CustomEvent("theme-changed")); // To refresh icon
+                },
+              },
+              { label: "No", isDefault: true },
+            ],
+          });
+        },
+        enabled: () => getRecycleBinItems().length > 0,
+      },
+      "MENU_DIVIDER",
+      {
+        label: "&Open",
+        action: "open",
+        default: true,
+      },
+      {
+        label: "&Properties",
+        action: "properties",
+      },
+    ],
+  },
+  {
+    id: "network-neighborhood",
+    title: "Network Neighborhood",
+    get icon() {
+      return getIcon("networkNeighborhood");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "//network-neighborhood");
+      },
+    },
+  },
+  {
+    id: "my-documents",
+    title: "My Documents",
+    icon: ICONS.folder,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", SPECIAL_FOLDER_PATHS["my-documents"]);
+      },
+    },
+  },
   {
     id: "about",
     title: "About",
@@ -37,6 +146,7 @@ export const apps = [
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    isSingleton: true,
   },
   {
     id: "tipOfTheDay",
@@ -48,6 +158,7 @@ export const apps = [
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    isSingleton: true,
     tips: [
       "To open a file or an application from desktop, double-click the icon.",
       "To close a window, click the X in the top-right corner.",
@@ -61,6 +172,7 @@ export const apps = [
     width: 800,
     height: 600,
     resizable: true,
+    isSingleton: false,
     tips: [
       "You can open PDF files by double-clicking them on the desktop or in the file explorer.",
     ],
@@ -73,6 +185,7 @@ export const apps = [
     width: 600,
     height: 400,
     resizable: true,
+    isSingleton: false,
     tips: [
       "Notepad can be used for more than just text. It also supports syntax highlighting for various programming languages.",
       "In Notepad, you can format your code using the 'Format' option in the 'File' menu.",
@@ -88,6 +201,7 @@ export const apps = [
     width: 920,
     height: 720,
     resizable: true,
+    isSingleton: false,
   },
   {
     id: "image-viewer",
@@ -97,6 +211,7 @@ export const apps = [
     width: 400,
     height: 300,
     resizable: true,
+    isSingleton: false,
   },
   {
     id: "clippy",
@@ -104,6 +219,7 @@ export const apps = [
     icon: ICONS.clippy,
     appClass: ClippyApp,
     hasTray: true,
+    isSingleton: true,
     tray: {
       contextMenu: getClippyMenuItems,
     },
@@ -119,6 +235,7 @@ export const apps = [
     icon: ICONS.webamp,
     appClass: WebampApp,
     hasTaskbarButton: true,
+    isSingleton: true,
     tray: {
       contextMenu: getWebampMenuItems,
     },
@@ -135,6 +252,7 @@ export const apps = [
     width: 600,
     height: 500,
     resizable: true,
+    isSingleton: true,
   },
   {
     id: "alertTest",
@@ -161,5 +279,86 @@ export const apps = [
     width: 700,
     height: 350,
     resizable: true,
+    isSingleton: true,
+  },
+  {
+    id: "desktopthemes",
+    title: "Desktop Themes",
+    icon: ICONS.desktopthemes,
+    appClass: DesktopThemesApp,
+    width: 550,
+    height: 500,
+    resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "taskmanager",
+    title: "Task Manager",
+    icon: ICONS.windows,
+    appClass: TaskManagerApp,
+    width: 300,
+    height: 400,
+    resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "soundschemeexplorer",
+    title: "Sound Scheme Explorer",
+    icon: ICONS.soundschemeexplorer,
+    appClass: SoundSchemeExplorerApp,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: true,
+  },
+  {
+    id: "explorer",
+    title: "Explorer",
+    icon: ICONS.computer,
+    appClass: ExplorerApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
+  },
+  {
+    id: "internet-explorer",
+    title: "Internet Explorer",
+    icon: ICONS["internet-explorer"],
+    appClass: InternetExplorerApp,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
+  },
+  {
+    id: "pinball",
+    title: "Pinball",
+    icon: ICONS.pinball,
+    appClass: PinballApp,
+    width: 600,
+    height: 400,
+    resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "paint",
+    title: "Paint",
+    icon: ICONS.paint,
+    appClass: PaintApp,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
+  },
+  {
+    id: "display-properties",
+    title: "Display Properties",
+    icon: ICONS.displayProperties,
+    appClass: DisplayPropertiesApp,
+    width: 404,
+    height: 448,
+    resizable: false,
+    isSingleton: true,
   },
 ];

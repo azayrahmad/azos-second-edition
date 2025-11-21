@@ -1,5 +1,6 @@
 import "./styles/cursors.css";
 import "./style.css";
+
 import { themes } from "./config/themes.js";
 import { setupCounter } from "./counter.js";
 import { initDesktop } from "./components/desktop.js";
@@ -8,11 +9,23 @@ import { apps, appClasses } from "./config/apps.js";
 import { ICONS } from "./config/icons.js";
 import { Application } from "./apps/Application.js";
 import { registerCustomApp } from "./utils/customAppManager.js";
-import desktopConfig from "./config/desktop.json";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
-import { setTheme } from "./utils/themeManager.js";
+import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
+import {
+  hideBootScreen,
+  startBootProcessStep,
+  finalizeBootProcessStep,
+  showBlinkingCursor,
+  promptToContinue,
+} from "./components/bootScreen.js";
+import { preloadThemeAssets } from "./utils/assetPreloader.js";
+import { launchApp } from "./utils/appManager.js";
+import { createMainUI } from "./components/ui.js";
+import { initColorModeManager } from "./utils/colorModeManager.js";
+import screensaver from "./components/screensaver.js";
+import { initScreenManager } from "./utils/screenManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -84,33 +97,20 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  // Create and show the progress window using the $Window constructor
-  const progressWindow = new $Window({
-    title: "Initializing azOS",
-    outerWidth: 500,
-    resizable: false,
-    maximizeButton: false,
-    minimizeButton: false,
-    closeButton: false,
-  });
-  progressWindow.$content.append(`
-    <div class="progress-bar" style="padding: 10px;">
-      <p class="progress-text">Loading...</p>
-      <div class="progress-indicator segmented" style="width: 100%; box-sizing: border-box;">
-      <span class="progress-indicator-bar" style="width: 0%;"></span>
-    </div>
-  `);
+  // Hide the initial "Initializing azOS..." message
+  document.getElementById("initial-boot-message").style.display = "none";
+  // Show the main boot screen content with two columns
+  document.getElementById("boot-screen-content").style.display = "flex";
 
-  $("body").append(progressWindow.$window);
-  progressWindow.center();
+  // Insert BIOS info
+  const biosTextColumn = document.getElementById("bios-text-column");
+  if (biosTextColumn) {
+    biosTextColumn.innerHTML = `Award Modular BIOS v4.51PG, An Energy Star Ally<br/>Copyright (C) 1984-85, Award Software, Inc.`;
+  }
 
-  // Function to update the progress bar
-  function updateProgress(percentage, text = "Loading...") {
-    if (!progressWindow) return;
-    progressWindow
-      .find(".progress-indicator-bar")
-      .css("width", `${percentage}%`);
-    progressWindow.find(".progress-text").text(text);
+  const browserInfoEl = document.getElementById("browser-info");
+  if (browserInfoEl) {
+    //browserInfoEl.textContent = `Client: ${navigator.userAgent}`;
   }
 
   function loadCustomApps() {
@@ -132,35 +132,108 @@ async function initializeOS() {
     });
   }
 
-  // Simulate initialization tasks with progress updates
-  updateProgress(20, "Loading themes...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  let logElement = startBootProcessStep("Detecting keyboard...");
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
+  logElement = startBootProcessStep("Detecting mouse...");
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
+
+  logElement = startBootProcessStep("Connecting to network...");
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
+  // showBlinkingCursor();
+
+  logElement = startBootProcessStep("Preloading default theme assets...");
+  await preloadThemeAssets("default");
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
+
+  const currentTheme = getCurrentTheme();
+  if (currentTheme !== "default") {
+    logElement = startBootProcessStep(
+      `Preloading ${currentTheme} theme assets...`,
+    );
+    await preloadThemeAssets(currentTheme);
+    finalizeBootProcessStep(logElement, "OK");
+    // showBlinkingCursor();
+  }
+
+  logElement = startBootProcessStep("Loading theme stylesheets...");
   loadThemeStylesheets();
-  updateProgress(40, "Loading custom applications...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
+  logElement = startBootProcessStep("Loading custom applications...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
   loadCustomApps();
-  updateProgress(60, "Initializing taskbar...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
 
+  logElement = startBootProcessStep("Creating main UI...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  createMainUI();
+  initScreenManager(); // Initialize the screen manager
+  initColorModeManager(document.body);
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
+
+  logElement = startBootProcessStep("Initializing taskbar...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
   taskbar.init();
-  updateProgress(80, "Setting up desktop...");
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
+
+  logElement = startBootProcessStep("Setting up desktop...");
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await initDesktop();
+  finalizeBootProcessStep(logElement, "OK");
+  // showBlinkingCursor();
+
+  const bootLogEl = document.getElementById("boot-log");
+  if (bootLogEl) {
+      const finalMessage = document.createElement("div");
+      finalMessage.textContent = "azOS Ready!";
+      bootLogEl.appendChild(finalMessage);
+  }
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  initDesktop();
-  updateProgress(100, "azOS Ready!");
-  await new Promise((resolve) => setTimeout(resolve, 50));
-
-  // Close the progress window using its own method
-  progressWindow.close();
+  await promptToContinue();
+  hideBootScreen();
 
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
   window.setTheme = setTheme;
+  window.System.launchApp = launchApp;
   console.log("azOS initialized");
 
   playSound("WindowsLogon");
+
+  let inactivityTimer;
+
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    if (screensaver.active) {
+      screensaver.hide();
+    }
+
+    const timeoutDuration = getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 5 * 60 * 1000;
+
+    inactivityTimer = setTimeout(() => {
+      screensaver.show();
+    }, timeoutDuration);
+  }
+
+  window.System.resetInactivityTimer = resetInactivityTimer;
+
+  window.addEventListener('mousemove', resetInactivityTimer);
+  window.addEventListener('mousedown', resetInactivityTimer);
+  window.addEventListener('keydown', resetInactivityTimer);
+
+  resetInactivityTimer();
 }
 
 initializeOS();

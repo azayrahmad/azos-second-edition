@@ -1,7 +1,7 @@
 import { Application } from '../Application.js';
 import { createTaskbarButton, removeTaskbarButton, updateTaskbarButton } from '../../components/taskbar.js';
 import { ICONS } from '../../config/icons.js';
-import { openApps } from '../Application.js';
+import { appManager } from '../../utils/appManager.js';
 
 let webampInstance = null;
 let webampContainer = null;
@@ -50,7 +50,7 @@ export class WebampApp extends Application {
                 });
 
                 webampInstance.onMinimize(() => this.minimizeWebamp());
-                webampInstance.onClose(() => this.close());
+                webampInstance.onClose(() => appManager.closeApp(this.id));
 
                 webampInstance.renderWhenReady(webampContainer).then(() => {
                     this.setupTaskbarButton();
@@ -108,7 +108,7 @@ export class WebampApp extends Application {
         }
     }
 
-    close() {
+    _cleanup() {
         if (webampContainer) {
             webampContainer.remove();
             webampContainer = null;
@@ -124,8 +124,5 @@ export class WebampApp extends Application {
             webampTaskbarButton = null;
         }
         isMinimized = false;
-
-        // Remove from open apps list
-        openApps.delete(this.id);
     }
 }
