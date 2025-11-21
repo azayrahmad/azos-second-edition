@@ -1139,3 +1139,28 @@ so I think I'll imitate that. (I might change it later) */
 }
 
 /*# sourceMappingURL=windows-98.css.map */
+
+/* Menu Animations */
+:root {
+    --menu-animation-duration: 130ms;
+}
+
+.menu-wrapper {
+    position: absolute;
+    overflow: hidden;
+    pointer-events: auto;
+	z-index: 10000;
+}
+
+.menu-wrapper .menu-popup {
+    animation-duration: var(--menu-animation-duration);
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes diag-100-100 { from { transform: translate(-100%, -100%); } to { transform: translate(0,0); } }
+@keyframes diag100-100 { from { transform: translate(100%, -100%); } to { transform: translate(0,0); } }
+@keyframes diag-100100 { from { transform: translate(-100%, 100%); } to { transform: translate(0,0); } }
+@keyframes diag100100 { from { transform: translate(100%, 100%); } to { transform: translate(0,0); } }
+@keyframes slide-left { from { transform: translate(-100%, 0); } to { transform: translate(0, 0); } }
+@keyframes slide-right { from { transform: translate(100%, 0); } to { transform: translate(0, 0); } }

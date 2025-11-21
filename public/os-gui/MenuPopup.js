@@ -201,8 +201,10 @@
             parentMenuPopup: this,
           });
           submenu_popup_el = submenu_popup.element;
-          document.body?.appendChild(submenu_popup_el);
-          submenu_popup_el.style.display = "none";
+          const wrapper = E("div", { class: "menu-wrapper" });
+          wrapper.appendChild(submenu_popup_el);
+          document.body?.appendChild(wrapper);
+          wrapper.style.display = "none";
           item_el.setAttribute("aria-haspopup", "true");
           item_el.setAttribute("aria-expanded", "false");
           item_el.setAttribute("aria-controls", submenu_popup_el.id);
@@ -217,7 +219,7 @@
             if (typeof window.playSound === "function") {
               window.playSound("MenuPopup");
             }
-            if (submenu_popup_el.style.display !== "none") {
+            if (wrapper.style.display !== "none") {
               return;
             }
             if (item_el.getAttribute("aria-disabled") === "true") {
@@ -225,14 +227,14 @@
             }
             close_submenus_at_this_level();
             item_el.setAttribute("aria-expanded", "true");
-            submenu_popup_el.style.display = "";
-            submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
+            wrapper.style.display = "";
+            wrapper.style.zIndex = `${get_new_menu_z_index()}`;
             submenu_popup_el.setAttribute("dir", get_direction());
             if (window.inheritTheme) {
               window.inheritTheme(submenu_popup_el, menu_popup_el);
             }
-            if (!submenu_popup_el.parentElement) {
-              document.body.appendChild(submenu_popup_el);
+            if (!wrapper.parentElement) {
+              document.body.appendChild(wrapper);
             }
             submenu_popup_el.dispatchEvent(new CustomEvent("update", {}));
             if (highlight_first) {
@@ -241,39 +243,49 @@
             } else {
               submenu_popup.highlight(-1);
             }
+
             const rect = item_el.getBoundingClientRect();
             let submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-            submenu_popup_el.style.position = "absolute";
-            submenu_popup_el.style.left = `${(get_direction() === "rtl" ? rect.left - submenu_popup_rect.width : rect.right) + window.scrollX}px`;
-            submenu_popup_el.style.top = `${rect.top + window.scrollY}px`;
-            submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
+            let x, y;
+            let fromX;
+
+            y = rect.top + window.scrollY;
+
             if (get_direction() === "rtl") {
-              if (submenu_popup_rect.left < 0) {
-                submenu_popup_el.style.left = `${rect.right}px`;
-                submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-                if (submenu_popup_rect.right > innerWidth) {
-                  submenu_popup_el.style.left = `${innerWidth - submenu_popup_rect.width}px`;
-                }
+              x = rect.left - submenu_popup_rect.width + window.scrollX;
+              fromX = 100;
+              if (x < 0) {
+                x = rect.right + window.scrollX;
+                fromX = -100;
               }
             } else {
-              if (submenu_popup_rect.right > innerWidth) {
-                submenu_popup_el.style.left = `${rect.left - submenu_popup_rect.width}px`;
-                submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-                if (submenu_popup_rect.left < 0) {
-                  submenu_popup_el.style.left = "0";
-                }
+              x = rect.right + window.scrollX;
+              fromX = -100;
+              if (x + submenu_popup_rect.width > innerWidth) {
+                x = rect.left - submenu_popup_rect.width + window.scrollX;
+                fromX = 100;
               }
             }
-            submenu_popup_rect = submenu_popup_el.getBoundingClientRect(); // Recalculate after horizontal adjustments
-            if (submenu_popup_rect.bottom > innerHeight) {
-              submenu_popup_el.style.top = `${Math.max(0, innerHeight - submenu_popup_rect.height) + window.scrollY}px`;
+
+            if (y + submenu_popup_rect.height > innerHeight) {
+              y = Math.max(0, innerHeight - submenu_popup_rect.height) + window.scrollY;
             }
+
+            wrapper.style.left = `${x}px`;
+            wrapper.style.top = `${y}px`;
+            wrapper.style.width = `${submenu_popup_rect.width}px`;
+            wrapper.style.height = `${submenu_popup_rect.height}px`;
+
+            submenu_popup_el.style.animation = "none";
+            submenu_popup_el.style.transform = `translate(${fromX}%, 0)`;
+            void submenu_popup_el.offsetHeight; // force reflow
+            submenu_popup_el.style.animationName = fromX === -100 ? "slide-left" : "slide-right";
             submenu_popup_el.focus({ preventScroll: true });
             options.setActiveMenuPopup(submenu_popup);
           };
           submenus.push({
             item_el,
-            submenu_popup_el,
+            submenu_popup_el: wrapper, // Use wrapper here
             submenu_popup,
           });
           function close_submenus_at_this_level() {
@@ -285,7 +297,7 @@
           }
           let open_tid;
           let close_tid;
-          submenu_popup_el.addEventListener("pointerenter", () => {
+          wrapper.addEventListener("pointerenter", () => {
             if (open_tid) {
               clearTimeout(open_tid);
               open_tid = null;
