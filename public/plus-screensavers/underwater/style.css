@@ -1,0 +1,63 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black; /* Added a black background color for areas not covered by the tile */
+}
+
+.coral-left-image {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+.coral-right-image {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.bubble {
+    position: absolute;
+    width: 48px; /* Estimated width of a single bubble frame */
+    height: 170px; /* Estimated height of a single bubble frame */
+    background-image: url("src/images/bubbles.png"); /* Assuming the sprite is placed here */
+    background-repeat: no-repeat;
+    background-size: 1296px 170px; /* Total width of the sprite sheet and height */
+    opacity: 0; /* Hidden by default, will be made visible by JS */
+    pointer-events: none; /* Bubbles should not interfere with mouse events */
+}
+
+.bubble.animate {
+    animation: bubble-pop 2.7s steps(27) forwards; /* 8 frames, 0.1s per frame */
+}
+
+#bubble1 {
+    bottom: 327px;
+    left: 92px;
+}
+
+#bubble2 {
+    bottom: 104px;
+    left: 190px;
+}
+
+#bubble3 {
+    bottom: 80px;
+    left: 285px;
+}
+
+#bubble4 {
+    bottom: 180px;
+    right: 23px;
+}
+
+@keyframes bubble-pop {
+    0% {
+        background-position-x: 0;
+        opacity: 1; /* Start visible */
+        transform: translateY(0);
+    }
+    100% {
+        background-position-x: -1296px; /* Moves through all frames */
+        opacity: 1; /* Fade out at the end */
+    }
+}
