@@ -1,15 +1,17 @@
-# Clippy App
+# Assistant 
+
+A recreation of Microsoft Office Assistant in JavaScript. Based on [ClippyJS](https://github.com/clippyjs/clippy.js) by Smore, but enhanced with Text-to-Speech capability and answers powered by Large Language Model (Gemini API). Ask any question about azOS, Assistant will help you.
 
 ## Purpose
 
-The Clippy app provides an interactive and engaging way for users to learn about Aziz Rahmad's resume and professional background. It features the classic Microsoft Office Assistant, which can answer natural language questions about skills, experience, education, and projects.
+I originally built this as a companion to my portfolio website, the original azOS, before I shifted my focus here. Sort of like an interactive resume where, instead of reading a resume, you ask Assistant about me, my qualifications and work experiences, and it will answer. Now Assistant works here, meaning it will answer anything you ask about azOS. You can still ask it about my resume though.
 
 ## Key Features
 
-- **Interactive AI Assistant**: A fully animated Clippy character that responds to user questions with spoken answers and expressive animations.
-- **Resume Q&A**: Powered by a custom API, the assistant can answer questions like "What are your technical skills?" or "Tell me about your work experience."
-- **Text-to-Speech**: Clippy's responses are read aloud using the browser's built-in voice synthesis.
-- **Agent Selection**: Users can switch between different agents, such as "Clippy" and "Genius."
+- **Interactive AI Assistant**: A fully animated Assistant character that responds to user questions with spoken answers and expressive animations. Assistant will try to classify your question and match it with its knowledge library and respond based on its finding.
+- **azOS Q&A**: Ask any questions about azOS Second Edition, and it will provide an answer. Try asking it about itself for Easter eggs. I have put some safeguards around its instruction, so it won't answer any question outside its assigned job, sorry.
+- **Text-to-Speech**: Assistant's responses are read aloud using the browser's built-in voice synthesis. Some older mobile browsers I tested are not compatible with this though, I'm working on it. 
+- **Agent Selection**: Users can switch between different agents, such as "Clippy" and "Genius." I intend to implement distinct personality for each agent character, but for now, whichever character you use it will refer to itself as Clippy.
 - **Context Menu**: Right-clicking on the agent provides quick access to actions like asking a question, triggering a random animation, or closing the app.
 
 ## How to Use
@@ -21,9 +23,14 @@ The Clippy app provides an interactive and engaging way for users to learn about
 ## Technologies Used
 
 - **AI and Backend**:
-  - **Resume Chat API**: A custom API that processes natural language questions and returns structured responses with answer text and animation cues.
+  - **Resume Chat API**: A custom API that processes natural language questions and returns structured responses with answer text and animation cues. The API is hosted in Vercel. The assistant instruction is stored here. What it does is essentially just package your question with the instruction and send it to an LLM provider and sent the answer back to Assistant. Currently the LLM providers used are Gemini API and Groq.
 - **Frontend**:
-  - **Clippy.js**: The core library for rendering the animated agent.
-  - **Web Speech API**: For text-to-speech functionality.
-  - **jQuery**: Used for DOM manipulation and animations.
-  - **os-gui**: The UI component library for windows and menus.
+  - **Clippy.js**: The core library for rendering the animated agent. This is heavily modified from the original code to fit my vision.
+  - **Web Speech API**: For text-to-speech functionality, this should be available in your browsers already.
+
+## What's Next
+
+- Ability to comment on user interaction when idle.
+- Custom user provided LLM Provider for OpenAI-compatible API.
+- Distinct personality for each agent character. 
+- Improved animation and speech 
