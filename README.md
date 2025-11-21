@@ -1,6 +1,6 @@
 # azOS, Second Edition
 
-A web-based JavaScript remake of Windows 98 desktop experience, focusing on desktop themes.
+A web-based JavaScript remake of Windows 98 desktop experience, focusing on desktop themes customization. 
 
 ## Live Demo
 
@@ -39,6 +39,7 @@ Experience azOS Second Edition live: **[azOS Second Edition](https://azayrahmad.
 - **Assistant**: Clippy the Office Assistant has been resurrected, now powered with AI. Ask any question about azOS. Can even give you a short tour of the OS. For more details, see the [Clippy App README](./src/apps/clippy/README.md).
 - **Notepad**: Your basic text editor, now with added syntax highlighting, code formatting, and Markdown preview. For more details, see the [Notepad App README](./src/apps/notepad/README.md).
 - **Winamp**: Play your favorite songs and playlists here. Customize with your own skins. A faithful recreation of the classic Winamp music player that runs directly on the desktop. For more details, see the [Webamp App README](./src/apps/webamp/README.md).
+- **Internet Explorer**: Surf the Internet like it was 1998. With Retro Mode enabled, you will be brought to 1998 archived version of your favorite websites.
 - **Pinball**: A web port of Space Cadet Pinball.
 
 For a full list of applications and instructions on how to create your own, refer to the [Application Development Guide](./src/apps/README.md).
@@ -74,3 +75,23 @@ To run this project locally, follow these steps:
     npm run dev
     ```
     The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
+
+## Asset Sources
+
+azOS Second Edition uses a mixture of:
+
+- original assets created specifically for this project,
+- third-party open-source recreations
+- visual elements derived from classic Windows operating systems for the purpose of historical interface recreation and compatibility.
+
+Some graphical elements may have been redrawn, color-corrected, resized, or otherwise transformed from their original form to ensure they render correctly in modern browsers.
+
+These assets are provided strictly for:
+- educational
+- archival
+- non-commercial
+- fair-use–oriented
+
+purposes.
+
+All rights to the original Windows artwork, icons, cursors, and media belong to Microsoft Corporation.
