@@ -272,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
     threadfin.style.setProperty("--end-x", `${endXRight}vw`);
     threadfin.style.setProperty("--end-y", `${endYRight}vh`);
 
-    threadfin.style.animation = `threadfin-swim 1s steps(10) infinite, move-right-30deg 15s linear forwards`;
+    threadfin.style.animation = `threadfin-swim 1s steps(10) infinite, move-right-30deg 25s linear forwards`;
 
     await new Promise((resolve) => {
       const handler = (event) => {
@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     threadfin.style.setProperty("--end-x", `${endXLeft}vw`);
     threadfin.style.setProperty("--end-y", `${endYLeft}vh`);
 
-    threadfin.style.animation = `threadfin-swim 1s steps(10) infinite, move-left-30deg 15s linear forwards`;
+    threadfin.style.animation = `threadfin-swim 1s steps(10) infinite, move-left-30deg 25s linear forwards`;
 
     await new Promise((resolve) => {
       const handler = (event) => {

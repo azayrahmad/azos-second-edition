@@ -92,7 +92,7 @@ body {
         background-position-x: 0;
     }
     to {
-        background-position-x: -1350px; /* 10 frames * 150px = 1500px total width, end at 1500px - 150px = 1350px */
+        background-position-x: -1500px; /* 10 frames * 150px = 1500px total width, end at 1500px - 150px = 1350px */
     }
 }
 
