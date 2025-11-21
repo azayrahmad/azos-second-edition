@@ -4,13 +4,24 @@ This guide provides instructions on how to add new applications to azOS Second E
 
 ## Applications
 
+- **[3D Pinball](./pinball/README.md)**: A classic "Space Cadet" pinball game.
 - **[About](./about/README.md)**: A simple utility that displays information about the azOS Second Edition operating system.
-- **[Clippy](./clippy/README.md)**: An interactive AI assistant that can answer questions about Aziz Rahmad's resume and professional background.
+- **[App Maker](./appmaker/README.md)**: A tool to create custom, windowed applications using HTML.
+- **[Clippy](./clippy/README.md)**: An interactive AI assistant.
+- **[Desktop Themes](./desktopthemes/README.md)**: A utility for managing and previewing desktop visual themes.
+- **[Display Properties](./displayproperties/README.md)**: A tool for customizing wallpaper, screen savers, and display settings.
+- **[Explorer](./explorer/README.md)**: A file and folder navigation tool for the virtual file system.
+- **[Image Resizer](./image-resizer/README.md)**: A utility to enlarge images using nearest-neighbor scaling.
+- **[Image Viewer](./imageviewer/README.md)**: A simple application for viewing and editing image files.
+- **[Internet Explorer](./internet-explorer/README.md)**: A web browser with a "Retro Mode" for viewing websites from 1998.
 - **[Notepad](./notepad/README.md)**: A powerful text editor with syntax highlighting, code formatting, and Markdown preview.
+- **[Paint](./paint/README.md)**: A classic drawing and image editing application.
 - **[PDF Viewer](./pdfviewer/README.md)**: A simple application for viewing PDF documents.
+- **[Sound Scheme Explorer](./soundschemeexplorer/README.md)**: A utility to browse and preview system sound schemes.
+- **[Task Manager](./taskmanager/README.md)**: A utility to view and close running applications.
 - **[Theme to CSS](./themetocss/README.md)**: A developer utility to convert `.theme` INI files into CSS.
 - **[Tip of the Day](./tipOfTheDay/README.md)**: A helpful utility that displays useful hints and tricks to the user upon startup.
-- **[Webamp](./webamp/README.md)**: A faithful recreation of the classic Winamp music player that runs directly on the desktop.
+- **[Webamp](./webamp/README.md)**: A faithful recreation of the classic Winamp music player.
 
 ## Adding New Applications
 
