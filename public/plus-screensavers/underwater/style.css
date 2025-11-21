@@ -62,6 +62,31 @@ body {
     }
 }
 
+/* Triggerfish Fish Animation */
+.triggerfish {
+    width: 160px; /* A single frame's width */
+    height: 100px; /* A single frame's height */
+    background-image: url("src/images/triggerfish.png");
+    background-size: 960px 100px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: -100px; /* Start off-screen */
+    left: -100px; /* Start off-screen */
+    z-index: 6; /* Ensure it's above threadfin */
+    will-change: transform, background-position;
+    image-rendering: pixelated;
+    display: none; /* Initially hidden */
+}
+
+@keyframes triggerfish-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -960px; /* 6 frames * 160px = 960px */
+    }
+}
+
 .shark-fin {
     position: absolute;
     bottom: 5%; /* Adjust vertical position as needed */
@@ -118,13 +143,44 @@ body {
         transform: translate(
                 calc(var(--start-x, 100vw) + 150px),
                 calc(var(--start-y, 25vh) - 96px)
-            )
-            scaleX(-1);
+            );
     }
     100% {
         transform: translate(
                 calc(var(--end-x, 0vw) - 150px),
                 calc(var(--end-y, 75vh) + 96px)
+            );
+    }
+}
+
+/* New Triggerfish Keyframes */
+@keyframes move-right-30deg-triggerfish {
+    0% {
+        transform: translate(
+            calc(var(--start-x, 0vw) - 160px),
+            calc(var(--start-y, 15vh) - 100px)
+        );
+    }
+    100% {
+        transform: translate(
+            calc(var(--end-x, 100vw) + 160px),
+            calc(var(--end-y, 65vh) + 100px)
+        );
+    }
+}
+
+@keyframes move-left-30deg-triggerfish {
+    0% {
+        transform: translate(
+                calc(var(--start-x, 100vw) + 160px),
+                calc(var(--start-y, 15vh) - 100px)
+            )
+            scaleX(-1);
+    }
+    100% {
+        transform: translate(
+                calc(var(--end-x, 0vw) - 160px),
+                calc(var(--end-y, 65vh) + 100px)
             )
             scaleX(-1);
     }

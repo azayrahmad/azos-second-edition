@@ -42,6 +42,19 @@ const ANIMATION_CONFIGS = {
         left: { startX: 100, startY: 25, endX: 0, endY: 75 },  // From top-right to bottom-left
     }
   },
+
+  // Triggerfish Animator
+  triggerfish: {
+    minDelaySeconds: 15, // Initial random wait before triggerfish appears and between movements
+    maxDelaySeconds: 20,
+    swimSpriteDurationSeconds: 1, // Duration of the triggerfish's swimming sprite animation (CSS property)
+    swimPathDurationSeconds: 15, // Duration for the triggerfish to cross the screen (CSS animation)
+    swimSpriteSteps: 6, // Number of steps in the triggerfish's swimming sprite
+    startPositions: { // Viewport-based start positions for triggerfish
+        right: { startX: 0, startY: 15, endX: 100, endY: 65 }, // From top-left to bottom-right
+        left: { startX: 100, startY: 15, endX: 0, endY: 65 },  // From top-right to bottom-left
+    }
+  },
 };
 
 export default ANIMATION_CONFIGS;

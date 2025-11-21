@@ -2,7 +2,7 @@ import AudioPlayer from "./AudioPlayer.js";
 import BubbleAnimator from "./BubbleAnimator.js";
 import SharkAnimator from "./SharkAnimator.js";
 import SeahorseAnimator from "./SeahorseAnimator.js";
-import ThreadfinAnimator from "./ThreadfinAnimator.js";
+import FishAnimator from "./FishAnimator.js";
 import ANIMATION_CONFIGS from "./configs.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -43,9 +43,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize Threadfin Animator
   const threadfin = document.querySelector(".threadfin");
-  const threadfinAnimator = new ThreadfinAnimator(
+  const threadfinAnimator = new FishAnimator(
     threadfin,
     ANIMATION_CONFIGS.threadfin,
+    "threadfin",
   );
   threadfinAnimator.startCycle();
+
+  // Initialize Triggerfish Animator
+  const triggerfish = document.querySelector(".triggerfish");
+  const triggerfishAnimator = new FishAnimator(
+    triggerfish,
+    ANIMATION_CONFIGS.triggerfish,
+    "triggerfish",
+  );
+  triggerfishAnimator.startCycle();
 });
