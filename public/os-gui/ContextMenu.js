@@ -39,15 +39,24 @@
     wrapper.appendChild(menuPopup.element);
     screen.appendChild(wrapper);
 
-    menuPopup.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
+    wrapper.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
 
     if (typeof window.playSound === "function") {
       window.playSound("MenuPopup");
     }
 
+    // Make the menu visible but off-screen to calculate its dimensions
+    menuPopup.element.style.display = 'block';
+    wrapper.style.display = 'block';
+    wrapper.style.visibility = 'hidden';
+    wrapper.style.left = '-9999px';
+    wrapper.style.top = '-9999px';
+
     const positionAt = (x, y) => {
         const screenRect = screen.getBoundingClientRect();
         const menuRect = menuPopup.element.getBoundingClientRect();
+
+        wrapper.style.visibility = 'visible'; // Make it visible now we have the dimensions
 
         const relX = x - screenRect.left;
         const relY = y - screenRect.top;
@@ -66,12 +75,12 @@
         }
 
         // Farthest corner logic:
-        // If the menu does NOT shift left, it opens to the right of the cursor.
+        // If the menu shifts left, it means the cursor was on the right side of the screen.
         // The farthest horizontal point is therefore the right edge (100%).
-        const fromX = willShiftLeft ? -100 : 100;
-        // If the menu does NOT shift up, it opens below the cursor.
+        const fromX = willShiftLeft ? 100 : -100;
+        // If the menu shifts up, it means the cursor was at the bottom of the screen.
         // The farthest vertical point is therefore the bottom edge (100%).
-        const fromY = willShiftUp ? -100 : 100;
+        const fromY = willShiftUp ? 100 : -100;
 
         finalX = Math.max(0, finalX);
         finalY = Math.max(0, finalY);

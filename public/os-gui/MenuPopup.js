@@ -227,7 +227,12 @@
             }
             close_submenus_at_this_level();
             item_el.setAttribute("aria-expanded", "true");
-            wrapper.style.display = "";
+            submenu_popup_el.style.display = "block";
+            wrapper.style.display = "block";
+            wrapper.style.visibility = "hidden";
+            wrapper.style.left = "-9999px";
+            wrapper.style.top = "-9999px";
+
             wrapper.style.zIndex = `${get_new_menu_z_index()}`;
             submenu_popup_el.setAttribute("dir", get_direction());
             if (window.inheritTheme) {
@@ -246,6 +251,7 @@
 
             const rect = item_el.getBoundingClientRect();
             let submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
+            wrapper.style.visibility = "visible";
             let x, y;
             let fromX;
 
