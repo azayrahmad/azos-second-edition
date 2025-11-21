@@ -71,6 +71,65 @@ body {
     z-index: 10; /* Ensure it's above other elements */
 }
 
+/* Threadfin Fish Animation */
+.threadfin {
+    width: 150px;
+    height: 96px;
+    background-image: url("src/images/threadfin.png");
+    background-size: 1500px 96px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: -100px; /* Start off-screen */
+    left: -100px; /* Start off-screen */
+    z-index: 5; /* Ensure it's above other elements */
+    will-change: transform, background-position;
+    image-rendering: pixelated; /* For crisp sprite scaling if needed */
+    display: none; /* Initially hidden, JS will show it */
+}
+
+@keyframes threadfin-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -1350px; /* 10 frames * 150px = 1500px total width, end at 1500px - 150px = 1350px */
+    }
+}
+
+/* Movement from Top-Left to Bottom-Right (no rotation, shallower angle) */
+@keyframes move-right-30deg {
+    0% {
+        transform: translate(
+            calc(var(--start-x, 0vw) - 150px),
+            calc(var(--start-y, 25vh) - 96px)
+        );
+    }
+    100% {
+        transform: translate(
+            calc(var(--end-x, 100vw) + 150px),
+            calc(var(--end-y, 75vh) + 96px)
+        );
+    }
+}
+
+/* Movement from Top-Right to Bottom-Left (no rotation, shallower angle, flipped) */
+@keyframes move-left-30deg {
+    0% {
+        transform: translate(
+                calc(var(--start-x, 100vw) + 150px),
+                calc(var(--start-y, 25vh) - 96px)
+            )
+            scaleX(-1);
+    }
+    100% {
+        transform: translate(
+                calc(var(--end-x, 0vw) - 150px),
+                calc(var(--end-y, 75vh) + 96px)
+            )
+            scaleX(-1);
+    }
+}
+
 .shark-fin-right {
     left: -200px; /* Start off-screen left */
     bottom: -20px;
@@ -101,4 +160,17 @@ body {
         right: 100vw; /* Move off-screen left */
         opacity: 1;
     }
+}
+
+.seahorse {
+    position: absolute;
+    bottom: -100px;
+    right: 250px;
+    width: 79px; /* Assuming single frame width */
+    height: 121px; /* Assuming single frame height */
+    background-image: url("src/images/seahorse.png");
+    background-size: 237px 121px; /* 3 frames * 79px width, 121px height */
+    background-position: 0 0;
+    overflow: hidden;
+    z-index: -10;
 }
