@@ -112,11 +112,11 @@ class StartMenu {
           ${dynamicItemsHTML}
           <div class="start-menu-divider" role="separator"></div>
           <li class="logoff-menu-item" role="menuitem" tabindex="0">
-            <img src="${ICONS.logoff[16]}" alt="Log off" loading="lazy">
+            <img src="${ICONS.logoff[32]}" alt="Log off" loading="lazy">
             <span id="logofftext">Log Off Guest...</span>
           </li>
           <li role="menuitem" tabindex="0" data-action="shutdown">
-            <img src="${ICONS.shutdown[16]}" alt="Shutdown" loading="lazy">
+            <img src="${ICONS.shutdown[32]}" alt="Shutdown" loading="lazy">
             <span>Shut Down...</span>
           </li>
         </ul>
@@ -298,7 +298,9 @@ class StartMenu {
       startMenu.style.animationName = "";
       startMenu.classList.remove("is-animating");
     };
-    startMenu.addEventListener("animationend", handleAnimationEnd, { once: true });
+    startMenu.addEventListener("animationend", handleAnimationEnd, {
+      once: true,
+    });
   }
 
   /**
@@ -322,7 +324,9 @@ class StartMenu {
       startMenu.classList.remove("is-animating");
       startMenu.setAttribute("aria-hidden", "true");
     };
-    startMenu.addEventListener("animationend", handleAnimationEnd, { once: true });
+    startMenu.addEventListener("animationend", handleAnimationEnd, {
+      once: true,
+    });
 
     startButton.classList.remove("selected"); // Changed from CLASSES.ACTIVE
     startButton.setAttribute("aria-pressed", "false"); // Added
