@@ -23,6 +23,7 @@ const CLASSES = {
 
 const ANIMATIONS = {
   SCROLL_UP: "scrollUp",
+  SCROLL_DOWN: "scrollDown",
 };
 
 /**
@@ -272,6 +273,7 @@ class StartMenu {
     startMenu.style.animationName = "";
 
     startMenu.classList.remove(CLASSES.HIDDEN);
+    startMenu.classList.add("is-animating");
     startButton.classList.add("selected"); // Changed from CLASSES.ACTIVE
     startButton.setAttribute("aria-pressed", "true"); // Added
     startMenu.setAttribute("aria-hidden", "false");
@@ -294,9 +296,9 @@ class StartMenu {
     // Reset animation after completion to prevent conflicts
     const handleAnimationEnd = () => {
       startMenu.style.animationName = "";
-      startMenu.removeEventListener("animationend", handleAnimationEnd);
+      startMenu.classList.remove("is-animating");
     };
-    startMenu.addEventListener("animationend", handleAnimationEnd);
+    startMenu.addEventListener("animationend", handleAnimationEnd, { once: true });
   }
 
   /**
@@ -311,10 +313,19 @@ class StartMenu {
     // Clear any running animations first
     startMenu.style.animationName = "";
 
-    startMenu.classList.add(CLASSES.HIDDEN);
+    startMenu.classList.add("is-animating");
+    startMenu.style.animationName = ANIMATIONS.SCROLL_DOWN;
+
+    const handleAnimationEnd = () => {
+      startMenu.classList.add(CLASSES.HIDDEN);
+      startMenu.style.animationName = "";
+      startMenu.classList.remove("is-animating");
+      startMenu.setAttribute("aria-hidden", "true");
+    };
+    startMenu.addEventListener("animationend", handleAnimationEnd, { once: true });
+
     startButton.classList.remove("selected"); // Changed from CLASSES.ACTIVE
     startButton.setAttribute("aria-pressed", "false"); // Added
-    startMenu.setAttribute("aria-hidden", "true");
     this.isVisible = false;
 
     this.openSubmenus.forEach((menu) => menu.close());
