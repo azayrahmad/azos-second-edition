@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Notepad is a versatile text editor for azOS Second Edition that goes beyond simple text editing. It is designed to be a powerful tool for both casual note-taking and serious coding, with features like syntax highlighting, code formatting, and Markdown preview.
+Notepad is a versatile text editor for azOS Second Edition, with features like syntax highlighting, code formatting, and Markdown preview. I don't think at this point it still should be called Notepad though, perhaps Code Editor.
+
+I made this mainly to help with my job. I often need to put code snippets for my teaching material, and this notepad can format my code and copy it along with syntax highlight to paste in my PowerPoint or Word documents. Give it a try!
 
 ## Key Features
 
@@ -34,4 +36,7 @@ Notepad is a versatile text editor for azOS Second Edition that goes beyond simp
   - **Marked.js**: For Markdown to HTML conversion.
 - **UI Components**:
   - **os-gui**: The UI component library for the main application window.
-  - **DialogWindow**: A custom component for creating consistent modal dialogs.
+
+## What's next 
+
+- Improve performance: Currently it's quite slow when loading a large document. Not sure how other online editors do it, but I wish I can improve this too.
