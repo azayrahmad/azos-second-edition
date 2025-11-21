@@ -1,0 +1,293 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black; /* Added a black background color for areas not covered by the tile */
+}
+
+.coral-left-image {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+.coral-right-image {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.bubble {
+    position: absolute;
+    width: 48px; /* Estimated width of a single bubble frame */
+    height: 170px; /* Estimated height of a single bubble frame */
+    background-image: url("src/images/bubbles.png"); /* Assuming the sprite is placed here */
+    background-repeat: no-repeat;
+    background-size: 1296px 170px; /* Total width of the sprite sheet and height */
+    opacity: 0; /* Hidden by default, will be made visible by JS */
+    pointer-events: none; /* Bubbles should not interfere with mouse events */
+}
+
+.bubble.animate {
+    animation: bubble-pop 2.7s steps(27) forwards; /* 8 frames, 0.1s per frame */
+}
+
+#bubble1 {
+    bottom: 327px;
+    left: 92px;
+}
+
+#bubble2 {
+    bottom: 104px;
+    left: 190px;
+}
+
+#bubble3 {
+    bottom: 80px;
+    left: 285px;
+}
+
+#bubble4 {
+    bottom: 180px;
+    right: 23px;
+}
+
+@keyframes bubble-pop {
+    0% {
+        background-position-x: 0;
+        opacity: 1; /* Start visible */
+        transform: translateY(0);
+    }
+    100% {
+        background-position-x: -1296px; /* Moves through all frames */
+        opacity: 1; /* Fade out at the end */
+    }
+}
+
+/* Triggerfish Fish Animation */
+.triggerfish {
+    width: 160px; /* A single frame's width */
+    height: 100px; /* A single frame's height */
+    background-image: url("src/images/triggerfish.png");
+    background-size: 960px 100px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: -100px; /* Start off-screen */
+    left: -100px; /* Start off-screen */
+    z-index: 6; /* Ensure it's above threadfin */
+    will-change: transform, background-position;
+    image-rendering: pixelated;
+    display: none; /* Initially hidden */
+}
+
+@keyframes triggerfish-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -960px; /* 6 frames * 160px = 960px */
+    }
+}
+
+/* Raccoon Fish Animation */
+.raccoon {
+    width: 142px; /* A single frame's width */
+    height: 89px; /* A single frame's height */
+    background-image: url("src/images/raccoon.png");
+    background-size: 852px 89px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: -100px; /* Start off-screen */
+    left: -100px; /* Start off-screen */
+    z-index: 4; /* Below other fish */
+    will-change: transform, background-position;
+    image-rendering: pixelated;
+    display: none; /* Initially hidden */
+}
+
+@keyframes raccoon-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -852px;
+    }
+}
+
+.shark-fin {
+    position: absolute;
+    bottom: 5%; /* Adjust vertical position as needed */
+    height: auto;
+    opacity: 0; /* Hidden by default */
+    pointer-events: none;
+    z-index: 10; /* Ensure it's above other elements */
+}
+
+/* Threadfin Fish Animation */
+.threadfin {
+    width: 150px;
+    height: 96px;
+    background-image: url("src/images/threadfin.png");
+    background-size: 1500px 96px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: -100px; /* Start off-screen */
+    left: -100px; /* Start off-screen */
+    z-index: 5; /* Ensure it's above other elements */
+    will-change: transform, background-position;
+    image-rendering: pixelated; /* For crisp sprite scaling if needed */
+    display: none; /* Initially hidden, JS will show it */
+}
+
+@keyframes threadfin-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -1500px; /* 10 frames * 150px = 1500px total width, end at 1500px - 150px = 1350px */
+    }
+}
+
+/* Movement from Top-Left to Bottom-Right (no rotation, shallower angle) */
+@keyframes move-right-30deg-threadfin {
+    0% {
+        transform: translate(
+            calc(var(--start-x, 0vw) - 150px),
+            calc(var(--start-y, 25vh) - 96px)
+        );
+    }
+    100% {
+        transform: translate(
+            calc(var(--end-x, 100vw) + 150px),
+            calc(var(--end-y, 75vh) + 96px)
+        );
+    }
+}
+
+/* Movement from Top-Right to Bottom-Left (no rotation, shallower angle, flipped) */
+@keyframes move-left-30deg-threadfin {
+    0% {
+        transform: translate(
+                calc(var(--start-x, 100vw) + 150px),
+                calc(var(--start-y, 25vh) - 96px)
+            )
+            scaleX(-1);
+    }
+
+    100% {
+        transform: translate(
+                calc(var(--end-x, 0vw) - 150px),
+                calc(var(--end-y, 75vh) + 96px)
+            )
+            scaleX(-1);
+    }
+}
+
+/* New Raccoon Keyframes */
+@keyframes move-right-30deg-raccoon {
+    0% {
+        transform: translate(
+            calc(var(--start-x, 0vw) - 190px),
+            calc(var(--start-y, 100vh) + 133px)
+        );
+    }
+    100% {
+        transform: translate(
+            calc(var(--end-x, 100vw) + 190px),
+            calc(var(--end-y, 0vh) - 133px)
+        );
+    }
+}
+
+@keyframes move-left-30deg-raccoon {
+    0% {
+        transform: translate(
+                calc(var(--start-x, 100vw) + 190px),
+                calc(var(--start-y, 100vh) + 133px)
+            )
+            scaleX(-1);
+    }
+    100% {
+        transform: translate(
+                calc(var(--end-x, 0vw) - 190px),
+                calc(var(--end-y, 0vh) - 133px)
+            )
+            scaleX(-1);
+    }
+}
+
+/* New Triggerfish Keyframes */
+@keyframes move-right-30deg-triggerfish {
+    0% {
+        transform: translate(
+            calc(var(--start-x, 0vw) - 160px),
+            calc(var(--start-y, 15vh) - 100px)
+        );
+    }
+    100% {
+        transform: translate(
+            calc(var(--end-x, 100vw) + 160px),
+            calc(var(--end-y, 65vh) + 100px)
+        );
+    }
+}
+
+@keyframes move-left-30deg-triggerfish {
+    0% {
+        transform: translate(
+                calc(var(--start-x, 100vw) + 160px),
+                calc(var(--start-y, 15vh) - 100px)
+            )
+            scaleX(-1);
+    }
+    100% {
+        transform: translate(
+                calc(var(--end-x, 0vw) - 160px),
+                calc(var(--end-y, 65vh) + 100px)
+            )
+            scaleX(-1);
+    }
+}
+
+.shark-fin-right {
+    left: -200px; /* Start off-screen left */
+    bottom: -20px;
+}
+
+.shark-fin-left {
+    right: -200px; /* Start off-screen right */
+    bottom: -20px;
+}
+
+@keyframes swim-right {
+    0% {
+        left: -200px; /* Start off-screen left */
+        opacity: 1;
+    }
+    100% {
+        left: 100vw; /* Move off-screen right */
+        opacity: 1;
+    }
+}
+
+@keyframes swim-left {
+    0% {
+        right: -200px; /* Start off-screen right */
+        opacity: 1;
+    }
+    100% {
+        right: 100vw; /* Move off-screen left */
+        opacity: 1;
+    }
+}
+
+.seahorse {
+    position: absolute;
+    bottom: -100px;
+    right: 250px;
+    width: 79px; /* Assuming single frame width */
+    height: 121px; /* Assuming single frame height */
+    background-image: url("src/images/seahorse.png");
+    background-size: 237px 121px; /* 3 frames * 79px width, 121px height */
+    background-position: 0 0;
+    overflow: hidden;
+    z-index: -10;
+}
