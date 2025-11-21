@@ -31,8 +31,8 @@ export class WebampApp extends Application {
             webampContainer.id = 'webamp-container';
             webampContainer.style.position = 'absolute';
             webampContainer.style.zIndex = $Window.Z_INDEX++;
-            webampContainer.style.left = '50px';
-            webampContainer.style.top = '50px';
+            webampContainer.style.left = '-9999px';
+            webampContainer.style.top = '-9999px';
             document.body.appendChild(webampContainer);
 
             webampContainer.addEventListener('mousedown', () => {
@@ -53,6 +53,36 @@ export class WebampApp extends Application {
                 webampInstance.onClose(() => appManager.closeApp(this.id));
 
                 webampInstance.renderWhenReady(webampContainer).then(() => {
+                    const webampElement = document.getElementById('webamp');
+                    const screen = document.getElementById('screen');
+
+                    if (webampElement && screen) {
+                        const windows = webampElement.querySelectorAll('#main-window, #playlist-window, #equalizer-window');
+                        const containerRect = webampContainer.getBoundingClientRect();
+                        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+                        windows.forEach(win => {
+                            const rect = win.getBoundingClientRect();
+                            minX = Math.min(minX, rect.left);
+                            minY = Math.min(minY, rect.top);
+                            maxX = Math.max(maxX, rect.right);
+                            maxY = Math.max(maxY, rect.bottom);
+                        });
+
+                        const groupWidth = maxX - minX;
+                        const groupHeight = maxY - minY;
+                        const screenRect = screen.getBoundingClientRect();
+
+                        const targetX = screenRect.left + (screenRect.width - groupWidth) / 2;
+                        const targetY = screenRect.top + (screenRect.height - groupHeight) / 2;
+
+                        const offsetX = minX - containerRect.left;
+                        const offsetY = minY - containerRect.top;
+
+                        webampContainer.style.left = `${targetX - offsetX}px`;
+                        webampContainer.style.top = `${targetY - offsetY}px`;
+                    }
+
                     this.setupTaskbarButton();
                     this.showWebamp();
                     resolve(); // Resolve the promise once Webamp is ready
