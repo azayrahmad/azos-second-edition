@@ -270,6 +270,19 @@ button:not(:disabled):active img {
     }
 }
 
+.start-menu.is-animating {
+    pointer-events: none;
+}
+
+@keyframes scrollDown {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(100%);
+    }
+}
+
 .system-tray {
     height: 22px;
     background: var(--ButtonFace, #c0c0c0);
