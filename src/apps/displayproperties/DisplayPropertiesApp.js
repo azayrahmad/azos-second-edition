@@ -21,7 +21,9 @@ import {
 
 import "./displayproperties.css";
 import "./color-spectrum.css";
+import "./flowerbox-settings.css";
 import contentHtml from "./displayproperties.html?raw";
+import flowerboxSettingsHtml from "./flowerbox-settings.html?raw";
 import energystar from "../../assets/img/EnergyStarDisplay.png";
 
 const PALETTES = {
@@ -385,6 +387,9 @@ class DisplayPropertiesApp extends Application {
   // --- Screen Saver Tab ---
   _setupScreenSaverTab(win) {
     const $dropdown = win.$content.find("#screensaver-dropdown");
+    const $settingsButton = win.$content.find(
+      "#screensaver .settings-button",
+    );
     const $previewButton = win.$content.find(".preview-button");
     const $waitTimeInput = win.$content.find("#wait-time");
 
@@ -398,12 +403,14 @@ class DisplayPropertiesApp extends Application {
     // Set initial state
     $dropdown.val(this.selectedScreensaver);
     $waitTimeInput.val(this.screensaverTimeout);
+    this._updateSettingsButtonState($settingsButton, this.selectedScreensaver);
 
     // Event listeners
     $dropdown.on("change", (e) => {
       this.selectedScreensaver = $(e.target).val();
       this._updateScreensaverPreview(win);
       this._enableApplyButton(win);
+      this._updateSettingsButtonState($settingsButton, this.selectedScreensaver);
     });
 
     $waitTimeInput.on("change", (e) => {
@@ -416,17 +423,23 @@ class DisplayPropertiesApp extends Application {
         screensaverManager.showPreview(this.selectedScreensaver);
       }
     });
+
+    $settingsButton.on("click", () => {
+      if (this.selectedScreensaver === "flowerbox") {
+        this._showFlowerBoxSettings();
+      }
+    });
   }
 
   _updateScreensaverPreview(win) {
     const $preview = win.$content.find(".display-screensaver-preview");
     $preview.empty();
 
-    const screensaver = SCREENSAVERS[this.selectedScreensaver];
-    if (screensaver && screensaver.path) {
+    const url = screensaverManager.getScreensaverUrl(this.selectedScreensaver);
+    if (url) {
       applyBusyCursor(win.$content[0]);
       const $iframe = $("<iframe>")
-        .attr("src", `${import.meta.env.BASE_URL}${screensaver.path}`)
+        .attr("src", url)
         .css({
           width: "100%",
           height: "100%",
@@ -438,6 +451,70 @@ class DisplayPropertiesApp extends Application {
         });
       $preview.append($iframe);
     }
+  }
+
+  _updateSettingsButtonState($button, screensaverId) {
+    const isConfigurable =
+      SCREENSAVERS[screensaverId] && SCREENSAVERS[screensaverId].configurable;
+    $button.prop("disabled", !isConfigurable);
+  }
+
+  _showFlowerBoxSettings() {
+    const settingsWin = new window.$Window({
+      title: "3D FlowerBox Setup",
+      width: 420,
+      height: 350,
+      resizable: false,
+      modal: true,
+      parent: this.win,
+    });
+
+    settingsWin.$content.html(flowerboxSettingsHtml);
+
+    const $okButton = settingsWin.$content.find(".ok-button");
+    const $cancelButton = settingsWin.$content.find(".cancel-button");
+
+    // Load settings from localStorage
+    const savedSettings = getItem("flowerbox.settings");
+    if (savedSettings) {
+      settingsWin.$content
+        .find(`input[name="coloring"][value="${savedSettings.coloring}"]`)
+        .prop("checked", true);
+      settingsWin.$content.find("#cb-smooth").prop("checked", savedSettings.smooth);
+      settingsWin.$content.find("#cb-slanted").prop("checked", savedSettings.slanted);
+      settingsWin.$content.find("#cb-cycle").prop("checked", savedSettings.cycle);
+      settingsWin.$content
+        .find("#complexity-slider")
+        .val(savedSettings.complexity);
+      settingsWin.$content.find("#size-slider").val(savedSettings.size);
+      settingsWin.$content.find("#cb-spin").prop("checked", savedSettings.spin);
+      settingsWin.$content.find("#cb-bloom").prop("checked", savedSettings.bloom);
+      settingsWin.$content.find("#shape-select").val(savedSettings.shape);
+    }
+
+    $okButton.on("click", () => {
+      const settings = {
+        coloring: settingsWin.$content
+          .find('input[name="coloring"]:checked')
+          .val(),
+        smooth: settingsWin.$content.find("#cb-smooth").is(":checked"),
+        slanted: settingsWin.$content.find("#cb-slanted").is(":checked"),
+        cycle: settingsWin.$content.find("#cb-cycle").is(":checked"),
+        complexity: settingsWin.$content.find("#complexity-slider").val(),
+        size: settingsWin.$content.find("#size-slider").val(),
+        spin: settingsWin.$content.find("#cb-spin").is(":checked"),
+        bloom: settingsWin.$content.find("#cb-bloom").is(":checked"),
+        shape: settingsWin.$content.find("#shape-select").val(),
+      };
+      setItem("flowerbox.settings", settings);
+      this._updateScreensaverPreview(this.win); // Refresh preview
+      this._enableApplyButton(this.win);
+      settingsWin.close();
+    });
+
+    $cancelButton.on("click", () => {
+      settingsWin.close();
+    });
   }
 }
 
