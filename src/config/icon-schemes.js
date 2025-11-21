@@ -2,11 +2,27 @@ import { ICONS } from "./icons.js";
 
 // A helper function to create the icon object, pointing to both 16 and 32 sizes
 const createIcon = (path) => {
-  const name = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
-  const dir = path.substring(0, path.lastIndexOf("/") + 1);
+  // Normalize to forward slashes just for parsing; we won't change the original dir
+  const normalized = path.replace(/\\/g, "/");
+
+  const lastSlash = normalized.lastIndexOf("/");
+  const lastDot = normalized.lastIndexOf(".");
+
+  // If no extension or no slash, bail out clearly
+  if (lastSlash === -1 || lastDot === -1 || lastDot <= lastSlash) {
+    throw new Error(`Invalid path (missing directory or extension): ${path}`);
+  }
+
+  // Extract dir exactly from the ORIGINAL path string (preserves ../, etc.)
+  const dir = path.substring(0, lastSlash + 1);
+
+  // Extract base name (without extension), using normalized for robust parsing
+  const baseName = normalized.substring(lastSlash + 1, lastDot);
+
+  // Return strings that keep dir unchanged and replace only the file name
   return {
-    16: new URL(`${dir}${name}-16.png`, import.meta.url).href,
-    32: new URL(`${dir}${name}-32.png`, import.meta.url).href,
+    16: `${dir}${baseName}-16.png`,
+    32: `${dir}${baseName}-32.png`,
   };
 };
 
@@ -18,225 +34,675 @@ export const iconSchemes = {
     networkNeighborhood: ICONS.networkNeighborhood,
   },
   "dangerous-creatures": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Dangerous Creatures My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Dangerous Creatures Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Dangerous Creatures Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Dangerous Creatures Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Dangerous Creatures Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   "inside-your-computer": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Inside your Computer My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Inside your Computer Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Inside your Computer Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Inside your Computer Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Inside your Computer My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Inside your Computer My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Inside your Computer Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Inside your Computer Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Inside your Computer Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Inside your Computer Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Inside your Computer Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Inside your Computer Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   "leonardo-da-vinci": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Leonardo da Vinci My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Leonardo da Vinci Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Leonardo da Vinci Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Leonardo da Vinci Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Leonardo da Vinci Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   "more-windows": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/More Windows My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/More Windows Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/More Windows Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/More Windows Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/More Windows My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/More Windows My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/More Windows Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/More Windows Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/More Windows Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/More Windows Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/More Windows Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/More Windows Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   mystery: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Mystery My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Mystery Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Mystery Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Mystery Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Mystery My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Mystery My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Mystery Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Mystery Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Mystery Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Mystery Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Mystery Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Mystery Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   nature: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Nature My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Nature Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Nature Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Nature Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Nature My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Nature My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Nature Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Nature Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Nature Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Nature Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Nature Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Nature Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   science: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Science My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Science Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Science Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Science Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Science My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Science My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Science Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Science Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Science Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Science Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Science Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Science Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   sports: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Sports My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Sports Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Sports Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Sports Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Sports My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Sports My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Sports Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Sports Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Sports Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Sports Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Sports Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Sports Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   "60s-usa": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/The 60's USA My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/The 60's USA Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/The 60's USA Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/The 60's USA Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/The 60's USA My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The 60's USA My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/The 60's USA Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The 60's USA Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/The 60's USA Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The 60's USA Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/The 60's USA Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The 60's USA Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   "the-golden-era": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/The Golden Era My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/The Golden Era Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/The Golden Era Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/The Golden Era Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/The Golden Era My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The Golden Era My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/The Golden Era Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The Golden Era Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/The Golden Era Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The Golden Era Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/The Golden Era Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/The Golden Era Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   travel: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Travel My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Travel Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Travel Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Travel Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Travel My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Travel My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Travel Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Travel Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Travel Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Travel Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Travel Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Travel Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   "windows-98": {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Windows 98 My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Windows 98 Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Windows 98 Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Windows 98 Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Windows 98 My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Windows 98 My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Windows 98 Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Windows 98 Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Windows 98 Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Windows 98 Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Windows 98 Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Windows 98 Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   baseball: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Baseball My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Baseball Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Baseball Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Baseball Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Baseball My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Baseball My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Baseball Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Baseball Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Baseball Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Baseball Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Baseball Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Baseball Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   jungle: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Jungle My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Jungle Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Jungle Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Jungle Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Jungle My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Jungle My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Jungle Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Jungle Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Jungle Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Jungle Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Jungle Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Jungle Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   space: {
-    myComputer: createIcon("../assets/icons/theme-icons/Space My Computer.ico"),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Space Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Space Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Space Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Space My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Space My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Space Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Space Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Space Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Space Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Space Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Space Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
   underwater: {
-    myComputer: createIcon(
-      "../assets/icons/theme-icons/Underwater My Computer.ico",
-    ),
-    recycleBinEmpty: createIcon(
-      "../assets/icons/theme-icons/Underwater Recycle Empty.ico",
-    ),
-    recycleBinFull: createIcon(
-      "../assets/icons/theme-icons/Underwater Recycle Full.ico",
-    ),
-    networkNeighborhood: createIcon(
-      "../assets/icons/theme-icons/Underwater Network Neighborhood.ico",
-    ),
+    myComputer: {
+      16: new URL(
+        "../assets/icons/theme-icons/Underwater My Computer-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Underwater My Computer-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinEmpty: {
+      16: new URL(
+        "../assets/icons/theme-icons/Underwater Recycle Empty-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Underwater Recycle Empty-32.png",
+        import.meta.url,
+      ).href,
+    },
+    recycleBinFull: {
+      16: new URL(
+        "../assets/icons/theme-icons/Underwater Recycle Full-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Underwater Recycle Full-32.png",
+        import.meta.url,
+      ).href,
+    },
+    networkNeighborhood: {
+      16: new URL(
+        "../assets/icons/theme-icons/Underwater Network Neighborhood-16.png",
+        import.meta.url,
+      ).href,
+      32: new URL(
+        "../assets/icons/theme-icons/Underwater Network Neighborhood-32.png",
+        import.meta.url,
+      ).href,
+    },
   },
 };
