@@ -145,9 +145,57 @@ var vPosition;
 var nBuffer;
 var vNormal;
 var iBuffer;
+var subdiv = 13;
+
+// Parsed URL parameters with defaults
+var params = {};
+
+// Helper function to convert hex color to vec4
+function hexToVec4(hex) {
+    let r = parseInt(hex.substring(0, 2), 16) / 255;
+    let g = parseInt(hex.substring(2, 4), 16) / 255;
+    let b = parseInt(hex.substring(4, 6), 16) / 255;
+    return vec4(r, g, b, 1.0);
+}
+
+// Function to parse URL query parameters
+function getQueryParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    params = {
+        size: parseFloat(urlParams.get('size')) || 0.5,
+        spinSpeed: parseInt(urlParams.get('spinSpeed')) || 88,
+        complexity: parseInt(urlParams.get('complexity')) || 13,
+        bloom: urlParams.get('bloom') !== 'false',
+        coloring: urlParams.get('coloring') || 'per_side',
+        color: urlParams.get('color') || 'ff0000',
+        cycle: urlParams.get('cycle') === 'true'
+    };
+
+    // Assign params to global vars
+    sz = params.size;
+    speed_r = params.spinSpeed;
+    subdiv = params.complexity;
+}
+
 
 // Graphics Initialization
 window.onload = function init() {
+  getQueryParams();
+
+  // Handle one_color mode
+  if (params.coloring === 'one_color') {
+      const singleColorVec = hexToVec4(params.color);
+      const singleMaterial = new Material(
+          singleColorVec,
+          singleColorVec,
+          vec4(1.0, 1.0, 1.0, 1.0) // Keep specular white
+      );
+      materials = { single: singleMaterial };
+      for (const face in faces) {
+          faces[face].material = 'single';
+      }
+  }
+
   // Set up canvas
   canvas = document.getElementById("gl-canvas");
 
@@ -227,7 +275,9 @@ var render = function() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // Time and position calculations
-  time += delta_t
+  if (params.bloom) {
+    time += delta_t;
+  }
   pos[0] += speed_x
   pos[1] += speed_y
 
@@ -257,6 +307,23 @@ var render = function() {
   // Projection Matrix
   pjMatrix = perspective(perspProj.fov, perspProj.aspect, perspProj.near, perspProj.far);
   gl.uniformMatrix4fv(u_projMatrix, false, flatten(pjMatrix));
+
+  // Handle color cycling
+  if (params.cycle) {
+      let offset = 0;
+      for (const matName in materials) {
+          if (materials.hasOwnProperty(matName)) {
+              const material = materials[matName];
+              const r = 0.5 * (1 + Math.sin(time + offset));
+              const g = 0.5 * (1 + Math.sin(time + offset + 2));
+              const b = 0.5 * (1 + Math.sin(time + offset + 4));
+              const newColor = vec4(r, g, b, 1.0);
+              material.ambient = newColor;
+              material.diffuse = newColor;
+              offset += 1;
+          }
+      }
+  }
 
   // mvMatrix building
   var mvFoundation = lookAt(viewer.eye, viewer.at, viewer.up);
