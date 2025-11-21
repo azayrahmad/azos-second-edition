@@ -143,13 +143,15 @@ body {
         transform: translate(
                 calc(var(--start-x, 100vw) + 150px),
                 calc(var(--start-y, 25vh) - 96px)
-            );
+            )
+            scaleX(-1);
     }
     100% {
         transform: translate(
                 calc(var(--end-x, 0vw) - 150px),
                 calc(var(--end-y, 75vh) + 96px)
-            );
+            )
+            scaleX(-1);
     }
 }
 

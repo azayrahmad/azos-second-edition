@@ -96,10 +96,6 @@ class FishAnimator {
 
       // Phase 2: Move from top-right to bottom-left (left-facing)
       this.element.style.display = "block";
-      // The flip is handled in CSS for triggerfish, but in JS for threadfin.
-      if (this.fishName === "threadfin") {
-        this.element.style.transform = `scaleX(-1)`;
-      }
 
       this.element.style.setProperty(
         "--start-x",
