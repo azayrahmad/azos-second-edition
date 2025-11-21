@@ -35,4 +35,38 @@ document.addEventListener("DOMContentLoaded", () => {
   bubbles.forEach((bubble) => {
     startIndividualBubbleSchedule(bubble);
   });
+
+  const sharkFinRight = document.querySelector(".shark-fin-right");
+  const sharkFinLeft = document.querySelector(".shark-fin-left");
+  let nextFinDirection = "right"; // Initialize the first direction
+
+  function animateSharkFin(finElement, direction) {
+    finElement.style.opacity = 1; // Make it visible
+    let animationName = direction === "right" ? "swim-right" : "swim-left";
+    finElement.style.animation = `${animationName} 15s linear forwards`; // 15 seconds for crossing the screen
+
+    finElement.onanimationend = () => {
+      finElement.style.opacity = 0; // Hide it after animation
+      finElement.style.animation = ""; // Clear animation
+
+      // Toggle the next direction
+      nextFinDirection = direction === "right" ? "left" : "right";
+      startSharkFinCycle(); // Start the next cycle after this animation ends
+    };
+  }
+
+  function startSharkFinCycle() {
+    const delay = getRandomDelay(5, 10); // Random delay between 5-10 seconds
+
+    setTimeout(() => {
+      if (nextFinDirection === "right") {
+        animateSharkFin(sharkFinRight, "right");
+      } else {
+        animateSharkFin(sharkFinLeft, "left");
+      }
+    }, delay);
+  }
+
+  // Initial call to start the shark fin animation cycle
+  startSharkFinCycle();
 });

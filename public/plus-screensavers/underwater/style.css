@@ -61,3 +61,44 @@ body {
         opacity: 1; /* Fade out at the end */
     }
 }
+
+.shark-fin {
+    position: absolute;
+    bottom: 5%; /* Adjust vertical position as needed */
+    height: auto;
+    opacity: 0; /* Hidden by default */
+    pointer-events: none;
+    z-index: 10; /* Ensure it's above other elements */
+}
+
+.shark-fin-right {
+    left: -200px; /* Start off-screen left */
+    bottom: -20px;
+}
+
+.shark-fin-left {
+    right: -200px; /* Start off-screen right */
+    bottom: -20px;
+}
+
+@keyframes swim-right {
+    0% {
+        left: -200px; /* Start off-screen left */
+        opacity: 1;
+    }
+    100% {
+        left: 100vw; /* Move off-screen right */
+        opacity: 1;
+    }
+}
+
+@keyframes swim-left {
+    0% {
+        right: -200px; /* Start off-screen right */
+        opacity: 1;
+    }
+    100% {
+        right: 100vw; /* Move off-screen left */
+        opacity: 1;
+    }
+}
