@@ -55,6 +55,22 @@ const ANIMATION_CONFIGS = {
         left: { startX: 100, startY: 15, endX: 0, endY: 65 },  // From top-right to bottom-left
     }
   },
+
+  // Raccoon Animator
+  raccoon: {
+    minDelaySeconds: 5,
+    maxDelaySeconds: 10,
+    swimSpriteDurationSeconds: 1,
+    swimPathDurationSeconds: 25,
+    swimSpriteSteps: 6,
+    startPositions: {
+      right: { startX: 0, startY: 100, endX: 100, endY: 0 }, // From bottom-left to top-right
+      left: { startX: 100, startY: 100, endX: 0, endY: 0 }, // From bottom-right to top-left
+    },
+    moveRightAnimationName: "move-bottom-right-to-top-left",
+    moveLeftAnimationName: "move-bottom-left-to-top-right",
+    swimAnimationName: "raccoon-swim",
+  },
 };
 
 export default ANIMATION_CONFIGS;

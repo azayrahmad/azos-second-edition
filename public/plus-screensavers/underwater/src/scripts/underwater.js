@@ -58,4 +58,13 @@ document.addEventListener("DOMContentLoaded", () => {
     "triggerfish",
   );
   triggerfishAnimator.startCycle();
+
+  // Initialize Raccoon Animator
+  const raccoon = document.querySelector(".raccoon");
+  const raccoonAnimator = new FishAnimator(
+    raccoon,
+    ANIMATION_CONFIGS.raccoon,
+    "raccoon",
+  );
+  raccoonAnimator.startCycle();
 });

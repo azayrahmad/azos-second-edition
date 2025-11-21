@@ -21,6 +21,10 @@ export const SCREENSAVERS = {
     name: "Space",
     path: "plus-screensavers/space/index.html",
   },
+  underwater: {
+    name: "Underwater",
+    path: "plus-screensavers/underwater/index.html",
+  },
 };
 
 class Screensaver {
