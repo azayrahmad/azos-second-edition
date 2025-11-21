@@ -53,6 +53,7 @@ export const apps = [
   {
     id: "my-computer",
     title: "My Computer",
+    description: "Browse the files and folders on your computer.",
     get icon() {
       return getIcon("myComputer");
     },
@@ -66,6 +67,8 @@ export const apps = [
   {
     id: "recycle-bin",
     title: "Recycle Bin",
+    description:
+      "Contains files and folders that you have deleted. They can be recovered or permanently removed.",
     get icon() {
       const items = getRecycleBinItems();
       return items.length > 0
@@ -115,6 +118,7 @@ export const apps = [
   {
     id: "network-neighborhood",
     title: "Network Neighborhood",
+    description: "Browse network resources.",
     get icon() {
       return getIcon("networkNeighborhood");
     },
@@ -128,6 +132,7 @@ export const apps = [
   {
     id: "my-documents",
     title: "My Documents",
+    description: "A common repository for documents.",
     icon: ICONS.folder,
     action: {
       type: "function",
@@ -139,6 +144,7 @@ export const apps = [
   {
     id: "about",
     title: "About",
+    description: "Displays information about this application.",
     icon: ICONS.about,
     appClass: AboutApp,
     width: 500,
@@ -151,6 +157,7 @@ export const apps = [
   {
     id: "tipOfTheDay",
     title: "Tip of the Day",
+    description: "Provides useful tips about using the system.",
     icon: ICONS.tip,
     appClass: TipOfTheDayApp,
     width: 400,
@@ -167,6 +174,7 @@ export const apps = [
   {
     id: "pdfviewer",
     title: "PDF Viewer",
+    description: "View PDF documents.",
     icon: ICONS.pdf,
     appClass: PdfViewerApp,
     width: 800,
@@ -180,6 +188,7 @@ export const apps = [
   {
     id: "notepad",
     title: "Notepad",
+    description: "A simple text editor.",
     icon: ICONS.notepad,
     appClass: NotepadApp,
     width: 600,
@@ -196,6 +205,7 @@ export const apps = [
   {
     id: "image-resizer",
     title: "Image Resizer",
+    description: "Resize and convert images.",
     icon: ICONS.image,
     appClass: ImageResizerApp,
     width: 920,
@@ -206,6 +216,7 @@ export const apps = [
   {
     id: "image-viewer",
     title: "Image Viewer",
+    description: "View images.",
     icon: ICONS.imageViewer,
     appClass: ImageViewerApp,
     width: 400,
@@ -216,6 +227,7 @@ export const apps = [
   {
     id: "clippy",
     title: "Assistant",
+    description: "Your friendly assistant.",
     icon: ICONS.clippy,
     appClass: ClippyApp,
     hasTray: true,
@@ -232,6 +244,7 @@ export const apps = [
   {
     id: "webamp",
     title: "Winamp",
+    description: "A classic music player.",
     icon: ICONS.webamp,
     appClass: WebampApp,
     hasTaskbarButton: true,
@@ -247,6 +260,7 @@ export const apps = [
   {
     id: "appmaker",
     title: "App Maker",
+    description: "Create your own applications.",
     icon: ICONS.appmaker,
     appClass: AppMakerApp,
     width: 600,
@@ -257,6 +271,7 @@ export const apps = [
   {
     id: "alertTest",
     title: "Alert Test",
+    description: "A test for the alert dialog.",
     icon: ICONS.about,
     action: {
       type: "function",
@@ -274,6 +289,7 @@ export const apps = [
   {
     id: "themetocss",
     title: "Theme to CSS",
+    description: "Convert a Windows theme file to CSS.",
     icon: ICONS.themetocss,
     appClass: ThemeToCssApp,
     width: 700,
@@ -284,6 +300,7 @@ export const apps = [
   {
     id: "desktopthemes",
     title: "Desktop Themes",
+    description: "Customize your desktop's appearance.",
     icon: ICONS.desktopthemes,
     appClass: DesktopThemesApp,
     width: 550,
@@ -294,6 +311,7 @@ export const apps = [
   {
     id: "taskmanager",
     title: "Task Manager",
+    description: "Manage running applications.",
     icon: ICONS.windows,
     appClass: TaskManagerApp,
     width: 300,
@@ -304,6 +322,7 @@ export const apps = [
   {
     id: "soundschemeexplorer",
     title: "Sound Scheme Explorer",
+    description: "Explore and listen to sound schemes.",
     icon: ICONS.soundschemeexplorer,
     appClass: SoundSchemeExplorerApp,
     width: 400,
@@ -314,6 +333,7 @@ export const apps = [
   {
     id: "explorer",
     title: "Explorer",
+    description: "Browse files and folders.",
     icon: ICONS.computer,
     appClass: ExplorerApp,
     width: 640,
@@ -324,6 +344,7 @@ export const apps = [
   {
     id: "internet-explorer",
     title: "Internet Explorer",
+    description: "Browse the web.",
     icon: ICONS["internet-explorer"],
     appClass: InternetExplorerApp,
     width: 800,
@@ -334,6 +355,7 @@ export const apps = [
   {
     id: "pinball",
     title: "Pinball",
+    description: "Play a classic game of pinball.",
     icon: ICONS.pinball,
     appClass: PinballApp,
     width: 600,
@@ -344,6 +366,7 @@ export const apps = [
   {
     id: "paint",
     title: "Paint",
+    description: "Create and edit images.",
     icon: ICONS.paint,
     appClass: PaintApp,
     width: 800,
@@ -354,6 +377,7 @@ export const apps = [
   {
     id: "display-properties",
     title: "Display Properties",
+    description: "Customize your display settings.",
     icon: ICONS.displayProperties,
     appClass: DisplayPropertiesApp,
     width: 404,

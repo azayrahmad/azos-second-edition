@@ -51,7 +51,10 @@ function createDesktopIcon(item, isFile = false) {
 
   const iconDiv = document.createElement("div");
   iconDiv.className = "desktop-icon";
-  iconDiv.setAttribute("title", isFile ? item.filename : app.title);
+  iconDiv.setAttribute(
+    "title",
+    isFile ? item.filename : app.description || app.title
+  );
 
   const iconId = getIconId(app, isFile ? item.path : null);
   iconDiv.setAttribute("data-icon-id", iconId);
