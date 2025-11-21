@@ -17,15 +17,9 @@ class FishAnimator {
 
     // Use specific animation names from config if provided, otherwise generate them.
     this.moveRightAnimationName =
-      configs.moveRightAnimationName ||
-      (this.fishName === "threadfin"
-        ? "move-right-30deg"
-        : `move-right-30deg-${this.fishName}`);
+      configs.moveRightAnimationName || `move-right-30deg-${this.fishName}`;
     this.moveLeftAnimationName =
-      configs.moveLeftAnimationName ||
-      (this.fishName === "threadfin"
-        ? "move-left-30deg"
-        : `move-left-30deg-${this.fishName}`);
+      configs.moveLeftAnimationName || `move-left-30deg-${this.fishName}`;
     this.swimAnimationName =
       configs.swimAnimationName || `${this.fishName}-swim`;
   }
