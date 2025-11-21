@@ -37,10 +37,11 @@ const ANIMATION_CONFIGS = {
     swimSpriteDurationSeconds: 1, // Duration of the threadfin's swimming sprite animation (CSS property)
     swimPathDurationSeconds: 25, // Duration for the threadfin to cross the screen (CSS animation)
     swimSpriteSteps: 10, // Number of steps in the threadfin's swimming sprite
-    startPositions: { // Viewport-based start positions for threadfin
-        right: { startX: 0, startY: 25, endX: 100, endY: 75 }, // From top-left to bottom-right
-        left: { startX: 100, startY: 25, endX: 0, endY: 75 },  // From top-right to bottom-left
-    }
+    startPositions: {
+      // Viewport-based start positions for threadfin
+      right: { startX: 0, startY: 25, endX: 100, endY: 75 }, // From top-left to bottom-right
+      left: { startX: 100, startY: 25, endX: 0, endY: 75 }, // From top-right to bottom-left
+    },
   },
 
   // Triggerfish Animator
@@ -50,10 +51,25 @@ const ANIMATION_CONFIGS = {
     swimSpriteDurationSeconds: 1, // Duration of the triggerfish's swimming sprite animation (CSS property)
     swimPathDurationSeconds: 15, // Duration for the triggerfish to cross the screen (CSS animation)
     swimSpriteSteps: 6, // Number of steps in the triggerfish's swimming sprite
-    startPositions: { // Viewport-based start positions for triggerfish
-        right: { startX: 0, startY: 15, endX: 100, endY: 65 }, // From top-left to bottom-right
-        left: { startX: 100, startY: 15, endX: 0, endY: 65 },  // From top-right to bottom-left
-    }
+    startPositions: {
+      // Viewport-based start positions for triggerfish
+      right: { startX: 0, startY: 15, endX: 100, endY: 65 }, // From top-left to bottom-right
+      left: { startX: 100, startY: 15, endX: 0, endY: 65 }, // From top-right to bottom-left
+    },
+  },
+
+  // Raccoon Animator
+  raccoon: {
+    minDelaySeconds: 5,
+    maxDelaySeconds: 10,
+    swimSpriteDurationSeconds: 1,
+    swimPathDurationSeconds: 25,
+    swimSpriteSteps: 6,
+    startPositions: {
+      right: { startX: 0, startY: 65, endX: 100, endY: 15 }, // From bottom-left to top-right
+      left: { startX: 100, startY: 65, endX: 0, endY: 15 }, // From bottom-right to top-left
+    },
+    swimAnimationName: "raccoon-swim",
   },
 };
 

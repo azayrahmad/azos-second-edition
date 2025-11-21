@@ -87,6 +87,31 @@ body {
     }
 }
 
+/* Raccoon Fish Animation */
+.raccoon {
+    width: 142px; /* A single frame's width */
+    height: 89px; /* A single frame's height */
+    background-image: url("src/images/raccoon.png");
+    background-size: 852px 89px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: -100px; /* Start off-screen */
+    left: -100px; /* Start off-screen */
+    z-index: 4; /* Below other fish */
+    will-change: transform, background-position;
+    image-rendering: pixelated;
+    display: none; /* Initially hidden */
+}
+
+@keyframes raccoon-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -852px;
+    }
+}
+
 .shark-fin {
     position: absolute;
     bottom: 5%; /* Adjust vertical position as needed */
@@ -122,7 +147,7 @@ body {
 }
 
 /* Movement from Top-Left to Bottom-Right (no rotation, shallower angle) */
-@keyframes move-right-30deg {
+@keyframes move-right-30deg-threadfin {
     0% {
         transform: translate(
             calc(var(--start-x, 0vw) - 150px),
@@ -138,7 +163,7 @@ body {
 }
 
 /* Movement from Top-Right to Bottom-Left (no rotation, shallower angle, flipped) */
-@keyframes move-left-30deg {
+@keyframes move-left-30deg-threadfin {
     0% {
         transform: translate(
                 calc(var(--start-x, 100vw) + 150px),
@@ -146,10 +171,44 @@ body {
             )
             scaleX(-1);
     }
+
     100% {
         transform: translate(
                 calc(var(--end-x, 0vw) - 150px),
                 calc(var(--end-y, 75vh) + 96px)
+            )
+            scaleX(-1);
+    }
+}
+
+/* New Raccoon Keyframes */
+@keyframes move-right-30deg-raccoon {
+    0% {
+        transform: translate(
+            calc(var(--start-x, 0vw) - 190px),
+            calc(var(--start-y, 100vh) + 133px)
+        );
+    }
+    100% {
+        transform: translate(
+            calc(var(--end-x, 100vw) + 190px),
+            calc(var(--end-y, 0vh) - 133px)
+        );
+    }
+}
+
+@keyframes move-left-30deg-raccoon {
+    0% {
+        transform: translate(
+                calc(var(--start-x, 100vw) + 190px),
+                calc(var(--start-y, 100vh) + 133px)
+            )
+            scaleX(-1);
+    }
+    100% {
+        transform: translate(
+                calc(var(--end-x, 0vw) - 190px),
+                calc(var(--end-y, 0vh) - 133px)
             )
             scaleX(-1);
     }

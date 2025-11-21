@@ -15,16 +15,13 @@ class FishAnimator {
     this.fishName = fishName;
     this.isStopped = false;
 
-    // Handle inconsistent animation naming in the CSS
+    // Use specific animation names from config if provided, otherwise generate them.
     this.moveRightAnimationName =
-      this.fishName === "threadfin"
-        ? "move-right-30deg"
-        : `move-right-30deg-${this.fishName}`;
+      configs.moveRightAnimationName || `move-right-30deg-${this.fishName}`;
     this.moveLeftAnimationName =
-      this.fishName === "threadfin"
-        ? "move-left-30deg"
-        : `move-left-30deg-${this.fishName}`;
-    this.swimAnimationName = `${this.fishName}-swim`;
+      configs.moveLeftAnimationName || `move-left-30deg-${this.fishName}`;
+    this.swimAnimationName =
+      configs.swimAnimationName || `${this.fishName}-swim`;
   }
 
   /**
