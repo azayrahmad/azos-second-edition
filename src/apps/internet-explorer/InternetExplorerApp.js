@@ -159,10 +159,19 @@ export class InternetExplorerApp extends IFrameApplication {
       {
         label: "Back",
         action: () => this.iframe.contentWindow.history.back(),
+        enabled: false,
+        submenu: [
+          {
+            label: "History",
+            enabled: false,
+          },
+        ],
       },
       {
         label: "Forward",
         action: () => this.iframe.contentWindow.history.forward(),
+        enabled: false,
+        submenu: [],
       },
       {
         label: "Stop",

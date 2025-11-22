@@ -1,120 +1,111 @@
 .toolbar {
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  border-bottom: 1px solid var(--ButtonShadow);
-  background-color: var(--ButtonFace);
-  height: 58px;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    border-bottom: 1px solid var(--ButtonShadow);
+    background-color: var(--ButtonFace);
 }
 
 .toolbar-button-group {
-  display: flex;
-  margin: 0 1px;
-  border: 1px solid transparent;
-}
-
-.toolbar-button-group:hover {
-  border-color: var(--ButtonHilight);
+    display: flex;
+    border: 1px solid transparent;
 }
 
 .toolbar-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border: none;
-  background: none;
-  padding: 1px;
-  /* font-family: var(--font-family); */ /* This variable is not defined in windows-98.css */
-  font-size: 11px;
-  color: var(--ButtonText);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 40px;
+    border: none;
+    background: none;
+    padding: 1px;
+    /* font-family: var(--font-family); */ /* This variable is not defined in windows-98.css */
+    font-size: 11px;
+    color: var(--ButtonText);
 }
 
 .toolbar-button.has-submenu-main {
-  width: 50px;
+    width: 50px;
 }
 
 .toolbar-arrow-button {
-  width: 12px;
-  height: 56px;
-  border: none;
-  border-left: 1px solid var(--ButtonShadow);
-  background: none;
-  padding: 0;
-  font-size: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 12px;
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toolbar-button:active,
 .toolbar-arrow-button:active {
-  border: 1px solid var(--ButtonShadow);
+    border: 1px solid var(--ButtonShadow);
 }
 
 .toolbar-button:disabled,
 .toolbar-arrow-button:disabled {
-  color: var(--GrayText);
-  filter: grayscale(100%);
-  opacity: 0.5;
+    color: var(--GrayText);
+    filter: grayscale(100%);
+    opacity: 0.5;
 }
 
 .toolbar-icon {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toolbar-icon img {
-  max-width: 32px;
-  max-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
 }
 
 .toolbar-label {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
 /* MenuList styles remain the same */
 .menu-popup {
-  position: absolute;
-  background: var(--ButtonFace);
-  border: 1px solid;
-  border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow)
-    var(--ButtonHilight);
-  box-shadow: 1px 1px 0 var(--ButtonShadow);
-  padding: 1px;
-  z-index: 10000;
+    position: absolute;
+    background: var(--ButtonFace);
+    border: 1px solid;
+    border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow)
+        var(--ButtonHilight);
+    box-shadow: 1px 1px 0 var(--ButtonShadow);
+    padding: 1px;
+    z-index: 10000;
 }
 
 .menu-popup-table {
-  border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 .menu-row {
-
 }
 
 .menu-item {
-  /* font-family: var(--font-family); */ /* This variable is not defined in windows-98.css */
-  font-size: 11px;
-  color: var(--ButtonText);
-  white-space: nowrap;
+    /* font-family: var(--font-family); */ /* This variable is not defined in windows-98.css */
+    font-size: 11px;
+    color: var(--ButtonText);
+    white-space: nowrap;
 }
 
 .menu-item.highlight {
-  background-color: var(--Hilight);
-  color: var(--HilightText);
+    background-color: var(--Hilight);
+    color: var(--HilightText);
 }
 
 .menu-item[aria-disabled="true"] {
-  color: var(--GrayText);
+    color: var(--GrayText);
 }
 
 .menu-item-label {
-  padding: 2px 10px;
+    padding: 2px 10px;
 }
