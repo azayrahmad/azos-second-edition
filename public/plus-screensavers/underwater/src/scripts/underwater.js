@@ -3,6 +3,7 @@ import BubbleAnimator from "./BubbleAnimator.js";
 import SharkAnimator from "./SharkAnimator.js";
 import SeahorseAnimator from "./SeahorseAnimator.js";
 import FishAnimator from "./FishAnimator.js";
+import StingrayAnimator from "./StingrayAnimator.js";
 import ANIMATION_CONFIGS from "./configs.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -67,4 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
     "raccoon",
   );
   raccoonAnimator.startCycle();
+
+  // Initialize Stingray Animator
+  const stingray = document.querySelector(".stingray");
+  const stingrayAnimator = new StingrayAnimator(
+    stingray,
+    ANIMATION_CONFIGS.stingray,
+  );
+  stingrayAnimator.startCycle();
 });
