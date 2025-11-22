@@ -46,6 +46,10 @@
       send_info_event: () => {},
     });
 
+    // Set z-index for the main context menu
+    menuPopup.element.style.zIndex =
+      window.os_gui_utils.get_new_menu_z_index();
+
     // Append menu into wrapper
     wrap.appendChild(menuPopup.element);
 
