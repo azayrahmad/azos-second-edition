@@ -71,6 +71,15 @@ const ANIMATION_CONFIGS = {
     },
     swimAnimationName: "raccoon-swim",
   },
+
+  // Stingray Animator
+  stingray: {
+    minDelaySeconds: 5,
+    maxDelaySeconds: 10,
+    swimSpriteDurationSeconds: 1,
+    swimPathDurationSeconds: 25,
+    swimSpriteSteps: 10,
+  },
 };
 
 export default ANIMATION_CONFIGS;
