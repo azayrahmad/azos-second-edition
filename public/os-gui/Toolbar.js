@@ -14,11 +14,25 @@
   }
 
   class Toolbar {
-    constructor(items) {
+    constructor(items, options = {}) {
       this.element = E("div", { class: "toolbar" });
       this.items = items;
+      this.options = options;
       this.itemElements = [];
       this.activeMenu = null;
+
+      if (this.options.icons) {
+        this.element.style.setProperty(
+          "--toolbar-icons",
+          `url(${this.options.icons})`,
+        );
+      }
+      if (this.options.iconsGrayscale) {
+        this.element.style.setProperty(
+          "--toolbar-icons-grayscale",
+          `url(${this.options.iconsGrayscale})`,
+        );
+      }
 
       this.buildToolbar();
     }
@@ -38,9 +52,8 @@
       mainButtonEl.disabled = this.isDisabled(item);
 
       const iconEl = E("div", { class: "toolbar-icon" });
-      if (item.icon) {
-        const img = E("img", { src: item.icon, width: "32", height: "32" });
-        iconEl.appendChild(img);
+      if (typeof item.iconId !== "undefined") {
+        iconEl.setAttribute("data-icon-id", item.iconId);
       }
 
       const labelEl = E("div", { class: "toolbar-label" });

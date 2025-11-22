@@ -1,5 +1,7 @@
 import { IFrameApplication } from "../IFrameApplication.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
+import browseUiIcons from "../../assets/icons/browse-ui-icons.png";
+import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale.png";
 
 export class InternetExplorerApp extends IFrameApplication {
   constructor(options) {
@@ -158,6 +160,7 @@ export class InternetExplorerApp extends IFrameApplication {
     const toolbarItems = [
       {
         label: "Back",
+        iconId: 0,
         action: () => this.iframe.contentWindow.history.back(),
         enabled: false,
         submenu: [
@@ -169,41 +172,52 @@ export class InternetExplorerApp extends IFrameApplication {
       },
       {
         label: "Forward",
+        iconId: 1,
         action: () => this.iframe.contentWindow.history.forward(),
         enabled: false,
         submenu: [],
       },
       {
         label: "Stop",
+        iconId: 2,
         action: () => this.iframe.contentWindow.stop(),
       },
       {
         label: "Refresh",
+        iconId: 3,
         action: () => this.iframe.contentWindow.location.reload(),
       },
       {
         label: "Home",
+        iconId: 4,
         action: () => this.navigateTo("microsoft.com"),
       },
       {
         label: "Search",
+        iconId: 5,
         enabled: false,
       },
       {
         label: "Favorites",
+        iconId: 6,
         enabled: false,
       },
       {
         label: "History",
+        iconId: 7,
         enabled: false,
       },
       {
         label: "Print",
+        iconId: 8,
         enabled: false,
       },
     ];
 
-    const toolbar = new window.Toolbar(toolbarItems);
+    const toolbar = new window.Toolbar(toolbarItems, {
+      icons: browseUiIcons,
+      iconsGrayscale: browseUiIconsGrayscale,
+    });
 
     const addressBar = window.os_gui_utils.E("div", {
       className: "address-bar",
