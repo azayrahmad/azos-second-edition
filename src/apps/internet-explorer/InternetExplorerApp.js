@@ -8,7 +8,6 @@ export class InternetExplorerApp extends IFrameApplication {
   }
 
   async _onLaunch(data) {
-    this._loadStylesheet();
     let url = "microsoft.com";
 
     if (typeof data === "string") {
@@ -156,7 +155,46 @@ export class InternetExplorerApp extends IFrameApplication {
     menuBarContainer.appendChild(menuBarElement);
     menuBarContainer.appendChild(logo);
 
-    const toolbar = this._createToolbar();
+    const toolbarItems = [
+      {
+        label: "Back",
+        action: () => this.iframe.contentWindow.history.back(),
+      },
+      {
+        label: "Forward",
+        action: () => this.iframe.contentWindow.history.forward(),
+      },
+      {
+        label: "Stop",
+        action: () => this.iframe.contentWindow.stop(),
+      },
+      {
+        label: "Refresh",
+        action: () => this.iframe.contentWindow.location.reload(),
+      },
+      {
+        label: "Home",
+        action: () => this.navigateTo("microsoft.com"),
+      },
+      {
+        label: "Search",
+        enabled: false,
+      },
+      {
+        label: "Favorites",
+        enabled: false,
+      },
+      {
+        label: "History",
+        enabled: false,
+      },
+      {
+        label: "Print",
+        enabled: false,
+      },
+    ];
+
+    const toolbar = new window.Toolbar(toolbarItems);
 
     const addressBar = window.os_gui_utils.E("div", {
       className: "address-bar",
@@ -174,7 +212,7 @@ export class InternetExplorerApp extends IFrameApplication {
       }
     });
 
-    win.$content.append(toolbar, addressBar, this.iframe, statusBar);
+    win.$content.append(toolbar.element, addressBar, this.iframe, statusBar);
 
     this._setupIframeForInactivity(this.iframe);
 
@@ -188,62 +226,5 @@ export class InternetExplorerApp extends IFrameApplication {
     if (this.menuBar) {
       this.menuBar.element.dispatchEvent(new Event("update"));
     }
-  }
-
-  _loadStylesheet() {
-    const id = "internet-explorer-styles";
-    if (document.getElementById(id)) return;
-
-    const link = document.createElement("link");
-    link.id = id;
-    link.rel = "stylesheet";
-    link.href = "src/apps/internet-explorer/internet-explorer.css";
-    document.head.appendChild(link);
-  }
-
-  _createToolbar() {
-    const createToolbarButton = (text, disabled = false) => {
-      const button = window.os_gui_utils.E("button", { disabled }, text);
-      return button;
-    };
-
-    const backButton = createToolbarButton("Back");
-    backButton.addEventListener("click", () =>
-      this.iframe.contentWindow.history.back(),
-    );
-    const forwardButton = createToolbarButton("Forward");
-    forwardButton.addEventListener("click", () =>
-      this.iframe.contentWindow.history.forward(),
-    );
-    const stopButton = createToolbarButton("Stop");
-    stopButton.addEventListener("click", () => this.iframe.contentWindow.stop());
-    const refreshButton = createToolbarButton("Refresh");
-    refreshButton.addEventListener("click", () =>
-      this.iframe.contentWindow.location.reload(),
-    );
-    const homeButton = createToolbarButton("Home");
-    homeButton.addEventListener("click", () => this.navigateTo("microsoft.com"));
-    const searchButton = createToolbarButton("Search", true);
-    const favoritesButton = createToolbarButton("Favorites", true);
-    const historyButton = createToolbarButton("History", true);
-    const printButton = createToolbarButton("Print", true);
-
-    const toolbar = window.os_gui_utils.E("div", {
-      className: "toolbar",
-    });
-
-    toolbar.append(
-      backButton,
-      forwardButton,
-      stopButton,
-      refreshButton,
-      homeButton,
-      searchButton,
-      favoritesButton,
-      historyButton,
-      printButton,
-    );
-
-    return toolbar;
   }
 }
