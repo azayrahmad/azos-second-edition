@@ -1,0 +1,17 @@
+#internet-explorer .toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-bottom: 1px solid var(--border-widget);
+  align-items: center;
+  justify-content: space-around;
+}
+
+#internet-explorer .toolbar button {
+  font-family: 'MS Sans Serif', 'Pixelated MS Sans Serif', sans-serif;
+  font-size: 11px;
+  min-width: 75px;
+  height: 23px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
