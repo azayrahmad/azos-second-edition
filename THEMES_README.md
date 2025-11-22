@@ -95,26 +95,25 @@ export const soundSchemes = {
 
 Open the `src/config/icon-schemes.js` file and add a new entry for your icon scheme.
 
+First, import your icon files at the top of the file:
+
+```javascript
+import myThemeMyComputer16 from "../assets/icons/theme-icons/my-theme-my-computer-16.png";
+import myThemeMyComputer32 from "../assets/icons/theme-icons/my-theme-my-computer-32.png";
+// ... import other icon files
+```
+
+Then, add a new entry to the `iconSchemes` object, using the variables you just imported:
+
 ```javascript
 export const iconSchemes = {
   // ...
   "my-theme": {
     myComputer: {
-      16: "../assets/icons/theme-icons/my-theme-my-computer-16.png",
-      32: "../assets/icons/theme-icons/my-theme-my-computer-32.png",
+      16: myThemeMyComputer16,
+      32: myThemeMyComputer32,
     },
-    recycleBinEmpty: {
-      16: "../assets/icons/theme-icons/my-theme-recycle-empty-16.png",
-      32: "../assets/icons/theme-icons/my-theme-recycle-empty-32.png",
-    },
-    recycleBinFull: {
-      16: "../assets/icons/theme-icons/my-theme-recycle-full-16.png",
-      32: "../assets/icons/theme-icons/my-theme-recycle-full-32.png",
-    },
-    networkNeighborhood: {
-      16: "../assets/icons/theme-icons/my-theme-network-neighborhood-16.png",
-      32: "../assets/icons/theme-icons/my-theme-network-neighborhood-32.png",
-    },
+    // ... other icons
   },
 };
 ```
@@ -137,7 +136,67 @@ export const themes = {
 };
 ```
 
-## Step 4: Verify Your Theme
+## Step 4 (Optional): Add a Screensaver
+
+You can also add a custom screensaver to your theme. A screensaver can be any webpage.
+
+### 1\. `src/components/screensaver.js`
+
+Open the `src/components/screensaver.js` file and add a new entry for your screensaver. The `path` should be the full URL to your screensaver webpage.
+
+```javascript
+export const SCREENSAVERS = {
+  // ...
+  "my-screensaver": {
+    name: "My Awesome Screensaver",
+    path: "https://www.example.com/myscreensaver.html",
+  },
+};
+```
+
+### 2\. `src/config/themes.js`
+
+Now, open `src/config/themes.js` again and link your screensaver to your theme by adding the `screensaver` property.
+
+```javascript
+export const themes = {
+  // ...
+  "my-theme": {
+    id: "my-theme",
+    name: "My Theme",
+    stylesheet: "my-theme.css",
+    wallpaper: wallpapers.themes.find((w) => w.id === "myTheme").src,
+    soundScheme: "My Theme",
+    iconScheme: "my-theme",
+    screensaver: "my-screensaver", // Add this line
+  },
+};
+```
+
+## Step 5 (Optional): Add a Custom Font
+
+You can also add a custom font to your theme.
+
+To do this, you will need to add an `@font-face` rule to your theme's `.css` file (e.g., `my-theme.css`). You can then override the default fonts by setting the `--font-family-title`, `--font-size-title`, and `--font-family-menu` CSS variables.
+
+Here's an example of how to add a custom font to your theme's CSS file:
+
+```css
+/* Add the @font-face rule at the top of your theme's CSS file */
+@font-face {
+  font-family: "My Custom Font";
+  src: url("https://example.com/my-custom-font.woff2") format("woff2");
+}
+
+/* Override the default fonts by setting the CSS variables */
+:root {
+  --font-family-title: "My Custom Font", sans-serif;
+  --font-size-title: 18px;
+  --font-family-menu: "My Custom Font", sans-serif;
+}
+```
+
+## Step 6: Verify Your Theme
 
 You're all done! To see your new theme in action:
 
