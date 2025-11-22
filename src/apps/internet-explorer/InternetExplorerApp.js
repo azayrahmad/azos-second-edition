@@ -155,6 +155,56 @@ export class InternetExplorerApp extends IFrameApplication {
     menuBarContainer.appendChild(menuBarElement);
     menuBarContainer.appendChild(logo);
 
+    const toolbarItems = [
+      {
+        label: "Back",
+        action: () => this.iframe.contentWindow.history.back(),
+        enabled: false,
+        submenu: [
+          {
+            label: "History",
+            enabled: false,
+          },
+        ],
+      },
+      {
+        label: "Forward",
+        action: () => this.iframe.contentWindow.history.forward(),
+        enabled: false,
+        submenu: [],
+      },
+      {
+        label: "Stop",
+        action: () => this.iframe.contentWindow.stop(),
+      },
+      {
+        label: "Refresh",
+        action: () => this.iframe.contentWindow.location.reload(),
+      },
+      {
+        label: "Home",
+        action: () => this.navigateTo("microsoft.com"),
+      },
+      {
+        label: "Search",
+        enabled: false,
+      },
+      {
+        label: "Favorites",
+        enabled: false,
+      },
+      {
+        label: "History",
+        enabled: false,
+      },
+      {
+        label: "Print",
+        enabled: false,
+      },
+    ];
+
+    const toolbar = new window.Toolbar(toolbarItems);
+
     const addressBar = window.os_gui_utils.E("div", {
       className: "address-bar",
       style: {
@@ -171,7 +221,7 @@ export class InternetExplorerApp extends IFrameApplication {
       }
     });
 
-    win.$content.append(addressBar, this.iframe, statusBar);
+    win.$content.append(toolbar.element, addressBar, this.iframe, statusBar);
 
     this._setupIframeForInactivity(this.iframe);
 
