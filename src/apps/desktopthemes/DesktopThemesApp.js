@@ -11,6 +11,7 @@ import {
 } from "../../utils/themeManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
+import screensaverManager from "../../components/screensaver.js";
 import previewHtml from "./DesktopThemesPreview.html?raw";
 import "./desktopthemes.css";
 
@@ -108,10 +109,16 @@ export class DesktopThemesApp extends Application {
     previewsFieldset.innerHTML = "<legend>Previews</legend>";
     rightPanel.appendChild(previewsFieldset);
 
-    const screenSaverButton = document.createElement("button");
-    screenSaverButton.textContent = "Screen Saver";
-    screenSaverButton.disabled = true;
-    previewsFieldset.appendChild(screenSaverButton);
+    this.screenSaverButton = document.createElement("button");
+    this.screenSaverButton.textContent = "Screen Saver";
+    this.screenSaverButton.disabled = true;
+    this.screenSaverButton.addEventListener("click", () => {
+      const selectedTheme = getThemes()[this.themeSelector.value];
+      if (selectedTheme?.screensaver) {
+        screensaverManager.showPreview(selectedTheme.screensaver);
+      }
+    });
+    previewsFieldset.appendChild(this.screenSaverButton);
 
     const pointersButton = document.createElement("button");
     pointersButton.textContent = "Pointers, Sounds, etc...";
@@ -377,6 +384,7 @@ export class DesktopThemesApp extends Application {
 
       this.saveButton.disabled = selectedValue !== "current-settings";
       this.deleteButton.disabled = !selectedTheme?.isCustom;
+      this.screenSaverButton.disabled = !selectedTheme?.screensaver;
 
       if (selectedValue === "current-settings") {
         const normalizedProperties = {};
