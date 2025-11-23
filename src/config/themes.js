@@ -73,6 +73,7 @@ export const themes = {
     wallpaper: wallpapers.themes.find((w) => w.id === "underwater").src,
     soundScheme: "Underwater",
     iconScheme: "underwater",
+    screensaver: "underwater",
   },
   //'memphis-milano': {
   //  id: 'memphis-milano',
