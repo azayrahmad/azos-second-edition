@@ -9,7 +9,7 @@ export class IFrameApplication extends Application {
   _createWindow() {
     const win = new $Window({
       title: this.title,
-      icon: this.icon,
+      icons: this.icon,
       width: this.width,
       height: this.height,
       resizable: this.resizable,
@@ -50,7 +50,10 @@ export class IFrameApplication extends Application {
     iframe.addEventListener("load", setupListeners);
 
     // If the iframe is already loaded, setup listeners immediately
-    if (iframe.contentWindow && iframe.contentWindow.document.readyState === "complete") {
+    if (
+      iframe.contentWindow &&
+      iframe.contentWindow.document.readyState === "complete"
+    ) {
       setupListeners();
     }
   }
