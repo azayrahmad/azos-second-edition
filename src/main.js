@@ -97,6 +97,8 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
+  document.body.classList.add("booting");
+  document.getElementById("screen").classList.add("boot-mode");
   // Hide the initial "Initializing azOS..." message
   document.getElementById("initial-boot-message").style.display = "none";
   // Show the main boot screen content with two columns
