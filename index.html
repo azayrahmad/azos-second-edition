@@ -63,6 +63,21 @@
         <script src="./clippy/clippy.js"></script>
         <script src="./clippy/clippy_extensions_complete.js"></script>
         <style>
+            body.booting {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #333;
+            }
+            #screen.boot-mode {
+                width: 640px;
+                height: 480px;
+                overflow: hidden;
+                position: relative;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            }
             #boot-log div {
                 white-space: pre-wrap;
             }
@@ -70,7 +85,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
-                position: fixed;
+                position: absolute;
                 top: 0;
                 left: 0;
                 width: 100%;
@@ -157,44 +172,43 @@
     </head>
 
     <body class="scanlines">
-        <div id="boot-screen">
-            <!-- Initial boot message, visible by default -->
-            <div id="initial-boot-message">Initializing azOS...</div>
+        <div id="screen">
+            <div id="boot-screen">
+                <!-- Initial boot message, visible by default -->
+                <div id="initial-boot-message">Initializing azOS...</div>
 
-            <!-- Main boot screen content (two columns), initially hidden, shown by main.js -->
-            <div id="boot-screen-content">
-                <div id="boot-screen-main-flex-container">
-                    <!-- Left Column for boot text -->
-                    <div id="boot-screen-left-column">
-                        <!-- Award BIOS info row -->
-                        <div id="bios-info-row">
-                            <div id="bios-logo-column">
-                                <img
-                                    src="/img/award.png"
-                                    alt="Award BIOS Logo"
-                                />
+                <!-- Main boot screen content (two columns), initially hidden, shown by main.js -->
+                <div id="boot-screen-content">
+                    <div id="boot-screen-main-flex-container">
+                        <!-- Left Column for boot text -->
+                        <div id="boot-screen-left-column">
+                            <!-- Award BIOS info row -->
+                            <div id="bios-info-row">
+                                <div id="bios-logo-column">
+                                    <img
+                                        src="/img/award.png"
+                                        alt="Award BIOS Logo"
+                                    />
+                                </div>
+                                <div id="bios-text-column">
+                                    Award Modular BIOS v4.51PG, An Energy Star
+                                    Ally<br />
+                                    Copyright (C) 1984-85, Award Software, Inc.
+                                </div>
                             </div>
-                            <div id="bios-text-column">
-                                Award Modular BIOS v4.51PG, An Energy Star
-                                Ally<br />
-                                Copyright (C) 1984-85, Award Software, Inc.
-                            </div>
+                            <!-- Browser Info (will be updated by main.js) -->
+                            <!--<div id="browser-info" style="margin-top: 10px"></div>-->
+                            <!-- Boot Log (will be updated by main.js) -->
+                            <div id="boot-log" style="flex-grow: 1"></div>
                         </div>
-                        <!-- Browser Info (will be updated by main.js) -->
-                        <!--<div id="browser-info" style="margin-top: 10px"></div>-->
-                        <!-- Boot Log (will be updated by main.js) -->
-                        <div id="boot-log" style="flex-grow: 1"></div>
-                    </div>
 
-                    <!-- Right Column for Energy Star logo -->
-                    <div id="boot-screen-right-column">
-                        <img src="/img/energystar.png" alt="Energy Star" />
+                        <!-- Right Column for Energy Star logo -->
+                        <div id="boot-screen-right-column">
+                            <img src="/img/energystar.png" alt="Energy Star" />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div id="screen">
             <script type="module" src="/src/main.js"></script>
         </div>
     </body>
