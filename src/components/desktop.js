@@ -219,17 +219,115 @@ function applyMonitorType() {
   }
 }
 
+function sortDesktopItems(items) {
+  const sortBy = getItem(LOCAL_STORAGE_KEYS.SORT_ICONS_BY) || 'type';
+  const systemIconOrder = ['my-computer', 'my-documents', 'recycle-bin', 'network-neighborhood'];
+
+  const allItems = [
+      ...apps.filter(app => items.apps.includes(app.id)).map(app => ({...app, itemType: 'app'})),
+      ...items.files.map(file => ({...file, itemType: 'file', title: file.filename }))
+  ];
+
+  allItems.sort((a, b) => {
+      const aName = a.title;
+      const bName = b.title;
+
+      if (sortBy === 'name') {
+          return aName.localeCompare(bName);
+      }
+
+      if (sortBy === 'type') {
+          const aIsSystem = systemIconOrder.includes(a.id);
+          const bIsSystem = systemIconOrder.includes(b.id);
+          const aIsFile = a.itemType === 'file';
+          const bIsFile = b.itemType === 'file';
+
+          let aTypeValue = aIsFile ? 2 : (aIsSystem ? 0 : 1);
+          let bTypeValue = bIsFile ? 2 : (bIsSystem ? 0 : 1);
+
+          if (aTypeValue !== bTypeValue) {
+              return aTypeValue - bTypeValue;
+          }
+
+          if (aIsSystem && bIsSystem) {
+              return systemIconOrder.indexOf(a.id) - systemIconOrder.indexOf(b.id);
+          }
+
+          return aName.localeCompare(bName);
+      }
+
+      return 0;
+  });
+
+  return allItems;
+}
+
+function sortIcons() {
+  const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
+  if (isAutoArrange) {
+      removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+  }
+
+  document.querySelector(".desktop").refreshIcons();
+
+  if (!isAutoArrange) {
+      const desktop = document.querySelector(".desktop");
+      desktop.offsetHeight;
+      const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
+      const iconPositions = {};
+      const desktopRect = desktop.getBoundingClientRect();
+      allIcons.forEach(icon => {
+          const id = icon.getAttribute("data-icon-id");
+          const rect = icon.getBoundingClientRect();
+          iconPositions[id] = {
+              x: `${rect.left - desktopRect.left}px`,
+              y: `${rect.top - desktopRect.top}px`,
+          };
+      });
+      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      desktop.classList.add("has-absolute-icons");
+  }
+}
+
+function toggleAutoArrange(isAutoArrange) {
+  if (isAutoArrange) {
+      removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+  }
+  document.querySelector(".desktop").refreshIcons();
+}
+
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
 
   const menuItems = [
     {
       label: "Sort Icons",
-      action: () => {
-        // Remove saved positions and redraw icons
-        removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-        document.querySelector(".desktop").refreshIcons();
-      },
+      submenu: [
+        {
+          radioItems: [
+            { label: "By Name", value: "name" },
+            { label: "By Type", value: "type" },
+          ],
+          getValue: () => getItem(LOCAL_STORAGE_KEYS.SORT_ICONS_BY) || "type",
+          setValue: (value) => {
+            setItem(LOCAL_STORAGE_KEYS.SORT_ICONS_BY, value);
+            sortIcons();
+          },
+          ariaLabel: "Sort by",
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Auto Arrange",
+          checkbox: {
+            check: () => (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true",
+            toggle: () => {
+              const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
+              setItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS, !isAutoArrange);
+              toggleAutoArrange(!isAutoArrange);
+            },
+          },
+        },
+      ],
     },
     {
       label: "Wallpaper",
@@ -386,8 +484,9 @@ export function setupIcons(options) {
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
-  const desktopApps = getDesktopContents();
+  const desktopContents = getDesktopContents();
   const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+  const sortedItems = sortDesktopItems(desktopContents);
 
   // If there are any saved positions, we are in manual mode.
   if (Object.keys(iconPositions).length > 0) {
@@ -414,25 +513,15 @@ export function setupIcons(options) {
     desktop.appendChild(icon);
   };
 
-  // Load apps
-  const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
-  appsToLoad.forEach((app) => {
-    const icon = createDesktopIcon(app, false);
+  sortedItems.forEach(item => {
+    const isFile = item.itemType === 'file';
+    const icon = createDesktopIcon(item, isFile);
     if (icon) {
-      const iconId = getIconId(app);
-      configureIcon(icon, app, null, { iconManager });
-      placeIcon(icon, iconId);
-    }
-  });
-
-  // Load files
-  desktopApps.files.forEach((file) => {
-    const icon = createDesktopIcon(file, true);
-    if (icon) {
-      const app = apps.find((a) => a.id === file.app);
-      const iconId = getIconId(app, file.path);
-      configureIcon(icon, app, file.path, { iconManager });
-      placeIcon(icon, iconId);
+        icon.setAttribute('data-item-type', item.itemType);
+        const appForIcon = isFile ? apps.find(a => a.id === item.app) : item;
+        const iconId = getIconId(appForIcon, isFile ? item.path : null);
+        configureIcon(icon, appForIcon, isFile ? item.path : null, { iconManager });
+        placeIcon(icon, iconId);
     }
   });
 }
@@ -484,6 +573,9 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   const iconId = icon.getAttribute("data-icon-id");
 
   const handleDragStart = (e) => {
+    const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
+    if (isAutoArrange) return;
+
     if (e.type === "mousedown" && e.button !== 0) return;
     if (e.type === "touchstart" && e.touches.length > 1) return;
 

@@ -14,6 +14,8 @@ export const LOCAL_STORAGE_KEYS = {
   SCREENSAVER: 'screensaver',
   COLOR_MODE: 'colorMode',
   SCREEN_RESOLUTION: 'screenResolution',
+  SORT_ICONS_BY: 'sortIconsBy',
+  AUTO_ARRANGE_ICONS: 'autoArrangeIcons',
 };
 
 export function getItem(key) {
