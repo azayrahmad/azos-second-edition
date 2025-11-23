@@ -204,6 +204,10 @@ async function initializeOS() {
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   await promptToContinue();
+
+  document.body.classList.remove("booting");
+  document.getElementById("screen").classList.remove("boot-mode");
+
   hideBootScreen();
 
   window.ShowDialogWindow = ShowDialogWindow;

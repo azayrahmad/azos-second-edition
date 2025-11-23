@@ -1,9 +1,6 @@
 let lastCursorElement = null;
 
 function hideBootScreen() {
-    document.body.classList.remove("booting");
-    document.getElementById("screen").classList.remove("boot-mode");
-
     const bootScreenEl = document.getElementById("boot-screen");
     if (bootScreenEl) {
         const contentEl = document.getElementById("boot-screen-content");
