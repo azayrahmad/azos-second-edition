@@ -23,7 +23,7 @@ function getCurrentResolutionId() {
   return currentResolutionId;
 }
 
-function setResolution(resolutionId) {
+function applyResolution(resolutionId) {
   if (!RESOLUTIONS[resolutionId]) {
     console.error(`Invalid resolution: ${resolutionId}`);
     return;
@@ -46,6 +46,10 @@ function setResolution(resolutionId) {
       : newResolution.height;
 
   currentResolutionId = resolutionId;
+}
+
+function setResolution(resolutionId) {
+  applyResolution(resolutionId);
   saveResolution(resolutionId);
 }
 
@@ -62,9 +66,14 @@ function initScreenManager() {
   setResolution(savedResolution);
 }
 
+function setBootResolution() {
+  applyResolution("640 by 480");
+}
+
 export {
   initScreenManager,
   getAvailableResolutions,
   setResolution,
   getCurrentResolutionId,
+  setBootResolution,
 };
