@@ -11,6 +11,7 @@ const startMenuAppIds = [
   "about",
   "internet-explorer",
   "pinball",
+  "buy-me-a-coffee",
 ];
 const accessoriesAppIds = ["notepad", "clippy", "paint"];
 const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];

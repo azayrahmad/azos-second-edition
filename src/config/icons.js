@@ -210,4 +210,8 @@ export const ICONS = {
     16: new URL("../assets/icons/html2-4.png", import.meta.url).href,
     32: new URL("../assets/icons/html2-3.png", import.meta.url).href,
   },
+  "buy-me-a-coffee": {
+    16: new URL("../assets/icons/coffee-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/coffee-32.png", import.meta.url).href,
+  },
 };

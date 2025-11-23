@@ -33,6 +33,7 @@ const directory = [
           { id: "app-paint", type: "app", appId: "paint" },
           { id: "app-display-properties", type: "app", appId: "display-properties" },
           { id: "app-network-neighborhood", type: "app", appId: "network-neighborhood" },
+          { id: "app-buy-me-a-coffee", type: "app", appId: "buy-me-a-coffee" },
         ],
       },
       {
@@ -165,6 +166,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-network-neighborhood",
                 name: "Network Neighborhood",
+              },
+              {
+                id: "shortcut-to-buy-me-a-coffee",
+                type: "shortcut",
+                targetId: "app-buy-me-a-coffee",
+                name: "Buy me a coffee",
               },
             ],
           },

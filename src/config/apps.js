@@ -12,6 +12,7 @@ import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
+import { IFrameApplication } from "../apps/IFrameApplication.js";
 import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
@@ -47,6 +48,7 @@ export const appClasses = {
   pinball: PinballApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
+  "buy-me-a-coffee": IFrameApplication,
 };
 
 export const apps = [
@@ -383,6 +385,21 @@ export const apps = [
     width: 404,
     height: 448,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "buy-me-a-coffee",
+    title: "Buy me a coffee",
+    description: "Support the developer.",
+    icon: {
+      16: new URL('../assets/icons/coffee-16.png', import.meta.url).href,
+      32: new URL('../assets/icons/coffee-32.png', import.meta.url).href,
+    },
+    appClass: IFrameApplication,
+    url: "https://ko-fi.com/azayrahmad/?hidefeed=true&widget=true&embed=true&preview=true",
+    width: 300,
+    height: 450,
+    resizable: true,
     isSingleton: true,
   },
 ];
