@@ -19,6 +19,7 @@ import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeE
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { BuyMeACoffeeApp } from "../apps/buymeacoffee/BuyMeACoffeeApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -47,6 +48,7 @@ export const appClasses = {
   pinball: PinballApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
+  "buy-me-a-coffee": BuyMeACoffeeApp,
 };
 
 export const apps = [
@@ -383,6 +385,20 @@ export const apps = [
     width: 404,
     height: 448,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "buy-me-a-coffee",
+    title: "Buy me a coffee",
+    description: "Support the developer.",
+    icon: {
+      16: new URL('../assets/icons/coffee-16.png', import.meta.url).href,
+      32: new URL('../assets/icons/coffee-32.png', import.meta.url).href,
+    },
+    appClass: BuyMeACoffeeApp,
+    width: 300,
+    height: 450,
+    resizable: true,
     isSingleton: true,
   },
 ];
