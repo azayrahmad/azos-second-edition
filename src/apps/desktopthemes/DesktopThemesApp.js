@@ -96,8 +96,6 @@ export class DesktopThemesApp extends Application {
     this.previewLabel = document.createElement("div");
     this.previewLabel.className = "preview-label";
 
-    await this.populateThemes();
-
     // --- Right Panel ---
     const rightPanel = document.createElement("div");
     rightPanel.className = "right-panel";
@@ -173,6 +171,8 @@ export class DesktopThemesApp extends Application {
       </div>
     `;
     rightPanel.appendChild(settingsFieldset);
+
+    await this.populateThemes();
 
     // --- Bottom Action Buttons ---
     const actionsContainer = document.createElement("div");
