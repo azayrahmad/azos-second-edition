@@ -40,6 +40,15 @@
   justify-content: center;
 }
 
+.toolbar-overflow-menu .menu-item {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-overflow-menu .menu-item-label {
+  padding-left: 4px;
+}
+
 .toolbar-button:active,
 .toolbar-arrow-button:active {
   border: 1px solid var(--ButtonShadow);
