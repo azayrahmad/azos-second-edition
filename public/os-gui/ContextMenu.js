@@ -68,67 +68,61 @@
       window.playSound("MenuPopup");
     }
 
-    // Force reflow
-    void menuPopup.element.offsetHeight;
-
-
-    // ──────────────────────────────────────────────
-    // 5. Position wrapper based on boundaries
-    // ──────────────────────────────────────────────
+    // Position and animate
     const positionAt = (x, y) => {
-      const screenRect = screen.getBoundingClientRect();
-      const menuRect = menuPopup.element.getBoundingClientRect();
+      // Make visible off-screen to measure
+      wrap.style.display = "block";
+      wrap.style.zIndex = window.os_gui_utils.get_new_menu_z_index();
+      wrap.style.position = "absolute";
+      wrap.style.left = "-9999px";
+      wrap.style.top = "-9999px";
 
+      const screenRect = screen.getBoundingClientRect();
+      const menuRect = wrap.getBoundingClientRect();
       const relX = x - screenRect.left;
       const relY = y - screenRect.top;
 
       let finalX = relX;
       let finalY = relY;
-
       let fromX = -100; // default slide in down-right
       let fromY = -100;
-      let pos_x = "right";
-      let pos_y = "down";
 
       // Flip horizontally if needed
       if (relX + menuRect.width > screenRect.width) {
         finalX = relX - menuRect.width;
         fromX = 100; // slide in from right
-        pos_x = "left";
       }
 
       // Flip vertically if needed
       if (relY + menuRect.height > screenRect.height) {
         finalY = relY - menuRect.height;
         fromY = 100; // slide in from bottom
-        pos_y = "up";
       }
 
       finalX = Math.max(0, finalX);
       finalY = Math.max(0, finalY);
 
-      // Resize wrapper
+      wrap.style.left = `${finalX}px`;
+      wrap.style.top = `${finalY}px`;
       wrap.style.width = "0px";
       wrap.style.height = "0px";
 
-      wrap.style.left = `${finalX}px`;
-      wrap.style.top = `${finalY}px`;
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         wrap.style.setProperty("--width", `${menuRect.width}px`);
         wrap.style.setProperty("--height", `${menuRect.height}px`);
         wrap.style.width = "var(--width)";
         wrap.style.height = "var(--height)";
 
-        // Prioritize horizontal animation
-        if (pos_x === "left") {
-          wrap.classList.add("to-left");
-        } else if (pos_y === "up") {
-          wrap.classList.add("to-up");
+        if (fromX === -100 && fromY === -100) {
+          wrap.classList.add("to-diag-100-100");
+        } else if (fromX === 100 && fromY === -100) {
+          wrap.classList.add("to-diag100-100");
+        } else if (fromX === -100 && fromY === 100) {
+          wrap.classList.add("to-diag-100100");
         } else {
-          // Default is to slide right (covers the case where pos_x is 'right' and pos_y is 'down')
-          wrap.classList.add("to-right");
+          wrap.classList.add("to-diag100100");
         }
-      });
+      }, 0);
     };
 
     // Position at pointer

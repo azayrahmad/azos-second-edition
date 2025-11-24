@@ -52,6 +52,52 @@
   }
 }
 
+.menu-popup-wrapper.to-diag-100-100 .menu-popup {
+  animation: diag-100-100 0.15s ease-out;
+}
+.menu-popup-wrapper.to-diag100-100 .menu-popup {
+  animation: diag100-100 0.15s ease-out;
+}
+.menu-popup-wrapper.to-diag-100100 .menu-popup {
+  animation: diag-100100 0.15s ease-out;
+}
+.menu-popup-wrapper.to-diag100100 .menu-popup {
+  animation: diag100100 0.15s ease-out;
+}
+
+@keyframes diag-100-100 {
+  from {
+    transform: translate(-100%, -100%);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+@keyframes diag100-100 {
+  from {
+    transform: translate(100%, -100%);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+@keyframes diag-100100 {
+  from {
+    transform: translate(-100%, 100%);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+@keyframes diag100100 {
+  from {
+    transform: translate(100%, 100%);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
 @keyframes slide-in-up {
   from {
     transform: translateY(100%);

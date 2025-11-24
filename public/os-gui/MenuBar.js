@@ -425,15 +425,24 @@
         menu_button_el.setAttribute("aria-expanded", "true");
         menu_popup_el.style.display = "";
         menu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
-        const rect = menu_popup_el.querySelector(".menu-popup").getBoundingClientRect();
+        // Make visible off-screen to measure
+        menu_popup_el.style.left = "-9999px";
+        menu_popup_el.style.top = "-9999px";
+        const rect = menu_popup_el
+          .querySelector(".menu-popup")
+          .getBoundingClientRect();
+
+        // Position and animate
+        update_position();
         menu_popup_el.style.width = "0px";
         menu_popup_el.style.height = "0px";
-        requestAnimationFrame(() => {
+
+        setTimeout(() => {
           menu_popup_el.style.setProperty("--width", `${rect.width}px`);
           menu_popup_el.style.setProperty("--height", `${rect.height}px`);
           menu_popup_el.style.width = "var(--width)";
           menu_popup_el.style.height = "var(--height)";
-        });
+        }, 0);
         menu_popup_el.setAttribute("dir", get_direction());
         if (window.inheritTheme) window.inheritTheme(menu_popup_el, menus_el);
         if (!menu_popup_el.parentElement)

@@ -228,8 +228,13 @@
             }
             close_submenus_at_this_level();
             item_el.setAttribute("aria-expanded", "true");
+
+            // Make visible off-screen to measure
             submenu_popup_el.style.display = "";
             submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
+            submenu_popup_el.style.position = "absolute";
+            submenu_popup_el.style.left = "-9999px";
+            submenu_popup_el.style.top = "-9999px";
             submenu_popup_el.setAttribute("dir", get_direction());
             if (window.inheritTheme) {
               window.inheritTheme(submenu_popup_el, menu_popup_el);
@@ -238,47 +243,43 @@
               document.body.appendChild(submenu_popup_el);
             }
             submenu_popup_el.dispatchEvent(new CustomEvent("update", {}));
-            if (highlight_first) {
-              submenu_popup.highlight(0);
-              options.send_info_event(submenu_popup.menuItems[0]);
-            } else {
-              submenu_popup.highlight(-1);
-            }
-            const rect = item_el.getBoundingClientRect();
-            let submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-            submenu_popup_el.style.position = "absolute";
-            submenu_popup_el.style.left = `${(get_direction() === "rtl" ? rect.left - submenu_popup_rect.width : rect.right) + window.scrollX}px`;
-            submenu_popup_el.style.top = `${rect.top + window.scrollY}px`;
-            submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-            if (get_direction() === "rtl") {
-              if (submenu_popup_rect.left < 0) {
-                submenu_popup_el.style.left = `${rect.right}px`;
-                submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-                if (submenu_popup_rect.right > innerWidth) {
-                  submenu_popup_el.style.left = `${innerWidth - submenu_popup_rect.width}px`;
-                }
-              }
-            } else {
-              if (submenu_popup_rect.right > innerWidth) {
-                submenu_popup_el.style.left = `${rect.left - submenu_popup_rect.width}px`;
-                submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
-                if (submenu_popup_rect.left < 0) {
-                  submenu_popup_el.style.left = "0";
-                }
-              }
-            }
-            submenu_popup_rect = submenu_popup_el.getBoundingClientRect(); // Recalculate after horizontal adjustments
-            if (submenu_popup_rect.bottom > innerHeight) {
-              submenu_popup_el.style.top = `${Math.max(0, innerHeight - submenu_popup_rect.height) + window.scrollY}px`;
-            }
-            // Start animation
-            const final_rect = submenu_popup_el.getBoundingClientRect();
-            const from_left = final_rect.left < rect.left;
-            const from_top = final_rect.top < rect.top;
 
+            const rect = item_el.getBoundingClientRect();
+            const submenu_popup_rect =
+              submenu_popup_el.getBoundingClientRect();
+
+            // Position and animate
+            let final_x =
+              (get_direction() === "rtl"
+                ? rect.left - submenu_popup_rect.width
+                : rect.right) + window.scrollX;
+            let final_y = rect.top + window.scrollY;
+            let from_left = false;
+
+            if (get_direction() === "rtl") {
+              if (final_x < 0) {
+                final_x = rect.right;
+                from_left = true;
+              }
+            } else {
+              if (final_x + submenu_popup_rect.width > innerWidth) {
+                final_x = rect.left - submenu_popup_rect.width;
+                from_left = true;
+              }
+            }
+            if (final_y + submenu_popup_rect.height > innerHeight) {
+              final_y = Math.max(
+                0,
+                innerHeight - submenu_popup_rect.height,
+              );
+            }
+
+            submenu_popup_el.style.left = `${final_x}px`;
+            submenu_popup_el.style.top = `${final_y}px`;
             submenu_popup_el.style.width = "0px";
             submenu_popup_el.style.height = "0px";
-            requestAnimationFrame(() => {
+
+            setTimeout(() => {
               submenu_popup_el.style.setProperty(
                 "--width",
                 `${submenu_popup_rect.width}px`,
@@ -290,14 +291,19 @@
               submenu_popup_el.style.width = "var(--width)";
               submenu_popup_el.style.height = "var(--height)";
 
-              if (from_left || final_rect.right > rect.right) {
-                submenu_popup_el.classList.add(
-                  from_left ? "to-left" : "to-right",
-                );
+              if (from_left) {
+                submenu_popup_el.classList.add("to-left");
               } else {
-                submenu_popup_el.classList.add(from_top ? "to-up" : "to-down");
+                submenu_popup_el.classList.add("to-right");
               }
-            });
+            }, 0);
+
+            if (highlight_first) {
+              submenu_popup.highlight(0);
+              options.send_info_event(submenu_popup.menuItems[0]);
+            } else {
+              submenu_popup.highlight(-1);
+            }
 
             submenu_popup_el_actual.focus({ preventScroll: true });
             options.setActiveMenuPopup(submenu_popup);
