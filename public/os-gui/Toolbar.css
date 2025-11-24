@@ -40,15 +40,6 @@
   justify-content: center;
 }
 
-.toolbar-overflow-menu .menu-item {
-  display: flex;
-  align-items: center;
-}
-
-.toolbar-overflow-menu .menu-item-label {
-  padding-left: 4px;
-}
-
 .toolbar-button:active,
 .toolbar-arrow-button:active {
   border: 1px solid var(--ButtonShadow);
@@ -144,4 +135,25 @@
 
 .menu-item-label {
   padding: 2px 10px;
+}
+
+.toolbar-overflow-popup {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item {
+    width: 100%;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item .toolbar-button {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 4px 8px;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item .toolbar-icon {
+    margin-bottom: 0;
+    margin-right: 6px;
 }
