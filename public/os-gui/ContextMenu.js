@@ -142,6 +142,9 @@
     // Position at pointer
     positionAt(event.pageX, event.pageY);
 
+    // After positioning, dispatch an update event to set initial checkbox states
+    menuPopup.element.dispatchEvent(new CustomEvent("update", {}));
+
     menuPopup.element.focus({ preventScroll: true });
 
     // Enable click-outside
