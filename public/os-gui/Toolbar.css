@@ -136,3 +136,24 @@
 .menu-item-label {
   padding: 2px 10px;
 }
+
+.toolbar-overflow-popup {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item {
+    width: 100%;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item .toolbar-button {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 4px 8px;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item .toolbar-icon {
+    margin-bottom: 0;
+    margin-right: 6px;
+}

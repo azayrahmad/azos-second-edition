@@ -35,6 +35,7 @@
       }
 
       this.buildToolbar();
+      this.setupResizeObserver();
     }
 
     buildToolbar() {
@@ -43,6 +44,10 @@
         this.element.appendChild(itemEl);
         this.itemElements.push(itemEl);
       });
+
+      // Add the "More" button for overflow
+      this.moreButtonGroup = this.createMoreButton();
+      this.element.appendChild(this.moreButtonGroup);
     }
 
     createToolbarItem(item) {
@@ -140,6 +145,157 @@
       if (this.activeMenu) {
         this.activeMenu.close();
         this.activeMenu = null;
+      }
+    }
+
+    createMoreButton() {
+      const groupEl = E("div", {
+        class: "toolbar-button-group more-button",
+        style: "display: none;",
+      });
+      const buttonEl = E("button", { class: "toolbar-button lightweight" });
+      buttonEl.innerHTML = ">>";
+      groupEl.appendChild(buttonEl);
+
+      buttonEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showOverflowMenu(groupEl);
+      });
+
+      return groupEl;
+    }
+
+    setupResizeObserver() {
+      this.observer = new ResizeObserver(() => {
+        this.handleResize();
+      });
+      this.observer.observe(this.element);
+    }
+
+    handleResize() {
+      requestAnimationFrame(() => {
+        // Make all items visible to measure them
+        this.itemElements.forEach((itemEl) => {
+          itemEl.style.display = "";
+        });
+
+        const toolbarWidth = this.element.getBoundingClientRect().width;
+
+        // Read all item widths at once to avoid layout thrashing
+        const itemWidths = this.itemElements.map(
+          (el) => el.getBoundingClientRect().width,
+        );
+        const totalItemsWidth = itemWidths.reduce((sum, w) => sum + w, 0);
+
+        let availableWidth = toolbarWidth;
+        const hasOverflow = totalItemsWidth > availableWidth;
+
+        this.moreButtonGroup.style.display = hasOverflow ? "" : "none";
+
+        if (hasOverflow) {
+          const moreButtonWidth =
+            this.moreButtonGroup.getBoundingClientRect().width;
+          availableWidth -= moreButtonWidth;
+          let currentWidth = 0;
+
+          this.itemElements.forEach((itemEl, index) => {
+            const itemWidth = itemWidths[index];
+            if (currentWidth + itemWidth > availableWidth) {
+              itemEl.style.display = "none";
+            } else {
+              itemEl.style.display = "";
+              currentWidth += itemWidth;
+            }
+          });
+        }
+      });
+    }
+
+    showOverflowMenu(parentEl) {
+      if (this.overflowMenu) {
+        this.overflowMenu.remove();
+        this.overflowMenu = null;
+        return;
+      }
+
+      this.overflowMenu = E("div", {
+        class: "menu-popup toolbar-overflow-popup",
+      });
+
+      this.itemElements.forEach((itemEl, index) => {
+        if (itemEl.style.display === "none") {
+          const clone = itemEl.cloneNode(true);
+          clone.style.display = "";
+          clone.classList.add("overflow-item");
+
+          // Re-attach event listeners
+          const originalItem = this.items[index];
+          if (originalItem.action) {
+            clone
+              .querySelector(".toolbar-button")
+              .addEventListener("click", () => {
+                originalItem.action();
+                this.overflowMenu.remove();
+                this.overflowMenu = null;
+              });
+          }
+
+          if (originalItem.submenu) {
+            clone
+              .querySelector(".toolbar-arrow-button")
+              .addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.openSubmenu(originalItem, clone);
+              });
+          }
+
+          this.overflowMenu.appendChild(clone);
+        }
+      });
+
+      if (this.options.icons) {
+        this.overflowMenu.style.setProperty(
+          "--toolbar-icons",
+          `url(${this.options.icons})`,
+        );
+      }
+      if (this.options.iconsGrayscale) {
+        this.overflowMenu.style.setProperty(
+          "--toolbar-icons-grayscale",
+          `url(${this.options.iconsGrayscale})`,
+        );
+      }
+
+      document.body.appendChild(this.overflowMenu);
+
+      const parentRect = parentEl.getBoundingClientRect();
+      this.overflowMenu.style.left = `${parentRect.left}px`;
+      this.overflowMenu.style.top = `${parentRect.bottom}px`;
+
+      this.closeMenuOnClickOutside = (e) => {
+        if (!this.overflowMenu.contains(e.target) && e.target !== parentEl) {
+          this.overflowMenu.remove();
+          this.overflowMenu = null;
+          document.removeEventListener(
+            "pointerdown",
+            this.closeMenuOnClickOutside,
+          );
+          this.closeMenuOnClickOutside = null;
+        }
+      };
+
+      document.addEventListener("pointerdown", this.closeMenuOnClickOutside);
+    }
+    destroy() {
+      this.observer.disconnect();
+      if (this.overflowMenu) {
+        this.overflowMenu.remove();
+      }
+      if (this.closeMenuOnClickOutside) {
+        document.removeEventListener(
+          "pointerdown",
+          this.closeMenuOnClickOutside,
+        );
       }
     }
   }
