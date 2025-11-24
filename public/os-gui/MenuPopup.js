@@ -353,8 +353,11 @@
           if (item.checkbox) {
             if (item.checkbox.toggle) {
               item.checkbox.toggle();
+              // Fire an update event to immediately reflect the new state.
+              const parent_menu_el =
+                item_el.closest(".menu-popup-table").parentElement;
+              parent_menu_el.dispatchEvent(new CustomEvent("update", {}));
             }
-            menu_popup_el.dispatchEvent(new CustomEvent("update", {}));
             // Radio buttons should close the menu, but checkboxes shouldn't.
             if (item.checkbox.type === "radio") {
               options.closeMenus();

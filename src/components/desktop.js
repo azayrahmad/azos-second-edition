@@ -45,6 +45,12 @@ function getIconId(app, filePath = null) {
     : `app-${app.id}`;
 }
 
+function isAutoArrangeEnabled() {
+  const autoArrange = getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS);
+  // Default to true if the setting is not present
+  return autoArrange === null ? true : !!autoArrange;
+}
+
 function createDesktopIcon(item, isFile = false) {
   const app = isFile ? apps.find((a) => a.id === item.app) : item;
   if (!app) return null;
@@ -219,16 +225,53 @@ function applyMonitorType() {
   }
 }
 
+function captureGridIconPositions() {
+  const desktop = document.querySelector(".desktop");
+  if (desktop.classList.contains("has-absolute-icons")) {
+    // Already in manual mode, no need to capture.
+    return;
+  }
+  const desktopRect = desktop.getBoundingClientRect();
+  const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
+  const iconPositions = {};
+
+  // Force browser reflow to ensure accurate position values
+  desktop.offsetHeight;
+
+  allIcons.forEach((icon) => {
+    const id = icon.getAttribute("data-icon-id");
+    const rect = icon.getBoundingClientRect();
+    const x = `${rect.left - desktopRect.left}px`;
+    const y = `${rect.top - desktopRect.top}px`;
+    iconPositions[id] = { x, y };
+  });
+
+  setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+}
+
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
 
+  const toggleAutoArrange = () => {
+    const newSetting = !isAutoArrangeEnabled();
+    setItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS, newSetting);
+
+    if (newSetting) {
+      // Turning ON: clear saved positions
+      removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+    } else {
+      // Turning OFF: capture current grid positions and save them
+      captureGridIconPositions();
+    }
+    document.querySelector(".desktop").refreshIcons();
+  };
+
   const menuItems = [
     {
-      label: "Sort Icons",
-      action: () => {
-        // Remove saved positions and redraw icons
-        removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-        document.querySelector(".desktop").refreshIcons();
+      label: "Auto Arrange",
+      checkbox: {
+        check: isAutoArrangeEnabled,
+        toggle: toggleAutoArrange,
       },
     },
     {
@@ -387,10 +430,14 @@ export function setupIcons(options) {
   desktop.innerHTML = ""; // Clear existing icons
 
   const desktopApps = getDesktopContents();
-  const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
 
-  // If there are any saved positions, we are in manual mode.
-  if (Object.keys(iconPositions).length > 0) {
+  let iconPositions = {};
+  if (!isAutoArrangeEnabled()) {
+    iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+  }
+
+  // Set the class based on Auto Arrange, not just the presence of positions.
+  if (!isAutoArrangeEnabled()) {
     desktop.classList.add("has-absolute-icons");
   } else {
     desktop.classList.remove("has-absolute-icons");
@@ -484,6 +531,15 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   const iconId = icon.getAttribute("data-icon-id");
 
   const handleDragStart = (e) => {
+    // Check if auto-arrange is enabled. If so, disable dragging.
+    if (isAutoArrangeEnabled()) {
+      // Still allow the icon manager to handle selection, but prevent drag.
+      if (e.type === "mousedown") {
+        iconManager.handleIconMouseDown(e, icon);
+      }
+      return;
+    }
+
     if (e.type === "mousedown" && e.button !== 0) return;
     if (e.type === "touchstart" && e.touches.length > 1) return;
 
