@@ -146,6 +146,7 @@ class StartMenu {
 
       activeMenu = new window.MenuPopup(submenuItems, {
         parentMenuPopup: null,
+        useSlideAnimation: true,
         handleKeyDown: (e) => {
           if (e.key === "Escape") {
             closeMenu();
@@ -162,11 +163,10 @@ class StartMenu {
       });
 
       const screen = document.getElementById("screen");
-      screen.appendChild(activeMenu.element);
       const rect = menuItem.getBoundingClientRect();
       const screenRect = screen.getBoundingClientRect();
-      activeMenu.element.style.left = `${rect.right - screenRect.left}px`;
-      activeMenu.element.style.top = `${rect.top - screenRect.top}px`;
+
+      activeMenu.show(rect.right - screenRect.left, rect.top - screenRect.top);
       activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
       if (typeof window.playSound === "function") {
         window.playSound("MenuPopup");
