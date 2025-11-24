@@ -215,7 +215,9 @@
         return;
       }
 
-      this.overflowMenu = E("div", { class: "menu-popup toolbar-overflow-popup" });
+      this.overflowMenu = E("div", {
+        class: "menu-popup toolbar-overflow-popup",
+      });
 
       this.itemElements.forEach((itemEl, index) => {
         if (itemEl.style.display === "none") {
@@ -226,23 +228,40 @@
           // Re-attach event listeners
           const originalItem = this.items[index];
           if (originalItem.action) {
-            clone.querySelector(".toolbar-button").addEventListener("click", () => {
-              originalItem.action();
-              this.overflowMenu.remove();
-              this.overflowMenu = null;
-            });
+            clone
+              .querySelector(".toolbar-button")
+              .addEventListener("click", () => {
+                originalItem.action();
+                this.overflowMenu.remove();
+                this.overflowMenu = null;
+              });
           }
 
           if (originalItem.submenu) {
-             clone.querySelector(".toolbar-arrow-button").addEventListener("click", (e) => {
+            clone
+              .querySelector(".toolbar-arrow-button")
+              .addEventListener("click", (e) => {
                 e.stopPropagation();
                 this.openSubmenu(originalItem, clone);
-             });
+              });
           }
 
           this.overflowMenu.appendChild(clone);
         }
       });
+
+      if (this.options.icons) {
+        this.overflowMenu.style.setProperty(
+          "--toolbar-icons",
+          `url(${this.options.icons})`,
+        );
+      }
+      if (this.options.iconsGrayscale) {
+        this.overflowMenu.style.setProperty(
+          "--toolbar-icons-grayscale",
+          `url(${this.options.iconsGrayscale})`,
+        );
+      }
 
       document.body.appendChild(this.overflowMenu);
 
@@ -254,7 +273,10 @@
         if (!this.overflowMenu.contains(e.target) && e.target !== parentEl) {
           this.overflowMenu.remove();
           this.overflowMenu = null;
-          document.removeEventListener("pointerdown", this.closeMenuOnClickOutside);
+          document.removeEventListener(
+            "pointerdown",
+            this.closeMenuOnClickOutside,
+          );
           this.closeMenuOnClickOutside = null;
         }
       };
@@ -266,8 +288,11 @@
       if (this.overflowMenu) {
         this.overflowMenu.remove();
       }
-      if(this.closeMenuOnClickOutside) {
-        document.removeEventListener("pointerdown", this.closeMenuOnClickOutside);
+      if (this.closeMenuOnClickOutside) {
+        document.removeEventListener(
+          "pointerdown",
+          this.closeMenuOnClickOutside,
+        );
       }
     }
   }
