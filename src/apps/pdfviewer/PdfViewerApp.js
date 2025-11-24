@@ -71,6 +71,28 @@ export class PdfViewerApp extends Application {
         });
     }
 
+    async _onLaunch(filePath) {
+        if (filePath) {
+            const correctedPath = filePath.startsWith('public/') ? filePath.substring('public/'.length) : filePath;
+            try {
+                const fileName = correctedPath.split('/').pop();
+                this.win.title = `${fileName} - ${this.title}`;
+
+                const response = await fetch(correctedPath);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                const pdfData = new Uint8Array(arrayBuffer);
+                await this._loadPdf(pdfData);
+            } catch (error) {
+                console.error(`Failed to load PDF from path: ${correctedPath}`, error);
+                const placeholder = this.win.$content.find('.pdf-viewer-placeholder');
+                placeholder.text(`Failed to load PDF from ${correctedPath}.`);
+            }
+        }
+    }
+
     _openFile() {
         const input = document.createElement('input');
         input.type = 'file';
