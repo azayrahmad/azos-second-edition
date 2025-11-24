@@ -1148,15 +1148,6 @@ so I think I'll imitate that. (I might change it later) */
     }
 }
 
-@keyframes slideLeft {
-    from {
-        transform: translateX(0);
-    }
-    to {
-        transform: translateX(-100%);
-    }
-}
-
 .animating-menu {
     animation-duration: 130ms;
     animation-timing-function: linear;

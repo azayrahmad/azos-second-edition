@@ -93,27 +93,12 @@
       for (const submenu of submenus) {
         submenu.submenu_popup.close(false);
       }
-      if (this.options.useSlideAnimation) {
-        menu_popup_el.style.animationName = "slideLeft";
-        menu_popup_el.classList.add("animating-menu");
-
-        const handleAnimationEnd = () => {
-          this.element.style.display = "none";
-          menu_popup_el.style.animationName = "";
-          menu_popup_el.classList.remove("animating-menu");
-          if (this.wrapper) {
-            this.wrapper.remove();
-          }
-        };
-        menu_popup_el.addEventListener("animationend", handleAnimationEnd, {
-          once: true,
-        });
-      } else {
-        this.element.style.display = "none";
-      }
-
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
+      }
+      this.element.style.display = "none";
+      if (this.wrapper) {
+        this.wrapper.remove();
       }
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
@@ -295,7 +280,6 @@
             useSlideAnimation: this.options.useSlideAnimation,
           });
           submenu_popup_el = submenu_popup.element;
-          document.body?.appendChild(submenu_popup_el);
           submenu_popup_el.style.display = "none";
           item_el.setAttribute("aria-haspopup", "true");
           item_el.setAttribute("aria-expanded", "false");
