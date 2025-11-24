@@ -6,10 +6,9 @@ import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale
 export class InternetExplorerApp extends IFrameApplication {
   constructor(options) {
     super(options);
-    this.retroMode = false; // Default to live mode
+    this.retroMode = true;
     this.history = [];
     this.historyIndex = -1;
-    this.isNavigatingWithHistory = false;
   }
 
   async _onLaunch(data) {
@@ -19,8 +18,8 @@ export class InternetExplorerApp extends IFrameApplication {
       url = data;
     } else if (typeof data === "object" && data !== null) {
       url = data.url || url;
-      if (data.retroMode === true) {
-        this.retroMode = true;
+      if (data.retroMode === false) {
+        this.retroMode = false;
       }
     }
     this._updateTitle(); // Always call this to set the correct initial title
@@ -67,21 +66,27 @@ export class InternetExplorerApp extends IFrameApplication {
 
     this.goBack = () => {
       if (this.historyIndex > 0) {
-        this.isNavigatingWithHistory = true;
         this.historyIndex--;
-        this._loadUrl(this.history[this.historyIndex]);
+        this._loadUrl(this.history[this.historyIndex], true);
       }
     };
 
     this.goForward = () => {
       if (this.historyIndex < this.history.length - 1) {
-        this.isNavigatingWithHistory = true;
         this.historyIndex++;
-        this._loadUrl(this.history[this.historyIndex]);
+        this._loadUrl(this.history[this.historyIndex], true);
       }
     };
 
-    this._loadUrl = (url) => {
+    this._loadUrl = (url, isHistoryNav = false) => {
+      if (!isHistoryNav) {
+        if (this.historyIndex < this.history.length - 1) {
+          this.history.splice(this.historyIndex + 1);
+        }
+        this.history.push(url);
+        this.historyIndex = this.history.length - 1;
+      }
+
       let finalUrl = url.trim();
       if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
         finalUrl = `https://${finalUrl}`;
@@ -130,17 +135,9 @@ export class InternetExplorerApp extends IFrameApplication {
       }
 
       this._updateNavButtons();
-      this.isNavigatingWithHistory = false;
     };
 
     this.navigateTo = (url) => {
-      if (!this.isNavigatingWithHistory) {
-        if (this.historyIndex < this.history.length - 1) {
-          this.history.splice(this.historyIndex + 1);
-        }
-        this.history.push(url);
-        this.historyIndex = this.history.length - 1;
-      }
       this._loadUrl(url);
     };
 
@@ -212,11 +209,12 @@ export class InternetExplorerApp extends IFrameApplication {
           this.history
             .slice(0, this.historyIndex)
             .reverse()
+            .slice(0, 3)
             .map((url, i) => ({
               label: url,
               action: () => {
                 this.historyIndex -= i + 1;
-                this._loadUrl(this.history[this.historyIndex]);
+                this._loadUrl(this.history[this.historyIndex], true);
               },
             })),
       },
@@ -228,11 +226,12 @@ export class InternetExplorerApp extends IFrameApplication {
         submenu: () =>
           this.history
             .slice(this.historyIndex + 1)
+            .slice(0, 3)
             .map((url, i) => ({
               label: url,
               action: () => {
                 this.historyIndex += i + 1;
-                this._loadUrl(this.history[this.historyIndex]);
+                this._loadUrl(this.history[this.historyIndex], true);
               },
             })),
       },
