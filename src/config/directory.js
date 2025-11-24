@@ -166,6 +166,13 @@ const directory = [
                 targetId: "app-network-neighborhood",
                 name: "Network Neighborhood",
               },
+              {
+                id: "file-readme",
+                type: "file",
+                name: "Readme.md",
+                openwith: "notepad",
+                contentUrl: "files/README.md",
+              },
             ],
           },
           {

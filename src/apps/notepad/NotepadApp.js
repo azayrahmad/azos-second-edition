@@ -155,7 +155,7 @@ export class NotepadApp extends Application {
         });
     }
 
-    _onLaunch() {
+    _onLaunch(filePath) {
         const container = this.win.$content.find('.notepad-container')[0];
         this.editor = new NotepadEditor(container, {
             win: this.win,
@@ -175,6 +175,31 @@ export class NotepadApp extends Application {
         };
 
         this.updateTitle();
+
+        if (filePath) {
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(text => {
+                    this.fileName = filePath.split('/').pop();
+                    this.editor.setValue(text);
+                    this.isDirty = false;
+                    this.updateTitle();
+                    this.setLanguage(this.getLanguageFromExtension(this.fileName));
+                })
+                .catch(e => {
+                    console.error('Error loading file:', e);
+                    ShowDialogWindow({
+                        title: 'Error',
+                        text: `Could not open file: ${filePath}`,
+                        buttons: [{ label: 'OK', isDefault: true }],
+                    });
+                });
+        }
 
         const notepadContainer = this.win.$content.find('.notepad-container')[0];
         notepadContainer.addEventListener('dragover', (e) => {
