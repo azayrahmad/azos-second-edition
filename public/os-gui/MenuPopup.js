@@ -200,7 +200,10 @@
             ...options,
             parentMenuPopup: this,
           });
-          submenu_popup_el = submenu_popup.element;
+          const submenu_popup_el_actual = submenu_popup.element;
+          submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
+          submenu_popup_el.appendChild(submenu_popup_el_actual);
+
           document.body?.appendChild(submenu_popup_el);
           submenu_popup_el.style.display = "none";
           item_el.setAttribute("aria-haspopup", "true");
@@ -268,7 +271,35 @@
             if (submenu_popup_rect.bottom > innerHeight) {
               submenu_popup_el.style.top = `${Math.max(0, innerHeight - submenu_popup_rect.height) + window.scrollY}px`;
             }
-            submenu_popup_el.focus({ preventScroll: true });
+            // Start animation
+            const final_rect = submenu_popup_el.getBoundingClientRect();
+            const from_left = final_rect.left < rect.left;
+            const from_top = final_rect.top < rect.top;
+
+            submenu_popup_el.style.width = "0px";
+            submenu_popup_el.style.height = "0px";
+            requestAnimationFrame(() => {
+              submenu_popup_el.style.setProperty(
+                "--width",
+                `${submenu_popup_rect.width}px`,
+              );
+              submenu_popup_el.style.setProperty(
+                "--height",
+                `${submenu_popup_rect.height}px`,
+              );
+              submenu_popup_el.style.width = "var(--width)";
+              submenu_popup_el.style.height = "var(--height)";
+
+              if (from_left || final_rect.right > rect.right) {
+                submenu_popup_el.classList.add(
+                  from_left ? "to-left" : "to-right",
+                );
+              } else {
+                submenu_popup_el.classList.add(from_top ? "to-up" : "to-down");
+              }
+            });
+
+            submenu_popup_el_actual.focus({ preventScroll: true });
             options.setActiveMenuPopup(submenu_popup);
           };
           submenus.push({

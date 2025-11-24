@@ -1,0 +1,62 @@
+.menu-popup-wrapper {
+  position: absolute;
+  overflow: hidden;
+  --extra-width: 0px;
+  --extra-height: 0px;
+  width: calc(var(--width) + var(--extra-width));
+  height: calc(var(--height) + var(--extra-height));
+  transition:
+    width 0.15s ease-out,
+    height 0.15s ease-out,
+    left 0.15s ease-out,
+    top 0.15s ease-out;
+}
+
+.menu-popup-wrapper.to-right .menu-popup {
+  animation: slide-in-right 0.15s ease-out;
+}
+.menu-popup-wrapper.to-left .menu-popup {
+  animation: slide-in-left 0.15s ease-out;
+}
+.menu-popup-wrapper.to-down .menu-popup {
+  animation: slide-in-down 0.15s ease-out;
+}
+.menu-popup-wrapper.to-up .menu-popup {
+  animation: slide-in-up 0.15s ease-out;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

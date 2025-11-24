@@ -355,7 +355,9 @@
         send_info_event,
         setActiveMenuPopup,
       });
-      const menu_popup_el = menu_popup.element;
+      const menu_popup_el_actual = menu_popup.element;
+      const menu_popup_el = E("div", { class: "menu-popup-wrapper to-down" });
+      menu_popup_el.appendChild(menu_popup_el_actual);
       document.body?.appendChild(menu_popup_el);
 
       menu_button_el.id = `menu-button-${menus_key}-${uid()}`;
@@ -423,6 +425,15 @@
         menu_button_el.setAttribute("aria-expanded", "true");
         menu_popup_el.style.display = "";
         menu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
+        const rect = menu_popup_el.querySelector(".menu-popup").getBoundingClientRect();
+        menu_popup_el.style.width = "0px";
+        menu_popup_el.style.height = "0px";
+        requestAnimationFrame(() => {
+          menu_popup_el.style.setProperty("--width", `${rect.width}px`);
+          menu_popup_el.style.setProperty("--height", `${rect.height}px`);
+          menu_popup_el.style.width = "var(--width)";
+          menu_popup_el.style.height = "var(--height)";
+        });
         menu_popup_el.setAttribute("dir", get_direction());
         if (window.inheritTheme) window.inheritTheme(menu_popup_el, menus_el);
         if (!menu_popup_el.parentElement)

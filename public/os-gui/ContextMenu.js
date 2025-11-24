@@ -1,7 +1,7 @@
 ((exports) => {
   function ContextMenu(menuItems, event) {
     // Remove existing menus
-    const existingMenus = document.querySelectorAll(".menu-popup-wrap");
+    const existingMenus = document.querySelectorAll(".menu-popup-wrapper");
     existingMenus.forEach((menu) => menu.remove());
 
     let menuPopup;
@@ -10,7 +10,7 @@
     // 1. Create wrapper for clipping + animation
     // ──────────────────────────────────────────────
     const wrap = document.createElement("div");
-    wrap.className = "menu-popup-wrap";
+    wrap.className = "menu-popup-wrapper";
     wrap.style.position = "absolute";
     wrap.style.overflow = "hidden";
     wrap.style.width = "0px";
@@ -71,28 +71,6 @@
     // Force reflow
     void menuPopup.element.offsetHeight;
 
-    // ──────────────────────────────────────────────
-    // 4. Quadrant detection + animation
-    // ──────────────────────────────────────────────
-    const ANIMATIONS = {
-      "-100,-100": "diag-100-100", // slide from top-left → down-right
-      "100,-100": "diag100-100", // slide from top-right → down-left
-      "-100,100": "diag-100100", // slide from bottom-left → up-right
-      "100,100": "diag100100", // slide from bottom-right → up-left
-    };
-
-    // Inject keyframes if not already added
-    if (!document.getElementById("context-menu-anim")) {
-      const st = document.createElement("style");
-      st.id = "context-menu-anim";
-      st.textContent = `
-@keyframes diag-100-100 { from { transform: translate(-100%, -100%);} to { transform: translate(0,0);} }
-@keyframes diag100-100  { from { transform: translate(100%, -100%);} to { transform: translate(0,0);} }
-@keyframes diag-100100  { from { transform: translate(-100%, 100%);} to { transform: translate(0,0);} }
-@keyframes diag100100   { from { transform: translate(100%, 100%);} to { transform: translate(0,0);} }
-      `;
-      document.head.appendChild(st);
-    }
 
     // ──────────────────────────────────────────────
     // 5. Position wrapper based on boundaries
@@ -109,34 +87,48 @@
 
       let fromX = -100; // default slide in down-right
       let fromY = -100;
+      let pos_x = "right";
+      let pos_y = "down";
 
       // Flip horizontally if needed
       if (relX + menuRect.width > screenRect.width) {
         finalX = relX - menuRect.width;
         fromX = 100; // slide in from right
+        pos_x = "left";
       }
 
       // Flip vertically if needed
       if (relY + menuRect.height > screenRect.height) {
         finalY = relY - menuRect.height;
         fromY = 100; // slide in from bottom
+        pos_y = "up";
       }
 
       finalX = Math.max(0, finalX);
       finalY = Math.max(0, finalY);
 
       // Resize wrapper
-      wrap.style.width = menuRect.width + "px";
-      wrap.style.height = menuRect.height + "px";
+      wrap.style.width = "0px";
+      wrap.style.height = "0px";
 
       wrap.style.left = `${finalX}px`;
       wrap.style.top = `${finalY}px`;
+      requestAnimationFrame(() => {
+        wrap.style.setProperty("--width", `${menuRect.width}px`);
+        wrap.style.setProperty("--height", `${menuRect.height}px`);
+        wrap.style.width = "var(--width)";
+        wrap.style.height = "var(--height)";
 
-      // Apply animation
-      menuPopup.element.style.animation =
-        ANIMATIONS[`${fromX},${fromY}`] + " 130ms linear forwards";
-
-      menuPopup.element.style.transform = `translate(${fromX}%, ${fromY}%)`;
+        // Prioritize horizontal animation
+        if (pos_x === "left") {
+          wrap.classList.add("to-left");
+        } else if (pos_y === "up") {
+          wrap.classList.add("to-up");
+        } else {
+          // Default is to slide right (covers the case where pos_x is 'right' and pos_y is 'down')
+          wrap.classList.add("to-right");
+        }
+      });
     };
 
     // Position at pointer
