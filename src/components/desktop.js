@@ -262,47 +262,37 @@ function sortDesktopItems(items) {
   return allItems;
 }
 
-function sortIcons() {
-  const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
-  if (isAutoArrange) {
-      removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-  }
+function applyDesktopLayout() {
+  setTimeout(() => {
+    const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
 
-  document.querySelector(".desktop").refreshIcons();
+    if (isAutoArrange) {
+        removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+    }
 
-  if (!isAutoArrange) {
-      const desktop = document.querySelector(".desktop");
-      desktop.offsetHeight;
-      const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
-      const iconPositions = {};
-      const desktopRect = desktop.getBoundingClientRect();
-      allIcons.forEach(icon => {
-          const id = icon.getAttribute("data-icon-id");
-          const rect = icon.getBoundingClientRect();
-          iconPositions[id] = {
-              x: `${rect.left - desktopRect.left}px`,
-              y: `${rect.top - desktopRect.top}px`,
-          };
-      });
-      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
-      desktop.classList.add("has-absolute-icons");
-  }
-}
+    const desktop = document.querySelector(".desktop");
+    desktop.refreshIcons();
 
-function toggleAutoArrange(isAutoArrange, menuElement) {
-  if (isAutoArrange) {
-      removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-  }
-  document.querySelector(".desktop").refreshIcons();
-  if (menuElement) {
-    menuElement.dispatchEvent(new CustomEvent("update", {}));
-  }
+    if (!isAutoArrange) {
+        const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
+        const iconPositions = {};
+        const desktopRect = desktop.getBoundingClientRect();
+        allIcons.forEach(icon => {
+            const id = icon.getAttribute("data-icon-id");
+            const rect = icon.getBoundingClientRect();
+            iconPositions[id] = {
+                x: `${rect.left - desktopRect.left}px`,
+                y: `${rect.top - desktopRect.top}px`,
+            };
+        });
+        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+        desktop.classList.add("has-absolute-icons");
+    }
+  }, 0);
 }
 
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
-
-  let menu;
 
   const menuItems = [
     {
@@ -316,7 +306,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
           getValue: () => getItem(LOCAL_STORAGE_KEYS.SORT_ICONS_BY) || "type",
           setValue: (value) => {
             setItem(LOCAL_STORAGE_KEYS.SORT_ICONS_BY, value);
-            sortIcons();
+            applyDesktopLayout();
           },
           ariaLabel: "Sort by",
         },
@@ -328,7 +318,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
             toggle: () => {
               const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
               setItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS, !isAutoArrange);
-              toggleAutoArrange(!isAutoArrange, menu.activeSubmenu.element);
+              applyDesktopLayout();
             },
           },
         },
@@ -463,7 +453,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     action: () => launchApp("display-properties"),
   });
 
-  menu = new window.ContextMenu(menuItems, event);
+  const menu = new window.ContextMenu(menuItems, event);
   const handleThemeChange = () => {
     if (menu.activeSubmenu) {
       menu.activeSubmenu.element.dispatchEvent(new CustomEvent("update", {}));
