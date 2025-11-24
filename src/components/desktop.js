@@ -289,15 +289,20 @@ function sortIcons() {
   }
 }
 
-function toggleAutoArrange(isAutoArrange) {
+function toggleAutoArrange(isAutoArrange, menuElement) {
   if (isAutoArrange) {
       removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
   }
   document.querySelector(".desktop").refreshIcons();
+  if (menuElement) {
+    menuElement.dispatchEvent(new CustomEvent("update", {}));
+  }
 }
 
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
+
+  let menu;
 
   const menuItems = [
     {
@@ -323,7 +328,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
             toggle: () => {
               const isAutoArrange = (getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS) ?? "true") === "true";
               setItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS, !isAutoArrange);
-              toggleAutoArrange(!isAutoArrange);
+              toggleAutoArrange(!isAutoArrange, menu.activeSubmenu.element);
             },
           },
         },
@@ -458,7 +463,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     action: () => launchApp("display-properties"),
   });
 
-  const menu = new window.ContextMenu(menuItems, event);
+  menu = new window.ContextMenu(menuItems, event);
   const handleThemeChange = () => {
     if (menu.activeSubmenu) {
       menu.activeSubmenu.element.dispatchEvent(new CustomEvent("update", {}));
