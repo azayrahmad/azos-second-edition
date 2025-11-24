@@ -128,9 +128,12 @@
         this.closeActiveMenu();
       }
 
+      const submenuItems =
+        typeof item.submenu === "function" ? item.submenu() : item.submenu;
+
       const parentRect = parentEl.getBoundingClientRect();
       const event = { pageX: parentRect.left, pageY: parentRect.bottom };
-      this.activeMenu = new window.ContextMenu(item.submenu, event);
+      this.activeMenu = new window.ContextMenu(submenuItems, event);
     }
 
     closeActiveMenu() {
