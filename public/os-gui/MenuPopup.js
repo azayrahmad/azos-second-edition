@@ -231,6 +231,7 @@
 
             // Make visible off-screen to measure
             submenu_popup_el.style.display = "";
+            submenu_popup.element.style.display = "";
             submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
             submenu_popup_el.style.position = "absolute";
             submenu_popup_el.style.left = "-9999px";

@@ -424,6 +424,7 @@
         menu_button_el.classList.add("active");
         menu_button_el.setAttribute("aria-expanded", "true");
         menu_popup_el.style.display = "";
+        menu_popup.element.style.display = "";
         menu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
         // Make visible off-screen to measure
         menu_popup_el.style.left = "-9999px";
