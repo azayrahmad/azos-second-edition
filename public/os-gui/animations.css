@@ -5,11 +5,6 @@
   --extra-height: 0px;
   width: calc(var(--width) + var(--extra-width));
   height: calc(var(--height) + var(--extra-height));
-  transition:
-    width 0.15s ease-out,
-    height 0.15s ease-out,
-    left 0.15s ease-out,
-    top 0.15s ease-out;
 }
 
 .menu-popup-wrapper.to-right .menu-popup {
