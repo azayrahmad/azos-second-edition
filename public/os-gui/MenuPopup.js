@@ -22,14 +22,6 @@
       role: "menu",
     });
 
-    if (options.useSlideAnimation) {
-      const wrapper = E("div", { class: "menu-popup-wrapper" });
-      wrapper.style.overflow = "hidden";
-      wrapper.style.position = "absolute";
-      wrapper.appendChild(menu_popup_el);
-      this.wrapper = wrapper;
-    }
-
     menu_popup_el.style.touchAction = "pan-y";
     menu_popup_el.style.outline = "none";
     const menu_popup_table_el = E("table", {
@@ -38,7 +30,7 @@
     });
     menu_popup_el.appendChild(menu_popup_table_el);
 
-    this.element = this.wrapper || menu_popup_el;
+    this.element = menu_popup_el;
     let submenus = [];
 
     menu_popup_el.addEventListener("keydown", options.handleKeyDown);
@@ -96,77 +88,12 @@
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
       }
-      this.element.style.display = "none";
+      menu_popup_el.style.display = "none";
       if (this.wrapper) {
         this.wrapper.remove();
       }
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
-    };
-
-    this.show = (x, y, parentRect) => {
-      const screen = document.getElementById("screen");
-      screen.appendChild(this.element);
-
-      this.element.style.left = `${x}px`;
-      this.element.style.top = `${y}px`;
-
-      if (this.options.useSlideAnimation) {
-        menu_popup_el.style.visibility = "hidden";
-        menu_popup_el.style.display = "block";
-
-        requestAnimationFrame(() => {
-          const rect = menu_popup_el.getBoundingClientRect();
-          this.wrapper.style.width = `${rect.width}px`;
-          this.wrapper.style.height = `${rect.height}px`;
-
-          // Adjust position if out of bounds
-          if (get_direction() === "rtl") {
-            if (rect.left < 0) {
-              this.element.style.left = `${parentRect.right}px`;
-            }
-          } else {
-            if (rect.right > innerWidth) {
-              this.element.style.left = `${parentRect.left - rect.width}px`;
-            }
-          }
-          if (rect.bottom > innerHeight) {
-            this.element.style.top = `${Math.max(0, innerHeight - rect.height) + window.scrollY}px`;
-          }
-
-          menu_popup_el.style.visibility = "visible";
-          menu_popup_el.style.transform = "translateX(-100%)";
-
-          requestAnimationFrame(() => {
-            menu_popup_el.classList.add("animating-menu");
-            menu_popup_el.style.animationName = "slideRight";
-            menu_popup_el.style.transform = "";
-          });
-        });
-
-        const handleAnimationEnd = () => {
-          menu_popup_el.style.animationName = "";
-          menu_popup_el.classList.remove("animating-menu");
-        };
-        menu_popup_el.addEventListener("animationend", handleAnimationEnd, {
-          once: true,
-        });
-      } else {
-        this.element.style.display = "block";
-        const rect = this.element.getBoundingClientRect();
-        if (get_direction() === "rtl") {
-          if (rect.left < 0) {
-            this.element.style.left = `${parentRect.right}px`;
-          }
-        } else {
-          if (rect.right > innerWidth) {
-            this.element.style.left = `${parentRect.left - rect.width}px`;
-          }
-        }
-        if (rect.bottom > innerHeight) {
-          this.element.style.top = `${Math.max(0, innerHeight - rect.height) + window.scrollY}px`;
-        }
-      }
     };
 
     const add_menu_item = (parent_element, item, item_index) => {
@@ -304,24 +231,57 @@
             close_submenus_at_this_level();
             item_el.setAttribute("aria-expanded", "true");
 
+            if (this.options.useSlideAnimation) {
+              const wrapper = E("div", { class: "menu-popup-wrapper" });
+              wrapper.style.overflow = "hidden";
+              wrapper.style.position = "absolute";
+
+              const screen = document.getElementById("screen");
+              screen.appendChild(wrapper);
+
+              wrapper.appendChild(submenu_popup_el);
+              submenu_popup.wrapper = wrapper;
+
+              submenu_popup_el.style.display = "block";
+
+              requestAnimationFrame(() => {
+                const rect = item_el.getBoundingClientRect();
+                const menuRect = submenu_popup_el.getBoundingClientRect();
+
+                wrapper.style.width = `${menuRect.width}px`;
+                wrapper.style.height = `${menuRect.height}px`;
+
+                let x = (get_direction() === "rtl" ? rect.left - menuRect.width : rect.right) + window.scrollX;
+                let y = rect.top + window.scrollY;
+
+                if (get_direction() === "rtl") {
+                  if (x < 0) x = rect.right;
+                } else {
+                  if (x + menuRect.width > innerWidth) x = rect.left - menuRect.width;
+                }
+                if (y + menuRect.height > innerHeight) y = Math.max(0, innerHeight - menuRect.height) + window.scrollY;
+
+                wrapper.style.left = `${x}px`;
+                wrapper.style.top = `${y}px`;
+
+                submenu_popup_el.style.transform = "translateX(-100%)";
+                submenu_popup_el.classList.add("animating-menu");
+                submenu_popup_el.style.animationName = "slideRight";
+
+                requestAnimationFrame(() => {
+                  submenu_popup_el.style.transform = "";
+                });
+              });
+            } else {
+              submenu_popup_el.style.display = "";
+            }
+
             submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
             submenu_popup_el.setAttribute("dir", get_direction());
             if (window.inheritTheme) {
               window.inheritTheme(submenu_popup_el, menu_popup_el);
             }
-
             submenu_popup_el.dispatchEvent(new CustomEvent("update", {}));
-
-            const rect = item_el.getBoundingClientRect();
-            submenu_popup.show(
-              (get_direction() === "rtl"
-                ? rect.left - submenu_popup.element.offsetWidth
-                : rect.right) + window.scrollX,
-              rect.top + window.scrollY,
-              rect
-            );
-
-            // Highlight first item or none
             if (highlight_first) {
               submenu_popup.highlight(0);
               options.send_info_event(submenu_popup.menuItems[0]);
