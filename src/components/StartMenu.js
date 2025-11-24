@@ -265,38 +265,45 @@ class StartMenu {
   show() {
     const startMenu = document.querySelector(SELECTORS.START_MENU);
     const startButton = document.querySelector(SELECTORS.START_BUTTON);
+    const startMenuWrapper = document.querySelector(".start-menu-wrapper");
 
-    if (!startMenu || !startButton) return;
+    if (!startMenu || !startButton || !startMenuWrapper) return;
 
     playSound("MenuPopup");
-    // Reset animation first to ensure clean state
-    startMenu.style.animationName = "";
 
+    // 1. Make menu visible but off-screen to measure it
     startMenu.classList.remove(CLASSES.HIDDEN);
-    startMenu.classList.add("is-animating");
-    startButton.classList.add("selected"); // Changed from CLASSES.ACTIVE
-    startButton.setAttribute("aria-pressed", "true"); // Added
-    startMenu.setAttribute("aria-hidden", "false");
-    this.isVisible = true;
+    startMenu.style.transform = "translateY(100%)"; // Move it down
+    startMenu.style.animationName = ""; // Clear animation
 
-    // Apply animation after a brief delay to ensure proper rendering
+    // 2. Measure dimensions
+    const menuRect = startMenu.getBoundingClientRect();
+
+    // 3. Set wrapper size and position
+    startMenuWrapper.style.width = `${menuRect.width}px`;
+    startMenuWrapper.style.height = `${menuRect.height}px`;
+
+    // 4. Reset menu position and trigger animation
     requestAnimationFrame(() => {
+      startMenu.style.transform = "";
       startMenu.style.animationName = ANIMATIONS.SCROLL_UP;
     });
 
-    // Focus first menu item for accessibility
+    startMenu.classList.add("is-animating");
+    startButton.classList.add("selected");
+    startButton.setAttribute("aria-pressed", "true");
+    startMenu.setAttribute("aria-hidden", "false");
+    this.isVisible = true;
+
     const firstMenuItem = startMenu.querySelector('[role="menuitem"]');
     if (firstMenuItem) {
-      // Delay focus until after animation starts
-      setTimeout(() => {
-        firstMenuItem.focus();
-      }, 50);
+      setTimeout(() => firstMenuItem.focus(), 50);
     }
 
-    // Reset animation after completion to prevent conflicts
     const handleAnimationEnd = () => {
       startMenu.style.animationName = "";
       startMenu.classList.remove("is-animating");
+      startMenuWrapper.style.pointerEvents = "auto";
     };
     startMenu.addEventListener("animationend", handleAnimationEnd, {
       once: true,
@@ -309,13 +316,14 @@ class StartMenu {
   hide() {
     const startMenu = document.querySelector(SELECTORS.START_MENU);
     const startButton = document.querySelector(SELECTORS.START_BUTTON);
+    const startMenuWrapper = document.querySelector(".start-menu-wrapper");
 
-    if (!startMenu || !startButton) return;
+    if (!startMenu || !startButton || !startMenuWrapper || !this.isVisible)
+      return;
 
-    // Clear any running animations first
     startMenu.style.animationName = "";
-
     startMenu.classList.add("is-animating");
+    startMenuWrapper.style.pointerEvents = "none";
     startMenu.style.animationName = ANIMATIONS.SCROLL_DOWN;
 
     const handleAnimationEnd = () => {
@@ -323,13 +331,16 @@ class StartMenu {
       startMenu.style.animationName = "";
       startMenu.classList.remove("is-animating");
       startMenu.setAttribute("aria-hidden", "true");
+      // Reset wrapper size
+      startMenuWrapper.style.width = "0px";
+      startMenuWrapper.style.height = "0px";
     };
     startMenu.addEventListener("animationend", handleAnimationEnd, {
       once: true,
     });
 
-    startButton.classList.remove("selected"); // Changed from CLASSES.ACTIVE
-    startButton.setAttribute("aria-pressed", "false"); // Added
+    startButton.classList.remove("selected");
+    startButton.setAttribute("aria-pressed", "false");
     this.isVisible = false;
 
     this.openSubmenus.forEach((menu) => menu.close());
