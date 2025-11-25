@@ -72,11 +72,11 @@ export class PdfViewerApp extends Application {
     });
   }
 
-  async _onLaunch(filePath) {
-    if (filePath) {
-      const correctedPath = filePath.startsWith("public/")
-        ? filePath.substring("public/".length)
-        : filePath;
+  async _onLaunch(data) {
+    if (typeof data === "string") {
+      const correctedPath = data.startsWith("public/")
+        ? data.substring("public/".length)
+        : data;
       try {
         const fileName = correctedPath.split("/").pop();
         this.win.title(`${fileName} - ${this.title}`);
@@ -93,6 +93,15 @@ export class PdfViewerApp extends Application {
         const placeholder = this.win.$content.find(".pdf-viewer-placeholder");
         placeholder.text(`Failed to load PDF from ${correctedPath}.`);
       }
+    } else if (data && typeof data === "object") {
+      this.win.title(`${data.name} - ${this.title}`);
+      const byteString = atob(data.content.split(",")[1]);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      await this._loadPdf(ia);
     }
   }
 

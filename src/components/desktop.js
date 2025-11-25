@@ -2,6 +2,7 @@
  * Win98DesktopManager - Handles desktop icons and desktop interactions
  */
 import { init } from "./taskbar.js";
+import { fileAssociations } from "../config/fileAssociations.js";
 import { apps } from "../config/apps.js";
 import {
   getItem,
@@ -38,11 +39,22 @@ import {
   getCurrentResolutionId,
 } from "../utils/screenManager.js";
 
-function getIconId(app, filePath = null) {
-  // Create a unique ID for the icon based on app ID or file path
-  return filePath
-    ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, "-")}`
-    : `app-${app.id}`;
+function getIconId(app, item = null) {
+  if (typeof item === "string") {
+    // virtual file path
+    return `file-${item.replace(/[^a-zA-Z0-9]/g, "-")}`;
+  }
+  if (item && typeof item === "object" && item.id) {
+    // dropped file object
+    return item.id;
+  }
+  // app
+  return `app-${app.id}`;
+}
+
+function getAssociation(filename) {
+  const extension = filename.split(".").pop().toLowerCase();
+  return fileAssociations[extension] || fileAssociations.default;
 }
 
 function isAutoArrangeEnabled() {
@@ -84,22 +96,71 @@ function createDesktopIcon(item, isFile = false) {
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
 
-  iconDiv.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    showIconContextMenu(e, app); // Context menu might need adjustments for files
-  });
+  return iconDiv;
+}
+
+function createDesktopIconForDroppedFile(file) {
+  const association = getAssociation(file.name);
+  const app = apps.find((a) => a.id === association.appId);
+  if (!app) return null;
+
+  const iconDiv = document.createElement("div");
+  iconDiv.className = "desktop-icon";
+  iconDiv.setAttribute("title", file.name);
+
+  const iconId = getIconId(app, file);
+  iconDiv.setAttribute("data-icon-id", iconId);
+  iconDiv.setAttribute("data-app-id", app.id);
+  iconDiv.setAttribute("data-file-id", file.id); // Store the unique file ID
+
+  const iconInner = document.createElement("div");
+  iconInner.className = "icon";
+
+  const iconImg = document.createElement("img");
+  iconImg.src = association.icon[32];
+  iconInner.appendChild(iconImg);
+
+  const iconLabel = document.createElement("div");
+  iconLabel.className = "icon-label";
+  iconLabel.textContent = file.name;
+
+  iconDiv.appendChild(iconInner);
+  iconDiv.appendChild(iconLabel);
 
   return iconDiv;
 }
 
-function showIconContextMenu(event, app) {
-  console.log("Showing app context menu");
+function showIconContextMenu(event, app, fileId = null) {
   let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
 
   const contextMenu = appConfig.contextMenu;
 
-  if (contextMenu) {
+  if (fileId) {
+    menuItems = [
+      {
+        label: "&Open",
+        default: true,
+        action: () => {
+          const droppedFiles =
+            getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          const file = droppedFiles.find((f) => f.id === fileId);
+          if (file) {
+            launchApp(app.id, file);
+          }
+        },
+      },
+      {
+        label: "&Delete",
+        action: () => deleteDroppedFile(fileId),
+      },
+      "MENU_DIVIDER",
+      {
+        label: "&Properties",
+        action: () => showProperties(app),
+      },
+    ];
+  } else if (contextMenu) {
     menuItems = contextMenu.map((item) => {
       if (typeof item === "string") {
         return item;
@@ -464,6 +525,25 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   document.addEventListener("wallpaper-changed", handleWallpaperChange);
 }
 
+function deleteDroppedFile(fileId) {
+  ShowDialogWindow({
+    title: "Confirm File Delete",
+    text: "Are you sure you want to delete this file?",
+    buttons: [
+      {
+        label: "Yes",
+        action: () => {
+          let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          droppedFiles = droppedFiles.filter((f) => f.id !== fileId);
+          setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
+          document.querySelector(".desktop").refreshIcons();
+        },
+      },
+      { label: "No", isDefault: true },
+    ],
+  });
+}
+
 function showProperties(app) {
   ShowDialogWindow({
     title: `${app.title} Properties`,
@@ -551,6 +631,19 @@ export function setupIcons(
       const app = apps.find((a) => a.id === file.app);
       const iconId = getIconId(app, file.path);
       configureIcon(icon, app, file.path, { iconManager });
+      placeIcon(icon, iconId);
+    }
+  });
+
+  // Load dropped files
+  const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  droppedFiles.forEach((file) => {
+    const icon = createDesktopIconForDroppedFile(file);
+    if (icon) {
+      const association = getAssociation(file.name);
+      const app = apps.find((a) => a.id === association.appId);
+      const iconId = getIconId(app, file);
+      configureIcon(icon, app, file, { iconManager });
       placeIcon(icon, iconId);
     }
   });
@@ -785,7 +878,10 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       e.preventDefault();
       return;
     }
-    launchApp(app.id, filePath);
+    // If filePath is an object, it's a dropped file. Otherwise, it's a path string.
+    const launchData =
+      typeof filePath === "object" && filePath !== null ? filePath : filePath;
+    launchApp(app.id, launchData);
   });
 }
 
@@ -800,9 +896,10 @@ export async function initDesktop() {
   const iconManager = new IconManager(desktop, {
     onItemContext: (e, icon) => {
       const appId = icon.getAttribute("data-app-id");
+      const fileId = icon.getAttribute("data-file-id");
       const app = apps.find((a) => a.id === appId);
       if (app) {
-        showIconContextMenu(e, app);
+        showIconContextMenu(e, app, fileId);
       }
     },
     onBackgroundContext: (e) => {
@@ -861,4 +958,76 @@ export async function initDesktop() {
   }
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
+
+  // Drag and drop functionality
+  desktop.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    desktop.classList.add("drop-target");
+  });
+
+  desktop.addEventListener("dragleave", (e) => {
+    if (e.target === desktop) {
+      desktop.classList.remove("drop-target");
+    }
+  });
+
+  desktop.addEventListener("drop", (e) => {
+    e.preventDefault();
+    desktop.classList.remove("drop-target");
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleDroppedFiles(files, desktop);
+    }
+  });
+}
+
+function handleDroppedFiles(files, desktop) {
+  const existingFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  const validFiles = [];
+  const oversizedFiles = [];
+
+  Array.from(files).forEach((file) => {
+    if (file.size > 5 * 1024 * 1024) {
+      oversizedFiles.push(file.name);
+    } else {
+      validFiles.push(file);
+    }
+  });
+
+  if (oversizedFiles.length > 0) {
+    ShowDialogWindow({
+      title: "File(s) Too Large",
+      text: `The following files exceed the 5MB size limit and were not added:\n\n${oversizedFiles.join(
+        "\n",
+      )}`,
+      buttons: [{ label: "OK", isDefault: true }],
+    });
+  }
+
+  if (validFiles.length === 0) {
+    return; // No files to process
+  }
+
+  const fileReadPromises = validFiles.map((file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve({
+          id: `dropped-${Date.now()}-${Math.random()}`,
+          name: file.name,
+          content: e.target.result,
+          type: file.type,
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  });
+
+  Promise.all(fileReadPromises).then((newFiles) => {
+    const allFiles = [...existingFiles, ...newFiles];
+    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, allFiles);
+    desktop.refreshIcons();
+  });
 }

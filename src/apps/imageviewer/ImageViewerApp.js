@@ -100,12 +100,27 @@ export class ImageViewerApp extends Application {
     });
   }
 
-  async _onLaunch(file) {
+  async _onLaunch(data) {
     this.img = this.win.$content.find("img")[0];
     const imageContainer = this.win.$content.find(".image-viewer-container")[0];
 
-    if (file) {
-      this.loadFile(file);
+    if (typeof data === "string") {
+      // It's a file path
+      fetch(data)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], data.split("/").pop());
+          this.loadFile(file);
+        });
+    } else if (data && typeof data === "object") {
+      // It's a file object from drag-and-drop
+      this.win.title(`${data.name} - Image Viewer`);
+      this.img.src = data.content;
+      this.img.onload = () => {
+        this.resetZoom();
+        this._adjustWindowSize(this.img);
+        this._updatePannableState();
+      };
     } else {
       console.log("Image Viewer launched without a file.");
     }

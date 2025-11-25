@@ -46,7 +46,8 @@ export const ICONS = {
   computer: {
     16: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
       .href,
-    32: new URL("../assets/icons/computer_explorer-32.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer-32.png", import.meta.url)
+      .href,
   },
   disketteDrive: {
     16: new URL("../assets/icons/SHELL32_7-16.png", import.meta.url).href,
@@ -209,5 +210,25 @@ export const ICONS = {
   htmlFile: {
     16: new URL("../assets/icons/html2-4.png", import.meta.url).href,
     32: new URL("../assets/icons/html2-3.png", import.meta.url).href,
+  },
+  textFile: {
+    16: new URL("../assets/icons/notepad_file-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/notepad_file-0.png", import.meta.url).href,
+  },
+  imageJpgFile: {
+    16: new URL("../assets/icons/imagjpeg-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/imagjpeg-1.png", import.meta.url).href,
+  },
+  imageGifFile: {
+    16: new URL("../assets/icons/imaggif-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/imaggif-1.png", import.meta.url).href,
+  },
+  imageBmpFile: {
+    16: new URL("../assets/icons/paint_file-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/paint_file-3.png", import.meta.url).href,
+  },
+  file: {
+    16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/file_lines-0.png", import.meta.url).href,
   },
 };
