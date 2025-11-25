@@ -1,0 +1,105 @@
+.menu-popup-wrapper {
+    position: absolute;
+    overflow: hidden;
+    --width: 0px; /* Default value */
+    --height: 0px; /* Default value */
+    --extra-width: 0px;
+    --extra-height: 0px;
+    width: calc(var(--width) + var(--extra-width));
+    height: calc(var(--height) + var(--extra-height));
+}
+
+.menu-popup-wrapper.to-right .menu-popup {
+    animation: slide-in-right 0.15s ease-out;
+}
+.menu-popup-wrapper.to-left .menu-popup {
+    animation: slide-in-left 0.15s ease-out;
+}
+.menu-popup-wrapper.to-down .menu-popup {
+    animation: slide-in-down 0.15s ease-out;
+}
+.menu-popup-wrapper.to-up .menu-popup {
+    animation: slide-in-up 0.15s ease-out;
+}
+
+@keyframes slide-in-right {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-left {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slide-in-down {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.menu-popup-wrapper.to-diag-100-100 .menu-popup {
+    animation: diag-100-100 0.15s ease-out;
+}
+.menu-popup-wrapper.to-diag100-100 .menu-popup {
+    animation: diag100-100 0.15s ease-out;
+}
+.menu-popup-wrapper.to-diag-100100 .menu-popup {
+    animation: diag-100100 0.15s ease-out;
+}
+.menu-popup-wrapper.to-diag100100 .menu-popup {
+    animation: diag100100 0.15s ease-out;
+}
+
+@keyframes diag-100-100 {
+    from {
+        transform: translate(-100%, -100%);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+@keyframes diag100-100 {
+    from {
+        transform: translate(100%, -100%);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+@keyframes diag-100100 {
+    from {
+        transform: translate(-100%, 100%);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+@keyframes diag100100 {
+    from {
+        transform: translate(100%, 100%);
+    }
+    to {
+        transform: translate(0, 0);
+    }
+}
+
+@keyframes slide-in-up {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
