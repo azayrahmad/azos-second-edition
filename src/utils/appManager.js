@@ -33,7 +33,7 @@ const appManager = {
     }
 };
 
-export async function launchApp(appId, filePath = null) {
+export async function launchApp(appId, data = null) {
     applyWaitCursor();
 
     const appConfig = appManager.getAppConfig(appId);
@@ -53,7 +53,7 @@ export async function launchApp(appId, filePath = null) {
         if (appConfig.appClass) {
             const appInstance = new appConfig.appClass(appConfig);
             appManager.runningApps[appId] = appInstance;
-            await appInstance.launch(filePath);
+            await appInstance.launch(data);
             document.dispatchEvent(new CustomEvent('app-launched', { detail: { appId } }));
         } else if (appConfig.action?.type === "function") {
             appConfig.action.handler();
