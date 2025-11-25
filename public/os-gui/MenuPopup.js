@@ -11,6 +11,7 @@
    */
   function MenuPopup(menu_items, options) {
     this.parentMenuPopup = options.parentMenuPopup;
+    this.wrapperElement = options.wrapperElement; // Store the wrapper element
     this.menuItems = menu_items;
     this.itemElements = [];
 
@@ -86,7 +87,7 @@
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
       }
-      menu_popup_el.style.display = "none";
+      (this.wrapperElement || menu_popup_el).style.display = "none";
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
     };
@@ -199,6 +200,7 @@
           const submenu_popup = new MenuPopup(item.submenu, {
             ...options,
             parentMenuPopup: this,
+            wrapperElement: submenu_popup_el,
           });
           const submenu_popup_el_actual = submenu_popup.element;
           submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
@@ -358,8 +360,13 @@
             submenu_popup,
           });
           function close_submenus_at_this_level() {
-            for (const { submenu_popup, item_el } of submenus) {
+            for (const {
+              submenu_popup,
+              submenu_popup_el,
+              item_el,
+            } of submenus) {
               submenu_popup.close(false);
+              submenu_popup_el.style.display = "none"; // Explicitly hide the wrapper
               item_el.setAttribute("aria-expanded", "false");
             }
             menu_popup_el.focus({ preventScroll: true });
