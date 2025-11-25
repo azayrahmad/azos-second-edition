@@ -161,6 +161,11 @@ export class ExplorerApp extends Application {
     win.$content.append(content);
     this.content = content;
 
+    const iconContainer = document.createElement("div");
+    iconContainer.className = "explorer-icon-view";
+    content.appendChild(iconContainer);
+    this.iconContainer = iconContainer;
+
     this.iconManager = new IconManager(content, {
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
@@ -204,10 +209,17 @@ export class ExplorerApp extends Application {
     if (icon) {
       this.win.setIcons(icon);
     }
-    this.content.innerHTML = ""; // Clear previous content
+    this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
     const children = item.children || [];
+
+    // Sort children alphabetically by name
+    children.sort((a, b) => {
+      const nameA = a.name || "";
+      const nameB = b.name || "";
+      return nameA.localeCompare(nameB);
+    });
 
     children.forEach((child) => {
       let iconData = { ...child };
@@ -229,7 +241,7 @@ export class ExplorerApp extends Application {
 
       const icon = this.createExplorerIcon(iconData);
       this.iconManager.configureIcon(icon);
-      this.content.appendChild(icon);
+      this.iconContainer.appendChild(icon);
     });
   }
 
