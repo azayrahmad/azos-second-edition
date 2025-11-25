@@ -87,7 +87,7 @@ class StartMenu {
   getStartMenuHTML() {
     const dynamicItemsHTML = startMenuConfig
       .map((item) => {
-        const hasSubmenu = item.submenu && item.submenu.length > 0;
+        const hasSubmenu = item.submenu && item.submenu.length >= 0;
         return `
         <li class="start-menu-item ${hasSubmenu ? "has-submenu" : ""}" role="menuitem" tabindex="0" data-id="${this.escapeHtml(item.label)}">
           <img src="${item.icon}" alt="${this.escapeHtml(item.label)}">

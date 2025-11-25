@@ -4,16 +4,19 @@ import { ShowComingSoonDialog } from "../components/DialogWindow.js";
 import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
-  "display-properties",
   "webamp",
-  "image-viewer",
   "tipOfTheDay",
-  "about",
   "internet-explorer",
   "pinball",
+  "pdfviewer",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint"];
-const settingsAppIds = ["desktopthemes", "soundschemeexplorer", "themetocss"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
+const settingsAppIds = [
+  "display-properties",
+  "desktopthemes",
+  "soundschemeexplorer",
+  "themetocss",
+];
 
 function getAppList(appListIds) {
   return appListIds
@@ -34,7 +37,14 @@ const startMenuConfig = [
       {
         label: "Accessories",
         icon: ICONS.programs[16],
-        submenu: getAppList(accessoriesAppIds),
+        submenu: [
+          {
+            label: "Games",
+            icon: ICONS.programs[16],
+            submenu: getAppList(["pinball"]),
+          },
+          ...getAppList(accessoriesAppIds),
+        ],
       },
       ...getAppList(startMenuAppIds),
     ],
@@ -84,12 +94,7 @@ const startMenuConfig = [
   {
     label: "Find",
     icon: ICONS.find[32],
-    submenu: [
-      {
-        label: "(Empty)",
-        disabled: true,
-      },
-    ],
+    submenu: [],
   },
   {
     label: "Help",

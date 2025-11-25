@@ -33,9 +33,9 @@ import {
 } from "../utils/colorModeManager.js";
 import screensaver from "./screensaver.js";
 import {
-    getAvailableResolutions,
-    setResolution,
-    getCurrentResolutionId,
+  getAvailableResolutions,
+  setResolution,
+  getCurrentResolutionId,
 } from "../utils/screenManager.js";
 
 function getIconId(app, filePath = null) {
@@ -59,7 +59,7 @@ function createDesktopIcon(item, isFile = false) {
   iconDiv.className = "desktop-icon";
   iconDiv.setAttribute(
     "title",
-    isFile ? item.filename : app.description || app.title
+    isFile ? item.filename : app.description || app.title,
   );
 
   const iconId = getIconId(app, isFile ? item.path : null);
@@ -345,18 +345,18 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     },
     "MENU_DIVIDER",
     {
-        label: "Screen Resolution",
-        submenu: [
-            {
-                radioItems: getAvailableResolutions().map((res) => ({
-                    label: res === 'fit' ? 'Fit Screen' : res,
-                    value: res,
-                })),
-                getValue: () => getCurrentResolutionId(),
-                setValue: (value) => setResolution(value),
-                ariaLabel: "Screen Resolution",
-            },
-        ],
+      label: "Screen Resolution",
+      submenu: [
+        {
+          radioItems: getAvailableResolutions().map((res) => ({
+            label: res === "fit" ? "Fit Screen" : res,
+            value: res,
+          })),
+          getValue: () => getCurrentResolutionId(),
+          setValue: (value) => setResolution(value),
+          ariaLabel: "Screen Resolution",
+        },
+      ],
     },
     "MENU_DIVIDER",
     {
