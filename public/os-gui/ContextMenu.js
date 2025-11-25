@@ -3,7 +3,6 @@
     // Remove existing menus
     const existingMenus = document.querySelectorAll(".menu-popup-wrapper");
     existingMenus.forEach((menu) => menu.remove());
-
     let menuPopup;
 
     // ──────────────────────────────────────────────
@@ -13,8 +12,6 @@
     wrap.className = "menu-popup-wrapper";
     wrap.style.position = "absolute";
     wrap.style.overflow = "hidden";
-    wrap.style.width = "0px";
-    wrap.style.height = "0px";
 
     // ──────────────────────────────────────────────
     // 2. Closing logic
@@ -47,8 +44,7 @@
     });
 
     // Set z-index for the main context menu
-    menuPopup.element.style.zIndex =
-      window.os_gui_utils.get_new_menu_z_index();
+    menuPopup.element.style.zIndex = window.os_gui_utils.get_new_menu_z_index();
 
     // Append menu into wrapper
     wrap.appendChild(menuPopup.element);
@@ -78,7 +74,8 @@
       wrap.style.top = "-9999px";
 
       const screenRect = screen.getBoundingClientRect();
-      const menuRect = wrap.getBoundingClientRect();
+      // Measure the actual menu content, not the wrapper
+      const menuRect = menuPopup.element.getBoundingClientRect();
       const relX = x - screenRect.left;
       const relY = y - screenRect.top;
 
@@ -104,12 +101,20 @@
 
       wrap.style.left = `${finalX}px`;
       wrap.style.top = `${finalY}px`;
-      wrap.style.width = "0px";
-      wrap.style.height = "0px";
+      // Initial width/height are handled by CSS variables with default 0px,
+      // and will be updated asynchronously.
 
       setTimeout(() => {
+        console.log(
+          "ContextMenu: menuRect width:",
+          menuRect.width,
+          "height:",
+          menuRect.height,
+        );
         wrap.style.setProperty("--width", `${menuRect.width}px`);
         wrap.style.setProperty("--height", `${menuRect.height}px`);
+        // Now assign the CSS variables to the inline styles,
+        // which will trigger reflow and animation.
         wrap.style.width = "var(--width)";
         wrap.style.height = "var(--height)";
 

@@ -244,9 +244,52 @@
             }
             submenu_popup_el.dispatchEvent(new CustomEvent("update", {}));
 
-            const rect = item_el.getBoundingClientRect();
+            // Temporarily make the actual menu content (submenu_popup.element) visible and unconstrained for measurement
+            const actualMenuElement = submenu_popup.element; // This is the div.menu-popup
+
+            // Save original styles of the actual menu element (div.menu-popup)
+            const actualOriginalParent = actualMenuElement.parentNode;
+            const actualOriginalDisplay = actualMenuElement.style.display;
+            const actualOriginalVisibility = actualMenuElement.style.visibility;
+            const actualOriginalPosition = actualMenuElement.style.position;
+            const actualOriginalLeft = actualMenuElement.style.left;
+            const actualOriginalTop = actualMenuElement.style.top;
+            const actualOriginalZIndex = actualMenuElement.style.zIndex;
+
+            // Detach actual menu content and append to body for accurate measurement
+            if (actualOriginalParent) {
+              actualOriginalParent.removeChild(actualMenuElement);
+            }
+            document.body.appendChild(actualMenuElement);
+
+            // Set temporary styles for measurement
+            actualMenuElement.style.display = "block";
+            actualMenuElement.style.visibility = "hidden";
+            actualMenuElement.style.position = "absolute";
+            actualMenuElement.style.left = "-9999px";
+            actualMenuElement.style.top = "-9999px";
+            // Assign a high z-index to ensure it's on top and fully rendered if needed
+            actualMenuElement.style.zIndex = `${get_new_menu_z_index() + 100}`;
+
+            // Force reflow to ensure layout calculation
+            actualMenuElement.offsetHeight;
+
+            const rect = item_el.getBoundingClientRect(); // Still need parent item's rect for positioning calculations
             const submenu_popup_rect =
-              submenu_popup_el.getBoundingClientRect();
+              actualMenuElement.getBoundingClientRect();
+
+            // Re-attach to original parent (the wrapper) and restore original styles
+            if (actualOriginalParent) {
+              actualOriginalParent.appendChild(actualMenuElement);
+            }
+            actualMenuElement.style.display = actualOriginalDisplay;
+            actualMenuElement.style.visibility = actualOriginalVisibility;
+            actualMenuElement.style.position = actualOriginalPosition;
+            actualMenuElement.style.left = actualOriginalLeft;
+            actualMenuElement.style.top = actualOriginalTop;
+            actualMenuElement.style.zIndex = actualOriginalZIndex;
+            // The wrapper (submenu_popup_el) itself will then get its initial 0px width/height from CSS variables
+            // and the setTimeout will correctly apply the measured dimensions.
 
             // Position and animate
             let final_x =
@@ -268,18 +311,19 @@
               }
             }
             if (final_y + submenu_popup_rect.height > innerHeight) {
-              final_y = Math.max(
-                0,
-                innerHeight - submenu_popup_rect.height,
-              );
+              final_y = Math.max(0, innerHeight - submenu_popup_rect.height);
             }
 
             submenu_popup_el.style.left = `${final_x}px`;
             submenu_popup_el.style.top = `${final_y}px`;
-            submenu_popup_el.style.width = "0px";
-            submenu_popup_el.style.height = "0px";
+            // Initial width/height are handled by CSS variables with default 0px,
+            // and will be updated asynchronously.
 
             setTimeout(() => {
+              // Ensure both the wrapper and the content are set to display: block
+              submenu_popup_el.style.display = "block";
+              actualMenuElement.style.display = "block";
+
               submenu_popup_el.style.setProperty(
                 "--width",
                 `${submenu_popup_rect.width}px`,
