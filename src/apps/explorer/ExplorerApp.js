@@ -13,6 +13,7 @@ import { registerCustomApp } from "../../utils/customAppManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
+import "./explorer.css";
 
 const specialFolderIcons = {
   "/": "my-computer",
