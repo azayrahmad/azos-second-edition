@@ -695,12 +695,6 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
 
   const iconId = icon.getAttribute("data-icon-id");
 
-  icon.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    const fileId = icon.getAttribute("data-file-id");
-    showIconContextMenu(e, app, fileId);
-  });
-
   const handleDragStart = (e) => {
     // Check if auto-arrange is enabled. If so, disable dragging.
     if (isAutoArrangeEnabled()) {
@@ -902,9 +896,10 @@ export async function initDesktop() {
   const iconManager = new IconManager(desktop, {
     onItemContext: (e, icon) => {
       const appId = icon.getAttribute("data-app-id");
+      const fileId = icon.getAttribute("data-file-id");
       const app = apps.find((a) => a.id === appId);
       if (app) {
-        showIconContextMenu(e, app);
+        showIconContextMenu(e, app, fileId);
       }
     },
     onBackgroundContext: (e) => {
