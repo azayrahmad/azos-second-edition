@@ -82,6 +82,7 @@
     this.close = (focus_parent_menu_popup = true) => {
       for (const submenu of submenus) {
         submenu.submenu_popup.close(false);
+        submenu.submenu_popup_el.classList.remove("to-left", "to-right");
       }
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
@@ -377,17 +378,21 @@
             }
           });
           item_el.addEventListener("pointerenter", () => {
-            if (open_tid) {
-              clearTimeout(open_tid);
-              open_tid = null;
+            // Clear any pending actions
+            if (open_tid) clearTimeout(open_tid);
+            if (close_tid) clearTimeout(close_tid);
+
+            // Immediately close other submenus at this level
+            for (const other_submenu of submenus) {
+              if (other_submenu.item_el !== item_el) {
+                other_submenu.submenu_popup.close(false);
+              }
             }
-            if (close_tid) {
-              clearTimeout(close_tid);
-              close_tid = null;
-            }
+
+            // Open the current submenu after a short delay
             open_tid = setTimeout(() => {
               open_submenu(false);
-            }, 501);
+            }, 200);
           });
           item_el.addEventListener("pointerleave", () => {
             if (open_tid) {
