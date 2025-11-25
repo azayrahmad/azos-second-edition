@@ -16,8 +16,8 @@ import previewHtml from "./DesktopThemesPreview.html?raw";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
-  constructor(config) {
-    super(config);
+  constructor(config, data) {
+    super(config, data);
     this.themeCssCache = {};
     this.previousThemeId = null;
     this.customThemeProperties = null;
@@ -173,6 +173,11 @@ export class DesktopThemesApp extends Application {
     rightPanel.appendChild(settingsFieldset);
 
     await this.populateThemes();
+
+    if (this.data?.themeId) {
+      this.themeSelector.value = this.data.themeId;
+      await this.handleThemeSelection();
+    }
 
     // --- Bottom Action Buttons ---
     const actionsContainer = document.createElement("div");

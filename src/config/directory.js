@@ -1,3 +1,13 @@
+import { themes } from "./themes.js";
+
+const themeFiles = Object.values(themes).map((theme) => ({
+  id: `file-theme-${theme.id}`,
+  name: `${theme.name}.theme`,
+  type: "file",
+  openwith: "desktopthemes",
+  data: { themeId: theme.id },
+}));
+
 const directory = [
   {
     id: "drive-c",
@@ -44,6 +54,19 @@ const directory = [
             id: "app-network-neighborhood",
             type: "app",
             appId: "network-neighborhood",
+          },
+          {
+            id: "folder-plus",
+            name: "Plus!",
+            type: "folder",
+            children: [
+              {
+                id: "folder-themes",
+                name: "Themes",
+                type: "folder",
+                children: themeFiles,
+              },
+            ],
           },
         ],
       },
