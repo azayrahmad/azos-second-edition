@@ -494,6 +494,7 @@
             check: () => radio_item.value === item.getValue(),
             toggle: () => {
               item.setValue(radio_item.value);
+              menu_popup_el.dispatchEvent(new CustomEvent("update", {}));
             },
           };
           add_menu_item(tbody, radio_item, init_index++);
@@ -503,6 +504,7 @@
         add_menu_item(menu_popup_table_el, item, init_index++);
       }
     }
+    menu_popup_el.dispatchEvent(new CustomEvent("update", {}));
   }
 
   exports.MenuPopup = MenuPopup;
