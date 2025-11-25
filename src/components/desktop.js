@@ -249,6 +249,31 @@ function captureGridIconPositions() {
   setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
 }
 
+function sortDesktopIcons(sortBy) {
+  const desktopContents = getDesktopContents();
+  const { apps: appIds, files } = desktopContents;
+
+  // The sorting logic only applies to files. Apps should remain in their order.
+  if (sortBy === "name") {
+    files.sort((a, b) => a.filename.localeCompare(b.filename));
+  } else if (sortBy === "type") {
+    files.sort((a, b) => {
+      if (a.app < b.app) return -1;
+      if (a.app > b.app) return 1;
+      // Secondary sort by name
+      return a.filename.localeCompare(b.filename);
+    });
+  }
+
+  const sortedContents = { apps: appIds, files };
+
+  // When sorting, we clear any manual positioning and revert to a grid layout.
+  removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+
+  // This will cause setupIcons to re-render in grid mode.
+  document.querySelector(".desktop").refreshIcons(sortedContents);
+}
+
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
 
@@ -268,11 +293,35 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 
   const menuItems = [
     {
-      label: "Auto Arrange",
-      checkbox: {
-        check: isAutoArrangeEnabled,
-        toggle: toggleAutoArrange,
-      },
+        label: "Arrange Icons",
+        submenu: [
+            {
+                label: "by Name",
+                action: () => sortDesktopIcons("name"),
+            },
+            {
+                label: "by Type",
+                action: () => sortDesktopIcons("type"),
+            },
+            {
+                label: "by Size",
+                action: () => {},
+                enabled: false,
+            },
+            {
+                label: "by Date",
+                action: () => {},
+                enabled: false,
+            },
+            "MENU_DIVIDER",
+            {
+                label: "Auto Arrange",
+                checkbox: {
+                    check: isAutoArrangeEnabled,
+                    toggle: toggleAutoArrange,
+                },
+            },
+        ],
     },
     {
       label: "Wallpaper",
@@ -424,12 +473,15 @@ function showProperties(app) {
   });
 }
 
-export function setupIcons(options) {
+export function setupIcons(
+  options,
+  desktopContents = getDesktopContents()
+) {
   const { iconManager } = options;
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
-  const desktopApps = getDesktopContents();
+  const desktopApps = desktopContents;
 
   let iconPositions = {};
   if (!isAutoArrangeEnabled()) {
@@ -463,6 +515,26 @@ export function setupIcons(options) {
 
   // Load apps
   const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
+
+  // Default sort only if no positions are saved
+  if (Object.keys(iconPositions).length === 0) {
+    const defaultOrder = [
+      "my-computer",
+      "my-documents",
+      "internet-explorer",
+      "network",
+      "recycle-bin",
+    ];
+    appsToLoad.sort((a, b) => {
+      const aIndex = defaultOrder.indexOf(a.id);
+      const bIndex = defaultOrder.indexOf(b.id);
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return a.title.localeCompare(b.title);
+    });
+  }
+
   appsToLoad.forEach((app) => {
     const icon = createDesktopIcon(app, false);
     if (icon) {
@@ -742,7 +814,8 @@ export async function initDesktop() {
   });
 
   // A function to refresh icons, bound to the correct scope
-  desktop.refreshIcons = () => setupIcons({ iconManager });
+  desktop.refreshIcons = (sortedContents) =>
+    setupIcons({ iconManager }, sortedContents);
 
   desktop.refreshIcons();
 
