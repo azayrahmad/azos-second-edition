@@ -273,6 +273,8 @@ export class ExplorerApp extends Application {
               ? `/${item.id}`
               : `${this.currentPath}/${item.id}`;
           this.navigateTo(newPath);
+        } else if (item.openwith) {
+          launchApp(item.openwith, item.data);
         } else if (item.appId) {
           launchApp(item.appId);
         }

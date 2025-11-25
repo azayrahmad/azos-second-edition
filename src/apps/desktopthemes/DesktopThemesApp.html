@@ -1,0 +1,60 @@
+<div class="main-container">
+    <div class="left-panel">
+        <div class="controls">
+            <label for="theme-selector">&Theme:</label>
+            <select id="theme-selector" class="themes-dropdown"></select>
+            <button id="save-theme-button" disabled>Save As...</button>
+            <button id="delete-theme-button" disabled>Delete</button>
+        </div>
+        <div class="preview-container"></div>
+    </div>
+    <div class="right-panel">
+        <fieldset class="previews-fieldset">
+            <legend>Previews</legend>
+            <button id="screen-saver-button" disabled>Screen Saver</button>
+            <button id="pointers-button" disabled>Pointers, Sounds, etc...</button>
+        </fieldset>
+        <fieldset class="settings-fieldset">
+            <legend>Settings</legend>
+            <p>Click OK or Apply to apply the selected settings to Windows 98.</p>
+            <div class="field-row">
+                <input type="checkbox" id="cb-screensaver" checked disabled />
+                <label for="cb-screensaver">Screen &saver</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-sound" checked disabled />
+                <label for="cb-sound">&Sound events</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-mouse" checked disabled />
+                <label for="cb-mouse">&Mouse pointers</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-wallpaper" checked disabled />
+                <label for="cb-wallpaper">Desktop &wallpaper</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-icons" checked disabled />
+                <label for="cb-icons">&Icons</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-colors" checked disabled />
+                <label for="cb-colors">&Colors</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-fontnames" checked disabled />
+                <label for="cb-fontnames">&Font names and styles</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="cb-fontsizes" checked disabled />
+                <label for="cb-fontsizes">Font and window si&zes</label>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="actions">
+    <div class="preview-label"></div>
+    <button id="ok-button" class="default">OK</button>
+    <button id="cancel-button">Cancel</button>
+    <button id="apply-button">Apply</button>
+</div>

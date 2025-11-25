@@ -13,11 +13,12 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 import screensaverManager from "../../components/screensaver.js";
 import previewHtml from "./DesktopThemesPreview.html?raw";
+import mainHtml from "./DesktopThemesApp.html?raw";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
-  constructor(config) {
-    super(config);
+  constructor(config, data) {
+    super(config, data);
     this.themeCssCache = {};
     this.previousThemeId = null;
     this.customThemeProperties = null;
@@ -49,150 +50,33 @@ export class DesktopThemesApp extends Application {
       );
     });
 
-    const mainContainer = document.createElement("div");
-    mainContainer.className = "main-container";
-    win.$content.append(mainContainer);
+    win.$content.html(mainHtml);
 
-    // --- Left Panel ---
-    const leftPanel = document.createElement("div");
-    leftPanel.className = "left-panel";
-    mainContainer.appendChild(leftPanel);
+    // Get references to elements
+    this.themeSelector = win.$content.find("#theme-selector")[0];
+    this.saveButton = win.$content.find("#save-theme-button")[0];
+    this.deleteButton = win.$content.find("#delete-theme-button")[0];
+    this.previewContainer = win.$content.find(".preview-container")[0];
+    this.screenSaverButton = win.$content.find("#screen-saver-button")[0];
+    this.previewLabel = win.$content.find(".preview-label")[0];
+    const okButton = win.$content.find("#ok-button")[0];
+    const cancelButton = win.$content.find("#cancel-button")[0];
+    const applyButton = win.$content.find("#apply-button")[0];
 
-    const controlsContainer = document.createElement("div");
-    controlsContainer.className = "controls";
-    leftPanel.appendChild(controlsContainer);
+    this.previewContainer.innerHTML = previewHtml;
 
-    const themeLabel = document.createElement("label");
-    themeLabel.innerHTML = AccessKeys.toHTML("&Theme:");
-    controlsContainer.appendChild(themeLabel);
-
-    this.themeSelector = document.createElement("select");
-    this.themeSelector.id = "theme-selector";
-    themeLabel.setAttribute("for", this.themeSelector.id);
-    controlsContainer.appendChild(this.themeSelector);
-
-    this.saveButton = document.createElement("button");
-    this.saveButton.textContent = "Save As...";
-    this.saveButton.disabled = true;
-    controlsContainer.appendChild(this.saveButton);
-
-    this.deleteButton = document.createElement("button");
-    this.deleteButton.textContent = "Delete";
-    this.deleteButton.disabled = true;
-    controlsContainer.appendChild(this.deleteButton);
-
+    // Add event listeners
     this.saveButton.addEventListener("click", () => this.handleSaveTheme());
     this.deleteButton.addEventListener("click", () => this.handleDeleteTheme());
     this.themeSelector.addEventListener("change", () =>
       this.handleThemeSelection(),
     );
-
-    this.previewContainer = document.createElement("div");
-    this.previewContainer.className = "preview-container";
-    leftPanel.appendChild(this.previewContainer);
-
-    this.previewContainer.innerHTML = previewHtml;
-
-    this.previewLabel = document.createElement("div");
-    this.previewLabel.className = "preview-label";
-
-    // --- Right Panel ---
-    const rightPanel = document.createElement("div");
-    rightPanel.className = "right-panel";
-    mainContainer.appendChild(rightPanel);
-
-    // Previews Group
-    const previewsFieldset = document.createElement("fieldset");
-    previewsFieldset.className = "previews-fieldset";
-    previewsFieldset.innerHTML = "<legend>Previews</legend>";
-    rightPanel.appendChild(previewsFieldset);
-
-    this.screenSaverButton = document.createElement("button");
-    this.screenSaverButton.textContent = "Screen Saver";
-    this.screenSaverButton.disabled = true;
     this.screenSaverButton.addEventListener("click", () => {
-      const selectedTheme = getThemes()[this.themeSelector.value];
-      if (selectedTheme?.screensaver) {
-        screensaverManager.showPreview(selectedTheme.screensaver);
-      }
+        const selectedTheme = getThemes()[this.themeSelector.value];
+        if (selectedTheme?.screensaver) {
+            screensaverManager.showPreview(selectedTheme.screensaver);
+        }
     });
-    previewsFieldset.appendChild(this.screenSaverButton);
-
-    const pointersButton = document.createElement("button");
-    pointersButton.textContent = "Pointers, Sounds, etc...";
-    pointersButton.disabled = true;
-    previewsFieldset.appendChild(pointersButton);
-
-    // Settings Group
-    const settingsFieldset = document.createElement("fieldset");
-    settingsFieldset.className = "settings-fieldset";
-    settingsFieldset.innerHTML = `
-      <legend>Settings</legend>
-      <p>Click OK or Apply to apply the selected settings to Windows 98.</p>
-      <div class="field-row">
-        <input type="checkbox" id="cb-screensaver" checked disabled />
-        <label for="cb-screensaver">${AccessKeys.toHTML(
-          "Screen &saver",
-        )}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-sound" checked disabled />
-        <label for="cb-sound">${AccessKeys.toHTML("&Sound events")}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-mouse" checked disabled />
-        <label for="cb-mouse">${AccessKeys.toHTML("&Mouse pointers")}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-wallpaper" checked disabled />
-        <label for="cb-wallpaper">${AccessKeys.toHTML(
-          "Desktop  &wallpaper",
-        )}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-icons" checked disabled />
-        <label for="cb-icons">${AccessKeys.toHTML("&Icons")}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-colors" checked disabled />
-        <label for="cb-colors">${AccessKeys.toHTML("&Colors")}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-fontnames" checked disabled />
-        <label for="cb-fontnames">${AccessKeys.toHTML(
-          "&Font names and styles",
-        )}</label>
-      </div>
-      <div class="field-row">
-        <input type="checkbox" id="cb-fontsizes" checked disabled />
-        <label for="cb-fontsizes">${AccessKeys.toHTML(
-          "Font and window si&zes",
-        )}</label>
-      </div>
-    `;
-    rightPanel.appendChild(settingsFieldset);
-
-    await this.populateThemes();
-
-    // --- Bottom Action Buttons ---
-    const actionsContainer = document.createElement("div");
-    actionsContainer.className = "actions";
-    win.$content.append(actionsContainer);
-
-    actionsContainer.appendChild(this.previewLabel);
-
-    const okButton = document.createElement("button");
-    okButton.textContent = "OK";
-    okButton.classList.add("default");
-    actionsContainer.appendChild(okButton);
-
-    const cancelButton = document.createElement("button");
-    cancelButton.textContent = "Cancel";
-    actionsContainer.appendChild(cancelButton);
-
-    const applyButton = document.createElement("button");
-    applyButton.textContent = "Apply";
-    actionsContainer.appendChild(applyButton);
 
     const applyCurrentTheme = () => {
       if (this.themeSelector.value === "current-settings") {
@@ -208,6 +92,13 @@ export class DesktopThemesApp extends Application {
       win.close();
     });
     cancelButton.addEventListener("click", () => win.close());
+
+    await this.populateThemes();
+
+    if (this.data?.themeId) {
+      this.themeSelector.value = this.data.themeId;
+      await this.handleThemeSelection();
+    }
 
     return win;
   }
