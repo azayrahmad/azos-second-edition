@@ -60,8 +60,8 @@ function findItemByPath(path) {
       type: "folder",
       children: recycledItems.map((item) => ({
         ...item,
-        name: item.name,
-        type: "file",
+        name: item.name || item.title,
+        type: item.type || "file",
       })),
     };
   }
@@ -173,7 +173,7 @@ export class ExplorerApp extends Application {
     content.appendChild(iconContainer);
     this.iconContainer = iconContainer;
 
-    this.iconManager = new IconManager(content, {
+    this.iconManager = new IconManager(this.iconContainer, {
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
     });
@@ -247,7 +247,7 @@ export class ExplorerApp extends Application {
       }
 
       const icon = this.createExplorerIcon(iconData);
-      this.iconManager.configureIcon(icon);
+      this.iconManager.configureIcon(icon, iconData); // Pass iconData
       this.iconContainer.appendChild(icon);
     });
   }
@@ -288,20 +288,7 @@ export class ExplorerApp extends Application {
 
     if (this.currentPath !== "//recycle-bin") {
       iconDiv.addEventListener("dblclick", () => {
-        if (item.url) {
-          window.open(item.url, "_blank");
-        } else if (item.type === "folder" || item.type === "drive") {
-          const newPath =
-            this.currentPath === "/"
-              ? `/${item.id}`
-              : `${this.currentPath}/${item.id}`;
-          this.navigateTo(newPath);
-        } else if (item.type === "file") {
-          const association = getAssociation(item.name);
-          launchApp(association.appId, item.contentUrl);
-        } else if (item.appId) {
-          launchApp(item.appId);
-        }
+        this._launchItem(item);
       });
     }
 
@@ -317,6 +304,23 @@ export class ExplorerApp extends Application {
       }
     }
     return null;
+  }
+
+  _launchItem(item) {
+    if (item.url) {
+      window.open(item.url, "_blank");
+    } else if (item.type === "folder" || item.type === "drive") {
+      const newPath =
+        this.currentPath === "/"
+          ? `/${item.id}`
+          : `${this.currentPath}/${item.id}`;
+      this.navigateTo(newPath);
+    } else if (item.type === "file") {
+      const association = getAssociation(item.name);
+      launchApp(association.appId, item.contentUrl);
+    } else if (item.appId) {
+      launchApp(item.appId);
+    }
   }
 
   goUp() {
@@ -360,21 +364,44 @@ export class ExplorerApp extends Application {
   }
 
   showItemContextMenu(event, icon) {
-    const itemId = icon.getAttribute("data-id");
+    const clickedItemId = icon.getAttribute("data-id");
+    const currentFolder = findItemByPath(this.currentPath);
+    const clickedItem = (currentFolder.children || []).find(
+      (child) => child.id === clickedItemId || child.name === clickedItemId,
+    );
+
+    if (!clickedItem) {
+      console.warn(
+        "Clicked item not found:",
+        clickedItemId,
+        "in path",
+        this.currentPath,
+      );
+      return;
+    }
+
+    let menuItems = [];
 
     if (this.currentPath === "//recycle-bin") {
-      const menuItems = [
+      menuItems = [
         {
           label: "Restore",
           default: true,
           action: () => {
-            const item = getRecycleBinItems().find((i) => i.id === itemId);
-            if (item) {
+            const itemToRestore = getRecycleBinItems().find(
+              (i) => i.id === clickedItemId,
+            );
+            if (itemToRestore) {
+              // Ensure the item has a 'name' property for desktop icons
+              const restoredItemWithName = {
+                ...itemToRestore,
+                name: itemToRestore.name || itemToRestore.title,
+              };
               const droppedFiles =
                 getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-              droppedFiles.push(item);
+              droppedFiles.push(restoredItemWithName);
               setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
-              removeFromRecycleBin(itemId);
+              removeFromRecycleBin(clickedItemId);
               this.render(this.currentPath);
               document.dispatchEvent(new CustomEvent("desktop-refresh"));
             }
@@ -382,17 +409,16 @@ export class ExplorerApp extends Application {
         },
         "MENU_DIVIDER",
         {
-          // Permanently deletes the item from the recycle bin
-          label: "Delete",
+          label: "Delete", // Permanently deletes the item from the recycle bin
           action: () => {
             ShowDialogWindow({
               title: "Delete Item",
-              text: "Are you sure you want to permanently delete this item?",
+              text: `Are you sure you want to permanently delete "${clickedItem.name}"?`,
               buttons: [
                 {
                   label: "Yes",
                   action: () => {
-                    removeFromRecycleBin(itemId);
+                    removeFromRecycleBin(clickedItemId);
                     this.render(this.currentPath);
                   },
                 },
@@ -402,21 +428,40 @@ export class ExplorerApp extends Application {
           },
         },
       ];
-      new window.ContextMenu(menuItems, event);
     } else {
-      const menuItems = [
-        { label: "Open", default: true, action: () => {} },
-        "MENU_DIVIDER",
-        { label: "Cut", action: () => {} },
-        { label: "Copy", action: () => {} },
-        "MENU_DIVIDER",
-        { label: "Delete", action: () => {} },
-        { label: "Rename", action: () => {} },
-        "MENU_DIVIDER",
-        { label: "Properties", action: () => {} },
-      ];
-      new window.ContextMenu(menuItems, event);
+      // General item context menu for non-recycle bin paths
+      menuItems.push({
+        label: "Open",
+        default: true,
+        action: () => this._launchItem(clickedItem),
+      });
+
+      menuItems.push("MENU_DIVIDER");
+
+      // Actions based on item type
+      if (clickedItem.type === "file" || clickedItem.type === "folder") {
+        menuItems.push({ label: "Cut", action: () => {} }); // TODO: Implement Cut
+        menuItems.push({ label: "Copy", action: () => {} }); // TODO: Implement Copy
+        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Delete", action: () => {} }); // TODO: Implement Delete (move to recycle bin)
+        menuItems.push({ label: "Rename", action: () => {} }); // TODO: Implement Rename
+        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+      } else if (clickedItem.type === "drive") {
+        menuItems.push({ label: "Format...", action: () => {} }); // TODO: Implement Format
+        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+      } else if (clickedItem.type === "network") {
+        menuItems.push({ label: "Map Network Drive...", action: () => {} }); // TODO: Implement Map Network Drive
+        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+      } else if (clickedItem.appId) {
+        // For applications or shortcuts to applications within explorer
+        // Can add more app-specific actions if needed, similar to desktop.js
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties for apps
+      }
     }
+    new window.ContextMenu(menuItems, event);
   }
 
   showBackgroundContextMenu(event) {
@@ -424,14 +469,24 @@ export class ExplorerApp extends Application {
       {
         label: "View",
         submenu: [
-          { label: "Large Icons", action: () => {} },
-          { label: "Details", action: () => {} },
+          { label: "Large Icons", action: () => {} }, // TODO: Implement Large Icons view
+          { label: "Small Icons", action: () => {} }, // TODO: Implement Small Icons view
+          { label: "List", action: () => {} }, // TODO: Implement List view
+          { label: "Details", action: () => {} }, // TODO: Implement Details view
         ],
       },
       "MENU_DIVIDER",
-      { label: "New Folder", action: () => {} },
+      {
+        label: "New",
+        submenu: [
+          { label: "Folder", action: () => {} }, // TODO: Implement New Folder
+          { label: "Text Document", action: () => {} }, // TODO: Implement New Text Document
+          // Add more new file types as needed
+        ],
+      },
       "MENU_DIVIDER",
-      { label: "Paste", action: () => {} },
+      { label: "Paste", action: () => {} }, // TODO: Implement Paste
+      { label: "Properties", action: () => {} }, // TODO: Implement Properties for folder background
     ];
     new window.ContextMenu(menuItems, event);
   }

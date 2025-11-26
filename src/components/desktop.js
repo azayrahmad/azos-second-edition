@@ -102,7 +102,7 @@ function createDesktopIcon(item, isFile = false) {
 }
 
 function createDesktopIconForDroppedFile(file) {
-  const association = getAssociation(file.name);
+  const association = getAssociation(file.name || file.title);
   const app = apps.find((a) => a.id === association.appId);
   if (!app) return null;
 
@@ -632,7 +632,7 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
   droppedFiles.forEach((file) => {
     const icon = createDesktopIconForDroppedFile(file);
     if (icon) {
-      const association = getAssociation(file.name);
+      const association = getAssociation(file.name || file.title);
       const app = apps.find((a) => a.id === association.appId);
       const iconId = getIconId(app, file);
       configureIcon(icon, app, file, { iconManager });
