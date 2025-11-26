@@ -10,7 +10,7 @@ import {
   removeItem,
   LOCAL_STORAGE_KEYS,
 } from "../utils/localStorage.js";
-import { getDesktopContents } from "../utils/directory.js";
+import { getDesktopContents, getAssociation } from "../utils/directory.js";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import {
   getThemes,
@@ -26,6 +26,7 @@ import { IconManager } from "./IconManager.js";
 import {
   getRecycleBinItems,
   emptyRecycleBin,
+  addToRecycleBin,
 } from "../utils/recycleBinManager.js";
 import {
   setColorMode,
@@ -50,11 +51,6 @@ function getIconId(app, item = null) {
   }
   // app
   return `app-${app.id}`;
-}
-
-function getAssociation(filename) {
-  const extension = filename.split(".").pop().toLowerCase();
-  return fileAssociations[extension] || fileAssociations.default;
 }
 
 function isAutoArrangeEnabled() {
@@ -86,7 +82,13 @@ function createDesktopIcon(item, isFile = false) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
-  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
+  iconImg.draggable = false;
+  if (isFile) {
+    const association = getAssociation(item.filename);
+    iconImg.src = association.icon[32];
+  } else {
+    iconImg.src = app.icon[32];
+  }
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
@@ -117,6 +119,7 @@ function createDesktopIconForDroppedFile(file) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
+  iconImg.draggable = false;
   iconImg.src = association.icon[32];
   iconInner.appendChild(iconImg);
 
@@ -142,8 +145,7 @@ function showIconContextMenu(event, app, fileId = null) {
         label: "&Open",
         default: true,
         action: () => {
-          const droppedFiles =
-            getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
           const file = droppedFiles.find((f) => f.id === fileId);
           if (file) {
             launchApp(app.id, file);
@@ -354,35 +356,35 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 
   const menuItems = [
     {
-        label: "Arrange Icons",
-        submenu: [
-            {
-                label: "by Name",
-                action: () => sortDesktopIcons("name"),
-            },
-            {
-                label: "by Type",
-                action: () => sortDesktopIcons("type"),
-            },
-            {
-                label: "by Size",
-                action: () => {},
-                enabled: false,
-            },
-            {
-                label: "by Date",
-                action: () => {},
-                enabled: false,
-            },
-            "MENU_DIVIDER",
-            {
-                label: "Auto Arrange",
-                checkbox: {
-                    check: isAutoArrangeEnabled,
-                    toggle: toggleAutoArrange,
-                },
-            },
-        ],
+      label: "Arrange Icons",
+      submenu: [
+        {
+          label: "by Name",
+          action: () => sortDesktopIcons("name"),
+        },
+        {
+          label: "by Type",
+          action: () => sortDesktopIcons("type"),
+        },
+        {
+          label: "by Size",
+          action: () => {},
+          enabled: false,
+        },
+        {
+          label: "by Date",
+          action: () => {},
+          enabled: false,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Auto Arrange",
+          checkbox: {
+            check: isAutoArrangeEnabled,
+            toggle: toggleAutoArrange,
+          },
+        },
+      ],
     },
     {
       label: "Wallpaper",
@@ -526,22 +528,15 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 }
 
 function deleteDroppedFile(fileId) {
-  ShowDialogWindow({
-    title: "Confirm File Delete",
-    text: "Are you sure you want to delete this file?",
-    buttons: [
-      {
-        label: "Yes",
-        action: () => {
-          let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-          droppedFiles = droppedFiles.filter((f) => f.id !== fileId);
-          setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
-          document.querySelector(".desktop").refreshIcons();
-        },
-      },
-      { label: "No", isDefault: true },
-    ],
-  });
+  let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  const fileToDelete = droppedFiles.find((f) => f.id === fileId);
+
+  if (fileToDelete) {
+    addToRecycleBin(fileToDelete);
+    droppedFiles = droppedFiles.filter((f) => f.id !== fileId);
+    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
+    document.querySelector(".desktop").refreshIcons();
+  }
 }
 
 function showProperties(app) {
@@ -553,10 +548,7 @@ function showProperties(app) {
   });
 }
 
-export function setupIcons(
-  options,
-  desktopContents = getDesktopContents()
-) {
+export function setupIcons(options, desktopContents = getDesktopContents()) {
   const { iconManager } = options;
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
@@ -690,6 +682,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   let wasDragged = false;
   let dragStartX, dragStartY;
   let dragOffsets = new Map();
+  let ghostIcons = new Map(); // Map to store original icon -> ghost icon
   let longPressTimer;
   let isLongPress = false;
 
@@ -770,13 +763,9 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       desktop.classList.add("has-absolute-icons");
     }
 
-    // Prepare all selected icons for dragging
-    iconManager.selectedIcons.forEach((selectedIcon) => {
-      const iconRect = selectedIcon.getBoundingClientRect();
-      const offsetX = clientX - iconRect.left;
-      const offsetY = clientY - iconRect.top;
-      dragOffsets.set(selectedIcon, { offsetX, offsetY });
-    });
+    // Clear any previous ghost icons just in case
+    ghostIcons.forEach((ghost) => ghost.remove());
+    ghostIcons.clear();
 
     if (e.type === "mousedown") {
       document.addEventListener("mousemove", handleDragMove);
@@ -803,6 +792,32 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       if (!wasDragged) {
         wasDragged = true;
         window.getSelection().removeAllRanges();
+
+        // --- Create ghost icons on first drag ---
+        const desktop = icon.parentElement;
+        const desktopRect = desktop.getBoundingClientRect();
+        iconManager.selectedIcons.forEach((selectedIcon) => {
+          const iconRect = selectedIcon.getBoundingClientRect();
+
+          const ghost = selectedIcon.cloneNode(true);
+          ghost.classList.add("desktop-icon-ghost");
+          ghost.style.position = "absolute";
+          ghost.style.left = `${iconRect.left - desktopRect.left}px`;
+          ghost.style.top = `${iconRect.top - desktopRect.top}px`;
+          ghost.style.width = `${iconRect.width}px`;
+          ghost.style.height = `${iconRect.height}px`;
+          ghost.style.opacity = "0.5";
+          ghost.style.zIndex = "9999";
+          ghost.style.pointerEvents = "none";
+          desktop.appendChild(ghost);
+
+          ghostIcons.set(selectedIcon, ghost);
+
+          const offsetX = dragStartX - iconRect.left;
+          const offsetY = dragStartY - iconRect.top;
+          dragOffsets.set(ghost, { offsetX, offsetY });
+        });
+        // --- End ghost icon creation ---
       }
     }
 
@@ -812,21 +827,21 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       e.preventDefault();
     }
 
-    const desktop = icon.parentElement;
+    const desktop = icon.parentElement; // `icon` here refers to the initially configured icon
     const desktopRect = desktop.getBoundingClientRect();
 
-    iconManager.selectedIcons.forEach((selectedIcon) => {
-      const { offsetX, offsetY } = dragOffsets.get(selectedIcon);
-      const iconRect = selectedIcon.getBoundingClientRect();
+    ghostIcons.forEach((ghostIcon, originalSelectedIcon) => {
+      const { offsetX, offsetY } = dragOffsets.get(ghostIcon); // Use offsets for the ghost
+      const ghostRect = ghostIcon.getBoundingClientRect(); // Use ghost's rect for boundary checks
 
       let newX = clientX - desktopRect.left - offsetX;
       let newY = clientY - desktopRect.top - offsetY;
 
-      newX = Math.max(0, Math.min(newX, desktopRect.width - iconRect.width));
-      newY = Math.max(0, Math.min(newY, desktopRect.height - iconRect.height));
+      newX = Math.max(0, Math.min(newX, desktopRect.width - ghostRect.width));
+      newY = Math.max(0, Math.min(newY, desktopRect.height - ghostRect.height));
 
-      selectedIcon.style.left = `${newX}px`;
-      selectedIcon.style.top = `${newY}px`;
+      ghostIcon.style.left = `${newX}px`;
+      ghostIcon.style.top = `${newY}px`;
     });
   };
 
@@ -837,15 +852,25 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     if (wasDragged) {
       iconManager.wasDragged = true; // Set flag on manager
       const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
-      iconManager.selectedIcons.forEach((selectedIcon) => {
-        const id = selectedIcon.getAttribute("data-icon-id");
-        iconPositions[id] = {
-          x: selectedIcon.style.left,
-          y: selectedIcon.style.top,
-        };
+
+      // Move original icons to the ghost's final position and remove ghosts
+      ghostIcons.forEach((ghostIcon, originalSelectedIcon) => {
+        const id = originalSelectedIcon.getAttribute("data-icon-id");
+        const finalX = ghostIcon.style.left;
+        const finalY = ghostIcon.style.top;
+
+        iconPositions[id] = { x: finalX, y: finalY };
+
+        originalSelectedIcon.style.left = finalX;
+        originalSelectedIcon.style.top = finalY;
+        originalSelectedIcon.style.opacity = ""; // Ensure original is fully opaque
+
+        ghostIcon.remove(); // Remove the ghost icon
       });
       setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
+    ghostIcons.clear(); // Clear the map of ghost icons
+    dragOffsets.clear(); // Clear drag offsets as well
 
     document.removeEventListener("mousemove", handleDragMove);
     document.removeEventListener("mouseup", handleDragEnd);

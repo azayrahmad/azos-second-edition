@@ -1,8 +1,10 @@
 import { Application } from "../Application.js";
 import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
+import { fileAssociations } from "../../config/fileAssociations.js";
 import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
+import { getAssociation } from "../../utils/directory.js";
 import { IconManager } from "../../components/IconManager.js";
 import {
   getRecycleBinItems,
@@ -13,6 +15,7 @@ import { registerCustomApp } from "../../utils/customAppManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
+import "./explorer.css";
 
 const specialFolderIcons = {
   "/": "my-computer",
@@ -161,6 +164,11 @@ export class ExplorerApp extends Application {
     win.$content.append(content);
     this.content = content;
 
+    const iconContainer = document.createElement("div");
+    iconContainer.className = "explorer-icon-view";
+    content.appendChild(iconContainer);
+    this.iconContainer = iconContainer;
+
     this.iconManager = new IconManager(content, {
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
@@ -208,10 +216,17 @@ export class ExplorerApp extends Application {
     if (icon) {
       this.win.setIcons(icon);
     }
-    this.content.innerHTML = ""; // Clear previous content
+    this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
     const children = item.children || [];
+
+    // Sort children alphabetically by name
+    children.sort((a, b) => {
+      const nameA = a.name || "";
+      const nameB = b.name || "";
+      return nameA.localeCompare(nameB);
+    });
 
     children.forEach((child) => {
       let iconData = { ...child };
@@ -233,16 +248,17 @@ export class ExplorerApp extends Application {
 
       const icon = this.createExplorerIcon(iconData);
       this.iconManager.configureIcon(icon);
-      this.content.appendChild(icon);
+      this.iconContainer.appendChild(icon);
     });
   }
 
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
+    const displayName = item.name || app.title;
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
-    iconDiv.setAttribute("title", item.name);
+    iconDiv.setAttribute("title", displayName);
     iconDiv.setAttribute("data-id", item.id);
 
     const iconInner = document.createElement("div");
@@ -255,6 +271,9 @@ export class ExplorerApp extends Application {
       iconImg.src = ICONS.folderClosed[32];
     } else if (item.type === "network") {
       iconImg.src = ICONS["internet-explorer"][32];
+    } else if (item.type === "file") {
+      const association = getAssociation(item.name);
+      iconImg.src = association.icon[32];
     } else {
       iconImg.src = app.icon ? app.icon[32] : ICONS.folderClosed[32];
     }
@@ -262,7 +281,7 @@ export class ExplorerApp extends Application {
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";
-    iconLabel.textContent = item.name;
+    iconLabel.textContent = displayName;
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(iconLabel);
@@ -277,6 +296,9 @@ export class ExplorerApp extends Application {
               ? `/${item.id}`
               : `${this.currentPath}/${item.id}`;
           this.navigateTo(newPath);
+        } else if (item.type === "file") {
+          const association = getAssociation(item.name);
+          launchApp(association.appId, item.contentUrl);
         } else if (item.appId) {
           launchApp(item.appId);
         }
