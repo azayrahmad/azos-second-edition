@@ -164,6 +164,10 @@ export class ExplorerApp extends Application {
     this.iconManager = new IconManager(content, {
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
+      iconClass: 'explorer-icon',
+      highlightedIconClass: 'explorer-highlighted-icon',
+      highlightedLabelClass: 'explorer-highlighted-label',
+      selectedClass: 'explorer-selected',
     });
 
     this.navigateTo(this.initialPath);
@@ -237,7 +241,7 @@ export class ExplorerApp extends Application {
     const app = apps.find((a) => a.id === item.appId) || {};
 
     const iconDiv = document.createElement("div");
-    iconDiv.className = "desktop-icon";
+    iconDiv.className = "explorer-icon";
     iconDiv.setAttribute("title", item.name);
     iconDiv.setAttribute("data-id", item.id);
 

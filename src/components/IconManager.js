@@ -29,15 +29,19 @@ export class IconManager {
     const iconImg = icon.querySelector(".icon img");
     const iconLabel = icon.querySelector(".icon-label");
 
+    const highlightedIconClass = this.options.highlightedIconClass || "highlighted-icon";
+    const highlightedLabelClass = this.options.highlightedLabelClass || "highlighted-label";
+    const selectedClass = this.options.selectedClass || "selected";
+
     if (shouldHighlight) {
-      if (iconImg) iconImg.classList.add("highlighted-icon");
+      if (iconImg) iconImg.classList.add(highlightedIconClass);
       if (iconLabel) {
-        iconLabel.classList.add("highlighted-label", "selected");
+        iconLabel.classList.add(highlightedLabelClass, selectedClass);
       }
     } else {
-      if (iconImg) iconImg.classList.remove("highlighted-icon");
+      if (iconImg) iconImg.classList.remove(highlightedIconClass);
       if (iconLabel) {
-        iconLabel.classList.remove("highlighted-label", "selected");
+        iconLabel.classList.remove(highlightedLabelClass, selectedClass);
       }
     }
   }

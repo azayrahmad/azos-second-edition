@@ -8,3 +8,38 @@
   height: 100%;
   overflow-y: auto;
 }
+
+.explorer-icon {
+    width: 70px;
+    text-align: center;
+    color: black;
+}
+
+.explorer-icon .icon {
+    display: block;
+    margin: auto;
+}
+
+.explorer-icon .icon img {
+    width: 32px;
+    height: 32px;
+}
+
+.explorer-icon .icon-label {
+    font-family: var(--font-family-menu);
+    font-size: var(--font-size-menu);
+    word-break: break-word;
+}
+
+.explorer-highlighted-icon {
+    filter: var(--icon-filter);
+}
+
+.explorer-highlighted-label {
+    background-color: var(--highlight-blue);
+    color: var(--highlight-text);
+}
+
+.explorer-selected {
+    border: 1px dotted var(--HilightText);
+}
