@@ -39,6 +39,7 @@ import {
   setResolution,
   getCurrentResolutionId,
 } from "../utils/screenManager.js";
+import { handleDroppedFiles } from "../utils/dragDropManager.js";
 
 function getIconId(app, item = null) {
   if (typeof item === "string") {
@@ -628,8 +629,12 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
   });
 
   // Load dropped files
-  const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-  droppedFiles.forEach((file) => {
+  const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  const desktopFiles = allDroppedFiles.filter(
+    (file) => file.path === "/drive-c/folder-user/folder-desktop",
+  );
+
+  desktopFiles.forEach((file) => {
     const icon = createDesktopIconForDroppedFile(file);
     if (icon) {
       const association = getAssociation(file.name || file.title);
@@ -1006,57 +1011,9 @@ export async function initDesktop() {
 
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-      handleDroppedFiles(files, desktop);
+      handleDroppedFiles(files, "/drive-c/folder-user/folder-desktop", () =>
+        desktop.refreshIcons(),
+      );
     }
-  });
-}
-
-function handleDroppedFiles(files, desktop) {
-  const existingFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-  const validFiles = [];
-  const oversizedFiles = [];
-
-  Array.from(files).forEach((file) => {
-    if (file.size > 5 * 1024 * 1024) {
-      oversizedFiles.push(file.name);
-    } else {
-      validFiles.push(file);
-    }
-  });
-
-  if (oversizedFiles.length > 0) {
-    ShowDialogWindow({
-      title: "File(s) Too Large",
-      text: `The following files exceed the 5MB size limit and were not added:\n\n${oversizedFiles.join(
-        "\n",
-      )}`,
-      buttons: [{ label: "OK", isDefault: true }],
-    });
-  }
-
-  if (validFiles.length === 0) {
-    return; // No files to process
-  }
-
-  const fileReadPromises = validFiles.map((file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        resolve({
-          id: `dropped-${Date.now()}-${Math.random()}`,
-          name: file.name,
-          content: e.target.result,
-          type: file.type,
-        });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  });
-
-  Promise.all(fileReadPromises).then((newFiles) => {
-    const allFiles = [...existingFiles, ...newFiles];
-    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, allFiles);
-    desktop.refreshIcons();
   });
 }
