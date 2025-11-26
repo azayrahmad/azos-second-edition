@@ -4,7 +4,11 @@ import { apps } from "../../config/apps.js";
 import { fileAssociations } from "../../config/fileAssociations.js";
 import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
-import { getAssociation, findItemByPath } from "../../utils/directory.js";
+import {
+  getAssociation,
+  findItemByPath,
+  getDesktopContents,
+} from "../../utils/directory.js";
 import { IconManager } from "../../components/IconManager.js";
 import {
   getRecycleBinItems,
@@ -138,6 +142,12 @@ export class ExplorerApp extends Application {
 
     this.navigateTo(this.initialPath);
 
+    document.addEventListener("explorer-refresh", () => {
+      if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
+        this.render(this.currentPath);
+      }
+    });
+
     // Drag and drop functionality
     this.content.addEventListener("dragover", (e) => {
       e.preventDefault();
@@ -159,9 +169,12 @@ export class ExplorerApp extends Application {
       if (isFileDropEnabled(this.currentPath)) {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-          handleDroppedFiles(files, this.currentPath, () =>
-            this.render(this.currentPath),
-          );
+          handleDroppedFiles(files, this.currentPath, () => {
+            this.render(this.currentPath);
+            if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
+              document.dispatchEvent(new CustomEvent("desktop-refresh"));
+            }
+          });
         }
       }
     });
@@ -205,15 +218,22 @@ export class ExplorerApp extends Application {
     this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
-    const staticChildren = item.children || [];
-
-    // Get dropped files for the current path
-    const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-    const droppedFilesInThisFolder = allDroppedFiles.filter(
-      (file) => file.path === path,
-    );
-
-    const children = [...staticChildren, ...droppedFilesInThisFolder];
+    let children = [];
+    if (path === SPECIAL_FOLDER_PATHS.desktop) {
+      const desktopContents = getDesktopContents();
+      const desktopApps = desktopContents.apps.map((appId) => {
+        const app = apps.find((a) => a.id === appId);
+        return { ...app, appId: app.id };
+      });
+      children = [...desktopApps, ...desktopContents.files];
+    } else {
+      const staticChildren = item.children || [];
+      const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+      const droppedFilesInThisFolder = allDroppedFiles.filter(
+        (file) => file.path === path,
+      );
+      children = [...staticChildren, ...droppedFilesInThisFolder];
+    }
 
     // Sort children alphabetically by name
     children.sort((a, b) => {
@@ -259,7 +279,9 @@ export class ExplorerApp extends Application {
     iconInner.className = "icon";
 
     const iconImg = document.createElement("img");
-    if (item.type === "drive") {
+    if (item.icon) {
+      iconImg.src = item.icon[32];
+    } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
       iconImg.src = ICONS.folderClosed[32];
