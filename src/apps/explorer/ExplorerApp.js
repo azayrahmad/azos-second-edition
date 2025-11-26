@@ -251,7 +251,7 @@ export class ExplorerApp extends Application {
     const displayName = item.name || app.title;
 
     const iconDiv = document.createElement("div");
-    iconDiv.className = "desktop-icon";
+    iconDiv.className = "explorer-icon";
     iconDiv.setAttribute("title", displayName);
     iconDiv.setAttribute("data-id", item.id);
 

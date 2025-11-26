@@ -15,3 +15,37 @@
   padding: 10px;
   align-content: start;
 }
+
+.explorer-icon {
+    width: 70px;
+    text-align: center;
+    color: var(--WindowText);
+}
+
+.explorer-icon .icon {
+    display: block;
+    margin: auto;
+}
+
+.explorer-icon .icon img {
+    width: 32px;
+    height: 32px;
+}
+
+.explorer-icon .icon-label {
+    font-family: var(--font-family-menu);
+    font-size: var(--font-size-menu);
+}
+
+.explorer-icon .highlighted-icon {
+    filter: var(--icon-filter);
+}
+
+.explorer-icon.selected .highlighted-label {
+    background-color: var(--highlight-blue);
+    color: var(--highlight-text);
+}
+
+.explorer-icon.selected {
+    border: 1px dotted var(--HilightText);
+}
