@@ -60,7 +60,7 @@ function findItemByPath(path) {
       type: "folder",
       children: recycledItems.map((item) => ({
         ...item,
-        name: item.name,
+        name: item.name || item.title,
         type: "file",
       })),
     };
