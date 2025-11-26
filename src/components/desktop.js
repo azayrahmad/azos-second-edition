@@ -1011,9 +1011,10 @@ export async function initDesktop() {
 
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-      handleDroppedFiles(files, "/drive-c/folder-user/folder-desktop", () =>
-        desktop.refreshIcons(),
-      );
+      handleDroppedFiles(files, "/drive-c/folder-user/folder-desktop", () => {
+        desktop.refreshIcons();
+        document.dispatchEvent(new CustomEvent("explorer-refresh"));
+      });
     }
   });
 }
