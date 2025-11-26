@@ -4,7 +4,7 @@ import { apps } from "../../config/apps.js";
 import { fileAssociations } from "../../config/fileAssociations.js";
 import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
-import { getAssociation } from "../../utils/directory.js";
+import { getAssociation, findItemByPath } from "../../utils/directory.js";
 import { IconManager } from "../../components/IconManager.js";
 import {
   getRecycleBinItems,
@@ -19,6 +19,7 @@ import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
+import { handleDroppedFiles } from "../../utils/dragDropManager.js";
 import "./explorer.css";
 
 const specialFolderIcons = {
@@ -51,61 +52,18 @@ function getIconForPath(path) {
   return ICONS.folder;
 }
 
-function findItemByPath(path) {
-  if (path === "//recycle-bin") {
-    const recycledItems = getRecycleBinItems();
-    return {
-      id: "recycle-bin",
-      name: "Recycle Bin",
-      type: "folder",
-      children: recycledItems.map((item) => ({
-        ...item,
-        name: item.name || item.title,
-        type: item.type || "file",
-      })),
-    };
-  }
-
-  if (path === "//network-neighborhood") {
-    return {
-      id: "network-neighborhood",
-      name: "Network Neighborhood",
-      type: "folder",
-      children: networkNeighborhood.map((item) => ({
-        ...item,
-        id: item.title.toLowerCase().replace(/\\s+/g, "-"),
-        name: item.title,
-        type: "network",
-      })),
-    };
-  }
-
-  if (!path || path === "/") {
-    return {
-      id: "root",
-      name: "My Computer",
-      type: "folder",
-      children: directory,
-    };
-  }
-
-  const parts = path.split("/").filter(Boolean);
-  let currentLevel = directory;
-  let currentItem = null;
-
-  for (const part of parts) {
-    const found = currentLevel.find(
-      (item) => item.name === part || item.id === part,
-    );
-    if (found) {
-      currentItem = found;
-      currentLevel = found.children || [];
-    } else {
-      return null; // Not found
+function isFileDropEnabled(path) {
+  let currentPath = path;
+  while (currentPath && currentPath !== "/") {
+    const item = findItemByPath(currentPath);
+    if (item && item.enableFileDrop) {
+      return true;
     }
+    const parts = currentPath.split("/").filter(Boolean);
+    parts.pop();
+    currentPath = "/" + parts.join("/");
   }
-
-  return currentItem;
+  return false;
 }
 
 export class ExplorerApp extends Application {
@@ -180,6 +138,34 @@ export class ExplorerApp extends Application {
 
     this.navigateTo(this.initialPath);
 
+    // Drag and drop functionality
+    this.content.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (isFileDropEnabled(this.currentPath)) {
+        this.content.classList.add("drop-target");
+      }
+    });
+
+    this.content.addEventListener("dragleave", (e) => {
+      if (e.target === this.content) {
+        this.content.classList.remove("drop-target");
+      }
+    });
+
+    this.content.addEventListener("drop", (e) => {
+      e.preventDefault();
+      this.content.classList.remove("drop-target");
+
+      if (isFileDropEnabled(this.currentPath)) {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleDroppedFiles(files, this.currentPath, () =>
+            this.render(this.currentPath),
+          );
+        }
+      }
+    });
+
     return win;
   }
 
@@ -219,7 +205,15 @@ export class ExplorerApp extends Application {
     this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
-    const children = item.children || [];
+    const staticChildren = item.children || [];
+
+    // Get dropped files for the current path
+    const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    const droppedFilesInThisFolder = allDroppedFiles.filter(
+      (file) => file.path === path,
+    );
+
+    const children = [...staticChildren, ...droppedFilesInThisFolder];
 
     // Sort children alphabetically by name
     children.sort((a, b) => {

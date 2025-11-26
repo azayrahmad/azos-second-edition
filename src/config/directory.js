@@ -56,6 +56,7 @@ const directory = [
             id: "folder-desktop",
             name: "desktop",
             type: "folder",
+            enableFileDrop: true,
             children: [
               {
                 id: "shortcut-to-my-computer",
@@ -159,6 +160,7 @@ const directory = [
             id: "folder-documents",
             name: "Documents",
             type: "folder",
+            enableFileDrop: true,
             children: [],
           },
         ],
