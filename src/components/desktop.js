@@ -529,15 +529,47 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 }
 
 function deleteDroppedFile(fileId) {
-  let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-  const fileToDelete = droppedFiles.find((f) => f.id === fileId);
+  const fileIds = Array.isArray(fileId) ? fileId : [fileId];
+  if (fileIds.length === 0) return;
 
-  if (fileToDelete) {
-    addToRecycleBin(fileToDelete);
-    droppedFiles = droppedFiles.filter((f) => f.id !== fileId);
-    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
-    document.querySelector(".desktop").refreshIcons();
-  }
+  const dialogText =
+    fileIds.length > 1
+      ? `Are you sure you want to send these ${fileIds.length} items to the Recycle Bin?`
+      : "Are you sure you want to send this item to the Recycle Bin?";
+
+  ShowDialogWindow({
+    title: "Confirm File Delete",
+    text: dialogText,
+    contentIconUrl: ICONS.warning[32],
+    soundEvent: "SystemHand",
+    buttons: [
+      {
+        label: "Yes",
+        action: () => {
+          let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          const filesToDelete = droppedFiles.filter((f) =>
+            fileIds.includes(f.id),
+          );
+
+          if (filesToDelete.length > 0) {
+            filesToDelete.forEach((file) => addToRecycleBin(file));
+            const newDroppedFiles = droppedFiles.filter(
+              (f) => !fileIds.includes(f.id),
+            );
+            setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, newDroppedFiles);
+            document.querySelector(".desktop").refreshIcons();
+            document.dispatchEvent(new CustomEvent("explorer-refresh"));
+          }
+        },
+      },
+      {
+        label: "No",
+        isDefault: true,
+        action: () => {},
+      },
+    ],
+    modal: true,
+  });
 }
 
 function showProperties(app) {
@@ -690,6 +722,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   let ghostIcons = new Map(); // Map to store original icon -> ghost icon
   let longPressTimer;
   let isLongPress = false;
+  let handleDragEndWrapper;
 
   const iconId = icon.getAttribute("data-icon-id");
 
@@ -772,14 +805,16 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     ghostIcons.forEach((ghost) => ghost.remove());
     ghostIcons.clear();
 
+    handleDragEndWrapper = (evt) => handleDragEnd(evt);
+
     if (e.type === "mousedown") {
       document.addEventListener("mousemove", handleDragMove);
-      document.addEventListener("mouseup", handleDragEnd);
+      document.addEventListener("mouseup", handleDragEndWrapper);
     } else if (e.type === "touchstart") {
       document.addEventListener("touchmove", handleDragMove, {
         passive: false,
       });
-      document.addEventListener("touchend", handleDragEnd);
+      document.addEventListener("touchend", handleDragEndWrapper);
     }
   };
 
@@ -850,43 +885,91 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     });
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e) => {
     clearTimeout(longPressTimer);
     isDragging = false;
 
     if (wasDragged) {
-      iconManager.wasDragged = true; // Set flag on manager
-      const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+      const dropX =
+        e.type === "touchend" ? e.changedTouches[0].clientX : e.clientX;
+      const dropY =
+        e.type === "touchend" ? e.changedTouches[0].clientY : e.clientY;
+      ghostIcons.forEach((ghost) => (ghost.style.display = "none"));
+      const dropTarget = document.elementFromPoint(dropX, dropY);
+      ghostIcons.forEach((ghost) => (ghost.style.display = ""));
 
-      // Move original icons to the ghost's final position and remove ghosts
-      ghostIcons.forEach((ghostIcon, originalSelectedIcon) => {
-        const id = originalSelectedIcon.getAttribute("data-icon-id");
-        const finalX = ghostIcon.style.left;
-        const finalY = ghostIcon.style.top;
+      const targetIcon = dropTarget
+        ? dropTarget.closest(".desktop-icon")
+        : null;
 
-        iconPositions[id] = { x: finalX, y: finalY };
+      let dropHandled = false;
+      if (targetIcon && !iconManager.selectedIcons.has(targetIcon)) {
+        const targetAppId = targetIcon.getAttribute("data-app-id");
+        const areAllFiles = [...iconManager.selectedIcons].every((icon) =>
+          icon.hasAttribute("data-file-id"),
+        );
 
-        originalSelectedIcon.style.left = finalX;
-        originalSelectedIcon.style.top = finalY;
-        originalSelectedIcon.style.opacity = ""; // Ensure original is fully opaque
+        if (areAllFiles) {
+          if (targetAppId === "my-documents") {
+            const fileIds = [...iconManager.selectedIcons].map((icon) =>
+              icon.getAttribute("data-file-id"),
+            );
+            moveDroppedFiles(fileIds, "/drive-c/folder-user/folder-documents");
+            dropHandled = true;
+          } else if (targetAppId === "recycle-bin") {
+            const fileIds = [...iconManager.selectedIcons].map((icon) =>
+              icon.getAttribute("data-file-id"),
+            );
+            deleteDroppedFile(fileIds);
+            dropHandled = true;
+          }
+        }
+      }
 
-        ghostIcon.remove(); // Remove the ghost icon
-      });
-      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      if (dropHandled) {
+        ghostIcons.forEach((ghost) => ghost.remove());
+      } else {
+        iconManager.wasDragged = true;
+        const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+        ghostIcons.forEach((ghostIcon, originalSelectedIcon) => {
+          const id = originalSelectedIcon.getAttribute("data-icon-id");
+          const finalX = ghostIcon.style.left;
+          const finalY = ghostIcon.style.top;
+          iconPositions[id] = { x: finalX, y: finalY };
+          originalSelectedIcon.style.left = finalX;
+          originalSelectedIcon.style.top = finalY;
+          originalSelectedIcon.style.opacity = "";
+          ghostIcon.remove();
+        });
+        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      }
     }
-    ghostIcons.clear(); // Clear the map of ghost icons
-    dragOffsets.clear(); // Clear drag offsets as well
+    ghostIcons.clear();
+    dragOffsets.clear();
 
     document.removeEventListener("mousemove", handleDragMove);
-    document.removeEventListener("mouseup", handleDragEnd);
+    document.removeEventListener("mouseup", handleDragEndWrapper);
     document.removeEventListener("touchmove", handleDragMove);
-    document.removeEventListener("touchend", handleDragEnd);
+    document.removeEventListener("touchend", handleDragEndWrapper);
 
     setTimeout(() => {
       wasDragged = false;
       isLongPress = false;
     }, 0);
   };
+
+  function moveDroppedFiles(fileIds, targetPath) {
+    const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    const updatedFiles = droppedFiles.map((file) => {
+      if (fileIds.includes(file.id)) {
+        return { ...file, path: targetPath };
+      }
+      return file;
+    });
+    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, updatedFiles);
+    document.querySelector(".desktop").refreshIcons();
+    document.dispatchEvent(new CustomEvent("explorer-refresh"));
+  }
 
   icon.addEventListener("mousedown", handleDragStart);
   icon.addEventListener("touchstart", handleDragStart);
