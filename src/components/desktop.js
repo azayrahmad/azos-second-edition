@@ -540,13 +540,13 @@ function deleteDroppedFile(fileId) {
   ShowDialogWindow({
     title: "Confirm File Delete",
     text: dialogText,
-    contentIconUrl: ICONS.help[32],
+    contentIconUrl: ICONS.warning[32],
+    soundEvent: "SystemHand",
     buttons: [
       {
         label: "Yes",
         action: () => {
-          let droppedFiles =
-            getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
           const filesToDelete = droppedFiles.filter((f) =>
             fileIds.includes(f.id),
           );
@@ -914,10 +914,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
             const fileIds = [...iconManager.selectedIcons].map((icon) =>
               icon.getAttribute("data-file-id"),
             );
-            moveDroppedFiles(
-              fileIds,
-              "/drive-c/folder-user/folder-documents",
-            );
+            moveDroppedFiles(fileIds, "/drive-c/folder-user/folder-documents");
             dropHandled = true;
           } else if (targetAppId === "recycle-bin") {
             const fileIds = [...iconManager.selectedIcons].map((icon) =>
@@ -933,8 +930,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
         ghostIcons.forEach((ghost) => ghost.remove());
       } else {
         iconManager.wasDragged = true;
-        const iconPositions =
-          getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+        const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
         ghostIcons.forEach((ghostIcon, originalSelectedIcon) => {
           const id = originalSelectedIcon.getAttribute("data-icon-id");
           const finalX = ghostIcon.style.left;
