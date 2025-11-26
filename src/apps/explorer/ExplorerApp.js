@@ -10,8 +10,12 @@ import {
   getRecycleBinItems,
   removeFromRecycleBin,
 } from "../../utils/recycleBinManager.js";
+import {
+  setItem,
+  getItem,
+  LOCAL_STORAGE_KEYS,
+} from "../../utils/localStorage.js";
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
-import { registerCustomApp } from "../../utils/customAppManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
@@ -56,8 +60,8 @@ function findItemByPath(path) {
       type: "folder",
       children: recycledItems.map((item) => ({
         ...item,
-        name: item.title,
-        type: "app",
+        name: item.name,
+        type: "file",
       })),
     };
   }
@@ -366,14 +370,19 @@ export class ExplorerApp extends Application {
           action: () => {
             const item = getRecycleBinItems().find((i) => i.id === itemId);
             if (item) {
-              registerCustomApp(item);
+              const droppedFiles =
+                getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+              droppedFiles.push(item);
+              setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
               removeFromRecycleBin(itemId);
               this.render(this.currentPath);
+              document.dispatchEvent(new CustomEvent("desktop-refresh"));
             }
           },
         },
         "MENU_DIVIDER",
         {
+          // Permanently deletes the item from the recycle bin
           label: "Delete",
           action: () => {
             ShowDialogWindow({
