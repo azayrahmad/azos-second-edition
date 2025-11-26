@@ -91,7 +91,9 @@ html {
     width: 100%;
     height: 100%;
     background-color: var(--Background); /* Use theme background color */
-    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    transition:
+        width 0.3s ease-in-out,
+        height 0.3s ease-in-out;
 }
 
 a {
@@ -107,7 +109,7 @@ body {
     margin: 0;
     display: flex;
     justify-content: center; /* Center horizontally */
-    align-items: center;   /* Center vertically */
+    align-items: center; /* Center vertically */
     min-width: 320px;
     min-height: 100vh;
 }
@@ -176,4 +178,8 @@ button {
 
 .fade-out {
     animation: fadeOut 0.5s forwards;
+}
+
+.desktop-icon-ghost {
+    opacity: 0.5;
 }
