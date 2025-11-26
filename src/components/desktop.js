@@ -26,6 +26,7 @@ import { IconManager } from "./IconManager.js";
 import {
   getRecycleBinItems,
   emptyRecycleBin,
+  addToRecycleBin,
 } from "../utils/recycleBinManager.js";
 import {
   setColorMode,
@@ -527,22 +528,15 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 }
 
 function deleteDroppedFile(fileId) {
-  ShowDialogWindow({
-    title: "Confirm File Delete",
-    text: "Are you sure you want to delete this file?",
-    buttons: [
-      {
-        label: "Yes",
-        action: () => {
-          let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-          droppedFiles = droppedFiles.filter((f) => f.id !== fileId);
-          setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
-          document.querySelector(".desktop").refreshIcons();
-        },
-      },
-      { label: "No", isDefault: true },
-    ],
-  });
+  let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  const fileToDelete = droppedFiles.find((f) => f.id === fileId);
+
+  if (fileToDelete) {
+    addToRecycleBin(fileToDelete);
+    droppedFiles = droppedFiles.filter((f) => f.id !== fileId);
+    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
+    document.querySelector(".desktop").refreshIcons();
+  }
 }
 
 function showProperties(app) {
