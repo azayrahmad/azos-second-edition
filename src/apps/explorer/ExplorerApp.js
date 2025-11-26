@@ -1,8 +1,10 @@
 import { Application } from "../Application.js";
 import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
+import { fileAssociations } from "../../config/fileAssociations.js";
 import { ICONS } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
+import { getAssociation } from "../../utils/directory.js";
 import { IconManager } from "../../components/IconManager.js";
 import {
   getRecycleBinItems,
@@ -265,6 +267,9 @@ export class ExplorerApp extends Application {
       iconImg.src = ICONS.folderClosed[32];
     } else if (item.type === "network") {
       iconImg.src = ICONS["internet-explorer"][32];
+    } else if (item.type === "file") {
+      const association = getAssociation(item.name);
+      iconImg.src = association.icon[32];
     } else {
       iconImg.src = app.icon ? app.icon[32] : ICONS.folderClosed[32];
     }
@@ -287,6 +292,9 @@ export class ExplorerApp extends Application {
               ? `/${item.id}`
               : `${this.currentPath}/${item.id}`;
           this.navigateTo(newPath);
+        } else if (item.type === "file") {
+          const association = getAssociation(item.name);
+          launchApp(association.appId, item.contentUrl);
         } else if (item.appId) {
           launchApp(item.appId);
         }
