@@ -248,10 +248,11 @@ export class ExplorerApp extends Application {
 
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
+    const displayName = item.name || app.title;
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "desktop-icon";
-    iconDiv.setAttribute("title", item.name);
+    iconDiv.setAttribute("title", displayName);
     iconDiv.setAttribute("data-id", item.id);
 
     const iconInner = document.createElement("div");
@@ -271,7 +272,7 @@ export class ExplorerApp extends Application {
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";
-    iconLabel.textContent = item.name;
+    iconLabel.textContent = displayName;
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(iconLabel);
