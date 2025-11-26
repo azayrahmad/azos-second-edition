@@ -946,6 +946,10 @@ export async function initDesktop() {
     applyWallpaper();
   });
 
+  document.addEventListener("desktop-refresh", () => {
+    desktop.refreshIcons();
+  });
+
   desktop.addEventListener("contextmenu", (e) => {
     // Show desktop context menu only if not clicking on an icon
     if (e.target === desktop) {
