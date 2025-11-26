@@ -86,6 +86,7 @@ function createDesktopIcon(item, isFile = false) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
+  iconImg.draggable = false;
   iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
   iconInner.appendChild(iconImg);
 
@@ -117,6 +118,7 @@ function createDesktopIconForDroppedFile(file) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
+  iconImg.draggable = false;
   iconImg.src = association.icon[32];
   iconInner.appendChild(iconImg);
 
