@@ -773,35 +773,6 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     ghostIcons.forEach((ghost) => ghost.remove());
     ghostIcons.clear();
 
-    // Prepare all selected icons for dragging by creating ghost copies
-    iconManager.selectedIcons.forEach((selectedIcon) => {
-      const iconRect = selectedIcon.getBoundingClientRect();
-      // 'desktop' is already defined a few lines above this loop
-      // const desktop = icon.parentElement;
-      // const desktopRect = desktop.getBoundingClientRect();
-
-      // Create a ghost clone
-      const ghost = selectedIcon.cloneNode(true);
-      ghost.classList.add("desktop-icon-ghost"); // Add a class for styling
-      ghost.style.position = "absolute";
-      ghost.style.left = `${iconRect.left - desktopRect.left}px`;
-      ghost.style.top = `${iconRect.top - desktopRect.top}px`;
-      ghost.style.width = `${iconRect.width}px`;
-      ghost.style.height = `${iconRect.height}px`;
-      ghost.style.opacity = "0.5"; // Make the ghost 50% transparent
-      ghost.style.zIndex = "9999"; // Ensure it's on top of other icons
-      ghost.style.pointerEvents = "none"; // So it doesn't interfere with mouse events
-      desktop.appendChild(ghost);
-
-      // Store the original icon and its ghost
-      ghostIcons.set(selectedIcon, ghost);
-
-      // Store the drag offset relative to the ghost icon
-      const offsetX = clientX - iconRect.left;
-      const offsetY = clientY - iconRect.top;
-      dragOffsets.set(ghost, { offsetX, offsetY });
-    });
-
     if (e.type === "mousedown") {
       document.addEventListener("mousemove", handleDragMove);
       document.addEventListener("mouseup", handleDragEnd);
@@ -827,6 +798,32 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       if (!wasDragged) {
         wasDragged = true;
         window.getSelection().removeAllRanges();
+
+        // --- Create ghost icons on first drag ---
+        const desktop = icon.parentElement;
+        const desktopRect = desktop.getBoundingClientRect();
+        iconManager.selectedIcons.forEach((selectedIcon) => {
+          const iconRect = selectedIcon.getBoundingClientRect();
+
+          const ghost = selectedIcon.cloneNode(true);
+          ghost.classList.add("desktop-icon-ghost");
+          ghost.style.position = "absolute";
+          ghost.style.left = `${iconRect.left - desktopRect.left}px`;
+          ghost.style.top = `${iconRect.top - desktopRect.top}px`;
+          ghost.style.width = `${iconRect.width}px`;
+          ghost.style.height = `${iconRect.height}px`;
+          ghost.style.opacity = "0.5";
+          ghost.style.zIndex = "9999";
+          ghost.style.pointerEvents = "none";
+          desktop.appendChild(ghost);
+
+          ghostIcons.set(selectedIcon, ghost);
+
+          const offsetX = dragStartX - iconRect.left;
+          const offsetY = dragStartY - iconRect.top;
+          dragOffsets.set(ghost, { offsetX, offsetY });
+        });
+        // --- End ghost icon creation ---
       }
     }
 
