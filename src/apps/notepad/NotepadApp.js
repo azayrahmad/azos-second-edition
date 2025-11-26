@@ -252,6 +252,14 @@ export class NotepadApp extends Application {
             reader.readAsText(file);
         });
 
+        this.handleWordWrapChange = (e) => {
+            if (e.detail.sourceWindow !== this.win) {
+                this.editor.setWordWrap(e.detail.wordWrap);
+                this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
+            }
+        };
+        document.addEventListener('word-wrap-changed', this.handleWordWrapChange);
+
         this.win.on('close', (e) => {
             if (this.isDirty) {
                 e.preventDefault();
@@ -259,8 +267,17 @@ export class NotepadApp extends Application {
             }
         });
 
+        this.win.on('closed', () => {
+            document.removeEventListener('word-wrap-changed', this.handleWordWrapChange);
+        });
+
         this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
         this.setTheme(this.currentTheme, true);
+
+        const wordWrap = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_WORD_WRAP);
+        if (wordWrap !== null) {
+            this.editor.setWordWrap(wordWrap === true || wordWrap === 'true');
+        }
     }
 
     setTheme(theme, isInitialLoad = false) {
@@ -290,6 +307,8 @@ export class NotepadApp extends Application {
     toggleWordWrap() {
         this.editor.toggleWordWrap();
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
+        setItem(LOCAL_STORAGE_KEYS.NOTEPAD_WORD_WRAP, this.editor.wordWrap);
+        document.dispatchEvent(new CustomEvent('word-wrap-changed', { detail: { wordWrap: this.editor.wordWrap, sourceWindow: this.win } }));
     }
 
     showFindDialog() {
