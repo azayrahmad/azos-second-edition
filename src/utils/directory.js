@@ -1,5 +1,11 @@
 import directory from '../config/directory.js';
 import { apps } from '../config/apps.js';
+import { fileAssociations } from '../config/fileAssociations.js';
+
+export function getAssociation(filename) {
+  const extension = filename.split('.').pop().toLowerCase();
+  return fileAssociations[extension] || fileAssociations.default;
+}
 
 function findNodeById(nodes, id) {
   for (const node of nodes) {
@@ -54,9 +60,10 @@ export function getDesktopContents() {
                 }
             }
         } else if (item.type === 'file') {
+            const association = getAssociation(item.name);
             desktopFiles.push({
                 filename: item.name,
-                app: item.openwith,
+                app: association.appId,
                 path: item.contentUrl,
             });
         }

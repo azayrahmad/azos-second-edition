@@ -10,7 +10,7 @@ import {
   removeItem,
   LOCAL_STORAGE_KEYS,
 } from "../utils/localStorage.js";
-import { getDesktopContents } from "../utils/directory.js";
+import { getDesktopContents, getAssociation } from "../utils/directory.js";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import {
   getThemes,
@@ -52,11 +52,6 @@ function getIconId(app, item = null) {
   return `app-${app.id}`;
 }
 
-function getAssociation(filename) {
-  const extension = filename.split(".").pop().toLowerCase();
-  return fileAssociations[extension] || fileAssociations.default;
-}
-
 function isAutoArrangeEnabled() {
   const autoArrange = getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS);
   // Default to true if the setting is not present
@@ -87,7 +82,12 @@ function createDesktopIcon(item, isFile = false) {
 
   const iconImg = document.createElement("img");
   iconImg.draggable = false;
-  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
+  if (isFile) {
+    const association = getAssociation(item.filename);
+    iconImg.src = association.icon[32];
+  } else {
+    iconImg.src = app.icon[32];
+  }
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
