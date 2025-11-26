@@ -540,7 +540,7 @@ function deleteDroppedFile(fileId) {
   ShowDialogWindow({
     title: "Confirm File Delete",
     text: dialogText,
-    contentIconUrl: ICONS.dialog.question[32],
+    contentIconUrl: ICONS.help[32],
     buttons: [
       {
         label: "Yes",
