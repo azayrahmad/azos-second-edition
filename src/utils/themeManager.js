@@ -188,21 +188,31 @@ export async function setTheme(themeKey) {
   applyBusyCursor(document.body);
   try {
     const allThemes = getThemes();
-    const newTheme = allThemes[themeKey];
+    let newTheme;
+    let currentThemeKey;
+
+    if (typeof themeKey === "object" && themeKey !== null) {
+      newTheme = themeKey;
+      currentThemeKey = newTheme.id;
+      allThemes[currentThemeKey] = newTheme; // Temporarily add to the list for preloading
+    } else {
+      newTheme = allThemes[themeKey];
+      currentThemeKey = themeKey;
+    }
 
     if (!newTheme) {
-      console.error(`Theme with key "${themeKey}" not found.`);
+      console.error(`Theme with key "${currentThemeKey}" not found.`);
       return;
     }
 
     // Set the master theme key
-    setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, themeKey);
+    setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, currentThemeKey);
 
     // Set individual components, clearing any previous overrides
-    setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, themeKey);
+    setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, currentThemeKey);
     setItem(LOCAL_STORAGE_KEYS.SOUND_SCHEME, newTheme.soundScheme);
     setItem(LOCAL_STORAGE_KEYS.ICON_SCHEME, newTheme.iconScheme);
-    setItem(LOCAL_STORAGE_KEYS.CURSOR_SCHEME, themeKey);
+    setItem(LOCAL_STORAGE_KEYS.CURSOR_SCHEME, currentThemeKey);
 
     if (newTheme.wallpaper) {
       setItem(LOCAL_STORAGE_KEYS.WALLPAPER, newTheme.wallpaper);
@@ -214,7 +224,7 @@ export async function setTheme(themeKey) {
       screensaverManager.setCurrentScreensaver(newTheme.screensaver);
     }
 
-    await preloadThemeAssets(themeKey);
+    await preloadThemeAssets(currentThemeKey, allThemes);
     await applyTheme();
 
     // Notify components to update
