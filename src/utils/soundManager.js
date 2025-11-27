@@ -1,15 +1,13 @@
 import { soundSchemes } from "../config/sound-schemes.js";
-import { getCurrentTheme, getThemes } from "./themeManager.js";
+import { getSoundSchemeName } from "./themeManager.js";
 
 /**
- * Plays a sound based on the given event name and the current theme's sound scheme.
+ * Plays a sound based on the given event name and the current sound scheme.
  * @param {string} eventName - The name of the sound event to play.
  */
 export function playSound(eventName) {
-  const themeId = getCurrentTheme();
-  const themes = getThemes();
-  const themeName = themes[themeId]?.name || "Default";
-  const currentScheme = soundSchemes[themeName];
+  const schemeName = getSoundSchemeName();
+  const currentScheme = soundSchemes[schemeName];
   const defaultScheme = soundSchemes["Default"];
 
   // Determine the sound file url with fallbacks

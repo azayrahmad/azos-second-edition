@@ -8,7 +8,11 @@ import {
   deleteCustomTheme,
   getCurrentTheme,
   loadThemeParser,
+  getColorSchemeId,
+  getActiveTheme,
+  getIconSchemeName,
 } from "../../utils/themeManager.js";
+import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 import screensaverManager from "../../utils/screensaverUtils.js";
@@ -171,6 +175,40 @@ export class DesktopThemesApp extends Application {
       </div>
     `;
     rightPanel.appendChild(settingsFieldset);
+
+    const themes = getThemes();
+    const activeTheme = getActiveTheme();
+    const currentColorSchemeId = getColorSchemeId() || activeTheme.id;
+    const currentColorSchemeTheme = themes[currentColorSchemeId] || activeTheme;
+    const currentWallpaper =
+      getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || activeTheme.wallpaper;
+
+    let currentColors = {};
+    if (currentColorSchemeTheme.isCustom && currentColorSchemeTheme.colors) {
+      for (const [key, value] of Object.entries(
+        currentColorSchemeTheme.colors,
+      )) {
+        currentColors[`--${key.replace(/^--/, "")}`] = value;
+      }
+    } else if (currentColorSchemeTheme.stylesheet) {
+      const cssText = await this.fetchThemeCss(
+        currentColorSchemeTheme.stylesheet,
+      );
+      if (cssText) {
+        const parsedVariables = this.parseCssVariables(cssText);
+        for (const [key, value] of Object.entries(parsedVariables)) {
+          currentColors[`--${key}`] = value;
+        }
+      }
+    }
+
+    const currentIconScheme = getIconSchemeName();
+
+    this.customThemeProperties = {
+      ...currentColors,
+      wallpaper: currentWallpaper,
+      iconScheme: currentIconScheme,
+    };
 
     await this.populateThemes();
 
@@ -393,13 +431,9 @@ export class DesktopThemesApp extends Application {
         }
         await this.previewCustomTheme(normalizedProperties);
         this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
-      } else {
-        this.removeTemporaryThemeOption();
-        this.customThemeProperties = null;
+      } else if (selectedTheme) {
         await this.previewTheme(selectedValue);
-        this.previewLabel.textContent = `Preview of '${
-          selectedTheme ? selectedTheme.name : ""
-        }'`;
+        this.previewLabel.textContent = `Preview of '${selectedTheme.name}'`;
       }
     } finally {
       clearBusyCursor(this.win.$content[0]);
@@ -411,8 +445,7 @@ export class DesktopThemesApp extends Application {
       const option = document.createElement("option");
       option.value = "current-settings";
       option.textContent = "Current Windows settings";
-      const separator = this.themeSelector.querySelector("option[disabled]");
-      this.themeSelector.insertBefore(option, separator);
+      this.themeSelector.prepend(option);
     }
   }
 
@@ -427,7 +460,10 @@ export class DesktopThemesApp extends Application {
 
   async populateThemes() {
     const lastSelected = this.themeSelector.value;
+    const isFirstLoad = this.themeSelector.innerHTML === "";
     this.themeSelector.innerHTML = "";
+
+    this.addTemporaryThemeOption();
 
     const themes = getThemes();
     const sortedThemes = Object.entries(themes).sort(([, a], [, b]) =>
@@ -451,7 +487,11 @@ export class DesktopThemesApp extends Application {
     loadOption.textContent = "<Load Theme>";
     this.themeSelector.appendChild(loadOption);
 
-    if (this.themeSelector.querySelector(`option[value="${lastSelected}"]`)) {
+    if (isFirstLoad) {
+      this.themeSelector.value = "current-settings";
+    } else if (
+      this.themeSelector.querySelector(`option[value="${lastSelected}"]`)
+    ) {
       this.themeSelector.value = lastSelected;
     } else {
       this.themeSelector.value = getCurrentTheme();
@@ -459,10 +499,7 @@ export class DesktopThemesApp extends Application {
     await this.handleThemeSelection();
   }
 
-  updatePreviewIcons(themeId = "default") {
-    const themes = getThemes();
-    const theme = themes[themeId] || themes.default;
-    const schemeId = theme.iconScheme || "default";
+  updatePreviewIcons(schemeId = "default") {
     const scheme = iconSchemes[schemeId] || iconSchemes.default;
     const defaultScheme = iconSchemes.default;
 
@@ -488,7 +525,7 @@ export class DesktopThemesApp extends Application {
     const theme = getThemes()[themeId];
     if (!theme) return;
 
-    this.updatePreviewIcons(themeId);
+    this.updatePreviewIcons(theme.iconScheme);
 
     let variables = {};
     if (theme.isCustom && theme.colors) {
@@ -511,7 +548,7 @@ export class DesktopThemesApp extends Application {
   }
 
   previewCustomTheme(properties) {
-    this.updatePreviewIcons(); // No themeId, so it uses default icons
+    this.updatePreviewIcons(properties.iconScheme);
     this.applyCssVariables(properties);
     this.previewContainer.style.backgroundImage = properties.wallpaper
       ? `url('${properties.wallpaper}')`
