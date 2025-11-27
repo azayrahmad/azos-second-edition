@@ -1,4 +1,5 @@
 import { AboutApp } from "../apps/about/AboutApp.js";
+import { ColorSchemeLoaderApp } from "../apps/color-scheme-loader/ColorSchemeLoaderApp.js";
 import { AppMakerApp } from "../apps/appmaker/AppMakerApp.js";
 import { NotepadApp } from "../apps/notepad/NotepadApp.js";
 import { PdfViewerApp } from "../apps/pdfviewer/PdfViewerApp.js";
@@ -30,6 +31,7 @@ import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
 
 export const appClasses = {
   about: AboutApp,
+  "color-scheme-loader": ColorSchemeLoaderApp,
   appmaker: AppMakerApp,
   notepad: NotepadApp,
   pdfviewer: PdfViewerApp,
@@ -147,6 +149,19 @@ export const apps = [
     description: "Displays information about this application.",
     icon: ICONS.about,
     appClass: AboutApp,
+    width: 500,
+    height: 300,
+    resizable: false,
+    minimizeButton: false,
+    maximizeButton: false,
+    isSingleton: true,
+  },
+  {
+    id: "color-scheme-loader",
+    title: "Color Scheme Loader",
+    description: "Create a new color scheme from a .theme file.",
+    icon: ICONS["color-scheme-loader"],
+    appClass: ColorSchemeLoaderApp,
     width: 500,
     height: 300,
     resizable: false,
