@@ -984,15 +984,6 @@
         // Calculate dimensions that will fit inside desktop area
         const adjustedWidth = screenRect.width - 7;
         const adjustedHeight = screenRect.height - 5;
-        console.log(screenRect);
-        console.log(
-          borderLeftWidth,
-          borderRightWidth,
-          borderTopWidth,
-          borderBottomWidth,
-        );
-        console.log("Adjusted Width:", adjustedWidth);
-        console.log("Adjusted Height:", adjustedHeight);
 
         $w.css({
           position: "absolute", // Changed from fixed
@@ -1749,7 +1740,6 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
           cursor_name === "we" ? "ew-resize" : `${cursor_name}-resize`;
         const cursor = `var(--cursor-${theme_cursor_name}-resize, ${fallback})`;
 
-        console.log(cursor);
         // Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
         // Here's a little diagram of sorts:
         // outerWidth(true): margin, [ outerWidth(): border, [ innerWidth(): padding, [ width(): content ] ] ]
