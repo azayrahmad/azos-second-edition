@@ -131,6 +131,21 @@ export class ExplorerApp extends Application {
     win.$content.append(content);
     this.content = content;
 
+    const sidebar = document.createElement("div");
+    sidebar.className = "explorer-sidebar";
+    content.appendChild(sidebar);
+    this.sidebarElement = sidebar;
+
+    const sidebarIcon = document.createElement("img");
+    sidebarIcon.className = "sidebar-icon";
+    sidebar.appendChild(sidebarIcon);
+    this.sidebarIcon = sidebarIcon;
+
+    const sidebarTitle = document.createElement("div");
+    sidebarTitle.className = "sidebar-title";
+    sidebar.appendChild(sidebarTitle);
+    this.sidebarTitle = sidebarTitle;
+
     const titleElement = document.createElement("h1");
     titleElement.className = "explorer-title";
     titleElement.style.fontFamily = "Verdana, sans-serif";
@@ -149,10 +164,12 @@ export class ExplorerApp extends Application {
 
     this.resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        if (entry.contentRect.width < 400) {
+        if (entry.contentRect.width <= 400) {
           this.content.classList.add("small-width");
+          this.content.classList.remove("with-sidebar");
         } else {
           this.content.classList.remove("small-width");
+          this.content.classList.add("with-sidebar");
         }
       }
     });
@@ -248,7 +265,9 @@ export class ExplorerApp extends Application {
     const icon = getIconForPath(path);
     if (icon) {
       this.win.setIcons(icon);
+      this.sidebarIcon.src = icon[32];
     }
+    this.sidebarTitle.textContent = item.name;
     this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
