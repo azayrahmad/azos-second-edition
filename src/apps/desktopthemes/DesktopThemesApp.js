@@ -10,6 +10,7 @@ import {
   loadThemeParser,
   getColorSchemeId,
   getActiveTheme,
+  getIconSchemeName,
 } from "../../utils/themeManager.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
@@ -202,9 +203,12 @@ export class DesktopThemesApp extends Application {
       }
     }
 
+    const currentIconScheme = getIconSchemeName();
+
     this.customThemeProperties = {
       ...currentColors,
       wallpaper: currentWallpaper,
+      iconScheme: currentIconScheme,
     };
 
     await this.populateThemes();
@@ -422,11 +426,7 @@ export class DesktopThemesApp extends Application {
       this.screenSaverButton.disabled = !selectedTheme?.screensaver;
 
       if (selectedValue === "current-settings") {
-        const normalizedProperties = {};
-        for (const [key, value] of Object.entries(this.customThemeProperties)) {
-          normalizedProperties[key.replace(/^--/, "")] = value;
-        }
-        await this.previewCustomTheme(normalizedProperties);
+        await this.previewCustomTheme(this.customThemeProperties);
         this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
       } else if (selectedTheme) {
         await this.previewTheme(selectedValue);
@@ -496,10 +496,7 @@ export class DesktopThemesApp extends Application {
     await this.handleThemeSelection();
   }
 
-  updatePreviewIcons(themeId = "default") {
-    const themes = getThemes();
-    const theme = themes[themeId] || themes.default;
-    const schemeId = theme.iconScheme || "default";
+  updatePreviewIcons(schemeId = "default") {
     const scheme = iconSchemes[schemeId] || iconSchemes.default;
     const defaultScheme = iconSchemes.default;
 
@@ -525,7 +522,7 @@ export class DesktopThemesApp extends Application {
     const theme = getThemes()[themeId];
     if (!theme) return;
 
-    this.updatePreviewIcons(themeId);
+    this.updatePreviewIcons(theme.iconScheme);
 
     let variables = {};
     if (theme.isCustom && theme.colors) {
@@ -548,7 +545,7 @@ export class DesktopThemesApp extends Application {
   }
 
   previewCustomTheme(properties) {
-    this.updatePreviewIcons(); // No themeId, so it uses default icons
+    this.updatePreviewIcons(properties.iconScheme);
     this.applyCssVariables(properties);
     this.previewContainer.style.backgroundImage = properties.wallpaper
       ? `url('${properties.wallpaper}')`
