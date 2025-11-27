@@ -2074,6 +2074,43 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
       $w.center();
     }
 
+    // Add drag-over feedback
+    let dragEnterCounter = 0;
+    let wasFocusedBeforeDrag = false;
+
+    $w.on("dragenter", (e) => {
+      if (options.accepts) {
+        if (dragEnterCounter === 0) {
+          wasFocusedBeforeDrag = $w.hasClass("focused");
+          $w.focus();
+        }
+        dragEnterCounter++;
+      }
+    });
+
+    $w.on("dragover", (e) => {
+      if (options.accepts) {
+        e.preventDefault();
+      }
+    });
+
+    $w.on("dragleave", (e) => {
+      if (options.accepts) {
+        dragEnterCounter--;
+        if (dragEnterCounter === 0) {
+          if (!wasFocusedBeforeDrag) {
+            $w.blur();
+          }
+        }
+      }
+    });
+
+    $w.on("drop", (e) => {
+      if (options.accepts) {
+        dragEnterCounter = 0;
+      }
+    });
+
     // mustHaveMethods($w, windowInterfaceMethods);
 
     return $w;
