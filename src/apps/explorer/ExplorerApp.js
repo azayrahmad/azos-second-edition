@@ -133,6 +133,8 @@ export class ExplorerApp extends Application {
 
     const sidebar = document.createElement("div");
     sidebar.className = "explorer-sidebar";
+    sidebar.style.backgroundImage = `url(${new URL("../../assets/img/wvleft.bmp", import.meta.url).href})`;
+    sidebar.style.backgroundRepeat = "no-repeat";
     content.appendChild(sidebar);
     this.sidebarElement = sidebar;
 
@@ -141,10 +143,19 @@ export class ExplorerApp extends Application {
     sidebar.appendChild(sidebarIcon);
     this.sidebarIcon = sidebarIcon;
 
-    const sidebarTitle = document.createElement("div");
+    const sidebarTitle = document.createElement("h1");
     sidebarTitle.className = "sidebar-title";
     sidebar.appendChild(sidebarTitle);
     this.sidebarTitle = sidebarTitle;
+
+    const sidebarLine = document.createElement("img");
+    sidebarLine.src = new URL(
+      "../../assets/img/wvline.gif",
+      import.meta.url,
+    ).href;
+    sidebarLine.style.width = "100%";
+    sidebarLine.style.height = "auto";
+    sidebar.appendChild(sidebarLine);
 
     const titleElement = document.createElement("h1");
     titleElement.className = "explorer-title";
