@@ -1,0 +1,42 @@
+.colorschemeloader-app .wizard-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.colorschemeloader-app h1 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    padding: 0 10px;
+}
+
+.colorschemeloader-app p {
+    margin-bottom: 10px;
+    padding: 0 10px;
+}
+
+.colorschemeloader-app .color-list-container {
+  height: 250px;
+  overflow-y: auto;
+  border: 1px solid var(--button-shadow);
+  padding: 5px;
+  margin: 0 10px;
+}
+
+.colorschemeloader-app .color-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.colorschemeloader-app input[type="file"] {
+    margin: 10px;
+}
+
+.colorschemeloader-app input[type="text"] {
+    margin: 10px;
+    width: calc(100% - 20px);
+}

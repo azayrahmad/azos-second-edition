@@ -16,6 +16,7 @@ const settingsAppIds = [
   "desktopthemes",
   "soundschemeexplorer",
   "themetocss",
+  "color-scheme-loader",
 ];
 
 function getAppList(appListIds) {
