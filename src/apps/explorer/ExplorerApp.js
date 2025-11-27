@@ -20,6 +20,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
+import { createContextMenu } from "../../utils/IconInteractionManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
@@ -310,9 +311,7 @@ export class ExplorerApp extends Application {
     iconDiv.appendChild(iconLabel);
 
     if (this.currentPath !== "//recycle-bin") {
-      iconDiv.addEventListener("dblclick", () => {
-        this._launchItem(item);
-      });
+      iconDiv.addEventListener("dblclick", () => this._launchItem(item));
     }
 
     return iconDiv;
@@ -415,7 +414,6 @@ export class ExplorerApp extends Application {
               (i) => i.id === clickedItemId,
             );
             if (itemToRestore) {
-              // Ensure the item has a 'name' property for desktop icons
               const restoredItemWithName = {
                 ...itemToRestore,
                 name: itemToRestore.name || itemToRestore.title,
@@ -432,11 +430,13 @@ export class ExplorerApp extends Application {
         },
         "MENU_DIVIDER",
         {
-          label: "Delete", // Permanently deletes the item from the recycle bin
+          label: "Delete",
           action: () => {
             ShowDialogWindow({
               title: "Delete Item",
-              text: `Are you sure you want to permanently delete "${clickedItem.name}"?`,
+              text: `Are you sure you want to permanently delete "${
+                clickedItem.name || clickedItem.title
+              }"?`,
               buttons: [
                 {
                   label: "Yes",
@@ -452,7 +452,6 @@ export class ExplorerApp extends Application {
         },
       ];
     } else {
-      // General item context menu for non-recycle bin paths
       menuItems.push({
         label: "Open",
         default: true,
@@ -461,30 +460,27 @@ export class ExplorerApp extends Application {
 
       menuItems.push("MENU_DIVIDER");
 
-      // Actions based on item type
       if (clickedItem.type === "file" || clickedItem.type === "folder") {
-        menuItems.push({ label: "Cut", action: () => {} }); // TODO: Implement Cut
-        menuItems.push({ label: "Copy", action: () => {} }); // TODO: Implement Copy
+        menuItems.push({ label: "Cut", action: () => {} });
+        menuItems.push({ label: "Copy", action: () => {} });
         menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Delete", action: () => {} }); // TODO: Implement Delete (move to recycle bin)
-        menuItems.push({ label: "Rename", action: () => {} }); // TODO: Implement Rename
+        menuItems.push({ label: "Delete", action: () => {} });
+        menuItems.push({ label: "Rename", action: () => {} });
         menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+        menuItems.push({ label: "Properties", action: () => {} });
       } else if (clickedItem.type === "drive") {
-        menuItems.push({ label: "Format...", action: () => {} }); // TODO: Implement Format
+        menuItems.push({ label: "Format...", action: () => {} });
         menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+        menuItems.push({ label: "Properties", action: () => {} });
       } else if (clickedItem.type === "network") {
-        menuItems.push({ label: "Map Network Drive...", action: () => {} }); // TODO: Implement Map Network Drive
+        menuItems.push({ label: "Map Network Drive...", action: () => {} });
         menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+        menuItems.push({ label: "Properties", action: () => {} });
       } else if (clickedItem.appId) {
-        // For applications or shortcuts to applications within explorer
-        // Can add more app-specific actions if needed, similar to desktop.js
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties for apps
+        menuItems.push({ label: "Properties", action: () => {} });
       }
     }
-    new window.ContextMenu(menuItems, event);
+    createContextMenu(menuItems, event);
   }
 
   showBackgroundContextMenu(event) {
