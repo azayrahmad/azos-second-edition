@@ -12,6 +12,10 @@ import {
   getActiveTheme,
   getIconSchemeName,
 } from "../../utils/themeManager.js";
+import {
+  applyThemeToPreview,
+  applyPropertiesToPreview,
+} from "../../utils/themePreview.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
@@ -22,7 +26,6 @@ import "./desktopthemes.css";
 export class DesktopThemesApp extends Application {
   constructor(config) {
     super(config);
-    this.themeCssCache = {};
     this.previousThemeId = null;
     this.customThemeProperties = null;
     this.originalFilename = "";
@@ -527,19 +530,8 @@ export class DesktopThemesApp extends Application {
 
     this.updatePreviewIcons(theme.iconScheme);
 
-    let variables = {};
-    if (theme.isCustom && theme.colors) {
-      for (const [key, value] of Object.entries(theme.colors)) {
-        variables[key.replace(/^--/, "")] = value;
-      }
-    } else if (theme.stylesheet) {
-      const cssText = await this.fetchThemeCss(theme.stylesheet);
-      if (cssText) {
-        variables = this.parseCssVariables(cssText);
-      }
-    }
+    const variables = await applyThemeToPreview(themeId, this.previewContainer);
 
-    this.applyCssVariables(variables);
     this.previewContainer.style.backgroundImage = theme.wallpaper
       ? `url('${theme.wallpaper}')`
       : "none";
@@ -549,91 +541,12 @@ export class DesktopThemesApp extends Application {
 
   previewCustomTheme(properties) {
     this.updatePreviewIcons(properties.iconScheme);
-    this.applyCssVariables(properties);
+    applyPropertiesToPreview(properties, this.previewContainer);
     this.previewContainer.style.backgroundImage = properties.wallpaper
       ? `url('${properties.wallpaper}')`
       : "none";
     this.previewContainer.style.backgroundColor =
       properties["Background"] || "#008080";
-  }
-
-  async fetchThemeCss(stylesheet) {
-    if (!stylesheet) return null;
-    const url = `./os-gui/${stylesheet}`;
-    if (this.themeCssCache[url]) return this.themeCssCache[url];
-    try {
-      const response = await fetch(url);
-      if (!response.ok)
-        throw new Error(`Failed to fetch CSS: ${response.statusText}`);
-      const cssText = await response.text();
-      this.themeCssCache[url] = cssText;
-      return cssText;
-    } catch (error) {
-      console.error("Error fetching theme CSS:", error);
-      return null;
-    }
-  }
-
-  parseCssVariables(cssText) {
-    const variables = {};
-    const rootBlockMatch = cssText.match(/:root\s*{([^}]+)}/);
-    if (rootBlockMatch) {
-      const variablesText = rootBlockMatch[1];
-      const regex = /--([\w-]+):\s*([^;]+);/g;
-      let match;
-      while ((match = regex.exec(variablesText)) !== null) {
-        variables[match[1]] = match[2].trim();
-      }
-    }
-    return variables;
-  }
-
-  applyCssVariables(variables) {
-    const styleProperties = {
-      "--preview-active-title-bar-bg":
-        variables["ActiveTitle"] || "rgb(0, 0, 128)",
-      "--preview-gradient-active-title-bar-bg":
-        variables["GradientActiveTitle"] || "rgb(16, 132, 208)",
-      "--preview-active-title-bar-text":
-        variables["TitleText"] || "rgb(255, 255, 255)",
-      "--preview-inactive-title-bar-bg":
-        variables["InactiveTitle"] || "rgb(128, 128, 128)",
-      "--preview-gradient-inactive-title-bar-bg":
-        variables["GradientInactiveTitle"] || "rgb(181, 181, 181)",
-      "--preview-inactive-title-bar-text":
-        variables["InactiveTitleText"] || "rgb(192, 192, 192)",
-      "--preview-window-bg": variables["Window"] || "rgb(255, 255, 255)",
-      "--preview-window-text": variables["WindowText"] || "rgb(0, 0, 0)",
-      "--preview-button-face": variables["ButtonFace"] || "rgb(192, 192, 192)",
-      "--preview-button-text": variables["ButtonText"] || "rgb(0, 0, 0)",
-      "--preview-button-highlight":
-        variables["ButtonHilight"] || "rgb(255, 255, 255)",
-      "--preview-button-shadow":
-        variables["ButtonShadow"] || "rgb(128, 128, 128)",
-      "--preview-button-dk-shadow":
-        variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
-      "--preview-hilight-text": variables["HilightText"] || "rgb(0, 0, 0)",
-
-      // Font properties
-      "--preview-font-family-title":
-        variables["font-family-title"] ||
-        variables["font-family-base"] ||
-        '"MSW98UI", sans-serif',
-      "--preview-font-size-title":
-        variables["font-size-title"] || variables["font-size-base"] || "11px",
-      "--preview-font-family-menu":
-        variables["font-family-menu"] ||
-        variables["font-family-base"] ||
-        '"MSW98UI", sans-serif',
-      "--preview-font-size-menu":
-        variables["font-size-menu"] || variables["font-size-base"] || "11px",
-      "--preview-font-family-base":
-        variables["font-family-base"] || '"MSW98UI", sans-serif',
-      "--preview-font-size-base": variables["font-size-base"] || "11px",
-    };
-    for (const [property, value] of Object.entries(styleProperties)) {
-      this.previewContainer.style.setProperty(property, value);
-    }
   }
 
   _rgbToHex(rgbString) {

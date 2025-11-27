@@ -1,9 +1,13 @@
 import { getThemes, getColorSchemeId, setColorScheme } from "../../../utils/themeManager.js";
+import { applyThemeToPreview } from "../../../utils/themePreview.js";
+import previewHtml from "./AppearancePreview.html?raw";
 
 export const appearanceTab = {
   init: (win, app) => {
     const $tab = win.$content.find("#appearance");
     const $schemeSelect = $tab.find(".scheme-select");
+    const $previewContainer = $tab.find(".preview-container");
+    $previewContainer.html(previewHtml);
 
     const themes = getThemes();
     const currentSchemeId = getColorSchemeId();
@@ -20,7 +24,10 @@ export const appearanceTab = {
 
     $schemeSelect.on("change", () => {
       app._enableApplyButton(win);
+      applyThemeToPreview($schemeSelect.val(), $previewContainer[0]);
     });
+
+    applyThemeToPreview(currentSchemeId, $previewContainer[0]);
   },
 
   applyChanges: (app) => {
