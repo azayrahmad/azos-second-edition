@@ -1,4 +1,21 @@
 ((exports) => {
+  const ICON_MAP = {
+    back: 0,
+    forward: 1,
+    up: 2,
+    cut: 3,
+    copy: 4,
+    paste: 5,
+    views: 6,
+    tools: 7,
+    // Add more icon mappings as needed, e.g.:
+    // "save": 8,
+    // "print": 9,
+    // "undo": 10,
+    // "redo": 11,
+    // ... up to 62
+  };
+
   function E(tagName, attrs) {
     const el = document.createElement(tagName);
     if (attrs) {
@@ -57,8 +74,17 @@
       mainButtonEl.disabled = this.isDisabled(item);
 
       const iconEl = E("div", { class: "toolbar-icon" });
-      if (typeof item.iconId !== "undefined") {
-        iconEl.setAttribute("data-icon-id", item.iconId);
+      let iconToUseId;
+
+      if (item.iconName && typeof ICON_MAP[item.iconName] !== "undefined") {
+        iconToUseId = ICON_MAP[item.iconName];
+      } else if (typeof item.iconId !== "undefined") {
+        iconToUseId = item.iconId;
+      }
+
+      if (typeof iconToUseId !== "undefined") {
+        iconEl.setAttribute("data-icon-id", iconToUseId);
+        iconEl.style.backgroundPosition = `-${iconToUseId * 20}px 0`;
       }
 
       const labelEl = E("div", { class: "toolbar-label" });
