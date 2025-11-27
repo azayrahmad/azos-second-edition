@@ -1137,5 +1137,33 @@ so I think I'll imitate that. (I might change it later) */
 ::-webkit-scrollbar-button:end:decrement {
     display: none;
 }
+.os-window.maximized {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(255, 255, 255) rgb(128, 128, 128) rgb(128, 128, 128)
+        rgb(255, 255, 255);
+    border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow)
+        var(--ButtonHilight);
+    background-color: rgb(192, 192, 192);
+    background-color: var(--ButtonFace);
+    color: rgb(0, 0, 0);
+    color: var(--ButtonText);
+    /* as fallback */
+    position: relative;
+    /* for pseudo element(s) */
+    -o-border-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(192%2C%20192%2C%20192)%22%2F%3E%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22%20rgb(0%2C%200%2C%200)%22%2F%3E%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(255%2C%20255%2C%20255)%22%2F%3E%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22%20rgb(128%2C%20128%2C%20128)%22%2F%3E%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22%20rgb(192%2C%20192%2C%20192)%22%2F%3E%3C%2Fsvg%3E")
+        64 / 2px;
+    border-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%20width%3D%22256px%22%20height%3D%22256px%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20d%3D%22M0%200h224v32h-192v192h-32v-224z%22%20fill%3D%22rgb(192%2C%20192%2C%20192)%22%2F%3E%3Cpath%20d%3D%22M224%200h32v256h-256v-32h224v-224z%22%20fill%3D%22%20rgb(0%2C%200%2C%200)%22%2F%3E%3Cpath%20d%3D%22M32%2032h160v32h-128v128h-32v-160z%22%20fill%3D%22rgb(255%2C%20255%2C%20255)%22%2F%3E%3Cpath%20d%3D%22M192%2032h32v192h-192v-32h160v-160z%22%20fill%3D%22%20rgb(128%2C%20128%2C%20128)%22%2F%3E%3Cpath%20d%3D%22M64%2064h128v128h-128v-128z%22%20fill%3D%22%20rgb(192%2C%20192%2C%20192)%22%2F%3E%3C%2Fsvg%3E")
+        64 / 2px;
+    -o-border-image: var(--button-normal-border-image);
+    border-image: var(--button-normal-border-image);
+    border-color: rgb(223, 223, 223) rgb(128, 128, 128) rgb(128, 128, 128)
+        rgb(223, 223, 223);
+    border-color: var(--ButtonLight) var(--ButtonShadow) var(--ButtonShadow)
+        var(--ButtonLight);
+    border-style: solid;
+    border-width: 2px 2px;
+    padding: 2px;
+}
 
 /*# sourceMappingURL=windows-98.css.map */

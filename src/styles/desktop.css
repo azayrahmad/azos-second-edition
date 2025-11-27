@@ -65,7 +65,9 @@ html {
     position: relative;
     overflow: hidden;
     box-sizing: border-box;
-    flex-grow: 1;
+    height: calc(
+        100% - 28px - env(safe-area-inset-bottom) - 1px
+    ); /* Adjust height dynamically */
 }
 
 .desktop {
@@ -78,7 +80,6 @@ html {
     grid-template-rows: repeat(auto-fill, 60px);
     grid-auto-columns: 60px;
     gap: 5px;
-    padding: 10px;
     align-content: start;
 }
 
@@ -91,6 +92,7 @@ html {
     width: 70px;
     text-align: center;
     color: var(--HilightText);
+    margin: 3px;
     /*z-index: 1; /* Ensure icons are on top of other elements */
 }
 
