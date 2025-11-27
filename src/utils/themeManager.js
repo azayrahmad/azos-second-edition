@@ -11,7 +11,7 @@ import {
   clearBusyCursor,
 } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
-import screensaverManager from "../components/screensaver.js";
+import screensaverManager from "./screensaverUtils.js";
 
 let parserPromise = null;
 let activeTheme = null; // In-memory cache to avoid repeated localStorage access

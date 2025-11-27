@@ -11,7 +11,7 @@ import {
 } from "../../utils/themeManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
-import screensaverManager from "../../components/screensaver.js";
+import screensaverManager from "../../utils/screensaverUtils.js";
 import previewHtml from "./DesktopThemesPreview.html?raw";
 import "./desktopthemes.css";
 

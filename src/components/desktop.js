@@ -33,7 +33,7 @@ import {
   getCurrentColorMode,
   getColorModes,
 } from "../utils/colorModeManager.js";
-import screensaver from "./screensaver.js";
+import screensaver from "../utils/screensaverUtils.js";
 import {
   getAvailableResolutions,
   setResolution,

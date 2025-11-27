@@ -1,5 +1,5 @@
-import { SCREENSAVERS } from "../../../components/screensaver.js";
-import screensaverManager from "../../../components/screensaver.js";
+import { SCREENSAVERS } from "../../../config/screensavers.js";
+import screensaverManager from "../../../utils/screensaverUtils.js";
 import { setItem, LOCAL_STORAGE_KEYS } from "../../../utils/localStorage.js";
 import { applyBusyCursor, clearBusyCursor } from "../../../utils/cursorManager.js";
 
