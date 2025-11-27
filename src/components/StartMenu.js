@@ -8,6 +8,8 @@ import windowsStartMenuBar from "../assets/img/win98start.png";
 import { ICONS } from "../config/icons.js";
 import startMenuConfig from "../config/startmenu.js";
 import { playSound } from "../utils/soundManager.js";
+import { ShowDialogWindow } from "./DialogWindow.js";
+import { createShutdownDialogContent } from "./ShutdownDialog.js";
 
 // Constants
 const SELECTORS = {
@@ -393,13 +395,35 @@ class StartMenu {
    * Handle shutdown action
    */
   handleShutdown() {
-    console.log("Shutting down azOS...");
-    if (confirm("Are you sure you want to shut down?")) {
-      playSound("SystemExit");
-      setTimeout(() => location.reload(), 500);
-    }
     this.hide();
-  }
+    const content = createShutdownDialogContent();
+
+    ShowDialogWindow({
+        title: 'Shut Down Windows',
+        content: content, // Pass the DOM element directly
+        modal: true,
+        buttons: [
+            {
+                label: 'OK',
+                action: () => {
+                    playSound("SystemExit");
+                    setTimeout(() => location.reload(), 500);
+                },
+                isDefault: true,
+            },
+            {
+                label: 'Cancel',
+                action: () => {}, // Just closes the dialog
+            },
+            {
+                label: 'Help',
+                action: () => {}, // Disabled button
+                disabled: true,
+            }
+        ],
+        soundEvent: 'SystemQuestion',
+    });
+}
 
   /**
    * Handle home action
