@@ -1,19 +1,19 @@
 .explorer-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .explorer-icon-view {
-  flex-grow: 1;
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 70px);
-  grid-auto-rows: min-content;
-  grid-auto-flow: row;
-  gap: 5px;
-  padding: 10px;
-  align-content: start;
+    flex-grow: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 70px);
+    grid-auto-rows: min-content;
+    grid-auto-flow: row;
+    gap: 5px;
+    padding: 10px;
+    align-content: start;
 }
 
 .explorer-icon {
@@ -48,4 +48,23 @@
 
 .explorer-icon.selected {
     border: 1px dotted var(--HilightText);
+}
+
+.explorer-title {
+    display: none; /* Hidden by default */
+    font-size: 2em; /* h1 equivalent */
+    margin: 10px; /* Some spacing */
+    text-align: left;
+    color: var(--WindowText); /* Inherit text color */
+}
+
+/* When content width is less than 400px */
+.explorer-content.small-width .explorer-title {
+    display: block; /* Show the title */
+    order: -1; /* Place it above other flex items */
+}
+
+.explorer-content.small-width .explorer-icon-view {
+    /* No specific order needed if title is -1, but for clarity */
+    order: 0;
 }

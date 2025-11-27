@@ -75,7 +75,8 @@ export class ExplorerApp extends Application {
     super(config);
     this.initialPath = "/";
     this.history = [];
-    this.historyIndex = -1;
+    this.historyPointer = -1;
+    this.resizeObserver = null;
   }
 
   _createWindow() {
@@ -130,6 +131,12 @@ export class ExplorerApp extends Application {
     win.$content.append(content);
     this.content = content;
 
+    const titleElement = document.createElement("h1");
+    titleElement.className = "explorer-title";
+    titleElement.style.fontFamily = "Verdana, sans-serif";
+    content.appendChild(titleElement);
+    this.titleElement = $(titleElement); // Use jQuery for easier text manipulation
+
     const iconContainer = document.createElement("div");
     iconContainer.className = "explorer-icon-view";
     content.appendChild(iconContainer);
@@ -140,10 +147,24 @@ export class ExplorerApp extends Application {
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
     });
 
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.contentRect.width < 400) {
+          this.content.classList.add("small-width");
+        } else {
+          this.content.classList.remove("small-width");
+        }
+      }
+    });
+    this.resizeObserver.observe(this.content);
+
     this.navigateTo(this.initialPath);
 
     this.refreshHandler = () => {
-      if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop && this.win.element.style.display !== 'none') {
+      if (
+        this.currentPath === SPECIAL_FOLDER_PATHS.desktop &&
+        this.win.element.style.display !== "none"
+      ) {
         this.render(this.currentPath);
       }
     };
@@ -187,6 +208,13 @@ export class ExplorerApp extends Application {
     return win;
   }
 
+  _onClose() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    document.removeEventListener("explorer-refresh", this.refreshHandler);
+  }
+
   async _onLaunch(filePath) {
     if (filePath) {
       this.navigateTo(filePath);
@@ -195,11 +223,11 @@ export class ExplorerApp extends Application {
 
   navigateTo(path) {
     // Truncate history if navigating from a previous state
-    if (this.historyIndex < this.history.length - 1) {
-      this.history = this.history.slice(0, this.historyIndex + 1);
+    if (this.historyPointer < this.history.length - 1) {
+      this.history = this.history.slice(0, this.historyPointer + 1);
     }
     this.history.push(path);
-    this.historyIndex++;
+    this.historyPointer++;
 
     this.render(path);
     this.updateMenuState();
@@ -216,6 +244,7 @@ export class ExplorerApp extends Application {
     }
 
     this.win.title(item.name);
+    this.titleElement.text(item.name);
     const icon = getIconForPath(path);
     if (icon) {
       this.win.setIcons(icon);
