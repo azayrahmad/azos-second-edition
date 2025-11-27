@@ -59,27 +59,47 @@ export function getThemes() {
 }
 
 // Gets the full theme object from localStorage, with a fallback to default.
-export function getActiveTheme() {
-  if (activeTheme) {
-    return activeTheme;
-  }
-
-  let savedTheme = getItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME);
-  if (!savedTheme || typeof savedTheme.id !== "string") {
-    console.warn(
-      "Active theme not found or invalid in localStorage, falling back to default.",
-    );
-    savedTheme = themes.default;
-    setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, savedTheme);
-  }
-
-  activeTheme = savedTheme;
-  return activeTheme;
+// Gets the ID of the base active theme.
+export function getActiveThemeId() {
+  return getItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME) || "default";
 }
 
-// Gets the ID of the current theme for components that need it.
+// Gets the full theme object for the base active theme.
+export function getActiveTheme() {
+  const allThemes = getThemes();
+  const activeId = getActiveThemeId();
+  return allThemes[activeId] || themes.default;
+}
+
+// --- Individual Scheme Getters with Overrides ---
+
+export function getColorSchemeId() {
+  return (
+    getItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME) || getActiveThemeId()
+  );
+}
+
+export function getSoundSchemeName() {
+  return (
+    getItem(LOCAL_STORAGE_KEYS.SOUND_SCHEME) || getActiveTheme().soundScheme
+  );
+}
+
+export function getIconSchemeName() {
+  return (
+    getItem(LOCAL_STORAGE_KEYS.ICON_SCHEME) || getActiveTheme().iconScheme
+  );
+}
+
+export function getCursorSchemeId() {
+  return (
+    getItem(LOCAL_STORAGE_KEYS.CURSOR_SCHEME) || getActiveThemeId()
+  );
+}
+
+// Deprecated: for components that still use it. Should be phased out.
 export function getCurrentTheme() {
-  return getActiveTheme().id;
+  return getActiveThemeId();
 }
 
 function applyStylesheet(themeId, cssContent) {
@@ -102,7 +122,11 @@ function removeStylesheet(themeId) {
 }
 
 export async function applyTheme() {
-  const currentTheme = getActiveTheme();
+  const allThemes = getThemes();
+  const colorSchemeId = getColorSchemeId();
+  const cursorSchemeId = getCursorSchemeId();
+  const colorSchemeTheme = allThemes[colorSchemeId] || themes.default;
+
 
   // --- Cleanup Phase ---
   // Disable all built-in theme stylesheets (except 'default', which is the base)
@@ -123,63 +147,77 @@ export async function applyTheme() {
   removeStylesheet("custom");
 
   // --- Application Phase ---
-  if (!currentTheme) {
-    console.error("No active theme found. Applying default cursor.");
-    applyCursorTheme("default");
-    return;
-  }
+  applyCursorTheme(cursorSchemeId);
 
-  applyCursorTheme(currentTheme.id);
-
-  if (currentTheme.stylesheet && themes[currentTheme.id]) {
+  if (colorSchemeTheme.stylesheet && themes[colorSchemeTheme.id]) {
     // It's a built-in theme, enable its stylesheet.
-    const stylesheet = document.getElementById(`${currentTheme.id}-theme`);
+    const stylesheet = document.getElementById(`${colorSchemeTheme.id}-theme`);
     if (stylesheet) {
       stylesheet.disabled = false;
     }
-  } else if (currentTheme.colors) {
+  } else if (colorSchemeTheme.colors) {
     // It's a custom or temporary theme, so generate and apply its CSS.
     await loadThemeParser();
     if (window.makeThemeCSSFile) {
-      const cssContent = window.makeThemeCSSFile(currentTheme.colors);
+      const cssContent = window.makeThemeCSSFile(colorSchemeTheme.colors);
       // Use 'custom' id for the temporary theme from the app, otherwise the theme's own id.
-      const styleId = currentTheme.id === "custom" ? "custom" : currentTheme.id;
+      const styleId =
+        colorSchemeTheme.id === "custom" ? "custom" : colorSchemeTheme.id;
       applyStylesheet(styleId, cssContent);
     }
   }
 }
 
-export async function setTheme(themeKey, themeObject = null) {
+export async function setColorScheme(schemeId) {
   applyBusyCursor(document.body);
   try {
     const allThemes = getThemes();
-    const newTheme = themeObject || allThemes[themeKey];
+    if (!allThemes[schemeId]) {
+      console.error(`Color scheme with key "${schemeId}" not found.`);
+      return;
+    }
+    setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, schemeId);
+    await applyTheme();
+    document.dispatchEvent(new CustomEvent("theme-changed"));
+  } finally {
+    clearBusyCursor(document.body);
+  }
+}
+
+export async function setTheme(themeKey) {
+  applyBusyCursor(document.body);
+  try {
+    const allThemes = getThemes();
+    const newTheme = allThemes[themeKey];
 
     if (!newTheme) {
       console.error(`Theme with key "${themeKey}" not found.`);
-      clearBusyCursor(document.body);
       return;
     }
 
-    // Update local storage wallpaper based on the new theme's wallpaper property
+    // Set the master theme key
+    setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, themeKey);
+
+    // Set individual components, clearing any previous overrides
+    setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, themeKey);
+    setItem(LOCAL_STORAGE_KEYS.SOUND_SCHEME, newTheme.soundScheme);
+    setItem(LOCAL_STORAGE_KEYS.ICON_SCHEME, newTheme.iconScheme);
+    setItem(LOCAL_STORAGE_KEYS.CURSOR_SCHEME, themeKey);
+
     if (newTheme.wallpaper) {
       setItem(LOCAL_STORAGE_KEYS.WALLPAPER, newTheme.wallpaper);
     } else {
       removeItem(LOCAL_STORAGE_KEYS.WALLPAPER);
     }
-    // Notify the desktop component to re-apply wallpaper based on the new theme
-    document.dispatchEvent(new CustomEvent("theme-changed"));
 
     if (newTheme.screensaver) {
       screensaverManager.setCurrentScreensaver(newTheme.screensaver);
     }
 
-    activeTheme = newTheme; // Update in-memory cache
-    setItem(LOCAL_STORAGE_KEYS.ACTIVE_THEME, newTheme);
-
     await preloadThemeAssets(themeKey);
     await applyTheme();
 
+    // Notify components to update
     document.dispatchEvent(new CustomEvent("wallpaper-changed"));
     document.dispatchEvent(new CustomEvent("theme-changed"));
   } finally {

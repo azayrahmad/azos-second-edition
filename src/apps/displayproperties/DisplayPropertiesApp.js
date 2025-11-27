@@ -3,6 +3,7 @@ import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { backgroundTab } from "./background/background.js";
 import { screensaverTab } from "./screensaver/screensaver.js";
 import { settingsTab } from "./settings/settings.js";
+import { appearanceTab } from "./appearance/appearance.js";
 
 import "./displayproperties.css";
 import "./color-spectrum.css";
@@ -10,6 +11,7 @@ import contentHtml from "./displayproperties.html?raw";
 import backgroundHtml from "./background/background.html?raw";
 import screensaverHtml from "./screensaver/screensaver.html?raw";
 import settingsHtml from "./settings/settings.html?raw";
+import appearanceHtml from "./appearance/appearance.html?raw";
 import energystar from "../../assets/img/EnergyStarDisplay.png";
 
 class DisplayPropertiesApp extends Application {
@@ -43,6 +45,7 @@ class DisplayPropertiesApp extends Application {
     win.$content.find("#background").html(backgroundHtml);
     win.$content.find("#screensaver").html(screensaverHtml);
     win.$content.find("#settings").html(settingsHtml);
+    win.$content.find("#appearance").html(appearanceHtml);
 
     // Set initial state from localStorage
     this.selectedWallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
@@ -62,6 +65,7 @@ class DisplayPropertiesApp extends Application {
     backgroundTab.init(win, this);
     screensaverTab.init(win, this);
     settingsTab.init(win, this);
+    appearanceTab.init(win, this);
   }
 
   _setupTabs(win) {
@@ -112,6 +116,7 @@ class DisplayPropertiesApp extends Application {
     backgroundTab.applyChanges(this);
     screensaverTab.applyChanges(this);
     settingsTab.applyChanges(this);
+    appearanceTab.applyChanges(this);
   }
 }
 
