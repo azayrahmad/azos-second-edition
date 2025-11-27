@@ -89,7 +89,7 @@ export class ExplorerApp extends Application {
       id: this.id,
     });
     this.win = win;
-    console.log("ExplorerApp window created, width:", this.width);
+
     const menuItems = {
       Go: [
         {
@@ -142,10 +142,15 @@ export class ExplorerApp extends Application {
 
     this.navigateTo(this.initialPath);
 
-    document.addEventListener("explorer-refresh", () => {
-      if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
+    this.refreshHandler = () => {
+      if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop && this.win.element.style.display !== 'none') {
         this.render(this.currentPath);
       }
+    };
+    document.addEventListener("explorer-refresh", this.refreshHandler);
+
+    this.win.onClosed(() => {
+      document.removeEventListener("explorer-refresh", this.refreshHandler);
     });
 
     // Drag and drop functionality
@@ -225,7 +230,11 @@ export class ExplorerApp extends Application {
         const app = apps.find((a) => a.id === appId);
         return { ...app, appId: app.id };
       });
-      children = [...desktopApps, ...desktopContents.files];
+      const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+      const desktopFiles = allDroppedFiles.filter(
+        (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
+      );
+      children = [...desktopApps, ...desktopContents.files, ...desktopFiles];
     } else {
       const staticChildren = item.children || [];
       const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
@@ -237,14 +246,13 @@ export class ExplorerApp extends Application {
 
     // Sort children alphabetically by name
     children.sort((a, b) => {
-      const nameA = a.name || "";
-      const nameB = b.name || "";
+      const nameA = a.name || a.title || a.filename || "";
+      const nameB = b.name || b.title || b.filename || "";
       return nameA.localeCompare(nameB);
     });
 
     children.forEach((child) => {
       let iconData = { ...child };
-      let isFile = false;
 
       // Resolve shortcuts
       if (child.type === "shortcut") {
@@ -268,7 +276,7 @@ export class ExplorerApp extends Application {
 
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
-    const displayName = item.name || app.title;
+    const displayName = item.name || item.filename || item.title || app.title;
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
@@ -289,7 +297,7 @@ export class ExplorerApp extends Application {
       iconImg.src = ICONS["internet-explorer"][32];
     } else {
       // Default to file association for any other type
-      const association = getAssociation(item.name);
+      const association = getAssociation(displayName);
       iconImg.src = association.icon[32];
     }
     iconInner.appendChild(iconImg);
