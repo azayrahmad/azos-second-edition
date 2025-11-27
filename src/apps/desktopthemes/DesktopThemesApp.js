@@ -179,8 +179,7 @@ export class DesktopThemesApp extends Application {
     const themes = getThemes();
     const activeTheme = getActiveTheme();
     const currentColorSchemeId = getColorSchemeId() || activeTheme.id;
-    const currentColorSchemeTheme =
-      themes[currentColorSchemeId] || activeTheme;
+    const currentColorSchemeTheme = themes[currentColorSchemeId] || activeTheme;
     const currentWallpaper =
       getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || activeTheme.wallpaper;
 
@@ -426,7 +425,11 @@ export class DesktopThemesApp extends Application {
       this.screenSaverButton.disabled = !selectedTheme?.screensaver;
 
       if (selectedValue === "current-settings") {
-        await this.previewCustomTheme(this.customThemeProperties);
+        const normalizedProperties = {};
+        for (const [key, value] of Object.entries(this.customThemeProperties)) {
+          normalizedProperties[key.replace(/^--/, "")] = value;
+        }
+        await this.previewCustomTheme(normalizedProperties);
         this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
       } else if (selectedTheme) {
         await this.previewTheme(selectedValue);
