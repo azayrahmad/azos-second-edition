@@ -1,0 +1,16 @@
+.cursor-list-container {
+  padding: 10px;
+}
+
+.cursor-list-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cursor-preview {
+  margin-right: 10px;
+  border: 1px solid var(--border-color);
+  width: 32px;
+  height: 32px;
+}
