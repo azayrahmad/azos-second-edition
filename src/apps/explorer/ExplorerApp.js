@@ -389,19 +389,36 @@ export class ExplorerApp extends Application {
   }
 
   _launchItem(item) {
-    if (item.url) {
-      window.open(item.url, "_blank");
-    } else if (item.type === "folder" || item.type === "drive") {
+    // 1. Handle navigation for folders/drives
+    if (item.type === "folder" || item.type === "drive") {
       const newPath =
         this.currentPath === "/"
           ? `/${item.id}`
           : `${this.currentPath}/${item.id}`;
       this.navigateTo(newPath);
-    } else if (item.type === "file") {
-      const association = getAssociation(item.name);
-      launchApp(association.appId, item.contentUrl);
-    } else if (item.appId) {
+      return;
+    }
+
+    // 2. Handle external URLs
+    if (item.url) {
+      window.open(item.url, "_blank");
+      return;
+    }
+
+    // 3. Handle applications/shortcuts
+    if (item.appId) {
       launchApp(item.appId);
+      return;
+    }
+
+    // 4. Handle files (static, dropped, desktop)
+    const fileName = item.name || item.filename;
+    if (fileName) {
+      const appId = item.app || getAssociation(fileName).appId;
+      if (appId) {
+        const launchData = item.contentUrl ? item.contentUrl : item;
+        launchApp(appId, launchData);
+      }
     }
   }
 
