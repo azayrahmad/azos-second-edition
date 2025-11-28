@@ -542,7 +542,19 @@ export class ExplorerApp extends Application {
       menuItems.push("MENU_DIVIDER");
 
       // Actions based on item type
-      if (clickedItem.type === "file" || clickedItem.type === "folder") {
+      if (clickedItem.type === "drive") {
+        menuItems.push({ label: "Format...", action: () => {} }); // TODO: Implement Format
+        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+      } else if (clickedItem.type === "network") {
+        menuItems.push({ label: "Map Network Drive...", action: () => {} }); // TODO: Implement Map Network Drive
+        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+      } else if (clickedItem.appId) {
+        // For applications or shortcuts to applications within explorer
+        // Can add more app-specific actions if needed, similar to desktop.js
+        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties for apps
+      } else {
         menuItems.push({ label: "Cut", action: () => {}, enabled: false });
         menuItems.push({ label: "Copy", action: () => {}, enabled: false });
         menuItems.push("MENU_DIVIDER");
@@ -556,18 +568,6 @@ export class ExplorerApp extends Application {
           label: "Properties",
           action: () => this.showProperties(clickedItem),
         });
-      } else if (clickedItem.type === "drive") {
-        menuItems.push({ label: "Format...", action: () => {} }); // TODO: Implement Format
-        menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
-      } else if (clickedItem.type === "network") {
-        menuItems.push({ label: "Map Network Drive...", action: () => {} }); // TODO: Implement Map Network Drive
-        menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
-      } else if (clickedItem.appId) {
-        // For applications or shortcuts to applications within explorer
-        // Can add more app-specific actions if needed, similar to desktop.js
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties for apps
       }
     }
     new window.ContextMenu(menuItems, event);
