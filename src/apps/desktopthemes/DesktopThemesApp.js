@@ -11,6 +11,7 @@ import {
   getColorSchemeId,
   getActiveTheme,
   getIconSchemeName,
+  getSoundSchemeName,
 } from "../../utils/themeManager.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
@@ -272,7 +273,7 @@ export class DesktopThemesApp extends Application {
     style.textContent = cssContent;
     document.head.appendChild(style);
 
-    const { wallpaper, ...colors } = this.customThemeProperties;
+    const { wallpaper, iconScheme, ...colors } = this.customThemeProperties;
     const customTheme = {
       ...baseTheme,
       id: "custom",
@@ -280,9 +281,11 @@ export class DesktopThemesApp extends Application {
       stylesheet: null,
       colors: colors,
       wallpaper: wallpaper,
+      iconScheme: iconScheme,
+      soundScheme: getSoundSchemeName(),
     };
 
-    setTheme("custom", customTheme);
+    setTheme(customTheme);
   }
 
   handleCustomThemeLoad() {
@@ -440,7 +443,7 @@ export class DesktopThemesApp extends Application {
     }
 
     const newThemeId = `custom-${finalName.toLowerCase().replace(/\s+/g, "-")}`;
-    const { wallpaper, ...colors } = this.customThemeProperties;
+    const { wallpaper, iconScheme, ...colors } = this.customThemeProperties;
     const newTheme = {
       ...themes.default,
       id: newThemeId,
@@ -448,6 +451,8 @@ export class DesktopThemesApp extends Application {
       stylesheet: null,
       colors: colors,
       wallpaper: wallpaper,
+      iconScheme: iconScheme,
+      soundScheme: getSoundSchemeName(),
       isCustom: true,
     };
 
