@@ -1,22 +1,3 @@
-import { AboutApp } from "../apps/about/AboutApp.js";
-import { AppMakerApp } from "../apps/appmaker/AppMakerApp.js";
-import { NotepadApp } from "../apps/notepad/NotepadApp.js";
-import { PdfViewerApp } from "../apps/pdfviewer/PdfViewerApp.js";
-import { TipOfTheDayApp } from "../apps/tipOfTheDay/TipOfTheDayApp.js";
-import { ClippyApp } from "../apps/clippy/ClippyApp.js";
-import { WebampApp } from "../apps/webamp/WebampApp.js";
-import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
-import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
-import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
-import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
-import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
-import { PinballApp } from "../apps/pinball/PinballApp.js";
-import { PaintApp } from "../apps/paint/PaintApp.js";
-import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
-import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
-import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
-import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
-import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -30,25 +11,85 @@ import {
 import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
 
 export const appClasses = {
-  about: AboutApp,
-  appmaker: AppMakerApp,
-  notepad: NotepadApp,
-  pdfviewer: PdfViewerApp,
-  tipOfTheDay: TipOfTheDayApp,
-  clippy: ClippyApp,
-  webamp: WebampApp,
-  "image-resizer": ImageResizerApp,
-  "image-viewer": ImageViewerApp,
-  themetocss: ThemeToCssApp,
-  desktopthemes: DesktopThemesApp,
-  taskmanager: TaskManagerApp,
-  soundschemeexplorer: SoundSchemeExplorerApp,
-  explorer: ExplorerApp,
-  "internet-explorer": InternetExplorerApp,
-  pinball: PinballApp,
-  paint: PaintApp,
-  "display-properties": DisplayPropertiesApp,
-  "cursor-explorer": CursorExplorerApp,
+  get about() {
+    return import("../apps/about/AboutApp.js").then((m) => m.AboutApp);
+  },
+  get appmaker() {
+    return import("../apps/appmaker/AppMakerApp.js").then((m) => m.AppMakerApp);
+  },
+  get notepad() {
+    return import("../apps/notepad/NotepadApp.js").then((m) => m.NotepadApp);
+  },
+  get pdfviewer() {
+    return import("../apps/pdfviewer/PdfViewerApp.js").then(
+      (m) => m.PdfViewerApp
+    );
+  },
+  get tipOfTheDay() {
+    return import("../apps/tipOfTheDay/TipOfTheDayApp.js").then(
+      (m) => m.TipOfTheDayApp
+    );
+  },
+  get clippy() {
+    return import("../apps/clippy/ClippyApp.js").then((m) => m.ClippyApp);
+  },
+  get webamp() {
+    return import("../apps/webamp/WebampApp.js").then((m) => m.WebampApp);
+  },
+  get "image-resizer"() {
+    return import("../apps/image-resizer/ImageResizerApp.js").then(
+      (m) => m.ImageResizerApp
+    );
+  },
+  get "image-viewer"() {
+    return import("../apps/imageviewer/ImageViewerApp.js").then(
+      (m) => m.ImageViewerApp
+    );
+  },
+  get themetocss() {
+    return import("../apps/themetocss/ThemeToCssApp.js").then(
+      (m) => m.ThemeToCssApp
+    );
+  },
+  get desktopthemes() {
+    return import("../apps/desktopthemes/DesktopThemesApp.js").then(
+      (m) => m.DesktopThemesApp
+    );
+  },
+  get taskmanager() {
+    return import("../apps/taskmanager/TaskManagerApp.js").then(
+      (m) => m.TaskManagerApp
+    );
+  },
+  get soundschemeexplorer() {
+    return import("../apps/soundschemeexplorer/SoundSchemeExplorerApp.js").then(
+      (m) => m.SoundSchemeExplorerApp
+    );
+  },
+  get explorer() {
+    return import("../apps/explorer/ExplorerApp.js").then((m) => m.ExplorerApp);
+  },
+  get "internet-explorer"() {
+    return import("../apps/internet-explorer/InternetExplorerApp.js").then(
+      (m) => m.InternetExplorerApp
+    );
+  },
+  get pinball() {
+    return import("../apps/pinball/PinballApp.js").then((m) => m.PinballApp);
+  },
+  get paint() {
+    return import("../apps/paint/PaintApp.js").then((m) => m.PaintApp);
+  },
+  get "display-properties"() {
+    return import("../apps/displayproperties/DisplayPropertiesApp.js").then(
+      (m) => m.default
+    );
+  },
+  get "cursor-explorer"() {
+    return import("../apps/cursorexplorer/CursorExplorerApp.js").then(
+      (m) => m.CursorExplorerApp
+    );
+  },
 };
 
 export const apps = [
