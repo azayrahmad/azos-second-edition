@@ -8,6 +8,11 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
+      injectRegister: 'auto',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,woff,woff2,wav,mp3,json,md,ani,cur,jp,jpeg,gif,bmp,exe,zip,jsdos}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+      },
       manifest: {
         name: "azOS Second Edition",
         short_name: "azOS",
@@ -25,9 +30,6 @@ export default defineConfig({
             type: "image/png",
           },
         ],
-      },
-      workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
       },
     }),
   ],
