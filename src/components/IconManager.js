@@ -92,7 +92,9 @@ export class IconManager {
       this.lasso.style.top = `${top}px`;
 
       const lassoRect = this.lasso.getBoundingClientRect();
-      const icons = this.container.querySelectorAll(".desktop-icon");
+      const icons = this.container.querySelectorAll(
+        ".desktop-icon, .explorer-icon",
+      );
 
       icons.forEach((icon) => {
         const iconRect = icon.getBoundingClientRect();
@@ -136,7 +138,7 @@ export class IconManager {
     if (
       e.target === this.container &&
       !this.isLassoing &&
-      !e.target.closest(".desktop-icon")
+      !e.target.closest(".desktop-icon, .explorer-icon")
     ) {
       this.clearSelection();
     }
@@ -149,7 +151,7 @@ export class IconManager {
         this.options.onBackgroundContext(e);
       }
     } else {
-      const icon = e.target.closest(".desktop-icon");
+      const icon = e.target.closest(".desktop-icon, .explorer-icon");
       if (icon && this.options.onItemContext) {
         e.preventDefault();
         this.options.onItemContext(e, icon);
@@ -163,8 +165,17 @@ export class IconManager {
     );
     icon.addEventListener("click", (e) => this.handleIconClick(e, icon));
 
-    // Allow context menu events to propagate to the container for onItemContext handling
-    // icon.addEventListener("contextmenu", e => e.stopPropagation());
+    icon.addEventListener("dblclick", (e) => {
+      if (this.options.onItemDoubleClick) {
+        this.options.onItemDoubleClick(e, icon);
+      }
+    });
+
+    icon.__onItemDoubleClick = (e) => {
+      if (this.options.onItemDoubleClick) {
+        this.options.onItemDoubleClick(e, icon);
+      }
+    };
   }
 
   handleIconMouseDown(e, icon) {

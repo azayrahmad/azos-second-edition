@@ -40,6 +40,7 @@ import {
   getCurrentResolutionId,
 } from "../utils/screenManager.js";
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
+import { createContextMenu } from "../utils/IconInteractionManager.js";
 
 function getIconId(app, item = null) {
   if (typeof item === "string") {
@@ -137,7 +138,6 @@ function createDesktopIconForDroppedFile(file) {
 function showIconContextMenu(event, app, fileId = null) {
   let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
-
   const contextMenu = appConfig.contextMenu;
 
   if (fileId) {
@@ -153,11 +153,16 @@ function showIconContextMenu(event, app, fileId = null) {
           }
         },
       },
+      "MENU_DIVIDER",
+      { label: "Cut", action: () => {} },
+      { label: "Copy", action: () => {} },
+      "MENU_DIVIDER",
       {
         label: "&Delete",
         action: () => deleteDroppedFile(fileId),
       },
       "MENU_DIVIDER",
+      { label: "Rename", action: () => {} },
       {
         label: "&Properties",
         action: () => showProperties(app),
@@ -172,7 +177,6 @@ function showIconContextMenu(event, app, fileId = null) {
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
           case "open":
-            console.log("Opening app");
             newItem.action = () => launchApp(app.id);
             newItem.default = true;
             break;
@@ -183,10 +187,7 @@ function showIconContextMenu(event, app, fileId = null) {
             newItem.action = () => {};
             break;
         }
-      } else if (typeof newItem.action === "function") {
-        // newItem.click = newItem.action;
       }
-      // delete newItem.action;
       return newItem;
     });
   } else {
@@ -196,6 +197,12 @@ function showIconContextMenu(event, app, fileId = null) {
         default: true,
         action: () => handleAppAction(app),
       },
+      "MENU_DIVIDER",
+      { label: "Cut", action: () => {} },
+      { label: "Copy", action: () => {} },
+      "MENU_DIVIDER",
+      { label: "Rename", action: () => {} },
+      "MENU_DIVIDER",
       {
         label: "&Properties",
         action: () => showProperties(app),
@@ -203,7 +210,7 @@ function showIconContextMenu(event, app, fileId = null) {
     ];
   }
 
-  new window.ContextMenu(menuItems, event);
+  createContextMenu(menuItems, event);
 }
 
 function setWallpaper() {
@@ -984,18 +991,6 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     // Icon manager now handles single click selection
     iconManager.handleIconClick(e, icon);
   });
-
-  icon.addEventListener("dblclick", (e) => {
-    if (wasDragged || isLongPress) {
-      e.stopPropagation();
-      e.preventDefault();
-      return;
-    }
-    // If filePath is an object, it's a dropped file. Otherwise, it's a path string.
-    const launchData =
-      typeof filePath === "object" && filePath !== null ? filePath : filePath;
-    launchApp(app.id, launchData);
-  });
 }
 
 // Initialize desktop behavior
@@ -1021,6 +1016,22 @@ export async function initDesktop() {
         clearSelection: () => iconManager.clearSelection(),
       });
     },
+    onItemDoubleClick: (e, icon) => {
+      const appId = icon.getAttribute("data-app-id");
+      const fileId = icon.getAttribute("data-file-id");
+      const app = apps.find((a) => a.id === appId);
+      if (app) {
+        if (fileId) {
+          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          const file = droppedFiles.find((f) => f.id === fileId);
+          if (file) {
+            launchApp(app.id, file);
+          }
+        } else {
+          launchApp(app.id);
+        }
+      }
+    },
   });
 
   // A function to refresh icons, bound to the correct scope
@@ -1034,9 +1045,7 @@ export async function initDesktop() {
     applyWallpaper();
   });
 
-  document.addEventListener("desktop-refresh", () => {
-    desktop.refreshIcons();
-  });
+  document.addEventListener("desktop-refresh", desktop.refreshIcons);
 
   desktop.addEventListener("contextmenu", (e) => {
     // Show desktop context menu only if not clicking on an icon
