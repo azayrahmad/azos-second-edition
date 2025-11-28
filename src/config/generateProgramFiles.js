@@ -7,14 +7,7 @@
  * @returns {Array} An array of objects representing the folders and files.
  */
 export function generateProgramFiles() {
-  const modules = import.meta.glob([
-    '/src/apps/**/*',
-    '!/src/apps/**/*.md',
-    '!/src/apps/Application.js',
-    '!/src/apps/IFrameApplication.js',
-    '!/src/apps/clippy/clippy.js',
-    '!/src/apps/webamp/webamp.js',
-  ]);
+  const modules = import.meta.glob(['/src/apps/**/*', '!/src/apps/**/*.md']);
   const programFiles = [];
   const root = {};
 
