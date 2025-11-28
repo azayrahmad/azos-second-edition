@@ -27,7 +27,7 @@ export const appearanceTab = {
       applyThemeToPreview($schemeSelect.val(), $previewContainer[0]);
     });
 
-    applyThemeToPreview(currentSchemeId, $previewContainer[0]);
+    applyThemeToPreview($schemeSelect.val(), $previewContainer[0]);
   },
 
   applyChanges: (app) => {
