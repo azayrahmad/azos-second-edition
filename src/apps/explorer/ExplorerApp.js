@@ -13,6 +13,7 @@ import { IconManager } from "../../components/IconManager.js";
 import {
   getRecycleBinItems,
   removeFromRecycleBin,
+  addToRecycleBin,
 } from "../../utils/recycleBinManager.js";
 import {
   setItem,
@@ -539,13 +540,19 @@ export class ExplorerApp extends Application {
 
       // Actions based on item type
       if (clickedItem.type === "file" || clickedItem.type === "folder") {
-        menuItems.push({ label: "Cut", action: () => {} }); // TODO: Implement Cut
-        menuItems.push({ label: "Copy", action: () => {} }); // TODO: Implement Copy
+        menuItems.push({ label: "Cut", action: () => {}, enabled: false });
+        menuItems.push({ label: "Copy", action: () => {}, enabled: false });
         menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Delete", action: () => {} }); // TODO: Implement Delete (move to recycle bin)
-        menuItems.push({ label: "Rename", action: () => {} }); // TODO: Implement Rename
+        menuItems.push({
+          label: "Delete",
+          action: () => this.deleteFile(clickedItem),
+        });
+        menuItems.push({ label: "Rename", action: () => {}, enabled: false });
         menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
+        menuItems.push({
+          label: "Properties",
+          action: () => this.showProperties(clickedItem),
+        });
       } else if (clickedItem.type === "drive") {
         menuItems.push({ label: "Format...", action: () => {} }); // TODO: Implement Format
         menuItems.push("MENU_DIVIDER");
@@ -588,5 +595,38 @@ export class ExplorerApp extends Application {
       { label: "Properties", action: () => {} }, // TODO: Implement Properties for folder background
     ];
     new window.ContextMenu(menuItems, event);
+  }
+
+  deleteFile(item) {
+    const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    const updatedFiles = allDroppedFiles.filter((file) => file.id !== item.id);
+    addToRecycleBin(item);
+    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, updatedFiles);
+    this.render(this.currentPath);
+    document.dispatchEvent(new CustomEvent("desktop-refresh"));
+  }
+
+  showProperties(item) {
+    const displayName = item.name || item.filename || item.title;
+    const itemType = item.type || "File";
+    let iconUrl;
+
+    if (item.icon) {
+      iconUrl = item.icon[32];
+    } else if (item.type === "drive") {
+      iconUrl = ICONS.drive[32];
+    } else if (item.type === "folder") {
+      iconUrl = ICONS.folderClosed[32];
+    } else {
+      const association = getAssociation(displayName);
+      iconUrl = association.icon[32];
+    }
+
+    ShowDialogWindow({
+      title: `${displayName} Properties`,
+      contentIconUrl: iconUrl,
+      text: `<b>${displayName}</b><br>Type: ${itemType}`,
+      buttons: [{ label: "OK", isDefault: true }],
+    });
   }
 }
