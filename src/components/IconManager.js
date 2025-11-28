@@ -153,6 +153,11 @@ export class IconManager {
       const icon = e.target.closest(this.iconSelector);
       if (icon && this.options.onItemContext) {
         e.preventDefault();
+        if (!this.selectedIcons.has(icon)) {
+          this.clearSelection();
+          this.selectedIcons.add(icon);
+          this.toggleHighlight(icon, true);
+        }
         this.options.onItemContext(e, icon);
       }
     }
