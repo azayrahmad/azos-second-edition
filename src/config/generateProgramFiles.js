@@ -19,11 +19,12 @@ export function generateProgramFiles() {
       if (!currentLevel[part]) {
         if (index === parts.length - 1) {
           // It's a file
+          // Note: path starts with a '/', so we slice it to avoid double slashes.
           currentLevel[part] = {
             id: `file-${path.replace(/[^a-zA-Z0-9]/g, '-')}`,
             name: part,
             type: 'file',
-            contentUrl: path,
+            contentUrl: `${import.meta.env.BASE_URL}${path.slice(1)}`,
           };
         } else {
           // It's a directory
@@ -42,11 +43,21 @@ export function generateProgramFiles() {
       if (item.type === 'file') {
         return item;
       } else {
+        const children = buildDirectory(item, currentPath);
+        if (pathPrefix === '') {
+          // This is a top-level app directory, so add the launchable app.
+          const appId = name;
+          children.unshift({
+            id: `app-${appId}`,
+            type: 'app',
+            appId: appId,
+          });
+        }
         return {
           id: `folder-${currentPath.replace(/[^a-zA-Z0-9]/g, '-')}`,
           name: name,
           type: 'folder',
-          children: buildDirectory(item, currentPath),
+          children: children,
         };
       }
     });
