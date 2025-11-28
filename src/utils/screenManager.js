@@ -4,7 +4,7 @@ const RESOLUTIONS = {
   "640 by 480": { width: 640, height: 480 },
   "800 by 600": { width: 800, height: 600 },
   "1024 by 768": { width: 1024, height: 768 },
-  fit: { width: "100%", height: "100%" },
+  fit: { width: "100vw", height: "100vh" },
 };
 
 const DEFAULT_RESOLUTION = "fit";
