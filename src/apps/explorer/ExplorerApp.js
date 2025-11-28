@@ -170,6 +170,7 @@ export class ExplorerApp extends Application {
     this.iconContainer = iconContainer;
 
     this.iconManager = new IconManager(this.iconContainer, {
+      iconSelector: ".explorer-icon",
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
     });
