@@ -1,4 +1,3 @@
-import { themes } from '../config/themes.js';
 import { soundSchemes } from '../config/sound-schemes.js';
 import { cursors } from '../config/cursors.js';
 
@@ -25,8 +24,8 @@ async function preloadCursor(src) {
     return fetch(src);
 }
 
-export async function preloadThemeAssets(themeId) {
-  const theme = themes[themeId];
+export async function preloadThemeAssets(themeId, allThemes) {
+  const theme = allThemes[themeId];
   if (!theme) {
     console.warn(`Theme not found: ${themeId}`);
     return;
