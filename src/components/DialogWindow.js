@@ -28,6 +28,7 @@ function ShowDialogWindow(options) {
         titleIconUrl,
         contentIconUrl,
         text,
+        content, // Added content property
         buttons = [{ label: 'OK', action: () => { }, isDefault: true }],
         soundEvent,
         modal = false,
@@ -54,22 +55,26 @@ function ShowDialogWindow(options) {
     const win = new $Window(winOptions);
 
     // Create dialog content
-    const content = document.createElement('div');
-    content.className = 'dialog-content';
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'dialog-content';
 
-    if (contentIconUrl) {
-        const icon = document.createElement('img');
-        icon.src = contentIconUrl;
-        icon.className = 'dialog-content-icon';
-        icon.width = 32;
-        icon.height = 32;
-        content.appendChild(icon);
+    if (content) {
+        contentContainer.appendChild(content);
+    } else {
+        if (contentIconUrl) {
+            const icon = document.createElement('img');
+            icon.src = contentIconUrl;
+            icon.className = 'dialog-content-icon';
+            icon.width = 32;
+            icon.height = 32;
+            contentContainer.appendChild(icon);
+        }
+
+        const textEl = document.createElement('div');
+        textEl.className = 'dialog-content-text';
+        textEl.innerHTML = text;
+        contentContainer.appendChild(textEl);
     }
-
-    const textEl = document.createElement('div');
-    textEl.className = 'dialog-content-text';
-    textEl.innerHTML = text;
-    content.appendChild(textEl);
 
     // Create buttons
     const buttonContainer = document.createElement('div');
@@ -90,10 +95,13 @@ function ShowDialogWindow(options) {
         if (btnDef.isDefault) {
             button.classList.add('default');
         }
+        if (btnDef.disabled) {
+            button.disabled = true;
+        }
         buttonContainer.appendChild(button);
     });
 
-    win.$content.append(content, buttonContainer);
+    win.$content.append(contentContainer, buttonContainer);
     win.center();
 
     // Handle modality
@@ -123,7 +131,7 @@ function ShowDialogWindow(options) {
     // Auto-height adjustment
     // The content needs to be rendered to get the correct height.
     setTimeout(() => {
-        const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
+        const contentHeight = contentContainer.offsetHeight + buttonContainer.offsetHeight;
         const frameHeight = win.outerHeight() - win.$content.innerHeight();
         win.outerHeight(contentHeight + frameHeight); // Add some padding
         win.center(); // Recenter after resizing

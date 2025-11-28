@@ -347,20 +347,91 @@ export class DesktopThemesApp extends Application {
     reader.readAsText(file);
   }
 
-  handleSaveTheme() {
+  _promptForThemeName() {
+    const win = new $Window({
+      title: "Save Theme",
+      outerWidth: 320,
+      outerHeight: "auto",
+      modal: true,
+      resizable: false,
+      toolWindow: true,
+      icons: this.icon,
+      className: "theme-name-prompt",
+    });
+
+    const content = document.createElement("div");
+    content.className = "dialog-content";
+
+    const textEl = document.createElement("p");
+    textEl.textContent = "Please enter a name for this theme:";
+    content.appendChild(textEl);
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = this.originalFilename || "";
+    content.appendChild(input);
+
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "dialog-buttons";
+
+    const okButton = document.createElement("button");
+    okButton.textContent = "OK";
+    okButton.classList.add("default");
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+
+    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(cancelButton);
+
+    const updateOkButtonState = () => {
+      okButton.disabled = input.value.trim() === "";
+    };
+
+    input.addEventListener("input", updateOkButtonState);
+    updateOkButtonState();
+
+    okButton.onclick = () => {
+      const themeName = input.value.trim();
+      this._confirmAndSaveTheme(themeName);
+      win.close();
+    };
+
+    cancelButton.onclick = () => {
+      win.close();
+    };
+
+    win.$content.append(content, buttonContainer);
+    win.center();
+    input.focus();
+
+    // Auto-height adjustment
+    setTimeout(() => {
+        const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
+        const frameHeight = win.outerHeight() - win.$content.innerHeight();
+        win.outerHeight(contentHeight + frameHeight + 10);
+        win.center();
+    }, 0);
+  }
+
+  _confirmAndSaveTheme(themeName) {
     ShowDialogWindow({
       title: "Save Theme",
-      text: `Do you want to save this theme as "${this.originalFilename}"?`,
+      text: `Do you want to save this theme as "${themeName}"?`,
       buttons: [
         {
           label: "OK",
           action: () => {
-            this.saveTheme(this.originalFilename);
+            this.saveTheme(themeName);
           },
         },
         { label: "Cancel" },
       ],
     });
+  }
+
+  handleSaveTheme() {
+    this._promptForThemeName();
   }
 
   saveTheme(name) {

@@ -1,7 +1,32 @@
 .explorer-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
+}
+
+.explorer-sidebar {
+    display: none; /* Hidden by default */
+    width: 30%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    word-wrap: break-word;
+}
+
+.sidebar-icon {
+    width: 32px;
+    height: 32px;
+    margin: 10px;
+}
+
+.sidebar-title {
+    font-family: Verdana, sans-serif;
+    font-size: 2em;
+    margin: 0 10px;
+    color: var(--WindowText);
+}
+
+.explorer-content.with-sidebar .explorer-sidebar {
+    display: block; /* Show sidebar */
 }
 
 .explorer-icon-view {
@@ -59,12 +84,10 @@
 }
 
 /* When content width is less than 400px */
-.explorer-content.small-width .explorer-title {
-    display: block; /* Show the title */
-    order: -1; /* Place it above other flex items */
+.explorer-content.small-width {
+    flex-direction: column;
 }
 
-.explorer-content.small-width .explorer-icon-view {
-    /* No specific order needed if title is -1, but for clarity */
-    order: 0;
+.explorer-content.small-width .explorer-title {
+    display: block; /* Show the title */
 }
