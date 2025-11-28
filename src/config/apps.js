@@ -16,6 +16,7 @@ import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
+import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
@@ -47,6 +48,7 @@ export const appClasses = {
   pinball: PinballApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
+  "cursor-explorer": CursorExplorerApp,
 };
 
 export const apps = [
@@ -383,6 +385,17 @@ export const apps = [
     width: 404,
     height: 448,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "cursor-explorer",
+    title: "Cursor Explorer",
+    description: "Explore and preview cursor schemes.",
+    icon: ICONS["cursor-explorer"],
+    appClass: CursorExplorerApp,
+    width: 400,
+    height: 500,
+    resizable: true,
     isSingleton: true,
   },
 ];

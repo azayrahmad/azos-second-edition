@@ -45,6 +45,7 @@ const directory = [
             type: "app",
             appId: "network-neighborhood",
           },
+          { id: "app-cursor-explorer", type: "app", appId: "cursor-explorer" },
         ],
       },
       {
@@ -153,6 +154,12 @@ const directory = [
                 type: "file",
                 name: "README.md",
                 contentUrl: "files/README.md",
+              },
+              {
+                id: "shortcut-to-cursor-explorer",
+                type: "shortcut",
+                targetId: "app-cursor-explorer",
+                name: "Cursor Explorer",
               },
             ],
           },
