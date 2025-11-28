@@ -46,6 +46,7 @@ const directory = [
             appId: "network-neighborhood",
           },
           { id: "app-cursor-explorer", type: "app", appId: "cursor-explorer" },
+          { id: "app-dosgame", type: "app", appId: "dosgame" },
         ],
       },
       {
@@ -160,6 +161,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-cursor-explorer",
                 name: "Cursor Explorer",
+              },
+              {
+                id: "shortcut-to-dosgame",
+                type: "shortcut",
+                targetId: "app-dosgame",
+                name: "DOS Game",
               },
             ],
           },
