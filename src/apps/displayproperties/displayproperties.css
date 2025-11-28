@@ -102,7 +102,7 @@
 .display-properties-tabs button {
     min-width: 75px;
     min-height: 23px;
-    font-size: 11px;
+    font-size: var(--font-size-base);
     padding: 2px 12px;
 }
 
@@ -240,7 +240,7 @@
     border: 1px solid var(--preview-button-shadow);
     border-top: 1px solid var(--preview-button-highlight);
     text-align: center;
-    font-size: 11px;
+    font-size: var(--font-size-base);
 }
 
 #displayproperties .preview-window {

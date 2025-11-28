@@ -21,7 +21,7 @@
     border: none;
     background: none;
     padding: 1px;
-    font-size: 11px;
+    font-size: var(--font-size-base);
     color: var(--ButtonText);
 }
 
@@ -34,7 +34,7 @@
     border: none;
     background: none;
     padding: 0;
-    font-size: 8px;
+    font-size: var(--font-size-base);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -279,7 +279,7 @@
 }
 
 .menu-item {
-    font-size: 11px;
+    font-size: var(--font-size-base);
     color: var(--ButtonText);
     white-space: nowrap;
 }
