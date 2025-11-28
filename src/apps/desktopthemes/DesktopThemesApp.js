@@ -13,6 +13,8 @@ import {
   getIconSchemeName,
 } from "../../utils/themeManager.js";
 import {
+  fetchThemeCss,
+  parseCssVariables,
   applyThemeToPreview,
   applyPropertiesToPreview,
 } from "../../utils/themePreview.js";
@@ -194,11 +196,9 @@ export class DesktopThemesApp extends Application {
         currentColors[`--${key.replace(/^--/, "")}`] = value;
       }
     } else if (currentColorSchemeTheme.stylesheet) {
-      const cssText = await this.fetchThemeCss(
-        currentColorSchemeTheme.stylesheet,
-      );
+      const cssText = await fetchThemeCss(currentColorSchemeTheme.stylesheet);
       if (cssText) {
-        const parsedVariables = this.parseCssVariables(cssText);
+        const parsedVariables = parseCssVariables(cssText);
         for (const [key, value] of Object.entries(parsedVariables)) {
           currentColors[`--${key}`] = value;
         }
@@ -407,10 +407,10 @@ export class DesktopThemesApp extends Application {
 
     // Auto-height adjustment
     setTimeout(() => {
-        const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
-        const frameHeight = win.outerHeight() - win.$content.innerHeight();
-        win.outerHeight(contentHeight + frameHeight + 10);
-        win.center();
+      const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
+      const frameHeight = win.outerHeight() - win.$content.innerHeight();
+      win.outerHeight(contentHeight + frameHeight + 10);
+      win.center();
     }, 0);
   }
 
