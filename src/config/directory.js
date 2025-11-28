@@ -1,3 +1,6 @@
+import { generateProgramFiles } from './generateProgramFiles.js';
+import { coreApps } from './core-apps.js';
+
 const directory = [
   {
     id: "drive-c",
@@ -8,45 +11,7 @@ const directory = [
         id: "folder-program-files",
         name: "Program Files",
         type: "folder",
-        children: [
-          { id: "app-about", type: "app", appId: "about" },
-          { id: "app-tipOfTheDay", type: "app", appId: "tipOfTheDay" },
-          { id: "app-pdfviewer", type: "app", appId: "pdfviewer" },
-          { id: "app-notepad", type: "app", appId: "notepad" },
-          { id: "app-image-viewer", type: "app", appId: "image-viewer" },
-          { id: "app-clippy", type: "app", appId: "clippy" },
-          { id: "app-webamp", type: "app", appId: "webamp" },
-          { id: "app-appmaker", type: "app", appId: "appmaker" },
-          { id: "app-alertTest", type: "app", appId: "alertTest" },
-          { id: "app-themetocss", type: "app", appId: "themetocss" },
-          {
-            id: "app-soundschemeexplorer",
-            type: "app",
-            appId: "soundschemeexplorer",
-          },
-          { id: "app-explorer", type: "app", appId: "explorer" },
-          { id: "app-my-computer", type: "app", appId: "my-computer" },
-          { id: "app-my-documents", type: "app", appId: "my-documents" },
-          { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
-          {
-            id: "app-internet-explorer",
-            type: "app",
-            appId: "internet-explorer",
-          },
-          { id: "app-pinball", type: "app", appId: "pinball" },
-          { id: "app-paint", type: "app", appId: "paint" },
-          {
-            id: "app-display-properties",
-            type: "app",
-            appId: "display-properties",
-          },
-          {
-            id: "app-network-neighborhood",
-            type: "app",
-            appId: "network-neighborhood",
-          },
-          { id: "app-cursor-explorer", type: "app", appId: "cursor-explorer" },
-        ],
+        children: [...generateProgramFiles(), ...coreApps],
       },
       {
         id: "folder-user",
