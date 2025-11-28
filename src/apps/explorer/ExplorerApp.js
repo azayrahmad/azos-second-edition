@@ -78,6 +78,7 @@ export class ExplorerApp extends Application {
     this.history = [];
     this.historyPointer = -1;
     this.resizeObserver = null;
+    this.currentFolderItems = [];
   }
 
   _createWindow() {
@@ -312,7 +313,9 @@ export class ExplorerApp extends Application {
       return nameA.localeCompare(nameB);
     });
 
-    children.forEach((child) => {
+    this.currentFolderItems = children;
+
+    this.currentFolderItems.forEach((child) => {
       let iconData = { ...child };
 
       // Resolve shortcuts
@@ -466,9 +469,8 @@ export class ExplorerApp extends Application {
 
   showItemContextMenu(event, icon) {
     const clickedItemId = icon.getAttribute("data-id");
-    const currentFolder = findItemByPath(this.currentPath);
-    const clickedItem = (currentFolder.children || []).find(
-      (child) => child.id === clickedItemId || child.name === clickedItemId,
+    const clickedItem = this.currentFolderItems.find(
+      (child) => child.id === clickedItemId,
     );
 
     if (!clickedItem) {
