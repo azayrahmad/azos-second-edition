@@ -1007,6 +1007,7 @@ export async function initDesktop() {
   const desktop = document.querySelector(".desktop");
 
   const iconManager = new IconManager(desktop, {
+    iconSelector: ".desktop-icon",
     onItemContext: (e, icon) => {
       const appId = icon.getAttribute("data-app-id");
       const fileId = icon.getAttribute("data-file-id");
