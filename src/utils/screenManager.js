@@ -4,7 +4,7 @@ const RESOLUTIONS = {
   "640 by 480": { width: 640, height: 480 },
   "800 by 600": { width: 800, height: 600 },
   "1024 by 768": { width: 1024, height: 768 },
-  fit: { width: "100vw", height: "100vh" },
+  fit: { width: "100%", height: "100%" },
 };
 
 const DEFAULT_RESOLUTION = "fit";
@@ -13,6 +13,14 @@ let currentResolutionId = DEFAULT_RESOLUTION;
 
 function getScreenElement() {
   return document.getElementById("screen");
+}
+
+function updateFitScreenSize() {
+  const screen = getScreenElement();
+  if (screen) {
+    screen.style.width = `${window.innerWidth}px`;
+    screen.style.height = `${window.innerHeight}px`;
+  }
 }
 
 function getAvailableResolutions() {
@@ -35,15 +43,19 @@ function setResolution(resolutionId) {
     return;
   }
 
-  const newResolution = RESOLUTIONS[resolutionId];
-  screen.style.width =
-    typeof newResolution.width === "number"
-      ? `${newResolution.width}px`
-      : newResolution.width;
-  screen.style.height =
-    typeof newResolution.height === "number"
-      ? `${newResolution.height}px`
-      : newResolution.height;
+  if (resolutionId === "fit") {
+    updateFitScreenSize();
+  } else {
+    const newResolution = RESOLUTIONS[resolutionId];
+    screen.style.width =
+      typeof newResolution.width === "number"
+        ? `${newResolution.width}px`
+        : newResolution.width;
+    screen.style.height =
+      typeof newResolution.height === "number"
+        ? `${newResolution.height}px`
+        : newResolution.height;
+  }
 
   currentResolutionId = resolutionId;
   saveResolution(resolutionId);
@@ -60,6 +72,12 @@ function loadResolution() {
 function initScreenManager() {
   const savedResolution = loadResolution();
   setResolution(savedResolution);
+
+  window.addEventListener("resize", () => {
+    if (currentResolutionId === "fit") {
+      updateFitScreenSize();
+    }
+  });
 }
 
 export {
