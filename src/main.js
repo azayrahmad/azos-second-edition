@@ -12,7 +12,7 @@ import { registerCustomApp } from "./utils/customAppManager.js";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
-import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
+import { setTheme, getCurrentTheme, getThemes } from "./utils/themeManager.js";
 import {
   hideBootScreen,
   startBootProcessStep,
@@ -149,8 +149,9 @@ async function initializeOS() {
   finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
   // showBlinkingCursor();
 
+  const allThemes = getThemes();
   logElement = startBootProcessStep("Preloading default theme assets...");
-  await preloadThemeAssets("default");
+  await preloadThemeAssets("default", allThemes);
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
 
@@ -159,7 +160,7 @@ async function initializeOS() {
     logElement = startBootProcessStep(
       `Preloading ${currentTheme} theme assets...`,
     );
-    await preloadThemeAssets(currentTheme);
+    await preloadThemeAssets(currentTheme, allThemes);
     finalizeBootProcessStep(logElement, "OK");
     // showBlinkingCursor();
   }
