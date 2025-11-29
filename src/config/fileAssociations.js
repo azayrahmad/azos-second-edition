@@ -124,6 +124,28 @@ export const fileAssociations = {
     appId: "pdfviewer",
     icon: ICONS.pdf,
   },
+  // Audio files
+  mp3: {
+    appId: "media-player",
+    icon: ICONS.mediaPlayer,
+  },
+  wav: {
+    appId: "media-player",
+    icon: ICONS.mediaPlayer,
+  },
+  ogg: {
+    appId: "media-player",
+    icon: ICONS.mediaPlayer,
+  },
+  // Video files
+  mp4: {
+    appId: "media-player",
+    icon: ICONS.mediaPlayer,
+  },
+  webm: {
+    appId: "media-player",
+    icon: ICONS.mediaPlayer,
+  },
   // Default
   default: {
     appId: "notepad",

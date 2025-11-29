@@ -136,6 +136,12 @@ const directory = [
                 targetId: "app-doom",
                 name: "Doom",
               },
+              {
+                id: "shortcut-to-media-player",
+                type: "shortcut",
+                targetId: "app-media-player",
+                name: "Media Player",
+              },
             ],
           },
           {
