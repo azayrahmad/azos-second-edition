@@ -35,15 +35,24 @@ function setResolution(resolutionId) {
     return;
   }
 
-  const newResolution = RESOLUTIONS[resolutionId];
-  screen.style.width =
-    typeof newResolution.width === "number"
-      ? `${newResolution.width}px`
-      : newResolution.width;
-  screen.style.height =
-    typeof newResolution.height === "number"
-      ? `${newResolution.height}px`
-      : newResolution.height;
+  if (resolutionId === "fit") {
+    document.body.classList.add("fit-mode");
+    document.body.style.height = `${window.innerHeight}px`;
+    screen.style.width = "100%";
+    screen.style.height = "100%";
+  } else {
+    document.body.classList.remove("fit-mode");
+    document.body.style.height = ""; // Revert to CSS default
+    const newResolution = RESOLUTIONS[resolutionId];
+    screen.style.width =
+      typeof newResolution.width === "number"
+        ? `${newResolution.width}px`
+        : newResolution.width;
+    screen.style.height =
+      typeof newResolution.height === "number"
+        ? `${newResolution.height}px`
+        : newResolution.height;
+  }
 
   currentResolutionId = resolutionId;
   saveResolution(resolutionId);
@@ -60,6 +69,12 @@ function loadResolution() {
 function initScreenManager() {
   const savedResolution = loadResolution();
   setResolution(savedResolution);
+
+  window.addEventListener("resize", () => {
+    if (currentResolutionId === "fit") {
+      document.body.style.height = `${window.innerHeight}px`;
+    }
+  });
 }
 
 export {
