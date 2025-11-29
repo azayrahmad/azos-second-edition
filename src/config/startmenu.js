@@ -9,6 +9,7 @@ const startMenuAppIds = [
   "internet-explorer",
   "pinball",
   "pdfviewer",
+  "doom",
 ];
 const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
 const settingsAppIds = [

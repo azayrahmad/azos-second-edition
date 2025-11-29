@@ -141,7 +141,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp("explorer", SPECIAL_FOLDER_PATHS["my-documents"]);
+        window.System.launchApp(
+          "explorer",
+          SPECIAL_FOLDER_PATHS["my-documents"],
+        );
       },
     },
   },
@@ -402,13 +405,35 @@ export const apps = [
   },
   {
     id: "dosgame",
-    title: "DOS Game",
-    description: "Play a classic DOS game.",
-    icon: ICONS.pinball,
+    title: "DOS Game", // Generic title, will be overridden by specific game config
+    description: "A generic launcher for various DOS games.",
+    icon: ICONS.doom, // Placeholder icon for the generic launcher
     appClass: DosGameApp,
+    // Default window properties, can be overridden by launchApp config
     width: 640,
     height: 480,
     resizable: false,
-    isSingleton: true,
+    maximizable: false,
+    isSingleton: false, // Allow multiple instances if needed
+  },
+  {
+    id: "doom", // Unique ID for this specific game launcher
+    title: "Doom",
+    description: "Play the classic game Doom.",
+    icon: ICONS.doom, // Specific icon for Doom
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("dosgame", {
+          gameUrl: "games/dos/doom/index.html",
+          title: "Doom", // Title for the window
+          icon: ICONS.doom, // Icon for the window
+          width: 800,
+          height: 500,
+          resizable: true,
+          maximizable: true,
+        });
+      },
+    },
   },
 ];
