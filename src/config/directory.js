@@ -1,5 +1,5 @@
-import { generateProgramFiles } from './generateProgramFiles.js';
-import { coreApps } from './core-apps.js';
+import { generateProgramFiles } from "./generateProgramFiles.js";
+import { coreApps } from "./core-apps.js";
 
 const directory = [
   {
@@ -11,7 +11,11 @@ const directory = [
         id: "folder-program-files",
         name: "Program Files",
         type: "folder",
-        children: [...generateProgramFiles(), ...coreApps],
+        children: [
+          ...generateProgramFiles(),
+          ...coreApps,
+          { id: "app-doom", type: "app", appId: "doom" },
+        ],
       },
       {
         id: "folder-user",
