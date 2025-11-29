@@ -358,7 +358,7 @@ export class ExplorerApp extends Application {
     } else if (item.type === "folder") {
       iconImg.src = ICONS.folderClosed[32];
     } else if (item.type === "network") {
-      iconImg.src = ICONS["internet-explorer"][32];
+      iconImg.src = ICONS.networkComputer[32];
     } else {
       // Default to file association for any other type
       const association = getAssociation(displayName);

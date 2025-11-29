@@ -235,4 +235,8 @@ export const ICONS = {
     16: new URL("../assets/icons/COMCTL32_20481-16.png", import.meta.url).href,
     32: new URL("../assets/icons/COMCTL32_20481-32.png", import.meta.url).href,
   },
+  networkComputer: {
+    16: new URL("../assets/icons/computer_2-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_2-3.png", import.meta.url).href,
+  },
 };
