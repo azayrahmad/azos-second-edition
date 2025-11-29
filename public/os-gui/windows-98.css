@@ -68,7 +68,7 @@
     --font-family-base: "MSW98UI", sans-serif;
     --font-size-base: 11px;
     --font-family-title: var(--font-family-base);
-    --font-size-title: 11px;
+    --font-size-title: 12px;
     --font-family-menu: var(--font-family-base);
     --font-size-menu: 11px;
 }

@@ -34,7 +34,7 @@
     --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%)
         brightness(0.6);
     --text-shadow: 1px 1px var(--ButtonDkShadow);
-    --icon-label-font-size: 12px;
+    --icon-label-font-size: var(--font-size-base);
 }
 
 .hidden {
