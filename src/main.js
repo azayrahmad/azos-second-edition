@@ -192,6 +192,7 @@ async function initializeOS() {
   logElement = startBootProcessStep("Setting up desktop...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   await initDesktop();
+  document.dispatchEvent(new CustomEvent("desktop-refresh"));
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
 

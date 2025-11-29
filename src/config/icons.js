@@ -199,6 +199,10 @@ export const ICONS = {
     16: new URL("../assets/icons/Paint-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Paint-32.png", import.meta.url).href,
   },
+  simcity2000: {
+    16: new URL("../assets/icons/games/simcity2000.png", import.meta.url).href,
+    32: new URL("../assets/icons/games/simcity2000.png", import.meta.url).href,
+  },
   displayProperties: {
     16: new URL("../assets/icons/Display-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Display-32.png", import.meta.url).href,

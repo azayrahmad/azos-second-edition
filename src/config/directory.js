@@ -15,6 +15,7 @@ const directory = [
           ...generateProgramFiles(),
           ...coreApps,
           { id: "app-doom", type: "app", appId: "doom" },
+          { id: "app-simcity2000", type: "app", appId: "simcity2000" },
         ],
       },
       {
@@ -135,6 +136,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-doom",
                 name: "Doom",
+              },
+              {
+                id: "shortcut-to-simcity2000",
+                type: "shortcut",
+                targetId: "app-simcity2000",
+                name: "SimCity 2000 Demo",
               },
             ],
           },
