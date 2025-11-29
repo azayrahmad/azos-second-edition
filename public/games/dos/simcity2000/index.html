@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SimCity 2000 Demo</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000;
+      }
+      #dos-container {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dos-container"></div>
+    <script>
+      window.addEventListener("message", (event) => {
+        if (event.data.type === "init") {
+          const dosContainer = document.getElementById("dos-container");
+          if (window.Dos) {
+            Dos(dosContainer, {
+              url: "bundle.jsdos",
+            }).ready((fs, main) => {
+              main();
+            });
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
