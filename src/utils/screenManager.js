@@ -38,11 +38,13 @@ function setResolution(resolutionId) {
   if (resolutionId === "fit") {
     document.body.classList.add("fit-mode");
     document.body.style.height = `${window.innerHeight}px`;
+    document.body.style.minHeight = "0";
     screen.style.width = "100%";
     screen.style.height = "100%";
   } else {
     document.body.classList.remove("fit-mode");
     document.body.style.height = ""; // Revert to CSS default
+    document.body.style.minHeight = ""; // Revert to CSS default
     const newResolution = RESOLUTIONS[resolutionId];
     screen.style.width =
       typeof newResolution.width === "number"
@@ -73,6 +75,7 @@ function initScreenManager() {
   window.addEventListener("resize", () => {
     if (currentResolutionId === "fit") {
       document.body.style.height = `${window.innerHeight}px`;
+      document.body.style.minHeight = "0";
     }
   });
 }

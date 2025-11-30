@@ -71,6 +71,26 @@ export const apps = [
     },
   },
   {
+    id: "simcity2000",
+    title: "SimCity 2000 Demo",
+    description: "Play the classic game SimCity 2000.",
+    icon: ICONS.simcity2000,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("dosgame", {
+          gameUrl: "games/dos/simcity2000/index.html",
+          title: "SimCity 2000 Demo",
+          icon: ICONS.simcity2000,
+          width: 640,
+          height: 480,
+          resizable: false,
+          maximizable: false,
+        });
+      },
+    },
+  },
+  {
     id: "recycle-bin",
     title: "Recycle Bin",
     description:
