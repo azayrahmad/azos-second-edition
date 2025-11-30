@@ -723,6 +723,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   let longPressTimer;
   let isLongPress = false;
   let handleDragEndWrapper;
+  let draggedIcons = new Set(); // To preserve the original selection
 
   const iconId = icon.getAttribute("data-icon-id");
 
@@ -749,6 +750,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     wasDragged = false;
     isLongPress = false;
     dragOffsets.clear();
+    draggedIcons = new Set(iconManager.selectedIcons);
 
     const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
     const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
@@ -883,6 +885,38 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       ghostIcon.style.left = `${newX}px`;
       ghostIcon.style.top = `${newY}px`;
     });
+
+    // --- New logic to handle drop target selection ---
+    const dropX = clientX;
+    const dropY = clientY;
+
+    // Temporarily hide all ghost icons to find the element underneath
+    ghostIcons.forEach((ghost) => (ghost.style.display = "none"));
+    const dropTarget = document.elementFromPoint(dropX, dropY);
+    ghostIcons.forEach((ghost) => (ghost.style.display = "")); // Show them again
+
+    const targetIcon = dropTarget
+      ? dropTarget.closest(".desktop-icon")
+      : null;
+    const areAllFiles = [...iconManager.selectedIcons].every((icon) =>
+      icon.hasAttribute("data-file-id"),
+    );
+
+    if (
+      targetIcon &&
+      !iconManager.selectedIcons.has(targetIcon) &&
+      areAllFiles
+    ) {
+      const targetAppId = targetIcon.getAttribute("data-app-id");
+      // Define which apps are valid drop targets for files
+      const validDropTargets = ["my-documents", "recycle-bin"];
+      if (validDropTargets.includes(targetAppId)) {
+        iconManager.clearSelection();
+        iconManager.selectedIcons.add(targetIcon);
+        iconManager.toggleHighlight(targetIcon, true);
+      }
+    }
+    // --- End of new logic ---
   };
 
   const handleDragEnd = (e) => {
@@ -903,21 +937,21 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
         : null;
 
       let dropHandled = false;
-      if (targetIcon && !iconManager.selectedIcons.has(targetIcon)) {
+      if (targetIcon && !draggedIcons.has(targetIcon)) {
         const targetAppId = targetIcon.getAttribute("data-app-id");
-        const areAllFiles = [...iconManager.selectedIcons].every((icon) =>
+        const areAllFiles = [...draggedIcons].every((icon) =>
           icon.hasAttribute("data-file-id"),
         );
 
         if (areAllFiles) {
           if (targetAppId === "my-documents") {
-            const fileIds = [...iconManager.selectedIcons].map((icon) =>
+            const fileIds = [...draggedIcons].map((icon) =>
               icon.getAttribute("data-file-id"),
             );
             moveDroppedFiles(fileIds, "/drive-c/folder-user/folder-documents");
             dropHandled = true;
           } else if (targetAppId === "recycle-bin") {
-            const fileIds = [...iconManager.selectedIcons].map((icon) =>
+            const fileIds = [...draggedIcons].map((icon) =>
               icon.getAttribute("data-file-id"),
             );
             deleteDroppedFile(fileIds);
