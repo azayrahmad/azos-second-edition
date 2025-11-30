@@ -23,6 +23,9 @@ import { ICONS } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
 import { ShowDialogWindow } from "./DialogWindow.js";
 import { IconManager } from "./IconManager.js";
+import clipboardManager from "../utils/clipboardManager.js";
+import { pasteItems } from "../utils/fileOperations.js";
+import { getItemFromIcon } from "../utils/iconUtils.js";
 import {
   getRecycleBinItems,
   emptyRecycleBin,
@@ -134,11 +137,48 @@ function createDesktopIconForDroppedFile(file) {
   return iconDiv;
 }
 
-function showIconContextMenu(event, app, fileId = null) {
+function handlePaste(destinationPath) {
+  const { items, operation } = clipboardManager.get();
+  pasteItems(destinationPath, items, operation);
+  clipboardManager.clear();
+}
+
+function showIconContextMenu(event, app, fileId = null, iconManager) {
   let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
-
   const contextMenu = appConfig.contextMenu;
+  const clickedIcon = event.target.closest(".desktop-icon");
+
+  if (clickedIcon && !iconManager.selectedIcons.has(clickedIcon)) {
+    iconManager.clearSelection();
+    iconManager.selectIcon(clickedIcon);
+  }
+
+  const itemsToOperateOn = [...iconManager.selectedIcons]
+    .map(getItemFromIcon)
+    .filter(Boolean);
+
+  const copyItem = {
+    label: "C&opy",
+    action: () => {
+      clipboardManager.set(itemsToOperateOn, "copy");
+    },
+  };
+
+  const cutItem = {
+    label: "Cu&t",
+    action: () => {
+      clipboardManager.set(itemsToOperateOn, "cut");
+    },
+    enabled: !itemsToOperateOn.some(
+      (item) => item.itemType === "app" || item.itemType === "virtual-file",
+    ),
+  };
+
+  if (app.id === "recycle-bin" || app.id === "network") {
+    copyItem.enabled = false;
+    cutItem.enabled = false;
+  }
 
   if (fileId) {
     menuItems = [
@@ -153,6 +193,8 @@ function showIconContextMenu(event, app, fileId = null) {
           }
         },
       },
+      copyItem,
+      cutItem,
       {
         label: "&Delete",
         action: () => deleteDroppedFile(fileId),
@@ -164,6 +206,10 @@ function showIconContextMenu(event, app, fileId = null) {
       },
     ];
   } else if (contextMenu) {
+    const openItemIndex = contextMenu.findIndex(
+      (item) => item.action === "open" || (item.label && item.label.includes("Open")),
+    );
+
     menuItems = contextMenu.map((item) => {
       if (typeof item === "string") {
         return item;
@@ -172,7 +218,6 @@ function showIconContextMenu(event, app, fileId = null) {
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
           case "open":
-            console.log("Opening app");
             newItem.action = () => launchApp(app.id);
             newItem.default = true;
             break;
@@ -183,12 +228,13 @@ function showIconContextMenu(event, app, fileId = null) {
             newItem.action = () => {};
             break;
         }
-      } else if (typeof newItem.action === "function") {
-        // newItem.click = newItem.action;
       }
-      // delete newItem.action;
       return newItem;
     });
+
+    if (openItemIndex !== -1) {
+      menuItems.splice(openItemIndex + 1, 0, copyItem, cutItem);
+    }
   } else {
     menuItems = [
       {
@@ -196,6 +242,9 @@ function showIconContextMenu(event, app, fileId = null) {
         default: true,
         action: () => handleAppAction(app),
       },
+      copyItem,
+      cutItem,
+      "MENU_DIVIDER",
       {
         label: "&Properties",
         action: () => showProperties(app),
@@ -355,6 +404,14 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     document.querySelector(".desktop").refreshIcons();
   };
 
+  const pasteItem = {
+    label: "Paste",
+    action: () => {
+      handlePaste("/drive-c/folder-user/folder-desktop");
+    },
+    enabled: !clipboardManager.isEmpty(),
+  };
+
   const menuItems = [
     {
       label: "Arrange Icons",
@@ -387,6 +444,8 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
         },
       ],
     },
+    pasteItem,
+    "MENU_DIVIDER",
     {
       label: "Wallpaper",
       submenu: [
@@ -1013,7 +1072,7 @@ export async function initDesktop() {
       const fileId = icon.getAttribute("data-file-id");
       const app = apps.find((a) => a.id === appId);
       if (app) {
-        showIconContextMenu(e, app, fileId);
+        showIconContextMenu(e, app, fileId, iconManager);
       }
     },
     onBackgroundContext: (e) => {
@@ -1039,26 +1098,43 @@ export async function initDesktop() {
     desktop.refreshIcons();
   });
 
-  desktop.addEventListener("contextmenu", (e) => {
-    // Show desktop context menu only if not clicking on an icon
-    if (e.target === desktop) {
-      e.preventDefault();
-      showDesktopContextMenu(e, { selectedIcons, clearSelection });
+  document.addEventListener("clipboard-change", () => {
+    const { items, operation } = clipboardManager.get();
+
+    // First, remove 'cut' style from all icons
+    desktop.querySelectorAll(".desktop-icon.cut").forEach((icon) => {
+      icon.classList.remove("cut");
+    });
+
+    if (operation === "cut") {
+      items.forEach((item) => {
+        let icon;
+        if (item.itemType === "dropped-file") {
+          icon = desktop.querySelector(`[data-file-id="${item.id}"]`);
+        } else if (item.itemType === "virtual-file") {
+          const iconId = getIconId(item, item.path);
+          icon = desktop.querySelector(`[data-icon-id="${iconId}"]`);
+        } else if (item.itemType === "app") {
+          const iconId = getIconId(item);
+          icon = desktop.querySelector(`[data-icon-id="${iconId}"]`);
+        }
+        if (icon) {
+          icon.classList.add("cut");
+        }
+      });
     }
   });
 
   // Add click handler to desktop to deselect icons
   desktop.addEventListener("click", (e) => {
-    if (wasLassoing) {
-      wasLassoing = false;
+    if (iconManager.wasLassoing) {
       return;
     }
-    if (
-      e.target === desktop &&
-      !isLassoing &&
-      !e.target.closest(".desktop-icon")
-    ) {
-      clearSelection();
+    if (e.target === desktop && !e.target.closest(".desktop-icon")) {
+      iconManager.clearSelection();
+      if (clipboardManager.operation === "cut") {
+        clipboardManager.clear();
+      }
     }
   });
 

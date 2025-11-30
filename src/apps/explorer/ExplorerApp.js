@@ -25,6 +25,9 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
 import { handleDroppedFiles } from "../../utils/dragDropManager.js";
+import clipboardManager from "../../utils/clipboardManager.js";
+import { pasteItems } from "../../utils/fileOperations.js";
+import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import "./explorer.css";
 
 const specialFolderIcons = {
@@ -201,8 +204,14 @@ export class ExplorerApp extends Application {
     };
     document.addEventListener("explorer-refresh", this.refreshHandler);
 
+    this.clipboardHandler = () => {
+      this.updateCutIcons();
+    };
+    document.addEventListener("clipboard-change", this.clipboardHandler);
+
     this.win.onClosed(() => {
       document.removeEventListener("explorer-refresh", this.refreshHandler);
+      document.removeEventListener("clipboard-change", this.clipboardHandler);
     });
 
     // Drag and drop functionality
@@ -236,6 +245,19 @@ export class ExplorerApp extends Application {
       }
     });
 
+    this.content.addEventListener("click", (e) => {
+      if (
+        this.iconManager.wasLassoing ||
+        e.target.closest(".explorer-icon")
+      ) {
+        return;
+      }
+      this.iconManager.clearSelection();
+      if (clipboardManager.operation === "cut") {
+        clipboardManager.clear();
+      }
+    });
+
     return win;
   }
 
@@ -244,6 +266,7 @@ export class ExplorerApp extends Application {
       this.resizeObserver.disconnect();
     }
     document.removeEventListener("explorer-refresh", this.refreshHandler);
+    document.removeEventListener("clipboard-change", this.clipboardHandler);
   }
 
   async _onLaunch(filePath) {
@@ -290,15 +313,22 @@ export class ExplorerApp extends Application {
       const desktopContents = getDesktopContents();
       const desktopApps = desktopContents.apps.map((appId) => {
         const app = apps.find((a) => a.id === appId);
-        return { ...app, appId: app.id };
+        return { ...app, appId: app.id, isStatic: true };
       });
       const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
       const desktopFiles = allDroppedFiles.filter(
         (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
       );
-      children = [...desktopApps, ...desktopContents.files, ...desktopFiles];
+      const staticFiles = desktopContents.files.map((file) => ({
+        ...file,
+        isStatic: true,
+      }));
+      children = [...desktopApps, ...staticFiles, ...desktopFiles];
     } else {
-      const staticChildren = item.children || [];
+      const staticChildren = (item.children || []).map((child) => ({
+        ...child,
+        isStatic: true,
+      }));
       const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
       const droppedFilesInThisFolder = allDroppedFiles.filter(
         (file) => file.path === path,
@@ -467,21 +497,47 @@ export class ExplorerApp extends Application {
       upButton.classList.toggle("disabled", this.currentPath === "/");
   }
 
+  updateCutIcons() {
+    const { items, operation } = clipboardManager.get();
+    const cutIds =
+      operation === "cut" ? new Set(items.map((item) => item.id)) : new Set();
+
+    this.iconContainer.querySelectorAll(".explorer-icon").forEach((icon) => {
+      const itemId = icon.getAttribute("data-id");
+      if (cutIds.has(itemId)) {
+        icon.classList.add("cut");
+      } else {
+        icon.classList.remove("cut");
+      }
+    });
+  }
+
+  getItemFromIcon(icon) {
+    const itemId = icon.getAttribute("data-id");
+    const item = this.currentFolderItems.find((child) => child.id === itemId);
+    if (item) {
+      return { ...item, source: "explorer", path: this.currentPath };
+    }
+    // Fallback for desktop items, which have a different structure
+    return getItemFromIconUtil(icon);
+  }
+
   showItemContextMenu(event, icon) {
-    const clickedItemId = icon.getAttribute("data-id");
-    const clickedItem = this.currentFolderItems.find(
-      (child) => child.id === clickedItemId,
-    );
+    if (icon && !this.iconManager.selectedIcons.has(icon)) {
+      this.iconManager.clearSelection();
+      this.iconManager.selectIcon(icon);
+    }
+
+    const clickedItem = this.getItemFromIcon(icon);
 
     if (!clickedItem) {
-      console.warn(
-        "Clicked item not found:",
-        clickedItemId,
-        "in path",
-        this.currentPath,
-      );
+      console.warn("Clicked item not found for icon:", icon);
       return;
     }
+
+    const itemsToOperateOn = [...this.iconManager.selectedIcons]
+      .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+      .filter(Boolean);
 
     let menuItems = [];
 
@@ -492,10 +548,9 @@ export class ExplorerApp extends Application {
           default: true,
           action: () => {
             const itemToRestore = getRecycleBinItems().find(
-              (i) => i.id === clickedItemId,
+              (i) => i.id === clickedItem.id,
             );
             if (itemToRestore) {
-              // Ensure the item has a 'name' property for desktop icons
               const restoredItemWithName = {
                 ...itemToRestore,
                 name: itemToRestore.name || itemToRestore.title,
@@ -504,7 +559,7 @@ export class ExplorerApp extends Application {
                 getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
               droppedFiles.push(restoredItemWithName);
               setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
-              removeFromRecycleBin(clickedItemId);
+              removeFromRecycleBin(clickedItem.id);
               this.render(this.currentPath);
               document.dispatchEvent(new CustomEvent("desktop-refresh"));
             }
@@ -512,7 +567,7 @@ export class ExplorerApp extends Application {
         },
         "MENU_DIVIDER",
         {
-          label: "Delete", // Permanently deletes the item from the recycle bin
+          label: "Delete",
           action: () => {
             ShowDialogWindow({
               title: "Delete Item",
@@ -521,7 +576,7 @@ export class ExplorerApp extends Application {
                 {
                   label: "Yes",
                   action: () => {
-                    removeFromRecycleBin(clickedItemId);
+                    removeFromRecycleBin(clickedItem.id);
                     this.render(this.currentPath);
                   },
                 },
@@ -532,70 +587,105 @@ export class ExplorerApp extends Application {
         },
       ];
     } else {
-      // General item context menu for non-recycle bin paths
       menuItems.push({
         label: "Open",
         default: true,
         action: () => this._launchItem(clickedItem),
       });
 
-      menuItems.push("MENU_DIVIDER");
+      const copyItem = {
+        label: "Copy",
+        action: () => clipboardManager.set(itemsToOperateOn, "copy"),
+      };
+      const cutItem = {
+        label: "Cut",
+        action: () => clipboardManager.set(itemsToOperateOn, "cut"),
+        enabled: !itemsToOperateOn.some((item) => item.isStatic),
+      };
 
-      // Actions based on item type
+      if (
+        this.currentPath === "/" ||
+        this.currentPath === "//network-neighborhood" ||
+        clickedItem.isRoot
+      ) {
+        copyItem.enabled = false;
+        cutItem.enabled = false;
+      }
+
+      if (clickedItem.type === "folder") {
+        const isPasteDisabled =
+          clipboardManager.isEmpty() ||
+          this.currentPath === "/" ||
+          this.currentPath === "//network-neighborhood";
+
+        menuItems.push({
+          label: "Paste",
+          action: () => {
+            const { items, operation } = clipboardManager.get();
+            const destinationPath = `${this.currentPath}/${clickedItem.id}`;
+            pasteItems(destinationPath, items, operation);
+            clipboardManager.clear();
+          },
+          enabled: !isPasteDisabled,
+        });
+      }
+
+      menuItems.push(copyItem, cutItem, "MENU_DIVIDER");
+
       if (clickedItem.type === "drive") {
-        menuItems.push({ label: "Format...", action: () => {} }); // TODO: Implement Format
-        menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
-      } else if (clickedItem.type === "network") {
-        menuItems.push({ label: "Map Network Drive...", action: () => {} }); // TODO: Implement Map Network Drive
-        menuItems.push("MENU_DIVIDER");
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties
-      } else if (clickedItem.appId) {
-        // For applications or shortcuts to applications within explorer
-        // Can add more app-specific actions if needed, similar to desktop.js
-        menuItems.push({ label: "Properties", action: () => {} }); // TODO: Implement Properties for apps
-      } else {
-        menuItems.push({ label: "Cut", action: () => {}, enabled: false });
-        menuItems.push({ label: "Copy", action: () => {}, enabled: false });
-        menuItems.push("MENU_DIVIDER");
+        menuItems.push({ label: "Format...", enabled: false });
+      } else if (clickedItem.type !== "network") {
         menuItems.push({
           label: "Delete",
           action: () => this.deleteFile(clickedItem),
         });
-        menuItems.push({ label: "Rename", action: () => {}, enabled: false });
-        menuItems.push("MENU_DIVIDER");
-        menuItems.push({
-          label: "Properties",
-          action: () => this.showProperties(clickedItem),
-        });
+        menuItems.push({ label: "Rename", enabled: false });
       }
+
+      menuItems.push("MENU_DIVIDER", {
+        label: "Properties",
+        action: () => this.showProperties(clickedItem),
+      });
     }
+
     new window.ContextMenu(menuItems, event);
   }
 
   showBackgroundContextMenu(event) {
+    const isPasteDisabled =
+      clipboardManager.isEmpty() ||
+      this.currentPath === "/" ||
+      this.currentPath === "//network-neighborhood";
+
     const menuItems = [
       {
         label: "View",
         submenu: [
-          { label: "Large Icons", action: () => {} }, // TODO: Implement Large Icons view
-          { label: "Small Icons", action: () => {} }, // TODO: Implement Small Icons view
-          { label: "List", action: () => {} }, // TODO: Implement List view
-          { label: "Details", action: () => {} }, // TODO: Implement Details view
+          { label: "Large Icons", enabled: false },
+          { label: "Small Icons", enabled: false },
+          { label: "List", enabled: false },
+          { label: "Details", enabled: false },
         ],
       },
       "MENU_DIVIDER",
       {
         label: "New",
         submenu: [
-          { label: "Folder", action: () => {} }, // TODO: Implement New Folder
-          { label: "Text Document", action: () => {} }, // TODO: Implement New Text Document
-          // Add more new file types as needed
+          { label: "Folder", enabled: false },
+          { label: "Text Document", enabled: false },
         ],
       },
       "MENU_DIVIDER",
-      { label: "Paste", action: () => {} }, // TODO: Implement Paste
-      { label: "Properties", action: () => {} }, // TODO: Implement Properties for folder background
+      {
+        label: "Paste",
+        action: () => {
+          const { items, operation } = clipboardManager.get();
+          pasteItems(this.currentPath, items, operation);
+          clipboardManager.clear();
+        },
+        enabled: !isPasteDisabled,
+      },
+      { label: "Properties", enabled: false },
     ];
     new window.ContextMenu(menuItems, event);
   }
