@@ -138,6 +138,12 @@ const directory = [
                 name: "Doom",
               },
               {
+                id: "shortcut-to-media-player",
+                type: "shortcut",
+                targetId: "app-media-player",
+                name: "Media Player",
+              },
+              {
                 id: "shortcut-to-simcity2000",
                 type: "shortcut",
                 targetId: "app-simcity2000",

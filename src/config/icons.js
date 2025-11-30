@@ -247,4 +247,8 @@ export const ICONS = {
     16: new URL("../assets/icons/games/doom.png", import.meta.url).href,
     32: new URL("../assets/icons/games/doom.png", import.meta.url).href,
   },
+  mediaPlayer: {
+    16: new URL("../assets/icons/MMSYS_110-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/MMSYS_110-32.png", import.meta.url).href,
+  },
 };

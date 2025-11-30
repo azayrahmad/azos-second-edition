@@ -21,6 +21,7 @@ import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -51,6 +52,7 @@ export const appClasses = {
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
   "cursor-explorer": CursorExplorerApp,
+  "media-player": MediaPlayerApp,
 };
 
 export const apps = [
@@ -455,5 +457,16 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "media-player",
+    title: "Media Player",
+    description: "Play audio and video files.",
+    icon: ICONS.mediaPlayer,
+    appClass: MediaPlayerApp,
+    width: 480,
+    height: 360,
+    resizable: true,
+    isSingleton: false,
   },
 ];
