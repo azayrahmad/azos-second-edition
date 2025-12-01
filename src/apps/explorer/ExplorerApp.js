@@ -622,6 +622,8 @@ export class ExplorerApp extends Application {
             const { items, operation } = clipboardManager.get();
             const destinationPath = `${this.currentPath}/${clickedItem.id}`;
             pasteItems(destinationPath, items, operation);
+            document.dispatchEvent(new CustomEvent("explorer-refresh"));
+            this.render(this.currentPath);
             clipboardManager.clear();
           },
           enabled: !isPasteDisabled,
@@ -679,6 +681,9 @@ export class ExplorerApp extends Application {
         action: () => {
           const { items, operation } = clipboardManager.get();
           pasteItems(this.currentPath, items, operation);
+          document.dispatchEvent(new CustomEvent("explorer-refresh"));
+          this.render(this.currentPath);
+
           clipboardManager.clear();
         },
         enabled: !isPasteDisabled,
