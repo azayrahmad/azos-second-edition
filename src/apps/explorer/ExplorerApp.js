@@ -26,8 +26,9 @@ import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
 import { handleDroppedFiles } from "../../utils/dragDropManager.js";
 import clipboardManager from "../../utils/clipboardManager.js";
-import { pasteItems } from "../../utils/fileOperations.js";
+import { pasteItems, moveFiles } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
+import { configureDraggableIcon } from "../../utils/dragHelper.js";
 import "./explorer.css";
 
 const specialFolderIcons = {
@@ -402,6 +403,11 @@ export class ExplorerApp extends Application {
       iconDiv.addEventListener("dblclick", () => {
         this._launchItem(item);
       });
+    }
+
+    // Check if the item is draggable (i.e., not a static file/folder)
+    if (!item.isStatic) {
+        configureDraggableIcon(iconDiv, item, this.iconManager, (icon) => this.getItemFromIcon(icon), (fileIds) => fileIds.forEach(id => this.deleteFile({ id })));
     }
 
     return iconDiv;
