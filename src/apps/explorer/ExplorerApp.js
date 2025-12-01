@@ -213,33 +213,36 @@ export class ExplorerApp extends Application {
 
     // Drag and drop functionality
     this.content.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      if (isFileDropEnabled(this.currentPath)) {
-        this.content.classList.add("drop-target");
-      }
+      e.preventDefault(); // Allow drop
     });
 
     this.content.addEventListener("dragleave", (e) => {
-      if (e.target === this.content) {
-        this.content.classList.remove("drop-target");
-      }
+        // No visual feedback needed
     });
 
     this.content.addEventListener("drop", (e) => {
-      e.preventDefault();
-      this.content.classList.remove("drop-target");
+        e.preventDefault();
 
-      if (isFileDropEnabled(this.currentPath)) {
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          handleDroppedFiles(files, this.currentPath, () => {
-            this.render(this.currentPath);
-            if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
-              document.dispatchEvent(new CustomEvent("desktop-refresh"));
-            }
-          });
+        // Handle files dragged from within the app
+        const jsonData = e.dataTransfer.getData("application/json");
+        if (jsonData) {
+            const items = JSON.parse(jsonData);
+            pasteItems(this.currentPath, items, 'cut');
+            return; // Stop processing
         }
-      }
+
+        // Handle files dragged from the user's OS
+        if (isFileDropEnabled(this.currentPath)) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleDroppedFiles(files, this.currentPath, () => {
+                    this.render(this.currentPath);
+                    if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
+                        document.dispatchEvent(new CustomEvent("desktop-refresh"));
+                    }
+                });
+            }
+        }
     });
 
     this.content.addEventListener("click", (e) => {
@@ -357,7 +360,7 @@ export class ExplorerApp extends Application {
       }
 
       const icon = this.createExplorerIcon(iconData);
-      this.iconManager.configureIcon(icon, iconData); // Pass iconData
+      this._configureDraggableIcon(icon, child);
       this.iconContainer.appendChild(icon);
     });
   }
@@ -406,6 +409,39 @@ export class ExplorerApp extends Application {
 
     return iconDiv;
   }
+
+  _configureDraggableIcon(icon, item) {
+    // Standard icon manager setup for selection
+    this.iconManager.configureIcon(icon);
+
+    // Only allow non-static files to be dragged
+    if (!item.isStatic) {
+        icon.draggable = true;
+    }
+
+    icon.addEventListener("dragstart", (e) => {
+        e.stopPropagation();
+
+        // If the dragged icon is not selected, select it exclusively
+        if (!this.iconManager.selectedIcons.has(icon)) {
+            this.iconManager.clearSelection();
+            this.iconManager.selectIcon(icon); // Assuming selectIcon exists
+        }
+
+        const selectedItems = [...this.iconManager.selectedIcons]
+            .map(selectedIcon => {
+                const itemId = selectedIcon.getAttribute("data-id");
+                // Find the full item object from the current folder's items
+                return this.currentFolderItems.find(it => it.id === itemId);
+            })
+            .filter(Boolean); // Filter out any nulls
+
+        // Store the data
+        e.dataTransfer.setData("application/json", JSON.stringify(selectedItems));
+        e.dataTransfer.effectAllowed = "move";
+        createDragGhost(icon, e);
+    });
+}
 
   findItemInDirectory(id, dir = directory) {
     for (const item of dir) {
