@@ -540,8 +540,12 @@ export class ExplorerApp extends Application {
           if (targetExplorerInstance) {
             const iconId = targetIcon.getAttribute("data-id");
             const targetItem = targetExplorerInstance.currentFolderItems.find((item) => item.id === iconId);
-            if (targetItem && targetItem.type === "folder") {
-              destinationPath = targetExplorerInstance.currentPath === "/" ? `/${iconId}` : `${targetExplorerInstance.currentPath}/${iconId}`;
+            if (targetItem && (targetItem.type === "folder" || targetItem.type === "drive")) {
+                if (targetItem.type === "drive") {
+                    destinationPath = `/${iconId}`;
+                } else {
+                    destinationPath = targetExplorerInstance.currentPath === "/" ? `/${iconId}` : `${targetExplorerInstance.currentPath}/${iconId}`;
+                }
             }
           }
         } else if (targetWindow) {
