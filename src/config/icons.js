@@ -199,6 +199,10 @@ export const ICONS = {
     16: new URL("../assets/icons/Paint-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Paint-32.png", import.meta.url).href,
   },
+  simcity2000: {
+    16: new URL("../assets/icons/games/simcity2000.png", import.meta.url).href,
+    32: new URL("../assets/icons/games/simcity2000.png", import.meta.url).href,
+  },
   displayProperties: {
     16: new URL("../assets/icons/Display-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Display-32.png", import.meta.url).href,
@@ -242,5 +246,9 @@ export const ICONS = {
   doom: {
     16: new URL("../assets/icons/games/doom.png", import.meta.url).href,
     32: new URL("../assets/icons/games/doom.png", import.meta.url).href,
+  },
+  mediaPlayer: {
+    16: new URL("../assets/icons/MMSYS_110-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/MMSYS_110-32.png", import.meta.url).href,
   },
 };
