@@ -44,6 +44,7 @@ import {
   getCurrentResolutionId,
 } from "../utils/screenManager.js";
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
+import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
 
 function getIconId(app, item = null) {
   if (typeof item === "string") {
@@ -409,7 +410,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const pasteItem = {
     label: "Paste",
     action: () => {
-      handlePaste("/drive-c/folder-user/folder-desktop");
+      handlePaste(SPECIAL_FOLDER_PATHS.desktop);
     },
     enabled: !clipboardManager.isEmpty(),
   };
@@ -724,7 +725,7 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
   // Load dropped files
   const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
   const desktopFiles = allDroppedFiles.filter(
-    (file) => file.path === "/drive-c/folder-user/folder-desktop",
+    (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
   );
 
   desktopFiles.forEach((file) => {
@@ -825,6 +826,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
 
     e.dataTransfer.setData("application/json", JSON.stringify({
         items: selectedItems,
+        sourcePath: SPECIAL_FOLDER_PATHS.desktop,
         cursorOffsetX,
         cursorOffsetY,
         dragOffsets
@@ -945,7 +947,8 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
         window.getSelection().removeAllRanges();
 
         // --- Create ghost icons on first drag ---
-        const desktop = icon.parentElement;
+        const desktop = document.querySelector(".desktop");
+        if (!desktop) return;
         const desktopRect = desktop.getBoundingClientRect();
         iconManager.selectedIcons.forEach((selectedIcon) => {
           const iconRect = selectedIcon.getBoundingClientRect();
@@ -978,7 +981,8 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       e.preventDefault();
     }
 
-    const desktop = icon.parentElement; // `icon` here refers to the initially configured icon
+    const desktop = document.querySelector(".desktop");
+    if (!desktop) return;
     const desktopRect = desktop.getBoundingClientRect();
 
     ghostIcons.forEach((ghostIcon, originalSelectedIcon) => {
@@ -1103,7 +1107,6 @@ export async function initDesktop() {
   applyWallpaper();
   applyMonitorType();
   const desktop = document.querySelector(".desktop");
-  let isDraggingFromDesktop = false;
 
   const iconManager = new IconManager(desktop, {
     iconSelector: ".desktop-icon",
@@ -1193,14 +1196,6 @@ export async function initDesktop() {
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
 
-  desktop.addEventListener("dragstart", () => {
-    isDraggingFromDesktop = true;
-  });
-
-  desktop.addEventListener("dragend", () => {
-    isDraggingFromDesktop = false;
-  });
-
   // Drag and drop functionality
   desktop.addEventListener("dragover", (e) => {
     e.preventDefault(); // Allow drop
@@ -1213,8 +1208,8 @@ export async function initDesktop() {
     const jsonData = e.dataTransfer.getData("application/json");
     if (jsonData) {
         const data = JSON.parse(jsonData);
-        const { items, cursorOffsetX, cursorOffsetY, dragOffsets } = data;
-        if (isDraggingFromDesktop) {
+        const { items, cursorOffsetX, cursorOffsetY, dragOffsets, sourcePath } = data;
+        if (sourcePath === "/drive-c/folder-user/folder-desktop") {
             // This is a rearrange operation
             const desktopRect = desktop.getBoundingClientRect();
             const primaryIconX = e.clientX - desktopRect.left - cursorOffsetX;

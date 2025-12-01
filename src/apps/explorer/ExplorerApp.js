@@ -30,6 +30,14 @@ import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import "./explorer.css";
 
+function getExplorerIconPositions() {
+    return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
+}
+
+function setExplorerIconPositions(positions) {
+    setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
+}
+
 const specialFolderIcons = {
   "/": "my-computer",
   "//recycle-bin": "recycle-bin",
@@ -82,7 +90,6 @@ export class ExplorerApp extends Application {
     this.historyPointer = -1;
     this.resizeObserver = null;
     this.currentFolderItems = [];
-    this.isDraggingFromSelf = false;
   }
 
   _createWindow() {
@@ -170,7 +177,7 @@ export class ExplorerApp extends Application {
     this.titleElement = $(titleElement); // Use jQuery for easier text manipulation
 
     const iconContainer = document.createElement("div");
-    iconContainer.className = "explorer-icon-view";
+    iconContainer.className = "explorer-icon-view has-absolute-icons";
     content.appendChild(iconContainer);
     this.iconContainer = iconContainer;
 
@@ -227,11 +234,29 @@ export class ExplorerApp extends Application {
         // Handle files dragged from within the app
         const jsonData = e.dataTransfer.getData("application/json");
         if (jsonData) {
-            if (this.isDraggingFromSelf) {
-                // This is a rearrange within the same window, do nothing.
+            const data = JSON.parse(jsonData);
+            if (data.sourcePath === this.currentPath) {
+                const { cursorOffsetX, cursorOffsetY, dragOffsets } = data;
+                const iconContainerRect = this.iconContainer.getBoundingClientRect();
+                const primaryIconX = e.clientX - iconContainerRect.left - cursorOffsetX;
+                const primaryIconY = e.clientY - iconContainerRect.top - cursorOffsetY;
+
+                const allPositions = getExplorerIconPositions();
+                if (!allPositions[this.currentPath]) {
+                    allPositions[this.currentPath] = {};
+                }
+
+                dragOffsets.forEach(offset => {
+                    allPositions[this.currentPath][offset.id] = {
+                        x: `${primaryIconX + offset.offsetX}px`,
+                        y: `${primaryIconY + offset.offsetY}px`,
+                    };
+                });
+
+                setExplorerIconPositions(allPositions);
+                this.render(this.currentPath);
                 return;
             }
-            const data = JSON.parse(jsonData);
             pasteItems(this.currentPath, data.items, 'cut');
             return; // Stop processing
         }
@@ -248,14 +273,6 @@ export class ExplorerApp extends Application {
                 });
             }
         }
-    });
-
-    this.content.addEventListener("dragstart", () => {
-        this.isDraggingFromSelf = true;
-    });
-
-    this.content.addEventListener("dragend", () => {
-        this.isDraggingFromSelf = false;
     });
 
     this.content.addEventListener("click", (e) => {
@@ -374,8 +391,23 @@ export class ExplorerApp extends Application {
 
       const icon = this.createExplorerIcon(iconData);
       this._configureDraggableIcon(icon, child);
+
+      const allPositions = getExplorerIconPositions();
+      const pathPositions = allPositions[this.currentPath] || {};
+      const uniqueId = this._getUniqueItemId(child);
+
+      if (pathPositions[uniqueId]) {
+          icon.style.position = 'absolute';
+          icon.style.left = pathPositions[uniqueId].x;
+          icon.style.top = pathPositions[uniqueId].y;
+      }
+
       this.iconContainer.appendChild(icon);
     });
+  }
+
+  _getUniqueItemId(item) {
+    return item.id;
   }
 
   createExplorerIcon(item) {
@@ -450,7 +482,26 @@ export class ExplorerApp extends Application {
             .filter(Boolean); // Filter out any nulls
 
         // Store the data
-        e.dataTransfer.setData("application/json", JSON.stringify({ items: selectedItems }));
+        const primaryIconRect = icon.getBoundingClientRect();
+        const cursorOffsetX = e.clientX - primaryIconRect.left;
+        const cursorOffsetY = e.clientY - primaryIconRect.top;
+
+        const dragOffsets = [...this.iconManager.selectedIcons].map(selectedIcon => {
+            const rect = selectedIcon.getBoundingClientRect();
+            return {
+                id: selectedIcon.getAttribute("data-id"),
+                offsetX: rect.left - primaryIconRect.left,
+                offsetY: rect.top - primaryIconRect.top,
+            };
+        });
+
+        e.dataTransfer.setData("application/json", JSON.stringify({
+            items: selectedItems,
+            sourcePath: this.currentPath,
+            cursorOffsetX,
+            cursorOffsetY,
+            dragOffsets,
+        }));
         e.dataTransfer.effectAllowed = "move";
         createDragGhost(icon, e);
     });
