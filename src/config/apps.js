@@ -21,6 +21,7 @@ import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -51,6 +52,7 @@ export const appClasses = {
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
   "cursor-explorer": CursorExplorerApp,
+  "media-player": MediaPlayerApp,
 };
 
 export const apps = [
@@ -65,6 +67,26 @@ export const apps = [
       type: "function",
       handler: () => {
         window.System.launchApp("explorer", "/");
+      },
+    },
+  },
+  {
+    id: "simcity2000",
+    title: "SimCity 2000 Demo",
+    description: "Play the classic game SimCity 2000.",
+    icon: ICONS.simcity2000,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("dosgame", {
+          gameUrl: "games/dos/simcity2000/index.html",
+          title: "SimCity 2000 Demo",
+          icon: ICONS.simcity2000,
+          width: 640,
+          height: 480,
+          resizable: false,
+          maximizable: false,
+        });
       },
     },
   },
@@ -435,5 +457,16 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "media-player",
+    title: "Media Player",
+    description: "Play audio and video files.",
+    icon: ICONS.mediaPlayer,
+    appClass: MediaPlayerApp,
+    width: 480,
+    height: 360,
+    resizable: true,
+    isSingleton: false,
   },
 ];
