@@ -195,10 +195,7 @@ export class ExplorerApp extends Application {
     this.navigateTo(this.initialPath);
 
     this.refreshHandler = () => {
-      if (
-        this.currentPath === SPECIAL_FOLDER_PATHS.desktop &&
-        this.win.element.style.display !== "none"
-      ) {
+      if (this.win.element.style.display !== "none") {
         this.render(this.currentPath);
       }
     };
@@ -622,6 +619,7 @@ export class ExplorerApp extends Application {
             const { items, operation } = clipboardManager.get();
             const destinationPath = `${this.currentPath}/${clickedItem.id}`;
             pasteItems(destinationPath, items, operation);
+            this.navigateTo(destinationPath);
             clipboardManager.clear();
           },
           enabled: !isPasteDisabled,
@@ -679,6 +677,7 @@ export class ExplorerApp extends Application {
         action: () => {
           const { items, operation } = clipboardManager.get();
           pasteItems(this.currentPath, items, operation);
+          this.render(this.currentPath);
           clipboardManager.clear();
         },
         enabled: !isPasteDisabled,
