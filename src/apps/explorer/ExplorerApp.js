@@ -246,10 +246,10 @@ export class ExplorerApp extends Application {
       if (this.iconManager.wasLassoing || e.target.closest(".explorer-icon")) {
         return;
       }
-      this.iconManager.clearSelection();
-      if (clipboardManager.operation === "cut") {
-        clipboardManager.clear();
-      }
+      // this.iconManager.clearSelection(); // Keeping this commented for now as per previous instruction. If the user wants to revert, they can.
+      // if (clipboardManager.operation === "cut") {
+      //   clipboardManager.clear();
+      // }
     });
 
     return win;
