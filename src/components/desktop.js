@@ -26,6 +26,7 @@ import { IconManager } from "./IconManager.js";
 import clipboardManager from "../utils/clipboardManager.js";
 import { pasteItems } from "../utils/fileOperations.js";
 import { getItemFromIcon } from "../utils/iconUtils.js";
+import { createDragGhost } from "../utils/dragDropManager.js";
 import {
   getRecycleBinItems,
   emptyRecycleBin,
@@ -783,8 +784,40 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   let longPressTimer;
   let isLongPress = false;
   let handleDragEndWrapper;
+  let isNativeDragging = false;
 
   const iconId = icon.getAttribute("data-icon-id");
+
+  const item = getItemFromIcon(icon);
+  if (item && item.itemType !== 'app' && item.itemType !== 'virtual-file') {
+    icon.draggable = true;
+  }
+
+  icon.addEventListener("dragstart", (e) => {
+    if (isAutoArrangeEnabled()) {
+        e.preventDefault();
+        return;
+    }
+    isNativeDragging = true;
+    e.stopPropagation();
+    const selectedItems = [...iconManager.selectedIcons]
+        .map(icon => getItemFromIcon(icon))
+        .filter(Boolean);
+
+    // Ensure we are only dragging draggable items
+    if (selectedItems.some(item => item.itemType === 'app' || item.itemType === 'virtual-file')) {
+        e.preventDefault();
+        return;
+    }
+
+    e.dataTransfer.setData("application/json", JSON.stringify(selectedItems));
+    e.dataTransfer.effectAllowed = "move";
+    createDragGhost(icon, e);
+  });
+
+  icon.addEventListener("dragend", () => {
+    isNativeDragging = false;
+  });
 
   const handleDragStart = (e) => {
     // Check if auto-arrange is enabled. If so, disable dragging.
@@ -879,7 +912,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   };
 
   const handleDragMove = (e) => {
-    if (!isDragging) return;
+    if (isNativeDragging || !isDragging) return;
 
     const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
     const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
@@ -1018,19 +1051,6 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     }, 0);
   };
 
-  function moveDroppedFiles(fileIds, targetPath) {
-    const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-    const updatedFiles = droppedFiles.map((file) => {
-      if (fileIds.includes(file.id)) {
-        return { ...file, path: targetPath };
-      }
-      return file;
-    });
-    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, updatedFiles);
-    document.querySelector(".desktop").refreshIcons();
-    document.dispatchEvent(new CustomEvent("explorer-refresh"));
-  }
-
   icon.addEventListener("mousedown", handleDragStart);
   icon.addEventListener("touchstart", handleDragStart);
 
@@ -1156,20 +1176,25 @@ export async function initDesktop() {
 
   // Drag and drop functionality
   desktop.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    desktop.classList.add("drop-target");
+    e.preventDefault(); // Allow drop
   });
 
   desktop.addEventListener("dragleave", (e) => {
-    if (e.target === desktop) {
-      desktop.classList.remove("drop-target");
-    }
+    // No visual feedback needed
   });
 
   desktop.addEventListener("drop", (e) => {
     e.preventDefault();
-    desktop.classList.remove("drop-target");
 
+    // Handle files dragged from within the app
+    const jsonData = e.dataTransfer.getData("application/json");
+    if (jsonData) {
+        const items = JSON.parse(jsonData);
+        pasteItems("/drive-c/folder-user/folder-desktop", items, 'cut');
+        return; // Stop processing
+    }
+
+    // Handle files dragged from the user's OS
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleDroppedFiles(files, "/drive-c/folder-user/folder-desktop", () => {
