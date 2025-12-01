@@ -246,10 +246,7 @@ export class ExplorerApp extends Application {
     });
 
     this.content.addEventListener("click", (e) => {
-      if (
-        this.iconManager.wasLassoing ||
-        e.target.closest(".explorer-icon")
-      ) {
+      if (this.iconManager.wasLassoing || e.target.closest(".explorer-icon")) {
         return;
       }
       this.iconManager.clearSelection();
@@ -394,6 +391,7 @@ export class ExplorerApp extends Application {
       const association = getAssociation(displayName);
       iconImg.src = association.icon[32];
     }
+    iconImg.draggable = false;
     iconInner.appendChild(iconImg);
 
     const iconLabel = document.createElement("div");
