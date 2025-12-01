@@ -85,3 +85,19 @@ export function pasteItems(destinationPath, items, operation) {
   document.dispatchEvent(new CustomEvent("desktop-refresh"));
   document.dispatchEvent(new CustomEvent("explorer-refresh"));
 }
+
+export function moveFiles(fileIds, destinationPath) {
+  const allFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  const updatedFiles = allFiles.map((file) => {
+    if (fileIds.includes(file.id)) {
+      return { ...file, path: destinationPath };
+    }
+    return file;
+  });
+
+  setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, updatedFiles);
+
+  // Dispatch events to notify UI components
+  document.dispatchEvent(new CustomEvent("desktop-refresh"));
+  document.dispatchEvent(new CustomEvent("explorer-refresh"));
+}
