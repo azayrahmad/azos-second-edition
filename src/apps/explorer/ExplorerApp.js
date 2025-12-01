@@ -195,10 +195,7 @@ export class ExplorerApp extends Application {
     this.navigateTo(this.initialPath);
 
     this.refreshHandler = () => {
-      if (
-        this.currentPath === SPECIAL_FOLDER_PATHS.desktop &&
-        this.win.element.style.display !== "none"
-      ) {
+      if (this.win.element.style.display !== "none") {
         this.render(this.currentPath);
       }
     };
@@ -249,10 +246,10 @@ export class ExplorerApp extends Application {
       if (this.iconManager.wasLassoing || e.target.closest(".explorer-icon")) {
         return;
       }
-      this.iconManager.clearSelection();
-      if (clipboardManager.operation === "cut") {
-        clipboardManager.clear();
-      }
+      // this.iconManager.clearSelection(); // Keeping this commented for now as per previous instruction. If the user wants to revert, they can.
+      // if (clipboardManager.operation === "cut") {
+      //   clipboardManager.clear();
+      // }
     });
 
     return win;
@@ -622,8 +619,7 @@ export class ExplorerApp extends Application {
             const { items, operation } = clipboardManager.get();
             const destinationPath = `${this.currentPath}/${clickedItem.id}`;
             pasteItems(destinationPath, items, operation);
-            document.dispatchEvent(new CustomEvent("explorer-refresh"));
-            this.render(this.currentPath);
+            this.navigateTo(destinationPath);
             clipboardManager.clear();
           },
           enabled: !isPasteDisabled,
@@ -681,9 +677,7 @@ export class ExplorerApp extends Application {
         action: () => {
           const { items, operation } = clipboardManager.get();
           pasteItems(this.currentPath, items, operation);
-          document.dispatchEvent(new CustomEvent("explorer-refresh"));
           this.render(this.currentPath);
-
           clipboardManager.clear();
         },
         enabled: !isPasteDisabled,

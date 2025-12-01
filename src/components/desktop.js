@@ -207,7 +207,8 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
     ];
   } else if (contextMenu) {
     const openItemIndex = contextMenu.findIndex(
-      (item) => item.action === "open" || (item.label && item.label.includes("Open")),
+      (item) =>
+        item.action === "open" || (item.label && item.label.includes("Open")),
     );
 
     menuItems = contextMenu.map((item) => {
@@ -1131,10 +1132,10 @@ export async function initDesktop() {
       return;
     }
     if (e.target === desktop && !e.target.closest(".desktop-icon")) {
-      iconManager.clearSelection();
-      if (clipboardManager.operation === "cut") {
-        clipboardManager.clear();
-      }
+      // iconManager.clearSelection();
+      // if (clipboardManager.operation === "cut") {
+      //   clipboardManager.clear();
+      // }
     }
   });
 
