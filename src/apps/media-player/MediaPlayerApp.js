@@ -61,6 +61,12 @@ export class MediaPlayerApp extends Application {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
+        if (file.type.startsWith("audio/")) {
+          this.mediaView.style.display = "none";
+        } else {
+          this.mediaView.style.display = "block";
+        }
+
         const url = URL.createObjectURL(file);
         this.mediaElement.src = url;
         this.mediaElement.play();
@@ -97,6 +103,7 @@ export class MediaPlayerApp extends Application {
   }
 
   _onLaunch() {
+    this.mediaView = this.win.element.querySelector(".media-view");
     this.mediaElement = this.win.element.querySelector(".media-element");
     this.defaultMediaImage = this.win.element.querySelector(
       ".media-player-default-image",
