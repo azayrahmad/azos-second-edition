@@ -61,6 +61,17 @@ export class MediaPlayerApp extends Application {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
+        if (file.type.startsWith("audio/")) {
+          this.mediaView.style.display = "none";
+          const windowChromeHeight =
+            this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
+          const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+          this.win.resizeTo(this.win.element.offsetWidth, newHeight);
+        } else {
+          this.mediaView.style.display = "block";
+          this.win.resizeTo(this.win.element.offsetWidth, this.originalHeight);
+        }
+
         const url = URL.createObjectURL(file);
         this.mediaElement.src = url;
         this.mediaElement.play();
@@ -97,12 +108,15 @@ export class MediaPlayerApp extends Application {
   }
 
   _onLaunch() {
+    this.mediaView = this.win.element.querySelector(".media-view");
+    this.mediaControls = this.win.element.querySelector(".media-controls");
     this.mediaElement = this.win.element.querySelector(".media-element");
     this.defaultMediaImage = this.win.element.querySelector(
       ".media-player-default-image",
     );
     this.playPauseButton = this.win.element.querySelector(".play-pause");
     this.stopButton = this.win.element.querySelector(".stop");
+    this.originalHeight = this.win.element.offsetHeight;
     this.progressBar = this.win.element.querySelector(".progress-bar");
     this.volumeSlider = this.win.element.querySelector(".volume-slider");
     this.seekBackwardButton = this.win.element.querySelector(".seek-backward");
