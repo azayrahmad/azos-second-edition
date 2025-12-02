@@ -43,6 +43,10 @@
     align-content: start;
 }
 
+.explorer-icon-view.has-absolute-icons {
+    position: relative;
+}
+
 .explorer-icon {
     width: 70px;
     text-align: center;
