@@ -65,3 +65,13 @@ export function handleDroppedFiles(files, targetPath, onDropComplete) {
     }
   });
 }
+
+export function createDragGhost(icon, e) {
+    const dragImage = icon.cloneNode(true);
+    dragImage.style.position = "absolute";
+    dragImage.style.top = "-1000px";
+    dragImage.style.opacity = "0.5";
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+    return dragImage;
+}

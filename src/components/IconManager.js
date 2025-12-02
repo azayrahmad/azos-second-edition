@@ -32,6 +32,13 @@ export class IconManager {
     this.selectedIcons.clear();
   }
 
+  selectIcon(icon) {
+    if (!this.selectedIcons.has(icon)) {
+        this.selectedIcons.add(icon);
+        this.toggleHighlight(icon, true);
+    }
+  }
+
   toggleHighlight(icon, shouldHighlight) {
     const iconImg = icon.querySelector(".icon img");
     const iconLabel = icon.querySelector(".icon-label");
