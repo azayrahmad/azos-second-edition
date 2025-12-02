@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import "./media-player.css";
 import mediaPlayerHTML from "./media-player.html?raw";
+import mediaPlayerIcon from "../../assets/img/mediaplayer.png";
 
 export class MediaPlayerApp extends Application {
   constructor(config) {
@@ -9,6 +10,7 @@ export class MediaPlayerApp extends Application {
 
   _createWindow() {
     const win = new $Window({
+      id: this.id,
       title: this.title,
       outerWidth: this.width || 480,
       outerHeight: this.height || 360,
@@ -61,13 +63,17 @@ export class MediaPlayerApp extends Application {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        const url = URL.createObjectURL(file);
-        this.mediaElement.src = url;
-        this.mediaElement.play();
-        this.win.title(`${file.name} - Media Player`);
+        this._loadFile(file);
       }
     };
     input.click();
+  }
+
+  _loadFile(file) {
+    const url = URL.createObjectURL(file);
+    this.mediaElement.src = url;
+    this.mediaElement.play();
+    this.win.title(`${file.name} - Media Player`);
   }
 
   _setControlsDisabled(disabled) {
@@ -101,6 +107,7 @@ export class MediaPlayerApp extends Application {
     this.defaultMediaImage = this.win.element.querySelector(
       ".media-player-default-image",
     );
+    this.defaultMediaImage.src = mediaPlayerIcon;
     this.playPauseButton = this.win.element.querySelector(".play-pause");
     this.stopButton = this.win.element.querySelector(".stop");
     this.progressBar = this.win.element.querySelector(".progress-bar");
@@ -178,9 +185,24 @@ export class MediaPlayerApp extends Application {
     this.mediaElement.addEventListener("ended", () => {
       this.playPauseButton.classList.remove("playing");
       this.playPauseButton.title = "Play";
-      this._setControlsDisabled(true);
+      this.mediaElement.currentTime = 0;
+      this.progressBar.value = 0;
     });
 
     this._setControlsDisabled(true);
+
+    if (this.config.data) {
+      const data = this.config.data;
+      if (typeof data === "string") {
+        // It's a file path
+        this.mediaElement.src = data;
+        this.win.title(`${data.split("/").pop()} - Media Player`);
+        this._setControlsDisabled(false);
+        this.mediaElement.play();
+      } else if (data && typeof data === "object") {
+        // It's a file object
+        this._loadFile(data);
+      }
+    }
   }
 }

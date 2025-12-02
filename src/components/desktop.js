@@ -1070,10 +1070,20 @@ export async function initDesktop() {
     // Handle files dragged from the user's OS
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-      handleDroppedFiles(files, "/drive-c/folder-user/folder-desktop", () => {
-        desktop.refreshIcons();
-        document.dispatchEvent(new CustomEvent("explorer-refresh"));
-      });
+      handleDroppedFiles(
+        files,
+        "/drive-c/folder-user/folder-desktop",
+        (newFiles) => {
+          desktop.refreshIcons();
+          document.dispatchEvent(new CustomEvent("explorer-refresh"));
+          newFiles.forEach((file) => {
+            const association = getAssociation(file.name);
+            if (association) {
+              launchApp(association.appId, file);
+            }
+          });
+        },
+      );
     }
   });
 }
