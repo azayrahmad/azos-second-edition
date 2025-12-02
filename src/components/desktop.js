@@ -791,60 +791,57 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   const iconId = icon.getAttribute("data-icon-id");
 
   const item = getItemFromIcon(icon);
-  if (item && item.itemType !== 'app' && item.itemType !== 'virtual-file') {
+  if (item) {
     icon.draggable = true;
   }
 
   icon.addEventListener("dragstart", (e) => {
     if (isAutoArrangeEnabled()) {
-        e.preventDefault();
-        return;
+      e.preventDefault();
+      return;
     }
 
     // If the dragged icon is not selected, select it exclusively
     if (!iconManager.selectedIcons.has(icon)) {
-        iconManager.clearSelection();
-        iconManager.selectIcon(icon);
+      iconManager.clearSelection();
+      iconManager.selectIcon(icon);
     }
     isNativeDragActive = true;
     e.stopPropagation();
     const selectedItems = [...iconManager.selectedIcons]
-        .map(icon => getItemFromIcon(icon))
-        .filter(Boolean);
-
-    // Ensure we are only dragging draggable items
-    if (selectedItems.some(item => item.itemType === 'app' || item.itemType === 'virtual-file')) {
-        e.preventDefault();
-        return;
-    }
+      .map((icon) => getItemFromIcon(icon))
+      .filter(Boolean);
 
     const primaryIconRect = icon.getBoundingClientRect();
     const cursorOffsetX = e.clientX - primaryIconRect.left;
     const cursorOffsetY = e.clientY - primaryIconRect.top;
 
-    const dragOffsets = [...iconManager.selectedIcons].map(selectedIcon => {
-        const rect = selectedIcon.getBoundingClientRect();
-        return {
-            id: selectedIcon.getAttribute("data-icon-id"),
-            offsetX: rect.left - primaryIconRect.left,
-            offsetY: rect.top - primaryIconRect.top,
-        };
+    const dragOffsets = [...iconManager.selectedIcons].map((selectedIcon) => {
+      const rect = selectedIcon.getBoundingClientRect();
+      return {
+        id: selectedIcon.getAttribute("data-icon-id"),
+        offsetX: rect.left - primaryIconRect.left,
+        offsetY: rect.top - primaryIconRect.top,
+      };
     });
 
-    e.dataTransfer.setData("application/json", JSON.stringify({
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({
         items: selectedItems,
         sourcePath: SPECIAL_FOLDER_PATHS.desktop,
         cursorOffsetX,
         cursorOffsetY,
-        dragOffsets
-    }));
+        dragOffsets,
+      }),
+    );
     e.dataTransfer.effectAllowed = "move";
     dragGhost = createDragGhost(icon, e);
   });
 
   icon.addEventListener("dragend", () => {
     if (dragGhost && dragGhost.parentElement) {
-        dragGhost.parentElement.removeChild(dragGhost);
+      dragGhost.parentElement.removeChild(dragGhost);
     }
     dragGhost = null;
     isNativeDragActive = false;
@@ -1051,8 +1048,7 @@ export async function initDesktop() {
         const primaryIconX = e.clientX - desktopRect.left - cursorOffsetX;
         const primaryIconY = e.clientY - desktopRect.top - cursorOffsetY;
 
-        const iconPositions =
-          getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+        const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
         (dragOffsets || []).forEach((offset) => {
           iconPositions[offset.id] = {
             x: `${primaryIconX + offset.offsetX}px`,
