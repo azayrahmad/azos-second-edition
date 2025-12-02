@@ -73,8 +73,5 @@ export function createDragGhost(icon, e) {
     dragImage.style.opacity = "0.5";
     document.body.appendChild(dragImage);
     e.dataTransfer.setDragImage(dragImage, 0, 0);
-
-    setTimeout(() => {
-        document.body.removeChild(dragImage);
-    }, 0);
+    return dragImage;
 }
