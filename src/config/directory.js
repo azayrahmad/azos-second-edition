@@ -1,4 +1,5 @@
 import { generateProgramFiles } from "./generateProgramFiles.js";
+import { generatePlusFiles } from "./generatePlusFiles.js";
 import { coreApps } from "./core-apps.js";
 
 const directory = [
@@ -16,6 +17,12 @@ const directory = [
           ...coreApps,
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
+          {
+            id: "folder-plus",
+            name: "Plus!",
+            type: "folder",
+            children: generatePlusFiles(),
+          },
         ],
       },
       {

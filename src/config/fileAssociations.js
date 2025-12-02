@@ -19,11 +19,11 @@ export const fileAssociations = {
     icon: ICONS.textFile,
   },
   html: {
-    appId: "notepad",
+    appId: "internet-explorer",
     icon: ICONS.htmlFile,
   },
   htm: {
-    appId: "notepad",
+    appId: "internet-explorer",
     icon: ICONS.htmlFile,
   },
   css: {
@@ -108,6 +108,15 @@ export const fileAssociations = {
     icon: ICONS.imageJpgFile,
   },
   gif: {
+    appId: "image-viewer",
+    icon: ICONS.imageGifFile,
+  },
+  // Cursor files
+  cur: {
+    appId: "image-viewer",
+    icon: ICONS.imageGifFile,
+  },
+  ani: {
     appId: "image-viewer",
     icon: ICONS.imageGifFile,
   },
