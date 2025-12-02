@@ -9,6 +9,7 @@ export const LOCAL_STORAGE_KEYS = {
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
   EXPLORER_ICON_POSITIONS: 'explorerIconPositions',
+  EXPLORER_AUTO_ARRANGE: 'explorerAutoArrange',
   AUTO_ARRANGE_ICONS: 'autoArrangeIcons',
   MONITOR_TYPE: 'monitorType',
   RECYCLE_BIN: 'recycleBin',

@@ -38,6 +38,15 @@ function setExplorerIconPositions(positions) {
     setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
 }
 
+function isAutoArrangeEnabled() {
+  const autoArrange = getItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE);
+  return autoArrange === null ? false : !!autoArrange;
+}
+
+function setAutoArrange(enabled) {
+    setItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE, enabled);
+}
+
 const specialFolderIcons = {
   "/": "my-computer",
   "//recycle-bin": "recycle-bin",
@@ -202,6 +211,84 @@ export class ExplorerApp extends Application {
 
     this.navigateTo(this.initialPath);
 
+  this.sortIcons = (sortBy) => {
+    const allPositions = getExplorerIconPositions();
+    if (allPositions[this.currentPath]) {
+      delete allPositions[this.currentPath];
+      setExplorerIconPositions(allPositions);
+    }
+
+    if (sortBy === 'name') {
+      this.currentFolderItems.sort((a, b) => {
+        const nameA = a.name || a.title || a.filename || '';
+        const nameB = b.name || b.title || b.filename || '';
+        return nameA.localeCompare(nameB);
+      });
+    } else if (sortBy === 'type') {
+      this.currentFolderItems.sort((a, b) => {
+        const typeA = a.type || 'file';
+        const typeB = b.type || 'file';
+        if (typeA < typeB) return -1;
+        if (typeA > typeB) return 1;
+        const nameA = a.name || a.title || a.filename || '';
+        const nameB = b.name || b.title || b.filename || '';
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    this.render(this.currentPath, false);
+  };
+
+  this.captureIconPositions = () => {
+    const iconContainerRect = this.iconContainer.getBoundingClientRect();
+    const allIcons = Array.from(this.iconContainer.querySelectorAll('.explorer-icon'));
+    const allPositions = getExplorerIconPositions();
+    if (!allPositions[this.currentPath]) {
+        allPositions[this.currentPath] = {};
+    }
+
+    this.iconContainer.offsetHeight;
+
+    allIcons.forEach(icon => {
+        const id = icon.getAttribute('data-id');
+        const rect = icon.getBoundingClientRect();
+        const x = `${rect.left - iconContainerRect.left}px`;
+        const y = `${rect.top - iconContainerRect.top}px`;
+        allPositions[this.currentPath][id] = { x, y };
+    });
+
+    setExplorerIconPositions(allPositions);
+  };
+
+  this.lineUpIcons = () => {
+    if (isAutoArrangeEnabled()) {
+      return;
+    }
+
+    const iconWidth = 75;
+    const iconHeight = 75;
+    const paddingTop = 5;
+    const paddingLeft = 5;
+
+    const allPositions = getExplorerIconPositions();
+    const pathPositions = allPositions[this.currentPath] || {};
+    const allIcons = Array.from(this.iconContainer.querySelectorAll('.explorer-icon'));
+
+    allIcons.forEach(icon => {
+      const id = icon.getAttribute('data-id');
+      const currentX = parseInt(icon.style.left, 10);
+      const currentY = parseInt(icon.style.top, 10);
+
+      const newX = Math.round((currentX - paddingLeft) / iconWidth) * iconWidth + paddingLeft;
+      const newY = Math.round((currentY - paddingTop) / iconHeight) * iconHeight + paddingTop;
+
+      pathPositions[id] = { x: `${newX}px`, y: `${newY}px` };
+    });
+
+    setExplorerIconPositions(allPositions);
+    this.render(this.currentPath, false);
+  };
+
     this.refreshHandler = () => {
       if (this.win.element.style.display !== "none") {
         this.render(this.currentPath);
@@ -310,11 +397,11 @@ export class ExplorerApp extends Application {
     this.history.push(path);
     this.historyPointer++;
 
-    this.render(path);
+    this.render(path, true);
     this.updateMenuState();
   }
 
-  render(path) {
+  render(path, isNewNavigation = true) {
     this.currentPath = path;
     const item = findItemByPath(path);
 
@@ -335,8 +422,15 @@ export class ExplorerApp extends Application {
     this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
+    if (isAutoArrangeEnabled()) {
+      this.iconContainer.classList.remove("has-absolute-icons");
+    } else {
+      this.iconContainer.classList.add("has-absolute-icons");
+    }
+
     let children = [];
-    if (path === SPECIAL_FOLDER_PATHS.desktop) {
+    if (isNewNavigation) {
+      if (path === SPECIAL_FOLDER_PATHS.desktop) {
       const desktopContents = getDesktopContents();
       const desktopApps = desktopContents.apps.map((appId) => {
         const app = apps.find((a) => a.id === appId);
@@ -371,6 +465,7 @@ export class ExplorerApp extends Application {
     });
 
     this.currentFolderItems = children;
+    }
 
     this.currentFolderItems.forEach((child) => {
       let iconData = { ...child };
@@ -761,7 +856,44 @@ export class ExplorerApp extends Application {
       this.currentPath === "/" ||
       this.currentPath === "//network-neighborhood";
 
+    const toggleAutoArrange = () => {
+      const newSetting = !isAutoArrangeEnabled();
+      setAutoArrange(newSetting);
+
+      if (!newSetting) {
+        this.captureIconPositions();
+      }
+      this.render(this.currentPath, false);
+    };
+
     const menuItems = [
+      {
+        label: "Arrange Icons",
+        submenu: [
+          {
+            label: "by Name",
+            action: () => this.sortIcons("name"),
+          },
+          {
+            label: "by Type",
+            action: () => this.sortIcons("type"),
+          },
+          "MENU_DIVIDER",
+          {
+            label: "Auto Arrange",
+            checkbox: {
+              check: isAutoArrangeEnabled,
+              toggle: toggleAutoArrange,
+            },
+          },
+        ],
+      },
+      {
+        label: "Line up Icons",
+        action: () => this.lineUpIcons(),
+        enabled: !isAutoArrangeEnabled(),
+      },
+      "MENU_DIVIDER",
       {
         label: "View",
         submenu: [
