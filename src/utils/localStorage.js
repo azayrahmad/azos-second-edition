@@ -8,6 +8,7 @@ export const LOCAL_STORAGE_KEYS = {
   NOTEPAD_THEME: 'notepad-theme',
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
+  EXPLORER_ICON_POSITIONS: 'explorerIconPositions',
   AUTO_ARRANGE_ICONS: 'autoArrangeIcons',
   MONITOR_TYPE: 'monitorType',
   RECYCLE_BIN: 'recycleBin',
