@@ -8,6 +8,8 @@ import windowsStartMenuBar from "../assets/img/win98start.png";
 import { ICONS } from "../config/icons.js";
 import startMenuConfig from "../config/startmenu.js";
 import { playSound } from "../utils/soundManager.js";
+import { ShowDialogWindow } from "./DialogWindow.js";
+import { createShutdownDialogContent } from "./ShutdownDialog.js";
 
 // Constants
 const SELECTORS = {
@@ -87,7 +89,7 @@ class StartMenu {
   getStartMenuHTML() {
     const dynamicItemsHTML = startMenuConfig
       .map((item) => {
-        const hasSubmenu = item.submenu && item.submenu.length > 0;
+        const hasSubmenu = item.submenu && item.submenu.length >= 0;
         return `
         <li class="start-menu-item ${hasSubmenu ? "has-submenu" : ""}" role="menuitem" tabindex="0" data-id="${this.escapeHtml(item.label)}">
           <img src="${item.icon}" alt="${this.escapeHtml(item.label)}">
@@ -134,64 +136,90 @@ class StartMenu {
     let activeMenu = null;
     let closeTimeout;
 
+    const closeAndCleanup = () => {
+      if (!activeMenu) return;
+      const menuToClose = activeMenu;
+      activeMenu = null;
+
+      this.openSubmenus = this.openSubmenus.filter((m) => m !== menuToClose);
+      menuToClose.close(false); // Close sub-sub-menus etc.
+      if (
+        menuToClose.wrapperElement &&
+        menuToClose.wrapperElement.parentElement
+      ) {
+        menuToClose.wrapperElement.remove();
+      }
+    };
+
     const openMenu = () => {
       clearTimeout(closeTimeout);
       if (activeMenu) return;
 
       // Close any other open submenus immediately
       if (this.openSubmenus.length > 0) {
-        [...this.openSubmenus].forEach((menu) => menu.close());
+        [...this.openSubmenus].forEach((menu) => {
+          menu.close();
+          if (menu.wrapperElement && menu.wrapperElement.parentElement) {
+            menu.wrapperElement.remove();
+          }
+        });
         this.openSubmenus = [];
       }
 
+      const menuWrapper = document.createElement("div");
+      menuWrapper.className = "menu-popup-wrapper";
+      menuWrapper.style.position = "absolute";
+      menuWrapper.style.overflow = "hidden";
+
       activeMenu = new window.MenuPopup(submenuItems, {
         parentMenuPopup: null,
-        handleKeyDown: (e) => {
-          if (e.key === "Escape") {
-            closeMenu();
-          }
-        },
-        closeMenus: () => {
-          closeMenu();
-        },
+        handleKeyDown: (e) => e.key === "Escape" && closeAndCleanup(),
+        closeMenus: closeAndCleanup,
         setActiveMenuPopup: (menu) => {
           activeMenu = menu;
         },
         send_info_event: () => {},
         refocus_outside_menus: () => {},
       });
+      activeMenu.wrapperElement = menuWrapper; // Attach wrapper to instance
 
+      menuWrapper.appendChild(activeMenu.element);
       const screen = document.getElementById("screen");
-      screen.appendChild(activeMenu.element);
-      const rect = menuItem.getBoundingClientRect();
-      const screenRect = screen.getBoundingClientRect();
-      activeMenu.element.style.left = `${rect.right - screenRect.left}px`;
-      activeMenu.element.style.top = `${rect.top - screenRect.top}px`;
-      activeMenu.element.style.zIndex = `${window.os_gui_utils.get_new_menu_z_index()}`;
-      if (typeof window.playSound === "function") {
-        window.playSound("MenuPopup");
-      }
-      this.openSubmenus.push(activeMenu);
+      screen.appendChild(menuWrapper);
 
-      this.addTrackedEventListener(activeMenu.element, "pointerenter", () => {
+      menuWrapper.style.display = "block";
+      menuWrapper.style.zIndex = window.os_gui_utils.get_new_menu_z_index();
+      menuWrapper.style.left = "-9999px";
+      menuWrapper.style.top = "-9999px";
+
+      const rect = menuItem.getBoundingClientRect();
+      const menuRect = activeMenu.element.getBoundingClientRect();
+      const screenRect = screen.getBoundingClientRect();
+
+      let finalX = rect.right - screenRect.left;
+      let finalY = rect.top - screenRect.top;
+      if (finalY + menuRect.height > screenRect.height) {
+        finalY = Math.max(0, screenRect.height - menuRect.height);
+      }
+      if (finalX + menuRect.width > screenRect.width) {
+        finalX = rect.left - menuRect.width - screenRect.left;
+      }
+      menuWrapper.style.left = `${finalX}px`;
+      menuWrapper.style.top = `${finalY}px`;
+
+      setTimeout(() => {
+        menuWrapper.style.setProperty("--width", `${menuRect.width}px`);
+        menuWrapper.style.setProperty("--height", `${menuRect.height}px`);
+        menuWrapper.style.width = "var(--width)";
+        menuWrapper.style.height = "var(--height)";
+        menuWrapper.classList.add("to-right");
+      }, 0);
+
+      if (typeof window.playSound === "function") window.playSound("MenuPopup");
+      this.openSubmenus.push(activeMenu);
+      this.addTrackedEventListener(menuWrapper, "pointerenter", () => {
         clearTimeout(closeTimeout);
       });
-    };
-
-    const closeMenu = (useTimeout = false) => {
-      const doClose = () => {
-        if (activeMenu) {
-          this.openSubmenus = this.openSubmenus.filter((m) => m !== activeMenu);
-          activeMenu.close();
-          activeMenu = null;
-        }
-      };
-
-      if (useTimeout) {
-        closeTimeout = setTimeout(doClose, 100);
-      } else {
-        doClose();
-      }
     };
 
     this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
@@ -265,38 +293,45 @@ class StartMenu {
   show() {
     const startMenu = document.querySelector(SELECTORS.START_MENU);
     const startButton = document.querySelector(SELECTORS.START_BUTTON);
+    const startMenuWrapper = document.querySelector(".start-menu-wrapper");
 
-    if (!startMenu || !startButton) return;
+    if (!startMenu || !startButton || !startMenuWrapper) return;
 
     playSound("MenuPopup");
-    // Reset animation first to ensure clean state
-    startMenu.style.animationName = "";
 
+    // 1. Make menu visible but off-screen to measure it
     startMenu.classList.remove(CLASSES.HIDDEN);
-    startMenu.classList.add("is-animating");
-    startButton.classList.add("selected"); // Changed from CLASSES.ACTIVE
-    startButton.setAttribute("aria-pressed", "true"); // Added
-    startMenu.setAttribute("aria-hidden", "false");
-    this.isVisible = true;
+    startMenu.style.transform = "translateY(100%)"; // Move it down
+    startMenu.style.animationName = ""; // Clear animation
 
-    // Apply animation after a brief delay to ensure proper rendering
+    // 2. Measure dimensions
+    const menuRect = startMenu.getBoundingClientRect();
+
+    // 3. Set wrapper size and position
+    startMenuWrapper.style.width = `${menuRect.width}px`;
+    startMenuWrapper.style.height = `${menuRect.height}px`;
+
+    // 4. Reset menu position and trigger animation
     requestAnimationFrame(() => {
+      startMenu.style.transform = "";
       startMenu.style.animationName = ANIMATIONS.SCROLL_UP;
     });
 
-    // Focus first menu item for accessibility
+    startMenu.classList.add("is-animating");
+    startButton.classList.add("selected");
+    startButton.setAttribute("aria-pressed", "true");
+    startMenu.setAttribute("aria-hidden", "false");
+    this.isVisible = true;
+
     const firstMenuItem = startMenu.querySelector('[role="menuitem"]');
     if (firstMenuItem) {
-      // Delay focus until after animation starts
-      setTimeout(() => {
-        firstMenuItem.focus();
-      }, 50);
+      setTimeout(() => firstMenuItem.focus(), 50);
     }
 
-    // Reset animation after completion to prevent conflicts
     const handleAnimationEnd = () => {
       startMenu.style.animationName = "";
       startMenu.classList.remove("is-animating");
+      startMenuWrapper.style.pointerEvents = "auto";
     };
     startMenu.addEventListener("animationend", handleAnimationEnd, {
       once: true,
@@ -309,13 +344,14 @@ class StartMenu {
   hide() {
     const startMenu = document.querySelector(SELECTORS.START_MENU);
     const startButton = document.querySelector(SELECTORS.START_BUTTON);
+    const startMenuWrapper = document.querySelector(".start-menu-wrapper");
 
-    if (!startMenu || !startButton) return;
+    if (!startMenu || !startButton || !startMenuWrapper || !this.isVisible)
+      return;
 
-    // Clear any running animations first
     startMenu.style.animationName = "";
-
     startMenu.classList.add("is-animating");
+    startMenuWrapper.style.pointerEvents = "none";
     startMenu.style.animationName = ANIMATIONS.SCROLL_DOWN;
 
     const handleAnimationEnd = () => {
@@ -323,16 +359,24 @@ class StartMenu {
       startMenu.style.animationName = "";
       startMenu.classList.remove("is-animating");
       startMenu.setAttribute("aria-hidden", "true");
+      // Reset wrapper size
+      startMenuWrapper.style.width = "0px";
+      startMenuWrapper.style.height = "0px";
     };
     startMenu.addEventListener("animationend", handleAnimationEnd, {
       once: true,
     });
 
-    startButton.classList.remove("selected"); // Changed from CLASSES.ACTIVE
-    startButton.setAttribute("aria-pressed", "false"); // Added
+    startButton.classList.remove("selected");
+    startButton.setAttribute("aria-pressed", "false");
     this.isVisible = false;
 
-    this.openSubmenus.forEach((menu) => menu.close());
+    this.openSubmenus.forEach((menu) => {
+      menu.close();
+      if (menu.wrapperElement && menu.wrapperElement.parentElement) {
+        menu.wrapperElement.remove();
+      }
+    });
     this.openSubmenus = [];
   }
 
@@ -351,13 +395,35 @@ class StartMenu {
    * Handle shutdown action
    */
   handleShutdown() {
-    console.log("Shutting down azOS...");
-    if (confirm("Are you sure you want to shut down?")) {
-      playSound("SystemExit");
-      setTimeout(() => location.reload(), 500);
-    }
     this.hide();
-  }
+    const content = createShutdownDialogContent();
+
+    ShowDialogWindow({
+        title: 'Shut Down Windows',
+        content: content, // Pass the DOM element directly
+        modal: true,
+        buttons: [
+            {
+                label: 'OK',
+                action: () => {
+                    playSound("SystemExit");
+                    setTimeout(() => location.reload(), 500);
+                },
+                isDefault: true,
+            },
+            {
+                label: 'Cancel',
+                action: () => {}, // Just closes the dialog
+            },
+            {
+                label: 'Help',
+                action: () => {}, // Disabled button
+                disabled: true,
+            }
+        ],
+        soundEvent: 'SystemQuestion',
+    });
+}
 
   /**
    * Handle home action

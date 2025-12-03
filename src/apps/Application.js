@@ -12,6 +12,7 @@ export class Application {
       );
     }
 
+    this.config = config; // Store the entire config object
     this.id = config.id;
     this.title = config.title;
     this.icon = config.icon;

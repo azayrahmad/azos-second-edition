@@ -1,3 +1,5 @@
+@import url("./shared.css");
+
 @font-face {
     font-family: "MSW98UI";
     src: url("/src/assets/fonts/MSW98UI-Regular.ttf") format("truetype");
@@ -34,7 +36,7 @@
     --icon-filter: sepia(100%) hue-rotate(180deg) saturate(2000%)
         brightness(0.6);
     --text-shadow: 1px 1px var(--ButtonDkShadow);
-    --icon-label-font-size: 12px;
+    --icon-label-font-size: var(--font-size-base);
 }
 
 .hidden {
@@ -65,7 +67,9 @@ html {
     position: relative;
     overflow: hidden;
     box-sizing: border-box;
-    flex-grow: 1;
+    height: calc(
+        100% - 28px - env(safe-area-inset-bottom) - 1px
+    ); /* Adjust height dynamically */
 }
 
 .desktop {
@@ -78,7 +82,6 @@ html {
     grid-template-rows: repeat(auto-fill, 60px);
     grid-auto-columns: 60px;
     gap: 5px;
-    padding: 10px;
     align-content: start;
 }
 
@@ -91,6 +94,7 @@ html {
     width: 70px;
     text-align: center;
     color: var(--HilightText);
+    margin: 3px;
     /*z-index: 1; /* Ensure icons are on top of other elements */
 }
 
@@ -129,4 +133,10 @@ html {
     position: absolute;
     z-index: 1000;
     pointer-events: none; /* Make sure it doesn't interfere with mouse events */
+}
+
+.desktop.drop-target {
+    outline: 2px dashed white;
+    outline-offset: -10px;
+    background-color: rgba(0, 0, 0, 0.2);
 }

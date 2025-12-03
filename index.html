@@ -18,6 +18,7 @@
             rel="stylesheet"
             type="text/css"
         />
+        <link href="./os-gui/animations.css" rel="stylesheet" type="text/css" />
         <!--<link href="./os-gui/windows-default.css" rel="stylesheet" type="text/css" />-->
 
         <link href="./os-gui/Toolbar.css" rel="stylesheet" type="text/css" />
@@ -28,6 +29,7 @@
         />
         <link rel="stylesheet" href="/src/styles/desktop.css" />
         <link rel="stylesheet" href="/src/styles/taskbar.css" />
+    <link rel="stylesheet" href="/src/styles/shutdown-dialog.css" />
         <link rel="stylesheet" href="./clippy/clippy.css" />
         <link
             rel="stylesheet"
@@ -40,6 +42,7 @@
         <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
         <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
         <script src="https://unpkg.com/prettier@2.8.8/parser-css.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/icojs@0.20.1/dist/ico.js"></script>
         <script>
             // The parser scripts populate a global `prettierPlugins` object.
             // We need to convert it to an array to pass to prettier.format().
@@ -63,6 +66,21 @@
         <script src="./clippy/clippy.js"></script>
         <script src="./clippy/clippy_extensions_complete.js"></script>
         <style>
+            body.booting {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #333;
+            }
+            #screen.boot-mode {
+                width: 640px;
+                height: 480px;
+                overflow: hidden;
+                position: relative;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            }
             #boot-log div {
                 white-space: pre-wrap;
             }
@@ -70,7 +88,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
-                position: fixed;
+                position: absolute;
                 top: 0;
                 left: 0;
                 width: 100%;
@@ -157,44 +175,96 @@
     </head>
 
     <body class="scanlines">
-        <div id="boot-screen">
-            <!-- Initial boot message, visible by default -->
-            <div id="initial-boot-message">Initializing azOS...</div>
+        <div id="screen">
+            <div id="boot-screen">
+                <!-- Initial boot message, visible by default -->
+                <div id="initial-boot-message">Initializing azOS...</div>
 
-            <!-- Main boot screen content (two columns), initially hidden, shown by main.js -->
-            <div id="boot-screen-content">
-                <div id="boot-screen-main-flex-container">
-                    <!-- Left Column for boot text -->
-                    <div id="boot-screen-left-column">
-                        <!-- Award BIOS info row -->
-                        <div id="bios-info-row">
-                            <div id="bios-logo-column">
-                                <img
-                                    src="/img/award.png"
-                                    alt="Award BIOS Logo"
-                                />
+                <!-- Main boot screen content (two columns), initially hidden, shown by main.js -->
+                <div id="boot-screen-content">
+                    <div id="boot-screen-main-flex-container">
+                        <!-- Left Column for boot text -->
+                        <div id="boot-screen-left-column">
+                            <!-- Award BIOS info row -->
+                            <div id="bios-info-row">
+                                <div id="bios-logo-column">
+                                    <img
+                                        src="/img/award.png"
+                                        alt="Award BIOS Logo"
+                                    />
+                                </div>
+                                <div id="bios-text-column">
+                                    Award Modular BIOS v4.51PG, An Energy Star
+                                    Ally<br />
+                                    Copyright (C) 1984-85, Award Software, Inc.
+                                </div>
                             </div>
-                            <div id="bios-text-column">
-                                Award Modular BIOS v4.51PG, An Energy Star
-                                Ally<br />
-                                Copyright (C) 1984-85, Award Software, Inc.
-                            </div>
+                            <!-- Browser Info (will be updated by main.js) -->
+                            <!--<div id="browser-info" style="margin-top: 10px"></div>-->
+                            <!-- Boot Log (will be updated by main.js) -->
+                            <div id="boot-log" style="flex-grow: 1"></div>
                         </div>
-                        <!-- Browser Info (will be updated by main.js) -->
-                        <!--<div id="browser-info" style="margin-top: 10px"></div>-->
-                        <!-- Boot Log (will be updated by main.js) -->
-                        <div id="boot-log" style="flex-grow: 1"></div>
-                    </div>
 
-                    <!-- Right Column for Energy Star logo -->
-                    <div id="boot-screen-right-column">
-                        <img src="/img/energystar.png" alt="Energy Star" />
+                        <!-- Right Column for Energy Star logo -->
+                        <div id="boot-screen-right-column">
+                            <img src="/img/energystar.png" alt="Energy Star" />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div id="screen">
+            <svg style="position: absolute; pointer-events: none; bottom: 100%">
+                <defs>
+                    <filter
+                        id="os-gui-black-to-inset-filter"
+                        x="0"
+                        y="0"
+                        width="1px"
+                        height="1px"
+                    >
+                        <feColorMatrix
+                            in="SourceGraphic"
+                            type="matrix"
+                            values="
+							1 0 0 0 0
+							0 1 0 0 0
+							0 0 1 0 0
+							-2 -2 -2 4 0
+						"
+                            result="dark-parts-isolated"
+                        />
+                        <feFlood
+                            result="shadow-color"
+                            flood-color="var(--ButtonShadow)"
+                        />
+                        <feFlood
+                            result="hilight-color"
+                            flood-color="var(--ButtonHilight)"
+                        />
+                        <feOffset
+                            in="dark-parts-isolated"
+                            dx="1"
+                            dy="1"
+                            result="offset"
+                        />
+                        <feComposite
+                            in="hilight-color"
+                            in2="offset"
+                            operator="in"
+                            result="hilight-colored-offset"
+                        />
+                        <feComposite
+                            in="shadow-color"
+                            in2="dark-parts-isolated"
+                            operator="in"
+                            result="shadow-colored"
+                        />
+                        <feMerge>
+                            <feMergeNode in="hilight-colored-offset" />
+                            <feMergeNode in="shadow-colored" />
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
             <script type="module" src="/src/main.js"></script>
         </div>
     </body>

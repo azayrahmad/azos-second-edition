@@ -1,4 +1,21 @@
 ((exports) => {
+  const ICON_MAP = {
+    back: 0,
+    forward: 1,
+    up: 2,
+    cut: 3,
+    copy: 4,
+    paste: 5,
+    views: 6,
+    tools: 7,
+    // Add more icon mappings as needed, e.g.:
+    // "save": 8,
+    // "print": 9,
+    // "undo": 10,
+    // "redo": 11,
+    // ... up to 62
+  };
+
   function E(tagName, attrs) {
     const el = document.createElement(tagName);
     if (attrs) {
@@ -35,6 +52,7 @@
       }
 
       this.buildToolbar();
+      this.setupResizeObserver();
     }
 
     buildToolbar() {
@@ -43,6 +61,10 @@
         this.element.appendChild(itemEl);
         this.itemElements.push(itemEl);
       });
+
+      // Add the "More" button for overflow
+      this.moreButtonGroup = this.createMoreButton();
+      this.element.appendChild(this.moreButtonGroup);
     }
 
     createToolbarItem(item) {
@@ -52,8 +74,17 @@
       mainButtonEl.disabled = this.isDisabled(item);
 
       const iconEl = E("div", { class: "toolbar-icon" });
-      if (typeof item.iconId !== "undefined") {
-        iconEl.setAttribute("data-icon-id", item.iconId);
+      let iconToUseId;
+
+      if (item.iconName && typeof ICON_MAP[item.iconName] !== "undefined") {
+        iconToUseId = ICON_MAP[item.iconName];
+      } else if (typeof item.iconId !== "undefined") {
+        iconToUseId = item.iconId;
+      }
+
+      if (typeof iconToUseId !== "undefined") {
+        iconEl.setAttribute("data-icon-id", iconToUseId);
+        iconEl.style.backgroundPosition = `-${iconToUseId * 20}px 0`;
       }
 
       const labelEl = E("div", { class: "toolbar-label" });
@@ -128,15 +159,169 @@
         this.closeActiveMenu();
       }
 
+      const submenuItems =
+        typeof item.submenu === "function" ? item.submenu() : item.submenu;
+
       const parentRect = parentEl.getBoundingClientRect();
       const event = { pageX: parentRect.left, pageY: parentRect.bottom };
-      this.activeMenu = new window.ContextMenu(item.submenu, event);
+      this.activeMenu = new window.ContextMenu(submenuItems, event);
     }
 
     closeActiveMenu() {
       if (this.activeMenu) {
         this.activeMenu.close();
         this.activeMenu = null;
+      }
+    }
+
+    createMoreButton() {
+      const groupEl = E("div", {
+        class: "toolbar-button-group more-button",
+        style: "display: none;",
+      });
+      const buttonEl = E("button", { class: "toolbar-button lightweight" });
+      buttonEl.innerHTML = ">>";
+      groupEl.appendChild(buttonEl);
+
+      buttonEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showOverflowMenu(groupEl);
+      });
+
+      return groupEl;
+    }
+
+    setupResizeObserver() {
+      this.observer = new ResizeObserver(() => {
+        this.handleResize();
+      });
+      this.observer.observe(this.element);
+    }
+
+    handleResize() {
+      requestAnimationFrame(() => {
+        // Make all items visible to measure them
+        this.itemElements.forEach((itemEl) => {
+          itemEl.style.display = "";
+        });
+
+        const toolbarWidth = this.element.getBoundingClientRect().width;
+
+        // Read all item widths at once to avoid layout thrashing
+        const itemWidths = this.itemElements.map(
+          (el) => el.getBoundingClientRect().width,
+        );
+        const totalItemsWidth = itemWidths.reduce((sum, w) => sum + w, 0);
+
+        let availableWidth = toolbarWidth;
+        const hasOverflow = totalItemsWidth > availableWidth;
+
+        this.moreButtonGroup.style.display = hasOverflow ? "" : "none";
+
+        if (hasOverflow) {
+          const moreButtonWidth =
+            this.moreButtonGroup.getBoundingClientRect().width;
+          availableWidth -= moreButtonWidth;
+          let currentWidth = 0;
+
+          this.itemElements.forEach((itemEl, index) => {
+            const itemWidth = itemWidths[index];
+            if (currentWidth + itemWidth > availableWidth) {
+              itemEl.style.display = "none";
+            } else {
+              itemEl.style.display = "";
+              currentWidth += itemWidth;
+            }
+          });
+        }
+      });
+    }
+
+    showOverflowMenu(parentEl) {
+      if (this.overflowMenu) {
+        this.overflowMenu.remove();
+        this.overflowMenu = null;
+        return;
+      }
+
+      this.overflowMenu = E("div", {
+        class: "menu-popup toolbar-overflow-popup",
+      });
+
+      this.itemElements.forEach((itemEl, index) => {
+        if (itemEl.style.display === "none") {
+          const clone = itemEl.cloneNode(true);
+          clone.style.display = "";
+          clone.classList.add("overflow-item");
+
+          // Re-attach event listeners
+          const originalItem = this.items[index];
+          if (originalItem.action) {
+            clone
+              .querySelector(".toolbar-button")
+              .addEventListener("click", () => {
+                originalItem.action();
+                this.overflowMenu.remove();
+                this.overflowMenu = null;
+              });
+          }
+
+          if (originalItem.submenu) {
+            clone
+              .querySelector(".toolbar-arrow-button")
+              .addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.openSubmenu(originalItem, clone);
+              });
+          }
+
+          this.overflowMenu.appendChild(clone);
+        }
+      });
+
+      if (this.options.icons) {
+        this.overflowMenu.style.setProperty(
+          "--toolbar-icons",
+          `url(${this.options.icons})`,
+        );
+      }
+      if (this.options.iconsGrayscale) {
+        this.overflowMenu.style.setProperty(
+          "--toolbar-icons-grayscale",
+          `url(${this.options.iconsGrayscale})`,
+        );
+      }
+
+      document.body.appendChild(this.overflowMenu);
+
+      const parentRect = parentEl.getBoundingClientRect();
+      this.overflowMenu.style.left = `${parentRect.left}px`;
+      this.overflowMenu.style.top = `${parentRect.bottom}px`;
+
+      this.closeMenuOnClickOutside = (e) => {
+        if (!this.overflowMenu.contains(e.target) && e.target !== parentEl) {
+          this.overflowMenu.remove();
+          this.overflowMenu = null;
+          document.removeEventListener(
+            "pointerdown",
+            this.closeMenuOnClickOutside,
+          );
+          this.closeMenuOnClickOutside = null;
+        }
+      };
+
+      document.addEventListener("pointerdown", this.closeMenuOnClickOutside);
+    }
+    destroy() {
+      this.observer.disconnect();
+      if (this.overflowMenu) {
+        this.overflowMenu.remove();
+      }
+      if (this.closeMenuOnClickOutside) {
+        document.removeEventListener(
+          "pointerdown",
+          this.closeMenuOnClickOutside,
+        );
       }
     }
   }

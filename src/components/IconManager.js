@@ -4,6 +4,7 @@ export class IconManager {
   constructor(container, options = {}) {
     this.container = container;
     this.options = options;
+    this.iconSelector = options.iconSelector || ".desktop-icon";
     this.selectedIcons = new Set();
     this.lasso = null;
     this.isLassoing = false;
@@ -13,9 +14,15 @@ export class IconManager {
   }
 
   init() {
-    this.container.addEventListener("mousedown", this.handleMouseDown.bind(this));
+    this.container.addEventListener(
+      "mousedown",
+      this.handleMouseDown.bind(this),
+    );
     this.container.addEventListener("click", this.handleClick.bind(this));
-    this.container.addEventListener("contextmenu", this.handleContextMenu.bind(this));
+    this.container.addEventListener(
+      "contextmenu",
+      this.handleContextMenu.bind(this),
+    );
   }
 
   clearSelection() {
@@ -23,6 +30,13 @@ export class IconManager {
       this.toggleHighlight(icon, false);
     });
     this.selectedIcons.clear();
+  }
+
+  selectIcon(icon) {
+    if (!this.selectedIcons.has(icon)) {
+        this.selectedIcons.add(icon);
+        this.toggleHighlight(icon, true);
+    }
   }
 
   toggleHighlight(icon, shouldHighlight) {
@@ -86,7 +100,7 @@ export class IconManager {
       this.lasso.style.top = `${top}px`;
 
       const lassoRect = this.lasso.getBoundingClientRect();
-      const icons = this.container.querySelectorAll(".desktop-icon");
+      const icons = this.container.querySelectorAll(this.iconSelector);
 
       icons.forEach((icon) => {
         const iconRect = icon.getBoundingClientRect();
@@ -123,14 +137,14 @@ export class IconManager {
 
   handleClick(e) {
     if (this.wasLassoing) {
-        this.wasLassoing = false;
-        e.stopImmediatePropagation();
-        return;
+      this.wasLassoing = false;
+      e.stopImmediatePropagation();
+      return;
     }
     if (
       e.target === this.container &&
       !this.isLassoing &&
-      !e.target.closest(".desktop-icon")
+      !e.target.closest(this.iconSelector)
     ) {
       this.clearSelection();
     }
@@ -143,20 +157,27 @@ export class IconManager {
         this.options.onBackgroundContext(e);
       }
     } else {
-        const icon = e.target.closest('.desktop-icon');
-        if (icon && this.options.onItemContext) {
-            e.preventDefault();
-            this.options.onItemContext(e, icon);
+      const icon = e.target.closest(this.iconSelector);
+      if (icon && this.options.onItemContext) {
+        e.preventDefault();
+        if (!this.selectedIcons.has(icon)) {
+          this.clearSelection();
+          this.selectedIcons.add(icon);
+          this.toggleHighlight(icon, true);
         }
+        this.options.onItemContext(e, icon);
+      }
     }
   }
 
   configureIcon(icon) {
-    icon.addEventListener("mousedown", (e) => this.handleIconMouseDown(e, icon));
+    icon.addEventListener("mousedown", (e) =>
+      this.handleIconMouseDown(e, icon),
+    );
     icon.addEventListener("click", (e) => this.handleIconClick(e, icon));
 
-    // Prevent container's context menu from showing up on items
-    icon.addEventListener("contextmenu", e => e.stopPropagation());
+    // Allow context menu events to propagate to the container for onItemContext handling
+    // icon.addEventListener("contextmenu", e => e.stopPropagation());
   }
 
   handleIconMouseDown(e, icon) {

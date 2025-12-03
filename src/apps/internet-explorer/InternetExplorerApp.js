@@ -7,6 +7,8 @@ export class InternetExplorerApp extends IFrameApplication {
   constructor(options) {
     super(options);
     this.retroMode = true;
+    this.history = [];
+    this.historyIndex = -1;
   }
 
   async _onLaunch(data) {
@@ -18,9 +20,9 @@ export class InternetExplorerApp extends IFrameApplication {
       url = data.url || url;
       if (data.retroMode === false) {
         this.retroMode = false;
-        this._updateTitle();
       }
     }
+    this._updateTitle(); // Always call this to set the correct initial title
     this.navigateTo(url);
   }
 
@@ -62,9 +64,57 @@ export class InternetExplorerApp extends IFrameApplication {
     });
     statusBar.append(this.statusText);
 
+    this.goBack = () => {
+      if (this.historyIndex > 0) {
+        this.historyIndex--;
+        this._loadUrl(this.history[this.historyIndex], true);
+      }
+    };
+
+    this.goForward = () => {
+      if (this.historyIndex < this.history.length - 1) {
+        this.historyIndex++;
+        this._loadUrl(this.history[this.historyIndex], true);
+      }
+    };
+
+    this._loadUrl = (url, isHistoryNav = false) => {
+      if (!isHistoryNav) {
+        if (this.historyIndex < this.history.length - 1) {
+          this.history.splice(this.historyIndex + 1);
+        }
+        this.history.push(url);
+        this.historyIndex = this.history.length - 1;
+      }
+
+      let finalUrl = url.trim();
+      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
+        finalUrl = `https://${finalUrl}`;
+      }
+      this.input.value = finalUrl;
+
+      const targetUrl = this.retroMode
+        ? `https://web.archive.org/web/1998/${finalUrl}`
+        : finalUrl;
+
+      this.statusText.textContent = "Connecting to site...";
+      this.iframe.src = "about:blank";
+      this.iframe.src = targetUrl;
+    };
+
+    this._updateNavButtons = () => {
+      if (this.toolbar) {
+        this.toolbar.element.dispatchEvent(new Event("update"));
+      }
+      if (this.menuBar) {
+        this.menuBar.element.dispatchEvent(new Event("update"));
+      }
+    };
+
     this.iframe.onload = () => {
       if (this.iframe.src.includes("/src/apps/internet-explorer/404.html")) {
         this.statusText.textContent = "Page not found.";
+        this._updateNavButtons();
         return;
       }
 
@@ -83,45 +133,37 @@ export class InternetExplorerApp extends IFrameApplication {
       } catch (e) {
         this.statusText.textContent = "Done";
       }
+
+      this._updateNavButtons();
     };
 
     this.navigateTo = (url) => {
-      let finalUrl = url.trim();
-      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
-        finalUrl = `https://${finalUrl}`;
-      }
-      this.input.value = finalUrl;
-
-      const targetUrl = this.retroMode
-        ? `https://web.archive.org/web/1998/${finalUrl}`
-        : finalUrl;
-
-      this.statusText.textContent = "Connecting to site...";
-      this.iframe.src = "about:blank";
-      this.iframe.src = targetUrl;
+      this._loadUrl(url);
     };
 
     const menuBar = new window.MenuBar({
       File: [
         {
-          label: "Retro Mode",
-          checkbox: {
-            check: () => this.retroMode,
-            toggle: () => {
-              this.retroMode = !this.retroMode;
-              this._updateTitle();
-            },
-          },
+          label: "New Retro Window",
+          action: () =>
+            window.System.launchApp("internet-explorer", { retroMode: true }),
+        },
+        {
+          label: "New Live Window",
+          action: () =>
+            window.System.launchApp("internet-explorer", { retroMode: false }),
         },
       ],
       Go: [
         {
           label: "Back",
-          action: () => this.iframe.contentWindow.history.back(),
+          action: () => this.goBack(),
+          enabled: () => this.historyIndex > 0,
         },
         {
           label: "Forward",
-          action: () => this.iframe.contentWindow.history.forward(),
+          action: () => this.goForward(),
+          enabled: () => this.historyIndex < this.history.length - 1,
         },
         {
           label: "Up",
@@ -161,21 +203,37 @@ export class InternetExplorerApp extends IFrameApplication {
       {
         label: "Back",
         iconId: 0,
-        action: () => this.iframe.contentWindow.history.back(),
-        enabled: false,
-        submenu: [
-          {
-            label: "History",
-            enabled: false,
-          },
-        ],
+        action: () => this.goBack(),
+        enabled: () => this.historyIndex > 0,
+        submenu: () =>
+          this.history
+            .slice(0, this.historyIndex)
+            .reverse()
+            .slice(0, 3)
+            .map((url, i) => ({
+              label: url,
+              action: () => {
+                this.historyIndex -= i + 1;
+                this._loadUrl(this.history[this.historyIndex], true);
+              },
+            })),
       },
       {
         label: "Forward",
         iconId: 1,
-        action: () => this.iframe.contentWindow.history.forward(),
-        enabled: false,
-        submenu: [],
+        action: () => this.goForward(),
+        enabled: () => this.historyIndex < this.history.length - 1,
+        submenu: () =>
+          this.history
+            .slice(this.historyIndex + 1)
+            .slice(0, 3)
+            .map((url, i) => ({
+              label: url,
+              action: () => {
+                this.historyIndex += i + 1;
+                this._loadUrl(this.history[this.historyIndex], true);
+              },
+            })),
       },
       {
         label: "Stop",
@@ -214,7 +272,7 @@ export class InternetExplorerApp extends IFrameApplication {
       },
     ];
 
-    const toolbar = new window.Toolbar(toolbarItems, {
+    this.toolbar = new window.Toolbar(toolbarItems, {
       icons: browseUiIcons,
       iconsGrayscale: browseUiIconsGrayscale,
     });
@@ -235,7 +293,7 @@ export class InternetExplorerApp extends IFrameApplication {
       }
     });
 
-    win.$content.append(toolbar.element, addressBar, this.iframe, statusBar);
+    win.$content.append(this.toolbar.element, addressBar, this.iframe, statusBar);
 
     this._setupIframeForInactivity(this.iframe);
 
@@ -246,8 +304,5 @@ export class InternetExplorerApp extends IFrameApplication {
     const baseTitle = "Internet Explorer";
     const retroTitle = this.retroMode ? `${baseTitle} (Retro Mode)` : baseTitle;
     this.win.title(retroTitle);
-    if (this.menuBar) {
-      this.menuBar.element.dispatchEvent(new Event("update"));
-    }
   }
 }

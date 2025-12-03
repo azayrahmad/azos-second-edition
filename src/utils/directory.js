@@ -1,5 +1,13 @@
 import directory from '../config/directory.js';
 import { apps } from '../config/apps.js';
+import { fileAssociations } from '../config/fileAssociations.js';
+import { getRecycleBinItems } from './recycleBinManager.js';
+import { networkNeighborhood } from '../config/networkNeighborhood.js';
+
+export function getAssociation(filename) {
+  const extension = filename.split('.').pop().toLowerCase();
+  return fileAssociations[extension] || fileAssociations.default;
+}
 
 function findNodeById(nodes, id) {
   for (const node of nodes) {
@@ -54,9 +62,10 @@ export function getDesktopContents() {
                 }
             }
         } else if (item.type === 'file') {
+            const association = getAssociation(item.name);
             desktopFiles.push({
                 filename: item.name,
-                app: item.openwith,
+                app: association.appId,
                 path: item.contentUrl,
             });
         }
@@ -87,6 +96,63 @@ export function removeAppDefinition(appId) {
             programFilesFolder.children.splice(index, 1);
         }
     }
+}
+
+export function findItemByPath(path) {
+  if (path === "//recycle-bin") {
+    const recycledItems = getRecycleBinItems();
+    return {
+      id: "recycle-bin",
+      name: "Recycle Bin",
+      type: "folder",
+      children: recycledItems.map((item) => ({
+        ...item,
+        name: item.name || item.title,
+        type: item.type || "file",
+      })),
+    };
+  }
+
+  if (path === "//network-neighborhood") {
+    return {
+      id: "network-neighborhood",
+      name: "Network Neighborhood",
+      type: "folder",
+      children: networkNeighborhood.map((item) => ({
+        ...item,
+        id: item.title.toLowerCase().replace(/\\s+/g, "-"),
+        name: item.title,
+        type: "network",
+      })),
+    };
+  }
+
+  if (!path || path === "/") {
+    return {
+      id: "root",
+      name: "My Computer",
+      type: "folder",
+      children: directory,
+    };
+  }
+
+  const parts = path.split("/").filter(Boolean);
+  let currentLevel = directory;
+  let currentItem = null;
+
+  for (const part of parts) {
+    const found = currentLevel.find(
+      (item) => item.name === part || item.id === part,
+    );
+    if (found) {
+      currentItem = found;
+      currentLevel = found.children || [];
+    } else {
+      return null; // Not found
+    }
+  }
+
+  return currentItem;
 }
 
 export function addDesktopShortcut(appId, appTitle) {

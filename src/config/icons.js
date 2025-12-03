@@ -46,7 +46,8 @@ export const ICONS = {
   computer: {
     16: new URL("../assets/icons/computer_explorer-0.png", import.meta.url)
       .href,
-    32: new URL("../assets/icons/computer_explorer-32.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_explorer-32.png", import.meta.url)
+      .href,
   },
   disketteDrive: {
     16: new URL("../assets/icons/SHELL32_7-16.png", import.meta.url).href,
@@ -198,6 +199,10 @@ export const ICONS = {
     16: new URL("../assets/icons/Paint-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Paint-32.png", import.meta.url).href,
   },
+  simcity2000: {
+    16: new URL("../assets/icons/games/SIMCITY_2.ico", import.meta.url).href,
+    32: new URL("../assets/icons/games/SIMCITY_2.ico", import.meta.url).href,
+  },
   displayProperties: {
     16: new URL("../assets/icons/Display-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Display-32.png", import.meta.url).href,
@@ -213,5 +218,41 @@ export const ICONS = {
   "buy-me-a-coffee": {
     16: new URL("../assets/icons/coffee-16.png", import.meta.url).href,
     32: new URL("../assets/icons/coffee-32.png", import.meta.url).href,
+  },
+  textFile: {
+    16: new URL("../assets/icons/notepad_file-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/notepad_file-0.png", import.meta.url).href,
+  },
+  imageJpgFile: {
+    16: new URL("../assets/icons/imagjpeg-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/imagjpeg-1.png", import.meta.url).href,
+  },
+  imageGifFile: {
+    16: new URL("../assets/icons/imaggif-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/imaggif-1.png", import.meta.url).href,
+  },
+  imageBmpFile: {
+    16: new URL("../assets/icons/paint_file-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/paint_file-3.png", import.meta.url).href,
+  },
+  file: {
+    16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/file_lines-0.png", import.meta.url).href,
+  },
+  "cursor-explorer": {
+    16: new URL("../assets/icons/COMCTL32_20481-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/COMCTL32_20481-32.png", import.meta.url).href,
+  },
+  networkComputer: {
+    16: new URL("../assets/icons/computer_2-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/computer_2-3.png", import.meta.url).href,
+  },
+  doom: {
+    16: new URL("../assets/icons/games/doom.png", import.meta.url).href,
+    32: new URL("../assets/icons/games/doom.png", import.meta.url).href,
+  },
+  mediaPlayer: {
+    16: new URL("../assets/icons/MPLAYER2_110-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/MPLAYER2_110-32.png", import.meta.url).href,
   },
 };

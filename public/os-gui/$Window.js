@@ -127,7 +127,7 @@
         ),
       )
         .addClass("window os-window")
-        .appendTo("#screen")
+        .appendTo("#desktop-area")
     );
     // TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
     $w[0].$window = $w;
@@ -968,16 +968,29 @@
         };
 
         $w.addClass("maximized");
-        const screen = document.getElementById('screen');
+        const screen = document.getElementById("desktop-area");
         const screenRect = screen.getBoundingClientRect();
         const parentRect = screen.offsetParent.getBoundingClientRect();
+
+        // Get window computed styles to account for borders
+        const computedStyle = window.getComputedStyle($w[0]);
+        const borderTopWidth = parseInt(computedStyle.borderTopWidth, 10) || 0;
+        const borderRightWidth =
+          parseInt(computedStyle.borderRightWidth, 10) || 0;
+        const borderBottomWidth =
+          parseInt(computedStyle.borderBottomWidth, 10) || 0;
+        const borderLeftWidth =
+          parseInt(computedStyle.borderLeftWidth, 10) || 0;
+        // Calculate dimensions that will fit inside desktop area
+        const adjustedWidth = screenRect.width - 7;
+        const adjustedHeight = screenRect.height - 5;
 
         $w.css({
           position: "absolute", // Changed from fixed
           top: 0, // Relative to #screen
           left: 0, // Relative to #screen
-          width: screenRect.width,
-          height: screenRect.height,
+          width: adjustedWidth,
+          height: adjustedHeight,
         });
       };
       const instantly_unmaximize = () => {
@@ -1510,7 +1523,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     });
 
     $w.applyBounds = () => {
-      const screen = document.getElementById('screen');
+      const screen = document.getElementById("desktop-area");
       const rect = screen.getBoundingClientRect();
       $w.css({
         left: Math.max(
@@ -1526,7 +1539,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 
     $w.bringTitleBarInBounds = () => {
       // Try to make the titlebar always accessible
-      const screen = document.getElementById('screen');
+      const screen = document.getElementById("desktop-area");
       const rect = screen.getBoundingClientRect();
       const min_horizontal_pixels_on_screen = 40; // enough for space past a close button
       $w.css({
@@ -1548,7 +1561,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     };
 
     $w.center = () => {
-      const screen = document.getElementById('screen');
+      const screen = document.getElementById("desktop-area");
       const rect = screen.getBoundingClientRect();
       $w.css({
         left: (rect.width - $w.width()) / 2,
@@ -1582,7 +1595,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         drag_pointer_x = e.clientX ?? drag_pointer_x;
         drag_pointer_y = e.clientY ?? drag_pointer_y;
       }
-      const screenRect = document.getElementById('screen').getBoundingClientRect();
+      const screenRect = document
+        .getElementById("desktop-area")
+        .getBoundingClientRect();
       $w.css({
         left: drag_pointer_x - screenRect.left - drag_offset_x,
         top: drag_pointer_y - screenRect.top - drag_offset_y,
@@ -1641,7 +1656,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
       if (customEvent.isDefaultPrevented()) {
         return; // allow custom drag behavior of component windows in jspaint (Tools / Colors)
       }
-      const screenRect = document.getElementById('screen').getBoundingClientRect();
+      const screenRect = document
+        .getElementById("desktop-area")
+        .getBoundingClientRect();
       drag_offset_x = e.clientX - screenRect.left - $w.position().left;
       drag_offset_y = e.clientY - screenRect.top - $w.position().top;
       drag_pointer_x = e.clientX;
@@ -1723,7 +1740,6 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
           cursor_name === "we" ? "ew-resize" : `${cursor_name}-resize`;
         const cursor = `var(--cursor-${theme_cursor_name}-resize, ${fallback})`;
 
-        console.log(cursor);
         // Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
         // Here's a little diagram of sorts:
         // outerWidth(true): margin, [ outerWidth(): border, [ innerWidth(): padding, [ width(): content ] ] ]

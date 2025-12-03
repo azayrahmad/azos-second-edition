@@ -24,7 +24,7 @@ import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
 import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
-import screensaver from "./components/screensaver.js";
+import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
 
 // Window Management System
@@ -97,6 +97,8 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
+  document.body.classList.add("booting");
+  document.getElementById("screen").classList.add("boot-mode");
   // Hide the initial "Initializing azOS..." message
   document.getElementById("initial-boot-message").style.display = "none";
   // Show the main boot screen content with two columns
@@ -190,6 +192,7 @@ async function initializeOS() {
   logElement = startBootProcessStep("Setting up desktop...");
   await new Promise((resolve) => setTimeout(resolve, 50));
   await initDesktop();
+  document.dispatchEvent(new CustomEvent("desktop-refresh"));
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
 
@@ -202,6 +205,10 @@ async function initializeOS() {
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   await promptToContinue();
+
+  document.body.classList.remove("booting");
+  document.getElementById("screen").classList.remove("boot-mode");
+
   hideBootScreen();
 
   window.ShowDialogWindow = ShowDialogWindow;

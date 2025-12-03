@@ -1,20 +1,17 @@
 ((exports) => {
   function ContextMenu(menuItems, event) {
     // Remove existing menus
-    const existingMenus = document.querySelectorAll(".menu-popup-wrap");
+    const existingMenus = document.querySelectorAll(".menu-popup-wrapper");
     existingMenus.forEach((menu) => menu.remove());
-
     let menuPopup;
 
     // ──────────────────────────────────────────────
     // 1. Create wrapper for clipping + animation
     // ──────────────────────────────────────────────
     const wrap = document.createElement("div");
-    wrap.className = "menu-popup-wrap";
+    wrap.className = "menu-popup-wrapper";
     wrap.style.position = "absolute";
     wrap.style.overflow = "hidden";
-    wrap.style.width = "0px";
-    wrap.style.height = "0px";
 
     // ──────────────────────────────────────────────
     // 2. Closing logic
@@ -47,8 +44,7 @@
     });
 
     // Set z-index for the main context menu
-    menuPopup.element.style.zIndex =
-      window.os_gui_utils.get_new_menu_z_index();
+    menuPopup.element.style.zIndex = window.os_gui_utils.get_new_menu_z_index();
 
     // Append menu into wrapper
     wrap.appendChild(menuPopup.element);
@@ -68,45 +64,23 @@
       window.playSound("MenuPopup");
     }
 
-    // Force reflow
-    void menuPopup.element.offsetHeight;
-
-    // ──────────────────────────────────────────────
-    // 4. Quadrant detection + animation
-    // ──────────────────────────────────────────────
-    const ANIMATIONS = {
-      "-100,-100": "diag-100-100", // slide from top-left → down-right
-      "100,-100": "diag100-100", // slide from top-right → down-left
-      "-100,100": "diag-100100", // slide from bottom-left → up-right
-      "100,100": "diag100100", // slide from bottom-right → up-left
-    };
-
-    // Inject keyframes if not already added
-    if (!document.getElementById("context-menu-anim")) {
-      const st = document.createElement("style");
-      st.id = "context-menu-anim";
-      st.textContent = `
-@keyframes diag-100-100 { from { transform: translate(-100%, -100%);} to { transform: translate(0,0);} }
-@keyframes diag100-100  { from { transform: translate(100%, -100%);} to { transform: translate(0,0);} }
-@keyframes diag-100100  { from { transform: translate(-100%, 100%);} to { transform: translate(0,0);} }
-@keyframes diag100100   { from { transform: translate(100%, 100%);} to { transform: translate(0,0);} }
-      `;
-      document.head.appendChild(st);
-    }
-
-    // ──────────────────────────────────────────────
-    // 5. Position wrapper based on boundaries
-    // ──────────────────────────────────────────────
+    // Position and animate
     const positionAt = (x, y) => {
-      const screenRect = screen.getBoundingClientRect();
-      const menuRect = menuPopup.element.getBoundingClientRect();
+      // Make visible off-screen to measure
+      wrap.style.display = "block";
+      wrap.style.zIndex = window.os_gui_utils.get_new_menu_z_index();
+      wrap.style.position = "absolute";
+      wrap.style.left = "-9999px";
+      wrap.style.top = "-9999px";
 
+      const screenRect = screen.getBoundingClientRect();
+      // Measure the actual menu content, not the wrapper
+      const menuRect = menuPopup.element.getBoundingClientRect();
       const relX = x - screenRect.left;
       const relY = y - screenRect.top;
 
       let finalX = relX;
       let finalY = relY;
-
       let fromX = -100; // default slide in down-right
       let fromY = -100;
 
@@ -125,22 +99,42 @@
       finalX = Math.max(0, finalX);
       finalY = Math.max(0, finalY);
 
-      // Resize wrapper
-      wrap.style.width = menuRect.width + "px";
-      wrap.style.height = menuRect.height + "px";
-
       wrap.style.left = `${finalX}px`;
       wrap.style.top = `${finalY}px`;
+      // Initial width/height are handled by CSS variables with default 0px,
+      // and will be updated asynchronously.
 
-      // Apply animation
-      menuPopup.element.style.animation =
-        ANIMATIONS[`${fromX},${fromY}`] + " 130ms linear forwards";
+      setTimeout(() => {
+        console.log(
+          "ContextMenu: menuRect width:",
+          menuRect.width,
+          "height:",
+          menuRect.height,
+        );
+        wrap.style.setProperty("--width", `${menuRect.width}px`);
+        wrap.style.setProperty("--height", `${menuRect.height}px`);
+        // Now assign the CSS variables to the inline styles,
+        // which will trigger reflow and animation.
+        wrap.style.width = "var(--width)";
+        wrap.style.height = "var(--height)";
 
-      menuPopup.element.style.transform = `translate(${fromX}%, ${fromY}%)`;
+        if (fromX === -100 && fromY === -100) {
+          wrap.classList.add("to-diag-100-100");
+        } else if (fromX === 100 && fromY === -100) {
+          wrap.classList.add("to-diag100-100");
+        } else if (fromX === -100 && fromY === 100) {
+          wrap.classList.add("to-diag-100100");
+        } else {
+          wrap.classList.add("to-diag100100");
+        }
+      }, 0);
     };
 
     // Position at pointer
     positionAt(event.pageX, event.pageY);
+
+    // After positioning, dispatch an update event to set initial checkbox states
+    menuPopup.element.dispatchEvent(new CustomEvent("update", {}));
 
     menuPopup.element.focus({ preventScroll: true });
 

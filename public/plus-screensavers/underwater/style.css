@@ -112,6 +112,40 @@ body {
     }
 }
 
+/* Stingray Animation */
+.stingray {
+    width: 200px; /* A single frame's width */
+    height: 110px; /* A single frame's height */
+    background-image: url("src/images/stingray.png");
+    background-size: 2000px 110px; /* Total sprite sheet size */
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 10vh; /* Start near the top */
+    left: -200px; /* Start off-screen */
+    z-index: 3; /* Below other fish */
+    will-change: transform, background-position;
+    image-rendering: pixelated;
+    display: none; /* Initially hidden */
+}
+
+@keyframes stingray-swim {
+    from {
+        background-position-x: 0;
+    }
+    to {
+        background-position-x: -2000px;
+    }
+}
+
+@keyframes move-left-stingray {
+    0% {
+        transform: translateX(calc(100vw + 200px));
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
 .shark-fin {
     position: absolute;
     bottom: 5%; /* Adjust vertical position as needed */

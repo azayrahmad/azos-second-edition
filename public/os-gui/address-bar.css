@@ -1,72 +1,71 @@
 .address-bar {
-  display: flex;
-  align-items: center;
-  background-color: var(--ButtonFace);
-  padding: 2px;
-  position: relative;
-  font-family: "MS Sans Serif", sans-serif;
-  font-size: 11px;
+    display: flex;
+    align-items: center;
+    background-color: var(--ButtonFace);
+    padding: 2px;
+    position: relative;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
 }
 
 .address-label {
-  margin-right: 5px;
-  user-select: none;
+    margin-right: 5px;
+    user-select: none;
 }
 
 .selected-item-container {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  background-color: var(--Window);
-  border: 1px solid var(--ButtonShadow);
-  padding: 2px;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    background-color: var(--Window);
+    border: 1px solid var(--ButtonShadow);
+    padding: 2px;
 }
 
 .selected-item-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
 }
 
 .dropdown-button {
-  width: 17px;
-  height: 17px;
-  background-color: var(--ButtonFace);
-  border: 1px solid var(--ButtonHilight);
-  border-right-color: var(--ButtonShadow);
-  border-bottom-color: var(--ButtonShadow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
+    width: 17px;
+    height: 17px;
+    background-color: var(--ButtonFace);
+    border: 1px solid var(--ButtonHilight);
+    border-right-color: var(--ButtonShadow);
+    border-bottom-color: var(--ButtonShadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
 }
 
 .dropdown-list-container {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: var(--Window);
-  border: 1px solid var(--ButtonShadow);
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--Window);
+    border: 1px solid var(--ButtonShadow);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .dropdown-list-item {
-  display: flex;
-  align-items: center;
-  padding: 2px 5px;
-
+    display: flex;
+    align-items: center;
+    padding: 2px 5px;
 }
 
 .dropdown-list-item:hover {
-  background-color: var(--Hilight);
-  color: var(--HilightText);
+    background-color: var(--Hilight);
+    color: var(--HilightText);
 }
 
 .list-item-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
 }

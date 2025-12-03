@@ -1,138 +1,319 @@
 .toolbar {
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  border-bottom: 1px solid var(--ButtonShadow);
-  background-color: var(--ButtonFace);
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    border-bottom: 1px solid var(--ButtonShadow);
+    background-color: var(--ButtonFace);
 }
 
 .toolbar-button-group {
-  display: flex;
-  border: 1px solid transparent;
+    display: flex;
+    border: 1px solid transparent;
 }
 
 .toolbar-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 40px;
-  border: none;
-  background: none;
-  padding: 1px;
-  font-size: 11px;
-  color: var(--ButtonText);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 40px;
+    border: none;
+    background: none;
+    padding: 1px;
+    font-size: var(--font-size-base);
+    color: var(--ButtonText);
 }
 
 .toolbar-button.has-submenu-main {
-  width: 50px;
+    width: 50px;
 }
 
 .toolbar-arrow-button {
-  width: 12px;
-  border: none;
-  background: none;
-  padding: 0;
-  font-size: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 12px;
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: var(--font-size-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toolbar-button:active,
 .toolbar-arrow-button:active {
-  border: 1px solid var(--ButtonShadow);
+    border: 1px solid var(--ButtonShadow);
 }
 
 .toolbar-button:disabled,
 .toolbar-arrow-button:disabled {
-  color: var(--GrayText);
-}
-
-.toolbar-button:disabled .toolbar-icon {
-  filter: grayscale(100%);
-  opacity: 0.5;
+    color: var(--GrayText);
 }
 
 .toolbar-icon {
-  width: 20px;
-  height: 20px;
-  margin-bottom: 2px;
-  background-image: var(--toolbar-icons-grayscale);
-  background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    margin-bottom: 2px;
+    background-image: var(--toolbar-icons-grayscale);
+    background-repeat: no-repeat;
 }
 
-.toolbar-button:hover .toolbar-icon,
+.toolbar-button:not([disabled]):hover .toolbar-icon,
 .toolbar-button:active .toolbar-icon {
-  background-image: var(--toolbar-icons);
+    background-image: var(--toolbar-icons);
 }
-
+.toolbar-button[disabled] .toolbar-icon {
+    filter: grayscale(100%) opacity(70%);
+    filter: url("#os-gui-black-to-inset-filter");
+}
 .toolbar-icon[data-icon-id="0"] {
-  background-position: 0 0;
+    background-position: 0 0;
 }
 .toolbar-icon[data-icon-id="1"] {
-  background-position: -20px 0;
+    background-position: -20px 0;
 }
 .toolbar-icon[data-icon-id="2"] {
-  background-position: -40px 0;
+    background-position: -40px 0;
 }
 .toolbar-icon[data-icon-id="3"] {
-  background-position: -60px 0;
+    background-position: -60px 0;
 }
 .toolbar-icon[data-icon-id="4"] {
-  background-position: -80px 0;
+    background-position: -80px 0;
 }
 .toolbar-icon[data-icon-id="5"] {
-  background-position: -100px 0;
+    background-position: -100px 0;
 }
 .toolbar-icon[data-icon-id="6"] {
-  background-position: -120px 0;
+    background-position: -120px 0;
 }
 .toolbar-icon[data-icon-id="7"] {
-  background-position: -140px 0;
+    background-position: -140px 0;
 }
 .toolbar-icon[data-icon-id="8"] {
-  background-position: -160px 0;
+    background-position: -160px 0;
+}
+.toolbar-icon[data-icon-id="9"] {
+    background-position: -180px 0;
+}
+.toolbar-icon[data-icon-id="10"] {
+    background-position: -200px 0;
+}
+.toolbar-icon[data-icon-id="11"] {
+    background-position: -220px 0;
+}
+.toolbar-icon[data-icon-id="12"] {
+    background-position: -240px 0;
+}
+.toolbar-icon[data-icon-id="13"] {
+    background-position: -260px 0;
+}
+.toolbar-icon[data-icon-id="14"] {
+    background-position: -280px 0;
+}
+.toolbar-icon[data-icon-id="15"] {
+    background-position: -300px 0;
+}
+.toolbar-icon[data-icon-id="16"] {
+    background-position: -320px 0;
+}
+.toolbar-icon[data-icon-id="17"] {
+    background-position: -340px 0;
+}
+.toolbar-icon[data-icon-id="18"] {
+    background-position: -360px 0;
+}
+.toolbar-icon[data-icon-id="19"] {
+    background-position: -380px 0;
+}
+.toolbar-icon[data-icon-id="20"] {
+    background-position: -400px 0;
+}
+.toolbar-icon[data-icon-id="21"] {
+    background-position: -420px 0;
+}
+.toolbar-icon[data-icon-id="22"] {
+    background-position: -440px 0;
+}
+.toolbar-icon[data-icon-id="23"] {
+    background-position: -460px 0;
+}
+.toolbar-icon[data-icon-id="24"] {
+    background-position: -480px 0;
+}
+.toolbar-icon[data-icon-id="25"] {
+    background-position: -500px 0;
+}
+.toolbar-icon[data-icon-id="26"] {
+    background-position: -520px 0;
+}
+.toolbar-icon[data-icon-id="27"] {
+    background-position: -540px 0;
+}
+.toolbar-icon[data-icon-id="28"] {
+    background-position: -560px 0;
+}
+.toolbar-icon[data-icon-id="29"] {
+    background-position: -580px 0;
+}
+.toolbar-icon[data-icon-id="30"] {
+    background-position: -600px 0;
+}
+.toolbar-icon[data-icon-id="31"] {
+    background-position: -620px 0;
+}
+.toolbar-icon[data-icon-id="32"] {
+    background-position: -640px 0;
+}
+.toolbar-icon[data-icon-id="33"] {
+    background-position: -660px 0;
+}
+.toolbar-icon[data-icon-id="34"] {
+    background-position: -680px 0;
+}
+.toolbar-icon[data-icon-id="35"] {
+    background-position: -700px 0;
+}
+.toolbar-icon[data-icon-id="36"] {
+    background-position: -720px 0;
+}
+.toolbar-icon[data-icon-id="37"] {
+    background-position: -740px 0;
+}
+.toolbar-icon[data-icon-id="38"] {
+    background-position: -760px 0;
+}
+.toolbar-icon[data-icon-id="39"] {
+    background-position: -780px 0;
+}
+.toolbar-icon[data-icon-id="40"] {
+    background-position: -800px 0;
+}
+.toolbar-icon[data-icon-id="41"] {
+    background-position: -820px 0;
+}
+.toolbar-icon[data-icon-id="42"] {
+    background-position: -840px 0;
+}
+.toolbar-icon[data-icon-id="43"] {
+    background-position: -860px 0;
+}
+.toolbar-icon[data-icon-id="44"] {
+    background-position: -880px 0;
+}
+.toolbar-icon[data-icon-id="45"] {
+    background-position: -900px 0;
+}
+.toolbar-icon[data-icon-id="46"] {
+    background-position: -920px 0;
+}
+.toolbar-icon[data-icon-id="47"] {
+    background-position: -940px 0;
+}
+.toolbar-icon[data-icon-id="48"] {
+    background-position: -960px 0;
+}
+.toolbar-icon[data-icon-id="49"] {
+    background-position: -980px 0;
+}
+.toolbar-icon[data-icon-id="50"] {
+    background-position: -1000px 0;
+}
+.toolbar-icon[data-icon-id="51"] {
+    background-position: -1020px 0;
+}
+.toolbar-icon[data-icon-id="52"] {
+    background-position: -1040px 0;
+}
+.toolbar-icon[data-icon-id="53"] {
+    background-position: -1060px 0;
+}
+.toolbar-icon[data-icon-id="54"] {
+    background-position: -1080px 0;
+}
+.toolbar-icon[data-icon-id="55"] {
+    background-position: -1100px 0;
+}
+.toolbar-icon[data-icon-id="56"] {
+    background-position: -1120px 0;
+}
+.toolbar-icon[data-icon-id="57"] {
+    background-position: -1140px 0;
+}
+.toolbar-icon[data-icon-id="58"] {
+    background-position: -1160px 0;
+}
+.toolbar-icon[data-icon-id="59"] {
+    background-position: -1180px 0;
+}
+.toolbar-icon[data-icon-id="60"] {
+    background-position: -1200px 0;
+}
+.toolbar-icon[data-icon-id="61"] {
+    background-position: -1220px 0;
+}
+.toolbar-icon[data-icon-id="62"] {
+    background-position: -1240px 0;
 }
 
 .toolbar-label {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
 .menu-popup {
-  position: absolute;
-  background: var(--ButtonFace);
-  border: 1px solid;
-  border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow)
-    var(--ButtonHilight);
-  box-shadow: 1px 1px 0 var(--ButtonShadow);
-  padding: 1px;
-  z-index: 10000;
+    position: absolute;
+    background: var(--ButtonFace);
+    border: 1px solid;
+    border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow)
+        var(--ButtonHilight);
+    box-shadow: 1px 1px 0 var(--ButtonShadow);
+    padding: 1px;
+    z-index: 10000;
 }
 
 .menu-popup-table {
-  border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 .menu-row {
 }
 
 .menu-item {
-  font-size: 11px;
-  color: var(--ButtonText);
-  white-space: nowrap;
+    font-size: var(--font-size-base);
+    color: var(--ButtonText);
+    white-space: nowrap;
 }
 
 .menu-item.highlight {
-  background-color: var(--Hilight);
-  color: var(--HilightText);
+    background-color: var(--Hilight);
+    color: var(--HilightText);
 }
 
 .menu-item[aria-disabled="true"] {
-  color: var(--GrayText);
+    color: var(--GrayText);
 }
 
 .menu-item-label {
-  padding: 2px 10px;
+    padding: 2px 10px;
+}
+
+.toolbar-overflow-popup {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item {
+    width: 100%;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item .toolbar-button {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 4px 8px;
+}
+
+.toolbar-overflow-popup .toolbar-button-group.overflow-item .toolbar-icon {
+    margin-bottom: 0;
+    margin-right: 6px;
 }

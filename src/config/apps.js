@@ -11,15 +11,18 @@ import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
+import { DosGameApp } from "../apps/dosgame/DosGameApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
 import { IFrameApplication } from "../apps/IFrameApplication.js";
 import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
 import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
+import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -46,9 +49,12 @@ export const appClasses = {
   explorer: ExplorerApp,
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
+  dosgame: DosGameApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
   "buy-me-a-coffee": IFrameApplication,
+  "cursor-explorer": CursorExplorerApp,
+  "media-player": MediaPlayerApp,
 };
 
 export const apps = [
@@ -63,6 +69,26 @@ export const apps = [
       type: "function",
       handler: () => {
         window.System.launchApp("explorer", "/");
+      },
+    },
+  },
+  {
+    id: "simcity2000",
+    title: "SimCity 2000 Demo",
+    description: "Play the classic game SimCity 2000.",
+    icon: ICONS.simcity2000,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("dosgame", {
+          gameUrl: "games/dos/simcity2000/index.html",
+          title: "SimCity 2000 Demo",
+          icon: ICONS.simcity2000,
+          width: 640,
+          height: 480,
+          resizable: false,
+          maximizable: false,
+        });
       },
     },
   },
@@ -139,7 +165,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp("explorer", SPECIAL_FOLDER_PATHS["my-documents"]);
+        window.System.launchApp(
+          "explorer",
+          SPECIAL_FOLDER_PATHS["my-documents"],
+        );
       },
     },
   },
@@ -401,5 +430,60 @@ export const apps = [
     height: 450,
     resizable: true,
     isSingleton: true,
+  },
+  {
+    id: "cursor-explorer",
+    title: "Cursor Explorer",
+    description: "Explore and preview cursor schemes.",
+    icon: ICONS["cursor-explorer"],
+    appClass: CursorExplorerApp,
+    width: 400,
+    height: 500,
+    resizable: true,
+    isSingleton: true,
+  },
+  {
+    id: "dosgame",
+    title: "DOS Game", // Generic title, will be overridden by specific game config
+    description: "A generic launcher for various DOS games.",
+    icon: ICONS.doom, // Placeholder icon for the generic launcher
+    appClass: DosGameApp,
+    // Default window properties, can be overridden by launchApp config
+    width: 640,
+    height: 480,
+    resizable: false,
+    maximizable: false,
+    isSingleton: false, // Allow multiple instances if needed
+  },
+  {
+    id: "doom", // Unique ID for this specific game launcher
+    title: "Doom",
+    description: "Play the classic game Doom.",
+    icon: ICONS.doom, // Specific icon for Doom
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("dosgame", {
+          gameUrl: "games/dos/doom/index.html",
+          title: "Doom", // Title for the window
+          icon: ICONS.doom, // Icon for the window
+          width: 800,
+          height: 500,
+          resizable: true,
+          maximizable: true,
+        });
+      },
+    },
+  },
+  {
+    id: "media-player",
+    title: "Media Player",
+    description: "Play audio and video files.",
+    icon: ICONS.mediaPlayer,
+    appClass: MediaPlayerApp,
+    width: 480,
+    height: 360,
+    resizable: true,
+    isSingleton: false,
   },
 ];

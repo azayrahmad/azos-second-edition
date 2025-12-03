@@ -8,16 +8,26 @@ import {
   deleteCustomTheme,
   getCurrentTheme,
   loadThemeParser,
+  getColorSchemeId,
+  getActiveTheme,
+  getIconSchemeName,
 } from "../../utils/themeManager.js";
+import {
+  fetchThemeCss,
+  parseCssVariables,
+  applyThemeToPreview,
+  applyPropertiesToPreview,
+} from "../../utils/themePreview.js";
+import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
+import screensaverManager from "../../utils/screensaverUtils.js";
 import previewHtml from "./DesktopThemesPreview.html?raw";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
   constructor(config) {
     super(config);
-    this.themeCssCache = {};
     this.previousThemeId = null;
     this.customThemeProperties = null;
     this.originalFilename = "";
@@ -95,8 +105,6 @@ export class DesktopThemesApp extends Application {
     this.previewLabel = document.createElement("div");
     this.previewLabel.className = "preview-label";
 
-    await this.populateThemes();
-
     // --- Right Panel ---
     const rightPanel = document.createElement("div");
     rightPanel.className = "right-panel";
@@ -108,10 +116,16 @@ export class DesktopThemesApp extends Application {
     previewsFieldset.innerHTML = "<legend>Previews</legend>";
     rightPanel.appendChild(previewsFieldset);
 
-    const screenSaverButton = document.createElement("button");
-    screenSaverButton.textContent = "Screen Saver";
-    screenSaverButton.disabled = true;
-    previewsFieldset.appendChild(screenSaverButton);
+    this.screenSaverButton = document.createElement("button");
+    this.screenSaverButton.textContent = "Screen Saver";
+    this.screenSaverButton.disabled = true;
+    this.screenSaverButton.addEventListener("click", () => {
+      const selectedTheme = getThemes()[this.themeSelector.value];
+      if (selectedTheme?.screensaver) {
+        screensaverManager.showPreview(selectedTheme.screensaver);
+      }
+    });
+    previewsFieldset.appendChild(this.screenSaverButton);
 
     const pointersButton = document.createElement("button");
     pointersButton.textContent = "Pointers, Sounds, etc...";
@@ -166,6 +180,40 @@ export class DesktopThemesApp extends Application {
       </div>
     `;
     rightPanel.appendChild(settingsFieldset);
+
+    const themes = getThemes();
+    const activeTheme = getActiveTheme();
+    const currentColorSchemeId = getColorSchemeId() || activeTheme.id;
+    const currentColorSchemeTheme = themes[currentColorSchemeId] || activeTheme;
+    const currentWallpaper =
+      getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || activeTheme.wallpaper;
+
+    let currentColors = {};
+    if (currentColorSchemeTheme.isCustom && currentColorSchemeTheme.colors) {
+      for (const [key, value] of Object.entries(
+        currentColorSchemeTheme.colors,
+      )) {
+        currentColors[`--${key.replace(/^--/, "")}`] = value;
+      }
+    } else if (currentColorSchemeTheme.stylesheet) {
+      const cssText = await fetchThemeCss(currentColorSchemeTheme.stylesheet);
+      if (cssText) {
+        const parsedVariables = parseCssVariables(cssText);
+        for (const [key, value] of Object.entries(parsedVariables)) {
+          currentColors[`--${key}`] = value;
+        }
+      }
+    }
+
+    const currentIconScheme = getIconSchemeName();
+
+    this.customThemeProperties = {
+      ...currentColors,
+      wallpaper: currentWallpaper,
+      iconScheme: currentIconScheme,
+    };
+
+    await this.populateThemes();
 
     // --- Bottom Action Buttons ---
     const actionsContainer = document.createElement("div");
@@ -299,20 +347,91 @@ export class DesktopThemesApp extends Application {
     reader.readAsText(file);
   }
 
-  handleSaveTheme() {
+  _promptForThemeName() {
+    const win = new $Window({
+      title: "Save Theme",
+      outerWidth: 320,
+      outerHeight: "auto",
+      modal: true,
+      resizable: false,
+      toolWindow: true,
+      icons: this.icon,
+      className: "theme-name-prompt",
+    });
+
+    const content = document.createElement("div");
+    content.className = "dialog-content";
+
+    const textEl = document.createElement("p");
+    textEl.textContent = "Please enter a name for this theme:";
+    content.appendChild(textEl);
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = this.originalFilename || "";
+    content.appendChild(input);
+
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "dialog-buttons";
+
+    const okButton = document.createElement("button");
+    okButton.textContent = "OK";
+    okButton.classList.add("default");
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+
+    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(cancelButton);
+
+    const updateOkButtonState = () => {
+      okButton.disabled = input.value.trim() === "";
+    };
+
+    input.addEventListener("input", updateOkButtonState);
+    updateOkButtonState();
+
+    okButton.onclick = () => {
+      const themeName = input.value.trim();
+      this._confirmAndSaveTheme(themeName);
+      win.close();
+    };
+
+    cancelButton.onclick = () => {
+      win.close();
+    };
+
+    win.$content.append(content, buttonContainer);
+    win.center();
+    input.focus();
+
+    // Auto-height adjustment
+    setTimeout(() => {
+      const contentHeight = content.offsetHeight + buttonContainer.offsetHeight;
+      const frameHeight = win.outerHeight() - win.$content.innerHeight();
+      win.outerHeight(contentHeight + frameHeight + 10);
+      win.center();
+    }, 0);
+  }
+
+  _confirmAndSaveTheme(themeName) {
     ShowDialogWindow({
       title: "Save Theme",
-      text: `Do you want to save this theme as "${this.originalFilename}"?`,
+      text: `Do you want to save this theme as "${themeName}"?`,
       buttons: [
         {
           label: "OK",
           action: () => {
-            this.saveTheme(this.originalFilename);
+            this.saveTheme(themeName);
           },
         },
         { label: "Cancel" },
       ],
     });
+  }
+
+  handleSaveTheme() {
+    this._promptForThemeName();
   }
 
   saveTheme(name) {
@@ -377,6 +496,7 @@ export class DesktopThemesApp extends Application {
 
       this.saveButton.disabled = selectedValue !== "current-settings";
       this.deleteButton.disabled = !selectedTheme?.isCustom;
+      this.screenSaverButton.disabled = !selectedTheme?.screensaver;
 
       if (selectedValue === "current-settings") {
         const normalizedProperties = {};
@@ -385,13 +505,9 @@ export class DesktopThemesApp extends Application {
         }
         await this.previewCustomTheme(normalizedProperties);
         this.previewLabel.textContent = `Preview of 'Current Windows settings'`;
-      } else {
-        this.removeTemporaryThemeOption();
-        this.customThemeProperties = null;
+      } else if (selectedTheme) {
         await this.previewTheme(selectedValue);
-        this.previewLabel.textContent = `Preview of '${
-          selectedTheme ? selectedTheme.name : ""
-        }'`;
+        this.previewLabel.textContent = `Preview of '${selectedTheme.name}'`;
       }
     } finally {
       clearBusyCursor(this.win.$content[0]);
@@ -403,8 +519,7 @@ export class DesktopThemesApp extends Application {
       const option = document.createElement("option");
       option.value = "current-settings";
       option.textContent = "Current Windows settings";
-      const separator = this.themeSelector.querySelector("option[disabled]");
-      this.themeSelector.insertBefore(option, separator);
+      this.themeSelector.prepend(option);
     }
   }
 
@@ -419,7 +534,10 @@ export class DesktopThemesApp extends Application {
 
   async populateThemes() {
     const lastSelected = this.themeSelector.value;
+    const isFirstLoad = this.themeSelector.innerHTML === "";
     this.themeSelector.innerHTML = "";
+
+    this.addTemporaryThemeOption();
 
     const themes = getThemes();
     const sortedThemes = Object.entries(themes).sort(([, a], [, b]) =>
@@ -443,7 +561,11 @@ export class DesktopThemesApp extends Application {
     loadOption.textContent = "<Load Theme>";
     this.themeSelector.appendChild(loadOption);
 
-    if (this.themeSelector.querySelector(`option[value="${lastSelected}"]`)) {
+    if (isFirstLoad) {
+      this.themeSelector.value = "current-settings";
+    } else if (
+      this.themeSelector.querySelector(`option[value="${lastSelected}"]`)
+    ) {
       this.themeSelector.value = lastSelected;
     } else {
       this.themeSelector.value = getCurrentTheme();
@@ -451,10 +573,7 @@ export class DesktopThemesApp extends Application {
     await this.handleThemeSelection();
   }
 
-  updatePreviewIcons(themeId = "default") {
-    const themes = getThemes();
-    const theme = themes[themeId] || themes.default;
-    const schemeId = theme.iconScheme || "default";
+  updatePreviewIcons(schemeId = "default") {
     const scheme = iconSchemes[schemeId] || iconSchemes.default;
     const defaultScheme = iconSchemes.default;
 
@@ -480,21 +599,10 @@ export class DesktopThemesApp extends Application {
     const theme = getThemes()[themeId];
     if (!theme) return;
 
-    this.updatePreviewIcons(themeId);
+    this.updatePreviewIcons(theme.iconScheme);
 
-    let variables = {};
-    if (theme.isCustom && theme.colors) {
-      for (const [key, value] of Object.entries(theme.colors)) {
-        variables[key.replace(/^--/, "")] = value;
-      }
-    } else if (theme.stylesheet) {
-      const cssText = await this.fetchThemeCss(theme.stylesheet);
-      if (cssText) {
-        variables = this.parseCssVariables(cssText);
-      }
-    }
+    const variables = await applyThemeToPreview(themeId, this.previewContainer);
 
-    this.applyCssVariables(variables);
     this.previewContainer.style.backgroundImage = theme.wallpaper
       ? `url('${theme.wallpaper}')`
       : "none";
@@ -503,92 +611,13 @@ export class DesktopThemesApp extends Application {
   }
 
   previewCustomTheme(properties) {
-    this.updatePreviewIcons(); // No themeId, so it uses default icons
-    this.applyCssVariables(properties);
+    this.updatePreviewIcons(properties.iconScheme);
+    applyPropertiesToPreview(properties, this.previewContainer);
     this.previewContainer.style.backgroundImage = properties.wallpaper
       ? `url('${properties.wallpaper}')`
       : "none";
     this.previewContainer.style.backgroundColor =
       properties["Background"] || "#008080";
-  }
-
-  async fetchThemeCss(stylesheet) {
-    if (!stylesheet) return null;
-    const url = `./os-gui/${stylesheet}`;
-    if (this.themeCssCache[url]) return this.themeCssCache[url];
-    try {
-      const response = await fetch(url);
-      if (!response.ok)
-        throw new Error(`Failed to fetch CSS: ${response.statusText}`);
-      const cssText = await response.text();
-      this.themeCssCache[url] = cssText;
-      return cssText;
-    } catch (error) {
-      console.error("Error fetching theme CSS:", error);
-      return null;
-    }
-  }
-
-  parseCssVariables(cssText) {
-    const variables = {};
-    const rootBlockMatch = cssText.match(/:root\s*{([^}]+)}/);
-    if (rootBlockMatch) {
-      const variablesText = rootBlockMatch[1];
-      const regex = /--([\w-]+):\s*([^;]+);/g;
-      let match;
-      while ((match = regex.exec(variablesText)) !== null) {
-        variables[match[1]] = match[2].trim();
-      }
-    }
-    return variables;
-  }
-
-  applyCssVariables(variables) {
-    const styleProperties = {
-      "--preview-active-title-bar-bg":
-        variables["ActiveTitle"] || "rgb(0, 0, 128)",
-      "--preview-gradient-active-title-bar-bg":
-        variables["GradientActiveTitle"] || "rgb(16, 132, 208)",
-      "--preview-active-title-bar-text":
-        variables["TitleText"] || "rgb(255, 255, 255)",
-      "--preview-inactive-title-bar-bg":
-        variables["InactiveTitle"] || "rgb(128, 128, 128)",
-      "--preview-gradient-inactive-title-bar-bg":
-        variables["GradientInactiveTitle"] || "rgb(181, 181, 181)",
-      "--preview-inactive-title-bar-text":
-        variables["InactiveTitleText"] || "rgb(192, 192, 192)",
-      "--preview-window-bg": variables["Window"] || "rgb(255, 255, 255)",
-      "--preview-window-text": variables["WindowText"] || "rgb(0, 0, 0)",
-      "--preview-button-face": variables["ButtonFace"] || "rgb(192, 192, 192)",
-      "--preview-button-text": variables["ButtonText"] || "rgb(0, 0, 0)",
-      "--preview-button-highlight":
-        variables["ButtonHilight"] || "rgb(255, 255, 255)",
-      "--preview-button-shadow":
-        variables["ButtonShadow"] || "rgb(128, 128, 128)",
-      "--preview-button-dk-shadow":
-        variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
-      "--preview-hilight-text": variables["HilightText"] || "rgb(0, 0, 0)",
-
-      // Font properties
-      "--preview-font-family-title":
-        variables["font-family-title"] ||
-        variables["font-family-base"] ||
-        '"MSW98UI", sans-serif',
-      "--preview-font-size-title":
-        variables["font-size-title"] || variables["font-size-base"] || "11px",
-      "--preview-font-family-menu":
-        variables["font-family-menu"] ||
-        variables["font-family-base"] ||
-        '"MSW98UI", sans-serif',
-      "--preview-font-size-menu":
-        variables["font-size-menu"] || variables["font-size-base"] || "11px",
-      "--preview-font-family-base":
-        variables["font-family-base"] || '"MSW98UI", sans-serif',
-      "--preview-font-size-base": variables["font-size-base"] || "11px",
-    };
-    for (const [property, value] of Object.entries(styleProperties)) {
-      this.previewContainer.style.setProperty(property, value);
-    }
   }
 
   _rgbToHex(rgbString) {

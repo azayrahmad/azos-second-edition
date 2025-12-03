@@ -1,3 +1,7 @@
+import { generateProgramFiles } from "./generateProgramFiles.js";
+import { generatePlusFiles } from "./generatePlusFiles.js";
+import { coreApps } from "./core-apps.js";
+
 const directory = [
   {
     id: "drive-c",
@@ -9,31 +13,16 @@ const directory = [
         name: "Program Files",
         type: "folder",
         children: [
-          { id: "app-about", type: "app", appId: "about" },
-          { id: "app-tipOfTheDay", type: "app", appId: "tipOfTheDay" },
-          { id: "app-pdfviewer", type: "app", appId: "pdfviewer" },
-          { id: "app-notepad", type: "app", appId: "notepad" },
-          { id: "app-image-viewer", type: "app", appId: "image-viewer" },
-          { id: "app-clippy", type: "app", appId: "clippy" },
-          { id: "app-webamp", type: "app", appId: "webamp" },
-          { id: "app-appmaker", type: "app", appId: "appmaker" },
-          { id: "app-alertTest", type: "app", appId: "alertTest" },
-          { id: "app-themetocss", type: "app", appId: "themetocss" },
+          ...generateProgramFiles(),
+          ...coreApps,
+          { id: "app-doom", type: "app", appId: "doom" },
+          { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           {
-            id: "app-soundschemeexplorer",
-            type: "app",
-            appId: "soundschemeexplorer",
+            id: "folder-plus",
+            name: "Plus!",
+            type: "folder",
+            children: generatePlusFiles(),
           },
-          { id: "app-explorer", type: "app", appId: "explorer" },
-          { id: "app-my-computer", type: "app", appId: "my-computer" },
-          { id: "app-my-documents", type: "app", appId: "my-documents" },
-          { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
-          { id: "app-internet-explorer", type: "app", appId: "internet-explorer" },
-          { id: "app-pinball", type: "app", appId: "pinball" },
-          { id: "app-paint", type: "app", appId: "paint" },
-          { id: "app-display-properties", type: "app", appId: "display-properties" },
-          { id: "app-network-neighborhood", type: "app", appId: "network-neighborhood" },
-          { id: "app-buy-me-a-coffee", type: "app", appId: "buy-me-a-coffee" },
         ],
       },
       {
@@ -45,6 +34,7 @@ const directory = [
             id: "folder-desktop",
             name: "desktop",
             type: "folder",
+            enableFileDrop: true,
             children: [
               {
                 id: "shortcut-to-my-computer",
@@ -65,22 +55,16 @@ const directory = [
                 name: "Recycle Bin",
               },
               {
-                id: "shortcut-to-about",
+                id: "shortcut-to-network-neighborhood",
                 type: "shortcut",
-                targetId: "app-about",
-                name: "About",
+                targetId: "app-network-neighborhood",
+                name: "Network Neighborhood",
               },
               {
                 id: "shortcut-to-tipOfTheDay",
                 type: "shortcut",
                 targetId: "app-tipOfTheDay",
                 name: "Tip of the Day",
-              },
-              {
-                id: "shortcut-to-pdfviewer",
-                type: "shortcut",
-                targetId: "app-pdfviewer",
-                name: "PDF Viewer",
               },
               {
                 id: "shortcut-to-notepad",
@@ -119,25 +103,6 @@ const directory = [
                 name: "Alert Test",
               },
               {
-                id: "shortcut-to-themetocss",
-                type: "shortcut",
-                targetId: "app-themetocss",
-                name: "Theme to CSS",
-              },
-              {
-                id: "file-resume",
-                type: "file",
-                name: "Resume.pdf",
-                openwith: "pdfviewer",
-                contentUrl: "public/files/Resume.pdf",
-              },
-              {
-                id: "shortcut-to-soundschemeexplorer",
-                type: "shortcut",
-                targetId: "app-soundschemeexplorer",
-                name: "Sound Scheme Explorer",
-              },
-              {
                 id: "shortcut-to-internet-explorer",
                 type: "shortcut",
                 targetId: "app-internet-explorer",
@@ -156,16 +121,40 @@ const directory = [
                 name: "Paint",
               },
               {
-                id: "shortcut-to-display-properties",
-                type: "shortcut",
-                targetId: "app-display-properties",
-                name: "Display Properties",
+                id: "file-resume",
+                type: "file",
+                name: "Resume.pdf",
+                contentUrl: "public/files/Resume.pdf",
               },
               {
-                id: "shortcut-to-network-neighborhood",
+                id: "file-readme",
+                type: "file",
+                name: "README.md",
+                contentUrl: "files/README.md",
+              },
+              {
+                id: "shortcut-to-cursor-explorer",
                 type: "shortcut",
-                targetId: "app-network-neighborhood",
-                name: "Network Neighborhood",
+                targetId: "app-cursor-explorer",
+                name: "Cursor Explorer",
+              },
+              {
+                id: "shortcut-to-doom",
+                type: "shortcut",
+                targetId: "app-doom",
+                name: "Doom",
+              },
+              {
+                id: "shortcut-to-media-player",
+                type: "shortcut",
+                targetId: "app-media-player",
+                name: "Media Player",
+              },
+              {
+                id: "shortcut-to-simcity2000",
+                type: "shortcut",
+                targetId: "app-simcity2000",
+                name: "SimCity 2000 Demo",
               },
               {
                 id: "shortcut-to-buy-me-a-coffee",
@@ -179,6 +168,7 @@ const directory = [
             id: "folder-documents",
             name: "Documents",
             type: "folder",
+            enableFileDrop: true,
             children: [],
           },
         ],

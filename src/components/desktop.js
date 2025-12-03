@@ -2,6 +2,7 @@
  * Win98DesktopManager - Handles desktop icons and desktop interactions
  */
 import { init } from "./taskbar.js";
+import { fileAssociations } from "../config/fileAssociations.js";
 import { apps } from "../config/apps.js";
 import {
   getItem,
@@ -9,7 +10,7 @@ import {
   removeItem,
   LOCAL_STORAGE_KEYS,
 } from "../utils/localStorage.js";
-import { getDesktopContents } from "../utils/directory.js";
+import { getDesktopContents, getAssociation } from "../utils/directory.js";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import {
   getThemes,
@@ -22,27 +23,46 @@ import { ICONS } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
 import { ShowDialogWindow } from "./DialogWindow.js";
 import { IconManager } from "./IconManager.js";
+import clipboardManager from "../utils/clipboardManager.js";
+import { pasteItems } from "../utils/fileOperations.js";
+import { getItemFromIcon } from "../utils/iconUtils.js";
+import { createDragGhost } from "../utils/dragDropManager.js";
 import {
   getRecycleBinItems,
   emptyRecycleBin,
+  addToRecycleBin,
 } from "../utils/recycleBinManager.js";
 import {
   setColorMode,
   getCurrentColorMode,
   getColorModes,
 } from "../utils/colorModeManager.js";
-import screensaver from "./screensaver.js";
+import screensaver from "../utils/screensaverUtils.js";
 import {
-    getAvailableResolutions,
-    setResolution,
-    getCurrentResolutionId,
+  getAvailableResolutions,
+  setResolution,
+  getCurrentResolutionId,
 } from "../utils/screenManager.js";
+import { handleDroppedFiles } from "../utils/dragDropManager.js";
+import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
 
-function getIconId(app, filePath = null) {
-  // Create a unique ID for the icon based on app ID or file path
-  return filePath
-    ? `file-${filePath.replace(/[^a-zA-Z0-9]/g, "-")}`
-    : `app-${app.id}`;
+function getIconId(app, item = null) {
+  if (typeof item === "string") {
+    // virtual file path
+    return `file-${item.replace(/[^a-zA-Z0-9]/g, "-")}`;
+  }
+  if (item && typeof item === "object" && item.id) {
+    // dropped file object
+    return item.id;
+  }
+  // app
+  return `app-${app.id}`;
+}
+
+function isAutoArrangeEnabled() {
+  const autoArrange = getItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS);
+  // Default to true if the setting is not present
+  return autoArrange === null ? true : !!autoArrange;
 }
 
 function createDesktopIcon(item, isFile = false) {
@@ -53,7 +73,7 @@ function createDesktopIcon(item, isFile = false) {
   iconDiv.className = "desktop-icon";
   iconDiv.setAttribute(
     "title",
-    isFile ? item.filename : app.description || app.title
+    isFile ? item.filename : app.description || app.title,
   );
 
   const iconId = getIconId(app, isFile ? item.path : null);
@@ -68,7 +88,13 @@ function createDesktopIcon(item, isFile = false) {
   iconInner.className = "icon";
 
   const iconImg = document.createElement("img");
-  iconImg.src = app.icon[32]; // For now, files use the icon of the app that opens them.
+  iconImg.draggable = false;
+  if (isFile) {
+    const association = getAssociation(item.filename);
+    iconImg.src = association.icon[32];
+  } else {
+    iconImg.src = app.icon[32];
+  }
   iconInner.appendChild(iconImg);
 
   const iconLabel = document.createElement("div");
@@ -78,22 +104,115 @@ function createDesktopIcon(item, isFile = false) {
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
 
-  iconDiv.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    showIconContextMenu(e, app); // Context menu might need adjustments for files
-  });
+  return iconDiv;
+}
+
+function createDesktopIconForDroppedFile(file) {
+  const association = getAssociation(file.name || file.title);
+  const app = apps.find((a) => a.id === association.appId);
+  if (!app) return null;
+
+  const iconDiv = document.createElement("div");
+  iconDiv.className = "desktop-icon";
+  iconDiv.setAttribute("title", file.name);
+
+  const iconId = getIconId(app, file);
+  iconDiv.setAttribute("data-icon-id", iconId);
+  iconDiv.setAttribute("data-app-id", app.id);
+  iconDiv.setAttribute("data-file-id", file.id); // Store the unique file ID
+
+  const iconInner = document.createElement("div");
+  iconInner.className = "icon";
+
+  const iconImg = document.createElement("img");
+  iconImg.draggable = false;
+  iconImg.src = association.icon[32];
+  iconInner.appendChild(iconImg);
+
+  const iconLabel = document.createElement("div");
+  iconLabel.className = "icon-label";
+  iconLabel.textContent = file.name;
+
+  iconDiv.appendChild(iconInner);
+  iconDiv.appendChild(iconLabel);
 
   return iconDiv;
 }
 
-function showIconContextMenu(event, app) {
-  console.log("Showing app context menu");
+function handlePaste(destinationPath) {
+  const { items, operation } = clipboardManager.get();
+  pasteItems(destinationPath, items, operation);
+  clipboardManager.clear();
+}
+
+function showIconContextMenu(event, app, fileId = null, iconManager) {
   let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
-
   const contextMenu = appConfig.contextMenu;
+  const clickedIcon = event.target.closest(".desktop-icon");
 
-  if (contextMenu) {
+  if (clickedIcon && !iconManager.selectedIcons.has(clickedIcon)) {
+    iconManager.clearSelection();
+    iconManager.selectIcon(clickedIcon);
+  }
+
+  const itemsToOperateOn = [...iconManager.selectedIcons]
+    .map(getItemFromIcon)
+    .filter(Boolean);
+
+  const copyItem = {
+    label: "C&opy",
+    action: () => {
+      clipboardManager.set(itemsToOperateOn, "copy");
+    },
+  };
+
+  const cutItem = {
+    label: "Cu&t",
+    action: () => {
+      clipboardManager.set(itemsToOperateOn, "cut");
+    },
+    enabled: !itemsToOperateOn.some(
+      (item) => item.itemType === "app" || item.itemType === "virtual-file",
+    ),
+  };
+
+  if (app.id === "recycle-bin" || app.id === "network") {
+    copyItem.enabled = false;
+    cutItem.enabled = false;
+  }
+
+  if (fileId) {
+    menuItems = [
+      {
+        label: "&Open",
+        default: true,
+        action: () => {
+          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          const file = droppedFiles.find((f) => f.id === fileId);
+          if (file) {
+            launchApp(app.id, file);
+          }
+        },
+      },
+      copyItem,
+      cutItem,
+      {
+        label: "&Delete",
+        action: () => deleteDroppedFile(fileId),
+      },
+      "MENU_DIVIDER",
+      {
+        label: "&Properties",
+        action: () => showProperties(app),
+      },
+    ];
+  } else if (contextMenu) {
+    const openItemIndex = contextMenu.findIndex(
+      (item) =>
+        item.action === "open" || (item.label && item.label.includes("Open")),
+    );
+
     menuItems = contextMenu.map((item) => {
       if (typeof item === "string") {
         return item;
@@ -102,7 +221,6 @@ function showIconContextMenu(event, app) {
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
           case "open":
-            console.log("Opening app");
             newItem.action = () => launchApp(app.id);
             newItem.default = true;
             break;
@@ -113,12 +231,13 @@ function showIconContextMenu(event, app) {
             newItem.action = () => {};
             break;
         }
-      } else if (typeof newItem.action === "function") {
-        // newItem.click = newItem.action;
       }
-      // delete newItem.action;
       return newItem;
     });
+
+    if (openItemIndex !== -1) {
+      menuItems.splice(openItemIndex + 1, 0, copyItem, cutItem);
+    }
   } else {
     menuItems = [
       {
@@ -126,6 +245,9 @@ function showIconContextMenu(event, app) {
         default: true,
         action: () => handleAppAction(app),
       },
+      copyItem,
+      cutItem,
+      "MENU_DIVIDER",
       {
         label: "&Properties",
         action: () => showProperties(app),
@@ -219,18 +341,114 @@ function applyMonitorType() {
   }
 }
 
+function captureGridIconPositions() {
+  const desktop = document.querySelector(".desktop");
+  if (desktop.classList.contains("has-absolute-icons")) {
+    // Already in manual mode, no need to capture.
+    return;
+  }
+  const desktopRect = desktop.getBoundingClientRect();
+  const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
+  const iconPositions = {};
+
+  // Force browser reflow to ensure accurate position values
+  desktop.offsetHeight;
+
+  allIcons.forEach((icon) => {
+    const id = icon.getAttribute("data-icon-id");
+    const rect = icon.getBoundingClientRect();
+    const x = `${rect.left - desktopRect.left}px`;
+    const y = `${rect.top - desktopRect.top}px`;
+    iconPositions[id] = { x, y };
+  });
+
+  setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+}
+
+function sortDesktopIcons(sortBy) {
+  const desktopContents = getDesktopContents();
+  const { apps: appIds, files } = desktopContents;
+
+  // The sorting logic only applies to files. Apps should remain in their order.
+  if (sortBy === "name") {
+    files.sort((a, b) => a.filename.localeCompare(b.filename));
+  } else if (sortBy === "type") {
+    files.sort((a, b) => {
+      if (a.app < b.app) return -1;
+      if (a.app > b.app) return 1;
+      // Secondary sort by name
+      return a.filename.localeCompare(b.filename);
+    });
+  }
+
+  const sortedContents = { apps: appIds, files };
+
+  // When sorting, we clear any manual positioning and revert to a grid layout.
+  removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+
+  // This will cause setupIcons to re-render in grid mode.
+  document.querySelector(".desktop").refreshIcons(sortedContents);
+}
+
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   const themes = getThemes();
 
+  const toggleAutoArrange = () => {
+    const newSetting = !isAutoArrangeEnabled();
+    setItem(LOCAL_STORAGE_KEYS.AUTO_ARRANGE_ICONS, newSetting);
+
+    if (newSetting) {
+      // Turning ON: clear saved positions
+      removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+    } else {
+      // Turning OFF: capture current grid positions and save them
+      captureGridIconPositions();
+    }
+    document.querySelector(".desktop").refreshIcons();
+  };
+
+  const pasteItem = {
+    label: "Paste",
+    action: () => {
+      handlePaste(SPECIAL_FOLDER_PATHS.desktop);
+    },
+    enabled: !clipboardManager.isEmpty(),
+  };
+
   const menuItems = [
     {
-      label: "Sort Icons",
-      action: () => {
-        // Remove saved positions and redraw icons
-        removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-        document.querySelector(".desktop").refreshIcons();
-      },
+      label: "Arrange Icons",
+      submenu: [
+        {
+          label: "by Name",
+          action: () => sortDesktopIcons("name"),
+        },
+        {
+          label: "by Type",
+          action: () => sortDesktopIcons("type"),
+        },
+        {
+          label: "by Size",
+          action: () => {},
+          enabled: false,
+        },
+        {
+          label: "by Date",
+          action: () => {},
+          enabled: false,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Auto Arrange",
+          checkbox: {
+            check: isAutoArrangeEnabled,
+            toggle: toggleAutoArrange,
+          },
+        },
+      ],
     },
+    pasteItem,
+    "MENU_DIVIDER",
     {
       label: "Wallpaper",
       submenu: [
@@ -302,18 +520,18 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
     },
     "MENU_DIVIDER",
     {
-        label: "Screen Resolution",
-        submenu: [
-            {
-                radioItems: getAvailableResolutions().map((res) => ({
-                    label: res === 'fit' ? 'Fit Screen' : res,
-                    value: res,
-                })),
-                getValue: () => getCurrentResolutionId(),
-                setValue: (value) => setResolution(value),
-                ariaLabel: "Screen Resolution",
-            },
-        ],
+      label: "Screen Resolution",
+      submenu: [
+        {
+          radioItems: getAvailableResolutions().map((res) => ({
+            label: res === "fit" ? "Fit Screen" : res,
+            value: res,
+          })),
+          getValue: () => getCurrentResolutionId(),
+          setValue: (value) => setResolution(value),
+          ariaLabel: "Screen Resolution",
+        },
+      ],
     },
     "MENU_DIVIDER",
     {
@@ -372,6 +590,50 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
   document.addEventListener("wallpaper-changed", handleWallpaperChange);
 }
 
+function deleteDroppedFile(fileId) {
+  const fileIds = Array.isArray(fileId) ? fileId : [fileId];
+  if (fileIds.length === 0) return;
+
+  const dialogText =
+    fileIds.length > 1
+      ? `Are you sure you want to send these ${fileIds.length} items to the Recycle Bin?`
+      : "Are you sure you want to send this item to the Recycle Bin?";
+
+  ShowDialogWindow({
+    title: "Confirm File Delete",
+    text: dialogText,
+    contentIconUrl: ICONS.warning[32],
+    soundEvent: "SystemHand",
+    buttons: [
+      {
+        label: "Yes",
+        action: () => {
+          let droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          const filesToDelete = droppedFiles.filter((f) =>
+            fileIds.includes(f.id),
+          );
+
+          if (filesToDelete.length > 0) {
+            filesToDelete.forEach((file) => addToRecycleBin(file));
+            const newDroppedFiles = droppedFiles.filter(
+              (f) => !fileIds.includes(f.id),
+            );
+            setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, newDroppedFiles);
+            document.querySelector(".desktop").refreshIcons();
+            document.dispatchEvent(new CustomEvent("explorer-refresh"));
+          }
+        },
+      },
+      {
+        label: "No",
+        isDefault: true,
+        action: () => {},
+      },
+    ],
+    modal: true,
+  });
+}
+
 function showProperties(app) {
   ShowDialogWindow({
     title: `${app.title} Properties`,
@@ -381,16 +643,20 @@ function showProperties(app) {
   });
 }
 
-export function setupIcons(options) {
+export function setupIcons(options, desktopContents = getDesktopContents()) {
   const { iconManager } = options;
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
-  const desktopApps = getDesktopContents();
-  const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+  const desktopApps = desktopContents;
 
-  // If there are any saved positions, we are in manual mode.
-  if (Object.keys(iconPositions).length > 0) {
+  let iconPositions = {};
+  if (!isAutoArrangeEnabled()) {
+    iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+  }
+
+  // Set the class based on Auto Arrange, not just the presence of positions.
+  if (!isAutoArrangeEnabled()) {
     desktop.classList.add("has-absolute-icons");
   } else {
     desktop.classList.remove("has-absolute-icons");
@@ -416,6 +682,26 @@ export function setupIcons(options) {
 
   // Load apps
   const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
+
+  // Default sort only if no positions are saved
+  if (Object.keys(iconPositions).length === 0) {
+    const defaultOrder = [
+      "my-computer",
+      "my-documents",
+      "internet-explorer",
+      "network",
+      "recycle-bin",
+    ];
+    appsToLoad.sort((a, b) => {
+      const aIndex = defaultOrder.indexOf(a.id);
+      const bIndex = defaultOrder.indexOf(b.id);
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return a.title.localeCompare(b.title);
+    });
+  }
+
   appsToLoad.forEach((app) => {
     const icon = createDesktopIcon(app, false);
     if (icon) {
@@ -432,6 +718,23 @@ export function setupIcons(options) {
       const app = apps.find((a) => a.id === file.app);
       const iconId = getIconId(app, file.path);
       configureIcon(icon, app, file.path, { iconManager });
+      placeIcon(icon, iconId);
+    }
+  });
+
+  // Load dropped files
+  const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+  const desktopFiles = allDroppedFiles.filter(
+    (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
+  );
+
+  desktopFiles.forEach((file) => {
+    const icon = createDesktopIconForDroppedFile(file);
+    if (icon) {
+      const association = getAssociation(file.name || file.title);
+      const app = apps.find((a) => a.id === association.appId);
+      const iconId = getIconId(app, file);
+      configureIcon(icon, app, file, { iconManager });
       placeIcon(icon, iconId);
     }
   });
@@ -478,167 +781,127 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   let wasDragged = false;
   let dragStartX, dragStartY;
   let dragOffsets = new Map();
+  let ghostIcons = new Map(); // Map to store original icon -> ghost icon
   let longPressTimer;
   let isLongPress = false;
+  let handleDragEndWrapper;
+  let isNativeDragActive = false;
+  let dragGhost = null;
 
   const iconId = icon.getAttribute("data-icon-id");
 
-  const handleDragStart = (e) => {
-    if (e.type === "mousedown" && e.button !== 0) return;
-    if (e.type === "touchstart" && e.touches.length > 1) return;
+  const item = getItemFromIcon(icon);
+  if (item) {
+    icon.draggable = true;
+  }
 
-    // Allow IconManager to handle selection logic first.
-    // We prevent default mousedown behavior and let the icon manager handle it.
-    if (e.type === "mousedown") {
+  icon.addEventListener("dragstart", (e) => {
+    // If the dragged icon is not selected, select it exclusively
+    if (!iconManager.selectedIcons.has(icon)) {
+      iconManager.clearSelection();
+      iconManager.selectIcon(icon);
+    }
+    isNativeDragActive = true;
+    e.stopPropagation();
+    const selectedItems = [...iconManager.selectedIcons]
+      .map((icon) => getItemFromIcon(icon))
+      .filter(Boolean);
+
+    const primaryIconRect = icon.getBoundingClientRect();
+    const cursorOffsetX = e.clientX - primaryIconRect.left;
+    const cursorOffsetY = e.clientY - primaryIconRect.top;
+
+    const dragOffsets = [...iconManager.selectedIcons].map((selectedIcon) => {
+      const rect = selectedIcon.getBoundingClientRect();
+      return {
+        id: selectedIcon.getAttribute("data-icon-id"),
+        offsetX: rect.left - primaryIconRect.left,
+        offsetY: rect.top - primaryIconRect.top,
+      };
+    });
+
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({
+        items: selectedItems,
+        sourcePath: SPECIAL_FOLDER_PATHS.desktop,
+        cursorOffsetX,
+        cursorOffsetY,
+        dragOffsets,
+      }),
+    );
+    e.dataTransfer.effectAllowed = "move";
+    dragGhost = createDragGhost(icon, e);
+  });
+
+  icon.addEventListener("dragend", () => {
+    if (dragGhost && dragGhost.parentElement) {
+      dragGhost.parentElement.removeChild(dragGhost);
+    }
+    dragGhost = null;
+    isNativeDragActive = false;
+  });
+
+  icon.addEventListener("mousedown", (e) => {
+    if (e.button === 0) {
       iconManager.handleIconMouseDown(e, icon);
     }
+  });
 
-    isDragging = true;
-    wasDragged = false;
-    isLongPress = false;
-    dragOffsets.clear();
+  icon.addEventListener("touchstart", (e) => {
+    iconManager.handleIconMouseDown(e, icon);
 
-    const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+    longPressTimer = setTimeout(() => {
+      isLongPress = true;
+      const touch = e.touches[0];
+      const mockEvent = {
+        pageX: touch.pageX,
+        pageY: touch.pageY,
+        preventDefault: () => e.preventDefault(),
+      };
+      showIconContextMenu(mockEvent, app, null, iconManager);
+    }, 500);
+  });
 
-    dragStartX = clientX;
-    dragStartY = clientY;
-
-    if (e.type === "touchstart") {
-      longPressTimer = setTimeout(() => {
-        isLongPress = true;
-        const touch = e.touches[0];
-        const mockEvent = {
-          pageX: touch.pageX,
-          pageY: touch.pageY,
-          preventDefault: () => e.preventDefault(),
-        };
-        showIconContextMenu(mockEvent, app);
-      }, 500);
-    }
-
-    const desktop = icon.parentElement;
-    const desktopRect = desktop.getBoundingClientRect();
-
-    if (!desktop.classList.contains("has-absolute-icons")) {
-      // Force browser to calculate layout before we read positions
-      desktop.offsetHeight;
-
-      const allIcons = Array.from(desktop.querySelectorAll(".desktop-icon"));
-      const iconPositions = {};
-      const newPositions = [];
-
-      // 1. Read all positions first
-      allIcons.forEach((i) => {
-        const id = i.getAttribute("data-icon-id");
-        const rect = i.getBoundingClientRect();
-        const x = `${rect.left - desktopRect.left}px`;
-        const y = `${rect.top - desktopRect.top}px`;
-        newPositions.push({ icon: i, x, y });
-        iconPositions[id] = { x, y };
-      });
-
-      // 2. Then apply them
-      newPositions.forEach(({ icon, x, y }) => {
-        icon.style.position = "absolute";
-        icon.style.left = x;
-        icon.style.top = y;
-      });
-
-      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
-      desktop.classList.add("has-absolute-icons");
-    }
-
-    // Prepare all selected icons for dragging
-    iconManager.selectedIcons.forEach((selectedIcon) => {
-      const iconRect = selectedIcon.getBoundingClientRect();
-      const offsetX = clientX - iconRect.left;
-      const offsetY = clientY - iconRect.top;
-      dragOffsets.set(selectedIcon, { offsetX, offsetY });
-    });
-
-    if (e.type === "mousedown") {
-      document.addEventListener("mousemove", handleDragMove);
-      document.addEventListener("mouseup", handleDragEnd);
-    } else if (e.type === "touchstart") {
-      document.addEventListener("touchmove", handleDragMove, {
-        passive: false,
-      });
-      document.addEventListener("touchend", handleDragEnd);
-    }
+  const cancelLongPress = () => {
+    clearTimeout(longPressTimer);
   };
 
-  const handleDragMove = (e) => {
-    if (!isDragging) return;
+  icon.addEventListener("touchend", cancelLongPress);
+  icon.addEventListener("touchmove", cancelLongPress);
 
-    const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
-    const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
-
-    if (
-      Math.abs(clientX - dragStartX) > 5 ||
-      Math.abs(clientY - dragStartY) > 5
-    ) {
-      clearTimeout(longPressTimer);
-      if (!wasDragged) {
-        wasDragged = true;
-        window.getSelection().removeAllRanges();
-      }
-    }
-
-    if (!wasDragged) return;
-
-    if (e.type === "touchmove") {
+  icon.addEventListener("dragover", (e) => {
+    const targetAppId = icon.getAttribute("data-app-id");
+    if (targetAppId === "my-documents" || targetAppId === "recycle-bin") {
       e.preventDefault();
     }
+  });
 
-    const desktop = icon.parentElement;
-    const desktopRect = desktop.getBoundingClientRect();
+  icon.addEventListener("drop", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    iconManager.selectedIcons.forEach((selectedIcon) => {
-      const { offsetX, offsetY } = dragOffsets.get(selectedIcon);
-      const iconRect = selectedIcon.getBoundingClientRect();
+    const targetAppId = icon.getAttribute("data-app-id");
+    const jsonData = e.dataTransfer.getData("application/json");
 
-      let newX = clientX - desktopRect.left - offsetX;
-      let newY = clientY - desktopRect.top - offsetY;
+    if (jsonData) {
+      const data = JSON.parse(jsonData);
+      const { items } = data;
 
-      newX = Math.max(0, Math.min(newX, desktopRect.width - iconRect.width));
-      newY = Math.max(0, Math.min(newY, desktopRect.height - iconRect.height));
-
-      selectedIcon.style.left = `${newX}px`;
-      selectedIcon.style.top = `${newY}px`;
-    });
-  };
-
-  const handleDragEnd = () => {
-    clearTimeout(longPressTimer);
-    isDragging = false;
-
-    if (wasDragged) {
-      iconManager.wasDragged = true; // Set flag on manager
-      const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
-      iconManager.selectedIcons.forEach((selectedIcon) => {
-        const id = selectedIcon.getAttribute("data-icon-id");
-        iconPositions[id] = {
-          x: selectedIcon.style.left,
-          y: selectedIcon.style.top,
-        };
-      });
-      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+      if (items) {
+        if (targetAppId === "recycle-bin") {
+          const fileIds = items
+            .filter((item) => item.itemType === "dropped-file")
+            .map((item) => item.id);
+          if (fileIds.length > 0) {
+            deleteDroppedFile(fileIds);
+          }
+        } else if (targetAppId === "my-documents") {
+          pasteItems(SPECIAL_FOLDER_PATHS["my-documents"], items, "cut");
+        }
+      }
     }
-
-    document.removeEventListener("mousemove", handleDragMove);
-    document.removeEventListener("mouseup", handleDragEnd);
-    document.removeEventListener("touchmove", handleDragMove);
-    document.removeEventListener("touchend", handleDragEnd);
-
-    setTimeout(() => {
-      wasDragged = false;
-      isLongPress = false;
-    }, 0);
-  };
-
-  icon.addEventListener("mousedown", handleDragStart);
-  icon.addEventListener("touchstart", handleDragStart);
+  });
 
   icon.addEventListener("click", function (e) {
     if (isLongPress) {
@@ -657,7 +920,10 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       e.preventDefault();
       return;
     }
-    launchApp(app.id, filePath);
+    // If filePath is an object, it's a dropped file. Otherwise, it's a path string.
+    const launchData =
+      typeof filePath === "object" && filePath !== null ? filePath : filePath;
+    launchApp(app.id, launchData);
   });
 }
 
@@ -670,11 +936,13 @@ export async function initDesktop() {
   const desktop = document.querySelector(".desktop");
 
   const iconManager = new IconManager(desktop, {
+    iconSelector: ".desktop-icon",
     onItemContext: (e, icon) => {
       const appId = icon.getAttribute("data-app-id");
+      const fileId = icon.getAttribute("data-file-id");
       const app = apps.find((a) => a.id === appId);
       if (app) {
-        showIconContextMenu(e, app);
+        showIconContextMenu(e, app, fileId, iconManager);
       }
     },
     onBackgroundContext: (e) => {
@@ -686,7 +954,8 @@ export async function initDesktop() {
   });
 
   // A function to refresh icons, bound to the correct scope
-  desktop.refreshIcons = () => setupIcons({ iconManager });
+  desktop.refreshIcons = (sortedContents) =>
+    setupIcons({ iconManager }, sortedContents);
 
   desktop.refreshIcons();
 
@@ -695,26 +964,47 @@ export async function initDesktop() {
     applyWallpaper();
   });
 
-  desktop.addEventListener("contextmenu", (e) => {
-    // Show desktop context menu only if not clicking on an icon
-    if (e.target === desktop) {
-      e.preventDefault();
-      showDesktopContextMenu(e, { selectedIcons, clearSelection });
+  document.addEventListener("desktop-refresh", () => {
+    desktop.refreshIcons();
+  });
+
+  document.addEventListener("clipboard-change", () => {
+    const { items, operation } = clipboardManager.get();
+
+    // First, remove 'cut' style from all icons
+    desktop.querySelectorAll(".desktop-icon.cut").forEach((icon) => {
+      icon.classList.remove("cut");
+    });
+
+    if (operation === "cut") {
+      items.forEach((item) => {
+        let icon;
+        if (item.itemType === "dropped-file") {
+          icon = desktop.querySelector(`[data-file-id="${item.id}"]`);
+        } else if (item.itemType === "virtual-file") {
+          const iconId = getIconId(item, item.path);
+          icon = desktop.querySelector(`[data-icon-id="${iconId}"]`);
+        } else if (item.itemType === "app") {
+          const iconId = getIconId(item);
+          icon = desktop.querySelector(`[data-icon-id="${iconId}"]`);
+        }
+        if (icon) {
+          icon.classList.add("cut");
+        }
+      });
     }
   });
 
   // Add click handler to desktop to deselect icons
   desktop.addEventListener("click", (e) => {
-    if (wasLassoing) {
-      wasLassoing = false;
+    if (iconManager.wasLassoing) {
       return;
     }
-    if (
-      e.target === desktop &&
-      !isLassoing &&
-      !e.target.closest(".desktop-icon")
-    ) {
-      clearSelection();
+    if (e.target === desktop && !e.target.closest(".desktop-icon")) {
+      // iconManager.clearSelection();
+      // if (clipboardManager.operation === "cut") {
+      //   clipboardManager.clear();
+      // }
     }
   });
 
@@ -732,4 +1022,68 @@ export async function initDesktop() {
   }
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
+
+  // Drag and drop functionality
+  desktop.addEventListener("dragover", (e) => {
+    e.preventDefault(); // Allow drop
+  });
+
+  desktop.addEventListener("drop", (e) => {
+    e.preventDefault();
+
+    // Handle files dragged from within the app
+    const jsonData = e.dataTransfer.getData("application/json");
+    if (jsonData) {
+      const data = JSON.parse(jsonData);
+      const { items, cursorOffsetX, cursorOffsetY, dragOffsets, sourcePath } =
+        data;
+      if (sourcePath === SPECIAL_FOLDER_PATHS.desktop) {
+        if (isAutoArrangeEnabled()) {
+          // When auto-arranging, dropping an icon should just snap it back to the grid.
+          // The same logic that runs when toggling the option on.
+          removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+          desktop.refreshIcons();
+        } else {
+          // This is a manual rearrange operation
+          const desktopRect = desktop.getBoundingClientRect();
+          const primaryIconX = e.clientX - desktopRect.left - cursorOffsetX;
+          const primaryIconY = e.clientY - desktopRect.top - cursorOffsetY;
+
+          const iconPositions =
+            getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+          (dragOffsets || []).forEach((offset) => {
+            iconPositions[offset.id] = {
+              x: `${primaryIconX + offset.offsetX}px`,
+              y: `${primaryIconY + offset.offsetY}px`,
+            };
+          });
+
+          setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+          desktop.refreshIcons();
+        }
+        return;
+      }
+      pasteItems("/drive-c/folder-user/folder-desktop", items, "cut");
+      return; // Stop processing
+    }
+
+    // Handle files dragged from the user's OS
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleDroppedFiles(
+        files,
+        "/drive-c/folder-user/folder-desktop",
+        (newFiles) => {
+          desktop.refreshIcons();
+          document.dispatchEvent(new CustomEvent("explorer-refresh"));
+          newFiles.forEach((file) => {
+            const association = getAssociation(file.name);
+            if (association) {
+              launchApp(association.appId, file);
+            }
+          });
+        },
+      );
+    }
+  });
 }

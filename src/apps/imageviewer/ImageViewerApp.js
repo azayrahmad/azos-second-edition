@@ -84,6 +84,12 @@ export class ImageViewerApp extends Application {
           label: "Remove &Background",
           action: () => this.removeBackground(),
         },
+        "MENU_DIVIDER",
+        {
+          label: "Extract &Icons...",
+          action: () => this.showExtractIconsDialog(),
+          enabled: () => this.file && this.file.name.toLowerCase().endsWith(".ico"),
+        },
       ],
       "&Help": [
         {
@@ -94,12 +100,27 @@ export class ImageViewerApp extends Application {
     });
   }
 
-  async _onLaunch(file) {
+  async _onLaunch(data) {
     this.img = this.win.$content.find("img")[0];
     const imageContainer = this.win.$content.find(".image-viewer-container")[0];
 
-    if (file) {
-      this.loadFile(file);
+    if (typeof data === "string") {
+      // It's a file path
+      fetch(data)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], data.split("/").pop());
+          this.loadFile(file);
+        });
+    } else if (data && typeof data === "object") {
+      // It's a file object from drag-and-drop
+      this.win.title(`${data.name} - Image Viewer`);
+      this.img.src = data.content;
+      this.img.onload = () => {
+        this.resetZoom();
+        this._adjustWindowSize(this.img);
+        this._updatePannableState();
+      };
     } else {
       console.log("Image Viewer launched without a file.");
     }
@@ -497,6 +518,105 @@ export class ImageViewerApp extends Application {
       this.resetZoom();
       this._adjustWindowSize(this.img);
     };
+  }
+
+  showExtractIconsDialog() {
+    if (!this.file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const buffer = e.target.result;
+
+        let icons;
+        if (typeof ICO.parse === "function") {
+          icons = await ICO.parse(buffer);
+        } else if (typeof ICO.parseICO === "function") {
+          icons = await ICO.parseICO(buffer);
+        } else {
+          throw new Error("ICO parsing function not found on window.ICO object.");
+        }
+
+        if (!icons || icons.length === 0) {
+          throw new Error("No icons found in the file.");
+        }
+
+        let selectedIconIndex = 0;
+
+        const radioItems = icons.map((icon, index) => `
+          <div class="field-row">
+            <input type="radio" id="icon-${index}" name="icon-selection" value="${index}" ${index === 0 ? "checked" : ""}>
+            <label for="icon-${index}">${icon.width}x${icon.height}, ${icon.bpp}-bit</label>
+          </div>
+        `).join('');
+
+        const dialogContent = `<div class="icon-selection-container">${radioItems}</div>`;
+
+        const dialog = ShowDialogWindow({
+          title: "Extract Icon",
+          text: dialogContent,
+          modal: true,
+          buttons: [
+            {
+              label: "Extract...",
+              action: (win) => {
+                const selectedRadio = win.$content.find('input[name="icon-selection"]:checked')[0];
+                if (selectedRadio) {
+                  selectedIconIndex = parseInt(selectedRadio.value, 10);
+                  this.extractIcon(icons[selectedIconIndex]);
+                }
+              },
+              isDefault: true,
+            },
+            {
+              label: "Cancel",
+              action: () => {},
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Failed to parse ICO file:", error);
+        ShowDialogWindow({
+          title: "Error",
+          text: "Could not parse the ICO file. It might be corrupted or in an unsupported format.",
+          modal: true,
+          buttons: [{ label: "OK" }],
+        });
+      }
+    };
+    reader.onerror = () => {
+        ShowDialogWindow({
+          title: "Error",
+          text: "Failed to read the ICO file.",
+          modal: true,
+          buttons: [{ label: "OK" }],
+        });
+    };
+    reader.readAsArrayBuffer(this.file);
+  }
+
+  extractIcon(icon) {
+    const canvas = document.createElement("canvas");
+    canvas.width = icon.width;
+    canvas.height = icon.height;
+    const ctx = canvas.getContext("2d");
+
+    const imageData = new ImageData(new Uint8ClampedArray(icon.buffer), icon.width, icon.height);
+    ctx.putImageData(imageData, 0, 0);
+
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+
+    const originalName = this.file.name;
+    const nameWithoutExt = originalName.lastIndexOf(".") !== -1
+        ? originalName.substring(0, originalName.lastIndexOf("."))
+        : originalName;
+    link.download = `${nameWithoutExt}-${icon.width}.png`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   removeBackground() {

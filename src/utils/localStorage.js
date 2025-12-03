@@ -8,12 +8,20 @@ export const LOCAL_STORAGE_KEYS = {
   NOTEPAD_THEME: 'notepad-theme',
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
+  EXPLORER_ICON_POSITIONS: 'explorerIconPositions',
+  EXPLORER_AUTO_ARRANGE: 'explorerAutoArrange',
+  AUTO_ARRANGE_ICONS: 'autoArrangeIcons',
   MONITOR_TYPE: 'monitorType',
   RECYCLE_BIN: 'recycleBin',
   SCREENSAVER_TIMEOUT: 'screensaverTimeout',
   SCREENSAVER: 'screensaver',
+  COLOR_SCHEME: 'colorScheme',
+  CURSOR_SCHEME: 'cursorScheme',
+  ICON_SCHEME: 'iconScheme',
+  SOUND_SCHEME: 'soundScheme',
   COLOR_MODE: 'colorMode',
   SCREEN_RESOLUTION: 'screenResolution',
+  DROPPED_FILES: 'droppedFiles',
 };
 
 export function getItem(key) {

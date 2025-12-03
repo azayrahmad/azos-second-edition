@@ -173,9 +173,7 @@ button:not(:disabled):active img {
 }
 
 .start-menu {
-    position: absolute;
-    bottom: 0; /* Adjust this value to position the menu above the start button */
-    left: 0;
+    position: relative;
     background-color: var(--ButtonFace, #c0c0c0);
     border: 1px solid var(--ButtonDkShadow, black);
     border-top-color: var(--ButtonLight, #dfdfdf);
@@ -186,10 +184,13 @@ button:not(:disabled):active img {
     z-index: 1000;
     display: flex;
     align-items: stretch;
-    overflow: hidden;
-    animation-duration: 0.2s;
-    animation-fill-mode: forwards;
+    overflow: visible;
     pointer-events: auto;
+    width: -moz-fit-content;
+    width: fit-content;
+    animation-duration: 130ms;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
 }
 
 .start-menu ul {
@@ -246,10 +247,10 @@ button:not(:disabled):active img {
 .start-menu-wrapper {
     position: absolute;
     bottom: 25px;
-    left: 0;
-    width: 100%;
-    height: calc(100% - 25px);
-    pointer-events: none;
+    left: 2px;
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
     z-index: 9999;
 }
 
