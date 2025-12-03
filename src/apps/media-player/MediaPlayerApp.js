@@ -70,8 +70,7 @@ export class MediaPlayerApp extends Application {
   }
 
   _loadFile(file) {
-    const url = URL.createObjectURL(file);
-    this.mediaElement.src = url;
+    this.mediaElement.src = file.content;
     this.mediaElement.play();
     this.win.title(`${file.name} - Media Player`);
   }
@@ -102,7 +101,7 @@ export class MediaPlayerApp extends Application {
     }
   }
 
-  _onLaunch() {
+  _onLaunch(data) {
     this.mediaElement = this.win.element.querySelector(".media-element");
     this.defaultMediaImage = this.win.element.querySelector(
       ".media-player-default-image",
@@ -191,8 +190,7 @@ export class MediaPlayerApp extends Application {
 
     this._setControlsDisabled(true);
 
-    if (this.config.data) {
-      const data = this.config.data;
+    if (data) {
       if (typeof data === "string") {
         // It's a file path
         this.mediaElement.src = data;
