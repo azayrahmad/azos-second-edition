@@ -1,6 +1,5 @@
 import { generateProgramFiles } from "./generateProgramFiles.js";
 import { generatePlusFiles } from "./generatePlusFiles.js";
-import { coreApps } from "./core-apps.js";
 
 const directory = [
   {
@@ -14,8 +13,6 @@ const directory = [
         type: "folder",
         children: [
           ...generateProgramFiles(),
-          ...coreApps,
-          { id: "app-my-briefcase", type: "app", appId: "my-briefcase" },
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           {
@@ -36,36 +33,15 @@ const directory = [
             name: "desktop",
             type: "folder",
             children: [
+              { id: "app-my-computer", type: "app", appId: "my-computer" },
+              { id: "app-my-documents", type: "app", appId: "my-documents" },
+              { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
               {
-                id: "shortcut-to-my-computer",
-                type: "shortcut",
-                targetId: "app-my-computer",
-                name: "My Computer",
+                id: "app-network-neighborhood",
+                type: "app",
+                appId: "network-neighborhood",
               },
-              {
-                id: "shortcut-to-my-briefcase",
-                type: "shortcut",
-                targetId: "app-my-briefcase",
-                name: "My Briefcase",
-              },
-              {
-                id: "shortcut-to-my-documents",
-                type: "shortcut",
-                targetId: "app-my-documents",
-                name: "My Documents",
-              },
-              {
-                id: "shortcut-to-recycle-bin",
-                type: "shortcut",
-                targetId: "app-recycle-bin",
-                name: "Recycle Bin",
-              },
-              {
-                id: "shortcut-to-network-neighborhood",
-                type: "shortcut",
-                targetId: "app-network-neighborhood",
-                name: "Network Neighborhood",
-              },
+              { id: "app-my-briefcase", type: "app", appId: "my-briefcase" },
               {
                 id: "shortcut-to-tipOfTheDay",
                 type: "shortcut",
