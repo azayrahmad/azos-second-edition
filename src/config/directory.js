@@ -17,6 +17,7 @@ const directory = [
           ...coreApps,
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
+          { id: "app-buy-me-a-coffee", type: "app", appId: "buy-me-a-coffee" },
           {
             id: "folder-plus",
             name: "Plus!",

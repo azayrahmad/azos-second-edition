@@ -10,8 +10,8 @@ export class IFrameApplication extends Application {
     const win = new $Window({
       title: this.title,
       icons: this.icon,
-      width: this.width,
-      height: this.height,
+      outerWidth: this.width,
+      outerHeight: this.height,
       resizable: this.resizable,
       id: this.id,
     });

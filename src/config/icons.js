@@ -216,8 +216,8 @@ export const ICONS = {
     32: new URL("../assets/icons/html2-3.png", import.meta.url).href,
   },
   "buy-me-a-coffee": {
-    16: new URL("../assets/icons/coffee-16.png", import.meta.url).href,
-    32: new URL("../assets/icons/coffee-32.png", import.meta.url).href,
+    16: new URL("../assets/icons/Ko-fi_COIN-16.gif", import.meta.url).href,
+    32: new URL("../assets/icons/Ko-fi_COIN-32.gif", import.meta.url).href,
   },
   textFile: {
     16: new URL("../assets/icons/notepad_file-1.png", import.meta.url).href,
