@@ -13,7 +13,6 @@ import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerA
 import { PinballApp } from "../apps/pinball/PinballApp.js";
 import { DosGameApp } from "../apps/dosgame/DosGameApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
-import { IFrameApplication } from "../apps/IFrameApplication.js";
 import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
 import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
 import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
@@ -23,6 +22,7 @@ import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
+import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -52,7 +52,7 @@ export const appClasses = {
   dosgame: DosGameApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
-  "buy-me-a-coffee": IFrameApplication,
+  "buy-me-a-coffee": BuyMeACoffeeApp,
   "cursor-explorer": CursorExplorerApp,
   "media-player": MediaPlayerApp,
 };
@@ -421,11 +421,11 @@ export const apps = [
     title: "Buy me a coffee",
     description: "Support the developer.",
     icon: ICONS["buy-me-a-coffee"],
-    appClass: IFrameApplication,
-    url: "https://ko-fi.com/azayrahmad/?hidefeed=true&widget=true&embed=true&preview=true",
+    appClass: BuyMeACoffeeApp,
     width: 300,
     height: 650,
-    resizable: true,
+    resizable: false,
+    maximizable: false,
     isSingleton: true,
   },
   {
