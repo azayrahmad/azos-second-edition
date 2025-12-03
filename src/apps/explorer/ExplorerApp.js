@@ -307,16 +307,13 @@ export class ExplorerApp extends Application {
     });
 
     // Drag and drop functionality
-    this.content.addEventListener("dragover", (e) => {
+    this.iconContainer.addEventListener("dragover", (e) => {
       e.preventDefault(); // Allow drop
     });
 
-    this.content.addEventListener("dragleave", (e) => {
-        // No visual feedback needed
-    });
-
-    this.content.addEventListener("drop", (e) => {
+    this.iconContainer.addEventListener("drop", (e) => {
         e.preventDefault();
+        e.stopPropagation(); // Prevent drop event from bubbling up to the content div
 
         // Handle files dragged from within the app
         const jsonData = e.dataTransfer.getData("application/json");
@@ -325,8 +322,15 @@ export class ExplorerApp extends Application {
             if (data.sourcePath === this.currentPath) {
                 const { cursorOffsetX, cursorOffsetY, dragOffsets } = data;
                 const iconContainerRect = this.iconContainer.getBoundingClientRect();
-                const primaryIconX = e.clientX - iconContainerRect.left - cursorOffsetX;
-                const primaryIconY = e.clientY - iconContainerRect.top - cursorOffsetY;
+                let primaryIconX = e.clientX - iconContainerRect.left - cursorOffsetX;
+                let primaryIconY = e.clientY - iconContainerRect.top - cursorOffsetY;
+
+                const iconWidth = 75;
+                const iconHeight = 75;
+                const margin = 5;
+
+                primaryIconX = Math.max(margin, Math.min(primaryIconX, iconContainerRect.width - iconWidth - margin));
+                primaryIconY = Math.max(margin, Math.min(primaryIconY, iconContainerRect.height - iconHeight - margin));
 
                 const allPositions = getExplorerIconPositions();
                 if (!allPositions[this.currentPath]) {
@@ -362,7 +366,7 @@ export class ExplorerApp extends Application {
         }
     });
 
-    this.content.addEventListener("click", (e) => {
+    this.iconContainer.addEventListener("click", (e) => {
       if (this.iconManager.wasLassoing || e.target.closest(".explorer-icon")) {
         return;
       }

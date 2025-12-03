@@ -19,12 +19,17 @@ def run_verification(playwright):
         explorer_window = page.locator("#my-computer-explorer")
         explorer_window.wait_for(timeout=30000)
 
-        # Right-click inside the icon container to open the context menu
+        # Drag and drop an icon to the edge
+        icon = explorer_window.locator(".explorer-icon[data-id='folder-program-files']")
         icon_container = explorer_window.locator(".explorer-icon-view")
-        icon_container.click(button="right")
 
-        # Wait for the context menu to appear
-        page.wait_for_selector(".menu-item:has-text('Arrange Icons')", timeout=10000)
+        icon_box = icon.bounding_box()
+        container_box = icon_container.bounding_box()
+
+        page.mouse.move(icon_box['x'] + icon_box['width'] / 2, icon_box['y'] + icon_box['height'] / 2)
+        page.mouse.down()
+        page.mouse.move(container_box['x'] + container_box['width'] - 10, container_box['y'] + 10)
+        page.mouse.up()
 
         # Take a screenshot
         page.screenshot(path="jules-scratch/verification.png")
