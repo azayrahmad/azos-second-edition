@@ -71,6 +71,9 @@ function getIconForPath(path) {
     if (item.type === "folder") {
       return ICONS.folderOpen;
     }
+    if (item.type === "briefcase") {
+      return ICONS.briefcase;
+    }
   }
 
   // Default icon if no specific icon is found
@@ -530,6 +533,8 @@ export class ExplorerApp extends Application {
       iconImg.src = ICONS.folderClosed[32];
     } else if (item.type === "network") {
       iconImg.src = ICONS.networkComputer[32];
+    } else if (item.type === "briefcase") {
+      iconImg.src = ICONS.briefcase[32];
     } else {
       // Default to file association for any other type
       const association = getAssociation(displayName);
@@ -951,6 +956,8 @@ export class ExplorerApp extends Application {
       iconUrl = ICONS.drive[32];
     } else if (item.type === "folder") {
       iconUrl = ICONS.folderClosed[32];
+    } else if (item.type === "briefcase") {
+      iconUrl = ICONS.briefcase[32];
     } else {
       const association = getAssociation(displayName);
       iconUrl = association.icon[32];
