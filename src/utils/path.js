@@ -34,7 +34,9 @@ export function convertInternalPathToWindows(internalPath) {
       pathNodes.push(found);
       currentLevel = found.children || [];
     } else {
-      return "My Computer"; // Path not found, return root
+      const app = apps.find((app) => app.id === part);
+      console.log(app);
+      return app ? app.title : "My Computer";
     }
   }
 
