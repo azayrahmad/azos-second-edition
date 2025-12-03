@@ -1,5 +1,6 @@
 import { IFrameApplication } from "../IFrameApplication.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
+import { AddressBar } from "../../components/AddressBar.js";
 import browseUiIcons from "../../assets/icons/browse-ui-icons.png";
 import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale.png";
 
@@ -45,11 +46,6 @@ export class InternetExplorerApp extends IFrameApplication {
       style:
         "width: 100%; height: 100%; flex-grow: 1; background-color: var(--Window);",
     });
-    this.input = window.os_gui_utils.E("input", {
-      type: "text",
-      placeholder: "Enter address",
-      style: "flex-grow: 1; font-family: 'MSW98UI'; width: 100%;",
-    });
 
     this.statusText = window.os_gui_utils.E("p", {
       className: "status-bar-field",
@@ -91,7 +87,7 @@ export class InternetExplorerApp extends IFrameApplication {
       if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
         finalUrl = `https://${finalUrl}`;
       }
-      this.input.value = finalUrl;
+      this.addressBar.setValue(finalUrl);
 
       const targetUrl = this.retroMode
         ? `https://web.archive.org/web/1998/${finalUrl}`
@@ -169,7 +165,7 @@ export class InternetExplorerApp extends IFrameApplication {
           label: "Up",
           action: () => {
             try {
-              const currentUrl = new URL(this.input.value);
+              const currentUrl = new URL(this.addressBar.getValue());
               const pathParts = currentUrl.pathname.split("/").filter((p) => p);
               if (pathParts.length > 0) {
                 pathParts.pop();
@@ -277,23 +273,19 @@ export class InternetExplorerApp extends IFrameApplication {
       iconsGrayscale: browseUiIconsGrayscale,
     });
 
-    const addressBar = window.os_gui_utils.E("div", {
-      className: "address-bar",
-      style: {
-        display: "flex",
-        padding: "4px",
-        borderBottom: "1px solid var(--border-color)",
-      },
+    this.addressBar = new AddressBar({
+      placeholder: "Enter address",
+      onEnter: (url) => this.navigateTo(url),
     });
-    addressBar.append(this.input);
+    // For legacy reasons, other parts of the class might use this.input
+    this.input = this.addressBar.input;
 
-    this.input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        this.navigateTo(this.input.value);
-      }
-    });
-
-    win.$content.append(this.toolbar.element, addressBar, this.iframe, statusBar);
+    win.$content.append(
+      this.toolbar.element,
+      this.addressBar.element,
+      this.iframe,
+      statusBar,
+    );
 
     this._setupIframeForInactivity(this.iframe);
 
