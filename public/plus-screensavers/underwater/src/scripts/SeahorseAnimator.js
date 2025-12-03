@@ -87,6 +87,7 @@ class SeahorseAnimator {
    * @param {number} orbitRadius The radius of the circular path in pixels.
    * @param {number} duration The duration of the circular animation in milliseconds.
    * @returns {Promise<void>} A promise that resolves when the animation is complete.
+   * @remarks Source of rotation method: https://stackoverflow.com/questions/75272774/how-to-animate-elements-to-move-in-a-circular-path-using-css.
    */
   static animateCirclePath(
     element,
