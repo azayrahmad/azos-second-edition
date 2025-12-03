@@ -9,6 +9,11 @@ import {
   findItemByPath,
   getDesktopContents,
 } from "../../utils/directory.js";
+import {
+  convertInternalPathToWindows,
+  convertWindowsPathToInternal,
+} from "../../utils/path.js";
+import { AddressBar } from "../../components/AddressBar.js";
 import { IconManager } from "../../components/IconManager.js";
 import {
   getRecycleBinItems,
@@ -150,6 +155,22 @@ export class ExplorerApp extends Application {
     menuBarElement.parentNode.insertBefore(menuBarContainer, menuBarElement);
     menuBarContainer.appendChild(menuBarElement);
     menuBarContainer.appendChild(logo);
+
+    this.addressBar = new AddressBar({
+      onEnter: (path) => {
+        const internalPath = convertWindowsPathToInternal(path);
+        if (internalPath && findItemByPath(internalPath)) {
+          this.navigateTo(internalPath);
+        } else {
+          ShowDialogWindow({
+            title: "Path not found",
+            text: "The system cannot find the path specified.",
+            buttons: [{ label: "OK", isDefault: true }],
+          });
+        }
+      },
+    });
+    win.$content.append(this.addressBar.element);
 
     const content = document.createElement("div");
     content.className = "explorer-content sunken-panel";
@@ -406,6 +427,7 @@ export class ExplorerApp extends Application {
 
     this.render(path, true);
     this.updateMenuState();
+    this.addressBar.setValue(convertInternalPathToWindows(path));
   }
 
   render(path, isNewNavigation = true) {
