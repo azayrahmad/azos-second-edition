@@ -71,6 +71,18 @@ export const apps = [
     },
   },
   {
+    id: "my-briefcase",
+    title: "My Briefcase",
+    description: "Stores your uploaded files.",
+    icon: ICONS.documents,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", "/folder-briefcase");
+      },
+    },
+  },
+  {
     id: "simcity2000",
     title: "SimCity 2000 Demo",
     description: "Play the classic game SimCity 2000.",

@@ -15,6 +15,7 @@ const directory = [
         children: [
           ...generateProgramFiles(),
           ...coreApps,
+          { id: "app-my-briefcase", type: "app", appId: "my-briefcase" },
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           {
@@ -34,13 +35,18 @@ const directory = [
             id: "folder-desktop",
             name: "desktop",
             type: "folder",
-            enableFileDrop: true,
             children: [
               {
                 id: "shortcut-to-my-computer",
                 type: "shortcut",
                 targetId: "app-my-computer",
                 name: "My Computer",
+              },
+              {
+                id: "shortcut-to-my-briefcase",
+                type: "shortcut",
+                targetId: "app-my-briefcase",
+                name: "My Briefcase",
               },
               {
                 id: "shortcut-to-my-documents",
@@ -162,7 +168,6 @@ const directory = [
             id: "folder-documents",
             name: "Documents",
             type: "folder",
-            enableFileDrop: true,
             children: [],
           },
         ],
@@ -173,6 +178,13 @@ const directory = [
     id: "drive-d",
     name: "D:",
     type: "drive",
+    children: [],
+  },
+  {
+    id: "folder-briefcase",
+    name: "My Briefcase",
+    type: "folder",
+    enableFileDrop: true,
     children: [],
   },
 ];
