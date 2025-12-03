@@ -61,7 +61,7 @@ export function handleDroppedFiles(files, targetPath, onDropComplete) {
     const allFiles = [...existingFiles, ...newFiles];
     setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, allFiles);
     if (onDropComplete) {
-      onDropComplete();
+      onDropComplete(newFiles);
     }
   });
 }
