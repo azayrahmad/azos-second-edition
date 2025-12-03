@@ -26,6 +26,7 @@ function getAppList(appListIds) {
   return appListIds
     .map((id) => apps.find((app) => app.id === id))
     .filter((app) => app)
+    .sort((a, b) => a.title.localeCompare(b.title))
     .map((app) => ({
       label: app.title,
       icon: app.icon[16],
@@ -51,6 +52,11 @@ const startMenuConfig = [
         ],
       },
       ...getAppList(startMenuAppIds),
+      {
+        label: "Windows Explorer",
+        icon: ICONS.windowsExplorer[16],
+        action: () => launchApp("my-computer"),
+      },
     ],
   },
   {

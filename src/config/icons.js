@@ -259,4 +259,10 @@ export const ICONS = {
     16: new URL("../assets/icons/briefcase-5.png", import.meta.url).href,
     32: new URL("../assets/icons/briefcase-3.png", import.meta.url).href,
   },
+  windowsExplorer: {
+    16: new URL("../assets/icons/directory_explorer-3.png", import.meta.url)
+      .href,
+    32: new URL("../assets/icons/directory_explorer-4.png", import.meta.url)
+      .href,
+  },
 };
