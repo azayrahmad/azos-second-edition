@@ -63,7 +63,21 @@ export class MediaPlayerApp extends Application {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        this._loadFile(file);
+        if (file.type.startsWith("audio/")) {
+          this.mediaView.style.display = "none";
+          const windowChromeHeight =
+            this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
+          const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+          this.win.setDimensions({ outerHeight: newHeight });
+        } else {
+          this.mediaView.style.display = "block";
+          this.win.setDimensions({ outerHeight: this.originalHeight });
+        }
+
+        const url = URL.createObjectURL(file);
+        this.mediaElement.src = url;
+        this.mediaElement.play();
+        this.win.title(`${file.name} - Media Player`);
       }
     };
     input.click();
@@ -71,6 +85,16 @@ export class MediaPlayerApp extends Application {
 
   _loadFile(file) {
     this.mediaElement.src = file.content;
+    if (file.type.startsWith("audio/")) {
+      this.mediaView.style.display = "none";
+      const windowChromeHeight =
+        this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
+      const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+      this.win.setDimensions({ outerHeight: newHeight });
+    } else {
+      this.mediaView.style.display = "block";
+      this.win.setDimensions({ outerHeight: this.originalHeight });
+    }
     this.mediaElement.play();
     this.win.title(`${file.name} - Media Player`);
   }
@@ -102,6 +126,8 @@ export class MediaPlayerApp extends Application {
   }
 
   _onLaunch(data) {
+    this.mediaView = this.win.element.querySelector(".media-view");
+    this.mediaControls = this.win.element.querySelector(".media-controls");
     this.mediaElement = this.win.element.querySelector(".media-element");
     this.defaultMediaImage = this.win.element.querySelector(
       ".media-player-default-image",
@@ -109,6 +135,7 @@ export class MediaPlayerApp extends Application {
     this.defaultMediaImage.src = mediaPlayerIcon;
     this.playPauseButton = this.win.element.querySelector(".play-pause");
     this.stopButton = this.win.element.querySelector(".stop");
+    this.originalHeight = this.win.element.offsetHeight;
     this.progressBar = this.win.element.querySelector(".progress-bar");
     this.volumeSlider = this.win.element.querySelector(".volume-slider");
     this.seekBackwardButton = this.win.element.querySelector(".seek-backward");
@@ -194,6 +221,18 @@ export class MediaPlayerApp extends Application {
       if (typeof data === "string") {
         // It's a file path
         this.mediaElement.src = data;
+        const ext = data.split('.').pop().toLowerCase();
+        const audioExtensions = ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'weba'];
+        if (audioExtensions.includes(ext)) {
+          this.mediaView.style.display = "none";
+          const windowChromeHeight =
+            this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
+          const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+          this.win.setDimensions({ outerHeight: newHeight });
+        } else {
+          this.mediaView.style.display = "block";
+          this.win.setDimensions({ outerHeight: this.originalHeight });
+        }
         this.win.title(`${data.split("/").pop()} - Media Player`);
         this._setControlsDisabled(false);
         this.mediaElement.play();
