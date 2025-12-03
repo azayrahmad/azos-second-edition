@@ -183,7 +183,7 @@ const directory = [
   {
     id: "folder-briefcase",
     name: "My Briefcase",
-    type: "folder",
+    type: "briefcase",
     enableFileDrop: true,
     children: [],
   },

@@ -74,7 +74,7 @@ export const apps = [
     id: "my-briefcase",
     title: "My Briefcase",
     description: "Stores your uploaded files.",
-    icon: ICONS.documents,
+    icon: ICONS.briefcase,
     action: {
       type: "function",
       handler: () => {
