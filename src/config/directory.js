@@ -156,6 +156,12 @@ const directory = [
                 targetId: "app-simcity2000",
                 name: "SimCity 2000 Demo",
               },
+              {
+                id: "shortcut-to-buy-me-a-coffee",
+                type: "shortcut",
+                targetId: "app-buy-me-a-coffee",
+                name: "Buy me a coffee",
+              },
             ],
           },
           {

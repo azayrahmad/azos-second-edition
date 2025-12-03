@@ -8,6 +8,7 @@ const startMenuAppIds = [
   "tipOfTheDay",
   "internet-explorer",
   "pinball",
+  "buy-me-a-coffee",
   "pdfviewer",
   "doom",
   "simcity2000",

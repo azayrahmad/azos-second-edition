@@ -22,6 +22,7 @@ import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
+import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -51,6 +52,7 @@ export const appClasses = {
   dosgame: DosGameApp,
   paint: PaintApp,
   "display-properties": DisplayPropertiesApp,
+  "buy-me-a-coffee": BuyMeACoffeeApp,
   "cursor-explorer": CursorExplorerApp,
   "media-player": MediaPlayerApp,
 };
@@ -412,6 +414,18 @@ export const apps = [
     width: 404,
     height: 448,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "buy-me-a-coffee",
+    title: "Buy me a coffee",
+    description: "Support the developer.",
+    icon: ICONS["buy-me-a-coffee"],
+    appClass: BuyMeACoffeeApp,
+    width: 300,
+    height: 650,
+    resizable: false,
+    maximizable: false,
     isSingleton: true,
   },
   {
