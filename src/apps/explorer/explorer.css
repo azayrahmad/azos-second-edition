@@ -41,6 +41,7 @@
     gap: 5px;
     padding: 10px;
     align-content: start;
+    position: relative;
 }
 
 .explorer-icon-view.has-absolute-icons {
