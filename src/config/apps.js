@@ -68,7 +68,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp("explorer", "/");
+        window.System.launchApp("explorer", {
+          filePath: "/",
+          windowId: "my-computer",
+        });
       },
     },
   },
@@ -80,7 +83,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp("explorer", "/folder-briefcase");
+        window.System.launchApp("explorer", {
+          filePath: "/folder-briefcase",
+          windowId: "my-briefcase",
+        });
       },
     },
   },
@@ -118,7 +124,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp("explorer", "//recycle-bin");
+        window.System.launchApp("explorer", {
+          filePath: "//recycle-bin",
+          windowId: "recycle-bin",
+        });
       },
     },
     contextMenu: [
@@ -165,7 +174,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp("explorer", "//network-neighborhood");
+        window.System.launchApp("explorer", {
+          filePath: "//network-neighborhood",
+          windowId: "network-neighborhood",
+        });
       },
     },
   },
@@ -177,10 +189,10 @@ export const apps = [
     action: {
       type: "function",
       handler: () => {
-        window.System.launchApp(
-          "explorer",
-          SPECIAL_FOLDER_PATHS["my-documents"],
-        );
+        window.System.launchApp("explorer", {
+          filePath: SPECIAL_FOLDER_PATHS["my-documents"],
+          windowId: "my-documents",
+        });
       },
     },
   },
