@@ -66,10 +66,10 @@ export class MediaPlayerApp extends Application {
           const windowChromeHeight =
             this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
           const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
-          this.win.resizeTo(this.win.element.offsetWidth, newHeight);
+          this.win.setDimensions({ outerHeight: newHeight });
         } else {
           this.mediaView.style.display = "block";
-          this.win.resizeTo(this.win.element.offsetWidth, this.originalHeight);
+          this.win.setDimensions({ outerHeight: this.originalHeight });
         }
 
         const url = URL.createObjectURL(file);
