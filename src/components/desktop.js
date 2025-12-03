@@ -796,11 +796,6 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
   }
 
   icon.addEventListener("dragstart", (e) => {
-    if (isAutoArrangeEnabled()) {
-      e.preventDefault();
-      return;
-    }
-
     // If the dragged icon is not selected, select it exclusively
     if (!iconManager.selectedIcons.has(icon)) {
       iconManager.clearSelection();
@@ -1043,21 +1038,29 @@ export async function initDesktop() {
       const { items, cursorOffsetX, cursorOffsetY, dragOffsets, sourcePath } =
         data;
       if (sourcePath === SPECIAL_FOLDER_PATHS.desktop) {
-        // This is a rearrange operation
-        const desktopRect = desktop.getBoundingClientRect();
-        const primaryIconX = e.clientX - desktopRect.left - cursorOffsetX;
-        const primaryIconY = e.clientY - desktopRect.top - cursorOffsetY;
+        if (isAutoArrangeEnabled()) {
+          // When auto-arranging, dropping an icon should just snap it back to the grid.
+          // The same logic that runs when toggling the option on.
+          removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+          desktop.refreshIcons();
+        } else {
+          // This is a manual rearrange operation
+          const desktopRect = desktop.getBoundingClientRect();
+          const primaryIconX = e.clientX - desktopRect.left - cursorOffsetX;
+          const primaryIconY = e.clientY - desktopRect.top - cursorOffsetY;
 
-        const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
-        (dragOffsets || []).forEach((offset) => {
-          iconPositions[offset.id] = {
-            x: `${primaryIconX + offset.offsetX}px`,
-            y: `${primaryIconY + offset.offsetY}px`,
-          };
-        });
+          const iconPositions =
+            getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+          (dragOffsets || []).forEach((offset) => {
+            iconPositions[offset.id] = {
+              x: `${primaryIconX + offset.offsetX}px`,
+              y: `${primaryIconY + offset.offsetY}px`,
+            };
+          });
 
-        setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
-        desktop.refreshIcons();
+          setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+          desktop.refreshIcons();
+        }
         return;
       }
       pasteItems("/drive-c/folder-user/folder-desktop", items, "cut");
