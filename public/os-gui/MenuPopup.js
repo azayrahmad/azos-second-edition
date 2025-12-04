@@ -87,7 +87,13 @@
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
       }
-      (this.wrapperElement || menu_popup_el).style.display = "none";
+      if (this.wrapperElement) {
+        if (this.wrapperElement.parentElement) {
+          this.wrapperElement.remove();
+        }
+      } else {
+        menu_popup_el.style.display = "none";
+      }
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
     };
@@ -366,7 +372,6 @@
               item_el,
             } of submenus) {
               submenu_popup.close(false);
-              submenu_popup_el.style.display = "none"; // Explicitly hide the wrapper
               item_el.setAttribute("aria-expanded", "false");
             }
             menu_popup_el.focus({ preventScroll: true });
