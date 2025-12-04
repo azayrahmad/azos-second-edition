@@ -30,8 +30,18 @@ export class Application {
     this.maximizeButton = config.maximizeButton;
   }
 
-  async launch(filePath = null) {
-    const windowId = this._getWindowId(filePath);
+  async launch(data = null) {
+    let filePath = null;
+    let windowIdOverride = null;
+
+    if (typeof data === "string") {
+      filePath = data;
+    } else if (data) {
+      filePath = data.filePath;
+      windowIdOverride = data.windowId;
+    }
+
+    const windowId = windowIdOverride || this._getWindowId(filePath);
     const instanceKey = this.isSingleton ? this.id : windowId;
 
     if (openApps.has(instanceKey)) {
@@ -64,7 +74,12 @@ export class Application {
   }
 
   _getWindowId(filePath) {
-    return filePath ? `${this.id}-${filePath}` : this.id;
+    if (filePath && typeof filePath === "object" && filePath.filename) {
+      return `${this.id}-${filePath.filename}`;
+    }
+    return filePath && typeof filePath === "string"
+      ? `${this.id}-${filePath}`
+      : this.id;
   }
 
   _createWindow(filePath) {
