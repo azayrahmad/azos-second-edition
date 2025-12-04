@@ -28,6 +28,8 @@ import {
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
+import browseUiIcons from "../../assets/icons/browse-ui-icons.png";
+import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale.png";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
 import { handleDroppedFiles, createDragGhost } from "../../utils/dragDropManager.js";
 import clipboardManager from "../../utils/clipboardManager.js";
@@ -155,6 +157,33 @@ export class ExplorerApp extends Application {
     menuBarElement.parentNode.insertBefore(menuBarContainer, menuBarElement);
     menuBarContainer.appendChild(menuBarElement);
     menuBarContainer.appendChild(logo);
+
+    const toolbarItems = [
+      {
+        label: "Back",
+        iconName: "back",
+        action: () => this.goBack(),
+        enabled: () => this.historyPointer > 0,
+      },
+      {
+        label: "Forward",
+        iconName: "forward",
+        action: () => this.goForward(),
+        enabled: () => this.historyPointer < this.history.length - 1,
+      },
+      {
+        label: "Up",
+        iconId: 10, // Using 'undo' icon as a stand-in for 'up'
+        action: () => this.goUp(),
+        enabled: () => this.currentPath !== "/",
+      },
+    ];
+
+    this.toolbar = new window.Toolbar(toolbarItems, {
+      icons: browseUiIcons,
+      iconsGrayscale: browseUiIconsGrayscale,
+    });
+    win.$content.append(this.toolbar.element);
 
     this.addressBar = new AddressBar({
       onEnter: (path) => {
@@ -711,19 +740,11 @@ export class ExplorerApp extends Application {
   }
 
   updateMenuState() {
-    const backButton = this.menuBar.element.querySelector("#go-back");
-    const forwardButton = this.menuBar.element.querySelector("#go-forward");
-    const upButton = this.menuBar.element.querySelector("#go-up");
+    this.menuBar.element.dispatchEvent(new Event("update"));
 
-    if (backButton)
-      backButton.classList.toggle("disabled", this.historyIndex <= 0);
-    if (forwardButton)
-      forwardButton.classList.toggle(
-        "disabled",
-        this.historyIndex >= this.history.length - 1,
-      );
-    if (upButton)
-      upButton.classList.toggle("disabled", this.currentPath === "/");
+    if (this.toolbar) {
+      this.toolbar.element.dispatchEvent(new Event("update"));
+    }
   }
 
   updateCutIcons() {
