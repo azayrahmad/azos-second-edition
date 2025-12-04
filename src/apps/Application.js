@@ -34,11 +34,14 @@ export class Application {
     let filePath = null;
     let windowIdOverride = null;
 
-    if (typeof data === "string") {
-      filePath = data;
-    } else {
-      filePath = data.filePath || data;
-      windowIdOverride = data.windowId;
+    if (data) {
+      if (typeof data === "string") {
+        filePath = data;
+      } else {
+        // Handle both file objects and file path strings
+        filePath = data.file || data.filePath || data;
+        windowIdOverride = data.windowId;
+      }
     }
 
     const windowId = windowIdOverride || this._getWindowId(filePath);
@@ -74,8 +77,9 @@ export class Application {
   }
 
   _getWindowId(filePath) {
-    if (filePath && typeof filePath === "object" && filePath.filename) {
-      return `${this.id}-${filePath.filename}`;
+    const fileName = filePath?.name || filePath?.filename;
+    if (filePath && typeof filePath === "object" && fileName) {
+      return `${this.id}-${fileName}`;
     }
     return filePath && typeof filePath === "string"
       ? `${this.id}-${filePath}`
