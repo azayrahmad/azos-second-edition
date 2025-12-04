@@ -196,9 +196,10 @@ export class InternetExplorerApp extends IFrameApplication {
     menuBarContainer.appendChild(logo);
 
     const toolbarItems = [
+      "handler",
       {
         label: "Back",
-        iconId: 0,
+        iconName: "back",
         action: () => this.goBack(),
         enabled: () => this.historyIndex > 0,
         submenu: () =>
@@ -216,7 +217,7 @@ export class InternetExplorerApp extends IFrameApplication {
       },
       {
         label: "Forward",
-        iconId: 1,
+        iconName: "forward",
         action: () => this.goForward(),
         enabled: () => this.historyIndex < this.history.length - 1,
         submenu: () =>
@@ -233,37 +234,39 @@ export class InternetExplorerApp extends IFrameApplication {
       },
       {
         label: "Stop",
-        iconId: 2,
+        iconName: "stop",
         action: () => this.iframe.contentWindow.stop(),
       },
       {
         label: "Refresh",
-        iconId: 3,
+        iconName: "refresh",
         action: () => this.iframe.contentWindow.location.reload(),
       },
       {
         label: "Home",
-        iconId: 4,
+        iconName: "home",
         action: () => this.navigateTo("microsoft.com"),
       },
+      "divider",
       {
         label: "Search",
-        iconId: 5,
+        iconName: "search",
         enabled: false,
       },
       {
         label: "Favorites",
-        iconId: 6,
+        iconName: "favorites",
         enabled: false,
       },
       {
         label: "History",
-        iconId: 7,
+        iconName: "history",
         enabled: false,
       },
+      "divider",
       {
         label: "Print",
-        iconId: 8,
+        iconName: "print",
         enabled: false,
       },
     ];

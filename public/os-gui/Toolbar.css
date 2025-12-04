@@ -317,3 +317,22 @@
     margin-bottom: 0;
     margin-right: 6px;
 }
+
+.toolbar-divider {
+    width: 1px;
+    height: 90%;
+    background-color: var(--ButtonShadow, grey);
+    border-right: var(--ButtonHilight, white) 1px solid;
+    margin: 0 0 0 2px;
+}
+.toolbar-handler {
+    width: 1px;
+    height: 80%;
+    background-color: var(--ButtonFace, #c0c0c0);
+    border-top: var(--ButtonHilight, white) 1px solid;
+    border-left: var(--ButtonHilight, white) 1px solid;
+    border-right: var(--ButtonShadow, #808080) 1px solid;
+    border-bottom: var(--ButtonShadow, #808080) 1px solid;
+    padding-left: 0;
+    margin: 2px;
+}

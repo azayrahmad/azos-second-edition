@@ -2,12 +2,13 @@
   const ICON_MAP = {
     back: 0,
     forward: 1,
-    up: 2,
-    cut: 3,
-    copy: 4,
-    paste: 5,
-    views: 6,
-    tools: 7,
+    stop: 2,
+    refresh: 3,
+    home: 4,
+    search: 5,
+    favorites: 6,
+    print: 7,
+    history: 12,
     // Add more icon mappings as needed, e.g.:
     // "save": 8,
     // "print": 9,
@@ -68,6 +69,13 @@
     }
 
     createToolbarItem(item) {
+      if (item === "divider") {
+        return E("div", { class: "toolbar-divider" });
+      }
+
+      if (item === "handler") {
+        return E("div", { class: "toolbar-handler" });
+      }
       const groupEl = E("div", { class: "toolbar-button-group" });
 
       const mainButtonEl = E("button", { class: "toolbar-button lightweight" });
