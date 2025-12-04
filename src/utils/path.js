@@ -91,6 +91,13 @@ export function convertWindowsPathToInternal(windowsPath) {
   );
 
   if (!driveNode) {
+    // Check if it's special explorer app (Recycle Bin, Network Neighborhood, etc.)
+    const app = apps.find(
+      (a) => a.title.toLowerCase() === driveLetter.toLowerCase(),
+    );
+    if (app) {
+      return `//${app.id}`;
+    }
     return null; // Invalid drive
   }
 
