@@ -106,7 +106,7 @@ export class ExplorerApp extends Application {
     super(config);
     this.initialPath = "/";
     this.history = [];
-    this.historyPointer = -1;
+    this.historyIndex = -1;
     this.resizeObserver = null;
     this.currentFolderItems = [];
   }
@@ -163,13 +163,42 @@ export class ExplorerApp extends Application {
         label: "Back",
         iconName: "back",
         action: () => this.goBack(),
-        enabled: () => this.historyPointer > 0,
+        enabled: () => this.historyIndex > 0,
+        submenu: () =>
+          this.history
+            .slice(0, this.historyIndex)
+            .reverse()
+            .map((path, i) => {
+              const item = findItemByPath(path);
+              const label = item ? item.name : path;
+              const targetIndex = this.historyIndex - (i + 1);
+              return {
+                label: label,
+                action: () => {
+                  this.historyIndex = targetIndex;
+                  this.navigateTo(this.history[this.historyIndex], true);
+                },
+              };
+            }),
       },
       {
         label: "Forward",
         iconName: "forward",
         action: () => this.goForward(),
-        enabled: () => this.historyPointer < this.history.length - 1,
+        enabled: () => this.historyIndex < this.history.length - 1,
+        submenu: () =>
+          this.history.slice(this.historyIndex + 1).map((path, i) => {
+            const item = findItemByPath(path);
+            const label = item ? item.name : path;
+            const targetIndex = this.historyIndex + (i + 1);
+            return {
+              label: label,
+              action: () => {
+                this.historyIndex = targetIndex;
+                this.navigateTo(this.history[this.historyIndex], true);
+              },
+            };
+          }),
       },
       {
         label: "Up",
@@ -446,13 +475,15 @@ export class ExplorerApp extends Application {
     }
   }
 
-  navigateTo(path) {
-    // Truncate history if navigating from a previous state
-    if (this.historyPointer < this.history.length - 1) {
-      this.history = this.history.slice(0, this.historyPointer + 1);
+  navigateTo(path, isHistoryNav = false) {
+    if (!isHistoryNav) {
+      // If we are at some point in history and not at the end, nuke forward history
+      if (this.historyIndex < this.history.length - 1) {
+        this.history.splice(this.historyIndex + 1);
+      }
+      this.history.push(path);
+      this.historyIndex = this.history.length - 1;
     }
-    this.history.push(path);
-    this.historyPointer++;
 
     this.render(path, true);
     this.updateMenuState();
@@ -726,16 +757,14 @@ export class ExplorerApp extends Application {
   goBack() {
     if (this.historyIndex > 0) {
       this.historyIndex--;
-      this.render(this.history[this.historyIndex]);
-      this.updateMenuState();
+      this.navigateTo(this.history[this.historyIndex], true);
     }
   }
 
   goForward() {
     if (this.historyIndex < this.history.length - 1) {
       this.historyIndex++;
-      this.render(this.history[this.historyIndex]);
-      this.updateMenuState();
+      this.navigateTo(this.history[this.historyIndex], true);
     }
   }
 

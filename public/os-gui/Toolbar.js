@@ -80,6 +80,9 @@
 
       const mainButtonEl = E("button", { class: "toolbar-button lightweight" });
       mainButtonEl.disabled = this.isDisabled(item);
+      if (item.label) {
+        mainButtonEl.setAttribute("aria-label", item.label);
+      }
 
       const iconEl = E("div", { class: "toolbar-icon" });
       let iconToUseId;
