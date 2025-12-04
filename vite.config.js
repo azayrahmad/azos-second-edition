@@ -3,7 +3,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   assetsInclude: ["**/*.ani"],
-  base: "./",
+  base: "/azos-second-edition/",
   plugins: [
     VitePWA({
       registerType: "autoUpdate",
