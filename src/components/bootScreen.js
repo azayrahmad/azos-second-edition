@@ -64,11 +64,17 @@ function removeLastBlinkingCursor() {
     }
 }
 
-function promptToContinue() {
+function promptToContinue(showDiagnosticsPrompt = false) {
     return new Promise((resolve) => {
         removeLastBlinkingCursor();
         const bootLogEl = document.getElementById("boot-log");
         if (bootLogEl) {
+            if (showDiagnosticsPrompt) {
+                const diagPromptEl = document.createElement("div");
+                diagPromptEl.textContent = "Press DEL for diagnostics...";
+                bootLogEl.appendChild(diagPromptEl);
+            }
+
             const promptEl = document.createElement("div");
             let countdown = 10;
             promptEl.textContent = `Press any key to continue... ${countdown}`;
@@ -81,21 +87,21 @@ function promptToContinue() {
                     clearInterval(timer);
                     window.removeEventListener("keydown", continueHandler);
                     window.removeEventListener("touchstart", continueHandler);
-                    resolve();
+                    resolve(null); // Timeout resolves with null
                 }
             }, 1000);
 
-            const continueHandler = () => {
+            const continueHandler = (event) => {
                 clearInterval(timer);
                 window.removeEventListener("keydown", continueHandler);
                 window.removeEventListener("touchstart", continueHandler);
-                resolve();
+                resolve(event.key || "any"); // Resolve with key name or 'any' for touch
             };
 
             window.addEventListener("keydown", continueHandler, { once: true });
             window.addEventListener("touchstart", continueHandler, { once: true });
         } else {
-            resolve();
+            resolve(null);
         }
     });
 }
