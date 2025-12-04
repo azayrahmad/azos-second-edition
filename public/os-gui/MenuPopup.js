@@ -87,7 +87,13 @@
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
       }
-      (this.wrapperElement || menu_popup_el).style.display = "none";
+      if (this.wrapperElement) {
+        if (this.wrapperElement.parentElement) {
+          this.wrapperElement.remove();
+        }
+      } else {
+        menu_popup_el.style.display = "none";
+      }
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
     };
@@ -197,13 +203,13 @@
             "point-right",
             get_direction() === "rtl",
           );
+          submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
           const submenu_popup = new MenuPopup(item.submenu, {
             ...options,
             parentMenuPopup: this,
             wrapperElement: submenu_popup_el,
           });
           const submenu_popup_el_actual = submenu_popup.element;
-          submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
           submenu_popup_el.appendChild(submenu_popup_el_actual);
 
           document.body?.appendChild(submenu_popup_el);
@@ -366,7 +372,6 @@
               item_el,
             } of submenus) {
               submenu_popup.close(false);
-              submenu_popup_el.style.display = "none"; // Explicitly hide the wrapper
               item_el.setAttribute("aria-expanded", "false");
             }
             menu_popup_el.focus({ preventScroll: true });
