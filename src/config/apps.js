@@ -91,26 +91,6 @@ export const apps = [
     },
   },
   {
-    id: "simcity2000",
-    title: "SimCity 2000 Demo",
-    description: "Play the classic game SimCity 2000.",
-    icon: ICONS.simcity2000,
-    action: {
-      type: "function",
-      handler: () => {
-        window.System.launchApp("dosgame", {
-          gameUrl: "games/dos/simcity2000/index.html",
-          title: "SimCity 2000 Demo",
-          icon: ICONS.simcity2000,
-          width: 640,
-          height: 480,
-          resizable: false,
-          maximizable: false,
-        });
-      },
-    },
-  },
-  {
     id: "recycle-bin",
     title: "Recycle Bin",
     description:
@@ -481,20 +461,24 @@ export const apps = [
     title: "Doom",
     description: "Play the classic game Doom.",
     icon: ICONS.doom, // Specific icon for Doom
-    action: {
-      type: "function",
-      handler: () => {
-        window.System.launchApp("dosgame", {
-          gameUrl: "games/dos/doom/index.html",
-          title: "Doom", // Title for the window
-          icon: ICONS.doom, // Icon for the window
-          width: 800,
-          height: 500,
-          resizable: true,
-          maximizable: true,
-        });
-      },
-    },
+    gameUrl: "games/dos/doom/index.html",
+    width: 800,
+    height: 500,
+    resizable: true,
+    maximizable: true,
+    appClass: DosGameApp,
+  },
+  {
+    id: "simcity2000",
+    title: "SimCity 2000 Demo",
+    description: "Play the SimCity 2000 demo.",
+    icon: ICONS.simcity2000,
+    gameUrl: "games/dos/simcity2000/index.html",
+    width: 640,
+    height: 480,
+    resizable: true,
+    maximizable: true,
+    appClass: DosGameApp,
   },
   {
     id: "media-player",

@@ -5,28 +5,17 @@ export class DosGameApp extends IFrameApplication {
     super(config);
   }
 
-  _createWindow(gameConfig) {
+  _createWindow() {
     const win = new $Window({
-      title: gameConfig.title || this.title,
-      outerWidth: gameConfig.width || this.width,
-      outerHeight: gameConfig.height || this.height,
-      resizable:
-        gameConfig.resizable !== undefined
-          ? gameConfig.resizable
-          : this.resizable !== undefined
-            ? this.resizable
-            : false,
-      maximizable:
-        gameConfig.maximizable !== undefined
-          ? gameConfig.maximizable
-          : this.maximizable !== undefined
-            ? this.maximizable
-            : false,
-      icons: gameConfig.icon || this.icon,
+      title: this.title,
+      outerWidth: this.width,
+      outerHeight: this.height,
+      resizable: this.resizable,
+      maximizable: this.maximizable,
+      icons: this.icon,
     });
-
     const iframe = document.createElement("iframe");
-    iframe.src = gameConfig.gameUrl;
+    iframe.src = this.config.gameUrl;
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
