@@ -144,6 +144,12 @@ const directory = [
                 targetId: "app-buy-me-a-coffee",
                 name: "Buy me a coffee",
               },
+              {
+                id: "shortcut-to-explorer",
+                type: "shortcut",
+                targetId: "app-explorer",
+                name: "Explorer",
+              },
             ],
           },
           {

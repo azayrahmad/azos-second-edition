@@ -201,13 +201,39 @@ export class NotepadApp extends Application {
               });
             });
         } else if (data && typeof data === "object") {
-          // It's a file object from drag-and-drop
-          this.fileName = data.name;
-          const content = atob(data.content.split(",")[1]);
-          this.editor.setValue(content);
-          this.isDirty = false;
-          this.updateTitle();
-          this.setLanguage(this.getLanguageFromExtension(this.fileName));
+          // It's a file object from drag-and-drop or file open
+          if (data.content) {
+            this.fileName = data.name;
+            const content = atob(data.content.split(",")[1]);
+            this.editor.setValue(content);
+            this.isDirty = false;
+            this.updateTitle();
+            this.setLanguage(this.getLanguageFromExtension(this.fileName));
+          } else {
+            // Assumes it's a File-like object
+            const file = data;
+            this.fileName = file.name;
+            this.fileHandle = null;
+            this.isDirty = false;
+            this.updateTitle();
+            this.setLanguage(this.getLanguageFromExtension(file.name));
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              this.editor.setValue(event.target.result);
+              this.isDirty = false; // Reset dirty flag after loading
+              this.updateTitle();
+            };
+            reader.onerror = (e) => {
+              console.error("Error reading file:", e);
+              ShowDialogWindow({
+                title: "Error",
+                text: `Could not read file: ${file.name}`,
+                buttons: [{ label: "OK", isDefault: true }],
+              });
+            };
+            reader.readAsText(file);
+          }
         }
 
         const notepadContainer = this.win.$content.find('.notepad-container')[0];
