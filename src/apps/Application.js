@@ -36,8 +36,8 @@ export class Application {
 
     if (typeof data === "string") {
       filePath = data;
-    } else if (data) {
-      filePath = data.filePath;
+    } else {
+      filePath = data.filePath || data;
       windowIdOverride = data.windowId;
     }
 
