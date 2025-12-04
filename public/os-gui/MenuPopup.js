@@ -11,7 +11,6 @@
    */
   function MenuPopup(menu_items, options) {
     this.parentMenuPopup = options.parentMenuPopup;
-    this.wrapperElement = options.wrapperElement; // Store the wrapper element
     this.menuItems = menu_items;
     this.itemElements = [];
 
@@ -87,7 +86,7 @@
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
       }
-      (this.wrapperElement || menu_popup_el).style.display = "none";
+      menu_popup_el.style.display = "none";
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
     };
@@ -200,12 +199,8 @@
           const submenu_popup = new MenuPopup(item.submenu, {
             ...options,
             parentMenuPopup: this,
-            wrapperElement: submenu_popup_el,
           });
-          const submenu_popup_el_actual = submenu_popup.element;
-          submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
-          submenu_popup_el.appendChild(submenu_popup_el_actual);
-
+          submenu_popup_el = submenu_popup.element;
           document.body?.appendChild(submenu_popup_el);
           submenu_popup_el.style.display = "none";
           item_el.setAttribute("aria-haspopup", "true");
@@ -231,118 +226,43 @@
             close_submenus_at_this_level();
             item_el.setAttribute("aria-expanded", "true");
 
-            // Make visible off-screen to measure
+            submenu_popup_el.style.pointerEvents = "";
             submenu_popup_el.style.display = "";
             submenu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
-            submenu_popup_el.style.position = "absolute";
+            // Make visible off-screen to measure
             submenu_popup_el.style.left = "-9999px";
             submenu_popup_el.style.top = "-9999px";
             submenu_popup_el.setAttribute("dir", get_direction());
-            if (window.inheritTheme) {
+            if (window.inheritTheme)
               window.inheritTheme(submenu_popup_el, menu_popup_el);
-            }
-            if (!submenu_popup_el.parentElement) {
+            if (!submenu_popup_el.parentElement)
               document.body.appendChild(submenu_popup_el);
-            }
             submenu_popup_el.dispatchEvent(new CustomEvent("update", {}));
 
-            // Temporarily make the actual menu content (submenu_popup.element) visible and unconstrained for measurement
-            const actualMenuElement = submenu_popup.element; // This is the div.menu-popup
+            const rect = item_el.getBoundingClientRect();
+            const submenu_popup_rect = submenu_popup_el.getBoundingClientRect();
 
-            // Save original styles of the actual menu element (div.menu-popup)
-            const actualOriginalParent = actualMenuElement.parentNode;
-            const actualOriginalDisplay = actualMenuElement.style.display;
-            const actualOriginalVisibility = actualMenuElement.style.visibility;
-            const actualOriginalPosition = actualMenuElement.style.position;
-            const actualOriginalLeft = actualMenuElement.style.left;
-            const actualOriginalTop = actualMenuElement.style.top;
-            const actualOriginalZIndex = actualMenuElement.style.zIndex;
-
-            // Detach actual menu content and append to body for accurate measurement
-            if (actualOriginalParent) {
-              actualOriginalParent.removeChild(actualMenuElement);
-            }
-            document.body.appendChild(actualMenuElement);
-
-            // Set temporary styles for measurement
-            actualMenuElement.style.display = "block";
-            actualMenuElement.style.visibility = "hidden";
-            actualMenuElement.style.position = "absolute";
-            actualMenuElement.style.left = "-9999px";
-            actualMenuElement.style.top = "-9999px";
-            // Assign a high z-index to ensure it's on top and fully rendered if needed
-            actualMenuElement.style.zIndex = `${get_new_menu_z_index() + 100}`;
-
-            // Force reflow to ensure layout calculation
-            actualMenuElement.offsetHeight;
-
-            const rect = item_el.getBoundingClientRect(); // Still need parent item's rect for positioning calculations
-            const submenu_popup_rect =
-              actualMenuElement.getBoundingClientRect();
-
-            // Re-attach to original parent (the wrapper) and restore original styles
-            if (actualOriginalParent) {
-              actualOriginalParent.appendChild(actualMenuElement);
-            }
-            actualMenuElement.style.display = actualOriginalDisplay;
-            actualMenuElement.style.visibility = actualOriginalVisibility;
-            actualMenuElement.style.position = actualOriginalPosition;
-            actualMenuElement.style.left = actualOriginalLeft;
-            actualMenuElement.style.top = actualOriginalTop;
-            actualMenuElement.style.zIndex = actualOriginalZIndex;
-            // The wrapper (submenu_popup_el) itself will then get its initial 0px width/height from CSS variables
-            // and the setTimeout will correctly apply the measured dimensions.
-
-            // Position and animate
-            let final_x =
+            let x =
               (get_direction() === "rtl"
                 ? rect.left - submenu_popup_rect.width
                 : rect.right) + window.scrollX;
-            let final_y = rect.top + window.scrollY;
-            let from_left = false;
+            let y = rect.top + window.scrollY;
 
             if (get_direction() === "rtl") {
-              if (final_x < 0) {
-                final_x = rect.right;
-                from_left = true;
+              if (x < 0) {
+                x = rect.right;
               }
             } else {
-              if (final_x + submenu_popup_rect.width > innerWidth) {
-                final_x = rect.left - submenu_popup_rect.width;
-                from_left = true;
+              if (x + submenu_popup_rect.width > innerWidth) {
+                x = rect.left - submenu_popup_rect.width;
               }
             }
-            if (final_y + submenu_popup_rect.height > innerHeight) {
-              final_y = Math.max(0, innerHeight - submenu_popup_rect.height);
+            if (y + submenu_popup_rect.height > innerHeight) {
+              y = Math.max(0, innerHeight - submenu_popup_rect.height);
             }
 
-            submenu_popup_el.style.left = `${final_x}px`;
-            submenu_popup_el.style.top = `${final_y}px`;
-            // Initial width/height are handled by CSS variables with default 0px,
-            // and will be updated asynchronously.
-
-            setTimeout(() => {
-              // Ensure both the wrapper and the content are set to display: block
-              submenu_popup_el.style.display = "block";
-              actualMenuElement.style.display = "block";
-
-              submenu_popup_el.style.setProperty(
-                "--width",
-                `${submenu_popup_rect.width}px`,
-              );
-              submenu_popup_el.style.setProperty(
-                "--height",
-                `${submenu_popup_rect.height}px`,
-              );
-              submenu_popup_el.style.width = "var(--width)";
-              submenu_popup_el.style.height = "var(--height)";
-
-              if (from_left) {
-                submenu_popup_el.classList.add("to-left");
-              } else {
-                submenu_popup_el.classList.add("to-right");
-              }
-            }, 0);
+            submenu_popup_el.style.left = `${x}px`;
+            submenu_popup_el.style.top = `${y}px`;
 
             if (highlight_first) {
               submenu_popup.highlight(0);
@@ -351,14 +271,10 @@
               submenu_popup.highlight(-1);
             }
 
-            submenu_popup_el_actual.focus({ preventScroll: true });
+            submenu_popup_el.focus({ preventScroll: true });
             options.setActiveMenuPopup(submenu_popup);
           };
-          submenus.push({
-            item_el,
-            submenu_popup_el,
-            submenu_popup,
-          });
+          submenus.push({ item_el, submenu_popup_el, submenu_popup });
           function close_submenus_at_this_level() {
             for (const {
               submenu_popup,
@@ -366,7 +282,8 @@
               item_el,
             } of submenus) {
               submenu_popup.close(false);
-              submenu_popup_el.style.display = "none"; // Explicitly hide the wrapper
+              submenu_popup_el.style.display = "none";
+              submenu_popup_el.style.pointerEvents = "none";
               item_el.setAttribute("aria-expanded", "false");
             }
             menu_popup_el.focus({ preventScroll: true });
