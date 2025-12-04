@@ -46,6 +46,7 @@ To add a windowed application, follow these steps:
         - `resizable`: A boolean indicating whether the window can be resized.
         - `menuBar`: (Optional) An object defining the window's menu bar.
         - `content`: The HTML content to be displayed within the window.
+    - `tips`: (Optional but recommended) An array of strings containing helpful tips or tricks about the application. These are displayed in the "Tip of the Day" window.
 
 **Example: A Simple "About" Application**
 

@@ -33,6 +33,7 @@ This document provides essential knowledge for AI agents to effectively contribu
      id: "unique-id",
      title: "Display Name",
      icon: "path/to/icon.ico",
+     tips: ["A helpful tip about the application."], // Recommended for all new apps
      action: {
        type: "window",
        window: {
