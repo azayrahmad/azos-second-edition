@@ -74,6 +74,7 @@ export const apps = [
         });
       },
     },
+    tips: ["'My Computer' gives you a quick overview of all your drives."],
   },
   {
     id: "my-briefcase",
@@ -89,6 +90,9 @@ export const apps = [
         });
       },
     },
+    tips: [
+      "'My Briefcase' is a special folder to keep your important files synced.",
+    ],
   },
   {
     id: "recycle-bin",
@@ -143,6 +147,9 @@ export const apps = [
         action: "properties",
       },
     ],
+    tips: [
+      "You can restore deleted items from the 'Recycle Bin' by right-clicking on them.",
+    ],
   },
   {
     id: "network-neighborhood",
@@ -160,6 +167,9 @@ export const apps = [
         });
       },
     },
+    tips: [
+      "'Network Neighborhood' helps you browse other computers on the same network.",
+    ],
   },
   {
     id: "my-documents",
@@ -175,6 +185,9 @@ export const apps = [
         });
       },
     },
+    tips: [
+      "The 'My Documents' folder is a convenient place to store your personal files.",
+    ],
   },
   {
     id: "about",
@@ -188,6 +201,7 @@ export const apps = [
     minimizeButton: false,
     maximizeButton: false,
     isSingleton: true,
+    tips: ["The 'About' app shows you information about this operating system."],
   },
   {
     id: "tipOfTheDay",
@@ -247,6 +261,9 @@ export const apps = [
     height: 720,
     resizable: true,
     isSingleton: false,
+    tips: [
+      "You can convert images to different formats like JPEG, PNG, and WEBP with the Image Resizer.",
+    ],
   },
   {
     id: "image-viewer",
@@ -258,6 +275,7 @@ export const apps = [
     height: 300,
     resizable: true,
     isSingleton: false,
+    tips: ["Quickly view your images by opening them in the Image Viewer."],
   },
   {
     id: "clippy",
@@ -302,6 +320,9 @@ export const apps = [
     height: 500,
     resizable: true,
     isSingleton: true,
+    tips: [
+      "Use the App Maker to create your own simple applications without writing any code.",
+    ],
   },
   {
     id: "alertTest",
@@ -320,6 +341,9 @@ export const apps = [
         });
       },
     },
+    tips: [
+      "This is a test application for developers to check dialog functionality.",
+    ],
   },
   {
     id: "themetocss",
@@ -331,6 +355,9 @@ export const apps = [
     height: 350,
     resizable: true,
     isSingleton: true,
+    tips: [
+      "Developers can use 'Theme to CSS' to convert Windows theme files into web-friendly CSS.",
+    ],
   },
   {
     id: "desktopthemes",
@@ -342,6 +369,9 @@ export const apps = [
     height: 500,
     resizable: false,
     isSingleton: true,
+    tips: [
+      "Change the look and feel of your desktop with different themes in 'Desktop Themes'.",
+    ],
   },
   {
     id: "taskmanager",
@@ -353,6 +383,9 @@ export const apps = [
     height: 400,
     resizable: false,
     isSingleton: true,
+    tips: [
+      "Use the 'Task Manager' to see all running applications and close any that are not responding.",
+    ],
   },
   {
     id: "soundschemeexplorer",
@@ -364,6 +397,9 @@ export const apps = [
     height: 300,
     resizable: true,
     isSingleton: true,
+    tips: [
+      "Listen to all the different system sounds in the 'Sound Scheme Explorer'.",
+    ],
   },
   {
     id: "explorer",
@@ -375,6 +411,7 @@ export const apps = [
     height: 480,
     resizable: true,
     isSingleton: false,
+    tips: ["The 'Explorer' is your main tool for browsing files and folders."],
   },
   {
     id: "internet-explorer",
@@ -386,6 +423,7 @@ export const apps = [
     height: 600,
     resizable: true,
     isSingleton: false,
+    tips: ["Surf the world wide web of 1998 with 'Internet Explorer'."],
   },
   {
     id: "pinball",
@@ -397,6 +435,7 @@ export const apps = [
     height: 400,
     resizable: false,
     isSingleton: true,
+    tips: ["Try to beat the high score in the classic game of Pinball!"],
   },
   {
     id: "paint",
@@ -408,6 +447,9 @@ export const apps = [
     height: 600,
     resizable: true,
     isSingleton: false,
+    tips: [
+      "Unleash your creativity with the simple yet powerful 'Paint' application.",
+    ],
   },
   {
     id: "display-properties",
@@ -419,6 +461,9 @@ export const apps = [
     height: 448,
     resizable: false,
     isSingleton: true,
+    tips: [
+      "Customize your wallpaper, screen saver, and color schemes in 'Display Properties'.",
+    ],
   },
   {
     id: "buy-me-a-coffee",
@@ -431,6 +476,7 @@ export const apps = [
     resizable: false,
     maximizable: false,
     isSingleton: true,
+    tips: ["If you enjoy this project, consider supporting the developer!"],
   },
   {
     id: "cursor-explorer",
@@ -442,6 +488,9 @@ export const apps = [
     height: 500,
     resizable: true,
     isSingleton: true,
+    tips: [
+      "Preview different cursor styles and animations in the 'Cursor Explorer'.",
+    ],
   },
   {
     id: "dosgame",
@@ -455,6 +504,7 @@ export const apps = [
     resizable: false,
     maximizable: false,
     isSingleton: false, // Allow multiple instances if needed
+    tips: ["This generic launcher can run various classic DOS games."],
   },
   {
     id: "doom", // Unique ID for this specific game launcher
@@ -467,6 +517,9 @@ export const apps = [
     resizable: true,
     maximizable: true,
     appClass: DosGameApp,
+    tips: [
+      "Fight your way through hordes of demons in the legendary game, Doom.",
+    ],
   },
   {
     id: "simcity2000",
@@ -479,6 +532,7 @@ export const apps = [
     resizable: true,
     maximizable: true,
     appClass: DosGameApp,
+    tips: ["Build and manage your own city in the demo of SimCity 2000."],
   },
   {
     id: "media-player",
@@ -490,5 +544,6 @@ export const apps = [
     height: 360,
     resizable: true,
     isSingleton: false,
+    tips: ["Play your favorite local audio and video files with the Media Player."],
   },
 ];
