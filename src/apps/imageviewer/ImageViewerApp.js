@@ -88,7 +88,10 @@ export class ImageViewerApp extends Application {
         {
           label: "Extract &Icons...",
           action: () => this.showExtractIconsDialog(),
-          enabled: () => this.file && this.file.name.toLowerCase().endsWith(".ico"),
+          enabled: () =>
+            this.file &&
+            this.file.name &&
+            this.file.name.toLowerCase().endsWith(".ico"),
         },
       ],
       "&Help": [
@@ -109,7 +112,8 @@ export class ImageViewerApp extends Application {
       fetch(data)
         .then((response) => response.blob())
         .then((blob) => {
-          const file = new File([blob], data.split("/").pop());
+          const fileName = decodeURIComponent(data.split("/").pop());
+          const file = new File([blob], fileName);
           this.loadFile(file);
         });
     } else if (data && typeof data === "object") {
@@ -118,7 +122,7 @@ export class ImageViewerApp extends Application {
       this.img.src = data.content;
       this.img.onload = () => {
         this.resetZoom();
-        this._adjustWindowSize(this.img);
+        setTimeout(() => this._adjustWindowSize(this.img), 0);
         this._updatePannableState();
       };
     } else {
@@ -171,7 +175,9 @@ export class ImageViewerApp extends Application {
     imageContainer.addEventListener("mouseup", stopPanning);
     imageContainer.addEventListener("mouseleave", stopPanning);
     imageContainer.addEventListener("mousemove", doPan);
-    imageContainer.addEventListener("touchstart", startPanning, { passive: false });
+    imageContainer.addEventListener("touchstart", startPanning, {
+      passive: false,
+    });
     imageContainer.addEventListener("touchend", stopPanning);
     imageContainer.addEventListener("touchcancel", stopPanning);
     imageContainer.addEventListener("touchmove", doPan, { passive: false });
@@ -185,7 +191,7 @@ export class ImageViewerApp extends Application {
       this.img.src = e.target.result;
       this.img.onload = () => {
         this.resetZoom();
-        this._adjustWindowSize(this.img);
+        setTimeout(() => this._adjustWindowSize(this.img), 0);
         this._updatePannableState();
       };
     };
@@ -261,7 +267,9 @@ export class ImageViewerApp extends Application {
               ? suggestedName.substring(0, suggestedName.lastIndexOf("."))
               : suggestedName;
           suggestedName = `${nameWithoutExt}-modified.png`;
-          types = [{ description: "PNG Image", accept: { "image/png": [".png"] } }];
+          types = [
+            { description: "PNG Image", accept: { "image/png": [".png"] } },
+          ];
         }
 
         const options = {
@@ -310,7 +318,7 @@ export class ImageViewerApp extends Application {
 
     const padding = 20; // 10px margin on each side
     const titleBarHeight =
-      this.win.element.querySelector(".window-title-bar").offsetHeight;
+      this.win.element.querySelector(".window-titlebar").offsetHeight;
     const menuBarHeight =
       this.win.element.querySelector(".menus")?.offsetHeight || 0;
     const windowBorders =
@@ -323,9 +331,9 @@ export class ImageViewerApp extends Application {
     const imgWidth = img.naturalWidth;
     const imgHeight = img.naturalHeight;
 
-    let newInnerWidth = Math.max(this.win.options.innerWidth || 380, imgWidth);
+    let newInnerWidth = Math.max(this.win.element.innerWidth || 380, imgWidth);
     let newInnerHeight = Math.max(
-      this.win.options.innerHeight || 260,
+      this.win.element.innerHeight || 260,
       imgHeight,
     );
 
@@ -341,11 +349,10 @@ export class ImageViewerApp extends Application {
       newInnerWidth = newInnerHeight * aspectRatio;
     }
 
-    this.win.resize(
-      Math.round(newInnerWidth),
-      Math.round(newInnerHeight),
-      true,
-    );
+    this.win.setDimensions({
+      innerWidth: Math.round(newInnerWidth),
+      innerHeight: Math.round(newInnerHeight),
+    });
     this.win.center();
   }
 
@@ -375,7 +382,10 @@ export class ImageViewerApp extends Application {
 
   _isPannable() {
     const imageContainer = this.win.$content.find(".image-viewer-container")[0];
-    return imageContainer.scrollWidth > imageContainer.clientWidth || imageContainer.scrollHeight > imageContainer.clientHeight;
+    return (
+      imageContainer.scrollWidth > imageContainer.clientWidth ||
+      imageContainer.scrollHeight > imageContainer.clientHeight
+    );
   }
 
   _updatePannableState() {
@@ -534,7 +544,9 @@ export class ImageViewerApp extends Application {
         } else if (typeof ICO.parseICO === "function") {
           icons = await ICO.parseICO(buffer);
         } else {
-          throw new Error("ICO parsing function not found on window.ICO object.");
+          throw new Error(
+            "ICO parsing function not found on window.ICO object.",
+          );
         }
 
         if (!icons || icons.length === 0) {
@@ -543,12 +555,16 @@ export class ImageViewerApp extends Application {
 
         let selectedIconIndex = 0;
 
-        const radioItems = icons.map((icon, index) => `
+        const radioItems = icons
+          .map(
+            (icon, index) => `
           <div class="field-row">
             <input type="radio" id="icon-${index}" name="icon-selection" value="${index}" ${index === 0 ? "checked" : ""}>
             <label for="icon-${index}">${icon.width}x${icon.height}, ${icon.bpp}-bit</label>
           </div>
-        `).join('');
+        `,
+          )
+          .join("");
 
         const dialogContent = `<div class="icon-selection-container">${radioItems}</div>`;
 
@@ -560,7 +576,9 @@ export class ImageViewerApp extends Application {
             {
               label: "Extract...",
               action: (win) => {
-                const selectedRadio = win.$content.find('input[name="icon-selection"]:checked')[0];
+                const selectedRadio = win.$content.find(
+                  'input[name="icon-selection"]:checked',
+                )[0];
                 if (selectedRadio) {
                   selectedIconIndex = parseInt(selectedRadio.value, 10);
                   this.extractIcon(icons[selectedIconIndex]);
@@ -585,12 +603,12 @@ export class ImageViewerApp extends Application {
       }
     };
     reader.onerror = () => {
-        ShowDialogWindow({
-          title: "Error",
-          text: "Failed to read the ICO file.",
-          modal: true,
-          buttons: [{ label: "OK" }],
-        });
+      ShowDialogWindow({
+        title: "Error",
+        text: "Failed to read the ICO file.",
+        modal: true,
+        buttons: [{ label: "OK" }],
+      });
     };
     reader.readAsArrayBuffer(this.file);
   }
@@ -601,7 +619,11 @@ export class ImageViewerApp extends Application {
     canvas.height = icon.height;
     const ctx = canvas.getContext("2d");
 
-    const imageData = new ImageData(new Uint8ClampedArray(icon.buffer), icon.width, icon.height);
+    const imageData = new ImageData(
+      new Uint8ClampedArray(icon.buffer),
+      icon.width,
+      icon.height,
+    );
     ctx.putImageData(imageData, 0, 0);
 
     const dataUrl = canvas.toDataURL("image/png");
@@ -609,7 +631,8 @@ export class ImageViewerApp extends Application {
     link.href = dataUrl;
 
     const originalName = this.file.name;
-    const nameWithoutExt = originalName.lastIndexOf(".") !== -1
+    const nameWithoutExt =
+      originalName.lastIndexOf(".") !== -1
         ? originalName.substring(0, originalName.lastIndexOf("."))
         : originalName;
     link.download = `${nameWithoutExt}-${icon.width}.png`;
