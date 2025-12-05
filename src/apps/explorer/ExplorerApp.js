@@ -292,12 +292,46 @@ export class ExplorerApp extends Application {
       {
         label: "Delete",
         iconName: "delete",
-        enabled: false,
+        action: () => {
+          const itemsToOperateOn = [...this.iconManager.selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter((item) => item && !item.isStatic);
+
+          if (itemsToOperateOn.length === 0) return;
+
+          const message =
+            itemsToOperateOn.length === 1
+              ? `Are you sure you want to send '${itemsToOperateOn[0].name}' to the Recycle Bin?`
+              : `Are you sure you want to send these ${itemsToOperateOn.length} items to the Recycle Bin?`;
+
+          ShowDialogWindow({
+            title: "Confirm File Delete",
+            text: message,
+            buttons: [
+              {
+                label: "Yes",
+                action: () => {
+                  itemsToOperateOn.forEach((item) => this.deleteFile(item));
+                },
+              },
+              { label: "No", isDefault: true },
+            ],
+          });
+        },
+        enabled: () => this.iconManager.selectedIcons.size > 0,
       },
       {
         label: "Properties",
         iconName: "properties",
-        enabled: false,
+        action: () => {
+          const selectedIcon = this.iconManager.selectedIcons.values().next()
+            .value;
+          const item = this.getItemFromIcon(selectedIcon);
+          if (item) {
+            this.showProperties(item);
+          }
+        },
+        enabled: () => this.iconManager.selectedIcons.size === 1,
       },
     ];
 
