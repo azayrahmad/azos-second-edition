@@ -161,6 +161,31 @@ export class ExplorerApp extends Application {
     menuBarContainer.appendChild(menuBarElement);
     menuBarContainer.appendChild(logo);
 
+    // Create the main content area and icon manager first, so the toolbar can reference it
+    const content = document.createElement("div");
+    content.className = "explorer-content sunken-panel";
+    this.content = content;
+
+    const sidebar = document.createElement("div");
+    sidebar.className = "explorer-sidebar";
+    sidebar.style.backgroundImage = `url(${new URL("../../assets/img/wvleft.bmp", import.meta.url).href})`;
+    sidebar.style.backgroundRepeat = "no-repeat";
+    content.appendChild(sidebar);
+    this.sidebarElement = sidebar;
+
+    const iconContainer = document.createElement("div");
+    iconContainer.className = "explorer-icon-view has-absolute-icons";
+    content.appendChild(iconContainer);
+    this.iconContainer = iconContainer;
+
+    this.iconManager = new IconManager(this.iconContainer, {
+      iconSelector: ".explorer-icon",
+      onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
+      onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
+      onSelectionChange: () => this.updateMenuState(),
+    });
+
+    // Now that iconManager exists, we can define and create the toolbar
     const toolbarItems = [
       {
         label: "Back",
@@ -213,17 +238,49 @@ export class ExplorerApp extends Application {
       {
         label: "Cut",
         iconName: "cut",
-        enabled: false,
+        action: () => {
+          const itemsToOperateOn = [...this.iconManager.selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter(Boolean);
+          clipboardManager.set(itemsToOperateOn, "cut");
+        },
+        enabled: () => {
+          const selectedIcons = this.iconManager.selectedIcons;
+          if (selectedIcons.size === 0) return false;
+
+          const itemsToOperateOn = [...selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter(Boolean);
+
+          return !itemsToOperateOn.some((item) => item.isStatic);
+        },
       },
       {
         label: "Copy",
         iconName: "copy",
-        enabled: false,
+        action: () => {
+          const itemsToOperateOn = [...this.iconManager.selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter(Boolean);
+          clipboardManager.set(itemsToOperateOn, "copy");
+        },
+        enabled: () => this.iconManager.selectedIcons.size > 0,
       },
       {
         label: "Paste",
         iconName: "paste",
-        enabled: false,
+        action: () => {
+          const { items, operation } = clipboardManager.get();
+          pasteItems(this.currentPath, items, operation);
+          this.render(this.currentPath);
+          if (operation === "cut") {
+            clipboardManager.clear();
+          }
+        },
+        enabled: () =>
+          !clipboardManager.isEmpty() &&
+          this.currentPath !== "/" &&
+          this.currentPath !== "//network-neighborhood",
       },
       "divider",
       {
@@ -266,17 +323,8 @@ export class ExplorerApp extends Application {
     });
     win.$content.append(this.addressBar.element);
 
-    const content = document.createElement("div");
-    content.className = "explorer-content sunken-panel";
+    // Append the content area (which now contains the icon container)
     win.$content.append(content);
-    this.content = content;
-
-    const sidebar = document.createElement("div");
-    sidebar.className = "explorer-sidebar";
-    sidebar.style.backgroundImage = `url(${new URL("../../assets/img/wvleft.bmp", import.meta.url).href})`;
-    sidebar.style.backgroundRepeat = "no-repeat";
-    content.appendChild(sidebar);
-    this.sidebarElement = sidebar;
 
     const sidebarIcon = document.createElement("img");
     sidebarIcon.className = "sidebar-icon";
@@ -302,17 +350,6 @@ export class ExplorerApp extends Application {
     titleElement.style.fontFamily = "Verdana, sans-serif";
     content.appendChild(titleElement);
     this.titleElement = $(titleElement); // Use jQuery for easier text manipulation
-
-    const iconContainer = document.createElement("div");
-    iconContainer.className = "explorer-icon-view has-absolute-icons";
-    content.appendChild(iconContainer);
-    this.iconContainer = iconContainer;
-
-    this.iconManager = new IconManager(this.iconContainer, {
-      iconSelector: ".explorer-icon",
-      onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
-      onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
-    });
 
     this.resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -424,6 +461,7 @@ export class ExplorerApp extends Application {
 
     this.clipboardHandler = () => {
       this.updateCutIcons();
+      this.updateMenuState();
     };
     document.addEventListener("clipboard-change", this.clipboardHandler);
 

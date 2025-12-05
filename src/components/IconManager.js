@@ -25,18 +25,62 @@ export class IconManager {
     );
   }
 
-  clearSelection() {
+  // Internal methods that don't trigger the callback
+  _clear() {
     this.selectedIcons.forEach((icon) => {
       this.toggleHighlight(icon, false);
     });
     this.selectedIcons.clear();
   }
 
-  selectIcon(icon) {
+  _add(icon) {
     if (!this.selectedIcons.has(icon)) {
-        this.selectedIcons.add(icon);
-        this.toggleHighlight(icon, true);
+      this.selectedIcons.add(icon);
+      this.toggleHighlight(icon, true);
     }
+  }
+
+  _remove(icon) {
+    if (this.selectedIcons.has(icon)) {
+      this.selectedIcons.delete(icon);
+      this.toggleHighlight(icon, false);
+    }
+  }
+
+  // Public method to set the selection and trigger the callback
+  setSelection(newSelection) {
+    const currentSelection = new Set(this.selectedIcons);
+    let changed = false;
+
+    // Remove icons that are no longer in the new selection
+    currentSelection.forEach(icon => {
+      if (!newSelection.has(icon)) {
+        this._remove(icon);
+        changed = true;
+      }
+    });
+
+    // Add icons from the new selection
+    newSelection.forEach(icon => {
+      if (!currentSelection.has(icon)) {
+        this._add(icon);
+        changed = true;
+      }
+    });
+
+    if (changed && this.options.onSelectionChange) {
+      this.options.onSelectionChange();
+    }
+  }
+
+  clearSelection() {
+    this.setSelection(new Set());
+  }
+
+  selectIcon(icon) {
+    const newSelection = new Set(this.selectedIcons);
+    newSelection.add(icon);
+    this.setSelection(newSelection);
   }
 
   toggleHighlight(icon, shouldHighlight) {
@@ -101,21 +145,15 @@ export class IconManager {
 
       const lassoRect = this.lasso.getBoundingClientRect();
       const icons = this.container.querySelectorAll(this.iconSelector);
+      const newSelection = new Set();
 
       icons.forEach((icon) => {
         const iconRect = icon.getBoundingClientRect();
         if (this.isIntersecting(lassoRect, iconRect)) {
-          if (!this.selectedIcons.has(icon)) {
-            this.selectedIcons.add(icon);
-            this.toggleHighlight(icon, true);
-          }
-        } else {
-          if (this.selectedIcons.has(icon)) {
-            this.selectedIcons.delete(icon);
-            this.toggleHighlight(icon, false);
-          }
+          newSelection.add(icon);
         }
       });
+      this.setSelection(newSelection);
     };
 
     const onMouseUp = () => {
@@ -161,9 +199,7 @@ export class IconManager {
       if (icon && this.options.onItemContext) {
         e.preventDefault();
         if (!this.selectedIcons.has(icon)) {
-          this.clearSelection();
-          this.selectedIcons.add(icon);
-          this.toggleHighlight(icon, true);
+          this.setSelection(new Set([icon]));
         }
         this.options.onItemContext(e, icon);
       }
@@ -185,9 +221,7 @@ export class IconManager {
     e.stopPropagation();
 
     if (!e.ctrlKey && !this.selectedIcons.has(icon)) {
-      this.clearSelection();
-      this.selectedIcons.add(icon);
-      this.toggleHighlight(icon, true);
+      this.setSelection(new Set([icon]));
     }
   }
 
@@ -199,19 +233,17 @@ export class IconManager {
       this.wasDragged = false;
       return;
     }
-
+    const newSelection = new Set(this.selectedIcons);
     if (e.ctrlKey) {
-      if (this.selectedIcons.has(icon)) {
-        this.selectedIcons.delete(icon);
-        this.toggleHighlight(icon, false);
+      if (newSelection.has(icon)) {
+        newSelection.delete(icon);
       } else {
-        this.selectedIcons.add(icon);
-        this.toggleHighlight(icon, true);
+        newSelection.add(icon);
       }
     } else {
-      this.clearSelection();
-      this.selectedIcons.add(icon);
-      this.toggleHighlight(icon, true);
+      newSelection.clear();
+      newSelection.add(icon);
     }
+    this.setSelection(newSelection);
   }
 }
