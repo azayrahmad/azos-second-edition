@@ -184,6 +184,24 @@ button {
     animation: fadeOut 0.5s forwards;
 }
 
+.desktop-boot-fade-in {
+    animation: fadeInAnimation 0.5s ease-in forwards;
+}
+
+@keyframes fadeInAnimation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .desktop-icon-ghost {
     opacity: 0.5;
+}
+
+.no-animation {
+    animation: none !important;
+    transition: none !important;
 }
