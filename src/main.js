@@ -1,6 +1,8 @@
 import "./styles/cursors.css";
 import "./style.css";
+import "./styles/splash.css";
 
+import splashBg from "./assets/img/splash.png";
 import { themes } from "./config/themes.js";
 import { setupCounter } from "./counter.js";
 import { initDesktop } from "./components/desktop.js";
@@ -97,6 +99,52 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
+  let splashScreenVisible = false;
+  let bootProcessFinished = false;
+  let splashScreenTimer = null;
+
+  const splashScreen = document.getElementById("splash-screen");
+  if (splashScreen) {
+    splashScreen.style.backgroundImage = `url(${splashBg})`;
+  }
+
+  function showSplashScreen() {
+    if (splashScreen) {
+      splashScreen.style.display = "block";
+      splashScreenVisible = true;
+      splashScreenTimer = setTimeout(() => {
+        if (bootProcessFinished) {
+          hideBootAndSplash();
+        } else {
+          hideSplashScreenOnly();
+        }
+      }, 2000);
+    }
+  }
+
+  function hideSplashScreenOnly() {
+    if (splashScreen) {
+      splashScreen.style.display = "none";
+    }
+    splashScreenVisible = false;
+  }
+
+  function hideBootAndSplash() {
+    hideSplashScreenOnly();
+    hideBootScreen();
+    document.body.classList.remove("booting");
+    document.getElementById("screen").classList.remove("boot-mode");
+    // document.body.classList.add("desktop-boot-fade-in");
+    playSound("WindowsLogon");
+  }
+
+  function handleBootCompletion() {
+    bootProcessFinished = true;
+    if (!splashScreenVisible) {
+      hideBootAndSplash();
+    }
+  }
+
   document.body.classList.add("booting");
   document.getElementById("screen").classList.add("boot-mode");
   // Hide the initial "Initializing azOS..." message
@@ -176,9 +224,9 @@ async function initializeOS() {
   // showBlinkingCursor();
 
   logElement = startBootProcessStep("Creating main UI...");
+  showSplashScreen();
   await new Promise((resolve) => setTimeout(resolve, 50));
   createMainUI();
-  initScreenManager(); // Initialize the screen manager
   initColorModeManager(document.body);
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
@@ -198,26 +246,19 @@ async function initializeOS() {
 
   const bootLogEl = document.getElementById("boot-log");
   if (bootLogEl) {
-      const finalMessage = document.createElement("div");
-      finalMessage.textContent = "azOS Ready!";
-      bootLogEl.appendChild(finalMessage);
+    const finalMessage = document.createElement("div");
+    finalMessage.textContent = "azOS Ready!";
+    bootLogEl.appendChild(finalMessage);
   }
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  await promptToContinue();
-
-  document.body.classList.remove("booting");
-  document.getElementById("screen").classList.remove("boot-mode");
-
-  hideBootScreen();
+  handleBootCompletion();
 
   window.ShowDialogWindow = ShowDialogWindow;
   window.playSound = playSound;
   window.setTheme = setTheme;
   window.System.launchApp = launchApp;
   console.log("azOS initialized");
-
-  playSound("WindowsLogon");
 
   let inactivityTimer;
 
@@ -227,7 +268,8 @@ async function initializeOS() {
       screensaver.hide();
     }
 
-    const timeoutDuration = getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 5 * 60 * 1000;
+    const timeoutDuration =
+      getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 5 * 60 * 1000;
 
     inactivityTimer = setTimeout(() => {
       screensaver.show();
@@ -236,11 +278,12 @@ async function initializeOS() {
 
   window.System.resetInactivityTimer = resetInactivityTimer;
 
-  window.addEventListener('mousemove', resetInactivityTimer);
-  window.addEventListener('mousedown', resetInactivityTimer);
-  window.addEventListener('keydown', resetInactivityTimer);
+  window.addEventListener("mousemove", resetInactivityTimer);
+  window.addEventListener("mousedown", resetInactivityTimer);
+  window.addEventListener("keydown", resetInactivityTimer);
 
   resetInactivityTimer();
+  initScreenManager(); // Initialize the screen manager
 }
 
 initializeOS();
