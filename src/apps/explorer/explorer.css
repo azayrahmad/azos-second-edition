@@ -98,3 +98,73 @@
 .explorer-content.small-width .explorer-title {
     display: block; /* Show the title */
 }
+
+/* --- View Modes --- */
+
+/* Small Icons */
+.explorer-icon-view.view-small-icons .explorer-icon,
+.explorer-icon-view.view-list .explorer-icon {
+    display: flex;
+    align-items: center;
+    width: auto;
+    text-align: left;
+    height: 22px; /* Adjust as needed */
+}
+
+.explorer-icon-view.view-small-icons .explorer-icon .icon img,
+.explorer-icon-view.view-list .explorer-icon .icon img {
+    width: 16px;
+    height: 16px;
+}
+
+.explorer-icon-view.view-small-icons .explorer-icon .icon-label,
+.explorer-icon-view.view-list .explorer-icon .icon-label {
+    margin-left: 5px;
+}
+
+/* List View */
+.explorer-icon-view.view-list {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr; /* Single column */
+}
+
+/* Details View */
+.explorer-icon-view.view-details {
+    display: block;
+    padding: 0;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.details-table th, .details-table td {
+    border: 1px solid var(--ButtonShadow);
+    padding: 2px 5px;
+    text-align: left;
+}
+
+.details-table th {
+    font-weight: normal;
+    background: var(--ButtonFace);
+    border-bottom: 2px solid var(--ButtonHilight);
+    border-right: 2px solid var(--ButtonShadow);
+}
+
+.details-table td {
+    background: var(--Window);
+}
+
+.details-table .explorer-icon.selected td {
+    background-color: var(--highlight-blue);
+    color: var(--highlight-text);
+}
+
+
+.details-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    vertical-align: middle;
+}

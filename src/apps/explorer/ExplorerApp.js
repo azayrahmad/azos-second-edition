@@ -37,6 +37,7 @@ import {
 } from "../../utils/dragDropManager.js";
 import clipboardManager from "../../utils/clipboardManager.js";
 import { pasteItems } from "../../utils/fileOperations.js";
+import { MenuBar } from "/public/os-gui/MenuBar.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import "./explorer.css";
 
@@ -621,13 +622,11 @@ export class ExplorerApp extends Application {
   render(path, isNewNavigation = true) {
     this.currentPath = path;
     const item = findItemByPath(path);
-
     if (!item) {
       this.content.innerHTML = "Folder not found.";
       this.win.title("Error");
       return;
     }
-
     this.win.title(item.name);
     this.titleElement.text(item.name);
     const icon = getIconForPath(path);
@@ -636,15 +635,14 @@ export class ExplorerApp extends Application {
       this.sidebarIcon.src = icon[32];
     }
     this.sidebarTitle.textContent = item.name;
-    this.iconContainer.innerHTML = ""; // Clear previous content
+    this.iconContainer.innerHTML = "";
     this.iconManager.clearSelection();
-
-    if (isAutoArrangeEnabled()) {
-      this.iconContainer.classList.remove("has-absolute-icons");
-    } else {
+    const viewModes = getItem(LOCAL_STORAGE_KEYS.EXPLORER_VIEW_MODES) || {};
+    const viewMode = viewModes[this.currentPath] || "large-icons";
+    this.iconContainer.className = `explorer-icon-view view-${viewMode}`;
+    if (!isAutoArrangeEnabled() && viewMode !== "details") {
       this.iconContainer.classList.add("has-absolute-icons");
     }
-
     let children = [];
     if (isNewNavigation) {
       if (path === SPECIAL_FOLDER_PATHS.desktop) {
@@ -673,56 +671,125 @@ export class ExplorerApp extends Application {
         );
         children = [...staticChildren, ...droppedFilesInThisFolder];
       }
-
-      // Sort children alphabetically by name
       children.sort((a, b) => {
         const nameA = a.name || a.title || a.filename || "";
         const nameB = b.name || b.title || b.filename || "";
         return nameA.localeCompare(nameB);
       });
-
       this.currentFolderItems = children;
     }
-
-    this.currentFolderItems.forEach((child) => {
-      let iconData = { ...child };
-
-      // Resolve shortcuts
-      if (child.type === "shortcut") {
-        const target = this.findItemInDirectory(child.targetId);
-        if (target) {
-          iconData = { ...target, name: child.name };
+    if (viewMode === "details") {
+      this.renderDetailsView();
+    } else {
+      this.currentFolderItems.forEach((child) => {
+        let iconData = { ...child };
+        if (child.type === "shortcut") {
+          const target = this.findItemInDirectory(child.targetId);
+          if (target) {
+            iconData = { ...target, name: child.name };
+          }
         }
-      }
+        const app = apps.find((a) => a.id === iconData.appId);
+        if (app) {
+          iconData.icon = app.icon;
+          iconData.title = app.title;
+        }
+        const icon = this.createExplorerIcon(iconData, viewMode);
+        this._configureDraggableIcon(icon, child);
+        const allPositions = getExplorerIconPositions();
+        const pathPositions = allPositions[this.currentPath] || {};
+        const uniqueId = this._getUniqueItemId(child);
+        if (pathPositions[uniqueId] && !isAutoArrangeEnabled()) {
+          icon.style.position = "absolute";
+          icon.style.left = pathPositions[uniqueId].x;
+          icon.style.top = pathPositions[uniqueId].y;
+        }
+        this.iconContainer.appendChild(icon);
+      });
+    }
+  }
 
-      const app = apps.find((a) => a.id === iconData.appId);
-      if (app) {
-        iconData.icon = app.icon;
-        iconData.title = app.title;
-      }
+  renderDetailsView() {
+    const table = document.createElement("table");
+    table.className = "details-table";
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    const nameHeader = document.createElement("th");
+    nameHeader.textContent = "Name";
+    const typeHeader = document.createElement("th");
+    typeHeader.textContent = "Type";
+    headerRow.appendChild(nameHeader);
+    headerRow.appendChild(typeHeader);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    this.currentFolderItems.forEach((child) => {
+      const row = document.createElement("tr");
+      row.className = "explorer-icon"; // Use same class for selection
+      row.setAttribute("data-id", this._getUniqueItemId(child));
 
-      const icon = this.createExplorerIcon(iconData);
-      this._configureDraggableIcon(icon, child);
+      const nameCell = document.createElement("td");
+      const iconImg = document.createElement("img");
+      iconImg.src = this.getIconForItem(child, 16);
+      iconImg.className = "details-icon";
+      nameCell.appendChild(iconImg);
+      const nameLabel = document.createElement("span");
+      nameLabel.textContent =
+        child.name || child.filename || child.title || "Untitled";
+      nameCell.appendChild(nameLabel);
 
-      const allPositions = getExplorerIconPositions();
-      const pathPositions = allPositions[this.currentPath] || {};
-      const uniqueId = this._getUniqueItemId(child);
+      const typeCell = document.createElement("td");
+      typeCell.textContent = this.getTypeForItem(child);
 
-      if (pathPositions[uniqueId]) {
-        icon.style.position = "absolute";
-        icon.style.left = pathPositions[uniqueId].x;
-        icon.style.top = pathPositions[uniqueId].y;
-      }
+      row.appendChild(nameCell);
+      row.appendChild(typeCell);
+      tbody.appendChild(row);
 
-      this.iconContainer.appendChild(icon);
+      this.iconManager.configureIcon(row);
+
+      row.addEventListener("dblclick", () => {
+        this._launchItem(child);
+      });
     });
+    table.appendChild(tbody);
+    this.iconContainer.appendChild(table);
+  }
+
+  getIconForItem(item, size) {
+    const iconSize = size === 16 ? 16 : 32;
+    if (item.icon) return item.icon[iconSize];
+    if (item.type === "drive") return ICONS.drive[iconSize];
+    if (item.type === "folder") return ICONS.folderClosed[iconSize];
+    if (item.type === "network") return ICONS.networkComputer[iconSize];
+    if (item.type === "briefcase") return ICONS.briefcase[iconSize];
+
+    const app = apps.find((a) => a.id === item.appId) || {};
+    if (app.icon) return app.icon[iconSize];
+
+    const displayName = item.name || item.filename || item.title;
+    const association = getAssociation(displayName);
+    return association.icon[iconSize];
+  }
+
+  getTypeForItem(item) {
+    const displayName = item.name || item.filename || item.title;
+    if (item.type === "drive") return "Local Disk";
+    if (item.type === "folder") return "File Folder";
+    if (item.type === "network") return "Network Computer";
+    if (item.type === "briefcase") return "Briefcase";
+    if (item.appId) {
+      const app = apps.find((a) => a.id === item.appId);
+      if (app) return app.title;
+    }
+    const association = getAssociation(displayName);
+    return association.description || "File";
   }
 
   _getUniqueItemId(item) {
     return item.id;
   }
 
-  createExplorerIcon(item) {
+  createExplorerIcon(item, viewMode = "large-icons") {
     const app = apps.find((a) => a.id === item.appId) || {};
     const displayName = item.name || item.filename || item.title || app.title;
 
@@ -734,22 +801,9 @@ export class ExplorerApp extends Application {
     const iconInner = document.createElement("div");
     iconInner.className = "icon";
 
+    const iconSize = viewMode === "large-icons" ? 32 : 16;
     const iconImg = document.createElement("img");
-    if (item.icon) {
-      iconImg.src = item.icon[32];
-    } else if (item.type === "drive") {
-      iconImg.src = ICONS.drive[32];
-    } else if (item.type === "folder") {
-      iconImg.src = ICONS.folderClosed[32];
-    } else if (item.type === "network") {
-      iconImg.src = ICONS.networkComputer[32];
-    } else if (item.type === "briefcase") {
-      iconImg.src = ICONS.briefcase[32];
-    } else {
-      // Default to file association for any other type
-      const association = getAssociation(displayName);
-      iconImg.src = association.icon[32];
-    }
+    iconImg.src = this.getIconForItem(item, iconSize);
     iconImg.draggable = false;
     iconInner.appendChild(iconImg);
 
@@ -1080,7 +1134,35 @@ export class ExplorerApp extends Application {
       this.render(this.currentPath, false);
     };
 
+    const getViewMode = () => {
+      const viewModes = getItem(LOCAL_STORAGE_KEYS.EXPLORER_VIEW_MODES) || {};
+      return viewModes[this.currentPath] || "large-icons";
+    };
+
+    const setViewMode = (mode) => {
+      const viewModes = getItem(LOCAL_STORAGE_KEYS.EXPLORER_VIEW_MODES) || {};
+      viewModes[this.currentPath] = mode;
+      setItem(LOCAL_STORAGE_KEYS.EXPLORER_VIEW_MODES, viewModes);
+      this.render(this.currentPath, false);
+    };
+
     const menuItems = [
+      {
+        label: "View",
+        submenu: [
+          {
+            radioItems: [
+              { label: "Large Icons", value: "large-icons" },
+              { label: "Small Icons", value: "small-icons" },
+              { label: "List", value: "list" },
+              { label: "Details", value: "details" },
+            ],
+            getValue: getViewMode,
+            setValue: setViewMode,
+          },
+        ],
+      },
+      "MENU_DIVIDER",
       {
         label: "Arrange Icons",
         submenu: [
@@ -1106,16 +1188,6 @@ export class ExplorerApp extends Application {
         label: "Line up Icons",
         action: () => this.lineUpIcons(),
         enabled: !isAutoArrangeEnabled(),
-      },
-      "MENU_DIVIDER",
-      {
-        label: "View",
-        submenu: [
-          { label: "Large Icons", enabled: false },
-          { label: "Small Icons", enabled: false },
-          { label: "List", enabled: false },
-          { label: "Details", enabled: false },
-        ],
       },
       "MENU_DIVIDER",
       {
