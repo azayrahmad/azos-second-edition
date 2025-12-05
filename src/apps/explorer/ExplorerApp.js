@@ -161,6 +161,24 @@ export class ExplorerApp extends Application {
     menuBarContainer.appendChild(menuBarElement);
     menuBarContainer.appendChild(logo);
 
+    // Create the main content area and icon manager first, so the toolbar can reference it
+    const content = document.createElement("div");
+    content.className = "explorer-content sunken-panel";
+    this.content = content;
+
+    const iconContainer = document.createElement("div");
+    iconContainer.className = "explorer-icon-view has-absolute-icons";
+    content.appendChild(iconContainer);
+    this.iconContainer = iconContainer;
+
+    this.iconManager = new IconManager(this.iconContainer, {
+      iconSelector: ".explorer-icon",
+      onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
+      onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
+      onSelectionChange: () => this.updateMenuState(),
+    });
+
+    // Now that iconManager exists, we can define and create the toolbar
     const toolbarItems = [
       {
         label: "Back",
@@ -298,10 +316,8 @@ export class ExplorerApp extends Application {
     });
     win.$content.append(this.addressBar.element);
 
-    const content = document.createElement("div");
-    content.className = "explorer-content sunken-panel";
+    // Append the content area (which now contains the icon container)
     win.$content.append(content);
-    this.content = content;
 
     const sidebar = document.createElement("div");
     sidebar.className = "explorer-sidebar";
@@ -334,18 +350,6 @@ export class ExplorerApp extends Application {
     titleElement.style.fontFamily = "Verdana, sans-serif";
     content.appendChild(titleElement);
     this.titleElement = $(titleElement); // Use jQuery for easier text manipulation
-
-    const iconContainer = document.createElement("div");
-    iconContainer.className = "explorer-icon-view has-absolute-icons";
-    content.appendChild(iconContainer);
-    this.iconContainer = iconContainer;
-
-    this.iconManager = new IconManager(this.iconContainer, {
-      iconSelector: ".explorer-icon",
-      onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
-      onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
-      onSelectionChange: () => this.updateMenuState(),
-    });
 
     this.resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
