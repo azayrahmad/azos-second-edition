@@ -64,10 +64,14 @@ export class NotepadEditor {
         this.updateHighlight();
     }
 
-    toggleWordWrap() {
-        this.wordWrap = !this.wordWrap;
+    setWordWrap(value) {
+        this.wordWrap = value;
         this.applyWordWrap();
         this.syncPadding();
+    }
+
+    toggleWordWrap() {
+        this.setWordWrap(!this.wordWrap);
     }
 
     applyWordWrap() {

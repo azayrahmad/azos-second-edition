@@ -13,10 +13,14 @@ const DEFAULT_THEME = 'atom-one-light';
 export class NotepadApp extends Application {
     constructor(config) {
         super(config);
+        this.wordWrap = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_WORD_WRAP) ?? false;
+        this.currentLanguage = 'text';
+        this.win = null;
+        this.editor = null;
     }
 
     _createWindow() {
-        const win = new $Window({
+        this.win = new $Window({
             title: this.title,
             outerWidth: this.width,
             outerHeight: this.height,
@@ -25,10 +29,10 @@ export class NotepadApp extends Application {
         });
 
         const menuBar = this._createMenuBar();
-        win.setMenuBar(menuBar);
+        this.win.setMenuBar(menuBar);
 
-        win.$content.append('<div class="notepad-container"></div>');
-        return win;
+        this.win.$content.append('<div class="notepad-container"></div>');
+        return this.win;
     }
 
     _createMenuBar() {
@@ -96,7 +100,7 @@ export class NotepadApp extends Application {
                 {
                     label: "&Word Wrap",
                     checkbox: {
-                        check: () => this.editor.wordWrap,
+                        check: () => this.wordWrap,
                         toggle: () => this.toggleWordWrap(),
                     },
                 },
@@ -120,7 +124,7 @@ export class NotepadApp extends Application {
                     submenu: [
                         {
                             radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
-                            getValue: () => this.editor.currentLanguage,
+                            getValue: () => this.currentLanguage,
                             setValue: (value) => this.setLanguage(value),
                         },
                     ]
@@ -164,6 +168,8 @@ export class NotepadApp extends Application {
                 this.updateTitle();
             }
         });
+
+        this.editor.setWordWrap(this.wordWrap);
 
         this.fileHandle = null;
         this.isDirty = false;
@@ -287,6 +293,9 @@ export class NotepadApp extends Application {
 
         this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
         this.setTheme(this.currentTheme, true);
+
+        // Set initial language in case of no file, then update menu
+        this.setLanguage(this.currentLanguage);
     }
 
     setTheme(theme, isInitialLoad = false) {
@@ -314,7 +323,9 @@ export class NotepadApp extends Application {
     }
 
     toggleWordWrap() {
-        this.editor.toggleWordWrap();
+        this.wordWrap = !this.wordWrap;
+        this.editor.setWordWrap(this.wordWrap);
+        setItem(LOCAL_STORAGE_KEYS.NOTEPAD_WORD_WRAP, this.wordWrap);
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
     }
 
@@ -608,8 +619,12 @@ a.href = URL.createObjectURL(blob);
     }
 
     setLanguage(lang) {
-        this.editor.setLanguage(lang);
-        this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
+        this.currentLanguage = lang;
+        if (this.editor) {
+            this.editor.setLanguage(lang);
+        }
+        // Update menu state
+        this.win.element.querySelector('.menus')?.dispatchEvent(new CustomEvent('update'));
     }
 
     getInlineStyledHTML() {
