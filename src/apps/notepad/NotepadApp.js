@@ -1,18 +1,22 @@
 import { Application } from '../Application.js';
 import './notepad.css';
 import '../../components/notepad-editor.css';
-import { languages } from '../../config/languages.js';
-import { HIGHLIGHT_JS_THEMES } from '../../config/highlight-js-themes.js';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
 import { renderHTML } from '../../utils/domUtils.js';
+import { notepadMenuConfig } from './config/notepadMenuConfig.js';
+import { NotepadFileManager } from './services/NotepadFileManager.js';
+import { NotepadDialogManager } from './services/NotepadDialogManager.js';
+import * as CodeUtils from './utils/NotepadCodeUtils.js';
 
 const DEFAULT_THEME = 'atom-one-light';
 
 export class NotepadApp extends Application {
     constructor(config) {
         super(config);
+        this.fileManager = new NotepadFileManager(this);
+        this.dialogManager = new NotepadDialogManager(this);
     }
 
     _createWindow() {
@@ -32,130 +36,16 @@ export class NotepadApp extends Application {
     }
 
     _createMenuBar() {
-        return new MenuBar({
-            "&File": [
-                {
-                    label: "&New",
-                    shortcutLabel: "Ctrl+N",
-                    action: () => this.clearContent(),
-                },
-                {
-                    label: "&Open",
-                    shortcutLabel: "Ctrl+O",
-                    action: () => this.openFile(),
-                },
-                {
-                    label: "&Save",
-                    shortcutLabel: "Ctrl+S",
-                    action: () => this.saveFile(),
-                },
-                {
-                    label: "Save &As...",
-                    action: () => this.saveAs(),
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "E&xit",
-                    action: () => this.win.close(),
-                },
-            ],
-            "&Edit": [
-                {
-                    label: "&Undo",
-                    shortcutLabel: "Ctrl+Z",
-                    action: () => document.execCommand("undo"),
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "Cu&t",
-                    shortcutLabel: "Ctrl+X",
-                    action: () => document.execCommand("cut"),
-                },
-                {
-                    label: "&Copy",
-                    shortcutLabel: "Ctrl+C",
-                    action: () => this.copyFormattedCode(),
-                },
-                {
-                    label: "&Paste",
-                    shortcutLabel: "Ctrl+V",
-                    action: () => this.pasteText(),
-                },
-                {
-                    label: "De&lete",
-                    shortcutLabel: "Del",
-                    action: () => document.execCommand("delete"),
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "Select &All",
-                    shortcutLabel: "Ctrl+A",
-                    action: () => this.editor.codeInput.select(),
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "&Word Wrap",
-                    checkbox: {
-                        check: () => this.editor.wordWrap,
-                        toggle: () => this.toggleWordWrap(),
-                    },
-                },
-            ],
-            "&Search": [
-                {
-                    label: "&Find...",
-                    shortcutLabel: "Ctrl+F",
-                    action: () => this.showFindDialog(),
-                },
-                {
-                    label: "Find &Next",
-                    shortcutLabel: "F3",
-                    action: () => this.findNext(),
-                    enabled: () => this.findState?.term,
-                },
-            ],
-            "&Code": [
-                {
-                    label: "&Language",
-                    submenu: [
-                        {
-                            radioItems: languages.map(lang => ({ label: lang.name, value: lang.id })),
-                            getValue: () => this.editor.currentLanguage,
-                            setValue: (value) => this.setLanguage(value),
-                        },
-                    ]
-                },
-                {
-                    label: "&Theme",
-                    submenu: [
-                        {
-                            radioItems: HIGHLIGHT_JS_THEMES.map(theme => ({ label: theme, value: theme })),
-                            getValue: () => this.currentTheme,
-                            setValue: (value) => this.setTheme(value),
-                        },
-                    ]
-                },
-                {
-                    label: "HTML/Markdown Preview",
-                    action: () => this.previewMarkdown(),
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "&Format",
-                    shortcutLabel: "Ctrl+Shift+F",
-                    action: () => this.formatCode(),
-                },
-            ],
-            "&Help": [
-                {
-                    label: "&About Notepad",
-                    action: () => alert("A simple text editor."),
-                },
-            ],
-        });
+        return new MenuBar(notepadMenuConfig(this));
     }
 
     _onLaunch(data) {
+        this._initializeEditor();
+        this._setupEventListeners();
+        this._handleInitialContentLoad(data);
+    }
+
+    _initializeEditor() {
         const container = this.win.$content.find('.notepad-container')[0];
         this.editor = new NotepadEditor(container, {
             win: this.win,
@@ -176,66 +66,11 @@ export class NotepadApp extends Application {
 
         this.updateTitle();
 
-        if (typeof data === "string") {
-          // It's a file path
-          fetch(data)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
-              return response.text();
-            })
-            .then((text) => {
-              this.fileName = data.split("/").pop();
-              this.editor.setValue(text);
-              this.isDirty = false;
-              this.updateTitle();
-              this.setLanguage(this.getLanguageFromExtension(this.fileName));
-            })
-            .catch((e) => {
-              console.error("Error loading file:", e);
-              ShowDialogWindow({
-                title: "Error",
-                text: `Could not open file: ${data}`,
-                buttons: [{ label: "OK", isDefault: true }],
-              });
-            });
-        } else if (data && typeof data === "object") {
-          // It's a file object from drag-and-drop or file open
-          if (data.content) {
-            this.fileName = data.name;
-            const content = atob(data.content.split(",")[1]);
-            this.editor.setValue(content);
-            this.isDirty = false;
-            this.updateTitle();
-            this.setLanguage(this.getLanguageFromExtension(this.fileName));
-          } else {
-            // Assumes it's a File-like object
-            const file = data;
-            this.fileName = file.name;
-            this.fileHandle = null;
-            this.isDirty = false;
-            this.updateTitle();
-            this.setLanguage(this.getLanguageFromExtension(file.name));
+        this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
+        this.setTheme(this.currentTheme, true);
+    }
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              this.editor.setValue(event.target.result);
-              this.isDirty = false; // Reset dirty flag after loading
-              this.updateTitle();
-            };
-            reader.onerror = (e) => {
-              console.error("Error reading file:", e);
-              ShowDialogWindow({
-                title: "Error",
-                text: `Could not read file: ${file.name}`,
-                buttons: [{ label: "OK", isDefault: true }],
-              });
-            };
-            reader.readAsText(file);
-          }
-        }
-
+    _setupEventListeners() {
         const notepadContainer = this.win.$content.find('.notepad-container')[0];
         notepadContainer.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -254,7 +89,7 @@ export class NotepadApp extends Application {
             e.stopPropagation();
             notepadContainer.classList.remove('dragover');
 
-            if (await this.checkForUnsavedChanges() === 'cancel') return;
+            if (await this.fileManager.checkForUnsavedChanges() === 'cancel') return;
 
             const files = e.dataTransfer.files;
             if (files.length !== 1) {
@@ -281,12 +116,73 @@ export class NotepadApp extends Application {
         this.win.on('close', (e) => {
             if (this.isDirty) {
                 e.preventDefault();
-                this.showUnsavedChangesDialogOnClose();
+                this.fileManager.showUnsavedChangesDialogOnClose();
             }
         });
+    }
 
-        this.currentTheme = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_THEME) || DEFAULT_THEME;
-        this.setTheme(this.currentTheme, true);
+    _handleInitialContentLoad(data) {
+        if (typeof data === "string") {
+            fetch(data)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.text();
+                })
+                .then(text => {
+                    this.fileName = data.split("/").pop();
+                    this.editor.setValue(text);
+                    this.isDirty = false;
+                    this.updateTitle();
+                    this.setLanguage(this.getLanguageFromExtension(this.fileName));
+                })
+                .catch(e => {
+                    console.error("Error loading file:", e);
+                    ShowDialogWindow({
+                        title: "Error",
+                        text: `Could not open file: ${data}`,
+                        buttons: [{ label: "OK", isDefault: true }],
+                    });
+                });
+        } else if (data && typeof data === "object") {
+            if (data.content) {
+                this.fileName = data.name;
+                const content = atob(data.content.split(",")[1]);
+                this.editor.setValue(content);
+                this.isDirty = false;
+                this.updateTitle();
+                this.setLanguage(this.getLanguageFromExtension(this.fileName));
+            } else {
+                const file = data;
+                this.fileName = file.name;
+                this.fileHandle = null;
+                this.isDirty = false;
+                this.updateTitle();
+                this.setLanguage(this.getLanguageFromExtension(file.name));
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    this.editor.setValue(event.target.result);
+                    this.isDirty = false;
+                    this.updateTitle();
+                };
+                reader.onerror = (e) => {
+                    console.error("Error reading file:", e);
+                    ShowDialogWindow({
+                        title: "Error",
+                        text: `Could not read file: ${file.name}`,
+                        buttons: [{ label: "OK", isDefault: true }],
+                    });
+                };
+                reader.readAsText(file);
+            }
+        }
+    }
+
+    // Methods that remain in NotepadApp
+    updateTitle() {
+        const dirtyIndicator = this.isDirty ? '*' : '';
+        this.win.title(`${dirtyIndicator}${this.fileName} - Notepad`);
+        this.win.element.querySelector('.menus')?.dispatchEvent(new CustomEvent('update'));
     }
 
     setTheme(theme, isInitialLoad = false) {
@@ -316,154 +212,6 @@ export class NotepadApp extends Application {
     toggleWordWrap() {
         this.editor.toggleWordWrap();
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
-    }
-
-    showFindDialog() {
-        const dialogContent = `
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="find-text" style="margin-right: 5px;">Find what:</label>
-                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
-                    <label for="match-case">Match case</label>
-                </div>
-                <fieldset class="group-box" style="padding: 5px 10px;">
-                    <legend>Direction</legend>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === 'up' ? 'checked' : ''}>
-                        <label for="dir-up">Up</label>
-                    </div>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === 'down' ? 'checked' : ''}>
-                        <label for="dir-down">Down</label>
-                    </div>
-                </fieldset>
-            </div>
-        `;
-
-        const dialog = ShowDialogWindow({
-            title: 'Find',
-            width: 380,
-            height: 'auto',
-            text: dialogContent,
-            buttons: [
-                {
-                    label: 'Find Next',
-                    action: (win) => {
-                        const findInput = win.element.querySelector('#find-text');
-                        const term = findInput.value;
-                        if (!term) return false;
-
-                        this.findState.term = term;
-                        this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
-                        this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
-
-                        this.findNext();
-                        return true;
-                    },
-                    isDefault: true,
-                },
-                { label: 'Cancel' }
-            ],
-            onclose: (win) => {
-                const findInput = win.element.querySelector('#find-text');
-                this.findState.term = findInput.value;
-                this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
-                this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
-            }
-        });
-        setTimeout(() => dialog.element.querySelector('#find-text').focus().select(), 0);
-    }
-
-    findNext() {
-        const { term, caseSensitive, direction } = this.findState;
-        if (!term) {
-            this.showFindDialog();
-            return;
-        }
-
-        const editor = this.editor.codeInput;
-        const text = editor.value;
-        const searchTerm = caseSensitive ? term : term.toLowerCase();
-        const textToSearch = caseSensitive ? text : text.toLowerCase();
-
-        let index;
-        if (direction === 'down') {
-            index = textToSearch.indexOf(searchTerm, editor.selectionEnd);
-            if (index === -1) index = textToSearch.indexOf(searchTerm);
-        } else {
-            index = textToSearch.lastIndexOf(searchTerm, editor.selectionStart - 1);
-            if (index === -1) index = textToSearch.lastIndexOf(searchTerm);
-        }
-
-        if (index !== -1) {
-            editor.focus();
-            editor.setSelectionRange(index, index + term.length);
-        } else {
-            ShowDialogWindow({
-                title: 'Notepad',
-                text: `Cannot find "${term}"`,
-                soundEvent: 'SystemHand',
-                buttons: [{ label: 'OK', isDefault: true }],
-            });
-        }
-    }
-
-    showUnsavedChangesDialog(options = {}) {
-        return ShowDialogWindow({
-            title: 'Notepad',
-            text: `<div style="white-space: pre-wrap">The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?</div>`,
-            contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
-            modal: true,
-            soundEvent: 'SystemQuestion',
-            buttons: options.buttons || [],
-        });
-    }
-
-    showUnsavedChangesDialogOnClose() {
-        this.showUnsavedChangesDialog({
-            buttons: [
-                {
-                    label: 'Yes',
-                    action: async () => {
-                        await this.saveFile();
-                        if (!this.isDirty) this.win.close(true);
-                        else return false;
-                    },
-                    isDefault: true,
-                },
-                { label: 'No', action: () => this.win.close(true) },
-                { label: 'Cancel' }
-            ],
-        });
-    }
-
-    async checkForUnsavedChanges() {
-        if (!this.isDirty) return 'continue';
-        return new Promise(resolve => {
-            this.showUnsavedChangesDialog({
-                buttons: [
-                    {
-                        label: 'Yes',
-                        action: async () => {
-                            await this.saveFile();
-                            resolve(!this.isDirty ? 'continue' : 'cancel');
-                        },
-                        isDefault: true,
-                    },
-                    { label: 'No', action: () => resolve('continue') },
-                    { label: 'Cancel', action: () => resolve('cancel') }
-                ],
-            });
-        });
-    }
-
-    updateTitle() {
-        const dirtyIndicator = this.isDirty ? '*' : '';
-        this.win.title(`${dirtyIndicator}${this.fileName} - Notepad`);
-        this.win.element.querySelector('.menus')?.dispatchEvent(new CustomEvent('update'));
     }
 
     previewMarkdown() {
@@ -506,194 +254,20 @@ export class NotepadApp extends Application {
         });
     }
 
-    getLanguageFromExtension(filename) {
-        const extension = filename.split('.').pop().toLowerCase();
-        const language = languages.find(lang => lang.extensions.includes(extension));
-        return language ? language.id : 'text';
-    }
-
-    async openFile() {
-        if (await this.checkForUnsavedChanges() === 'cancel') return;
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = languages.flatMap(lang => lang.extensions.map(ext => `.${ext}`)).join(',');
-        input.onchange = e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            this.fileName = file.name;
-            this.fileHandle = null;
-            this.isDirty = false;
-            this.updateTitle();
-            this.setLanguage(this.getLanguageFromExtension(file.name));
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                this.editor.setValue(event.target.result);
-                this.isDirty = false;
-                this.updateTitle();
-            };
-            reader.readAsText(file);
-        };
-        input.click();
-    }
-
-    async clearContent() {
-        if (await this.checkForUnsavedChanges() === 'cancel') return;
-        this.editor.setValue('');
-        this.fileName = 'Untitled';
-        this.fileHandle = null;
-        this.isDirty = false;
-        this.updateTitle();
-    }
-
-    async saveFile() {
-        if (this.fileHandle) {
-            try {
-                await this.writeFile(this.fileHandle);
-                this.isDirty = false;
-                this.updateTitle();
-                this.editor.statusText.textContent = 'File saved.';
-                setTimeout(() => this.editor.statusText.textContent = 'Ready', 2000);
-            } catch (err) {
-                console.error('Error saving file:', err);
-            }
-        } else {
-            await this.saveAs();
-        }
-    }
-
-    async saveAs() {
-        if (window.showSaveFilePicker) {
-            try {
-                const fileTypes = languages.map(lang => ({
-                    description: lang.name,
-                    accept: { [lang.mimeType || 'text/plain']: lang.extensions.map(ext => `.${ext}`) },
-                }));
-                const handle = await window.showSaveFilePicker({ types: fileTypes, suggestedName: 'Untitled.txt' });
-                this.fileHandle = handle;
-                this.fileName = handle.name;
-                await this.writeFile(handle);
-                this.isDirty = false;
-                this.updateTitle();
-            } catch (err) {
-                if (err.name !== 'AbortError') console.error('Error saving file:', err);
-            }
-        } else {
-            const newFileName = prompt("Enter a filename:", this.fileName === 'Untitled' ? 'Untitled.txt' : this.fileName);
-            if (!newFileName) return;
-            this.fileName = newFileName;
-            const blob = new Blob([this.editor.getValue()], { type: 'text/plain' });
-            const a = document.createElement('a');
-a.href = URL.createObjectURL(blob);
-            a.download = this.fileName;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            this.isDirty = false;
-            this.updateTitle();
-        }
-    }
-
-    async writeFile(fileHandle) {
-        const writable = await fileHandle.createWritable();
-        await writable.write(this.editor.getValue());
-        await writable.close();
-    }
-
-    pasteText() {
-        this.editor.focus();
-        navigator.clipboard.readText().then(text => {
-            document.execCommand('insertText', false, text);
-        }).catch(() => {
-            document.execCommand('paste');
-        });
-    }
-
     setLanguage(lang) {
         this.editor.setLanguage(lang);
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
     }
 
-    getInlineStyledHTML() {
-        const tempDiv = document.createElement('div');
-        tempDiv.style.cssText = 'position: absolute; visibility: hidden;';
-        const tempPre = document.createElement('pre');
-        const tempCode = document.createElement('code');
-        tempCode.className = this.editor.highlighted.className;
-        tempCode.textContent = this.editor.getValue();
-        tempPre.appendChild(tempCode);
-        tempDiv.appendChild(tempPre);
-        document.body.appendChild(tempDiv);
-        hljs.highlightElement(tempCode);
-
-        function applyInlineStyles(element) {
-            const styles = window.getComputedStyle(element);
-            let styleStr = '';
-            if (styles.color) styleStr += `color: ${styles.color}; `;
-            if (styles.backgroundColor) styleStr += `background-color: ${styles.backgroundColor}; `;
-            if (styles.fontWeight) styleStr += `font-weight: ${styles.fontWeight}; `;
-            if (styles.fontStyle) styleStr += `font-style: ${styles.fontStyle}; `;
-            if (styleStr) element.setAttribute('style', styleStr);
-            Array.from(element.children).forEach(applyInlineStyles);
-        }
-        applyInlineStyles(tempCode);
-
-        tempPre.style.cssText = 'background-color: #fafafa; padding: 12px; font-family: monospace; white-space: pre; overflow-x: auto;';
-        const html = tempPre.outerHTML;
-        document.body.removeChild(tempDiv);
-        return html;
-    }
-
-    copyFormattedCode() {
-        try {
-            const htmlContent = this.getInlineStyledHTML();
-            const tempEl = document.createElement('div');
-            tempEl.style.cssText = 'position: absolute; left: -9999px;';
-            tempEl.innerHTML = htmlContent;
-            document.body.appendChild(tempEl);
-            const range = document.createRange();
-            range.selectNode(tempEl);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-            const successful = document.execCommand('copy');
-            document.body.removeChild(tempEl);
-            window.getSelection().removeAllRanges();
-            this.editor.statusText.textContent = successful ? '✓ Copied to clipboard!' : 'Copy failed!';
-        } catch (err) {
-            this.editor.statusText.textContent = 'Copy failed!';
-        } finally {
-            setTimeout(() => this.editor.statusText.textContent = 'Ready', 2000);
-        }
-    }
-
-    formatCode() {
-        if (typeof prettier === 'undefined' || typeof prettierPlugins === 'undefined') {
-            this.editor.statusText.textContent = 'Prettier library not loaded.';
-            setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
-            return;
-        }
-
-        const language = languages.find(lang => lang.id === this.editor.currentLanguage);
-        const parser = language?.prettier;
-
-        if (!parser) {
-            this.editor.statusText.textContent = `Formatting not available for ${language?.name || this.editor.currentLanguage}.`;
-            setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
-            return;
-        }
-
-        try {
-            const formattedCode = prettier.format(this.editor.getValue(), {
-                parser: parser,
-                plugins: prettierPlugins,
-            });
-            this.editor.setValue(formattedCode);
-            this.isDirty = true;
-            this.updateTitle();
-            this.editor.statusText.textContent = 'Code formatted successfully.';
-        } catch (error) {
-            console.error('Prettier formatting error:', error);
-            this.editor.statusText.textContent = `Error formatting code: ${error.message.split('\\n')[0]}`;
-        } finally {
-            setTimeout(() => this.editor.statusText.textContent = 'Ready', 3000);
-        }
-    }
+    // Delegated methods
+    openFile() { this.fileManager.openFile(); }
+    saveFile() { this.fileManager.saveFile(); }
+    saveAs() { this.fileManager.saveAs(); }
+    clearContent() { this.fileManager.clearContent(); }
+    showFindDialog() { this.dialogManager.showFindDialog(); }
+    findNext() { this.dialogManager.findNext(); }
+    copyFormattedCode() { CodeUtils.copyFormattedCode(this); }
+    formatCode() { CodeUtils.formatCode(this); }
+    pasteText() { CodeUtils.pasteText(this.editor); }
+    getLanguageFromExtension(filename) { return CodeUtils.getLanguageFromExtension(filename); }
 }
