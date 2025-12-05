@@ -88,7 +88,7 @@ export class ImageViewerApp extends Application {
         {
           label: "Extract &Icons...",
           action: () => this.showExtractIconsDialog(),
-          enabled: () => this.file && this.file.name.toLowerCase().endsWith(".ico"),
+          enabled: () => this.file && this.file.name && this.file.name.toLowerCase().endsWith(".ico"),
         },
       ],
       "&Help": [
@@ -109,7 +109,8 @@ export class ImageViewerApp extends Application {
       fetch(data)
         .then((response) => response.blob())
         .then((blob) => {
-          const file = new File([blob], data.split("/").pop());
+          const fileName = decodeURIComponent(data.split("/").pop());
+          const file = new File([blob], fileName);
           this.loadFile(file);
         });
     } else if (data && typeof data === "object") {
@@ -118,7 +119,7 @@ export class ImageViewerApp extends Application {
       this.img.src = data.content;
       this.img.onload = () => {
         this.resetZoom();
-        this._adjustWindowSize(this.img);
+        setTimeout(() => this._adjustWindowSize(this.img), 0);
         this._updatePannableState();
       };
     } else {
@@ -185,7 +186,7 @@ export class ImageViewerApp extends Application {
       this.img.src = e.target.result;
       this.img.onload = () => {
         this.resetZoom();
-        this._adjustWindowSize(this.img);
+        setTimeout(() => this._adjustWindowSize(this.img), 0);
         this._updatePannableState();
       };
     };
