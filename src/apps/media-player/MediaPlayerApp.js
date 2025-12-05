@@ -66,11 +66,13 @@ export class MediaPlayerApp extends Application {
         if (file.type.startsWith("audio/")) {
           this.mediaView.style.display = "none";
           const windowChromeHeight =
-            this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
-          const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+            this.win.element.offsetHeight -
+            this.win.$content.get(0).offsetHeight;
+          const newHeight =
+            this.mediaControls.offsetHeight + windowChromeHeight;
           this.win.setDimensions({ outerHeight: newHeight });
         } else {
-          this.mediaView.style.display = "block";
+          this.mediaView.style.display = "flex";
           this.win.setDimensions({ outerHeight: this.originalHeight });
         }
 
@@ -92,7 +94,7 @@ export class MediaPlayerApp extends Application {
       const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
       this.win.setDimensions({ outerHeight: newHeight });
     } else {
-      this.mediaView.style.display = "block";
+      this.mediaView.style.display = "flex";
       this.win.setDimensions({ outerHeight: this.originalHeight });
     }
     this.mediaElement.play();
@@ -113,12 +115,12 @@ export class MediaPlayerApp extends Application {
     if (disabled) {
       this.mediaElement.style.display = "none";
       if (this.defaultMediaImage) {
-        this.defaultMediaImage.style.display = "block";
+        this.defaultMediaImage.style.display = "flex";
       }
       this.win.title(this.config.title); // Reset title to initial app title
       this.mediaElement.src = ""; // Clear media source
     } else {
-      this.mediaElement.style.display = "block";
+      this.mediaElement.style.display = "flex";
       if (this.defaultMediaImage) {
         this.defaultMediaImage.style.display = "none";
       }
@@ -221,16 +223,26 @@ export class MediaPlayerApp extends Application {
       if (typeof data === "string") {
         // It's a file path
         this.mediaElement.src = data;
-        const ext = data.split('.').pop().toLowerCase();
-        const audioExtensions = ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'weba'];
+        const ext = data.split(".").pop().toLowerCase();
+        const audioExtensions = [
+          "mp3",
+          "wav",
+          "ogg",
+          "aac",
+          "m4a",
+          "flac",
+          "weba",
+        ];
         if (audioExtensions.includes(ext)) {
           this.mediaView.style.display = "none";
           const windowChromeHeight =
-            this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
-          const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+            this.win.element.offsetHeight -
+            this.win.$content.get(0).offsetHeight;
+          const newHeight =
+            this.mediaControls.offsetHeight + windowChromeHeight;
           this.win.setDimensions({ outerHeight: newHeight });
         } else {
-          this.mediaView.style.display = "block";
+          this.mediaView.style.display = "flex";
           this.win.setDimensions({ outerHeight: this.originalHeight });
         }
         this.win.title(`${data.split("/").pop()} - Media Player`);
