@@ -34,14 +34,9 @@
 .explorer-icon-view {
     flex-grow: 1;
     overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 70px);
-    grid-auto-rows: min-content;
-    grid-auto-flow: row;
-    gap: 5px;
     padding: 10px;
-    align-content: start;
     position: relative;
+    height: 100%;
 }
 
 .explorer-icon-view.has-absolute-icons {
