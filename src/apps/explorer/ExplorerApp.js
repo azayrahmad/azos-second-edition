@@ -31,18 +31,21 @@ import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import browseUiIcons from "../../assets/icons/browse-ui-icons.png";
 import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale.png";
 import { SPECIAL_FOLDER_PATHS } from "../../config/special-folders.js";
-import { handleDroppedFiles, createDragGhost } from "../../utils/dragDropManager.js";
+import {
+  handleDroppedFiles,
+  createDragGhost,
+} from "../../utils/dragDropManager.js";
 import clipboardManager from "../../utils/clipboardManager.js";
 import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import "./explorer.css";
 
 function getExplorerIconPositions() {
-    return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
+  return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
 }
 
 function setExplorerIconPositions(positions) {
-    setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
+  setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
 }
 
 function isAutoArrangeEnabled() {
@@ -51,7 +54,7 @@ function isAutoArrangeEnabled() {
 }
 
 function setAutoArrange(enabled) {
-    setItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE, enabled);
+  setItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE, enabled);
 }
 
 const specialFolderIcons = {
@@ -161,7 +164,7 @@ export class ExplorerApp extends Application {
     const toolbarItems = [
       {
         label: "Back",
-        iconName: "back",
+        iconName: "back_explorer",
         action: () => this.goBack(),
         enabled: () => this.historyIndex > 0,
         submenu: () =>
@@ -183,7 +186,7 @@ export class ExplorerApp extends Application {
       },
       {
         label: "Forward",
-        iconName: "forward",
+        iconName: "forward_explorer",
         action: () => this.goForward(),
         enabled: () => this.historyIndex < this.history.length - 1,
         submenu: () =>
@@ -202,9 +205,42 @@ export class ExplorerApp extends Application {
       },
       {
         label: "Up",
-        iconId: 10, // Using 'undo' icon as a stand-in for 'up'
+        iconName: "up",
         action: () => this.goUp(),
         enabled: () => this.currentPath !== "/",
+      },
+      "divider",
+      {
+        label: "Cut",
+        iconName: "cut",
+        enabled: false,
+      },
+      {
+        label: "Copy",
+        iconName: "copy",
+        enabled: false,
+      },
+      {
+        label: "Paste",
+        iconName: "paste",
+        enabled: false,
+      },
+      "divider",
+      {
+        label: "Undo",
+        iconName: "undo",
+        enabled: false,
+      },
+      "divider",
+      {
+        label: "Delete",
+        iconName: "delete",
+        enabled: false,
+      },
+      {
+        label: "Properties",
+        iconName: "properties",
+        enabled: false,
       },
     ];
 
@@ -293,83 +329,91 @@ export class ExplorerApp extends Application {
 
     this.navigateTo(this.initialPath);
 
-  this.sortIcons = (sortBy) => {
-    const allPositions = getExplorerIconPositions();
-    if (allPositions[this.currentPath]) {
-      delete allPositions[this.currentPath];
-      setExplorerIconPositions(allPositions);
-    }
+    this.sortIcons = (sortBy) => {
+      const allPositions = getExplorerIconPositions();
+      if (allPositions[this.currentPath]) {
+        delete allPositions[this.currentPath];
+        setExplorerIconPositions(allPositions);
+      }
 
-    if (sortBy === 'name') {
-      this.currentFolderItems.sort((a, b) => {
-        const nameA = a.name || a.title || a.filename || '';
-        const nameB = b.name || b.title || b.filename || '';
-        return nameA.localeCompare(nameB);
-      });
-    } else if (sortBy === 'type') {
-      this.currentFolderItems.sort((a, b) => {
-        const typeA = a.type || 'file';
-        const typeB = b.type || 'file';
-        if (typeA < typeB) return -1;
-        if (typeA > typeB) return 1;
-        const nameA = a.name || a.title || a.filename || '';
-        const nameB = b.name || b.title || b.filename || '';
-        return nameA.localeCompare(nameB);
-      });
-    }
+      if (sortBy === "name") {
+        this.currentFolderItems.sort((a, b) => {
+          const nameA = a.name || a.title || a.filename || "";
+          const nameB = b.name || b.title || b.filename || "";
+          return nameA.localeCompare(nameB);
+        });
+      } else if (sortBy === "type") {
+        this.currentFolderItems.sort((a, b) => {
+          const typeA = a.type || "file";
+          const typeB = b.type || "file";
+          if (typeA < typeB) return -1;
+          if (typeA > typeB) return 1;
+          const nameA = a.name || a.title || a.filename || "";
+          const nameB = b.name || b.title || b.filename || "";
+          return nameA.localeCompare(nameB);
+        });
+      }
 
-    this.render(this.currentPath, false);
-  };
+      this.render(this.currentPath, false);
+    };
 
-  this.captureIconPositions = () => {
-    const iconContainerRect = this.iconContainer.getBoundingClientRect();
-    const allIcons = Array.from(this.iconContainer.querySelectorAll('.explorer-icon'));
-    const allPositions = getExplorerIconPositions();
-    if (!allPositions[this.currentPath]) {
+    this.captureIconPositions = () => {
+      const iconContainerRect = this.iconContainer.getBoundingClientRect();
+      const allIcons = Array.from(
+        this.iconContainer.querySelectorAll(".explorer-icon"),
+      );
+      const allPositions = getExplorerIconPositions();
+      if (!allPositions[this.currentPath]) {
         allPositions[this.currentPath] = {};
-    }
+      }
 
-    this.iconContainer.offsetHeight;
+      this.iconContainer.offsetHeight;
 
-    allIcons.forEach(icon => {
-        const id = icon.getAttribute('data-id');
+      allIcons.forEach((icon) => {
+        const id = icon.getAttribute("data-id");
         const rect = icon.getBoundingClientRect();
         const x = `${rect.left - iconContainerRect.left}px`;
         const y = `${rect.top - iconContainerRect.top}px`;
         allPositions[this.currentPath][id] = { x, y };
-    });
+      });
 
-    setExplorerIconPositions(allPositions);
-  };
+      setExplorerIconPositions(allPositions);
+    };
 
-  this.lineUpIcons = () => {
-    if (isAutoArrangeEnabled()) {
-      return;
-    }
+    this.lineUpIcons = () => {
+      if (isAutoArrangeEnabled()) {
+        return;
+      }
 
-    const iconWidth = 75;
-    const iconHeight = 75;
-    const paddingTop = 5;
-    const paddingLeft = 5;
+      const iconWidth = 75;
+      const iconHeight = 75;
+      const paddingTop = 5;
+      const paddingLeft = 5;
 
-    const allPositions = getExplorerIconPositions();
-    const pathPositions = allPositions[this.currentPath] || {};
-    const allIcons = Array.from(this.iconContainer.querySelectorAll('.explorer-icon'));
+      const allPositions = getExplorerIconPositions();
+      const pathPositions = allPositions[this.currentPath] || {};
+      const allIcons = Array.from(
+        this.iconContainer.querySelectorAll(".explorer-icon"),
+      );
 
-    allIcons.forEach(icon => {
-      const id = icon.getAttribute('data-id');
-      const currentX = parseInt(icon.style.left, 10);
-      const currentY = parseInt(icon.style.top, 10);
+      allIcons.forEach((icon) => {
+        const id = icon.getAttribute("data-id");
+        const currentX = parseInt(icon.style.left, 10);
+        const currentY = parseInt(icon.style.top, 10);
 
-      const newX = Math.round((currentX - paddingLeft) / iconWidth) * iconWidth + paddingLeft;
-      const newY = Math.round((currentY - paddingTop) / iconHeight) * iconHeight + paddingTop;
+        const newX =
+          Math.round((currentX - paddingLeft) / iconWidth) * iconWidth +
+          paddingLeft;
+        const newY =
+          Math.round((currentY - paddingTop) / iconHeight) * iconHeight +
+          paddingTop;
 
-      pathPositions[id] = { x: `${newX}px`, y: `${newY}px` };
-    });
+        pathPositions[id] = { x: `${newX}px`, y: `${newY}px` };
+      });
 
-    setExplorerIconPositions(allPositions);
-    this.render(this.currentPath, false);
-  };
+      setExplorerIconPositions(allPositions);
+      this.render(this.currentPath, false);
+    };
 
     this.refreshHandler = () => {
       if (this.win.element.style.display !== "none") {
@@ -394,58 +438,70 @@ export class ExplorerApp extends Application {
     });
 
     this.iconContainer.addEventListener("drop", (e) => {
-        e.preventDefault();
-        e.stopPropagation(); // Prevent drop event from bubbling up to the content div
+      e.preventDefault();
+      e.stopPropagation(); // Prevent drop event from bubbling up to the content div
 
-        // Handle files dragged from within the app
-        const jsonData = e.dataTransfer.getData("application/json");
-        if (jsonData) {
-            const data = JSON.parse(jsonData);
-            if (data.sourcePath === this.currentPath) {
-                const { cursorOffsetX, cursorOffsetY, dragOffsets } = data;
-                const iconContainerRect = this.iconContainer.getBoundingClientRect();
-                let primaryIconX = e.clientX - iconContainerRect.left - cursorOffsetX;
-                let primaryIconY = e.clientY - iconContainerRect.top - cursorOffsetY;
+      // Handle files dragged from within the app
+      const jsonData = e.dataTransfer.getData("application/json");
+      if (jsonData) {
+        const data = JSON.parse(jsonData);
+        if (data.sourcePath === this.currentPath) {
+          const { cursorOffsetX, cursorOffsetY, dragOffsets } = data;
+          const iconContainerRect = this.iconContainer.getBoundingClientRect();
+          let primaryIconX = e.clientX - iconContainerRect.left - cursorOffsetX;
+          let primaryIconY = e.clientY - iconContainerRect.top - cursorOffsetY;
 
-                const iconWidth = 75;
-                const iconHeight = 75;
-                const margin = 5;
+          const iconWidth = 75;
+          const iconHeight = 75;
+          const margin = 5;
 
-                primaryIconX = Math.max(margin, Math.min(primaryIconX, iconContainerRect.width - iconWidth - margin));
-                primaryIconY = Math.max(margin, Math.min(primaryIconY, iconContainerRect.height - iconHeight - margin));
+          primaryIconX = Math.max(
+            margin,
+            Math.min(
+              primaryIconX,
+              iconContainerRect.width - iconWidth - margin,
+            ),
+          );
+          primaryIconY = Math.max(
+            margin,
+            Math.min(
+              primaryIconY,
+              iconContainerRect.height - iconHeight - margin,
+            ),
+          );
 
-                const allPositions = getExplorerIconPositions();
-                if (!allPositions[this.currentPath]) {
-                    allPositions[this.currentPath] = {};
-                }
+          const allPositions = getExplorerIconPositions();
+          if (!allPositions[this.currentPath]) {
+            allPositions[this.currentPath] = {};
+          }
 
-                dragOffsets.forEach(offset => {
-                    allPositions[this.currentPath][offset.id] = {
-                        x: `${primaryIconX + offset.offsetX}px`,
-                        y: `${primaryIconY + offset.offsetY}px`,
-                    };
-                });
+          dragOffsets.forEach((offset) => {
+            allPositions[this.currentPath][offset.id] = {
+              x: `${primaryIconX + offset.offsetX}px`,
+              y: `${primaryIconY + offset.offsetY}px`,
+            };
+          });
 
-                setExplorerIconPositions(allPositions);
-                this.render(this.currentPath);
-                return;
-            }
-            pasteItems(this.currentPath, data.items, 'cut');
-            return; // Stop processing
+          setExplorerIconPositions(allPositions);
+          this.render(this.currentPath);
+          return;
         }
+        pasteItems(this.currentPath, data.items, "cut");
+        return; // Stop processing
+      }
 
-        // Handle files dragged from the user's OS
-        if (isFileDropEnabled(this.currentPath)) {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleDroppedFiles(files, this.currentPath, () => {
-                    this.render(this.currentPath);
-                    if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
-                        document.dispatchEvent(new CustomEvent("desktop-refresh"));
-                    }
-                });
+      // Handle files dragged from the user's OS
+      if (isFileDropEnabled(this.currentPath)) {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleDroppedFiles(files, this.currentPath, () => {
+            this.render(this.currentPath);
+            if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
+              document.dispatchEvent(new CustomEvent("desktop-refresh"));
             }
+          });
         }
+      }
     });
 
     this.iconContainer.addEventListener("click", (e) => {
@@ -520,40 +576,40 @@ export class ExplorerApp extends Application {
     let children = [];
     if (isNewNavigation) {
       if (path === SPECIAL_FOLDER_PATHS.desktop) {
-      const desktopContents = getDesktopContents();
-      const desktopApps = desktopContents.apps.map((appId) => {
-        const app = apps.find((a) => a.id === appId);
-        return { ...app, appId: app.id, isStatic: true };
+        const desktopContents = getDesktopContents();
+        const desktopApps = desktopContents.apps.map((appId) => {
+          const app = apps.find((a) => a.id === appId);
+          return { ...app, appId: app.id, isStatic: true };
+        });
+        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+        const desktopFiles = allDroppedFiles.filter(
+          (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
+        );
+        const staticFiles = desktopContents.files.map((file) => ({
+          ...file,
+          isStatic: true,
+        }));
+        children = [...desktopApps, ...staticFiles, ...desktopFiles];
+      } else {
+        const staticChildren = (item.children || []).map((child) => ({
+          ...child,
+          isStatic: true,
+        }));
+        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+        const droppedFilesInThisFolder = allDroppedFiles.filter(
+          (file) => file.path === path,
+        );
+        children = [...staticChildren, ...droppedFilesInThisFolder];
+      }
+
+      // Sort children alphabetically by name
+      children.sort((a, b) => {
+        const nameA = a.name || a.title || a.filename || "";
+        const nameB = b.name || b.title || b.filename || "";
+        return nameA.localeCompare(nameB);
       });
-      const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-      const desktopFiles = allDroppedFiles.filter(
-        (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
-      );
-      const staticFiles = desktopContents.files.map((file) => ({
-        ...file,
-        isStatic: true,
-      }));
-      children = [...desktopApps, ...staticFiles, ...desktopFiles];
-    } else {
-      const staticChildren = (item.children || []).map((child) => ({
-        ...child,
-        isStatic: true,
-      }));
-      const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-      const droppedFilesInThisFolder = allDroppedFiles.filter(
-        (file) => file.path === path,
-      );
-      children = [...staticChildren, ...droppedFilesInThisFolder];
-    }
 
-    // Sort children alphabetically by name
-    children.sort((a, b) => {
-      const nameA = a.name || a.title || a.filename || "";
-      const nameB = b.name || b.title || b.filename || "";
-      return nameA.localeCompare(nameB);
-    });
-
-    this.currentFolderItems = children;
+      this.currentFolderItems = children;
     }
 
     this.currentFolderItems.forEach((child) => {
@@ -581,9 +637,9 @@ export class ExplorerApp extends Application {
       const uniqueId = this._getUniqueItemId(child);
 
       if (pathPositions[uniqueId]) {
-          icon.style.position = 'absolute';
-          icon.style.left = pathPositions[uniqueId].x;
-          icon.style.top = pathPositions[uniqueId].y;
+        icon.style.position = "absolute";
+        icon.style.left = pathPositions[uniqueId].x;
+        icon.style.top = pathPositions[uniqueId].y;
       }
 
       this.iconContainer.appendChild(icon);
@@ -648,58 +704,63 @@ export class ExplorerApp extends Application {
 
     // Only allow non-static files to be dragged
     if (!item.isStatic) {
-        icon.draggable = true;
+      icon.draggable = true;
     }
 
     icon.addEventListener("dragstart", (e) => {
-        e.stopPropagation();
+      e.stopPropagation();
 
-        // If the dragged icon is not selected, select it exclusively
-        if (!this.iconManager.selectedIcons.has(icon)) {
-            this.iconManager.clearSelection();
-            this.iconManager.selectIcon(icon);
-        }
+      // If the dragged icon is not selected, select it exclusively
+      if (!this.iconManager.selectedIcons.has(icon)) {
+        this.iconManager.clearSelection();
+        this.iconManager.selectIcon(icon);
+      }
 
-        const selectedItems = [...this.iconManager.selectedIcons]
-            .map(selectedIcon => {
-                const itemId = selectedIcon.getAttribute("data-id");
-                // Find the full item object from the current folder's items
-                return this.currentFolderItems.find(it => it.id === itemId);
-            })
-            .filter(Boolean); // Filter out any nulls
+      const selectedItems = [...this.iconManager.selectedIcons]
+        .map((selectedIcon) => {
+          const itemId = selectedIcon.getAttribute("data-id");
+          // Find the full item object from the current folder's items
+          return this.currentFolderItems.find((it) => it.id === itemId);
+        })
+        .filter(Boolean); // Filter out any nulls
 
-        // Store the data
-        const primaryIconRect = icon.getBoundingClientRect();
-        const cursorOffsetX = e.clientX - primaryIconRect.left;
-        const cursorOffsetY = e.clientY - primaryIconRect.top;
+      // Store the data
+      const primaryIconRect = icon.getBoundingClientRect();
+      const cursorOffsetX = e.clientX - primaryIconRect.left;
+      const cursorOffsetY = e.clientY - primaryIconRect.top;
 
-        const dragOffsets = [...this.iconManager.selectedIcons].map(selectedIcon => {
-            const rect = selectedIcon.getBoundingClientRect();
-            return {
-                id: selectedIcon.getAttribute("data-id"),
-                offsetX: rect.left - primaryIconRect.left,
-                offsetY: rect.top - primaryIconRect.top,
-            };
-        });
+      const dragOffsets = [...this.iconManager.selectedIcons].map(
+        (selectedIcon) => {
+          const rect = selectedIcon.getBoundingClientRect();
+          return {
+            id: selectedIcon.getAttribute("data-id"),
+            offsetX: rect.left - primaryIconRect.left,
+            offsetY: rect.top - primaryIconRect.top,
+          };
+        },
+      );
 
-        e.dataTransfer.setData("application/json", JSON.stringify({
-            items: selectedItems,
-            sourcePath: this.currentPath,
-            cursorOffsetX,
-            cursorOffsetY,
-            dragOffsets,
-        }));
-        e.dataTransfer.effectAllowed = "move";
-        dragGhost = createDragGhost(icon, e);
+      e.dataTransfer.setData(
+        "application/json",
+        JSON.stringify({
+          items: selectedItems,
+          sourcePath: this.currentPath,
+          cursorOffsetX,
+          cursorOffsetY,
+          dragOffsets,
+        }),
+      );
+      e.dataTransfer.effectAllowed = "move";
+      dragGhost = createDragGhost(icon, e);
     });
 
     icon.addEventListener("dragend", () => {
-        if (dragGhost && dragGhost.parentElement) {
-            dragGhost.parentElement.removeChild(dragGhost);
-        }
-        dragGhost = null;
+      if (dragGhost && dragGhost.parentElement) {
+        dragGhost.parentElement.removeChild(dragGhost);
+      }
+      dragGhost = null;
     });
-}
+  }
 
   findItemInDirectory(id, dir = directory) {
     for (const item of dir) {
