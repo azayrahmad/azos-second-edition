@@ -10,6 +10,7 @@ import startMenuConfig from "../config/startmenu.js";
 import { playSound } from "../utils/soundManager.js";
 import { ShowDialogWindow } from "./DialogWindow.js";
 import { createShutdownDialogContent } from "./ShutdownDialog.js";
+import { showShutdownScreen } from "./ShutdownScreen.js";
 
 // Constants
 const SELECTORS = {
@@ -406,8 +407,14 @@ class StartMenu {
             {
                 label: 'OK',
                 action: () => {
-                    playSound("SystemExit");
-                    setTimeout(() => location.reload(), 500);
+                    const selectedOption = content.querySelector('input[name="shutdown-option"]:checked').value;
+                    if (selectedOption === 'shutdown') {
+                        playSound("SystemExit");
+                        showShutdownScreen();
+                    } else {
+                        playSound("SystemExit");
+                        setTimeout(() => location.reload(), 500);
+                    }
                 },
                 isDefault: true,
             },

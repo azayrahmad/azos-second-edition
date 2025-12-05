@@ -1,6 +1,7 @@
 import "./styles/cursors.css";
 import "./style.css";
 import "./styles/splash.css";
+import "./styles/shutdown-screen.css";
 
 import splashBg from "./assets/img/splash.png";
 import { themes } from "./config/themes.js";
