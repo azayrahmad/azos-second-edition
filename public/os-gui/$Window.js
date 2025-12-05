@@ -127,7 +127,7 @@
         ),
       )
         .addClass("window os-window")
-        .appendTo("#desktop-area")
+        .appendTo("#screen")
     );
     // TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
     $w[0].$window = $w;
@@ -970,36 +970,13 @@
         $w.addClass("maximized");
         const screen = document.getElementById("desktop-area");
         const screenRect = screen.getBoundingClientRect();
-        const parentRect = screen.offsetParent.getBoundingClientRect();
-
-        // Get window computed styles to account for borders
-        const computedStyle = window.getComputedStyle($w[0]);
-        const borderTopWidth = parseInt(computedStyle.borderTopWidth, 10) || 0;
-        const borderRightWidth =
-          parseInt(computedStyle.borderRightWidth, 10) || 0;
-        const borderBottomWidth =
-          parseInt(computedStyle.borderBottomWidth, 10) || 0;
-        const borderLeftWidth =
-          parseInt(computedStyle.borderLeftWidth, 10) || 0;
-        // Calculate dimensions that will fit inside desktop area
-        const adjustedWidth = screenRect.width - 7;
-        const adjustedHeight = screenRect.height - 5;
-        console.log(screenRect);
-        console.log(
-          borderLeftWidth,
-          borderRightWidth,
-          borderTopWidth,
-          borderBottomWidth,
-        );
-        console.log("Adjusted Width:", adjustedWidth);
-        console.log("Adjusted Height:", adjustedHeight);
 
         $w.css({
           position: "absolute", // Changed from fixed
           top: 0, // Relative to #screen
           left: 0, // Relative to #screen
-          width: adjustedWidth,
-          height: adjustedHeight,
+          width: screenRect.width,
+          height: screenRect.height,
         });
       };
       const instantly_unmaximize = () => {
@@ -1532,7 +1509,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     });
 
     $w.applyBounds = () => {
-      const screen = document.getElementById("desktop-area");
+      const screen = document.getElementById("screen");
       const rect = screen.getBoundingClientRect();
       $w.css({
         left: Math.max(
@@ -1548,7 +1525,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
 
     $w.bringTitleBarInBounds = () => {
       // Try to make the titlebar always accessible
-      const screen = document.getElementById("desktop-area");
+      const screen = document.getElementById("screen");
       const rect = screen.getBoundingClientRect();
       const min_horizontal_pixels_on_screen = 40; // enough for space past a close button
       $w.css({
@@ -1570,7 +1547,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
     };
 
     $w.center = () => {
-      const screen = document.getElementById("desktop-area");
+      const screen = document.getElementById("screen");
       const rect = screen.getBoundingClientRect();
       $w.css({
         left: (rect.width - $w.width()) / 2,
@@ -1605,7 +1582,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         drag_pointer_y = e.clientY ?? drag_pointer_y;
       }
       const screenRect = document
-        .getElementById("desktop-area")
+        .getElementById("screen")
         .getBoundingClientRect();
       $w.css({
         left: drag_pointer_x - screenRect.left - drag_offset_x,
@@ -1666,7 +1643,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         return; // allow custom drag behavior of component windows in jspaint (Tools / Colors)
       }
       const screenRect = document
-        .getElementById("desktop-area")
+        .getElementById("screen")
         .getBoundingClientRect();
       drag_offset_x = e.clientX - screenRect.left - $w.position().left;
       drag_offset_y = e.clientY - screenRect.top - $w.position().top;
