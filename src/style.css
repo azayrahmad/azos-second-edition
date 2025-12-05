@@ -200,3 +200,8 @@ button {
 .desktop-icon-ghost {
     opacity: 0.5;
 }
+
+.no-animation {
+    animation: none !important;
+    transition: none !important;
+}

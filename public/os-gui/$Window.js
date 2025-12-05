@@ -126,7 +126,7 @@
           /** @type {unknown} */ (E("div"))
         ),
       )
-        .addClass("window os-window")
+        .addClass("window os-window no-animation")
         .appendTo("#desktop-area")
     );
     // TODO: A $Window.fromElement (or similar) static method using a Map would be better for type checking.
