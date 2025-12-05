@@ -166,6 +166,13 @@ export class ExplorerApp extends Application {
     content.className = "explorer-content sunken-panel";
     this.content = content;
 
+    const sidebar = document.createElement("div");
+    sidebar.className = "explorer-sidebar";
+    sidebar.style.backgroundImage = `url(${new URL("../../assets/img/wvleft.bmp", import.meta.url).href})`;
+    sidebar.style.backgroundRepeat = "no-repeat";
+    content.appendChild(sidebar);
+    this.sidebarElement = sidebar;
+
     const iconContainer = document.createElement("div");
     iconContainer.className = "explorer-icon-view has-absolute-icons";
     content.appendChild(iconContainer);
@@ -318,13 +325,6 @@ export class ExplorerApp extends Application {
 
     // Append the content area (which now contains the icon container)
     win.$content.append(content);
-
-    const sidebar = document.createElement("div");
-    sidebar.className = "explorer-sidebar";
-    sidebar.style.backgroundImage = `url(${new URL("../../assets/img/wvleft.bmp", import.meta.url).href})`;
-    sidebar.style.backgroundRepeat = "no-repeat";
-    content.appendChild(sidebar);
-    this.sidebarElement = sidebar;
 
     const sidebarIcon = document.createElement("img");
     sidebarIcon.className = "sidebar-icon";
