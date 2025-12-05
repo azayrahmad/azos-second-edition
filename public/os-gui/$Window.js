@@ -1743,7 +1743,7 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         // Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
         // Here's a little diagram of sorts:
         // outerWidth(true): margin, [ outerWidth(): border, [ innerWidth(): padding, [ width(): content ] ] ]
-        const handle_thickness = ($w.outerWidth() - $w.width()) / 2; // padding + border
+        const handle_thickness = 4; // ($w.outerWidth() - $w.width()) / 2; // padding + border
         const border_width = ($w.outerWidth() - $w.innerWidth()) / 2; // border; need to outset the handles by this amount so they overlap the border + padding, and not the content
         const window_frame_height =
           $w.outerHeight() - $w.$content.outerHeight(); // includes titlebar and borders, padding, but not content
