@@ -213,17 +213,49 @@ export class ExplorerApp extends Application {
       {
         label: "Cut",
         iconName: "cut",
-        enabled: false,
+        action: () => {
+          const itemsToOperateOn = [...this.iconManager.selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter(Boolean);
+          clipboardManager.set(itemsToOperateOn, "cut");
+        },
+        enabled: () => {
+          const selectedIcons = this.iconManager.selectedIcons;
+          if (selectedIcons.size === 0) return false;
+
+          const itemsToOperateOn = [...selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter(Boolean);
+
+          return !itemsToOperateOn.some((item) => item.isStatic);
+        },
       },
       {
         label: "Copy",
         iconName: "copy",
-        enabled: false,
+        action: () => {
+          const itemsToOperateOn = [...this.iconManager.selectedIcons]
+            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .filter(Boolean);
+          clipboardManager.set(itemsToOperateOn, "copy");
+        },
+        enabled: () => this.iconManager.selectedIcons.size > 0,
       },
       {
         label: "Paste",
         iconName: "paste",
-        enabled: false,
+        action: () => {
+          const { items, operation } = clipboardManager.get();
+          pasteItems(this.currentPath, items, operation);
+          this.render(this.currentPath);
+          if (operation === "cut") {
+            clipboardManager.clear();
+          }
+        },
+        enabled: () =>
+          !clipboardManager.isEmpty() &&
+          this.currentPath !== "/" &&
+          this.currentPath !== "//network-neighborhood",
       },
       "divider",
       {
@@ -312,6 +344,7 @@ export class ExplorerApp extends Application {
       iconSelector: ".explorer-icon",
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
+      onSelectionChange: () => this.updateMenuState(),
     });
 
     this.resizeObserver = new ResizeObserver((entries) => {
@@ -424,6 +457,7 @@ export class ExplorerApp extends Application {
 
     this.clipboardHandler = () => {
       this.updateCutIcons();
+      this.updateMenuState();
     };
     document.addEventListener("clipboard-change", this.clipboardHandler);
 
