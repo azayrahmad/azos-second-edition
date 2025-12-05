@@ -184,7 +184,7 @@ button {
     animation: fadeOut 0.5s forwards;
 }
 
-.fade-in {
+.desktop-boot-fade-in {
     animation: fadeInAnimation 0.5s ease-in forwards;
 }
 

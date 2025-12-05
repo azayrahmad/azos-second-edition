@@ -134,7 +134,7 @@ async function initializeOS() {
         hideBootScreen();
         document.body.classList.remove("booting");
         document.getElementById("screen").classList.remove("boot-mode");
-        document.body.classList.add("fade-in");
+        document.body.classList.add("desktop-boot-fade-in");
         playSound("WindowsLogon");
     }
 
