@@ -1,4 +1,5 @@
 import { Application } from "../Application.js";
+import { AccessKeys } from "/public/os-gui/AccessKeys.js";
 import { ICONS } from "../../config/icons.js";
 import { iconSchemes } from "../../config/icon-schemes.js";
 import {

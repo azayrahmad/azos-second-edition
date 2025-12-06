@@ -1,3 +1,4 @@
+import { AccessKeys } from "/public/os-gui/AccessKeys.js";
 ((exports) => {
   const { E, uid, get_new_menu_z_index, get_direction, is_disabled } =
     window.os_gui_utils;
