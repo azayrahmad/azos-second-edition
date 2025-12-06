@@ -21,6 +21,8 @@ import {
   finalizeBootProcessStep,
   showBlinkingCursor,
   promptToContinue,
+  enterSetupMode,
+  hideSetupPrompt,
 } from "./components/bootScreen.js";
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
@@ -99,17 +101,30 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  let splashScreenVisible = false;
-  let bootProcessFinished = false;
-  let splashScreenTimer = null;
+    let splashScreenVisible = false;
+    let bootProcessFinished = false;
+    let splashScreenTimer = null;
+    let isSetupMode = false;
 
-  const splashScreen = document.getElementById("splash-screen");
+    const setupKeydownHandler = (e) => {
+        if (e.key === 'Delete') {
+            isSetupMode = true;
+            window.removeEventListener('keydown', setupKeydownHandler);
+            hideSetupPrompt();
+            enterSetupMode();
+        }
+    };
+    window.addEventListener('keydown', setupKeydownHandler);
+
+    const splashScreen = document.getElementById("splash-screen");
   if (splashScreen) {
     splashScreen.style.backgroundImage = `url(${splashBg})`;
   }
 
   function showSplashScreen() {
     if (splashScreen) {
+      window.removeEventListener('keydown', setupKeydownHandler);
+      hideSetupPrompt();
       splashScreen.style.display = "block";
       splashScreenVisible = true;
       splashScreenTimer = setTimeout(() => {
@@ -183,6 +198,7 @@ async function initializeOS() {
   }
 
   let logElement = startBootProcessStep("Detecting keyboard...");
+  if (isSetupMode) return;
   await new Promise((resolve) => setTimeout(resolve, 500));
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
