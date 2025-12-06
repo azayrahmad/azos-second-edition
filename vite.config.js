@@ -1,7 +1,17 @@
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+const packageJson = JSON.parse(
+  readFileSync(resolve(process.cwd(), "package.json"), "utf-8"),
+);
+const appVersion = packageJson.version;
 
 export default defineConfig({
+  define: {
+    "import.meta.env.APP_VERSION": JSON.stringify(appVersion),
+  },
   assetsInclude: ["**/*.ani"],
   base: "/azos-second-edition/",
   plugins: [

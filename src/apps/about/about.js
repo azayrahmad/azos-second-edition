@@ -1,8 +1,15 @@
+const version = import.meta.env.APP_VERSION;
+import splashImg from "../../assets/icons/windows_update_large-4.png";
+
 export const aboutContent = `
-  <div class="about-content" style="padding: 16px;">
-    <h1>azOS Second Edition</h1>
-    <h4>A playground of weird ideas with generative AI.</h4>
-    <p>Copyright (c) 1995-2025 Aziz Rahmad. All rights reserved.</p>
+  <div class="about-content" style="display: flex; gap: 16px; padding: 16px; align-items: top;">
+    <div style="flex-shrink: 0;">
+      <img src="${splashImg}" alt="azOS Splash">
+    </div>
+    <div>
+      <h1>azOS Second Edition version ${version}</h1>
+      <p>A web-based operating system based on Windows 98.</p>
+      <p>Copyright (C) 1995-2025 Aziz Rahmad. All rights reserved.</p>
+    </div>
   </div>
 `;
-

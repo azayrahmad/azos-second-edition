@@ -4,6 +4,7 @@
  */
 
 // Import icons
+import { launchApp } from "../utils/appManager.js";
 import windowsStartMenuBar from "../assets/img/win98start.png";
 import { ICONS } from "../config/icons.js";
 import startMenuConfig from "../config/startmenu.js";
@@ -108,7 +109,7 @@ class StartMenu {
         <ul class="start-menu-list">
           <li role="menuitem" tabindex="0" data-action="home">
             <img src="${ICONS.windowsUpdate[32]}" alt="Computer" loading="lazy">
-            <span>aziz rahmad</span>
+            <span>About</span>
           </li>
           <div class="start-menu-divider" role="separator"></div>
           ${dynamicItemsHTML}
@@ -429,8 +430,7 @@ class StartMenu {
    * Handle home action
    */
   handleHome() {
-    console.log("Go to Aziz Rahmad...");
-    window.location.href = "/";
+    launchApp("about");
     this.hide();
   }
 
