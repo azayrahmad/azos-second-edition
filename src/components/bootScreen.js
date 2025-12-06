@@ -100,6 +100,81 @@ function promptToContinue() {
     });
 }
 
+function hideSetupPrompt() {
+    const setupPromptEl = document.getElementById("setup-prompt");
+    if (setupPromptEl) {
+        setupPromptEl.style.display = "none";
+    }
+}
+
+function enterSetupMode() {
+    const bootScreenEl = document.getElementById("boot-screen");
+
+    if (bootScreenEl) {
+        const bootScreenContentEl = document.getElementById("boot-screen-content");
+        if (bootScreenContentEl) {
+            bootScreenContentEl.innerHTML = '<div id="boot-log" style="flex-grow: 1"></div>';
+        }
+        const bootLogEl = document.getElementById("boot-log");
+        if (!bootLogEl) return;
+
+        const setupContent = document.createElement("div");
+        setupContent.innerHTML = `
+            <div>Select what you want to do:</div>
+            <div>1. Reset local storage</div>
+            <div class="prompt">Enter selection:&nbsp;</div>
+        `;
+        bootLogEl.appendChild(setupContent);
+
+        const inputContainer = setupContent.querySelector('.prompt');
+        const blinkingCursor = document.createElement("span");
+        blinkingCursor.className = "blinking-cursor";
+        blinkingCursor.textContent = "_";
+        inputContainer.appendChild(blinkingCursor);
+
+        const keydownHandler = (e) => {
+            if (e.key === '1') {
+                window.removeEventListener('keydown', keydownHandler);
+                blinkingCursor.remove();
+                inputContainer.append('1');
+                promptForConfirmation();
+            }
+        };
+
+        const promptForConfirmation = () => {
+            const confirmationPrompt = document.createElement("div");
+            confirmationPrompt.innerHTML = `<div>Resetting local storage will erase all files and configurations. Continue? (Y/n)&nbsp;</div>`;
+            bootLogEl.appendChild(confirmationPrompt);
+
+            const confirmationInputContainer = confirmationPrompt.querySelector('div');
+            const confirmationBlinkingCursor = document.createElement("span");
+            confirmationBlinkingCursor.className = "blinking-cursor";
+            confirmationBlinkingCursor.textContent = "_";
+            confirmationInputContainer.appendChild(confirmationBlinkingCursor);
+
+            const confirmationKeydownHandler = (e) => {
+                const key = e.key.toLowerCase();
+                if (key === 'y') {
+                    window.removeEventListener('keydown', confirmationKeydownHandler);
+                    confirmationBlinkingCursor.remove();
+                    confirmationInputContainer.append('Y');
+                    localStorage.clear();
+                    location.reload();
+                } else if (key === 'n') {
+                    window.removeEventListener('keydown', confirmationKeydownHandler);
+                    confirmationBlinkingCursor.remove();
+                    confirmationInputContainer.append('n');
+                    location.reload();
+                }
+            };
+
+            window.addEventListener('keydown', confirmationKeydownHandler);
+        };
+
+        window.addEventListener('keydown', keydownHandler);
+    }
+}
+
 export {
     hideBootScreen,
     startBootProcessStep,
@@ -107,4 +182,6 @@ export {
     showBlinkingCursor,
     promptToContinue,
     removeLastBlinkingCursor,
+    enterSetupMode,
+    hideSetupPrompt
 };
