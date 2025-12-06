@@ -1,4 +1,5 @@
 import { ICONS } from '../config/icons.js';
+import { AccessKeys } from '/public/os-gui/AccessKeys.js';
 
 function createShutdownDialogContent() {
     const container = document.createElement('div');
@@ -19,10 +20,10 @@ function createShutdownDialogContent() {
     textAndOptions.appendChild(text);
 
     const options = [
-        { id: 'standby', label: 'Stand by', checked: true },
-        { id: 'shutdown', label: 'Shut down', checked: false },
-        { id: 'restart', label: 'Restart', checked: false },
-        { id: 'restart-msdos', label: 'Restart in MS-DOS mode', checked: false }
+        { id: 'standby', label: 'Stand &by', checked: true },
+        { id: 'shutdown', label: 'Shut &down', checked: false },
+        { id: 'restart', label: '&Restart', checked: false },
+        { id: 'restart-msdos', label: 'Restart in MS-&DOS mode', checked: false }
     ];
 
     const optionsContainer = document.createElement('div');
@@ -41,7 +42,7 @@ function createShutdownDialogContent() {
 
         const label = document.createElement('label');
         label.htmlFor = opt.id;
-        label.innerHTML = `<u>${opt.label.charAt(0)}</u>${opt.label.substring(1)}`;
+        label.appendChild(AccessKeys.toFragment(opt.label));
 
         fieldRow.appendChild(input);
         fieldRow.appendChild(label);
