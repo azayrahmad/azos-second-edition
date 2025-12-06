@@ -1,7 +1,6 @@
 import { Application } from '../Application.js';
 import { tipOfTheDayContent } from './tipOfTheDay.js';
 import { apps } from '../../config/apps.js';
-import { AccessKeys } from '/public/os-gui/AccessKeys.js';
 import { launchApp } from '../../utils/appManager.js';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 
@@ -42,11 +41,11 @@ export class TipOfTheDayApp extends Application {
 
         if (nextTipButton) {
             nextTipButton.innerHTML = '';
-            nextTipButton.appendChild(AccessKeys.toFragment('&Next Tip'));
+            nextTipButton.appendChild(window.AccessKeys.toFragment('&Next Tip'));
         }
         if (closeButton) {
             closeButton.innerHTML = '';
-            closeButton.appendChild(AccessKeys.toFragment('&Close'));
+            closeButton.appendChild(window.AccessKeys.toFragment('&Close'));
             closeButton.addEventListener('click', () => this.win.close());
         }
 
