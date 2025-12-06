@@ -1,5 +1,6 @@
 import { Application } from '../Application.js';
 import { aboutContent } from './about.js';
+import './about.css';
 
 export class AboutApp extends Application {
     constructor(config) {
