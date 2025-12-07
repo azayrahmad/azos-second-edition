@@ -41,4 +41,12 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://resume-chat-api-git-feat-azos-as-282d11-azizs-projects-1d8e1af2.vercel.app/",
+        changeOrigin: true,
+      },
+    },
+  },
 });

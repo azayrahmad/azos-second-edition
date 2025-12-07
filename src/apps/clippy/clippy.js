@@ -96,13 +96,60 @@ async function askClippy(agent, question) {
   });
 
   try {
-    const encodedQuestion = encodeURIComponent(question.trim());
-    const response = await fetch(
-      `https://resume-chat-api-nine.vercel.app/api/clippy-helper?query=${encodedQuestion}`,
+    // Step 1: Classify the question
+    const classifyResponse = await fetch(
+      "/api/azos-assistant?route=classify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question.trim() }),
+      },
     );
-    const data = await response.json();
+    const classifyScores = await classifyResponse.json();
 
-    for (const fragment of data) {
+    let information = question.trim(); // Default information is the question itself
+
+    // Step 2: If it's an azOS question, classify which app it's about
+    if (classifyScores.azos > 0.5) {
+      const appsData = getAzosAppsData();
+      const classifyAzosResponse = await fetch(
+        "/api/azos-assistant?route=classify-azos",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: question.trim(),
+            "azos-apps": appsData,
+          }),
+        },
+      );
+      const azosScores = await classifyAzosResponse.json();
+
+      // Find the app with the highest score
+      const topApp = Object.keys(azosScores).reduce((a, b) =>
+        azosScores[a] > azosScores[b] ? a : b,
+      );
+
+      if (topApp === "general") {
+        information = await getAzosGeneralInfo();
+      } else {
+        const appInfo = apps.find((app) => app.id === topApp);
+        information = appInfo ? appInfo.description : await getAzosGeneralInfo();
+      }
+    }
+
+    // Step 3: Get the final answer
+    const answerResponse = await fetch("/api/azos-assistant?route=answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: question.trim(),
+        information: information,
+      }),
+    });
+    const answerData = await answerResponse.json();
+
+    for (const fragment of answerData) {
       const cleanAnswer = fragment.answer.replace(/\*\*/g, "");
       await agent.speakAndAnimate(cleanAnswer, fragment.animation, {
         useTTS: ttsEnabled,
@@ -119,6 +166,34 @@ async function askClippy(agent, question) {
 }
 
 import { AGENT_NAMES } from "../../config/agents.js";
+import { apps } from "../../config/apps.js";
+
+// Helper function to get app descriptions
+function getAzosAppsData() {
+  const appsData = {
+    general: "General information about azOS.",
+  };
+  apps.forEach((app) => {
+    if (app.id && app.description) {
+      appsData[app.id] = app.description;
+    }
+  });
+  return appsData;
+}
+
+// Helper function to get general azOS info from README.md
+async function getAzosGeneralInfo() {
+  try {
+    const response = await fetch("/azos-second-edition/README.md");
+    if (!response.ok) {
+      throw new Error("Failed to fetch README.md");
+    }
+    return await response.text();
+  } catch (error) {
+    console.error("Error fetching README.md:", error);
+    return "azOS is a web-based JavaScript remake of the Windows 98 desktop experience, focusing on desktop themes and customization."; // Fallback info
+  }
+}
 
 export function getClippyMenuItems(app) {
   const appInstance = app || window.clippyAppInstance;
