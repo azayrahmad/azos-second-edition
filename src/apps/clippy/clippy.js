@@ -383,6 +383,17 @@ function startTutorial(agent) {
     agent.play(animation, 3000, callback);
   };
 
+  const toggleIconHighlight = (iconEl, highlight) => {
+    if (!iconEl) return;
+    const iconImg = iconEl.querySelector(".icon img");
+    const iconLabel = iconEl.querySelector(".icon-label");
+    const action = highlight ? "add" : "remove";
+    if (iconImg) iconImg.classList[action]("highlighted-icon");
+    if (iconLabel) {
+      iconLabel.classList[action]("highlighted-label", "selected");
+    }
+  };
+
   const startButton = getElementCenter(".start-button");
   const iconsArea = { x: 40, y: 100 };
 
@@ -466,6 +477,7 @@ function startTutorial(agent) {
 
   // 4. Internet Explorer
   if (internetExplorerIcon) {
+    const iconEl = document.querySelector('.desktop-icon[data-app-id="internet-explorer"]');
     sequence.push((done) =>
       agent._el.animate(
         { top: internetExplorerIcon.y, left: internetExplorerIcon.x + 80 },
@@ -473,7 +485,12 @@ function startTutorial(agent) {
         done,
       ),
     );
-    sequence.push((done) => playGesture(internetExplorerIcon.x, internetExplorerIcon.y, done));
+    sequence.push((done) => {
+        playGesture(internetExplorerIcon.x, internetExplorerIcon.y, () => {
+            toggleIconHighlight(iconEl, true);
+            setTimeout(done, 500);
+        });
+    });
     sequence.push((done) =>
       agent.speakAndAnimate(
         "Browse like it's 1999.",
@@ -481,10 +498,15 @@ function startTutorial(agent) {
         { useTTS: ttsEnabled, callback: done },
       ),
     );
+    sequence.push((done) => {
+        toggleIconHighlight(iconEl, false);
+        done();
+    });
   }
 
   // 5. Winamp
   if (webampIcon) {
+    const iconEl = document.querySelector('.desktop-icon[data-app-id="webamp"]');
     sequence.push((done) =>
       agent._el.animate(
         { top: webampIcon.y, left: webampIcon.x + 80 },
@@ -492,7 +514,12 @@ function startTutorial(agent) {
         done,
       ),
     );
-    sequence.push((done) => playGesture(webampIcon.x, webampIcon.y, done));
+    sequence.push((done) => {
+        playGesture(webampIcon.x, webampIcon.y, () => {
+            toggleIconHighlight(iconEl, true);
+            setTimeout(done, 500);
+        });
+    });
     sequence.push((done) =>
       agent.speakAndAnimate(
         "Play your favorite mp3s.",
@@ -500,10 +527,15 @@ function startTutorial(agent) {
         { useTTS: ttsEnabled, callback: done },
       ),
     );
+    sequence.push((done) => {
+        toggleIconHighlight(iconEl, false);
+        done();
+    });
   }
 
   // 6. Pinball
   if (pinballIcon) {
+    const iconEl = document.querySelector('.desktop-icon[data-app-id="pinball"]');
     sequence.push((done) =>
       agent._el.animate(
         { top: pinballIcon.y, left: pinballIcon.x + 80 },
@@ -511,7 +543,12 @@ function startTutorial(agent) {
         done,
       ),
     );
-    sequence.push((done) => playGesture(pinballIcon.x, pinballIcon.y, done));
+    sequence.push((done) => {
+        playGesture(pinballIcon.x, pinballIcon.y, () => {
+            toggleIconHighlight(iconEl, true);
+            setTimeout(done, 500);
+        });
+    });
     sequence.push((done) =>
       agent.speakAndAnimate(
         "Try playing a round of space cadet pinball.",
@@ -519,10 +556,15 @@ function startTutorial(agent) {
         { useTTS: ttsEnabled, callback: done },
       ),
     );
+     sequence.push((done) => {
+        toggleIconHighlight(iconEl, false);
+        done();
+    });
   }
 
   // 7. My Briefcase
   if (briefcaseIcon) {
+    const iconEl = document.querySelector('.desktop-icon[data-app-id="my-briefcase"]');
     sequence.push((done) =>
       agent._el.animate(
         { top: briefcaseIcon.y, left: briefcaseIcon.x + 80 },
@@ -530,7 +572,12 @@ function startTutorial(agent) {
         done,
       ),
     );
-    sequence.push((done) => playGesture(briefcaseIcon.x, briefcaseIcon.y, done));
+    sequence.push((done) => {
+        playGesture(briefcaseIcon.x, briefcaseIcon.y, () => {
+            toggleIconHighlight(iconEl, true);
+            setTimeout(done, 500);
+        });
+    });
     sequence.push((done) =>
       agent.speakAndAnimate(
         "Drag files from your computer here to use it in azOS.",
@@ -538,10 +585,15 @@ function startTutorial(agent) {
         { useTTS: ttsEnabled, callback: done },
       ),
     );
+     sequence.push((done) => {
+        toggleIconHighlight(iconEl, false);
+        done();
+    });
   }
 
   // 8. Buy me a coffee
   if (coffeeIcon) {
+    const iconEl = document.querySelector('.desktop-icon[data-app-id="buy-me-a-coffee"]');
     sequence.push((done) =>
       agent._el.animate(
         { top: coffeeIcon.y, left: coffeeIcon.x + 80 },
@@ -549,7 +601,12 @@ function startTutorial(agent) {
         done,
       ),
     );
-    sequence.push((done) => playGesture(coffeeIcon.x, coffeeIcon.y, done));
+    sequence.push((done) => {
+        playGesture(coffeeIcon.x, coffeeIcon.y, () => {
+            toggleIconHighlight(iconEl, true);
+            setTimeout(done, 500);
+        });
+    });
     sequence.push((done) =>
       agent.speakAndAnimate(
         "Consider supporting me to keep azOS online.",
@@ -557,10 +614,15 @@ function startTutorial(agent) {
         { useTTS: ttsEnabled, callback: done },
       ),
     );
+    sequence.push((done) => {
+        toggleIconHighlight(iconEl, false);
+        done();
+    });
   }
 
   // 9. Readme.md
   if (readmeIcon) {
+    const iconEl = document.querySelector('.desktop-icon[data-app-id="file-readme"]');
     sequence.push((done) =>
       agent._el.animate(
         { top: readmeIcon.y, left: readmeIcon.x + 80 },
@@ -568,7 +630,12 @@ function startTutorial(agent) {
         done,
       ),
     );
-    sequence.push((done) => playGesture(readmeIcon.x, readmeIcon.y, done));
+    sequence.push((done) => {
+        playGesture(readmeIcon.x, readmeIcon.y, () => {
+            toggleIconHighlight(iconEl, true);
+            setTimeout(done, 500);
+        });
+    });
     sequence.push((done) =>
       agent.speakAndAnimate(
         "For more information.",
@@ -576,6 +643,10 @@ function startTutorial(agent) {
         { useTTS: ttsEnabled, callback: done },
       ),
     );
+    sequence.push((done) => {
+        toggleIconHighlight(iconEl, false);
+        done();
+    });
   }
 
   // 10. Return home
