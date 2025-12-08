@@ -368,13 +368,6 @@ function startTutorial(agent) {
     return { x: rect.left, y: rect.top };
   };
 
-  const getElementCenter = (selector) => {
-    const el = document.querySelector(selector);
-    if (!el) return null;
-    const rect = el.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  };
-
   const playGesture = (x, y, callback) => {
     const direction = agent._getDirection(x, y);
     const gestureAnim = "Gesture" + direction;
@@ -383,15 +376,18 @@ function startTutorial(agent) {
     agent.play(animation, 3000, callback);
   };
 
-  const appMakerIcon = getElementTopLeft(
-    '.desktop-icon[data-app-id="appmaker"]',
+  const internetExplorerIcon = getElementTopLeft(
+    '.desktop-icon[data-app-id="internet-explorer"]',
   );
-  const notepadIcon = getElementTopLeft('.desktop-icon[data-app-id="notepad"]');
-  const assistantIcon = getElementTopLeft(
-    '.desktop-icon[data-app-id="clippy"]',
+  const webampIcon = getElementTopLeft('.desktop-icon[data-app-id="webamp"]');
+  const pinballIcon = getElementTopLeft('.desktop-icon[data-app-id="pinball"]');
+  const briefcaseIcon = getElementTopLeft(
+    '.desktop-icon[data-app-id="my-briefcase"]',
   );
-  const startButton = getElementCenter(".start-button");
-  const iconsArea = { x: 40, y: 100 };
+  const coffeeIcon = getElementTopLeft(
+    '.desktop-icon[data-app-id="buy-me-a-coffee"]',
+  );
+  const readmeIcon = getElementTopLeft('.desktop-icon[data-app-id="file-readme"]');
 
   const sequence = [];
 
@@ -404,146 +400,121 @@ function startTutorial(agent) {
     ),
   );
 
-  // 2. Desktop Icons
-  sequence.push((done) =>
-    agent._el.animate(
-      { top: iconsArea.y, left: iconsArea.x + 100 },
-      1500,
-      done,
-    ),
-  );
-  sequence.push((done) => playGesture(iconsArea.x, iconsArea.y, done));
-  sequence.push((done) =>
-    agent.speakAndAnimate(
-      "On the left, you'll find desktop icons. Double-click them to launch apps.",
-      "Explain",
-      { useTTS: ttsEnabled, callback: done },
-    ),
-  );
-
-  // 3. Start Menu
-  if (startButton) {
+  // 2. Internet Explorer
+  if (internetExplorerIcon) {
     sequence.push((done) =>
       agent._el.animate(
-        { top: startButton.y - 80, left: startButton.x + 80 },
+        { top: internetExplorerIcon.y, left: internetExplorerIcon.x + 80 },
         1500,
         done,
       ),
     );
-    sequence.push((done) =>
-      playGesture(startButton.x, startButton.y, () => {
-        const startButtonEl = document.querySelector(".start-button");
-        if (startButtonEl) {
-          startButtonEl.classList.add("active");
-          setTimeout(() => {
-            startButtonEl.click();
-            startButtonEl.classList.remove("active");
-            setTimeout(() => {
-              // Close the menu by clicking the button again
-              startButtonEl.click();
-              done();
-            }, 1500);
-          }, 500);
-        } else {
-          done();
-        }
-      }),
-    );
+    sequence.push((done) => playGesture(internetExplorerIcon.x, internetExplorerIcon.y, done));
     sequence.push((done) =>
       agent.speakAndAnimate(
-        "The Start button gives you access to all your programs.",
+        "Browse like it's 1999.",
         "Explain",
         { useTTS: ttsEnabled, callback: done },
       ),
     );
   }
 
-  // 4. App Maker
-  if (appMakerIcon) {
-    const appMakerIconEl = document.querySelector(
-      '.desktop-icon[data-app-id="appmaker"]',
-    );
+  // 3. Winamp
+  if (webampIcon) {
     sequence.push((done) =>
       agent._el.animate(
-        { top: appMakerIcon.y, left: appMakerIcon.x + 80 },
+        { top: webampIcon.y, left: webampIcon.x + 80 },
         1500,
         done,
       ),
     );
-    sequence.push((done) =>
-      playGesture(appMakerIcon.x, appMakerIcon.y, () => {
-        if (appMakerIconEl) {
-          const iconImg = appMakerIconEl.querySelector(".icon img");
-          const iconLabel = appMakerIconEl.querySelector(".icon-label");
-          if (iconImg) iconImg.classList.add("highlighted-icon");
-          if (iconLabel) {
-            iconLabel.classList.add("highlighted-label", "selected");
-          }
-        }
-        setTimeout(done, 500);
-      }),
-    );
+    sequence.push((done) => playGesture(webampIcon.x, webampIcon.y, done));
     sequence.push((done) =>
       agent.speakAndAnimate(
-        "With App Maker, you can create your own applications!",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      if (appMakerIconEl) {
-        const iconImg = appMakerIconEl.querySelector(".icon img");
-        const iconLabel = appMakerIconEl.querySelector(".icon-label");
-        if (iconImg) iconImg.classList.remove("highlighted-icon");
-        if (iconLabel) {
-          iconLabel.classList.remove("highlighted-label", "selected");
-        }
-      }
-      done();
-    });
-  }
-
-  // 5. Notepad
-  if (notepadIcon) {
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: notepadIcon.y, left: notepadIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => playGesture(notepadIcon.x, notepadIcon.y, done));
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "Notepad is a simple text editor for notes and code.",
+        "Play your favorite mp3s.",
         "Explain",
         { useTTS: ttsEnabled, callback: done },
       ),
     );
   }
 
-  // 6. Assistant
-  if (assistantIcon) {
+  // 4. Pinball
+  if (pinballIcon) {
     sequence.push((done) =>
       agent._el.animate(
-        { top: assistantIcon.y, left: assistantIcon.x + 80 },
+        { top: pinballIcon.y, left: pinballIcon.x + 80 },
         1500,
         done,
       ),
     );
-    sequence.push((done) =>
-      playGesture(assistantIcon.x, assistantIcon.y, done),
-    );
+    sequence.push((done) => playGesture(pinballIcon.x, pinballIcon.y, done));
     sequence.push((done) =>
       agent.speakAndAnimate(
-        "And this is me! Right-click me for options or left-click to ask a question.",
-        "Congratulate",
+        "Try playing a round of space cadet pinball.",
+        "Explain",
         { useTTS: ttsEnabled, callback: done },
       ),
     );
   }
 
-  // 7. Return home
+  // 5. My Briefcase
+  if (briefcaseIcon) {
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: briefcaseIcon.y, left: briefcaseIcon.x + 80 },
+        1500,
+        done,
+      ),
+    );
+    sequence.push((done) => playGesture(briefcaseIcon.x, briefcaseIcon.y, done));
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "Drag files from your computer here to use it in azOS.",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
+    );
+  }
+
+  // 6. Buy me a coffee
+  if (coffeeIcon) {
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: coffeeIcon.y, left: coffeeIcon.x + 80 },
+        1500,
+        done,
+      ),
+    );
+    sequence.push((done) => playGesture(coffeeIcon.x, coffeeIcon.y, done));
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "Consider supporting me to keep azOS online.",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
+    );
+  }
+
+  // 7. Readme.md
+  if (readmeIcon) {
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: readmeIcon.y, left: readmeIcon.x + 80 },
+        1500,
+        done,
+      ),
+    );
+    sequence.push((done) => playGesture(readmeIcon.x, readmeIcon.y, done));
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "For more information.",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
+    );
+  }
+
+  // 8. Return home
   sequence.push((done) =>
     agent._el.animate(
       { top: initialPos.top, left: initialPos.left },
