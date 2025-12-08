@@ -183,7 +183,7 @@ export const apps = [
     icon: ICONS.windowsUpdate,
     appClass: AboutApp,
     width: 400,
-    height: 100,
+    height: 216,
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
