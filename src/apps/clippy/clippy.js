@@ -368,6 +368,13 @@ function startTutorial(agent) {
     return { x: rect.left, y: rect.top };
   };
 
+  const getElementCenter = (selector) => {
+    const el = document.querySelector(selector);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  };
+
   const playGesture = (x, y, callback) => {
     const direction = agent._getDirection(x, y);
     const gestureAnim = "Gesture" + direction;
@@ -375,6 +382,74 @@ function startTutorial(agent) {
     const animation = agent.hasAnimation(gestureAnim) ? gestureAnim : lookAnim;
     agent.play(animation, 3000, callback);
   };
+
+  const startButton = getElementCenter(".start-button");
+  const iconsArea = { x: 40, y: 100 };
+
+  const sequence = [];
+
+  // 1. Welcome
+  sequence.push((done) =>
+    agent.speakAndAnimate(
+      "Hi! I'm your assistant. Let me give you a quick tour of azOS.",
+      "Explain",
+      { useTTS: ttsEnabled, callback: done },
+    ),
+  );
+
+  // 2. Start Menu
+  if (startButton) {
+    sequence.push((done) =>
+      agent._el.animate(
+        { top: startButton.y - 80, left: startButton.x + 80 },
+        1500,
+        done,
+      ),
+    );
+    sequence.push((done) =>
+      playGesture(startButton.x, startButton.y, () => {
+        const startButtonEl = document.querySelector(".start-button");
+        if (startButtonEl) {
+          startButtonEl.classList.add("active");
+          setTimeout(() => {
+            startButtonEl.click();
+            startButtonEl.classList.remove("active");
+            setTimeout(() => {
+              // Close the menu by clicking the button again
+              startButtonEl.click();
+              done();
+            }, 1500);
+          }, 500);
+        } else {
+          done();
+        }
+      }),
+    );
+    sequence.push((done) =>
+      agent.speakAndAnimate(
+        "The Start button gives you access to all your programs.",
+        "Explain",
+        { useTTS: ttsEnabled, callback: done },
+      ),
+    );
+  }
+
+  // 3. Desktop Icons
+  sequence.push((done) =>
+    agent._el.animate(
+      { top: iconsArea.y, left: iconsArea.x + 100 },
+      1500,
+      done,
+    ),
+  );
+  sequence.push((done) => playGesture(iconsArea.x, iconsArea.y, done));
+  sequence.push((done) =>
+    agent.speakAndAnimate(
+      "On the left, you'll find desktop icons. Double-click them to launch apps.",
+      "Explain",
+      { useTTS: ttsEnabled, callback: done },
+    ),
+  );
 
   const internetExplorerIcon = getElementTopLeft(
     '.desktop-icon[data-app-id="internet-explorer"]',
@@ -389,18 +464,7 @@ function startTutorial(agent) {
   );
   const readmeIcon = getElementTopLeft('.desktop-icon[data-app-id="file-readme"]');
 
-  const sequence = [];
-
-  // 1. Welcome
-  sequence.push((done) =>
-    agent.speakAndAnimate(
-      "Hi! I'm your assistant. Let me give you a quick tour of azOS.",
-      "Explain",
-      { useTTS: ttsEnabled, callback: done },
-    ),
-  );
-
-  // 2. Internet Explorer
+  // 4. Internet Explorer
   if (internetExplorerIcon) {
     sequence.push((done) =>
       agent._el.animate(
@@ -419,7 +483,7 @@ function startTutorial(agent) {
     );
   }
 
-  // 3. Winamp
+  // 5. Winamp
   if (webampIcon) {
     sequence.push((done) =>
       agent._el.animate(
@@ -438,7 +502,7 @@ function startTutorial(agent) {
     );
   }
 
-  // 4. Pinball
+  // 6. Pinball
   if (pinballIcon) {
     sequence.push((done) =>
       agent._el.animate(
@@ -457,7 +521,7 @@ function startTutorial(agent) {
     );
   }
 
-  // 5. My Briefcase
+  // 7. My Briefcase
   if (briefcaseIcon) {
     sequence.push((done) =>
       agent._el.animate(
@@ -476,7 +540,7 @@ function startTutorial(agent) {
     );
   }
 
-  // 6. Buy me a coffee
+  // 8. Buy me a coffee
   if (coffeeIcon) {
     sequence.push((done) =>
       agent._el.animate(
@@ -495,7 +559,7 @@ function startTutorial(agent) {
     );
   }
 
-  // 7. Readme.md
+  // 9. Readme.md
   if (readmeIcon) {
     sequence.push((done) =>
       agent._el.animate(
@@ -514,7 +578,7 @@ function startTutorial(agent) {
     );
   }
 
-  // 8. Return home
+  // 10. Return home
   sequence.push((done) =>
     agent._el.animate(
       { top: initialPos.top, left: initialPos.left },
