@@ -16,6 +16,11 @@ const directory = [
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           {
+            id: "app-transporttycoon",
+            type: "app",
+            appId: "transporttycoon",
+          },
+          {
             id: "folder-plus",
             name: "Plus!",
             type: "folder",
@@ -143,6 +148,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-buy-me-a-coffee",
                 name: "Buy me a coffee",
+              },
+              {
+                id: "shortcut-to-transporttycoon",
+                type: "shortcut",
+                targetId: "app-transporttycoon",
+                name: "Transport Tycoon Deluxe",
               },
             ],
           },

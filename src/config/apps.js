@@ -22,6 +22,7 @@ import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
+import { TransportTycoonApp } from "../apps/transporttycoon/TransportTycoonApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
@@ -55,6 +56,7 @@ export const appClasses = {
   "buy-me-a-coffee": BuyMeACoffeeApp,
   "cursor-explorer": CursorExplorerApp,
   "media-player": MediaPlayerApp,
+  transporttycoon: TransportTycoonApp,
 };
 
 export const apps = [
@@ -490,5 +492,16 @@ export const apps = [
     height: 360,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "transporttycoon",
+    title: "Transport Tycoon Deluxe",
+    description: "An open-source simulation game.",
+    icon: ICONS.transportTycoon,
+    appClass: TransportTycoonApp,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: true,
   },
 ];
