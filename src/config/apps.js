@@ -481,6 +481,22 @@ export const apps = [
     appClass: DosGameApp,
   },
   {
+    id: "red-alert-2",
+    title: "Red Alert 2",
+    description: "Play Red Alert 2 online.",
+    icon: ICONS["red-alert-2"],
+    action: {
+      type: "function",
+      handler: () => {
+        window.open(
+          "https://chronodivide.com/",
+          "RedAlert2",
+          "width=800,height=600",
+        );
+      },
+    },
+  },
+  {
     id: "media-player",
     title: "Media Player",
     description: "Play audio and video files.",
