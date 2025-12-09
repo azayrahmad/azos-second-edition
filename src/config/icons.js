@@ -271,4 +271,8 @@ export const ICONS = {
     32: new URL("../assets/icons/windows_update_large-4.png", import.meta.url)
       .href,
   },
+  "red-alert-2": {
+    16: new URL("../assets/icons/red-alert-2.ico", import.meta.url).href,
+    32: new URL("../assets/icons/red-alert-2.ico", import.meta.url).href,
+  },
 };
