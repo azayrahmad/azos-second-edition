@@ -114,8 +114,10 @@ export class IconManager {
     if (e.button !== 0) return; // Only for left click
 
     this.isLassoing = true;
-    const lassoStartX = e.clientX;
-    const lassoStartY = e.clientY;
+    const containerRect = this.container.getBoundingClientRect();
+    const lassoStartX = e.clientX - containerRect.left + this.container.scrollLeft;
+    const lassoStartY = e.clientY - containerRect.top + this.container.scrollTop;
+
 
     this.lasso = document.createElement("div");
     this.lasso.className = "lasso";
@@ -130,8 +132,8 @@ export class IconManager {
       if (!this.isLassoing) return;
       this.wasLassoing = true;
 
-      const currentX = moveEvent.clientX;
-      const currentY = moveEvent.clientY;
+      const currentX = moveEvent.clientX - containerRect.left + this.container.scrollLeft;
+      const currentY = moveEvent.clientY - containerRect.top + this.container.scrollTop;
 
       const width = Math.abs(currentX - lassoStartX);
       const height = Math.abs(currentY - lassoStartY);
