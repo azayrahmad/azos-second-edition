@@ -272,7 +272,13 @@ export const ICONS = {
       .href,
   },
   keen: {
-    16: new URL("../assets/icons/keen.png", import.meta.url).href,
-    32: new URL("../assets/icons/keen.png", import.meta.url).href,
+    16: new URL(
+      "../assets/icons/games/commander-keen-logo.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/games/commander-keen-logo.png",
+      import.meta.url,
+    ).href,
   },
 };

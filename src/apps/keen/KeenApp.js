@@ -8,10 +8,9 @@ export class KeenApp extends IFrameApplication {
   _createWindow() {
     const win = new $Window({
       title: this.title,
-      outerWidth: 640,
-      outerHeight: 480,
+      innerWidth: 672,
+      innerHeight: 414,
       resizable: false,
-      maximizable: false,
       icons: this.icon,
     });
 
