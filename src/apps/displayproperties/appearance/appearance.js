@@ -5,6 +5,7 @@ import {
 } from "../../../utils/themeManager.js";
 import { applyThemeToPreview } from "../../../utils/themePreview.js";
 import previewHtml from "./AppearancePreview.html?raw";
+import "./appearance.css";
 
 export const appearanceTab = {
   init: (win, app) => {
