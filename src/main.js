@@ -224,6 +224,8 @@ async function initializeOS() {
   finalizeBootProcessStep(logElement, "OK");
   // showBlinkingCursor();
 
+  await promptToContinue();
+
   logElement = startBootProcessStep("Creating main UI...");
   showSplashScreen();
   await new Promise((resolve) => setTimeout(resolve, 50));

@@ -32,6 +32,7 @@ import {
   emptyRecycleBin,
   addToRecycleBin,
 } from "../utils/recycleBinManager.js";
+import { getStartupApps } from "../utils/startupManager.js";
 import {
   setColorMode,
   getCurrentColorMode,
@@ -1021,15 +1022,13 @@ export async function initDesktop() {
 
   init(); // Initialize the taskbar manager
 
-  const showTipsAtStartup = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);
-
-  console.log("Show Tips at Startup:", showTipsAtStartup);
-  if (
-    showTipsAtStartup === null ||
-    showTipsAtStartup === "true" ||
-    showTipsAtStartup === true
-  ) {
-    launchApp("tipOfTheDay");
+  // Launch startup apps
+  const startupApps = getStartupApps();
+  if (startupApps && startupApps.length > 0) {
+    startupApps.forEach((appId) => {
+      // A small delay can prevent the UI from freezing if many apps start at once.
+      setTimeout(() => launchApp(appId), 100);
+    });
   }
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
