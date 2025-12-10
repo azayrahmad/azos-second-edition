@@ -489,7 +489,7 @@ export const apps = [
       type: "function",
       handler: () => {
         window.open(
-          "https://chronodivide.com/",
+          "https://game.chronodivide.com/",
           "RedAlert2",
           "width=800,height=600",
         );
