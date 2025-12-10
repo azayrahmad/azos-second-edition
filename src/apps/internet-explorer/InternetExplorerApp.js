@@ -3,6 +3,7 @@ import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import browseUiIcons from "../../assets/icons/browse-ui-icons.png";
 import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale.png";
+import { ICONS } from "../../config/icons.js";
 
 export class InternetExplorerApp extends IFrameApplication {
   constructor(options) {
@@ -47,18 +48,41 @@ export class InternetExplorerApp extends IFrameApplication {
         "width: 100%; height: 100%; flex-grow: 1; background-color: var(--Window);",
     });
 
-    this.statusText = window.os_gui_utils.E("p", {
-      className: "status-bar-field",
-      style:
-        "flex: 1; padding: 2px 4px; border: 1px inset; margin-block-start: 0; margin-block-end: 0;",
-    });
-    this.statusText.textContent = "Done";
-
+    // --- Status Bar ---
+    // Main container
     const statusBar = window.os_gui_utils.E("div", {
       className: "status-bar",
       style: "display: flex; gap: 2px;",
     });
-    statusBar.append(this.statusText);
+
+    // Left section container
+    const leftSection = window.os_gui_utils.E("div", {
+      className: "status-bar-field",
+      style:
+        "flex: 1; display: flex; align-items: center; gap: 4px; padding: 0 2px; border: 1px inset;",
+    });
+
+    // Status text
+    this.statusText = window.os_gui_utils.E("div", {
+      style:
+        "flex: 3; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;",
+    });
+    this.statusText.textContent = "Done";
+
+    // Right section (My Computer)
+    const rightSection = window.os_gui_utils.E("div", {
+      className: "status-bar-field",
+      style:
+        "width: 150px; display: flex; align-items: center; gap: 4px; padding: 2px 4px; border: 1px inset;",
+    });
+    const myComputerIcon = window.os_gui_utils.E("img", {
+      src: ICONS.computer[16],
+      style: "width: 16px; height: 16px;",
+    });
+    const myComputerText = document.createTextNode("My Computer");
+    rightSection.append(myComputerIcon, myComputerText);
+
+    statusBar.append(leftSection, rightSection);
 
     this.goBack = () => {
       if (this.historyIndex > 0) {
@@ -95,6 +119,7 @@ export class InternetExplorerApp extends IFrameApplication {
 
       this.statusText.textContent = "Connecting to site...";
       this.iframe.src = "about:blank";
+
       this.iframe.src = targetUrl;
     };
 
