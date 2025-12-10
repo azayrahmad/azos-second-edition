@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <title>Websockets Doom</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <style>
+            @font-face {
+                font-family: "VT323";
+                font-style: normal;
+                font-weight: 400;
+                src: url(https://fonts.gstatic.com/s/vt323/v12/pxiKyp0ihIEF2isfF
+JXUdVNF.woff2) format("woff2");
+                unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+
+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+221
+2, U+2215, U+FEFF, U+FFFD;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                font-family: "VT323", monospace;
+                font-size: 12px;
+            }
+
+            body {
+                background-color: #111;
+                margin: 0;
+                padding: 2ch;
+                /* vietnamese */
+            }
+
+            #container {
+                max-width: 930px;
+                margin: auto;
+            }
+
+            .frame {
+                padding-right: 0;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+            }
+
+            /* the canvas *must not* have any border or padding, or mouse coords
+ will be wrong */
+            canvas.frame {
+                background-color: black;
+                width: 800px;
+                height: 500px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+    </head>
+    <body>
+        <div id="container" class="noselect">
+            <canvas class="frame" id="canvas" oncontextmenu="event.preventDefaul
+t()" tabindex="-1"></canvas>
+        </div>
+        <script>
+            var commonArgs = ["-iwad", "doom1.wad", "-window", "-nogui", "-nomus
+ic", "-config", "default.cfg", "-servername", "doomflare"];
+
+            var Module = {
+                onRuntimeInitialized: () => {
+                    Promise.all([
+                        fetch('doom1.wad').then(response => response.arrayBuffer()),
+                        fetch('default.cfg').then(response => response.arrayBuffer())
+                    ]).then(([wad, cfg]) => {
+                        Module.FS_createDataFile('/', 'doom1.wad', new Uint8Array(wad), true, true);
+                        Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
+                        callMain(commonArgs);
+                    });
+                },
+                noInitialRun: true,
+                printErr: function (text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(
+arguments).join(" ");
+                    console.error(text);
+                },
+                canvas: (function () {
+                    var canvas = document.getElementById("canvas");
+                    canvas.addEventListener(
+                        "webglcontextlost",
+                        function (e) {
+                            alert("WebGL context lost. You will need to reload t
+he page.");
+                            e.preventDefault();
+                        },
+                        false
+                    );
+                    return canvas;
+                })(),
+                print: function (text) {
+                    console.log(text);
+                },
+                setStatus: function (text) {
+                    console.log(text);
+                },
+                totalDependencies: 0,
+                monitorRunDependencies: function (left) {
+                    this.totalDependencies = Math.max(this.totalDependencies, le
+ft);
+                    Module.setStatus(left ? "Preparing... (" + (this.totalDepend
+encies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.")
+;
+                },
+            };
+
+            window.onerror = function (event) {
+                Module.setStatus("Exception thrown, see JavaScript console");
+                Module.setStatus = function (text) {
+                    if (text) Module.printErr("[post-exception status] " + text)
+;
+                };
+            };
+        </script>
+        <script type="text/javascript" src="websockets-doom.js"></script>
+    </body>
+</html>
