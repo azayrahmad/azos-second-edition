@@ -4,52 +4,29 @@
         <title>Websockets Doom</title>
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
         <style>
-            @font-face {
-                font-family: "VT323";
-                font-style: normal;
-                font-weight: 400;
-                src: url(https://fonts.gstatic.com/s/vt323/v12/pxiKyp0ihIEF2isfFJXUdVNF.woff2) format("woff2");
-            }
-
-            * {
-                box-sizing: border-box;
-            }
-
-            html {
-                font-family: "VT323", monospace;
-                font-size: 12px;
+            html, body {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden; /* Prevent scrollbars */
             }
 
             body {
-                background-color: #111;
-                margin: 0;
-                padding: 2ch;
-            }
-
-            #container {
-                max-width: 930px;
-                margin: auto;
-            }
-
-            .frame {
-                padding-right: 0;
-                margin-left: auto;
-                margin-right: auto;
-                display: block;
+                background-color: #000;
             }
 
             canvas.frame {
                 background-color: black;
-                width: 800px;
-                height: 500px;
+                width: 100%;
+                height: 100%;
+                display: block;
             }
         </style>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
     </head>
     <body>
-        <div id="container" class="noselect">
-            <canvas class="frame" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
-        </div>
+        <canvas class="frame" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
         <script>
             var commonArgs = ["-iwad", "doom1.wad", "-window", "-nogui", "-nomusic", "-config", "default.cfg", "-servername", "doomflare"];
 

@@ -20,11 +20,8 @@ export class DosGameApp extends IFrameApplication {
     iframe.style.height = "100%";
     iframe.style.border = "none";
 
-    // Instead of appending, set the inner HTML to allow $Window.js to observe
-    win.$content.html(iframe.outerHTML);
-
-    // Get the actual iframe element that was added to the DOM
-    this.iframe = win.$content.find("iframe")[0];
+    win.$content.append(iframe);
+    this.iframe = iframe;
     this._setupIframeForInactivity(this.iframe);
 
     return win;
