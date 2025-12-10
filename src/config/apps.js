@@ -24,6 +24,7 @@ import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { Rct2App } from "../apps/rct2/Rct2App.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -57,6 +58,7 @@ export const appClasses = {
   "buy-me-a-coffee": BuyMeACoffeeApp,
   "cursor-explorer": CursorExplorerApp,
   "media-player": MediaPlayerApp,
+  rct2: Rct2App,
 };
 
 export const apps = [
@@ -503,5 +505,16 @@ export const apps = [
     height: 360,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "rct2",
+    title: "RollerCoaster Tycoon 2",
+    description: "Play the classic game RollerCoaster Tycoon 2.",
+    icon: ICONS.rct2,
+    appClass: Rct2App,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: true,
   },
 ];
