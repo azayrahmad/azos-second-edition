@@ -282,3 +282,8 @@ export const ICONS = {
     ).href,
   },
 };
+
+export const SHORTCUT_OVERLAY = {
+  16: new URL("../assets/icons/overlay_shortcut_16.png", import.meta.url).href,
+  32: new URL("../assets/icons/overlay_shortcut_32.png", import.meta.url).href,
+};

@@ -19,7 +19,7 @@ import {
   applyTheme,
   getActiveTheme,
 } from "../utils/themeManager.js";
-import { ICONS } from "../config/icons.js";
+import { ICONS, SHORTCUT_OVERLAY } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
 import { ShowDialogWindow } from "./DialogWindow.js";
 import { IconManager } from "./IconManager.js";
@@ -87,15 +87,26 @@ function createDesktopIcon(item, isFile = false) {
   const iconInner = document.createElement("div");
   iconInner.className = "icon";
 
+  const iconWrapper = document.createElement("div");
+  iconWrapper.className = "icon-wrapper";
+
   const iconImg = document.createElement("img");
   iconImg.draggable = false;
   if (isFile) {
     const association = getAssociation(item.filename);
-    iconImg.src = association.icon[32];
+    iconImg.src = item.icon?.[32] || association.icon[32];
   } else {
     iconImg.src = app.icon[32];
   }
-  iconInner.appendChild(iconImg);
+  iconWrapper.appendChild(iconImg);
+
+  if (isFile && item.type === "shortcut") {
+    const overlayImg = document.createElement("img");
+    overlayImg.className = "shortcut-overlay shortcut-overlay-32";
+    overlayImg.src = SHORTCUT_OVERLAY[32];
+    iconWrapper.appendChild(overlayImg);
+  }
+  iconInner.appendChild(iconWrapper);
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
