@@ -200,3 +200,24 @@ button {
 .desktop-icon-ghost {
     opacity: 0.5;
 }
+
+.desktop-icon .icon,
+.explorer-icon .icon {
+    position: relative;
+}
+
+.shortcut-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.shortcut-overlay-16 {
+    width: 16px;
+    height: 16px;
+}
+
+.shortcut-overlay-32 {
+    width: 16px;
+    height: 16px;
+}

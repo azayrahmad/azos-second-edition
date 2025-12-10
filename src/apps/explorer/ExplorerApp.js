@@ -2,7 +2,7 @@ import { Application } from "../Application.js";
 import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
 import { fileAssociations } from "../../config/fileAssociations.js";
-import { ICONS } from "../../config/icons.js";
+import { ICONS, SHORTCUT_OVERLAY } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
 import {
   getAssociation,
@@ -752,6 +752,13 @@ export class ExplorerApp extends Application {
     }
     iconImg.draggable = false;
     iconInner.appendChild(iconImg);
+
+    if (item.type === "shortcut") {
+      const overlayImg = document.createElement("img");
+      overlayImg.className = "shortcut-overlay shortcut-overlay-32";
+      overlayImg.src = SHORTCUT_OVERLAY[32];
+      iconInner.appendChild(overlayImg);
+    }
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";
