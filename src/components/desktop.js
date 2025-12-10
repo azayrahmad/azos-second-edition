@@ -82,6 +82,9 @@ function createDesktopIcon(item, isFile = false) {
   iconDiv.setAttribute("data-app-id", app.id);
   if (isFile) {
     iconDiv.setAttribute("data-file-path", item.path);
+    if (item.type) {
+      iconDiv.setAttribute("data-item-type", item.type);
+    }
   }
 
   const iconInner = document.createElement("div");
@@ -931,6 +934,13 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       e.preventDefault();
       return;
     }
+
+    const itemType = icon.getAttribute("data-item-type");
+    if (itemType === "shortcut") {
+      launchApp(app.id);
+      return;
+    }
+
     // If filePath is an object, it's a dropped file. Otherwise, it's a path string.
     const launchData =
       typeof filePath === "object" && filePath !== null ? filePath : filePath;
