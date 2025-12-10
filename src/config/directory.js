@@ -117,7 +117,7 @@ const directory = [
               {
                 id: "shortcut-to-cursor-explorer",
                 type: "shortcut",
-                targetId: "app-cursor-explorer",
+                targetId: "app-cursorexplorer",
                 name: "Cursor Explorer",
               },
               {
@@ -177,7 +177,7 @@ const directory = [
       {
         id: "shortcut-to-display-properties",
         type: "shortcut",
-        targetId: "app-display-properties",
+        targetId: "app-displayproperties",
         name: "Display Properties",
       },
       {
@@ -201,7 +201,7 @@ const directory = [
       {
         id: "shortcut-to-cursor-explorer",
         type: "shortcut",
-        targetId: "app-cursor-explorer",
+        targetId: "app-cursorexplorer",
         name: "Cursor Explorer",
       },
     ],

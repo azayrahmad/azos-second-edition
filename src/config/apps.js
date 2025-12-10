@@ -51,9 +51,9 @@ export const appClasses = {
   pinball: PinballApp,
   dosgame: DosGameApp,
   paint: PaintApp,
-  "display-properties": DisplayPropertiesApp,
+  displayproperties: DisplayPropertiesApp,
   "buy-me-a-coffee": BuyMeACoffeeApp,
-  "cursor-explorer": CursorExplorerApp,
+  cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
 };
 
@@ -410,7 +410,7 @@ export const apps = [
     isSingleton: false,
   },
   {
-    id: "display-properties",
+    id: "displayproperties",
     title: "Display Properties",
     description: "Customize your display settings.",
     icon: ICONS.displayProperties,
@@ -433,7 +433,7 @@ export const apps = [
     isSingleton: true,
   },
   {
-    id: "cursor-explorer",
+    id: "cursorexplorer",
     title: "Cursor Explorer",
     description: "Explore and preview cursor schemes.",
     icon: ICONS["cursor-explorer"],
