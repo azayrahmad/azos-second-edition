@@ -22,6 +22,7 @@ import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
+import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ICONS } from "./icons.js";
@@ -57,6 +58,7 @@ export const appClasses = {
   "buy-me-a-coffee": BuyMeACoffeeApp,
   "cursor-explorer": CursorExplorerApp,
   "media-player": MediaPlayerApp,
+  diablo: DiabloApp,
 };
 
 export const apps = [
@@ -503,5 +505,16 @@ export const apps = [
     height: 360,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "diablo",
+    title: "Diablo",
+    description: "Play the classic game Diablo.",
+    icon: ICONS.diablo,
+    appClass: DiabloApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: true,
   },
 ];

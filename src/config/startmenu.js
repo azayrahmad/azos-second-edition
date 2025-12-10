@@ -13,6 +13,7 @@ const startMenuAppIds = [
   "pdfviewer",
   "doom",
   "simcity2000",
+  "diablo",
 ];
 const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
 const settingsAppIds = [

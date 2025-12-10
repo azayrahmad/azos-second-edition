@@ -150,6 +150,12 @@ const directory = [
                 targetId: "app-keen",
                 name: "Commander Keen",
               },
+              {
+                id: "shortcut-to-diablo",
+                type: "shortcut",
+                targetId: "diablo",
+                name: "Diablo",
+              },
             ],
           },
           {
