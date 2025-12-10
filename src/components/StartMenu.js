@@ -5,6 +5,9 @@
 
 // Import icons
 import { launchApp } from "../utils/appManager.js";
+import { getStartupApps } from "../utils/startupManager.js";
+import { apps } from "../config/apps.js";
+import { findItemByPath } from "../utils/directory.js";
 import windowsStartMenuBar from "../assets/img/win98start.png";
 import { ICONS } from "../config/icons.js";
 import startMenuConfig from "../config/startmenu.js";
@@ -234,7 +237,32 @@ class StartMenu {
       );
       if (!menuItem) return;
 
-      if (itemConfig.submenu) {
+      if (itemConfig.id === "startup-folder") {
+        const startupAppsList = getStartupApps();
+        const submenuItems = startupAppsList
+          .map((appId) => {
+            const app = apps.find((a) => a.id === appId);
+            if (app) {
+              return {
+                label: app.title,
+                icon: app.icon[16],
+                action: () => launchApp(app.id),
+              };
+            }
+            const file = findItemByPath(appId);
+            if (file) {
+              return {
+                label: file.filename,
+                icon: file.icon[16],
+                action: () => launchApp(file.app, file.path),
+              };
+            }
+            return null;
+          })
+          .filter(Boolean); // Filter out nulls for missing apps/files
+
+        this.attachSubmenu(menuItem, submenuItems);
+      } else if (itemConfig.submenu) {
         this.attachSubmenu(menuItem, itemConfig.submenu);
       } else if (itemConfig.action) {
         this.addTrackedEventListener(menuItem, "click", () => {

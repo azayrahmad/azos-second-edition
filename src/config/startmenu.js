@@ -41,6 +41,12 @@ const startMenuConfig = [
     icon: ICONS.programs[32],
     submenu: [
       {
+        id: "startup-folder",
+        label: "StartUp",
+        icon: ICONS.programs[16],
+        submenu: [],
+      },
+      {
         label: "Accessories",
         icon: ICONS.programs[16],
         submenu: [
