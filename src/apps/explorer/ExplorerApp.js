@@ -734,6 +734,9 @@ export class ExplorerApp extends Application {
     const iconInner = document.createElement("div");
     iconInner.className = "icon";
 
+    const iconWrapper = document.createElement("div");
+    iconWrapper.className = "icon-wrapper";
+
     const iconImg = document.createElement("img");
     if (item.icon) {
       iconImg.src = item.icon[32];
@@ -751,14 +754,15 @@ export class ExplorerApp extends Application {
       iconImg.src = association.icon[32];
     }
     iconImg.draggable = false;
-    iconInner.appendChild(iconImg);
+    iconWrapper.appendChild(iconImg);
 
     if (item.type === "shortcut") {
       const overlayImg = document.createElement("img");
       overlayImg.className = "shortcut-overlay shortcut-overlay-32";
       overlayImg.src = SHORTCUT_OVERLAY[32];
-      iconInner.appendChild(overlayImg);
+      iconWrapper.appendChild(overlayImg);
     }
+    iconInner.appendChild(iconWrapper);
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";

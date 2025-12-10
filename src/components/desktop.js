@@ -87,6 +87,9 @@ function createDesktopIcon(item, isFile = false) {
   const iconInner = document.createElement("div");
   iconInner.className = "icon";
 
+  const iconWrapper = document.createElement("div");
+  iconWrapper.className = "icon-wrapper";
+
   const iconImg = document.createElement("img");
   iconImg.draggable = false;
   if (isFile) {
@@ -95,14 +98,15 @@ function createDesktopIcon(item, isFile = false) {
   } else {
     iconImg.src = app.icon[32];
   }
-  iconInner.appendChild(iconImg);
+  iconWrapper.appendChild(iconImg);
 
   if (isFile && item.type === "shortcut") {
     const overlayImg = document.createElement("img");
     overlayImg.className = "shortcut-overlay shortcut-overlay-32";
     overlayImg.src = SHORTCUT_OVERLAY[32];
-    iconInner.appendChild(overlayImg);
+    iconWrapper.appendChild(overlayImg);
   }
+  iconInner.appendChild(iconWrapper);
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";

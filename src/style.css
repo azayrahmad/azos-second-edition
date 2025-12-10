@@ -201,9 +201,9 @@ button {
     opacity: 0.5;
 }
 
-.desktop-icon .icon,
-.explorer-icon .icon {
+.icon-wrapper {
     position: relative;
+    display: inline-block; /* To make the wrapper fit the image size */
 }
 
 .shortcut-overlay {
