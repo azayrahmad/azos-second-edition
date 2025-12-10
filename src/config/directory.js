@@ -169,6 +169,43 @@ const directory = [
     enableFileDrop: true,
     children: [],
   },
+  {
+    id: "folder-control-panel",
+    name: "Control Panel",
+    type: "folder",
+    children: [
+      {
+        id: "shortcut-to-display-properties",
+        type: "shortcut",
+        targetId: "app-display-properties",
+        name: "Display Properties",
+      },
+      {
+        id: "shortcut-to-desktopthemes",
+        type: "shortcut",
+        targetId: "app-desktopthemes",
+        name: "Desktop Themes",
+      },
+      {
+        id: "shortcut-to-soundschemeexplorer",
+        type: "shortcut",
+        targetId: "app-soundschemeexplorer",
+        name: "Sound Scheme Explorer",
+      },
+      {
+        id: "shortcut-to-themetocss",
+        type: "shortcut",
+        targetId: "app-themetocss",
+        name: "Theme to CSS",
+      },
+      {
+        id: "shortcut-to-cursor-explorer",
+        type: "shortcut",
+        targetId: "app-cursor-explorer",
+        name: "Cursor Explorer",
+      },
+    ],
+  },
 ];
 
 export default directory;

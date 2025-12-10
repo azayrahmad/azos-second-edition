@@ -491,4 +491,19 @@ export const apps = [
     resizable: true,
     isSingleton: false,
   },
+  {
+    id: "control-panel",
+    title: "Control Panel",
+    description: "Access system settings and utilities.",
+    icon: ICONS.controlPanel,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", {
+          filePath: "/folder-control-panel",
+          windowId: "control-panel",
+        });
+      },
+    },
+  },
 ];

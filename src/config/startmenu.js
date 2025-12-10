@@ -14,13 +14,6 @@ const startMenuAppIds = [
   "simcity2000",
 ];
 const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
-const settingsAppIds = [
-  "display-properties",
-  "desktopthemes",
-  "soundschemeexplorer",
-  "themetocss",
-  "cursor-explorer",
-];
 
 function getAppList(appListIds) {
   return appListIds
@@ -99,7 +92,13 @@ const startMenuConfig = [
   {
     label: "Settings",
     icon: ICONS.settings[32],
-    submenu: getAppList(settingsAppIds),
+    submenu: [
+      {
+        label: "Control Panel",
+        icon: ICONS.controlPanel[16],
+        action: () => launchApp("control-panel"),
+      },
+    ],
   },
   {
     label: "Find",

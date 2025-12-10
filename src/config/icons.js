@@ -271,4 +271,8 @@ export const ICONS = {
     32: new URL("../assets/icons/windows_update_large-4.png", import.meta.url)
       .href,
   },
+  controlPanel: {
+    16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
+  },
 };
