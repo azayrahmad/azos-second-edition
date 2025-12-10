@@ -1,0 +1,47 @@
+/* src/apps/paint/file-picker.css */
+
+.file-picker {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+}
+
+.file-picker-list {
+    flex-grow: 1;
+    border: 1px solid var(--button-shadow);
+    background-color: var(--color-white);
+    overflow-y: scroll;
+    padding: 2px;
+}
+
+.file-picker-item {
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    cursor: pointer;
+}
+
+.file-picker-item.selected {
+    background-color: var(--header-bg-color);
+    color: var(--header-text-color);
+}
+
+.file-picker-item img {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+}
+
+.file-picker-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.file-picker-footer label {
+    margin-right: 4px;
+}
+
+.file-picker-footer input {
+    flex-grow: 1;
+}

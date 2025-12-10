@@ -293,13 +293,13 @@ function getWallpaperMode() {
   return getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || "tile";
 }
 
-function setWallpaperMode(mode) {
+export function setWallpaperMode(mode) {
   setItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE, mode);
   applyWallpaper();
   document.dispatchEvent(new CustomEvent("wallpaper-changed"));
 }
 
-function applyWallpaper() {
+export function applyWallpaper() {
   const theme = getActiveTheme();
   const wallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || theme.wallpaper;
   const desktop = document.querySelector(".desktop");
