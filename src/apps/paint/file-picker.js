@@ -7,10 +7,13 @@ import { getAssociation } from '../../utils/directory.js';
 import { getItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 
 // Inject CSS
-const link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = new URL('./file-picker.css', import.meta.url).href;
-document.head.appendChild(link);
+if (!document.getElementById('file-picker-styles')) {
+    const link = document.createElement('link');
+    link.id = 'file-picker-styles';
+    link.rel = 'stylesheet';
+    link.href = new URL('./file-picker.css', import.meta.url).href;
+    document.head.appendChild(link);
+}
 
 function getIconForItem(item) {
     if (item.type === 'drive') return ICONS.drive[16];

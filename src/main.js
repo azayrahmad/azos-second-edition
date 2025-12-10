@@ -6,7 +6,7 @@ import "./styles/shutdown-screen.css";
 import splashBg from "./assets/img/splash.png";
 import { themes } from "./config/themes.js";
 import { setupCounter } from "./counter.js";
-import { initDesktop } from "./components/desktop.js";
+import { initDesktop, applyWallpaper, setWallpaperMode } from "./components/desktop.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "./utils/localStorage.js";
 import { apps, appClasses } from "./config/apps.js";
 import { ICONS } from "./config/icons.js";
@@ -261,6 +261,8 @@ async function initializeOS() {
   window.playSound = playSound;
   window.setTheme = setTheme;
   window.System.launchApp = launchApp;
+  window.System.applyWallpaper = applyWallpaper;
+  window.System.setWallpaperMode = setWallpaperMode;
   console.log("azOS initialized");
 
   let inactivityTimer;

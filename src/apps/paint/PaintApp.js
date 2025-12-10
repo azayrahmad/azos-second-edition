@@ -20,7 +20,7 @@ export class PaintApp extends Application {
         });
 
         this.iframe = document.createElement('iframe');
-        this.iframe.src = '/azos-second-edition/jspaint/index.html';
+        this.iframe.src = 'jspaint/index.html';
         this.iframe.style.width = '100%';
         this.iframe.style.height = '100%';
         this.iframe.style.border = 'none';
@@ -43,10 +43,19 @@ export class PaintApp extends Application {
     }
 
     _waitForAppReady() {
+        const maxRetries = 20; // 10 seconds timeout
+        let retries = 0;
+
         const waitUntil = (test, interval, callback) => {
+            if (retries >= maxRetries) {
+                console.error("JS Paint failed to initialize within the time limit.");
+                return;
+            }
+
             if (test()) {
                 callback();
             } else {
+                retries++;
                 setTimeout(() => waitUntil(test, interval, callback), interval);
             }
         };
