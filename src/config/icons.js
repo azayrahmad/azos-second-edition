@@ -191,6 +191,10 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  rct2: {
+    16: new URL("../assets/icons/PINBALL-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/PINBALL-32.png", import.meta.url).href,
+  },
   pinball: {
     16: new URL("../assets/icons/PINBALL-16.png", import.meta.url).href,
     32: new URL("../assets/icons/PINBALL-32.png", import.meta.url).href,
