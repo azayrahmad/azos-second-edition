@@ -8,11 +8,7 @@
                 font-family: "VT323";
                 font-style: normal;
                 font-weight: 400;
-                src: url(https://fonts.gstatic.com/s/vt323/v12/pxiKyp0ihIEF2isfF
-JXUdVNF.woff2) format("woff2");
-                unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+
-02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+221
-2, U+2215, U+FEFF, U+FFFD;
+                src: url(https://fonts.gstatic.com/s/vt323/v12/pxiKyp0ihIEF2isfFJXUdVNF.woff2) format("woff2");
             }
 
             * {
@@ -28,7 +24,6 @@ JXUdVNF.woff2) format("woff2");
                 background-color: #111;
                 margin: 0;
                 padding: 2ch;
-                /* vietnamese */
             }
 
             #container {
@@ -43,8 +38,6 @@ JXUdVNF.woff2) format("woff2");
                 display: block;
             }
 
-            /* the canvas *must not* have any border or padding, or mouse coords
- will be wrong */
             canvas.frame {
                 background-color: black;
                 width: 800px;
@@ -55,12 +48,10 @@ JXUdVNF.woff2) format("woff2");
     </head>
     <body>
         <div id="container" class="noselect">
-            <canvas class="frame" id="canvas" oncontextmenu="event.preventDefaul
-t()" tabindex="-1"></canvas>
+            <canvas class="frame" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
         </div>
         <script>
-            var commonArgs = ["-iwad", "doom1.wad", "-window", "-nogui", "-nomus
-ic", "-config", "default.cfg", "-servername", "doomflare"];
+            var commonArgs = ["-iwad", "doom1.wad", "-window", "-nogui", "-nomusic", "-config", "default.cfg", "-servername", "doomflare"];
 
             var Module = {
                 onRuntimeInitialized: () => {
@@ -84,8 +75,7 @@ arguments).join(" ");
                     canvas.addEventListener(
                         "webglcontextlost",
                         function (e) {
-                            alert("WebGL context lost. You will need to reload t
-he page.");
+                            alert("WebGL context lost. You will need to reload the page.");
                             e.preventDefault();
                         },
                         false
@@ -100,19 +90,15 @@ he page.");
                 },
                 totalDependencies: 0,
                 monitorRunDependencies: function (left) {
-                    this.totalDependencies = Math.max(this.totalDependencies, le
-ft);
-                    Module.setStatus(left ? "Preparing... (" + (this.totalDepend
-encies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.")
-;
+                    this.totalDependencies = Math.max(this.totalDependencies, left);
+                    Module.setStatus(left ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.");
                 },
             };
 
             window.onerror = function (event) {
                 Module.setStatus("Exception thrown, see JavaScript console");
                 Module.setStatus = function (text) {
-                    if (text) Module.printErr("[post-exception status] " + text)
-;
+                    if (text) Module.printErr("[post-exception status] " + text);
                 };
             };
         </script>
