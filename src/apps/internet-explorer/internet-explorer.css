@@ -1,0 +1,15 @@
+.progress-indicator {
+    border: 1px inset var(--Inset-Border-Color, #fff);
+    background-color: var(--Button-Face-Color, #c0c0c0);
+    height: 20px;
+    padding: 2px;
+    box-sizing: border-box;
+    display: none; /* Initially hidden */
+  }
+
+  .progress-indicator-bar {
+    background-color: var(--Highlight, #000080);
+    height: 100%;
+    display: block;
+    transition: width 0.2s linear;
+  }

@@ -3,6 +3,7 @@ import { AnimatedLogo } from "../../components/AnimatedLogo.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import browseUiIcons from "../../assets/icons/browse-ui-icons.png";
 import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale.png";
+import { ICONS } from "../../config/icons.js";
 
 export class InternetExplorerApp extends IFrameApplication {
   constructor(options) {
@@ -10,6 +11,7 @@ export class InternetExplorerApp extends IFrameApplication {
     this.retroMode = true;
     this.history = [];
     this.historyIndex = -1;
+    this.progressInterval = null;
   }
 
   async _onLaunch(data) {
@@ -47,18 +49,61 @@ export class InternetExplorerApp extends IFrameApplication {
         "width: 100%; height: 100%; flex-grow: 1; background-color: var(--Window);",
     });
 
-    this.statusText = window.os_gui_utils.E("p", {
-      className: "status-bar-field",
-      style:
-        "flex: 1; padding: 2px 4px; border: 1px inset; margin-block-start: 0; margin-block-end: 0;",
-    });
-    this.statusText.textContent = "Done";
+    // Link the stylesheet
+    if (!document.getElementById("internet-explorer-css")) {
+      const link = document.createElement("link");
+      link.id = "internet-explorer-css";
+      link.rel = "stylesheet";
+      link.href = "/src/apps/internet-explorer/internet-explorer.css";
+      document.head.appendChild(link);
+    }
 
+    // --- Status Bar ---
+    // Main container
     const statusBar = window.os_gui_utils.E("div", {
       className: "status-bar",
       style: "display: flex; gap: 2px;",
     });
-    statusBar.append(this.statusText);
+
+    // Left section container
+    const leftSection = window.os_gui_utils.E("div", {
+      className: "status-bar-field",
+      style:
+        "flex: 1; display: flex; align-items: center; gap: 4px; padding: 0 2px;",
+    });
+
+    // Status text
+    this.statusText = window.os_gui_utils.E("div", {
+      style:
+        "flex: 3; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;",
+    });
+    this.statusText.textContent = "Done";
+
+    // Progress indicator
+    this.progressBar = window.os_gui_utils.E("span", {
+      className: "progress-indicator-bar",
+    });
+    this.progressIndicator = window.os_gui_utils.E("div", {
+      className: "progress-indicator",
+      style: "flex: 1; min-width: 80px;", // min-width to look decent
+    });
+    this.progressIndicator.append(this.progressBar);
+    leftSection.append(this.statusText, this.progressIndicator);
+
+    // Right section (My Computer)
+    const rightSection = window.os_gui_utils.E("div", {
+      className: "status-bar-field",
+      style:
+        "width: 300px; display: flex; align-items: center; gap: 4px; padding: 2px 4px;",
+    });
+    const myComputerIcon = window.os_gui_utils.E("img", {
+      src: ICONS.computer[16],
+      style: "width: 16px; height: 16px;",
+    });
+    const myComputerText = document.createTextNode("My Computer");
+    rightSection.append(myComputerIcon, myComputerText);
+
+    statusBar.append(leftSection, rightSection);
 
     this.goBack = () => {
       if (this.historyIndex > 0) {
@@ -95,6 +140,21 @@ export class InternetExplorerApp extends IFrameApplication {
 
       this.statusText.textContent = "Connecting to site...";
       this.iframe.src = "about:blank";
+
+      // Progress bar logic
+      this.progressIndicator.style.display = "block";
+      this.progressBar.style.width = "0%";
+      let progress = 0;
+      clearInterval(this.progressInterval);
+      this.progressInterval = setInterval(() => {
+        progress += Math.random() * 5;
+        if (progress > 95) {
+          progress = 95; // Cap at 95 until load is complete
+          clearInterval(this.progressInterval);
+        }
+        this.progressBar.style.width = `${progress}%`;
+      }, 100);
+
       this.iframe.src = targetUrl;
     };
 
@@ -108,6 +168,13 @@ export class InternetExplorerApp extends IFrameApplication {
     };
 
     this.iframe.onload = () => {
+      clearInterval(this.progressInterval);
+      this.progressBar.style.width = "100%";
+      setTimeout(() => {
+        this.progressIndicator.style.display = "none";
+        this.progressBar.style.width = "0%";
+      }, 500);
+
       if (this.iframe.src.includes("/src/apps/internet-explorer/404.html")) {
         this.statusText.textContent = "Page not found.";
         this._updateNavButtons();
