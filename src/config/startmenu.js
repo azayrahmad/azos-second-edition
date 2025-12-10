@@ -65,16 +65,6 @@ const startMenuConfig = [
     icon: ICONS.favorites[32],
     submenu: [
       {
-        label: "MSN",
-        icon: ICONS.htmlFile[16],
-        action: () => launchApp("internet-explorer", "msn.com"),
-      },
-      {
-        label: "Microsoft",
-        icon: ICONS.htmlFile[16],
-        action: () => launchApp("internet-explorer", "microsoft.com"),
-      },
-      {
         label: "Channels",
         icon: ICONS.programs[16],
         submenu: [
@@ -151,6 +141,16 @@ const startMenuConfig = [
             action: () => launchApp("internet-explorer", "geocities.com"),
           },
         ],
+      },
+      {
+        label: "Microsoft",
+        icon: ICONS.htmlFile[16],
+        action: () => launchApp("internet-explorer", "microsoft.com"),
+      },
+      {
+        label: "MSN",
+        icon: ICONS.htmlFile[16],
+        action: () => launchApp("internet-explorer", "msn.com"),
       },
     ],
   },
