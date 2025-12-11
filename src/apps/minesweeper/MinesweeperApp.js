@@ -15,27 +15,37 @@ export class MinesweeperApp extends Application {
       resizable: false,
     });
 
+    this.difficulty = "beginner";
+
     const menuBar = new MenuBar({
       Game: [
         { label: "New", action: () => this.resetGame() },
         "MENU_DIVIDER",
         {
-          label: "Beginner",
-          radio: "difficulty",
-          checked: true,
-          action: () => this.setDifficulty(9, 9, 10, "beginner"),
+          radioItems: [
+            { label: "Beginner", value: "beginner" },
+            { label: "Intermediate", value: "intermediate" },
+            { label: "Expert", value: "expert" },
+            { label: "Custom...", value: "custom" },
+          ],
+          getValue: () => this.difficulty,
+          setValue: (value) => {
+            switch (value) {
+              case "beginner":
+                this.setDifficulty(9, 9, 10, "beginner");
+                break;
+              case "intermediate":
+                this.setDifficulty(16, 16, 40, "intermediate");
+                break;
+              case "expert":
+                this.setDifficulty(30, 16, 99, "expert");
+                break;
+              case "custom":
+                this.showCustomDialog();
+                break;
+            }
+          },
         },
-        {
-          label: "Intermediate",
-          radio: "difficulty",
-          action: () => this.setDifficulty(16, 16, 40, "intermediate"),
-        },
-        {
-          label: "Expert",
-          radio: "difficulty",
-          action: () => this.setDifficulty(30, 16, 99, "expert"),
-        },
-        { label: "Custom...", action: () => this.showCustomDialog() },
         "MENU_DIVIDER",
         { label: "High Scores...", action: () => this.showHighScores() },
         "MENU_DIVIDER",
@@ -48,7 +58,8 @@ export class MinesweeperApp extends Application {
         },
       ],
     });
-    win.setMenuBar(menuBar);
+    this.menuBar = menuBar;
+    win.setMenuBar(this.menuBar);
 
     win.$content.html(`
         <div class="minesweeper-app">
@@ -93,6 +104,7 @@ export class MinesweeperApp extends Application {
     const newWidth = width * 16 + 27;
     const newHeight = height * 16 + 110;
     this.win.setDimensions({ outerWidth: newWidth, outerHeight: newHeight });
+    this.menuBar.element.dispatchEvent(new Event("update"));
   }
 
   showCustomDialog() {
