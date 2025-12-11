@@ -25,7 +25,6 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
-import { WebviewApp } from "../apps/webview/WebviewApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -60,7 +59,6 @@ export const appClasses = {
   cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
-  webview: WebviewApp,
 };
 
 export const apps = [
@@ -533,15 +531,5 @@ export const apps = [
         });
       },
     },
-  },
-  {
-    id: "webview",
-    title: "WebView",
-    appClass: WebviewApp,
-    width: 800,
-    height: 600,
-    resizable: true,
-    isSingleton: false,
-    hidden: true,
   },
 ];

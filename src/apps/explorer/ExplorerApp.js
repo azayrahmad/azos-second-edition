@@ -893,7 +893,7 @@ export class ExplorerApp extends Application {
 
     // 2. Handle external URLs
     if (item.url) {
-      launchApp("webview", { url: item.url, title: item.title });
+      window.open(item.url, "_blank", "width=800,height=600");
       return;
     }
 
