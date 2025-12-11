@@ -295,6 +295,10 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  diablo: {
+    16: new URL("../assets/icons/diablo-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/diablo-32.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {
