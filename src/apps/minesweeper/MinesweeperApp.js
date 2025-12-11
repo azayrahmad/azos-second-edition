@@ -15,6 +15,8 @@ export class MinesweeperApp extends Application {
       resizable: false,
     });
 
+    this.difficulty = "beginner";
+
     const menuBar = new MenuBar({
       Game: [
         { label: "New", action: () => this.resetGame() },
@@ -71,7 +73,6 @@ export class MinesweeperApp extends Application {
       `);
 
     this.win = win;
-    this.difficulty = "beginner";
     this.highScores = getItem(HIGH_SCORES_KEY, {
       beginner: 999,
       intermediate: 999,
