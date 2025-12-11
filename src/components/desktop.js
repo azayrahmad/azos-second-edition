@@ -650,10 +650,18 @@ function deleteDroppedFile(fileId) {
 }
 
 function showProperties(app) {
+  let text = `<b>${app.title}</b>`;
+  if (app.description) {
+    text += `<br><br>${app.description}`;
+  }
+  if (app.summary) {
+    text += `<br><br>${app.summary}`;
+  }
+
   ShowDialogWindow({
     title: `${app.title} Properties`,
     contentIconUrl: app.icon[32],
-    text: `<b>${app.title}</b>`,
+    text: text,
     buttons: [{ label: "OK", isDefault: true }],
   });
 }
