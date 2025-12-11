@@ -590,7 +590,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 
   menuItems.push({
     label: "Properties",
-    action: () => launchApp("display-properties"),
+    action: () => launchApp("displayproperties"),
   });
 
   const menu = new window.ContextMenu(menuItems, event);

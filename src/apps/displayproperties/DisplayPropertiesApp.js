@@ -17,7 +17,7 @@ import energystar from "../../assets/img/EnergyStarDisplay.png";
 class DisplayPropertiesApp extends Application {
   constructor(data) {
     super({
-      id: "display-properties",
+      id: "displayproperties",
       title: "Display Properties",
       width: 480,
       height: 420,

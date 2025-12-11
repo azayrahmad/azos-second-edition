@@ -115,12 +115,6 @@ const directory = [
                 contentUrl: "files/README.md",
               },
               {
-                id: "shortcut-to-cursor-explorer",
-                type: "shortcut",
-                targetId: "app-cursorexplorer",
-                name: "Cursor Explorer",
-              },
-              {
                 id: "shortcut-to-doom",
                 type: "shortcut",
                 targetId: "app-doom",
