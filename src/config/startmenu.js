@@ -16,13 +16,6 @@ const startMenuAppIds = [
   "diablo",
 ];
 const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
-const settingsAppIds = [
-  "display-properties",
-  "desktopthemes",
-  "soundschemeexplorer",
-  "themetocss",
-  "cursor-explorer",
-];
 
 function getAppList(appListIds) {
   return appListIds
@@ -41,6 +34,12 @@ const startMenuConfig = [
     label: "Programs",
     icon: ICONS.programs[32],
     submenu: [
+      {
+        id: "startup-folder",
+        label: "StartUp",
+        icon: ICONS.programs[16],
+        submenu: [],
+      },
       {
         label: "Accessories",
         icon: ICONS.programs[16],
@@ -170,7 +169,13 @@ const startMenuConfig = [
   {
     label: "Settings",
     icon: ICONS.settings[32],
-    submenu: getAppList(settingsAppIds),
+    submenu: [
+      {
+        label: "Control Panel",
+        icon: ICONS.controlPanel[16],
+        action: () => launchApp("control-panel"),
+      },
+    ],
   },
   {
     label: "Find",

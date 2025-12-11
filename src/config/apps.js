@@ -54,9 +54,9 @@ export const appClasses = {
   keen: KeenApp,
   dosgame: DosGameApp,
   paint: PaintApp,
-  "display-properties": DisplayPropertiesApp,
+  displayproperties: DisplayPropertiesApp,
   "buy-me-a-coffee": BuyMeACoffeeApp,
-  "cursor-explorer": CursorExplorerApp,
+  cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
 };
@@ -425,8 +425,8 @@ export const apps = [
     isSingleton: false,
   },
   {
-    id: "display-properties",
-    title: "Display Properties",
+    id: "displayproperties",
+    title: "Display",
     description: "Customize your display settings.",
     icon: ICONS.displayProperties,
     appClass: DisplayPropertiesApp,
@@ -448,10 +448,10 @@ export const apps = [
     isSingleton: true,
   },
   {
-    id: "cursor-explorer",
-    title: "Cursor Explorer",
+    id: "cursorexplorer",
+    title: "Mouse",
     description: "Explore and preview cursor schemes.",
-    icon: ICONS["cursor-explorer"],
+    icon: ICONS["mouse"],
     appClass: CursorExplorerApp,
     width: 400,
     height: 500,
@@ -476,7 +476,7 @@ export const apps = [
     title: "Doom",
     description: "Play the classic game Doom.",
     icon: ICONS.doom, // Specific icon for Doom
-    gameUrl: "games/dos/doom/index.html",
+    gameUrl: "games/doom/index.html",
     width: 800,
     height: 500,
     resizable: true,
@@ -516,5 +516,20 @@ export const apps = [
     height: 600,
     resizable: true,
     isSingleton: true,
+  },
+  {
+    id: "control-panel",
+    title: "Control Panel",
+    description: "Access system settings and utilities.",
+    icon: ICONS.controlPanel,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", {
+          filePath: "/folder-control-panel",
+          windowId: "control-panel",
+        });
+      },
+    },
   },
 ];

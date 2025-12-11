@@ -208,6 +208,7 @@ export class MediaPlayerApp extends Application {
 
     this.mediaElement.addEventListener("loadeddata", () => {
       this._setControlsDisabled(false);
+      this.playPauseButton.focus();
     });
 
     this.mediaElement.addEventListener("ended", () => {

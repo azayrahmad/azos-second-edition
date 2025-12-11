@@ -19,7 +19,7 @@ import {
   applyTheme,
   getActiveTheme,
 } from "../utils/themeManager.js";
-import { ICONS } from "../config/icons.js";
+import { ICONS, SHORTCUT_OVERLAY } from "../config/icons.js";
 import { playSound } from "../utils/soundManager.js";
 import { ShowDialogWindow } from "./DialogWindow.js";
 import { IconManager } from "./IconManager.js";
@@ -32,6 +32,7 @@ import {
   emptyRecycleBin,
   addToRecycleBin,
 } from "../utils/recycleBinManager.js";
+import { getStartupApps } from "../utils/startupManager.js";
 import {
   setColorMode,
   getCurrentColorMode,
@@ -82,20 +83,34 @@ function createDesktopIcon(item, isFile = false) {
   iconDiv.setAttribute("data-app-id", app.id);
   if (isFile) {
     iconDiv.setAttribute("data-file-path", item.path);
+    if (item.type) {
+      iconDiv.setAttribute("data-item-type", item.type);
+    }
   }
 
   const iconInner = document.createElement("div");
   iconInner.className = "icon";
 
+  const iconWrapper = document.createElement("div");
+  iconWrapper.className = "icon-wrapper";
+
   const iconImg = document.createElement("img");
   iconImg.draggable = false;
   if (isFile) {
     const association = getAssociation(item.filename);
-    iconImg.src = association.icon[32];
+    iconImg.src = item.icon?.[32] || association.icon[32];
   } else {
     iconImg.src = app.icon[32];
   }
-  iconInner.appendChild(iconImg);
+  iconWrapper.appendChild(iconImg);
+
+  if (isFile && item.type === "shortcut") {
+    const overlayImg = document.createElement("img");
+    overlayImg.className = "shortcut-overlay shortcut-overlay-32";
+    overlayImg.src = SHORTCUT_OVERLAY[32];
+    iconWrapper.appendChild(overlayImg);
+  }
+  iconInner.appendChild(iconWrapper);
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
@@ -575,7 +590,7 @@ function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
 
   menuItems.push({
     label: "Properties",
-    action: () => launchApp("display-properties"),
+    action: () => launchApp("displayproperties"),
   });
 
   const menu = new window.ContextMenu(menuItems, event);
@@ -920,6 +935,13 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       e.preventDefault();
       return;
     }
+
+    const itemType = icon.getAttribute("data-item-type");
+    if (itemType === "shortcut") {
+      launchApp(app.id);
+      return;
+    }
+
     // If filePath is an object, it's a dropped file. Otherwise, it's a path string.
     const launchData =
       typeof filePath === "object" && filePath !== null ? filePath : filePath;
@@ -1010,15 +1032,13 @@ export async function initDesktop() {
 
   init(); // Initialize the taskbar manager
 
-  const showTipsAtStartup = getItem(LOCAL_STORAGE_KEYS.SHOW_TIPS_AT_STARTUP);
-
-  console.log("Show Tips at Startup:", showTipsAtStartup);
-  if (
-    showTipsAtStartup === null ||
-    showTipsAtStartup === "true" ||
-    showTipsAtStartup === true
-  ) {
-    launchApp("tipOfTheDay");
+  // Launch startup apps
+  const startupApps = getStartupApps();
+  if (startupApps && startupApps.length > 0) {
+    startupApps.forEach((appId) => {
+      // A small delay can prevent the UI from freezing if many apps start at once.
+      setTimeout(() => launchApp(appId), 100);
+    });
   }
 
   document.addEventListener("wallpaper-changed", applyWallpaper);

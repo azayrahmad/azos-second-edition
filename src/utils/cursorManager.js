@@ -38,12 +38,6 @@ export async function applyAniCursorTheme(theme, cursorType) {
 
     style.innerText = convertAniBinaryToCSS(`.cursor-${cursorType}`, data);
     styleMap.set(`.cursor-${cursorType}`, style);
-    console.log(
-      "Animated cursor applied successfully, theme:",
-      theme,
-      "type:",
-      cursorType,
-    );
   } catch (error) {
     console.error("Failed to apply animated cursor:", error);
   }
