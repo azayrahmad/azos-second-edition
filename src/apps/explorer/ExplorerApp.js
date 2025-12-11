@@ -652,7 +652,8 @@ export class ExplorerApp extends Application {
       return;
     }
 
-    this.win.title(item.name);
+    const title = item.type === "drive" ? `(${item.name})` : item.name;
+    this.win.title(title);
     this.titleElement.text(item.name);
     const icon = getIconForPath(path);
     if (icon) {
