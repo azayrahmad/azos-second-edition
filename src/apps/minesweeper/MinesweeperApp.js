@@ -63,6 +63,7 @@ export class MinesweeperApp extends Application {
 
     this.win = win;
     this.difficulty = "beginner";
+    this.isGameStarted = false;
     this.highScores = getItem(HIGH_SCORES_KEY, {
       beginner: 999,
       intermediate: 999,
@@ -155,13 +156,13 @@ export class MinesweeperApp extends Application {
       this.game.height,
       this.game.mines,
     );
+    this.isGameStarted = false;
     if (this.boardEl) {
       // Check if UI is initialized
       this.renderBoard();
       this.stopTimer();
-      this.startTimer();
       this.updateMineCount();
-      this.timerEl.textContent = "000";
+      this.timerEl.text("000");
       this.smileyEl.css(
         "backgroundImage",
         `url(${new URL("../../assets/minesweeper/minesweeper-smiley-neutral.png", import.meta.url).href})`,
@@ -171,12 +172,12 @@ export class MinesweeperApp extends Application {
 
   startTimer() {
     this.timer = 0;
-    this.timerEl.textContent = "000";
+    this.timerEl.text("000");
     this.stopTimer(); // ensure no multiple timers
     this.timerInterval = setInterval(() => {
       if (this.timer < 999) {
         this.timer++;
-        this.timerEl.textContent = this.timer.toString().padStart(3, "0");
+        this.timerEl.text(this.timer.toString().padStart(3, "0"));
       }
     }, 1000);
   }
@@ -190,11 +191,17 @@ export class MinesweeperApp extends Application {
       .flat()
       .filter((cell) => cell.isFlagged).length;
     const remainingMines = this.game.mines - flags;
-    this.mineCountEl.textContent = remainingMines.toString().padStart(3, "0");
+    this.mineCountEl.text(remainingMines.toString().padStart(3, "0"));
   }
 
   handleCellClick(e) {
     if (!e.target.classList.contains("cell")) return;
+
+    if (!this.isGameStarted) {
+      this.startTimer();
+      this.isGameStarted = true;
+    }
+
     const { x, y } = e.target.dataset;
     const result = this.game.revealCell(parseInt(x), parseInt(y));
     this.renderBoard();
