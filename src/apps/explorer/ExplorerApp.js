@@ -652,15 +652,15 @@ export class ExplorerApp extends Application {
       return;
     }
 
-    const title = item.type === "drive" ? `(${item.name})` : item.name;
-    this.win.title(title);
-    this.titleElement.text(item.name);
+    const name = item.type === "drive" ? `(${item.name})` : item.name;
+    this.win.title(name);
+    this.titleElement.text(name);
     const icon = getIconForPath(path);
     if (icon) {
       this.win.setIcons(icon);
       this.sidebarIcon.src = icon[32];
     }
-    this.sidebarTitle.textContent = item.name;
+    this.sidebarTitle.textContent = name;
     this.iconContainer.innerHTML = ""; // Clear previous content
     this.iconManager.clearSelection();
 
@@ -749,7 +749,8 @@ export class ExplorerApp extends Application {
 
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
-    const displayName = item.name || item.filename || item.title || app.title;
+    const originalName = item.name || item.filename || item.title || app.title;
+    const displayName = item.type === "drive" ? `(${originalName})` : originalName;
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
