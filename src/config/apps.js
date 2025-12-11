@@ -184,6 +184,7 @@ export const apps = [
     id: "about",
     title: "About",
     description: "Displays information about this application.",
+    summary: "<b>azOS Second Edition</b><br>Copyright © 2024",
     icon: ICONS.windowsUpdate,
     appClass: AboutApp,
     width: 400,
