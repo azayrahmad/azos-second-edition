@@ -153,7 +153,7 @@ const directory = [
               {
                 id: "shortcut-to-diablo",
                 type: "shortcut",
-                targetId: "diablo",
+                targetId: "app-diablo",
                 name: "Diablo",
               },
             ],
