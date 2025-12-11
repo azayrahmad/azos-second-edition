@@ -272,7 +272,17 @@ export const ICONS = {
       .href,
   },
   controlPanel: {
-    16: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
-    32: new URL("../assets/icons/desktop_old-4.png", import.meta.url).href,
+    16: new URL(
+      "../assets/icons/directory_control_panel-1.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/directory_control_panel-2.png",
+      import.meta.url,
+    ).href,
+  },
+  mouse: {
+    16: new URL("../assets/icons/mouse-3.png", import.meta.url).href,
+    32: new URL("../assets/icons/mouse-1.png", import.meta.url).href,
   },
 };

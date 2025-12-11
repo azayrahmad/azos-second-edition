@@ -411,7 +411,7 @@ export const apps = [
   },
   {
     id: "displayproperties",
-    title: "Display Properties",
+    title: "Display",
     description: "Customize your display settings.",
     icon: ICONS.displayProperties,
     appClass: DisplayPropertiesApp,
@@ -434,9 +434,9 @@ export const apps = [
   },
   {
     id: "cursorexplorer",
-    title: "Cursor Explorer",
+    title: "Mouse",
     description: "Explore and preview cursor schemes.",
-    icon: ICONS["cursor-explorer"],
+    icon: ICONS["mouse"],
     appClass: CursorExplorerApp,
     width: 400,
     height: 500,

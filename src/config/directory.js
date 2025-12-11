@@ -178,7 +178,7 @@ const directory = [
         id: "shortcut-to-display-properties",
         type: "shortcut",
         targetId: "app-displayproperties",
-        name: "Display Properties",
+        name: "Display",
       },
       {
         id: "shortcut-to-desktopthemes",
@@ -190,7 +190,7 @@ const directory = [
         id: "shortcut-to-soundschemeexplorer",
         type: "shortcut",
         targetId: "app-soundschemeexplorer",
-        name: "Sound Scheme Explorer",
+        name: "Sound",
       },
       {
         id: "shortcut-to-themetocss",
@@ -202,7 +202,7 @@ const directory = [
         id: "shortcut-to-cursor-explorer",
         type: "shortcut",
         targetId: "app-cursorexplorer",
-        name: "Cursor Explorer",
+        name: "Mouse",
       },
     ],
   },

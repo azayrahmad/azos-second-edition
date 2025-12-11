@@ -28,7 +28,7 @@ class DisplayPropertiesApp extends Application {
 
   _createWindow() {
     return new window.$Window({
-      title: this.title,
+      title: "Display Properties",
       outerWidth: this.width,
       outerHeight: this.height,
       resizable: this.resizable,
@@ -49,9 +49,12 @@ class DisplayPropertiesApp extends Application {
 
     // Set initial state from localStorage
     this.selectedWallpaper = getItem(LOCAL_STORAGE_KEYS.WALLPAPER);
-    this.selectedWallpaperMode = getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || "stretch";
-    this.selectedScreensaver = getItem(LOCAL_STORAGE_KEYS.SCREENSAVER) || "none";
-    this.screensaverTimeout = (getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) / 60000) || 1;
+    this.selectedWallpaperMode =
+      getItem(LOCAL_STORAGE_KEYS.WALLPAPER_MODE) || "stretch";
+    this.selectedScreensaver =
+      getItem(LOCAL_STORAGE_KEYS.SCREENSAVER) || "none";
+    this.screensaverTimeout =
+      getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) / 60000 || 1;
     this.selectedColorMode = null;
     this.selectedResolution = null;
 
