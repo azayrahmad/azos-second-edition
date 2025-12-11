@@ -474,7 +474,7 @@ export const apps = [
     title: "Doom",
     description: "Play the classic game Doom.",
     icon: ICONS.doom, // Specific icon for Doom
-    gameUrl: "games/dos/doom/index.html",
+    gameUrl: "games/doom/index.html",
     width: 800,
     height: 500,
     resizable: true,

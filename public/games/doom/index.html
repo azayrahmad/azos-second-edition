@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <title>Websockets Doom</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <style>
+            html, body {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden; /* Prevent scrollbars */
+            }
+
+            body {
+                background-color: #000;
+            }
+
+            canvas.frame {
+                background-color: black;
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+    </head>
+    <body>
+        <canvas class="frame" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+        <script>
+            var commonArgs = ["-iwad", "doom1.wad", "-window", "-nogui", "-nomusic", "-config", "default.cfg", "-servername", "doomflare"];
+
+            var Module = {
+                onRuntimeInitialized: () => {
+                    Promise.all([
+                        fetch('doom1.wad').then(response => response.arrayBuffer()),
+                        fetch('default.cfg').then(response => response.arrayBuffer())
+                    ]).then(([wad, cfg]) => {
+                        Module.FS_createDataFile('/', 'doom1.wad', new Uint8Array(wad), true, true);
+                        Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
+                        callMain(commonArgs);
+                    });
+                },
+                noInitialRun: true,
+                printErr: function (text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(
+arguments).join(" ");
+                    console.error(text);
+                },
+                canvas: (function () {
+                    var canvas = document.getElementById("canvas");
+                    canvas.addEventListener(
+                        "webglcontextlost",
+                        function (e) {
+                            alert("WebGL context lost. You will need to reload the page.");
+                            e.preventDefault();
+                        },
+                        false
+                    );
+                    return canvas;
+                })(),
+                print: function (text) {
+                    console.log(text);
+                },
+                setStatus: function (text) {
+                    console.log(text);
+                },
+                totalDependencies: 0,
+                monitorRunDependencies: function (left) {
+                    this.totalDependencies = Math.max(this.totalDependencies, left);
+                    Module.setStatus(left ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.");
+                },
+            };
+
+            window.onerror = function (event) {
+                Module.setStatus("Exception thrown, see JavaScript console");
+                Module.setStatus = function (text) {
+                    if (text) Module.printErr("[post-exception status] " + text);
+                };
+            };
+        </script>
+        <script type="text/javascript" src="websockets-doom.js"></script>
+    </body>
+</html>
