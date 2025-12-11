@@ -1,45 +1,56 @@
-import { Application } from '../Application.js';
-import { MinesweeperGame } from './MinesweeperGame.js';
-import { MenuBar } from '/public/os-gui/MenuBar.js';
-import { getItem, setItem } from '../../utils/localStorage.js';
+import { Application } from "../Application.js";
+import { MinesweeperGame } from "./MinesweeperGame.js";
+import { getItem, setItem } from "../../utils/localStorage.js";
+import "./minesweeper.css";
 
-const HIGH_SCORES_KEY = 'minesweeper_high_scores';
+const HIGH_SCORES_KEY = "minesweeper_high_scores";
 
 export class MinesweeperApp extends Application {
   _createWindow() {
     const win = new $Window({
-      title: 'Minesweeper',
+      title: "Minesweeper",
+      icons: this.icon,
       width: 200,
       height: 280,
       resizable: false,
     });
 
-    const menuBar = new MenuBar([
+    const menuBar = new MenuBar({
+      Game: [
+        { label: "New", action: () => this.resetGame() },
+        "MENU_DIVIDER",
         {
-          label: 'Game',
-          submenu: [
-            { label: 'New', action: () => this.resetGame() },
-            { type: 'separator' },
-            { label: 'Beginner', radio: 'difficulty', checked: true, action: () => this.setDifficulty(9, 9, 10, 'beginner') },
-            { label: 'Intermediate', radio: 'difficulty', action: () => this.setDifficulty(16, 16, 40, 'intermediate') },
-            { label: 'Expert', radio: 'difficulty', action: () => this.setDifficulty(30, 16, 99, 'expert') },
-            { label: 'Custom...', action: () => this.showCustomDialog() },
-            { type: 'separator' },
-            { label: 'High Scores...', action: () => this.showHighScores() },
-            { type: 'separator' },
-            { label: 'Exit', action: () => this.win.close() },
-          ],
+          label: "Beginner",
+          radio: "difficulty",
+          checked: true,
+          action: () => this.setDifficulty(9, 9, 10, "beginner"),
         },
         {
-          label: 'Help',
-          submenu: [
-            { label: 'About Minesweeper...', action: () => this.showAboutDialog() },
-          ],
+          label: "Intermediate",
+          radio: "difficulty",
+          action: () => this.setDifficulty(16, 16, 40, "intermediate"),
         },
-      ]);
+        {
+          label: "Expert",
+          radio: "difficulty",
+          action: () => this.setDifficulty(30, 16, 99, "expert"),
+        },
+        { label: "Custom...", action: () => this.showCustomDialog() },
+        "MENU_DIVIDER",
+        { label: "High Scores...", action: () => this.showHighScores() },
+        "MENU_DIVIDER",
+        { label: "Exit", action: () => this.win.close() },
+      ],
+      Help: [
+        {
+          label: "About Minesweeper...",
+          action: () => this.showAboutDialog(),
+        },
+      ],
+    });
     win.setMenuBar(menuBar);
 
-    win.content.innerHTML = `
+    win.$content.html(`
         <div class="minesweeper-app">
           <div class="game-header">
             <div class="mine-count">010</div>
@@ -48,26 +59,27 @@ export class MinesweeperApp extends Application {
           </div>
           <div class="game-board"></div>
         </div>
-      `;
+      `);
 
     this.win = win;
-    this.difficulty = 'beginner';
+    this.difficulty = "beginner";
     this.highScores = getItem(HIGH_SCORES_KEY, {
-        beginner: 999,
-        intermediate: 999,
-        expert: 999
+      beginner: 999,
+      intermediate: 999,
+      expert: 999,
     });
 
-    this.setDifficulty(9, 9, 10, 'beginner');
+    this.setDifficulty(9, 9, 10, "beginner");
 
-    this.boardEl = win.$content.querySelector('.game-board');
-    this.mineCountEl = win.$content.querySelector('.mine-count');
-    this.timerEl = win.$content.querySelector('.timer');
-    this.smileyEl = win.$content.querySelector('.smiley');
+    this.boardEl = win.$content.find(".game-board");
+    this.mineCountEl = win.$content.find(".mine-count");
+    this.timerEl = win.$content.find(".timer");
+    this.smileyEl = win.$content.find(".smiley");
 
-    this.boardEl.addEventListener('click', this.handleCellClick.bind(this));
-    this.boardEl.addEventListener('contextmenu', this.handleCellFlag.bind(this));
-    this.smileyEl.addEventListener('click', this.resetGame.bind(this));
+    this.boardEl.on("click", this.handleCellClick.bind(this));
+    this.boardEl.on("contextmenu", this.handleCellFlag.bind(this));
+    this.smileyEl.on("click", this.resetGame.bind(this));
+    this.renderBoard();
 
     return win;
   }
@@ -79,7 +91,7 @@ export class MinesweeperApp extends Application {
     // Adjust window size
     const newWidth = width * 16 + 40;
     const newHeight = height * 16 + 110;
-    this.win.resize(newWidth, newHeight);
+    this.win.setDimensions({ outerWidth: newWidth, outerHeight: newHeight });
   }
 
   showCustomDialog() {
@@ -98,25 +110,25 @@ export class MinesweeperApp extends Application {
       </div>
     `;
     ShowDialogWindow({
-      title: 'Custom Field',
+      title: "Custom Field",
       content,
       buttons: {
-        'ok': {
-          label: 'OK',
+        ok: {
+          label: "OK",
           action: () => {
-            const width = parseInt(document.getElementById('ms-width').value);
-            const height = parseInt(document.getElementById('ms-height').value);
-            const mines = parseInt(document.getElementById('ms-mines').value);
-            this.setDifficulty(width, height, mines, 'custom');
-          }
+            const width = parseInt(document.getElementById("ms-width").value);
+            const height = parseInt(document.getElementById("ms-height").value);
+            const mines = parseInt(document.getElementById("ms-mines").value);
+            this.setDifficulty(width, height, mines, "custom");
+          },
         },
-        'cancel': 'Cancel'
-      }
+        cancel: "Cancel",
+      },
     });
   }
 
   showHighScores() {
-     const content = `
+    const content = `
       <div style="text-align: center;">
         <p>Beginner: ${this.highScores.beginner} seconds</p>
         <p>Intermediate: ${this.highScores.intermediate} seconds</p>
@@ -124,40 +136,47 @@ export class MinesweeperApp extends Application {
       </div>
     `;
     ShowDialogWindow({
-        title: 'High Scores',
-        content,
-        buttons: { 'ok': 'OK' }
+      title: "High Scores",
+      content,
+      buttons: { ok: "OK" },
     });
   }
 
   showAboutDialog() {
     ShowDialogWindow({
-        title: 'About Minesweeper',
-        text: 'Minesweeper clone for azOS.',
-        buttons: { 'ok': 'OK' }
+      title: "About Minesweeper",
+      text: "Minesweeper clone for azOS.",
     });
   }
 
   resetGame() {
-    this.game = new MinesweeperGame(this.game.width, this.game.height, this.game.mines);
-    if(this.boardEl) { // Check if UI is initialized
-        this.renderBoard();
-        this.stopTimer();
-        this.startTimer();
-        this.updateMineCount();
-        this.timerEl.textContent = '000';
-        this.smileyEl.style.backgroundImage = "url('/src/assets/minesweeper/minesweeper-smiley-neutral.png')";
+    this.game = new MinesweeperGame(
+      this.game.width,
+      this.game.height,
+      this.game.mines,
+    );
+    if (this.boardEl) {
+      // Check if UI is initialized
+      this.renderBoard();
+      this.stopTimer();
+      this.startTimer();
+      this.updateMineCount();
+      this.timerEl.textContent = "000";
+      this.smileyEl.css(
+        "backgroundImage",
+        `url(${new URL("../../assets/minesweeper/minesweeper-smiley-neutral.png", import.meta.url).href})`,
+      );
     }
   }
 
   startTimer() {
     this.timer = 0;
-    this.timerEl.textContent = '000';
+    this.timerEl.textContent = "000";
     this.stopTimer(); // ensure no multiple timers
     this.timerInterval = setInterval(() => {
       if (this.timer < 999) {
-          this.timer++;
-          this.timerEl.textContent = this.timer.toString().padStart(3, '0');
+        this.timer++;
+        this.timerEl.textContent = this.timer.toString().padStart(3, "0");
       }
     }, 1000);
   }
@@ -167,37 +186,57 @@ export class MinesweeperApp extends Application {
   }
 
   updateMineCount() {
-    const flags = this.game.board.flat().filter(cell => cell.isFlagged).length;
+    const flags = this.game.board
+      .flat()
+      .filter((cell) => cell.isFlagged).length;
     const remainingMines = this.game.mines - flags;
-    this.mineCountEl.textContent = remainingMines.toString().padStart(3, '0');
+    this.mineCountEl.textContent = remainingMines.toString().padStart(3, "0");
   }
 
   handleCellClick(e) {
-    if (!e.target.classList.contains('cell')) return;
+    if (!e.target.classList.contains("cell")) return;
     const { x, y } = e.target.dataset;
     const result = this.game.revealCell(parseInt(x), parseInt(y));
     this.renderBoard();
 
-    if (result === 'mine') {
+    if (result === "mine") {
       this.stopTimer();
-      this.smileyEl.style.backgroundImage = "url('/src/assets/minesweeper/minesweeper-smiley-lose.png')";
-      ShowDialogWindow({ title: 'Game Over', text: 'You hit a mine!', buttons: { 'ok': 'OK' } });
-    } else if (result === 'win') {
+      this.smileyEl.css(
+        "backgroundImage",
+        `url(${new URL("../../assets/minesweeper/minesweeper-smiley-lose.png", import.meta.url).href})`,
+      );
+      ShowDialogWindow({
+        title: "Game Over",
+        text: "You hit a mine!",
+      });
+    } else if (result === "win") {
       this.stopTimer();
-      this.smileyEl.style.backgroundImage = "url('/src/assets/minesweeper/minesweeper-smiley-win.png')";
-      if (this.difficulty !== 'custom' && this.timer < this.highScores[this.difficulty]) {
+      this.smileyEl.css(
+        "backgroundImage",
+        `url(${new URL("../../assets/minesweeper/minesweeper-smiley-win.png", import.meta.url).href})`,
+      );
+      if (
+        this.difficulty !== "custom" &&
+        this.timer < this.highScores[this.difficulty]
+      ) {
         this.highScores[this.difficulty] = this.timer;
         setItem(HIGH_SCORES_KEY, this.highScores);
-        ShowDialogWindow({ title: 'New High Score!', text: `New high score for ${this.difficulty}: ${this.timer} seconds!`, buttons: { 'ok': 'OK' } });
+        ShowDialogWindow({
+          title: "New High Score!",
+          text: `New high score for ${this.difficulty}: ${this.timer} seconds!`,
+        });
       } else {
-        ShowDialogWindow({ title: 'You Win!', text: 'You cleared the board!', buttons: { 'ok': 'OK' } });
+        ShowDialogWindow({
+          title: "You Win!",
+          text: "You cleared the board!",
+        });
       }
     }
   }
 
   handleCellFlag(e) {
     e.preventDefault();
-    if (!e.target.classList.contains('cell')) return;
+    if (!e.target.classList.contains("cell")) return;
     const { x, y } = e.target.dataset;
     this.game.toggleFlag(parseInt(x), parseInt(y));
     this.renderBoard();
@@ -205,28 +244,28 @@ export class MinesweeperApp extends Application {
   }
 
   renderBoard() {
-    this.boardEl.innerHTML = '';
-    this.boardEl.style.gridTemplateColumns = `repeat(${this.game.width}, 16px)`;
+    this.boardEl.html("");
+    this.boardEl.css("gridTemplateColumns", `repeat(${this.game.width}, 16px)`);
     for (let y = 0; y < this.game.height; y++) {
       for (let x = 0; x < this.game.width; x++) {
         const cell = this.game.board[y][x];
-        const cellEl = document.createElement('div');
-        cellEl.classList.add('cell');
+        const cellEl = document.createElement("div");
+        cellEl.classList.add("cell");
         cellEl.dataset.x = x;
         cellEl.dataset.y = y;
 
         if (cell.isRevealed) {
-          cellEl.classList.add('revealed');
+          cellEl.classList.add("revealed");
           if (cell.isMine) {
-            cellEl.classList.add('mine');
+            cellEl.classList.add("mine");
           } else if (cell.neighborMines > 0) {
             cellEl.textContent = cell.neighborMines;
             cellEl.classList.add(`c${cell.neighborMines}`);
           }
         } else if (cell.isFlagged) {
-          cellEl.classList.add('flagged');
+          cellEl.classList.add("flagged");
         }
-        this.boardEl.appendChild(cellEl);
+        this.boardEl.append(cellEl);
       }
     }
   }
