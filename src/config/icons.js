@@ -271,6 +271,20 @@ export const ICONS = {
     32: new URL("../assets/icons/windows_update_large-4.png", import.meta.url)
       .href,
   },
+  controlPanel: {
+    16: new URL(
+      "../assets/icons/directory_control_panel-1.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/directory_control_panel-2.png",
+      import.meta.url,
+    ).href,
+  },
+  mouse: {
+    16: new URL("../assets/icons/mouse-3.png", import.meta.url).href,
+    32: new URL("../assets/icons/mouse-1.png", import.meta.url).href,
+  },
   keen: {
     16: new URL(
       "../assets/icons/games/commander-keen-logo.png",

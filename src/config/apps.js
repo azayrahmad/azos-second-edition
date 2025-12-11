@@ -53,9 +53,9 @@ export const appClasses = {
   keen: KeenApp,
   dosgame: DosGameApp,
   paint: PaintApp,
-  "display-properties": DisplayPropertiesApp,
+  displayproperties: DisplayPropertiesApp,
   "buy-me-a-coffee": BuyMeACoffeeApp,
-  "cursor-explorer": CursorExplorerApp,
+  cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
 };
 
@@ -423,8 +423,8 @@ export const apps = [
     isSingleton: false,
   },
   {
-    id: "display-properties",
-    title: "Display Properties",
+    id: "displayproperties",
+    title: "Display",
     description: "Customize your display settings.",
     icon: ICONS.displayProperties,
     appClass: DisplayPropertiesApp,
@@ -446,10 +446,10 @@ export const apps = [
     isSingleton: true,
   },
   {
-    id: "cursor-explorer",
-    title: "Cursor Explorer",
+    id: "cursorexplorer",
+    title: "Mouse",
     description: "Explore and preview cursor schemes.",
-    icon: ICONS["cursor-explorer"],
+    icon: ICONS["mouse"],
     appClass: CursorExplorerApp,
     width: 400,
     height: 500,
@@ -503,5 +503,20 @@ export const apps = [
     height: 360,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "control-panel",
+    title: "Control Panel",
+    description: "Access system settings and utilities.",
+    icon: ICONS.controlPanel,
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", {
+          filePath: "/folder-control-panel",
+          windowId: "control-panel",
+        });
+      },
+    },
   },
 ];

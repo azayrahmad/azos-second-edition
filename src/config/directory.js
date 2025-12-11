@@ -115,12 +115,6 @@ const directory = [
                 contentUrl: "files/README.md",
               },
               {
-                id: "shortcut-to-cursor-explorer",
-                type: "shortcut",
-                targetId: "app-cursor-explorer",
-                name: "Cursor Explorer",
-              },
-              {
                 id: "shortcut-to-doom",
                 type: "shortcut",
                 targetId: "app-doom",
@@ -174,6 +168,43 @@ const directory = [
     type: "briefcase",
     enableFileDrop: true,
     children: [],
+  },
+  {
+    id: "folder-control-panel",
+    name: "Control Panel",
+    type: "folder",
+    children: [
+      {
+        id: "shortcut-to-display-properties",
+        type: "shortcut",
+        targetId: "app-displayproperties",
+        name: "Display",
+      },
+      {
+        id: "shortcut-to-desktopthemes",
+        type: "shortcut",
+        targetId: "app-desktopthemes",
+        name: "Desktop Themes",
+      },
+      {
+        id: "shortcut-to-soundschemeexplorer",
+        type: "shortcut",
+        targetId: "app-soundschemeexplorer",
+        name: "Sound",
+      },
+      {
+        id: "shortcut-to-themetocss",
+        type: "shortcut",
+        targetId: "app-themetocss",
+        name: "Theme to CSS",
+      },
+      {
+        id: "shortcut-to-cursor-explorer",
+        type: "shortcut",
+        targetId: "app-cursorexplorer",
+        name: "Mouse",
+      },
+    ],
   },
 ];
 
