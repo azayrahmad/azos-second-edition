@@ -15,4 +15,8 @@ export const networkNeighborhood = [
     title: "Windows 96",
     url: "https://windows96.net/",
   },
+  {
+    title: "Packard Belle",
+    url: "https://packard-belle.netlify.app/",
+  },
 ];

@@ -134,7 +134,7 @@ export function findItemByPath(path) {
       type: "folder",
       children: networkNeighborhood.map((item) => ({
         ...item,
-        id: item.title.toLowerCase().replace(/\\s+/g, "-"),
+        id: item.title.toLowerCase().replace(/\s+/g, "-"),
         name: item.title,
         type: "network",
       })),

@@ -895,7 +895,7 @@ export class ExplorerApp extends Application {
 
     // 2. Handle external URLs
     if (item.url) {
-      window.open(item.url, "_blank");
+      window.open(item.url, "_blank", "width=800,height=600");
       return;
     }
 
