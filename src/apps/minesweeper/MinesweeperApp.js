@@ -90,7 +90,7 @@ export class MinesweeperApp extends Application {
     this.game = new MinesweeperGame(width, height, mines);
     this.resetGame();
     // Adjust window size
-    const newWidth = width * 16 + 40;
+    const newWidth = width * 16 + 27;
     const newHeight = height * 16 + 110;
     this.win.setDimensions({ outerWidth: newWidth, outerHeight: newHeight });
   }
