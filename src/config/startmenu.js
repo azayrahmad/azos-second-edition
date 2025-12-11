@@ -8,6 +8,7 @@ const startMenuAppIds = [
   "tipOfTheDay",
   "internet-explorer",
   "pinball",
+  "keen",
   "buy-me-a-coffee",
   "pdfviewer",
   "doom",
@@ -33,6 +34,12 @@ const startMenuConfig = [
     icon: ICONS.programs[32],
     submenu: [
       {
+        id: "startup-folder",
+        label: "StartUp",
+        icon: ICONS.programs[16],
+        submenu: [],
+      },
+      {
         label: "Accessories",
         icon: ICONS.programs[16],
         submenu: [
@@ -57,23 +64,92 @@ const startMenuConfig = [
     icon: ICONS.favorites[32],
     submenu: [
       {
-        label: "Google",
-        icon: ICONS.htmlFile[16],
-        action: () => launchApp("internet-explorer", "google.com"),
+        label: "Channels",
+        icon: ICONS.programs[16],
+        submenu: [
+          {
+            label: "AOL",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "aol.com"),
+          },
+          {
+            label: "BBC",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "bbc.com"),
+          },
+          {
+            label: "CNN",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "cnn.com"),
+          },
+          {
+            label: "Detik",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "detik.com"),
+          },
+        ],
       },
       {
-        label: "Yahoo",
-        icon: ICONS.htmlFile[16],
-        action: () => launchApp("internet-explorer", "yahoo.com"),
+        label: "Links",
+        icon: ICONS.programs[16],
+        submenu: [
+          {
+            label: "Excite",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "excite.com"),
+          },
+          {
+            label: "Google",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "google.com"),
+          },
+          {
+            label: "Infospace",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "infospace.com"),
+          },
+          {
+            label: "Lycos",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "lycos.com"),
+          },
+          {
+            label: "Netscape",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "netscape.com"),
+          },
+          {
+            label: "Yahoo",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "yahoo.com"),
+          },
+        ],
       },
       {
-        label: "Neocities",
+        label: "Media",
+        icon: ICONS.programs[16],
+        submenu: [
+          {
+            label: "Amazon",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "amazon.com"),
+          },
+          {
+            label: "GeoCities",
+            icon: ICONS.htmlFile[16],
+            action: () => launchApp("internet-explorer", "geocities.com"),
+          },
+        ],
+      },
+      {
+        label: "Microsoft",
         icon: ICONS.htmlFile[16],
-        action: () =>
-          launchApp("internet-explorer", {
-            url: "https://neocities.org/",
-            retroMode: false,
-          }),
+        action: () => launchApp("internet-explorer", "microsoft.com"),
+      },
+      {
+        label: "MSN",
+        icon: ICONS.htmlFile[16],
+        action: () => launchApp("internet-explorer", "msn.com"),
       },
     ],
   },

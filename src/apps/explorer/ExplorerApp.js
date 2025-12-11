@@ -2,7 +2,7 @@ import { Application } from "../Application.js";
 import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
 import { fileAssociations } from "../../config/fileAssociations.js";
-import { ICONS } from "../../config/icons.js";
+import { ICONS, SHORTCUT_OVERLAY } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
 import {
   getAssociation,
@@ -38,6 +38,7 @@ import {
 import clipboardManager from "../../utils/clipboardManager.js";
 import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
+import { StatusBar } from "../../components/StatusBar.js";
 import "./explorer.css";
 
 function getExplorerIconPositions() {
@@ -182,7 +183,15 @@ export class ExplorerApp extends Application {
       iconSelector: ".explorer-icon",
       onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
       onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
-      onSelectionChange: () => this.updateMenuState(),
+      onSelectionChange: () => {
+        this.updateMenuState();
+        const selectionCount = this.iconManager.selectedIcons.size;
+        if (selectionCount > 0) {
+          this.statusBar.setText(`${selectionCount} object(s) selected`);
+        } else {
+          this.statusBar.setText("");
+        }
+      },
     });
 
     // Now that iconManager exists, we can define and create the toolbar
@@ -357,8 +366,17 @@ export class ExplorerApp extends Application {
     });
     win.$content.append(this.addressBar.element);
 
-    // Append the content area (which now contains the icon container)
-    win.$content.append(content);
+    const mainContainer = document.createElement("div");
+    mainContainer.style.display = "flex";
+    mainContainer.style.flexDirection = "column";
+    mainContainer.style.height = "100%";
+
+    mainContainer.append(content);
+
+    this.statusBar = new StatusBar();
+    mainContainer.append(this.statusBar.element);
+
+    win.$content.append(mainContainer);
 
     const sidebarIcon = document.createElement("img");
     sidebarIcon.className = "sidebar-icon";
@@ -586,6 +604,11 @@ export class ExplorerApp extends Application {
       // }
     });
 
+    this.handleMouseUp = () => {
+      this.statusBar.setText("");
+    };
+    document.addEventListener("mouseup", this.handleMouseUp);
+
     return win;
   }
 
@@ -595,6 +618,7 @@ export class ExplorerApp extends Application {
     }
     document.removeEventListener("explorer-refresh", this.refreshHandler);
     document.removeEventListener("clipboard-change", this.clipboardHandler);
+    document.removeEventListener("mouseup", this.handleMouseUp);
   }
 
   async _onLaunch(filePath) {
@@ -734,6 +758,9 @@ export class ExplorerApp extends Application {
     const iconInner = document.createElement("div");
     iconInner.className = "icon";
 
+    const iconWrapper = document.createElement("div");
+    iconWrapper.className = "icon-wrapper";
+
     const iconImg = document.createElement("img");
     if (item.icon) {
       iconImg.src = item.icon[32];
@@ -751,7 +778,15 @@ export class ExplorerApp extends Application {
       iconImg.src = association.icon[32];
     }
     iconImg.draggable = false;
-    iconInner.appendChild(iconImg);
+    iconWrapper.appendChild(iconImg);
+
+    if (item.type === "shortcut") {
+      const overlayImg = document.createElement("img");
+      overlayImg.className = "shortcut-overlay shortcut-overlay-32";
+      overlayImg.src = SHORTCUT_OVERLAY[32];
+      iconWrapper.appendChild(overlayImg);
+    }
+    iconInner.appendChild(iconWrapper);
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";

@@ -11,6 +11,7 @@ import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
 import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
 import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
 import { PinballApp } from "../apps/pinball/PinballApp.js";
+import { KeenApp } from "../apps/keen/KeenApp.js";
 import { DosGameApp } from "../apps/dosgame/DosGameApp.js";
 import { PaintApp } from "../apps/paint/PaintApp.js";
 import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
@@ -49,6 +50,7 @@ export const appClasses = {
   explorer: ExplorerApp,
   "internet-explorer": InternetExplorerApp,
   pinball: PinballApp,
+  keen: KeenApp,
   dosgame: DosGameApp,
   paint: PaintApp,
   displayproperties: DisplayPropertiesApp,
@@ -183,10 +185,21 @@ export const apps = [
     icon: ICONS.windowsUpdate,
     appClass: AboutApp,
     width: 400,
-    height: 100,
+    height: 216,
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    isSingleton: true,
+  },
+  {
+    id: "keen",
+    title: "Commander Keen",
+    description: "Play the classic game Commander Keen.",
+    icon: ICONS.keen,
+    appClass: KeenApp,
+    width: 640,
+    height: 480,
+    resizable: false,
     isSingleton: true,
   },
   {

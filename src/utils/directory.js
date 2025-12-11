@@ -62,7 +62,13 @@ export function getDesktopContents() {
       if (targetNode && targetNode.type === "app") {
         const appConfig = apps.find((a) => a.id === targetNode.appId);
         if (appConfig) {
-          desktopApps.push(appConfig.id);
+          desktopFiles.push({
+            filename: item.name,
+            app: appConfig.id,
+            path: `/${item.id}`,
+            type: "shortcut",
+            icon: appConfig.icon,
+          });
         }
       }
     } else if (item.type === "file") {

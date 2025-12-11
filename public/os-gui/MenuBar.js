@@ -418,7 +418,6 @@
         )
           return;
         if (typeof window.playSound === "function") {
-          console.log("MenuPopup");
           window.playSound("MenuPopup");
         }
         close_menus();

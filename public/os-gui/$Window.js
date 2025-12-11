@@ -1726,7 +1726,6 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
           cursor_name === "we" ? "ew-resize" : `${cursor_name}-resize`;
         const cursor = `var(--cursor-${theme_cursor_name}-resize, ${fallback})`;
 
-        console.log(cursor);
         // Note: MISNOMER: innerWidth() is less "inner" than width(), because it includes padding!
         // Here's a little diagram of sorts:
         // outerWidth(true): margin, [ outerWidth(): border, [ innerWidth(): padding, [ width(): content ] ] ]

@@ -285,4 +285,19 @@ export const ICONS = {
     16: new URL("../assets/icons/mouse-3.png", import.meta.url).href,
     32: new URL("../assets/icons/mouse-1.png", import.meta.url).href,
   },
+  keen: {
+    16: new URL(
+      "../assets/icons/games/commander-keen-logo.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/games/commander-keen-logo.png",
+      import.meta.url,
+    ).href,
+  },
+};
+
+export const SHORTCUT_OVERLAY = {
+  16: new URL("../assets/icons/overlay_shortcut_16.png", import.meta.url).href,
+  32: new URL("../assets/icons/overlay_shortcut_32.png", import.meta.url).href,
 };
