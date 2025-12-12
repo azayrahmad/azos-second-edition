@@ -64,11 +64,14 @@
     font-weight: bold;
     font-size: 12px;
     line-height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cell img {
-    width: 100%;
-    height: 100%;
+    width: 10px;
+    height: 10px;
     display: block;
 }
 
