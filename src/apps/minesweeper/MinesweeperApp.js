@@ -66,9 +66,9 @@ export class MinesweeperApp extends Application {
     win.$content.html(`
         <div class="minesweeper-app">
           <div class="game-header">
-            <div class="mine-count"></div>
+            <div class="mine-count inset-shallow"></div>
             <div class="smiley"></div>
-            <div class="timer"></div>
+            <div class="timer inset-shallow"></div>
           </div>
           <div class="game-board"></div>
         </div>
@@ -128,10 +128,6 @@ export class MinesweeperApp extends Application {
     this.difficulty = difficulty;
     this.game = new MinesweeperGame(width, height, mines);
     this.resetGame();
-    // Adjust window size
-    const newWidth = width * 16 + 27;
-    const newHeight = height * 16 + 110;
-    this.win.setDimensions({ outerWidth: newWidth, outerHeight: newHeight });
     this.menuBar.element.dispatchEvent(new Event("update"));
   }
 
@@ -181,21 +177,21 @@ export class MinesweeperApp extends Application {
     const createScoresContent = (scores) => `
       <fieldset>
         <legend>Fastest Mine Sweepers</legend>
-        <table style="width: 100%; border-spacing: 5px;">
+        <table style="width: 300px; border-spacing: 5px; background: transparent;">
           <tbody>
             <tr>
-              <td>Beginner</td>
-              <td style="text-align: right;">${scores.beginner.time}</td>
+              <td>Beginner:</td>
+              <td>${scores.beginner.time} seconds</td>
               <td>${scores.beginner.name}</td>
             </tr>
             <tr>
-              <td>Intermediate</td>
-              <td style="text-align: right;">${scores.intermediate.time}</td>
+              <td>Intermediate:</td>
+              <td>${scores.intermediate.time} seconds</td>
               <td>${scores.intermediate.name}</td>
             </tr>
             <tr>
-              <td>Expert</td>
-              <td style="text-align: right;">${scores.expert.time}</td>
+              <td>Expert:</td>
+              <td>${scores.expert.time} seconds</td>
               <td>${scores.expert.name}</td>
             </tr>
           </tbody>
@@ -207,7 +203,7 @@ export class MinesweeperApp extends Application {
     contentElement.innerHTML = createScoresContent(this.highScores);
 
     ShowDialogWindow({
-      title: "Fastest Mine Sweepers",
+      title: "Best Times",
       content: contentElement,
       buttons: [
         {
@@ -406,6 +402,7 @@ export class MinesweeperApp extends Application {
                 };
                 setItem(HIGH_SCORES_KEY, this.highScores);
                 win.close();
+                this.showHighScores();
               },
             },
           ],
