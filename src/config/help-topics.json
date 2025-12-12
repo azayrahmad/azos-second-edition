@@ -1,0 +1,14 @@
+{
+  "topics": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "content": "<h2>Getting Started</h2><p>Welcome to azOS Second Edition! This guide will help you get started with the basics.</p>"
+    },
+    {
+      "id": "using-the-desktop",
+      "title": "Using the Desktop",
+      "content": "<h2>Using the Desktop</h2><p>The desktop is your main workspace. You can launch applications, open files, and customize its appearance.</p>"
+    }
+  ]
+}

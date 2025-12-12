@@ -25,6 +25,7 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { HelpApp } from "../apps/help/HelpApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -59,6 +60,7 @@ export const appClasses = {
   cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
+  help: HelpApp,
 };
 
 export const apps = [
@@ -192,6 +194,17 @@ export const apps = [
     resizable: false,
     minimizeButton: false,
     maximizeButton: false,
+    isSingleton: true,
+  },
+  {
+    id: "help",
+    title: "Help Topics",
+    description: "Find help on how to use the system.",
+    icon: ICONS.help,
+    appClass: HelpApp,
+    width: 500,
+    height: 400,
+    resizable: true,
     isSingleton: true,
   },
   {
