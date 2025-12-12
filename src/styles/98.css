@@ -18,6 +18,7 @@ body {
     color: var(--ButtonText);
     font-family: var(--font-family-base);
     font-size: var(--font-size-base);
+    line-height: 1.1;
 }
 
 h1 {
