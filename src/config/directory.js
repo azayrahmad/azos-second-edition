@@ -115,6 +115,12 @@ const directory = [
                 contentUrl: "files/README.md",
               },
               {
+                id: "file-changelog",
+                type: "file",
+                name: "CHANGELOG.TXT",
+                contentUrl: "CHANGELOG.TXT",
+              },
+              {
                 id: "shortcut-to-doom",
                 type: "shortcut",
                 targetId: "app-doom",
