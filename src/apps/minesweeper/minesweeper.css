@@ -22,12 +22,21 @@
 
 .mine-count,
 .timer {
-    font-family: "monospace";
-    font-size: 16px;
     background-color: var(--ButtonDkShadow);
-    color: #ff0000;
     padding: 1px;
     border: 1px solid var(--ButtonShadow);
+    /* The height is 23px from the image + 1px padding top/bottom */
+    height: 25px;
+}
+
+.sprite-display {
+    display: flex;
+}
+
+.digit {
+    width: 13px;
+    height: 23px;
+    background-repeat: no-repeat;
 }
 
 .smiley {

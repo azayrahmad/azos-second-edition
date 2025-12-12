@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { MinesweeperGame } from "./MinesweeperGame.js";
 import { getItem, setItem } from "../../utils/localStorage.js";
+import { SpriteDisplay } from "./SpriteDisplay.js";
 import "./minesweeper.css";
 
 const HIGH_SCORES_KEY = "minesweeper_high_scores";
@@ -65,9 +66,9 @@ export class MinesweeperApp extends Application {
     win.$content.html(`
         <div class="minesweeper-app">
           <div class="game-header">
-            <div class="mine-count">010</div>
+            <div class="mine-count"></div>
             <div class="smiley"></div>
-            <div class="timer">000</div>
+            <div class="timer"></div>
           </div>
           <div class="game-board"></div>
         </div>
@@ -92,8 +93,15 @@ export class MinesweeperApp extends Application {
     if (use98Style) {
       win.$content.find(".minesweeper-app").addClass("style-98");
     }
-    this.mineCountEl = win.$content.find(".mine-count");
-    this.timerEl = win.$content.find(".timer");
+
+    const mineCountContainer = win.$content.find(".mine-count")[0];
+    this.mineCountDisplay = new SpriteDisplay();
+    mineCountContainer.appendChild(this.mineCountDisplay.element);
+
+    const timerContainer = win.$content.find(".timer")[0];
+    this.timerDisplay = new SpriteDisplay();
+    timerContainer.appendChild(this.timerDisplay.element);
+
     this.smileyEl = win.$content.find(".smiley");
 
     this.isMouseDown = false;
@@ -243,7 +251,7 @@ export class MinesweeperApp extends Application {
       this.renderBoard();
       this.stopTimer();
       this.updateMineCount();
-      this.timerEl.text("000");
+      this.timerDisplay.setValue(0);
       this.smileyEl.css(
         "backgroundImage",
         `url(${new URL("../../assets/minesweeper/minesweeper-smiley-neutral.png", import.meta.url).href})`,
@@ -253,12 +261,12 @@ export class MinesweeperApp extends Application {
 
   startTimer() {
     this.timer = 0;
-    this.timerEl.text("000");
+    this.timerDisplay.setValue(0);
     this.stopTimer(); // ensure no multiple timers
     this.timerInterval = setInterval(() => {
       if (this.timer < 999) {
         this.timer++;
-        this.timerEl.text(this.timer.toString().padStart(3, "0"));
+        this.timerDisplay.setValue(this.timer);
       }
     }, 1000);
   }
@@ -272,7 +280,7 @@ export class MinesweeperApp extends Application {
       .flat()
       .filter((cell) => cell.isFlagged).length;
     const remainingMines = this.game.mines - flags;
-    this.mineCountEl.text(remainingMines.toString().padStart(3, "0"));
+    this.mineCountDisplay.setValue(remainingMines);
   }
 
   handleMouseDown(e) {
