@@ -349,8 +349,9 @@ export class MinesweeperApp extends Application {
 
   handleCellFlag(e) {
     e.preventDefault();
-    if (!e.target.classList.contains("cell")) return;
-    const { x, y } = e.target.dataset;
+    const cellEl = e.target.closest(".cell");
+    if (!cellEl) return;
+    const { x, y } = cellEl.dataset;
     this.game.toggleFlag(parseInt(x), parseInt(y));
     this.renderBoard();
     this.updateMineCount();
