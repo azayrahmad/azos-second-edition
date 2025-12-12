@@ -128,7 +128,7 @@ export class MinesweeperApp extends Application {
   }
 
   showCustomDialog() {
-    const content = `
+    const dialogContent = `
       <div class="field-row-stacked">
         <label for="ms-width">Width:</label>
         <input type="number" id="ms-width" value="${this.game.width}" />
@@ -142,21 +142,30 @@ export class MinesweeperApp extends Application {
         <input type="number" id="ms-mines" value="${this.game.mines}" />
       </div>
     `;
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = dialogContent;
+
     ShowDialogWindow({
       title: "Custom Field",
-      content,
-      buttons: {
-        ok: {
+      content: contentElement,
+      buttons: [
+        {
           label: "OK",
-          action: () => {
+          action: (win) => {
             const width = parseInt(document.getElementById("ms-width").value);
             const height = parseInt(document.getElementById("ms-height").value);
             const mines = parseInt(document.getElementById("ms-mines").value);
             this.setDifficulty(width, height, mines, "custom");
           },
+          isDefault: true,
         },
-        cancel: "Cancel",
-      },
+        {
+          label: "Cancel",
+          action: (win) => {
+            win.close();
+          },
+        },
+      ],
     });
   }
 
