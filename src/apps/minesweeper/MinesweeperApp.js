@@ -88,10 +88,22 @@ export class MinesweeperApp extends Application {
     this.timerEl = win.$content.find(".timer");
     this.smileyEl = win.$content.find(".smiley");
 
-    this.boardEl.on("click", this.handleCellClick.bind(this));
+    this.isMouseDown = false;
+    this.pressedCellEl = null;
+    this.boundHandleMouseUp = this.handleMouseUp.bind(this);
+
+    this.boardEl.on("mousedown", this.handleMouseDown.bind(this));
+    $(document).on("mouseup", this.boundHandleMouseUp); // Listen on document for mouseup
+    this.boardEl.on("mouseover", this.handleMouseOver.bind(this));
+    this.boardEl.on("mouseout", this.handleMouseOut.bind(this));
     this.boardEl.on("contextmenu", this.handleCellFlag.bind(this));
     this.smileyEl.on("click", this.resetGame.bind(this));
     this.renderBoard();
+
+    win.on("close", () => {
+      // Clean up the global mouseup listener when the window is closed
+      $(document).off("mouseup", this.boundHandleMouseUp);
+    });
 
     return win;
   }
@@ -206,19 +218,90 @@ export class MinesweeperApp extends Application {
     this.mineCountEl.text(remainingMines.toString().padStart(3, "0"));
   }
 
-  handleCellClick(e) {
-    if (!e.target.classList.contains("cell")) return;
+  handleMouseDown(e) {
+    if (e.button !== 0 || this.game.isGameOver) return;
 
+    const cellEl = e.target.closest(".cell");
+    if (!cellEl) return;
+
+    const { x, y } = cellEl.dataset;
+    const cell = this.game.board[y][x];
+
+    if (!cell.isRevealed && !cell.isFlagged) {
+      this.isMouseDown = true;
+      this.smileyEl.css(
+        "backgroundImage",
+        `url(${new URL("../../assets/minesweeper/minesweeper-smiley-click.png", import.meta.url).href})`,
+      );
+      cellEl.classList.add("pressed");
+      this.pressedCellEl = cellEl;
+    }
+  }
+
+  handleMouseUp(e) {
+    if (e.button !== 0 || !this.isMouseDown) return;
+
+    this.isMouseDown = false;
+    const cellEl = this.pressedCellEl;
+
+    if (cellEl) {
+      cellEl.classList.remove("pressed");
+      this._revealCellAndUpdateGameState(cellEl);
+      this.pressedCellEl = null;
+    }
+
+    if (!this.game.isGameOver) {
+      this.smileyEl.css(
+        "backgroundImage",
+        `url(${new URL("../../assets/minesweeper/minesweeper-smiley-neutral.png", import.meta.url).href})`,
+      );
+    }
+  }
+
+  handleMouseOver(e) {
+    if (!this.isMouseDown) return;
+
+    if (this.pressedCellEl) {
+      this.pressedCellEl.classList.remove("pressed");
+    }
+
+    const cellEl = e.target.closest(".cell");
+    if (cellEl) {
+      const { x, y } = cellEl.dataset;
+      const cell = this.game.board[y][x];
+      if (!cell.isRevealed && !cell.isFlagged) {
+        cellEl.classList.add("pressed");
+        this.pressedCellEl = cellEl;
+      } else {
+        this.pressedCellEl = null;
+      }
+    } else {
+      this.pressedCellEl = null;
+    }
+  }
+
+  handleMouseOut(e) {
+    if (!this.isMouseDown) return;
+
+    const cellEl = e.target.closest(".cell");
+    if (cellEl && cellEl === this.pressedCellEl) {
+      cellEl.classList.remove("pressed");
+      this.pressedCellEl = null;
+    }
+  }
+
+  _revealCellAndUpdateGameState(cellEl) {
     if (!this.isGameStarted) {
       this.startTimer();
       this.isGameStarted = true;
     }
 
-    const { x, y } = e.target.dataset;
+    const { x, y } = cellEl.dataset;
     const result = this.game.revealCell(parseInt(x), parseInt(y));
     this.renderBoard();
 
     if (result === "mine") {
+      this.game.isGameOver = true;
       this.stopTimer();
       this.smileyEl.css(
         "backgroundImage",
@@ -229,6 +312,7 @@ export class MinesweeperApp extends Application {
         text: "You hit a mine!",
       });
     } else if (result === "win") {
+      this.game.isGameOver = true;
       this.stopTimer();
       this.smileyEl.css(
         "backgroundImage",

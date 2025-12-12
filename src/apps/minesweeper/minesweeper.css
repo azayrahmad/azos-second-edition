@@ -85,6 +85,10 @@
     background-size: cover;
 }
 
+.cell.pressed {
+    border: 0;
+}
+
 .cell.flagged {
     background-image: url("/src/assets/minesweeper/flag.png");
     background-repeat: no-repeat;
