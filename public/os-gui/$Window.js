@@ -2085,13 +2085,17 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
    * @param {string} title
    * @returns {OSGUI$FormWindow}
    */
-  function $FormWindow(title) {
-    var $w = /** @type {OSGUI$FormWindow} */ ($Window());
+  function $FormWindow(title, options = {}) {
+    var $w = /** @type {OSGUI$FormWindow} */ ($Window(options));
 
     $w.title(title);
     $w.$form = $(E("form")).appendTo($w.$content);
     $w.$main = $(E("div")).appendTo($w.$form);
     $w.$buttons = $(E("div")).appendTo($w.$form).addClass("button-group");
+
+    if (options.buttonLayout === 'right') {
+      $w.addClass('button-layout-right');
+    }
 
     $w.$Button = (label, action) => {
       var $b = $(E("button")).appendTo($w.$buttons).text(label);
