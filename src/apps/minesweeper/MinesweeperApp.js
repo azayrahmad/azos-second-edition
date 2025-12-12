@@ -278,8 +278,12 @@ export class MinesweeperApp extends Application {
           if (cell.isMine) {
             cellEl.classList.add("mine");
           } else if (cell.neighborMines > 0) {
-            cellEl.textContent = cell.neighborMines;
-            cellEl.classList.add(`c${cell.neighborMines}`);
+            const img = document.createElement("img");
+            img.src = new URL(
+              `../../assets/minesweeper/${cell.neighborMines}.png`,
+              import.meta.url,
+            ).href;
+            cellEl.appendChild(img);
           }
         } else if (cell.isFlagged) {
           cellEl.classList.add("flagged");
