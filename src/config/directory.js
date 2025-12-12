@@ -14,6 +14,7 @@ const directory = [
         children: [
           ...generateProgramFiles(),
           { id: "app-doom", type: "app", appId: "doom" },
+          { id: "app-esheep", type: "app", appId: "esheep" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           {
             id: "folder-plus",
@@ -143,6 +144,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-keen",
                 name: "Commander Keen",
+              },
+              {
+                id: "shortcut-to-esheep",
+                type: "shortcut",
+                targetId: "app-esheep",
+                name: "eSheep",
               },
               {
                 id: "shortcut-to-diablo",
