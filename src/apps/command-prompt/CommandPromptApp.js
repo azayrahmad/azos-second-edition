@@ -52,8 +52,8 @@ export class CommandPromptApp extends Application {
     });
 
     this.terminal.open(terminalContainer);
-    this.terminal.write("azOS Command Prompt [Version 1.0.0]\\r\\n");
-    this.terminal.write("(c) 2024 azOS. All rights reserved.\\r\\n\\r\\n");
+    this.terminal.write("azOS Command Prompt [Version 1.0.0]\r\n");
+    this.terminal.write("(c) 2024 azOS. All rights reserved.\r\n\r\n");
     this.prompt();
 
     this.terminal.onData((data) => this.handleData(data));
