@@ -4,6 +4,7 @@ import { getItem, setItem } from "../../utils/localStorage.js";
 import "./minesweeper.css";
 
 const HIGH_SCORES_KEY = "minesweeper_high_scores";
+const use98Style = true;
 
 export class MinesweeperApp extends Application {
   _createWindow() {
@@ -80,10 +81,14 @@ export class MinesweeperApp extends Application {
       intermediate: 999,
       expert: 999,
     });
+    this.explodedMine = null;
 
     this.setDifficulty(9, 9, 10, "beginner");
 
     this.boardEl = win.$content.find(".game-board");
+    if (use98Style) {
+      win.$content.find(".minesweeper-app").addClass("style-98");
+    }
     this.mineCountEl = win.$content.find(".mine-count");
     this.timerEl = win.$content.find(".timer");
     this.smileyEl = win.$content.find(".smiley");
@@ -181,6 +186,7 @@ export class MinesweeperApp extends Application {
       this.game.mines,
     );
     this.isGameStarted = false;
+    this.explodedMine = null;
     if (this.boardEl) {
       // Check if UI is initialized
       this.renderBoard();
@@ -298,15 +304,16 @@ export class MinesweeperApp extends Application {
 
     const { x, y } = cellEl.dataset;
     const result = this.game.revealCell(parseInt(x), parseInt(y));
-    this.renderBoard();
 
     if (result === "mine") {
       this.game.isGameOver = true;
+      this.explodedMine = { x: parseInt(x), y: parseInt(y) };
       this.stopTimer();
       this.smileyEl.css(
         "backgroundImage",
         `url(${new URL("../../assets/minesweeper/minesweeper-smiley-lose.png", import.meta.url).href})`,
       );
+      this.renderBoard();
       ShowDialogWindow({
         title: "Game Over",
         text: "You hit a mine!",
@@ -334,13 +341,17 @@ export class MinesweeperApp extends Application {
           text: "You cleared the board!",
         });
       }
+      this.renderBoard();
+    } else {
+      this.renderBoard();
     }
   }
 
   handleCellFlag(e) {
     e.preventDefault();
-    if (!e.target.classList.contains("cell")) return;
-    const { x, y } = e.target.dataset;
+    const cellEl = e.target.closest(".cell");
+    if (!cellEl) return;
+    const { x, y } = cellEl.dataset;
     this.game.toggleFlag(parseInt(x), parseInt(y));
     this.renderBoard();
     this.updateMineCount();
@@ -357,20 +368,56 @@ export class MinesweeperApp extends Application {
         cellEl.dataset.x = x;
         cellEl.dataset.y = y;
 
-        if (cell.isRevealed) {
-          cellEl.classList.add("revealed");
-          if (cell.isMine) {
-            cellEl.classList.add("mine");
-          } else if (cell.neighborMines > 0) {
-            const img = document.createElement("img");
-            img.src = new URL(
-              `../../assets/minesweeper/${cell.neighborMines}.png`,
-              import.meta.url,
-            ).href;
-            cellEl.appendChild(img);
+        if (use98Style) {
+          const tile = document.createElement("div");
+          tile.classList.add("tile");
+          let tileClass = "unopened";
+
+          if (this.game.isGameOver) {
+            if (cell.isMine && !cell.isFlagged) {
+              tileClass =
+                this.explodedMine &&
+                this.explodedMine.x === x &&
+                this.explodedMine.y === y
+                  ? "mine-exploded"
+                  : "mine";
+            } else if (!cell.isMine && cell.isFlagged) {
+              tileClass = "not-mine";
+            } else if (cell.isFlagged) {
+              tileClass = "flag";
+            } else if (cell.isRevealed) {
+              tileClass = `cell-${cell.neighborMines}`;
+            } else if (cell.isQuestion) {
+              tileClass = "question";
+            }
+          } else {
+            if (cell.isRevealed) {
+              tileClass = `cell-${cell.neighborMines}`;
+            } else if (cell.isFlagged) {
+              tileClass = "flag";
+            } else if (cell.isQuestion) {
+              tileClass = "question";
+            }
           }
-        } else if (cell.isFlagged) {
-          cellEl.classList.add("flagged");
+
+          tile.classList.add(tileClass);
+          cellEl.appendChild(tile);
+        } else {
+          if (cell.isRevealed) {
+            cellEl.classList.add("revealed");
+            if (cell.isMine) {
+              cellEl.classList.add("mine");
+            } else if (cell.neighborMines > 0) {
+              const img = document.createElement("img");
+              img.src = new URL(
+                `../../assets/minesweeper/${cell.neighborMines}.png`,
+                import.meta.url,
+              ).href;
+              cellEl.appendChild(img);
+            }
+          } else if (cell.isFlagged) {
+            cellEl.classList.add("flagged");
+          }
         }
         this.boardEl.append(cellEl);
       }
