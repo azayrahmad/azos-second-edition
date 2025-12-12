@@ -150,6 +150,12 @@ const directory = [
                 targetId: "app-diablo",
                 name: "Diablo",
               },
+              {
+                id: "shortcut-to-command-prompt",
+                type: "shortcut",
+                targetId: "command-prompt",
+                name: "MS-DOS Prompt",
+              },
             ],
           },
           {

@@ -25,6 +25,7 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { CommandPromptApp } from "../apps/command-prompt/CommandPromptApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -59,6 +60,7 @@ export const appClasses = {
   cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
+  "command-prompt": CommandPromptApp,
 };
 
 export const apps = [
@@ -532,5 +534,16 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "command-prompt",
+    title: "MS-DOS Prompt",
+    description: "Starts a new MS-DOS prompt.",
+    icon: ICONS.msdos,
+    appClass: CommandPromptApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
   },
 ];
