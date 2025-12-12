@@ -72,10 +72,14 @@
 
 .cell.mine {
     background-image: url("/src/assets/minesweeper/mine.png");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .cell.flagged {
     background-image: url("/src/assets/minesweeper/flag.png");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .cell.c1 {
