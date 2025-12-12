@@ -96,6 +96,7 @@ export class Application {
 
   _setupWindow(windowId, instanceKey) {
     this.win.element.id = windowId;
+    this.win.element.dataset.appId = this.id;
 
     this.win.onClosed(() => {
       if (this.hasTaskbarButton) {

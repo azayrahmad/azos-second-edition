@@ -1,4 +1,4 @@
-import { apps } from "../config/apps.js";
+import { apps, appClasses } from "../config/apps.js";
 import { applyWaitCursor, clearWaitCursor } from "./cursorManager.js";
 import { openApps } from '../apps/Application.js';
 import { playSound } from "./soundManager.js";
@@ -50,8 +50,9 @@ export async function launchApp(appId, data = null) {
     }
 
     try {
-        if (appConfig.appClass) {
-            const appInstance = new appConfig.appClass({ ...appConfig, id: appId });
+        const AppClass = appClasses[appId];
+        if (AppClass) {
+            const appInstance = new AppClass({ ...appConfig, id: appId });
             appManager.runningApps[appId] = appInstance;
             await appInstance.launch(data);
             document.dispatchEvent(new CustomEvent('app-launched', { detail: { appId } }));
