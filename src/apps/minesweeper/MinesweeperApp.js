@@ -48,7 +48,7 @@ export class MinesweeperApp extends Application {
           },
         },
         "MENU_DIVIDER",
-        { label: "High Scores...", action: () => this.showHighScores() },
+        { label: "Best Times...", action: () => this.showHighScores() },
         "MENU_DIVIDER",
         { label: "Exit", action: () => this.win.close() },
       ],
@@ -171,11 +171,14 @@ export class MinesweeperApp extends Application {
 
   showHighScores() {
     const contentHtml = `
-      <div style="text-align: center;">
-        <p>Beginner: ${this.highScores.beginner} seconds</p>
-        <p>Intermediate: ${this.highScores.intermediate} seconds</p>
-        <p>Expert: ${this.highScores.expert} seconds</p>
-      </div>
+      <fieldset>
+        <legend>Fastest Mine Sweepers</legend>
+          <div style="text-align: center;">
+            <p>Beginner: ${this.highScores.beginner} seconds</p>
+            <p>Intermediate: ${this.highScores.intermediate} seconds</p>
+            <p>Expert: ${this.highScores.expert} seconds</p>
+          </div>
+      </fieldset>
     `;
     const contentElement = document.createElement("div");
     contentElement.innerHTML = contentHtml;
@@ -328,10 +331,6 @@ export class MinesweeperApp extends Application {
         `url(${new URL("../../assets/minesweeper/minesweeper-smiley-lose.png", import.meta.url).href})`,
       );
       this.renderBoard();
-      ShowDialogWindow({
-        title: "Game Over",
-        text: "You hit a mine!",
-      });
     } else if (result === "win") {
       this.game.isGameOver = true;
       this.stopTimer();
@@ -346,13 +345,8 @@ export class MinesweeperApp extends Application {
         this.highScores[this.difficulty] = this.timer;
         setItem(HIGH_SCORES_KEY, this.highScores);
         ShowDialogWindow({
-          title: "New High Score!",
-          text: `New high score for ${this.difficulty}: ${this.timer} seconds!`,
-        });
-      } else {
-        ShowDialogWindow({
-          title: "You Win!",
-          text: "You cleared the board!",
+          title: "Congratulations",
+          text: `You have the fastest time for ${this.difficulty} level: ${this.timer} seconds!`,
         });
       }
       this.renderBoard();
