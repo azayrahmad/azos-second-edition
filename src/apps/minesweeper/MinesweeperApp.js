@@ -76,11 +76,14 @@ export class MinesweeperApp extends Application {
     this.win = win;
     this.difficulty = "beginner";
     this.isGameStarted = false;
-    this.highScores = getItem(HIGH_SCORES_KEY, {
-      beginner: 999,
-      intermediate: 999,
-      expert: 999,
-    });
+    this.highScores = getItem(HIGH_SCORES_KEY);
+    if (!this.highScores) {
+      this.highScores = {
+        beginner: 999,
+        intermediate: 999,
+        expert: 999,
+      };
+    }
     this.explodedMine = null;
 
     this.setDifficulty(9, 9, 10, "beginner");
@@ -158,17 +161,19 @@ export class MinesweeperApp extends Application {
   }
 
   showHighScores() {
-    const content = `
+    const contentHtml = `
       <div style="text-align: center;">
         <p>Beginner: ${this.highScores.beginner} seconds</p>
         <p>Intermediate: ${this.highScores.intermediate} seconds</p>
         <p>Expert: ${this.highScores.expert} seconds</p>
       </div>
     `;
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = contentHtml;
+
     ShowDialogWindow({
       title: "High Scores",
-      content,
-      buttons: { ok: "OK" },
+      content: contentElement,
     });
   }
 
@@ -327,7 +332,7 @@ export class MinesweeperApp extends Application {
       );
       if (
         this.difficulty !== "custom" &&
-        this.timer < this.highScores[this.difficulty]
+        (!this.highScores || this.timer < this.highScores[this.difficulty])
       ) {
         this.highScores[this.difficulty] = this.timer;
         setItem(HIGH_SCORES_KEY, this.highScores);
@@ -419,6 +424,7 @@ export class MinesweeperApp extends Application {
             cellEl.classList.add("flagged");
           } else if (this.game.isGameOver && cell.isMine) {
             cellEl.classList.add("mine");
+            cellEl.classList.add("revealed");
           }
         }
         this.boardEl.append(cellEl);
