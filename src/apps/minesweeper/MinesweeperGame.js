@@ -20,6 +20,7 @@ export class MinesweeperGame {
           isMine: false,
           isRevealed: false,
           isFlagged: false,
+          isQuestion: false,
           neighborMines: 0,
         });
       }
@@ -68,7 +69,7 @@ export class MinesweeperGame {
 
   revealCell(x, y) {
     const cell = this.board[y][x];
-    if (cell.isRevealed || cell.isFlagged) return;
+    if (cell.isRevealed || cell.isFlagged || cell.isQuestion) return;
     cell.isRevealed = true;
 
     if (cell.isMine) {
@@ -100,7 +101,15 @@ export class MinesweeperGame {
   toggleFlag(x, y) {
     const cell = this.board[y][x];
     if (cell.isRevealed) return;
-    cell.isFlagged = !cell.isFlagged;
+
+    if (!cell.isFlagged && !cell.isQuestion) {
+      cell.isFlagged = true;
+    } else if (cell.isFlagged) {
+      cell.isFlagged = false;
+      cell.isQuestion = true;
+    } else {
+      cell.isQuestion = false;
+    }
   }
 
   checkWinCondition() {
