@@ -77,11 +77,11 @@ export class MinesweeperApp extends Application {
     this.difficulty = "beginner";
     this.isGameStarted = false;
     this.highScores = getItem(HIGH_SCORES_KEY);
-    if (!this.highScores) {
+    if (!this.highScores || typeof this.highScores.beginner === "number") {
       this.highScores = {
-        beginner: 999,
-        intermediate: 999,
-        expert: 999,
+        beginner: { time: 999, name: "Anonymous" },
+        intermediate: { time: 999, name: "Anonymous" },
+        expert: { time: 999, name: "Anonymous" },
       };
     }
     this.explodedMine = null;
@@ -170,22 +170,56 @@ export class MinesweeperApp extends Application {
   }
 
   showHighScores() {
-    const contentHtml = `
+    const createScoresContent = (scores) => `
       <fieldset>
         <legend>Fastest Mine Sweepers</legend>
-          <div style="text-align: center;">
-            <p>Beginner: ${this.highScores.beginner} seconds</p>
-            <p>Intermediate: ${this.highScores.intermediate} seconds</p>
-            <p>Expert: ${this.highScores.expert} seconds</p>
-          </div>
+        <table style="width: 100%; border-spacing: 5px;">
+          <tbody>
+            <tr>
+              <td>Beginner</td>
+              <td style="text-align: right;">${scores.beginner.time}</td>
+              <td>${scores.beginner.name}</td>
+            </tr>
+            <tr>
+              <td>Intermediate</td>
+              <td style="text-align: right;">${scores.intermediate.time}</td>
+              <td>${scores.intermediate.name}</td>
+            </tr>
+            <tr>
+              <td>Expert</td>
+              <td style="text-align: right;">${scores.expert.time}</td>
+              <td>${scores.expert.name}</td>
+            </tr>
+          </tbody>
+        </table>
       </fieldset>
     `;
+
     const contentElement = document.createElement("div");
-    contentElement.innerHTML = contentHtml;
+    contentElement.innerHTML = createScoresContent(this.highScores);
 
     ShowDialogWindow({
-      title: "High Scores",
+      title: "Fastest Mine Sweepers",
       content: contentElement,
+      buttons: [
+        {
+          label: "Reset Scores",
+          action: () => {
+            this.highScores = {
+              beginner: { time: 999, name: "Anonymous" },
+              intermediate: { time: 999, name: "Anonymous" },
+              expert: { time: 999, name: "Anonymous" },
+            };
+            setItem(HIGH_SCORES_KEY, this.highScores);
+            contentElement.innerHTML = createScoresContent(this.highScores);
+          },
+        },
+        {
+          label: "OK",
+          isDefault: true,
+          action: (win) => win.close(),
+        },
+      ],
     });
   }
 
@@ -340,13 +374,38 @@ export class MinesweeperApp extends Application {
       );
       if (
         this.difficulty !== "custom" &&
-        (!this.highScores || this.timer < this.highScores[this.difficulty])
+        this.timer < this.highScores[this.difficulty].time
       ) {
-        this.highScores[this.difficulty] = this.timer;
-        setItem(HIGH_SCORES_KEY, this.highScores);
+        const content = document.createElement("div");
+        content.innerHTML = `
+          <p>You have the fastest time for the ${this.difficulty} level: ${this.timer} seconds!</p>
+          <p>Please enter your name.</p>
+          <input type="text" id="highscore-name" value="Anonymous" style="margin-top: 5px; width: 95%"/>
+        `;
+
         ShowDialogWindow({
           title: "Congratulations",
-          text: `You have the fastest time for ${this.difficulty} level: ${this.timer} seconds!`,
+          content: content,
+          buttons: [
+            {
+              label: "OK",
+              isDefault: true,
+              action: (win) => {
+                const nameInput = content.querySelector("#highscore-name");
+                this.highScores[this.difficulty] = {
+                  time: this.timer,
+                  name: nameInput.value || "Anonymous",
+                };
+                setItem(HIGH_SCORES_KEY, this.highScores);
+                win.close();
+              },
+            },
+          ],
+          onOpen: () => {
+            const nameInput = content.querySelector("#highscore-name");
+            nameInput.focus();
+            nameInput.select();
+          },
         });
       }
       this.renderBoard();
