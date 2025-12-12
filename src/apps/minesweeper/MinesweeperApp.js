@@ -417,6 +417,8 @@ export class MinesweeperApp extends Application {
             }
           } else if (cell.isFlagged) {
             cellEl.classList.add("flagged");
+          } else if (this.game.isGameOver && cell.isMine) {
+            cellEl.classList.add("mine");
           }
         }
         this.boardEl.append(cellEl);
