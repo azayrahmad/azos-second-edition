@@ -156,6 +156,7 @@ export class MinesweeperApp extends Application {
     ShowDialogWindow({
       title: "Custom Field",
       content: contentElement,
+      buttonLayout: 'right',
       buttons: [
         {
           label: "OK",

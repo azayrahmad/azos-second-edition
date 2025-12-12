@@ -16,6 +16,7 @@ import { playSound } from '../utils/soundManager.js';
  * @property {DialogButton[]} [buttons] - The buttons to display in the dialog.
  * @property {string} [soundEvent] - The name of the sound event to play.
  * @property {boolean} [modal=false] - Whether the dialog should be modal.
+ * @property {'right' | 'bottom'} [buttonLayout='bottom'] - The layout of the buttons.
  */
 
 /**
@@ -28,20 +29,21 @@ function ShowDialogWindow(options) {
         titleIconUrl,
         contentIconUrl,
         text,
-        content, // Added content property
+        content,
         buttons = [{ label: 'OK', action: () => { }, isDefault: true }],
         soundEvent,
         modal = false,
+        buttonLayout = 'bottom',
     } = options;
 
     const winOptions = {
-        title: title || 'Dialog',
         toolWindow: false,
         resizable: false,
         minimizeButton: false,
         maximizeButton: false,
         width: 400,
         height: 'auto',
+        buttonLayout: buttonLayout,
     };
 
     if (titleIconUrl) {
@@ -52,7 +54,7 @@ function ShowDialogWindow(options) {
         winOptions.icons = { any: icon };
     }
 
-    const win = new $Window(winOptions);
+    const win = new $FormWindow(title || 'Dialog', winOptions);
 
     // Create dialog content
     const contentContainer = document.createElement('div');
@@ -76,32 +78,27 @@ function ShowDialogWindow(options) {
         contentContainer.appendChild(textEl);
     }
 
-    // Create buttons
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'dialog-buttons';
+    win.$main.append(contentContainer);
 
+    // Create buttons
     buttons.forEach(btnDef => {
-        const button = document.createElement('button');
-        button.textContent = btnDef.label;
-        button.onclick = async () => {
+        const button = win.$Button(btnDef.label, async () => {
             if (btnDef.action) {
                 const result = await btnDef.action(win);
                 if (result === false) {
-                    return; // Don't close the dialog if action returns false
+                    return false; // Prevent closing
                 }
             }
-            win.close();
-        };
+        });
+
         if (btnDef.isDefault) {
-            button.classList.add('default');
+            button.addClass('default');
         }
         if (btnDef.disabled) {
-            button.disabled = true;
+            button.prop('disabled', true);
         }
-        buttonContainer.appendChild(button);
     });
 
-    win.$content.append(contentContainer, buttonContainer);
     win.center();
 
     // Handle modality
@@ -110,35 +107,27 @@ function ShowDialogWindow(options) {
         const screen = document.getElementById('screen');
         modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
-
-        // Use a high z-index, but relative to the window manager's current z-index
-        // This should be just below the dialog window itself.
         win.css('z-index', $Window.Z_INDEX + 1);
         modalOverlay.style.zIndex = $Window.Z_INDEX;
-        $Window.Z_INDEX += 2; // Increment for both overlay and window
-
+        $Window.Z_INDEX += 2;
         screen.appendChild(modalOverlay);
         win.onClosed(() => {
             screen.removeChild(modalOverlay);
         });
     }
 
-    // Play sound
     if (soundEvent) {
         playSound(soundEvent);
     }
 
-    // Auto-height adjustment
-    // The content needs to be rendered to get the correct height.
     setTimeout(() => {
-        const contentHeight = contentContainer.offsetHeight + buttonContainer.offsetHeight;
+        const contentHeight = win.$content.get(0).scrollHeight;
         const frameHeight = win.outerHeight() - win.$content.innerHeight();
-        win.outerHeight(contentHeight + frameHeight); // Add some padding
-        win.center(); // Recenter after resizing
+        win.outerHeight(contentHeight + frameHeight);
+        win.center();
     }, 0);
 
     win.focus();
-
     return win;
 }
 
