@@ -4,6 +4,7 @@ export class MinesweeperGame {
     this.height = height;
     this.mines = mines;
     this.board = this.createBoard();
+    this.isGameOver = false;
     this.placeMines();
     this.calculateNeighbors();
   }
