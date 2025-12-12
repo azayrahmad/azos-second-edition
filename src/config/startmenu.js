@@ -14,6 +14,7 @@ const startMenuAppIds = [
   "doom",
   "simcity2000",
   "diablo",
+  "esheep",
 ];
 const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "minesweeper"];
 

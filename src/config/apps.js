@@ -26,6 +26,8 @@ import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { ESheepApp } from "../apps/esheep/ESheepApp.js";
+import { getESheepMenuItems } from "../apps/esheep/esheep.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -60,6 +62,7 @@ export const appClasses = {
   cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
+  esheep: ESheepApp,
   minesweeper: MinesweeperApp,
 };
 
@@ -533,6 +536,18 @@ export const apps = [
           windowId: "control-panel",
         });
       },
+    },
+  },
+  {
+    id: "esheep",
+    title: "eSheep",
+    description: "A classic desktop pet.",
+    icon: ICONS.esheep,
+    appClass: ESheepApp,
+    hasTray: true,
+    isSingleton: true,
+    tray: {
+      contextMenu: getESheepMenuItems,
     },
   },
   {
