@@ -49,6 +49,7 @@ export class CommandPromptApp extends Application {
         background: "black",
         foreground: "#aaaaaa",
       },
+      wordWrap: true,
     });
 
     this.terminal.open(terminalContainer);
