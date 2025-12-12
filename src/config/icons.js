@@ -299,6 +299,10 @@ export const ICONS = {
     16: new URL("../assets/icons/diablo-16.png", import.meta.url).href,
     32: new URL("../assets/icons/diablo-32.png", import.meta.url).href,
   },
+  esheep: {
+    16: new URL("../assets/icons/MMSYS_110-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/MMSYS_110-32.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {

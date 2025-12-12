@@ -671,7 +671,7 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
 
-  const desktopApps = desktopContents;
+  const { apps: appIds, files: desktopFiles } = desktopContents;
 
   let iconPositions = {};
   if (!isAutoArrangeEnabled()) {
@@ -704,7 +704,7 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
   };
 
   // Load apps
-  const appsToLoad = apps.filter((app) => desktopApps.apps.includes(app.id));
+  const appsToLoad = apps.filter((app) => appIds.includes(app.id));
 
   // Default sort only if no positions are saved
   if (Object.keys(iconPositions).length === 0) {
@@ -735,7 +735,7 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
   });
 
   // Load files
-  desktopApps.files.forEach((file) => {
+  desktopFiles.forEach((file) => {
     const icon = createDesktopIcon(file, true);
     if (icon) {
       const app = apps.find((a) => a.id === file.app);
