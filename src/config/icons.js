@@ -303,6 +303,10 @@ export const ICONS = {
     16: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
     32: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
   },
+  minesweeper: {
+    16: new URL("../assets/minesweeper/minesweeper-icon-small.png", import.meta.url).href,
+    32: new URL("../assets/minesweeper/minesweeper-icon-large.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {

@@ -24,6 +24,7 @@ import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
+import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
@@ -62,6 +63,7 @@ export const appClasses = {
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
   esheep: ESheepApp,
+  minesweeper: MinesweeperApp,
 };
 
 export const apps = [
@@ -547,5 +549,16 @@ export const apps = [
     tray: {
       contextMenu: getESheepMenuItems,
     },
+  },
+  {
+    id: "minesweeper",
+    title: "Minesweeper",
+    description: "Play the classic game of Minesweeper.",
+    icon: ICONS.minesweeper,
+    appClass: MinesweeperApp,
+    width: 200,
+    height: 280,
+    resizable: false,
+    isSingleton: true,
   },
 ];
