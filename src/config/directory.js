@@ -15,6 +15,7 @@ const directory = [
           ...generateProgramFiles(),
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
+          { id: "app-minesweeper", type: "app", appId: "minesweeper" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -149,6 +150,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-diablo",
                 name: "Diablo",
+              },
+              {
+                id: "shortcut-to-minesweeper",
+                type: "shortcut",
+                targetId: "app-minesweeper",
+                name: "Minesweeper",
               },
             ],
           },

@@ -15,7 +15,7 @@ const startMenuAppIds = [
   "simcity2000",
   "diablo",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "minesweeper"];
 
 function getAppList(appListIds) {
   return appListIds
