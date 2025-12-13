@@ -100,24 +100,16 @@ function promptToContinue() {
     });
 }
 
-function showSetupMessage() {
-    const bootLogEl = document.getElementById("boot-log");
-    if (bootLogEl) {
-        const setupMessage = document.createElement("div");
-        setupMessage.style.marginTop = "20px";
-        setupMessage.textContent = "Press [DEL] to enter SETUP.";
-        bootLogEl.appendChild(setupMessage);
-    }
-}
-
 function showSetupScreen() {
     const bootLogEl = document.getElementById("boot-log");
     const biosInfoRow = document.getElementById("bios-info-row");
     const rightColumn = document.getElementById("boot-screen-right-column");
+    const footer = document.getElementById("boot-screen-footer");
 
     if (bootLogEl) bootLogEl.innerHTML = "";
     if (biosInfoRow) biosInfoRow.style.display = "none";
     if (rightColumn) rightColumn.style.display = "none";
+    if (footer) footer.style.display = "none";
 
     if (bootLogEl) {
         const welcomeMessage = document.createElement("div");
@@ -133,6 +125,5 @@ export {
     showBlinkingCursor,
     promptToContinue,
     removeLastBlinkingCursor,
-    showSetupMessage,
     showSetupScreen,
 };

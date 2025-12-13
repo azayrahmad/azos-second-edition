@@ -22,7 +22,6 @@ import {
   finalizeBootProcessStep,
   showBlinkingCursor,
   promptToContinue,
-  showSetupMessage,
   showSetupScreen,
 } from "./components/bootScreen.js";
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
@@ -249,7 +248,6 @@ async function initializeOS() {
     });
 
     await executeBootStep(async () => {
-      showSetupMessage();
       await promptToContinue();
     });
 
