@@ -4,24 +4,34 @@ This guide provides instructions on how to add new applications to azOS Second E
 
 ## Applications
 
-- **[3D Pinball](./pinball/README.md)**: A classic "Space Cadet" pinball game.
-- **[About](./about/README.md)**: A simple utility that displays information about the azOS Second Edition operating system.
-- **[App Maker](./appmaker/README.md)**: A tool to create custom, windowed applications using HTML.
-- **[Clippy](./clippy/README.md)**: An interactive AI assistant.
-- **[Desktop Themes](./desktopthemes/README.md)**: A utility for managing and previewing desktop visual themes.
-- **[Display Properties](./displayproperties/README.md)**: A tool for customizing wallpaper, screen savers, and display settings.
-- **[Explorer](./explorer/README.md)**: A file and folder navigation tool for the virtual file system.
-- **[Image Resizer](./image-resizer/README.md)**: A utility to enlarge images using nearest-neighbor scaling.
-- **[Image Viewer](./imageviewer/README.md)**: A simple application for viewing and editing image files.
-- **[Internet Explorer](./internet-explorer/README.md)**: A web browser with a "Retro Mode" for viewing websites from 1998.
-- **[Notepad](./notepad/README.md)**: A powerful text editor with syntax highlighting, code formatting, and Markdown preview.
-- **[Paint](./paint/README.md)**: A classic drawing and image editing application.
-- **[PDF Viewer](./pdfviewer/README.md)**: A simple application for viewing PDF documents.
-- **[Sound Scheme Explorer](./soundschemeexplorer/README.md)**: A utility to browse and preview system sound schemes.
-- **[Task Manager](./taskmanager/README.md)**: A utility to view and close running applications.
-- **[Theme to CSS](./themetocss/README.md)**: A developer utility to convert `.theme` INI files into CSS.
-- **[Tip of the Day](./tipOfTheDay/README.md)**: A helpful utility that displays useful hints and tricks to the user upon startup.
-- **[Webamp](./webamp/README.md)**: A faithful recreation of the classic Winamp music player.
+| Application | Description | README | Source |
+| :--- | :--- | :--- | :--- |
+| [About](./about/) | A simple utility that displays information about the azOS Second Edition operating system. | [link](./about/README.md) | |
+| [App Maker](./appmaker/) | A tool to create custom, windowed applications using HTML. | [link](./appmaker/README.md) | |
+| [Buy me a coffee](./buy-me-a-coffee/) | Support the developer. | missing | |
+| [Clippy](./clippy/) | An interactive AI assistant. | [link](./clippy/README.md) | |
+| [Commander Keen](./keen/) | Play the classic game Commander Keen. | missing | |
+| [Cursor Explorer](./cursorexplorer/) | Explore and preview cursor schemes. | missing | |
+| [Desktop Themes](./desktopthemes/) | A utility for managing and previewing desktop visual themes. | [link](./desktopthemes/README.md) | |
+| [Diablo](./diablo/) | Play the classic game Diablo. | missing | |
+| [Display Properties](./displayproperties/) | A tool for customizing wallpaper, screen savers, and display settings. | [link](./displayproperties/README.md) | |
+| [DOS Game](./dosgame/) | A generic launcher for various DOS games. | missing | |
+| [eSheep](./esheep/) | A classic desktop pet. | missing | |
+| [Explorer](./explorer/) | A file and folder navigation tool for the virtual file system. | [link](./explorer/README.md) | |
+| [Image Resizer](./image-resizer/) | A utility to enlarge images using nearest-neighbor scaling. | [link](./image-resizer/README.md) | |
+| [Image Viewer](./imageviewer/) | A simple application for viewing and editing image files. | [link](./imageviewer/README.md) | |
+| [Internet Explorer](./internet-explorer/) | A web browser with a "Retro Mode" for viewing websites from 1998. | [link](./internet-explorer/README.md) | |
+| [Media Player](./media-player/) | Play audio and video files. | missing | |
+| [Minesweeper](./minesweeper/) | Play the classic game of Minesweeper. | [link](./minesweeper/README.md) | |
+| [Notepad](./notepad/) | A powerful text editor with syntax highlighting, code formatting, and Markdown preview. | [link](./notepad/README.md) | |
+| [Paint](./paint/) | A classic drawing and image editing application. | [link](./paint/README.md) | |
+| [PDF Viewer](./pdfviewer/) | A simple application for viewing PDF documents. | [link](./pdfviewer/README.md) | |
+| [Pinball](./pinball/) | A classic "Space Cadet" pinball game. | [link](./pinball/README.md) | |
+| [Sound Scheme Explorer](./soundschemeexplorer/) | A utility to browse and preview system sound schemes. | [link](./soundschemeexplorer/README.md) | |
+| [Task Manager](./taskmanager/) | A utility to view and close running applications. | [link](./taskmanager/README.md) | |
+| [Theme to CSS](./themetocss/) | A developer utility to convert `.theme` INI files into CSS. | [link](./themetocss/README.md) | |
+| [Tip of the Day](./tipOfTheDay/) | A helpful utility that displays useful hints and tricks to the user upon startup. | [link](./tipOfTheDay/README.md) | |
+| [Webamp](./webamp/) | A faithful recreation of the classic Winamp music player. | [link](./webamp/README.md) | |
 
 ## Adding New Applications
 
