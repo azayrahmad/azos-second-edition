@@ -17,6 +17,7 @@ const directory = [
           { id: "app-esheep", type: "app", appId: "esheep" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
+          { id: "app-calculator", type: "app", appId: "calculator" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -163,6 +164,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-minesweeper",
                 name: "Minesweeper",
+              },
+              {
+                id: "shortcut-to-calculator",
+                type: "shortcut",
+                targetId: "app-calculator",
+                name: "Calculator",
               },
             ],
           },
