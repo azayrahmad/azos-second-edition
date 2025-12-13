@@ -1,3 +1,4 @@
+import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { createTaskbarButton, createTrayIcon } from "../components/taskbar.js";
 import { appManager } from "../utils/appManager.js";
 
@@ -137,5 +138,22 @@ export class Application {
 
     this.win.center();
     this.win.focus();
+  }
+
+  showProperties() {
+    let text = `<b>${this.config.title}</b>`;
+    if (this.config.description) {
+      text += `<br><br>${this.config.description}`;
+    }
+    if (this.config.summary) {
+      text += `<br><br>${this.config.summary}`;
+    }
+
+    ShowDialogWindow({
+      title: `${this.config.title} Properties`,
+      contentIconUrl: this.config.icon[32],
+      text: text,
+      buttons: [{ label: "OK", isDefault: true }],
+    });
   }
 }

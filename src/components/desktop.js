@@ -650,20 +650,30 @@ function deleteDroppedFile(fileId) {
 }
 
 function showProperties(app) {
-  let text = `<b>${app.title}</b>`;
-  if (app.description) {
-    text += `<br><br>${app.description}`;
-  }
-  if (app.summary) {
-    text += `<br><br>${app.summary}`;
-  }
+  // The 'app' object here is the configuration from apps.js.
+  // We can create a temporary, "headless" instance of the application
+  // to call the generic showProperties method. This works because the method
+  // only depends on the configuration data, not a live window.
+  if (app.appClass) {
+    const tempAppInstance = new app.appClass(app);
+    tempAppInstance.showProperties();
+  } else {
+    // Fallback for older apps or configs without a class
+    let text = `<b>${app.title}</b>`;
+    if (app.description) {
+      text += `<br><br>${app.description}`;
+    }
+    if (app.summary) {
+      text += `<br><br>${app.summary}`;
+    }
 
-  ShowDialogWindow({
-    title: `${app.title} Properties`,
-    contentIconUrl: app.icon[32],
-    text: text,
-    buttons: [{ label: "OK", isDefault: true }],
-  });
+    ShowDialogWindow({
+      title: `${app.title} Properties`,
+      contentIconUrl: app.icon[32],
+      text: text,
+      buttons: [{ label: "OK", isDefault: true }],
+    });
+  }
 }
 
 export function setupIcons(options, desktopContents = getDesktopContents()) {
