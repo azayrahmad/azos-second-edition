@@ -300,8 +300,8 @@ export const ICONS = {
     32: new URL("../assets/icons/diablo-32.png", import.meta.url).href,
   },
   msdos: {
-    16: new URL("../assets/icons/notepad-0.png", import.meta.url).href,
-    32: new URL("../assets/icons/NOTEPAD_1-32.png", import.meta.url).href,
+    16: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
   },
 };
 

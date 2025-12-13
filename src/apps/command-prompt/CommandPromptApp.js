@@ -21,7 +21,7 @@ export class CommandPromptApp extends Application {
     const win = new window.$Window({
       title: this.title,
       outerWidth: 640,
-      outerHeight: 480,
+      icons: this.icon,
       resizable: true,
       minimizeButton: this.minimizeButton,
       maximizeButton: this.maximizeButton,
@@ -44,6 +44,7 @@ export class CommandPromptApp extends Application {
     win.$content.append(content);
 
     this.terminal = new Terminal({
+      cursorStyle: "underline",
       cursorBlink: true,
       theme: {
         background: "black",
@@ -55,8 +56,8 @@ export class CommandPromptApp extends Application {
     });
 
     this.terminal.open(terminalContainer);
-    this.terminal.write("azOS Command Prompt [Version 1.0.0]\r\n");
-    this.terminal.write("(c) 2024 azOS. All rights reserved.\r\n\r\n");
+    this.terminal.write("Microsoft(R) Windows 98\r\n");
+    this.terminal.write("   (C)Copyright Microsoft Corp 1981-1999.\r\n\r\n");
     this.prompt();
 
     this.terminal.onData((data) => this.handleData(data));
@@ -66,7 +67,8 @@ export class CommandPromptApp extends Application {
 
   handleData(data) {
     const code = data;
-    if (code === "\u001b[A") { // Up arrow
+    if (code === "\u001b[A") {
+      // Up arrow
       if (this.historyIndex > 0) {
         this.historyIndex--;
         this.currentCommand = this.commandHistory[this.historyIndex];
@@ -74,7 +76,8 @@ export class CommandPromptApp extends Application {
         this.prompt();
         this.terminal.write(this.currentCommand);
       }
-    } else if (code === "\u001b[B") { // Down arrow
+    } else if (code === "\u001b[B") {
+      // Down arrow
       if (this.historyIndex < this.commandHistory.length - 1) {
         this.historyIndex++;
         this.currentCommand = this.commandHistory[this.historyIndex];
@@ -87,11 +90,13 @@ export class CommandPromptApp extends Application {
         this.terminal.write("\x1b[2K\r");
         this.prompt();
       }
-    } else if (code.charCodeAt(0) === 13) { // Enter
+    } else if (code.charCodeAt(0) === 13) {
+      // Enter
       this.terminal.write("\r\n");
       this.processCommand(this.currentCommand);
       this.currentCommand = "";
-    } else if (code.charCodeAt(0) === 127) { // Backspace
+    } else if (code.charCodeAt(0) === 127) {
+      // Backspace
       if (this.currentCommand.length > 0) {
         this.terminal.write("\b \b");
         this.currentCommand = this.currentCommand.slice(0, -1);
@@ -112,13 +117,17 @@ export class CommandPromptApp extends Application {
     this.commandHistory.push(command);
     this.historyIndex = this.commandHistory.length;
 
-    const [cmd, ...args] = command.match(/(?:[^\s"]+|"[^"]*")+/g).map(arg => arg.replace(/"/g, ""));
+    const [cmd, ...args] = command
+      .match(/(?:[^\s"]+|"[^"]*")+/g)
+      .map((arg) => arg.replace(/"/g, ""));
 
     switch (cmd.toLowerCase()) {
       case "help":
         this.terminal.write("Available commands:\r\n");
         this.terminal.write("  ls - Lists files and directories\r\n");
-        this.terminal.write("  cd <directory> - Changes the current directory\r\n");
+        this.terminal.write(
+          "  cd <directory> - Changes the current directory\r\n",
+        );
         this.terminal.write("  clear - Clears the screen\r\n");
         this.terminal.write("  help - Displays this help message\r\n");
         this.terminal.write("  <app-id> - Launches an application\r\n");
@@ -127,7 +136,7 @@ export class CommandPromptApp extends Application {
       case "ls":
         const item = findItemByPath(this.currentDirectory);
         if (item && item.children) {
-          item.children.forEach(child => {
+          item.children.forEach((child) => {
             this.terminal.write(`${child.name}  <${child.type}>\r\n`);
           });
         }
@@ -142,7 +151,10 @@ export class CommandPromptApp extends Application {
         const newPath = this.resolvePath(args[0]);
         const targetItem = findItemByPath(newPath);
 
-        if (targetItem && (targetItem.type === "folder" || targetItem.type === "drive")) {
+        if (
+          targetItem &&
+          (targetItem.type === "folder" || targetItem.type === "drive")
+        ) {
           this.currentDirectory = newPath;
         } else {
           this.terminal.write(`Directory not found: ${args[0]}\r\n`);
@@ -154,11 +166,17 @@ export class CommandPromptApp extends Application {
         break;
 
       default:
-        const app = apps.find(app => app.id.toLowerCase() === cmd.toLowerCase() || app.title.toLowerCase() === cmd.toLowerCase());
+        const app = apps.find(
+          (app) =>
+            app.id.toLowerCase() === cmd.toLowerCase() ||
+            app.title.toLowerCase() === cmd.toLowerCase(),
+        );
         if (app) {
           launchApp(app.id);
         } else {
-          this.terminal.write(`'${cmd}' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n`);
+          this.terminal.write(
+            `'${cmd}' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n`,
+          );
         }
         break;
     }
@@ -166,7 +184,9 @@ export class CommandPromptApp extends Application {
   }
 
   prompt() {
-    let pathString = this.currentDirectory.replace("/drive-c", "C:").replace(new RegExp("/", "g"), "\\");
+    let pathString = this.currentDirectory
+      .replace("/drive-c", "C:")
+      .replace(new RegExp("/", "g"), "\\");
     if (pathString === "C:") {
       pathString = "C:\\";
     }
