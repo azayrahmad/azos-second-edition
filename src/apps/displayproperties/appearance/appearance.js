@@ -1,5 +1,5 @@
 import {
-  getThemes,
+  getColorSchemes,
   getColorSchemeId,
   setColorScheme,
 } from "../../../utils/themeManager.js";
@@ -44,12 +44,12 @@ export const appearanceTab = {
     `;
     $previewContainer.prepend(styleBlock);
 
-    const themes = getThemes();
+    const schemes = getColorSchemes();
     const currentSchemeId = getColorSchemeId();
 
-    Object.values(themes).forEach((theme) => {
-      const $option = $("<option>").val(theme.id).text(theme.name);
-      if (theme.id === currentSchemeId) {
+    Object.entries(schemes).forEach(([id, scheme]) => {
+      const $option = $("<option>").val(id).text(scheme.name);
+      if (id === currentSchemeId) {
         $option.prop("selected", true);
       }
       $schemeSelect.append($option);
