@@ -67,4 +67,12 @@ export const colorSchemes = {
     name: "Windows 98",
     url: "os-gui/win-98.css",
   },
+  blue: {
+    name: "(OS-GUI) Blue",
+    url: "os-gui/blue.css",
+  },
+  "peggys-pastels": {
+    name: "(OS-GUI) Peggy's Pastels",
+    url: "os-gui/peggys-pastels.css",
+  },
 };
