@@ -49,6 +49,8 @@ export class CommandPromptApp extends Application {
         background: "black",
         foreground: "#aaaaaa",
       },
+      fontFamily: '"IBM BIOS", Courier, monospace',
+      fontSize: 13,
       wordWrap: true,
     });
 
