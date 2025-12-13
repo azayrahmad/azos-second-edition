@@ -11,6 +11,7 @@ import {
   getColorSchemeId,
   getActiveTheme,
   getIconSchemeName,
+  getColorSchemes,
 } from "../../utils/themeManager.js";
 import {
   fetchThemeCss,
@@ -182,8 +183,10 @@ export class DesktopThemesApp extends Application {
     rightPanel.appendChild(settingsFieldset);
 
     const themes = getThemes();
+    const colorSchemes = getColorSchemes();
     const activeTheme = getActiveTheme();
     const currentColorSchemeId = getColorSchemeId() || activeTheme.id;
+    const currentColorScheme = colorSchemes[currentColorSchemeId];
     const currentColorSchemeTheme = themes[currentColorSchemeId] || activeTheme;
     const currentWallpaper =
       getItem(LOCAL_STORAGE_KEYS.WALLPAPER) || activeTheme.wallpaper;
@@ -195,8 +198,8 @@ export class DesktopThemesApp extends Application {
       )) {
         currentColors[`--${key.replace(/^--/, "")}`] = value;
       }
-    } else if (currentColorSchemeTheme.stylesheet) {
-      const cssText = await fetchThemeCss(currentColorSchemeTheme.stylesheet);
+    } else if (currentColorScheme) {
+      const cssText = await fetchThemeCss(currentColorScheme.url);
       if (cssText) {
         const parsedVariables = parseCssVariables(cssText);
         for (const [key, value] of Object.entries(parsedVariables)) {
@@ -280,7 +283,7 @@ export class DesktopThemesApp extends Application {
       ...baseTheme,
       id: "custom",
       name: "Current Windows settings",
-      stylesheet: null,
+      colorSchemeId: null,
       colors: colors,
       wallpaper: wallpaper,
     };
@@ -448,7 +451,7 @@ export class DesktopThemesApp extends Application {
       ...themes.default,
       id: newThemeId,
       name: finalName,
-      stylesheet: null,
+      colorSchemeId: null,
       colors: colors,
       wallpaper: wallpaper,
       isCustom: true,

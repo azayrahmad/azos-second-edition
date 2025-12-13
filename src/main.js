@@ -5,6 +5,7 @@ import "./styles/shutdown-screen.css";
 
 import splashBg from "./assets/img/splash.png";
 import { themes } from "./config/themes.js";
+import { colorSchemes } from "./config/colorSchemes.js";
 import { setupCounter } from "./counter.js";
 import { initDesktop } from "./components/desktop.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "./utils/localStorage.js";
@@ -188,13 +189,12 @@ async function initializeOS() {
     }
 
     function loadThemeStylesheets() {
-      Object.values(themes).forEach((theme) => {
-        if (theme.id === "default") return;
+      Object.entries(colorSchemes).forEach(([id, scheme]) => {
         const link = document.createElement("link");
-        link.id = `${theme.id}-theme`;
+        link.id = `${id}-theme`;
         link.rel = "stylesheet";
-        link.href = `./os-gui/${theme.stylesheet}`;
-        link.disabled = true;
+        link.href = `./${scheme.url}`;
+        link.disabled = id !== "default"; // Enable default theme initially
         document.head.appendChild(link);
       });
     }
@@ -206,19 +206,15 @@ async function initializeOS() {
     });
 
     await executeBootStep(async () => {
-      let logElement = startBootProcessStep("Detecting mouse...");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      finalizeBootProcessStep(logElement, "OK");
-    });
-
-    await executeBootStep(async () => {
       let logElement = startBootProcessStep("Connecting to network...");
       await new Promise((resolve) => setTimeout(resolve, 1000));
       finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
     });
 
     await executeBootStep(async () => {
-      let logElement = startBootProcessStep("Preloading default theme assets...");
+      let logElement = startBootProcessStep(
+        "Preloading default theme assets...",
+      );
       await preloadThemeAssets("default");
       finalizeBootProcessStep(logElement, "OK");
     });
@@ -318,7 +314,6 @@ async function initializeOS() {
 
     resetInactivityTimer();
     initScreenManager(); // Initialize the screen manager
-
   } catch (error) {
     if (error.message !== "Setup interrupted") {
       console.error("An error occurred during boot:", error);

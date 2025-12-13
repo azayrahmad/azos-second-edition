@@ -5,6 +5,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from "./localStorage.js";
 import { themes } from "../config/themes.js";
+import { colorSchemes } from "../config/colorSchemes.js";
 import {
   applyCursorTheme,
   applyBusyCursor,
@@ -58,6 +59,10 @@ export function getThemes() {
   return { ...themes, ...customThemes };
 }
 
+export function getColorSchemes() {
+  return colorSchemes;
+}
+
 // Gets the full theme object from localStorage, with a fallback to default.
 // Gets the ID of the base active theme.
 export function getActiveThemeId() {
@@ -74,9 +79,7 @@ export function getActiveTheme() {
 // --- Individual Scheme Getters with Overrides ---
 
 export function getColorSchemeId() {
-  return (
-    getItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME) || getActiveThemeId()
-  );
+  return getItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME) || getActiveThemeId();
 }
 
 export function getSoundSchemeName() {
@@ -123,18 +126,17 @@ function removeStylesheet(themeId) {
 
 export async function applyTheme() {
   const allThemes = getThemes();
+  const allColorSchemes = getColorSchemes();
   const colorSchemeId = getColorSchemeId();
   const cursorSchemeId = getCursorSchemeId();
-  const colorSchemeTheme = allThemes[colorSchemeId] || themes.default;
-
+  const colorScheme = allColorSchemes[colorSchemeId];
+  const customThemeForColors = allThemes[colorSchemeId];
 
   // --- Cleanup Phase ---
-  // Disable all built-in theme stylesheets (except 'default', which is the base)
-  for (const themeId in themes) {
-    if (themeId !== "default") {
-      const stylesheet = document.getElementById(`${themeId}-theme`);
-      if (stylesheet) stylesheet.disabled = true;
-    }
+  // Disable all built-in theme stylesheets
+  for (const schemeId in allColorSchemes) {
+    const stylesheet = document.getElementById(`${schemeId}-theme`);
+    if (stylesheet) stylesheet.disabled = true;
   }
 
   // Remove all stylesheets for saved custom themes
@@ -149,31 +151,39 @@ export async function applyTheme() {
   // --- Application Phase ---
   applyCursorTheme(cursorSchemeId);
 
-  if (colorSchemeTheme.stylesheet && themes[colorSchemeTheme.id]) {
-    // It's a built-in theme, enable its stylesheet.
-    const stylesheet = document.getElementById(`${colorSchemeTheme.id}-theme`);
+  // Check for built-in color scheme first
+  if (colorScheme) {
+    const stylesheet = document.getElementById(`${colorSchemeId}-theme`);
     if (stylesheet) {
       stylesheet.disabled = false;
     }
-  } else if (colorSchemeTheme.colors) {
+  } else if (customThemeForColors && customThemeForColors.colors) {
     // It's a custom or temporary theme, so generate and apply its CSS.
     await loadThemeParser();
     if (window.makeThemeCSSFile) {
-      const cssContent = window.makeThemeCSSFile(colorSchemeTheme.colors);
+      const cssContent = window.makeThemeCSSFile(customThemeForColors.colors);
       // Use 'custom' id for the temporary theme from the app, otherwise the theme's own id.
       const styleId =
-        colorSchemeTheme.id === "custom" ? "custom" : colorSchemeTheme.id;
+        customThemeForColors.id === "custom"
+          ? "custom"
+          : customThemeForColors.id;
       applyStylesheet(styleId, cssContent);
     }
+  } else {
+    // Fallback to default if nothing is found
+    const defaultStylesheet = document.getElementById(`default-theme`);
+    if (defaultStylesheet) defaultStylesheet.disabled = false;
   }
 }
 
 export async function setColorScheme(schemeId) {
   applyBusyCursor(document.body);
   try {
-    const allThemes = getThemes();
-    if (!allThemes[schemeId]) {
+    const allSchemes = getColorSchemes();
+    const allThemes = getThemes(); // For custom themes
+    if (!allSchemes[schemeId] && !allThemes[schemeId]?.colors) {
       console.error(`Color scheme with key "${schemeId}" not found.`);
+      clearBusyCursor(document.body);
       return;
     }
     setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, schemeId);
