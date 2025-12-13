@@ -29,7 +29,7 @@ export class CalculatorApp extends Application {
     this.win.$content.html(`
             <div class="calculator-container">
                 <div class="calculator-display-container">
-                    <div class="calculator-display">0.</div>
+                    <div class="calculator-display inset-deep">0.</div>
                 </div>
                 <div class="calculator-buttons"></div>
             </div>
@@ -174,11 +174,7 @@ export class CalculatorApp extends Application {
         { label: "MS" },
         { label: "M+" },
       ],
-      controls: [
-        { label: "Backspace" },
-        { label: "CE" },
-        { label: "C" },
-      ],
+      controls: [{ label: "Backspace" }, { label: "CE" }, { label: "C" }],
       main: [
         [
           { label: "7" },

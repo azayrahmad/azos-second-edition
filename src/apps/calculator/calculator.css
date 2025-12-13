@@ -20,13 +20,11 @@
 
 .calculator-display {
     background-color: white;
-    border: 1px solid var(--border-dark);
     height: 28px;
     line-height: 28px;
     text-align: right;
     padding: 0 5px;
-    font-size: 14px;
-    font-family: "monospace";
+    font-family: var(--font-family-base);
     overflow: hidden;
     white-space: nowrap;
 }
@@ -80,8 +78,7 @@
 
 .standard-layout-container {
     display: flex;
-    gap: 5px;
-    height: 100%;
+    gap: 8px;
 }
 
 .memory-buttons {
@@ -95,7 +92,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: 5px;
+    gap: 8px;
 }
 
 .control-buttons {
@@ -107,7 +104,7 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap: 5px;
+    gap: 3px;
     flex: 1;
 }
 
@@ -117,11 +114,12 @@
 
 .control-buttons .calc-button {
     flex-grow: 1;
+    padding: 0;
 }
 
 .calc-button {
-    min-width: 35px;
-    min-height: 26px;
+    width: 35px;
+    height: 28px;
     box-sizing: border-box;
     font-size: var(--font-size-base);
 }
