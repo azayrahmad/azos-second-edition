@@ -105,62 +105,111 @@ export class CalculatorApp extends Application {
     }
 
     let buttonsHTML = "";
-    layout.forEach((row) => {
-      buttonsHTML += '<div class="button-row">';
-      row.forEach((button) => {
-        const id = button.id ? `id="${button.id}"` : "";
-        const style = button.style ? `style="${button.style}"` : "";
-        const className = `class="calc-button ${button.class || ""}"`;
-        buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
+    if (this.mode === "standard") {
+      buttonsHTML += '<div class="standard-layout-container">';
+
+      // Column 1: Memory buttons
+      buttonsHTML += '<div class="memory-buttons">';
+      layout.memory.forEach((button) => {
+        if (button.key === "noop") {
+          buttonsHTML +=
+            '<button class="calc-button blank-button" disabled></button>';
+        } else {
+          const className = `class="calc-button ${button.class || ""}"`;
+          buttonsHTML += `<button data-key="${
+            button.label
+          }" ${className}>${button.label}</button>`;
+        }
       });
       buttonsHTML += "</div>";
-    });
+
+      // Column 2: Main area
+      buttonsHTML += '<div class="main-area">';
+
+      buttonsHTML += '<div class="control-buttons">';
+      layout.controls.forEach((button) => {
+        const className = `class="calc-button ${button.class || ""}"`;
+        buttonsHTML += `<button data-key="${
+          button.label
+        }" ${className}>${button.label}</button>`;
+      });
+      buttonsHTML += "</div>";
+
+      buttonsHTML += '<div class="main-buttons">';
+      layout.main.forEach((row) => {
+        row.forEach((button) => {
+          const className = `class="calc-button ${button.class || ""}"`;
+          buttonsHTML += `<button data-key="${
+            button.label
+          }" ${className}>${button.label}</button>`;
+        });
+      });
+      buttonsHTML += "</div>";
+
+      buttonsHTML += "</div>"; // end .main-area
+      buttonsHTML += "</div>"; // end .standard-layout-container
+    } else {
+      layout.forEach((row) => {
+        buttonsHTML += '<div class="button-row">';
+        row.forEach((button) => {
+          const id = button.id ? `id="${button.id}"` : "";
+          const style = button.style ? `style="${button.style}"` : "";
+          const className = `class="calc-button ${button.class || ""}"`;
+          buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
+        });
+        buttonsHTML += "</div>";
+      });
+    }
 
     buttonsContainer.innerHTML = buttonsHTML;
     this._attachButtonListeners();
   }
 
   _getStandardLayout() {
-    return [
-      [
-        { label: "", style: "width: 25px;", key: "noop" },
+    return {
+      memory: [
+        { label: "", key: "noop" },
+        { label: "MC" },
+        { label: "MR" },
+        { label: "MS" },
+        { label: "M+" },
+      ],
+      controls: [
         { label: "Backspace" },
         { label: "CE" },
         { label: "C" },
       ],
-      [
-        { label: "MC" },
-        { label: "7" },
-        { label: "8" },
-        { label: "9" },
-        { label: "/", class: "red-text" },
-        { label: "sqrt", class: "blue-text" },
+      main: [
+        [
+          { label: "7" },
+          { label: "8" },
+          { label: "9" },
+          { label: "/", class: "red-text" },
+          { label: "sqrt", class: "blue-text" },
+        ],
+        [
+          { label: "4" },
+          { label: "5" },
+          { label: "6" },
+          { label: "*", class: "red-text" },
+          { label: "%", class: "blue-text" },
+        ],
+        [
+          { label: "1" },
+          { label: "2" },
+          { label: "3" },
+          { label: "-", class: "red-text" },
+          { label: "1/x", class: "blue-text" },
+        ],
+        [
+          { label: "0" },
+          { label: "+/-" },
+          { label: "." },
+          { label: "+", class: "red-text" },
+          { label: "=", class: "red-text" },
+        ],
       ],
-      [
-        { label: "MR" },
-        { label: "4" },
-        { label: "5" },
-        { label: "6" },
-        { label: "*", class: "red-text" },
-        { label: "%", class: "blue-text" },
-      ],
-      [
-        { label: "MS" },
-        { label: "1" },
-        { label: "2" },
-        { label: "3" },
-        { label: "-", class: "red-text" },
-        { label: "1/x", class: "blue-text" },
-      ],
-      [
-        { label: "M+" },
-        { label: "0" },
-        { label: "+/-" },
-        { label: "." },
-        { label: "+", class: "red-text" },
-        { label: "=", class: "red-text" },
-      ],
-    ];
+    };
   }
 
   _getScientificLayout() {
