@@ -4,34 +4,51 @@ This guide provides instructions on how to add new applications to azOS Second E
 
 ## Applications
 
+### Games & Entertainment
+*For applications that are primarily for fun and leisure.*
+| Application | Description | README | Source |
+| :--- | :--- | :--- | :--- |
+| [Commander Keen](./keen/) | Play the classic game Commander Keen. | missing | |
+| [Diablo](./diablo/) | Play the classic game Diablo. | missing | |
+| [DOS Game](./dosgame/) | A generic launcher for various DOS games. | missing | |
+| [eSheep](./esheep/) | A classic desktop pet. | missing | |
+| [Media Player](./media-player/) | Play audio and video files. | missing | |
+| [Minesweeper](./minesweeper/) | Play the classic game of Minesweeper. | [link](./minesweeper/README.md) | |
+| [Pinball](./pinball/) | A classic "Space Cadet" pinball game. | [link](./pinball/README.md) | |
+| [Webamp](./webamp/) | A faithful recreation of the classic Winamp music player. | [link](./webamp/README.md) | |
+
+### System Utilities
+*For tools that help manage, configure, or provide information about the OS.*
 | Application | Description | README | Source |
 | :--- | :--- | :--- | :--- |
 | [About](./about/) | A simple utility that displays information about the azOS Second Edition operating system. | [link](./about/README.md) | |
-| [App Maker](./appmaker/) | A tool to create custom, windowed applications using HTML. | [link](./appmaker/README.md) | |
-| [Buy me a coffee](./buy-me-a-coffee/) | Support the developer. | missing | |
-| [Clippy](./clippy/) | An interactive AI assistant. | [link](./clippy/README.md) | |
-| [Commander Keen](./keen/) | Play the classic game Commander Keen. | missing | |
 | [Cursor Explorer](./cursorexplorer/) | Explore and preview cursor schemes. | missing | |
 | [Desktop Themes](./desktopthemes/) | A utility for managing and previewing desktop visual themes. | [link](./desktopthemes/README.md) | |
-| [Diablo](./diablo/) | Play the classic game Diablo. | missing | |
 | [Display Properties](./displayproperties/) | A tool for customizing wallpaper, screen savers, and display settings. | [link](./displayproperties/README.md) | |
-| [DOS Game](./dosgame/) | A generic launcher for various DOS games. | missing | |
-| [eSheep](./esheep/) | A classic desktop pet. | missing | |
 | [Explorer](./explorer/) | A file and folder navigation tool for the virtual file system. | [link](./explorer/README.md) | |
+| [Sound Scheme Explorer](./soundschemeexplorer/) | A utility to browse and preview system sound schemes. | [link](./soundschemeexplorer/README.md) | |
+| [Task Manager](./taskmanager/) | A utility to view and close running applications. | [link](./taskmanager/README.md) | |
+| [Tip of the Day](./tipOfTheDay/) | A helpful utility that displays useful hints and tricks to the user upon startup. | [link](./tipOfTheDay/README.md) | |
+
+### Accessories & Tools
+*For general-purpose productivity, creative, or developer tools.*
+| Application | Description | README | Source |
+| :--- | :--- | :--- | :--- |
+| [App Maker](./appmaker/) | A tool to create custom, windowed applications using HTML. | [link](./appmaker/README.md) | |
+| [Clippy](./clippy/) | An interactive AI assistant. | [link](./clippy/README.md) | |
 | [Image Resizer](./image-resizer/) | A utility to enlarge images using nearest-neighbor scaling. | [link](./image-resizer/README.md) | |
 | [Image Viewer](./imageviewer/) | A simple application for viewing and editing image files. | [link](./imageviewer/README.md) | |
 | [Internet Explorer](./internet-explorer/) | A web browser with a "Retro Mode" for viewing websites from 1998. | [link](./internet-explorer/README.md) | |
-| [Media Player](./media-player/) | Play audio and video files. | missing | |
-| [Minesweeper](./minesweeper/) | Play the classic game of Minesweeper. | [link](./minesweeper/README.md) | |
 | [Notepad](./notepad/) | A powerful text editor with syntax highlighting, code formatting, and Markdown preview. | [link](./notepad/README.md) | |
 | [Paint](./paint/) | A classic drawing and image editing application. | [link](./paint/README.md) | |
 | [PDF Viewer](./pdfviewer/) | A simple application for viewing PDF documents. | [link](./pdfviewer/README.md) | |
-| [Pinball](./pinball/) | A classic "Space Cadet" pinball game. | [link](./pinball/README.md) | |
-| [Sound Scheme Explorer](./soundschemeexplorer/) | A utility to browse and preview system sound schemes. | [link](./soundschemeexplorer/README.md) | |
-| [Task Manager](./taskmanager/) | A utility to view and close running applications. | [link](./taskmanager/README.md) | |
 | [Theme to CSS](./themetocss/) | A developer utility to convert `.theme` INI files into CSS. | [link](./themetocss/README.md) | |
-| [Tip of the Day](./tipOfTheDay/) | A helpful utility that displays useful hints and tricks to the user upon startup. | [link](./tipOfTheDay/README.md) | |
-| [Webamp](./webamp/) | A faithful recreation of the classic Winamp music player. | [link](./webamp/README.md) | |
+
+### Community & Support
+*For applications related to supporting the project or its developer.*
+| Application | Description | README | Source |
+| :--- | :--- | :--- | :--- |
+| [Buy me a coffee](./buy-me-a-coffee/) | Support the developer. | missing | |
 
 ## Adding New Applications
 
