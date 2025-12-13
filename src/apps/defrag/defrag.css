@@ -1,0 +1,64 @@
+.defrag-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--button-face);
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.defrag-grid-container {
+  flex-grow: 1;
+  background-color: var(--button-face);
+  margin-bottom: 12px;
+  overflow: hidden;
+  display: grid;
+  grid-auto-rows: 10px;
+  gap: 1px;
+  padding: 1px;
+  background: var(--button-shadow);
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+}
+
+.block {
+  width: 10px;
+  height: 10px;
+}
+
+.block-free { background-color: #00FFFF; }
+.block-fragmented { background-color: #0000FF; }
+.block-unmovable { background-color: #00FF00; }
+.block-reading { background-color: #FFFF00; }
+.block-writing { background-color: #FF0000; }
+
+.status-bar {
+  margin-bottom: 6px;
+  height: 16px;
+}
+
+.status-text {
+  font-size: 12px;
+}
+
+.progress-bar {
+  height: 24px;
+  padding: 3px;
+  margin-bottom: 12px;
+}
+
+.progress {
+  height: 100%;
+  background-color: var(--header-background);
+  display: flex;
+}
+
+.control-panel {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.control-panel button {
+  min-width: 75px;
+}
