@@ -1,4 +1,4 @@
-import { playSound } from '../utils/soundManager.js';
+import { playSound } from "../utils/soundManager.js";
 
 /**
  * @typedef {object} DialogButton
@@ -23,131 +23,134 @@ import { playSound } from '../utils/soundManager.js';
  * @param {DialogOptions} options
  */
 function ShowDialogWindow(options) {
-    const {
-        title,
-        titleIconUrl,
-        contentIconUrl,
-        text,
-        content, // Added content property
-        buttons = [{ label: 'OK', action: () => { }, isDefault: true }],
-        soundEvent,
-        modal = false,
-    } = options;
+  const {
+    title,
+    titleIconUrl,
+    contentIconUrl,
+    text,
+    content, // Added content property
+    buttons = [{ label: "OK", action: () => {}, isDefault: true }],
+    soundEvent,
+    modal = false,
+  } = options;
 
-    const winOptions = {
-        title: title || 'Dialog',
-        toolWindow: false,
-        resizable: false,
-        minimizeButton: false,
-        maximizeButton: false,
-        width: 400,
-        height: 'auto',
+  const winOptions = {
+    title: title || "Dialog",
+    toolWindow: false,
+    resizable: false,
+    minimizeButton: false,
+    maximizeButton: false,
+    width: 400,
+    height: "auto",
+  };
+
+  if (titleIconUrl) {
+    const icon = document.createElement("img");
+    icon.src = titleIconUrl;
+    icon.width = 16;
+    icon.height = 16;
+    winOptions.icons = { any: icon };
+  }
+
+  const win = new $Window(winOptions);
+
+  // Create dialog content
+  const contentContainer = document.createElement("div");
+  contentContainer.className = "dialog-content";
+
+  if (content) {
+    contentContainer.appendChild(content);
+  } else {
+    if (contentIconUrl) {
+      const icon = document.createElement("img");
+      icon.src = contentIconUrl;
+      icon.className = "dialog-content-icon";
+      icon.width = 32;
+      icon.height = 32;
+      contentContainer.appendChild(icon);
+    }
+
+    const textEl = document.createElement("div");
+    textEl.className = "dialog-content-text";
+    textEl.innerHTML = text;
+    contentContainer.appendChild(textEl);
+  }
+
+  // Create buttons
+  const buttonContainer = document.createElement("div");
+  buttonContainer.className = "dialog-buttons";
+
+  buttons.forEach((btnDef) => {
+    const button = document.createElement("button");
+    button.textContent = btnDef.label;
+    button.onclick = async () => {
+      if (btnDef.action) {
+        const result = await btnDef.action(win);
+        if (result === false) {
+          return; // Don't close the dialog if action returns false
+        }
+      }
+      win.close();
     };
-
-    if (titleIconUrl) {
-        const icon = document.createElement('img');
-        icon.src = titleIconUrl;
-        icon.width = 16;
-        icon.height = 16;
-        winOptions.icons = { any: icon };
+    if (btnDef.isDefault) {
+      button.classList.add("default");
     }
-
-    const win = new $Window(winOptions);
-
-    // Create dialog content
-    const contentContainer = document.createElement('div');
-    contentContainer.className = 'dialog-content';
-
-    if (content) {
-        contentContainer.appendChild(content);
-    } else {
-        if (contentIconUrl) {
-            const icon = document.createElement('img');
-            icon.src = contentIconUrl;
-            icon.className = 'dialog-content-icon';
-            icon.width = 32;
-            icon.height = 32;
-            contentContainer.appendChild(icon);
-        }
-
-        const textEl = document.createElement('div');
-        textEl.className = 'dialog-content-text';
-        textEl.innerHTML = text;
-        contentContainer.appendChild(textEl);
+    if (btnDef.disabled) {
+      button.disabled = true;
     }
+    buttonContainer.appendChild(button);
+  });
 
-    // Create buttons
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'dialog-buttons';
+  win.$content.append(contentContainer, buttonContainer);
+  win.center();
 
-    buttons.forEach(btnDef => {
-        const button = document.createElement('button');
-        button.textContent = btnDef.label;
-        button.onclick = async () => {
-            if (btnDef.action) {
-                const result = await btnDef.action(win);
-                if (result === false) {
-                    return; // Don't close the dialog if action returns false
-                }
-            }
-            win.close();
-        };
-        if (btnDef.isDefault) {
-            button.classList.add('default');
-        }
-        if (btnDef.disabled) {
-            button.disabled = true;
-        }
-        buttonContainer.appendChild(button);
+  // Handle modality
+  let modalOverlay = null;
+  if (modal) {
+    const screen = document.getElementById("screen");
+    modalOverlay = document.createElement("div");
+    modalOverlay.className = "modal-overlay";
+
+    // Use a high z-index, but relative to the window manager's current z-index
+    // This should be just below the dialog window itself.
+    win.css("z-index", $Window.Z_INDEX + 1);
+    modalOverlay.style.zIndex = $Window.Z_INDEX;
+    $Window.Z_INDEX += 2; // Increment for both overlay and window
+
+    screen.appendChild(modalOverlay);
+    win.onClosed(() => {
+      if (screen.contains(modalOverlay)) {
+        screen.removeChild(modalOverlay);
+      }
     });
+  }
 
-    win.$content.append(contentContainer, buttonContainer);
-    win.center();
+  // Play sound
+  if (soundEvent) {
+    playSound(soundEvent);
+  }
 
-    // Handle modality
-    let modalOverlay = null;
-    if (modal) {
-        const screen = document.getElementById('screen');
-        modalOverlay = document.createElement('div');
-        modalOverlay.className = 'modal-overlay';
+  // Auto-height adjustment
+  // The content needs to be rendered to get the correct height.
+  setTimeout(() => {
+    const contentHeight =
+      contentContainer.offsetHeight + buttonContainer.offsetHeight;
+    const frameHeight = win.outerHeight() - win.$content.innerHeight();
+    win.outerHeight(contentHeight + frameHeight); // Add some padding
+    win.center(); // Recenter after resizing
+  }, 0);
 
-        // Use a high z-index, but relative to the window manager's current z-index
-        // This should be just below the dialog window itself.
-        win.css('z-index', $Window.Z_INDEX + 1);
-        modalOverlay.style.zIndex = $Window.Z_INDEX;
-        $Window.Z_INDEX += 2; // Increment for both overlay and window
+  win.focus();
 
-        screen.appendChild(modalOverlay);
-        win.onClosed(() => {
-            screen.removeChild(modalOverlay);
-        });
-    }
-
-    // Play sound
-    if (soundEvent) {
-        playSound(soundEvent);
-    }
-
-    // Auto-height adjustment
-    // The content needs to be rendered to get the correct height.
-    setTimeout(() => {
-        const contentHeight = contentContainer.offsetHeight + buttonContainer.offsetHeight;
-        const frameHeight = win.outerHeight() - win.$content.innerHeight();
-        win.outerHeight(contentHeight + frameHeight); // Add some padding
-        win.center(); // Recenter after resizing
-    }, 0);
-
-    win.focus();
-
-    return win;
+  return win;
 }
 
 function ShowComingSoonDialog(title) {
-    ShowDialogWindow({
-        title: title,
-        text: 'Coming soon.',
-        modal: true,
-    });
+  ShowDialogWindow({
+    title: title,
+    text: "Coming soon.",
+    modal: true,
+  });
 }
 
 export { ShowDialogWindow, ShowComingSoonDialog };

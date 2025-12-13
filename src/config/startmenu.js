@@ -1,6 +1,6 @@
 import { apps } from "./apps.js";
 import { launchApp } from "../utils/appManager.js";
-import { ShowComingSoonDialog } from "../components/DialogWindow.js";
+import { ShowRunDialog } from '../components/RunDialog.js';
 import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
@@ -191,7 +191,7 @@ const startMenuConfig = [
   {
     label: "Run",
     icon: ICONS.run[32],
-    action: () => ShowComingSoonDialog("Run"),
+    action: () => ShowRunDialog(),
   },
 ];
 

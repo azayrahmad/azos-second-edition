@@ -23,6 +23,7 @@ import {
   finalizeBootProcessStep,
   showBlinkingCursor,
   promptToContinue,
+  showSetupScreen,
 } from "./components/bootScreen.js";
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
 import { launchApp } from "./utils/appManager.js";
@@ -101,76 +102,109 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  let splashScreenVisible = false;
-  let bootProcessFinished = false;
-  let splashScreenTimer = null;
+  let setupEntered = false;
 
-  const splashScreen = document.getElementById("splash-screen");
-  if (splashScreen) {
-    splashScreen.style.backgroundImage = `url(${splashBg})`;
-  }
+  const handleKeyDown = (e) => {
+    if (e.key === "Delete") {
+      setupEntered = true;
+      showSetupScreen();
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+  };
+  window.addEventListener("keydown", handleKeyDown);
 
-  function showSplashScreen() {
+  const executeBootStep = async (func) => {
+    if (setupEntered) throw new Error("Setup interrupted");
+    await func();
+  };
+
+  try {
+    let splashScreenVisible = false;
+    let bootProcessFinished = false;
+    let splashScreenTimer = null;
+
+    const splashScreen = document.getElementById("splash-screen");
     if (splashScreen) {
-      splashScreen.style.display = "block";
-      splashScreenVisible = true;
-      splashScreenTimer = setTimeout(() => {
-        if (bootProcessFinished) {
-          hideBootAndSplash();
-        } else {
-          hideSplashScreenOnly();
-        }
-      }, 2000);
+      splashScreen.style.backgroundImage = `url(${splashBg})`;
     }
-  }
 
-  function hideSplashScreenOnly() {
-    if (splashScreen) {
-      splashScreen.style.display = "none";
+    function showSplashScreen() {
+      if (splashScreen) {
+        splashScreen.style.display = "block";
+        splashScreenVisible = true;
+        splashScreenTimer = setTimeout(() => {
+          if (bootProcessFinished) {
+            hideBootAndSplash();
+          } else {
+            hideSplashScreenOnly();
+          }
+        }, 2000);
+      }
     }
-    splashScreenVisible = false;
-  }
 
-  function hideBootAndSplash() {
-    hideSplashScreenOnly();
-    hideBootScreen();
-    document.body.classList.remove("booting");
-    document.getElementById("screen").classList.remove("boot-mode");
-    // document.body.classList.add("desktop-boot-fade-in");
-    playSound("WindowsLogon");
-  }
-
-  function handleBootCompletion() {
-    bootProcessFinished = true;
-    if (!splashScreenVisible) {
-      hideBootAndSplash();
+    function hideSplashScreenOnly() {
+      if (splashScreen) {
+        splashScreen.style.display = "none";
+      }
+      splashScreenVisible = false;
     }
-  }
 
-  document.body.classList.add("booting");
-  document.getElementById("screen").classList.add("boot-mode");
-  // Hide the initial "Initializing azOS..." message
-  document.getElementById("initial-boot-message").style.display = "none";
-  // Show the main boot screen content with two columns
-  document.getElementById("boot-screen-content").style.display = "flex";
+    function hideBootAndSplash() {
+      hideSplashScreenOnly();
+      hideBootScreen();
+      document.body.classList.remove("booting");
+      document.getElementById("screen").classList.remove("boot-mode");
+      playSound("WindowsLogon");
+    }
 
-  // Insert BIOS info
-  const biosTextColumn = document.getElementById("bios-text-column");
-  if (biosTextColumn) {
-    biosTextColumn.innerHTML = `Award Modular BIOS v4.51PG, An Energy Star Ally<br/>Copyright (C) 1984-85, Award Software, Inc.`;
-  }
+    function handleBootCompletion() {
+      bootProcessFinished = true;
+      if (!splashScreenVisible) {
+        hideBootAndSplash();
+      }
+    }
 
-  const browserInfoEl = document.getElementById("browser-info");
-  if (browserInfoEl) {
-    //browserInfoEl.textContent = `Client: ${navigator.userAgent}`;
-  }
+    await executeBootStep(() => {
+      document.body.classList.add("booting");
+      document.getElementById("screen").classList.add("boot-mode");
+      document.getElementById("initial-boot-message").style.display = "none";
+      document.getElementById("boot-screen-content").style.display = "flex";
 
-  function loadCustomApps() {
-    const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
-    savedApps.forEach((appInfo) => {
-      registerCustomApp(appInfo);
+      const biosTextColumn = document.getElementById("bios-text-column");
+      if (biosTextColumn) {
+        biosTextColumn.innerHTML = `Award Modular BIOS v4.51PG, An Energy Star Ally<br/>Copyright (C) 1984-85, Award Software, Inc.`;
+      }
+
+      const browserInfoEl = document.getElementById("browser-info");
+      if (browserInfoEl) {
+        // browserInfoEl.textContent = `Client: ${navigator.userAgent}`;
+      }
     });
-  }
+
+    function loadCustomApps() {
+      const savedApps = getItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS) || [];
+      savedApps.forEach((appInfo) => {
+        registerCustomApp(appInfo);
+      });
+    }
+
+    function loadThemeStylesheets() {
+      Object.values(themes).forEach((theme) => {
+        if (theme.id === "default") return;
+        const link = document.createElement("link");
+        link.id = `${theme.id}-theme`;
+        link.rel = "stylesheet";
+        link.href = `./os-gui/${theme.stylesheet}`;
+        link.disabled = true;
+        document.head.appendChild(link);
+      });
+    }
+
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Detecting keyboard...");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
   function loadThemeStylesheets() {
     Object.entries(colorSchemes).forEach(([id, scheme]) => {
@@ -181,112 +215,120 @@ async function initializeOS() {
       link.disabled = id !== "default"; // Enable default theme initially
       document.head.appendChild(link);
     });
-  }
 
-  let logElement = startBootProcessStep("Detecting keyboard...");
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Connecting to network...");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
+    });
 
-  logElement = startBootProcessStep("Detecting mouse...");
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Preloading default theme assets...");
+      await preloadThemeAssets("default");
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
-  logElement = startBootProcessStep("Connecting to network...");
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      const currentTheme = getCurrentTheme();
+      if (currentTheme !== "default") {
+        let logElement = startBootProcessStep(
+          `Preloading ${currentTheme} theme assets...`,
+        );
+        await preloadThemeAssets(currentTheme);
+        finalizeBootProcessStep(logElement, "OK");
+      }
+    });
 
-  logElement = startBootProcessStep("Preloading default theme assets...");
-  await preloadThemeAssets("default");
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(() => {
+      let logElement = startBootProcessStep("Loading theme stylesheets...");
+      loadThemeStylesheets();
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
-  const currentTheme = getCurrentTheme();
-  if (currentTheme !== "default") {
-    logElement = startBootProcessStep(
-      `Preloading ${currentTheme} theme assets...`,
-    );
-    await preloadThemeAssets(currentTheme);
-    finalizeBootProcessStep(logElement, "OK");
-    // showBlinkingCursor();
-  }
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Loading custom applications...");
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      loadCustomApps();
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
-  logElement = startBootProcessStep("Loading theme stylesheets...");
-  loadThemeStylesheets();
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      await promptToContinue();
+    });
 
-  logElement = startBootProcessStep("Loading custom applications...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  loadCustomApps();
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Creating main UI...");
+      showSplashScreen();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      createMainUI();
+      initColorModeManager(document.body);
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
-  await promptToContinue();
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Initializing taskbar...");
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      taskbar.init();
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
-  logElement = startBootProcessStep("Creating main UI...");
-  showSplashScreen();
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  createMainUI();
-  initColorModeManager(document.body);
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Setting up desktop...");
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      await initDesktop();
+      document.dispatchEvent(new CustomEvent("desktop-refresh"));
+      finalizeBootProcessStep(logElement, "OK");
+    });
 
-  logElement = startBootProcessStep("Initializing taskbar...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  taskbar.init();
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    await executeBootStep(async () => {
+      const bootLogEl = document.getElementById("boot-log");
+      if (bootLogEl) {
+        const finalMessage = document.createElement("div");
+        finalMessage.textContent = "azOS Ready!";
+        bootLogEl.appendChild(finalMessage);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
 
-  logElement = startBootProcessStep("Setting up desktop...");
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  await initDesktop();
-  document.dispatchEvent(new CustomEvent("desktop-refresh"));
-  finalizeBootProcessStep(logElement, "OK");
-  // showBlinkingCursor();
+    window.removeEventListener("keydown", handleKeyDown);
+    handleBootCompletion();
 
-  const bootLogEl = document.getElementById("boot-log");
-  if (bootLogEl) {
-    const finalMessage = document.createElement("div");
-    finalMessage.textContent = "azOS Ready!";
-    bootLogEl.appendChild(finalMessage);
-  }
-  await new Promise((resolve) => setTimeout(resolve, 50));
+    window.ShowDialogWindow = ShowDialogWindow;
+    window.playSound = playSound;
+    window.setTheme = setTheme;
+    window.System.launchApp = launchApp;
+    console.log("azOS initialized");
 
-  handleBootCompletion();
+    let inactivityTimer;
 
-  window.ShowDialogWindow = ShowDialogWindow;
-  window.playSound = playSound;
-  window.setTheme = setTheme;
-  window.System.launchApp = launchApp;
-  console.log("azOS initialized");
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (screensaver.active) {
+        screensaver.hide();
+      }
 
-  let inactivityTimer;
+      const timeoutDuration =
+        getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 5 * 60 * 1000;
 
-  function resetInactivityTimer() {
-    clearTimeout(inactivityTimer);
-    if (screensaver.active) {
-      screensaver.hide();
+      inactivityTimer = setTimeout(() => {
+        screensaver.show();
+      }, timeoutDuration);
     }
 
-    const timeoutDuration =
-      getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 5 * 60 * 1000;
+    window.System.resetInactivityTimer = resetInactivityTimer;
 
-    inactivityTimer = setTimeout(() => {
-      screensaver.show();
-    }, timeoutDuration);
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("mousedown", resetInactivityTimer);
+    window.addEventListener("keydown", resetInactivityTimer);
+
+    resetInactivityTimer();
+    initScreenManager(); // Initialize the screen manager
+
+  } catch (error) {
+    if (error.message !== "Setup interrupted") {
+      console.error("An error occurred during boot:", error);
+    }
   }
-
-  window.System.resetInactivityTimer = resetInactivityTimer;
-
-  window.addEventListener("mousemove", resetInactivityTimer);
-  window.addEventListener("mousedown", resetInactivityTimer);
-  window.addEventListener("keydown", resetInactivityTimer);
-
-  resetInactivityTimer();
-  initScreenManager(); // Initialize the screen manager
 }
 
 initializeOS();

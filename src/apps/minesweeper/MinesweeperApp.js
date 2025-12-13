@@ -390,6 +390,7 @@ export class MinesweeperApp extends Application {
         ShowDialogWindow({
           title: "Congratulations",
           content: content,
+          modal: true,
           buttons: [
             {
               label: "OK",
