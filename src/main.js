@@ -5,6 +5,7 @@ import "./styles/shutdown-screen.css";
 
 import splashBg from "./assets/img/splash.png";
 import { themes } from "./config/themes.js";
+import { colorSchemes } from "./config/colorSchemes.js";
 import { setupCounter } from "./counter.js";
 import { initDesktop } from "./components/desktop.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "./utils/localStorage.js";
@@ -172,13 +173,12 @@ async function initializeOS() {
   }
 
   function loadThemeStylesheets() {
-    Object.values(themes).forEach((theme) => {
-      if (theme.id === "default") return;
+    Object.entries(colorSchemes).forEach(([id, scheme]) => {
       const link = document.createElement("link");
-      link.id = `${theme.id}-theme`;
+      link.id = `${id}-theme`;
       link.rel = "stylesheet";
-      link.href = `./os-gui/${theme.stylesheet}`;
-      link.disabled = true;
+      link.href = `./${scheme.url}`;
+      link.disabled = id !== "default"; // Enable default theme initially
       document.head.appendChild(link);
     });
   }
