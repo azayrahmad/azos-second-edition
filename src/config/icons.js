@@ -307,6 +307,10 @@ export const ICONS = {
     16: new URL("../assets/minesweeper/minesweeper-icon-small.png", import.meta.url).href,
     32: new URL("../assets/minesweeper/minesweeper-icon-large.png", import.meta.url).href,
   },
+  calculator: {
+    16: new URL("../assets/icons/calculator.ico", import.meta.url).href,
+    32: new URL("../assets/icons/calculator.ico", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {

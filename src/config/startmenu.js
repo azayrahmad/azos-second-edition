@@ -16,7 +16,7 @@ const startMenuAppIds = [
   "diablo",
   "esheep",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "minesweeper"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "minesweeper", "calculator"];
 
 function getAppList(appListIds) {
   return appListIds

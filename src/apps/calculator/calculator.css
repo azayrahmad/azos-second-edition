@@ -1,0 +1,93 @@
+/* calculator.css - Styles for the Calculator application */
+.calculator-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--button-face);
+    padding: 5px;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+.calculator-display-container {
+    background-color: var(--button-face);
+    border: 1px solid var(--button-shadow);
+    border-right-color: var(--button-highlight);
+    border-bottom-color: var(--button-highlight);
+    padding: 2px;
+    margin-bottom: 5px;
+}
+
+.calculator-display {
+    background-color: white;
+    border: 1px solid var(--border-dark);
+    height: 28px;
+    line-height: 28px;
+    text-align: right;
+    padding: 0 5px;
+    font-size: 14px;
+    font-family: 'monospace';
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.scientific-controls {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}
+
+.control-row {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.control-row .group-box {
+    display: flex;
+    padding: 2px 5px;
+    margin-right: 5px;
+}
+
+.control-row .field-row {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.control-row .checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.calculator-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.button-row {
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+}
+
+.calc-button {
+    flex-grow: 1;
+    min-width: 35px;
+    height: 30px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.red-text {
+    color: red;
+}
+
+.blue-text {
+    color: blue;
+}
+
+.magenta-text {
+    color: magenta;
+}
