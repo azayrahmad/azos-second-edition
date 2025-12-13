@@ -29,6 +29,7 @@ import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
+import { checkVersion } from "./utils/versionManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -197,6 +198,11 @@ async function initializeOS() {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
   // showBlinkingCursor();
+
+  if (navigator.onLine) {
+    await checkVersion();
+    // showBlinkingCursor();
+  }
 
   logElement = startBootProcessStep("Preloading default theme assets...");
   await preloadThemeAssets("default");
