@@ -550,8 +550,9 @@ clippy.Agent.prototype = {
   _dragMove: function (e) {
     e.preventDefault();
     const coords = this._getEventCoords(e);
-    var x = coords.clientX - this._offset.left;
-    var y = coords.clientY - this._offset.top;
+    const containerOffset = this._container.offset();
+    var x = coords.pageX - containerOffset.left - this._offset.left;
+    var y = coords.pageY - containerOffset.top - this._offset.top;
     this._taregtX = x;
     this._targetY = y;
   },
