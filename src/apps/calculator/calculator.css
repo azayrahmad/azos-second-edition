@@ -82,11 +82,31 @@
     gap: 8px;
 }
 
+.memory-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 35px; /* Fixed width for the memory button column */
+}
+
+#memory-indicator {
+    width: 25px;
+    height: 25px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: red;
+    padding-bottom: 2px;
+    box-sizing: border-box;
+}
+
 .memory-buttons {
     display: grid;
-    grid-template-rows: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 1fr);
     gap: 5px;
-    width: 35px; /* Fixed width for the memory button column */
+    flex: 1;
 }
 
 .main-area {
