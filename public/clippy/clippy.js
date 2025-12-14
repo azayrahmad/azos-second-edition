@@ -5,14 +5,15 @@ var clippy = {};
  *
  * @constructor
  */
-clippy.Agent = function (path, data, sounds) {
+clippy.Agent = function (path, data, sounds, container) {
   this.path = path;
+  this._container = container ? $(container) : $("#screen");
 
   this._queue = new clippy.Queue($.proxy(this._onQueueEmpty, this));
 
   this._el = $('<div class="clippy"></div>').hide();
 
-  $("#screen").append(this._el);
+  this._container.append(this._el);
 
   this._animator = new clippy.Animator(this._el, path, data, sounds);
 
@@ -177,9 +178,8 @@ clippy.Agent.prototype = {
     }
 
     if (this._el.css("top") === "auto" || !this._el.css("left") === "auto") {
-      const screen = $("#screen");
-      var left = screen.width() * 0.8;
-      var top = screen.height() * 0.8;
+      var left = this._container.width() * 0.8;
+      var top = this._container.height() * 0.8;
       this._el.css({ top: top, left: left });
     }
 
@@ -415,11 +415,10 @@ clippy.Agent.prototype = {
     var bH = this._el.outerHeight();
     var bW = this._el.outerWidth();
 
-    const screen = $("#screen");
-    var wW = screen.width();
-    var wH = screen.height();
-    var sT = screen.scrollTop();
-    var sL = screen.scrollLeft();
+    var wW = this._container.width();
+    var wH = this._container.height();
+    var sT = this._container.scrollTop();
+    var sL = this._container.scrollLeft();
 
     var top = o.top - sT;
     var left = o.left - sL;
@@ -551,8 +550,9 @@ clippy.Agent.prototype = {
   _dragMove: function (e) {
     e.preventDefault();
     const coords = this._getEventCoords(e);
-    var x = coords.clientX - this._offset.left;
-    var y = coords.clientY - this._offset.top;
+    const containerOffset = this._container.offset();
+    var x = coords.pageX - containerOffset.left - this._offset.left;
+    var y = coords.pageY - containerOffset.top - this._offset.top;
     this._taregtX = x;
     this._targetY = y;
   },
@@ -1285,7 +1285,7 @@ clippy.Balloon.prototype = {
 
 clippy.BASE_PATH = "clippy/agents/";
 
-clippy.load = function (name, successCb, failCb) {
+clippy.load = function (name, successCb, failCb, container) {
   var path = clippy.BASE_PATH + name;
 
   var mapDfd = clippy.load._loadMap(path);
@@ -1305,7 +1305,7 @@ clippy.load = function (name, successCb, failCb) {
 
   // wrapper to the success callback
   var cb = function () {
-    var a = new clippy.Agent(path, data, sounds);
+    var a = new clippy.Agent(path, data, sounds, container);
     successCb(a);
   };
 

@@ -202,7 +202,11 @@ export function showClippyContextMenu(event, app) {
   new window.ContextMenu(menuItems, event);
 }
 
-export function launchClippyApp(app, agentName = currentAgentName) {
+export function launchClippyApp(
+  app,
+  agentName = currentAgentName,
+  container = document.getElementById("screen"),
+) {
   if (app) {
     window.clippyAppInstance = app;
   }
@@ -221,10 +225,13 @@ export function launchClippyApp(app, agentName = currentAgentName) {
   const existingMenus = document.querySelectorAll(".menu-popup");
   existingMenus.forEach((menu) => menu.remove());
 
-  clippy.load(agentName, function (agent) {
-    window.clippyAgent = agent;
+  clippy.load(
+    agentName,
+    function (agent) {
+      window.clippyAgent = agent;
 
-    const ttsUserPref = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+      const ttsUserPref =
+        getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
     agent.setTTSEnabled(ttsUserPref);
 
     agent.show();
@@ -351,7 +358,10 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       contextMenuOpened = true;
       showClippyContextMenu(e, appInstance);
     });
-  });
+  },
+  null,
+  container,
+  );
 }
 
 function startTutorial(agent) {
@@ -365,14 +375,19 @@ function startTutorial(agent) {
     const el = document.querySelector(selector);
     if (!el) return null;
     const rect = el.getBoundingClientRect();
-    return { x: rect.left, y: rect.top };
+    const containerRect = agent._container[0].getBoundingClientRect();
+    return { x: rect.left - containerRect.left, y: rect.top - containerRect.top };
   };
 
   const getElementCenter = (selector) => {
     const el = document.querySelector(selector);
     if (!el) return null;
     const rect = el.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    const containerRect = agent._container[0].getBoundingClientRect();
+    return {
+      x: rect.left - containerRect.left + rect.width / 2,
+      y: rect.top - containerRect.top + rect.height / 2,
+    };
   };
 
   const playGesture = (x, y, callback) => {
