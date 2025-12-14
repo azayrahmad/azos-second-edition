@@ -2,7 +2,7 @@ import { Application } from '../Application.js';
 import './defrag.css';
 
 const BLOCK_SIZE = 11; // 10px block + 1px gap
-const SIMULATION_SPEED_MS = 1; // Faster simulation
+const SIMULATION_SPEED_MS = 1;
 
 const BLOCK_STATE = {
   FREE: 0,
@@ -59,24 +59,25 @@ export class DefragApp extends Application {
     `);
 
     this.win = win;
-    this.gridContainer = win.$content.find('.defrag-grid-container')[0];
+    this.gridContainer = this.win.$content.find('.defrag-grid-container')[0];
 
+    // Hardcode data and render synchronously
+    this.diskData = Array.from({ length: 2000 }, (_, i) => i % 3);
+    this.renderGrid();
+
+    return win;
+  }
+
+  async _onLaunch() {
     this.bindControlEvents();
-
-    setTimeout(() => {
-        this.generateDiskData();
-        this.renderGrid();
-    }, 0);
 
     this.resizeObserver = new ResizeObserver(() => this.renderGrid());
     this.resizeObserver.observe(this.gridContainer);
 
-    win.on('closed', () => {
+    this.win.on('closed', () => {
         this.stopRequested = true;
         this.resizeObserver.disconnect();
     });
-
-    return win;
   }
 
   bindControlEvents() {
@@ -85,6 +86,8 @@ export class DefragApp extends Application {
       const stopButton = this.win.$content.find('.stop-button')[0];
 
       startButton.addEventListener('click', () => {
+          this.generateDiskData(); // Regenerate random data on start
+          this.renderGrid();
           this.updateUIForStart();
           this.startDefrag();
       });
@@ -100,11 +103,7 @@ export class DefragApp extends Application {
   }
 
   generateDiskData() {
-    if (!this.gridContainer) return;
-    const { width, height } = this.gridContainer.getBoundingClientRect();
-    const totalBlocks = Math.floor(width / BLOCK_SIZE) * Math.floor(height / BLOCK_SIZE);
-
-    this.diskData = Array.from({ length: totalBlocks }, () => {
+    this.diskData = Array.from({ length: 2000 }, () => {
       const rand = Math.random();
       if (rand < 0.4) return BLOCK_STATE.FRAGMENTED;
       if (rand < 0.8) return BLOCK_STATE.FREE;
@@ -114,18 +113,27 @@ export class DefragApp extends Application {
 
   renderGrid() {
     if (!this.gridContainer) return;
+
+    const { width, height } = this.gridContainer.getBoundingClientRect();
+    if (width === 0 || height === 0) {
+      // If we're here, it means the container isn't visible yet.
+      // We'll rely on the ResizeObserver to trigger a render when it is.
+      return;
+    }
+
     const fragment = document.createDocumentFragment();
-    const { width } = this.gridContainer.getBoundingClientRect();
     const columns = Math.floor(width / BLOCK_SIZE);
+    const visibleBlocks = Math.floor(width / BLOCK_SIZE) * Math.floor(height / BLOCK_SIZE);
 
     this.gridContainer.style.gridTemplateColumns = `repeat(${columns}, 10px)`;
-
     this.gridContainer.innerHTML = '';
-    this.diskData.forEach(blockState => {
-      const block = document.createElement('div');
-      block.className = `block ${STATE_TO_CLASS[blockState] || ''}`;
-      fragment.appendChild(block);
-    });
+
+    for (let i = 0; i < visibleBlocks && i < this.diskData.length; i++) {
+        const blockState = this.diskData[i];
+        const block = document.createElement('div');
+        block.className = `block ${STATE_TO_CLASS[blockState] || ''}`;
+        fragment.appendChild(block);
+    }
     this.gridContainer.appendChild(fragment);
   }
 
