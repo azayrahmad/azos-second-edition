@@ -1,4 +1,5 @@
 import { Application } from "../Application.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./media-player.css";
 import mediaPlayerHTML from "./media-player.html?raw";
 import mediaPlayerIcon from "../../assets/img/mediaplayer.png";
@@ -32,6 +33,10 @@ export class MediaPlayerApp extends Application {
         {
           label: "&Open...",
           action: () => this._openFile(),
+        },
+        {
+          label: "Open &URL...",
+          action: () => this._openUrlDialog(),
         },
         "MENU_DIVIDER",
         {
@@ -83,6 +88,44 @@ export class MediaPlayerApp extends Application {
       }
     };
     input.click();
+  }
+
+  _openUrlDialog() {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Enter media URL here";
+    input.style.width = "100%";
+
+    const content = document.createElement("div");
+    content.appendChild(input);
+
+    ShowDialogWindow({
+      title: "Open URL",
+      content,
+      buttons: [
+        {
+          label: "Open",
+          action: () => {
+            const url = input.value;
+            if (url) {
+              this._loadUrl(url);
+            }
+          },
+          isDefault: true,
+        },
+        {
+          label: "Cancel",
+          action: () => {},
+        },
+      ],
+    });
+  }
+
+  _loadUrl(url) {
+    this.mediaElement.src = url;
+    this.mediaElement.play();
+    const filename = url.split("/").pop();
+    this.win.title(`${filename} - Media Player`);
   }
 
   _loadFile(file) {
@@ -209,6 +252,15 @@ export class MediaPlayerApp extends Application {
     this.mediaElement.addEventListener("loadeddata", () => {
       this._setControlsDisabled(false);
       this.playPauseButton.focus();
+    });
+
+    this.mediaElement.addEventListener("error", () => {
+      ShowDialogWindow({
+        title: "Error",
+        text: "The specified media could not be loaded.",
+        buttons: [{ label: "OK", action: () => {}, isDefault: true }],
+      });
+      this._setControlsDisabled(true);
     });
 
     this.mediaElement.addEventListener("ended", () => {
