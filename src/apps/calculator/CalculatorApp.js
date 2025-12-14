@@ -108,19 +108,17 @@ export class CalculatorApp extends Application {
     if (this.mode === "standard") {
       buttonsHTML += '<div class="standard-layout-container">';
 
-      // Column 1: Memory buttons
+      // Column 1: Memory section
+      buttonsHTML += '<div class="memory-section">';
+      buttonsHTML += '<div id="memory-indicator" class="inset-deep"></div>';
       buttonsHTML += '<div class="memory-buttons">';
       layout.memory.forEach((button) => {
-        if (button.key === "noop") {
-          buttonsHTML +=
-            '<button class="calc-button blank-button" disabled></button>';
-        } else {
-          const id = button.id ? `id="${button.id}"` : "";
-          const style = button.style ? `style="${button.style}"` : "";
-          const className = `class="calc-button ${button.class || ""}"`;
-          buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
-        }
+        const id = button.id ? `id="${button.id}"` : "";
+        const style = button.style ? `style="${button.style}"` : "";
+        const className = `class="calc-button ${button.class || ""}"`;
+        buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
       });
+      buttonsHTML += "</div>";
       buttonsHTML += "</div>";
 
       // Column 2: Main area
@@ -163,12 +161,12 @@ export class CalculatorApp extends Application {
 
     buttonsContainer.innerHTML = buttonsHTML;
     this._attachButtonListeners();
+    this._updateMemoryIndicator();
   }
 
   _getStandardLayout() {
     return {
       memory: [
-        { label: "", key: "noop" },
         { label: "MC", style: "color: red" },
         { label: "MR", style: "color: red" },
         { label: "MS", style: "color: red" },
@@ -430,19 +428,29 @@ export class CalculatorApp extends Application {
           break;
         case "MC":
           this.logic.memoryClear();
+          this._updateMemoryIndicator();
           break;
         case "MR":
           this.logic.memoryRecall();
           break;
         case "MS":
           this.logic.memoryStore();
+          this._updateMemoryIndicator();
           break;
         case "M+":
           this.logic.memoryAdd();
+          this._updateMemoryIndicator();
           break;
       }
     }
     this._updateDisplay();
+  }
+
+  _updateMemoryIndicator() {
+    const indicator = this.win.$content.find("#memory-indicator")[0];
+    if (indicator) {
+      indicator.textContent = this.logic.memory !== 0 ? "M" : "";
+    }
   }
 
   _updateDisplay() {
