@@ -5,8 +5,9 @@
     height: 100%;
     background-color: var(--button-face);
     padding: 5px;
+    padding-top: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: "Arial", sans-serif;
 }
 
 .calculator-display-container {
@@ -20,13 +21,11 @@
 
 .calculator-display {
     background-color: white;
-    border: 1px solid var(--border-dark);
-    height: 28px;
-    line-height: 28px;
+    height: 23px;
+    line-height: 23px;
     text-align: right;
     padding: 0 5px;
-    font-size: 14px;
-    font-family: 'monospace';
+    font-family: var(--font-family-base);
     overflow: hidden;
     white-space: nowrap;
 }
@@ -64,20 +63,66 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    flex: 1;
 }
 
 .button-row {
     display: flex;
     gap: 5px;
     justify-content: space-between;
+    flex: 1;
+}
+
+.button-row .calc-button {
+    flex-grow: 1;
+}
+
+.standard-layout-container {
+    display: flex;
+    gap: 8px;
+}
+
+.memory-buttons {
+    display: grid;
+    grid-template-rows: repeat(5, 1fr);
+    gap: 5px;
+    width: 35px; /* Fixed width for the memory button column */
+}
+
+.main-area {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 8px;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.main-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 3px;
+    flex: 1;
+}
+
+.blank-button {
+    visibility: hidden;
+}
+
+.control-buttons .calc-button {
+    flex-grow: 1;
+    padding: 0;
 }
 
 .calc-button {
-    flex-grow: 1;
-    min-width: 35px;
-    height: 30px;
-    font-size: 12px;
+    width: 35px;
+    height: 28px;
     box-sizing: border-box;
+    font-size: var(--font-size-base);
 }
 
 .red-text {
