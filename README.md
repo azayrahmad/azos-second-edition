@@ -1,6 +1,6 @@
 # azOS, Second Edition
 
-A web-based JavaScript remake of Windows 98 desktop experience, focusing on desktop themes customization. 
+A pixel-perfect recreation attempt of Windows 98 desktop GUI using just HTML, CSS, and JavaScript. Many of the default programs and features of Windows 98 are also included, either recreated from scratch or embedding existing open source ports. 
 
 ## Live Demo
 
@@ -22,13 +22,13 @@ Experience azOS Second Edition live: **[azOS Second Edition](https://azayrahmad.
 
 ## Features
 
-- **Windows Classic Desktop Experience**: Pixel-perfect remake attempt of Windows 98 desktop, complete with windowing system, desktop icons, taskbar with start menu, screensavers, and some apps.
+- **Windows Classic Desktop Experience**: Pixel-perfect remake attempt of Windows 98 desktop shell components and animations.
 
 - **Desktop Themes**: Featuring all of the original Windows 98 desktop themes, complete with color schemes, wallpapers, icon sets, and sound sets (screensavers are WIP).
 
-- **Theme Customization**: Upload your own .theme files and wallpapers to apply to the desktop. Change the colors, set wallpaper to stretch, tile, or center. All are saved privately to your cache.
+- **Theme Customization**: Upload your own .theme files and wallpapers to apply to the desktop. Change the colors, set wallpaper to stretch, tile, or center. All are saved privately to your cache. (WIP).
 
-- **Apps and Games**: This is not meant to be a real OS, but I have installed some apps and games to make it feel even more immersive. Most of them are existing ports and remakes made by other people, but some of them are made by myself. See Featured Applications for more info.
+- **Programs and Games**: Ports of popular software used in Windows 98 are included here. Most of them are existing ports and remakes made by other people, but some of them are made by myself. See Featured Applications for more info.
 
 - **Progressive Web App**: Install it on your machine as a desktop application.
 
@@ -60,6 +60,7 @@ For a full list of applications and instructions on how to create your own, refe
   - [highlight.js](https://highlightjs.org/): For syntax highlighting in Notepad.
   - [Prettier](https://prettier.io/): For code formatting.
   - [Marked.js](https://marked.js.org/): For Markdown to HTML conversion.
+  - and many more.
 
 ## Getting Started
 
@@ -75,6 +76,16 @@ To run this project locally, follow these steps:
     npm run dev
     ```
     The application will be available at `http://localhost:5173` (or another port if 5173 is in use).
+
+## Future plans
+
+- Command prompt (MS-DOS).
+- BIOS setup.
+- Calculator app.
+- Disk Defragmenter simulator.
+- More Windows 98 screensaver recreations.
+- More web ports and DOS games.
+- Let me know if you have ideas!
 
 ## Asset Sources
 
