@@ -1,10 +1,10 @@
 # How to Add a New Desktop Theme
 
-This guide will walk you through the process of adding a new desktop theme to azOS Second Edition. No programming experience is required!
+This guide will walk you through the process of adding a new desktop theme to Windows 98 Web Edition. No programming experience is required!
 
 ## Introduction to Themes
 
-A theme in azOS is a collection of assets that change the look and feel of the desktop. A theme consists of:
+A theme in Windows 98 is a collection of assets that change the look and feel of the desktop. A theme consists of:
 
 *   **A color scheme:** This defines the colors of the windows, buttons, and other UI elements.
 *   **A wallpaper:** The background image for the desktop.
@@ -22,9 +22,9 @@ Before you begin, you will need to have the following assets ready:
 
 ## Step 1: Convert Your Color Scheme to CSS
 
-The first step is to convert your `.theme` or `.ini` file into a CSS file that azOS can use.
+The first step is to convert your `.theme` or `.ini` file into a CSS file that Windows 98 can use.
 
-1.  Launch azOS Second Edition.
+1.  Launch Windows 98 Web Edition.
 2.  Open the **Start Menu** and go to **Programs > Accessories > Theme to CSS**.
 3.  In the "Theme to CSS" application, click the **Open .theme file** button.
 4.  Select your `.theme` or `.ini` file.
@@ -42,7 +42,7 @@ Next, you need to place your asset files in the correct directories:
 
 ## Step 3: Configure Your Theme
 
-Now it's time to tell azOS about your new theme. You will need to edit four files to do this.
+Now it's time to tell Windows 98 about your new theme. You will need to edit four files to do this.
 
 ### 1\. `src/config/wallpapers.js`
 
@@ -200,9 +200,9 @@ Here's an example of how to add a custom font to your theme's CSS file:
 
 You're all done! To see your new theme in action:
 
-1.  Launch azOS Second Edition.
+1.  Launch Windows 98 Web Edition.
 2.  Right-click on the desktop and select **Properties**.
 3.  Go to the **Themes** tab.
 4.  You should see your new theme in the list of available themes. Select it to apply it.
 
-Congratulations, you've successfully added a new theme to azOS Second Edition!
+Congratulations, you've successfully added a new theme to Windows 98 Web Edition!

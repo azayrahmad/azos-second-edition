@@ -1,10 +1,10 @@
-# azOS Second Edition: AI Agent Development Guidelines
+# Windows 98 Web Edition: AI Agent Development Guidelines
 
-This document provides essential knowledge for AI agents to effectively contribute to the azOS project. Adhering to these guidelines will ensure that contributions align with the project's architecture and design patterns.
+This document provides essential knowledge for AI agents to effectively contribute to the Windows 98 Web Edition project. Adhering to these guidelines will ensure that contributions align with the project's architecture and design patterns.
 
 ## 1. Project Architecture
 
-azOS is a web-based desktop environment built with vanilla JavaScript that emulates the Windows 98 experience. It is a modular system with a centralized configuration.
+Windows 98 Web Edition is a web-based desktop environment built with vanilla JavaScript that emulates the Windows 98 experience. It is a modular system with a centralized configuration.
 
 ### Core Components & Systems
 
