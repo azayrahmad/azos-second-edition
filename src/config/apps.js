@@ -25,6 +25,7 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
+import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
@@ -64,6 +65,7 @@ export const appClasses = {
   diablo: DiabloApp,
   esheep: ESheepApp,
   minesweeper: MinesweeperApp,
+  defrag: DefragApp,
 };
 
 export const apps = [
@@ -559,6 +561,17 @@ export const apps = [
     width: 200,
     height: 280,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "defrag",
+    title: "Disk Defragmenter",
+    description: "Visually defragments your disk.",
+    icon: ICONS.defrag,
+    appClass: DefragApp,
+    width: 500,
+    height: 400,
+    resizable: true,
     isSingleton: true,
   },
 ];
