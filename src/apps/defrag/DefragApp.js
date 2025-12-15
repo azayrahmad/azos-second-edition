@@ -1,4 +1,5 @@
 import { Application } from "../Application.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
 export class DefragApp extends Application {
   constructor(config) {
@@ -6,6 +7,8 @@ export class DefragApp extends Application {
     this.data = [];
     this.gridContainer = null;
     this.startButton = null;
+    this.pauseButton = null;
+    this.legendButton = null;
     this.isDefragging = false;
     this.isPaused = false;
     this.isComplete = false;
@@ -31,14 +34,21 @@ export class DefragApp extends Application {
       <div class="defrag-container">
         <div class="defrag-grid"></div>
         <div class="defrag-controls">
-          <div class="progress-info">
-            <div class="progress-text" style="visibility: hidden;"></div>
-            <div class="progress-indicator segmented">
-              <span class="progress-indicator-bar" style="width: 0%;"></span>
+          <div class="progress-info-container">
+            <div class="progress-info">
+              <div class="progress-text" style="visibility: hidden;"></div>
+              <div class="progress-indicator segmented">
+                <span class="progress-indicator-bar" style="width: 0%;"></span>
+              </div>
+              <div class="progress-percent" style="visibility: hidden;"></div>
             </div>
-            <div class="progress-percent" style="visibility: hidden;"></div>
           </div>
-          <button class="start-button">Start</button>
+          <div class="buttons-container">
+            <button class="start-button">Start</button>
+            <button class="pause-button">Pause</button>
+            <button class="legend-button">Legend</button>
+            <button class="hide-details-button" disabled>Hide Details</button>
+          </div>
         </div>
       </div>
     `;
@@ -51,16 +61,34 @@ export class DefragApp extends Application {
 
     this.gridContainer = win.$content.find(".defrag-grid")[0];
     this.startButton = win.$content.find(".start-button")[0];
+    this.pauseButton = win.$content.find(".pause-button")[0];
+    this.legendButton = win.$content.find(".legend-button")[0];
     this.progressInfo = win.$content.find(".progress-info")[0];
     this.progressText = win.$content.find(".progress-text")[0];
     this.progressBar = win.$content.find(".progress-indicator-bar")[0];
     this.progressPercent = win.$content.find(".progress-percent")[0];
 
     this.startButton.addEventListener("click", () => this._handleButtonClick());
+    this.pauseButton.addEventListener("click", () => this._handlePauseClick());
+    this.legendButton.addEventListener("click", () => this._showLegend());
 
     win.on("close", () => this._stopDefrag());
 
     return win;
+  }
+
+  _showLegend() {
+    ShowDialogWindow({
+      title: "Legend",
+      text: `
+        <div class="legend-item"><div class="legend-color free"></div> Free</div>
+        <div class="legend-item"><div class="legend-color unoptimized"></div> Unoptimized</div>
+        <div class="legend-item"><div class="legend-color optimized"></div> Optimized</div>
+        <div class="legend-item"><div class="legend-color source"></div> Reading</div>
+        <div class="legend-item"><div class="legend-color destination"></div> Writing</div>
+      `,
+      buttons: "ok",
+    });
   }
 
   _updateProgress(text, percentage) {
@@ -145,8 +173,19 @@ export class DefragApp extends Application {
     }
   }
 
+  _handlePauseClick() {
+    if (this.isComplete || this.isPaused) return;
+
+    if (this.isDefragging) {
+      this._stopDefrag();
+      this.startButton.textContent = "Resume";
+    }
+  }
+
   async _startDefrag() {
     if (this.isDefragging && !this.isPaused) return;
+
+    this.pauseButton.disabled = false;
 
     if (!this.isDefragging) {
       // First start
@@ -167,6 +206,7 @@ export class DefragApp extends Application {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
+    this.pauseButton.disabled = true;
   }
 
   _defragStep() {
@@ -193,6 +233,7 @@ export class DefragApp extends Application {
     this.isComplete = true;
     this.startButton.textContent = "Finished";
     this.startButton.disabled = true;
+    this.pauseButton.disabled = true;
     this._updateProgress("Defragmentation complete.", 100);
   }
 

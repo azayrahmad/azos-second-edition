@@ -58,5 +58,56 @@
 }
 
 .defrag-controls {
+    display: flex;
+    align-items: center;
     padding: 5px;
+}
+
+.progress-info-container {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.buttons-container {
+    display: grid;
+    grid-template-columns: repeat(2, 80px);
+    gap: 5px;
+}
+
+.buttons-container button {
+    width: 80px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 15px;
+    border: 1px solid black;
+    margin-right: 10px;
+}
+
+.legend-color.free {
+    background-color: white;
+}
+
+.legend-color.unoptimized {
+    background-color: cyan;
+}
+
+.legend-color.optimized {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGNg+P+fgeE/EwMjA8N/BgAhAAQA76pFCQAAAABJRU5ErkJggg==")
+        repeat;
+}
+
+.legend-color.source {
+    background-color: green;
+}
+
+.legend-color.destination {
+    background-color: red;
 }
