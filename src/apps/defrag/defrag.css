@@ -58,5 +58,81 @@
 }
 
 .defrag-controls {
+    display: flex;
+    align-items: center;
     padding: 5px;
+}
+
+.defrag-controls .progress-indicator {
+    height: 20px;
+}
+
+.defrag-controls .progress-indicator::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress-width);
+    background-color: green;
+    border-radius: 5px;
+}
+
+.defrag-controls .progress-indicator-bar {
+    background-image: linear-gradient(
+        90deg,
+        var(--ActiveTitle) 8px,
+        transparent 0 2px
+    ) !important;
+    background-size: 10px 100% !important;
+}
+
+.progress-info-container {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.buttons-container {
+    display: grid;
+    grid-template-columns: repeat(2, 120px);
+    gap: 5px;
+}
+
+.buttons-container button {
+    width: 120px;
+    height: 23px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 5px;
+    height: 7px;
+    border: 1px solid black;
+    margin-right: 10px;
+}
+
+.legend-color.free {
+    background-color: white;
+}
+
+.legend-color.unoptimized {
+    background-color: cyan;
+}
+
+.legend-color.optimized {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGNg+P+fgeE/EwMjA8N/BgAhAAQA76pFCQAAAABJRU5ErkJggg==")
+        repeat;
+}
+
+.legend-color.source {
+    background-color: green;
+}
+
+.legend-color.destination {
+    background-color: red;
 }
