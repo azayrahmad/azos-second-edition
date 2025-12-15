@@ -164,6 +164,12 @@ const directory = [
                 targetId: "app-minesweeper",
                 name: "Minesweeper",
               },
+              {
+                id: "shortcut-to-defrag",
+                type: "shortcut",
+                targetId: "app-defrag",
+                name: "Disk Defragmenter",
+              },
             ],
           },
           {

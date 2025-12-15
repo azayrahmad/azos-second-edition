@@ -1,0 +1,48 @@
+/* Styles for the Defrag App */
+.defrag-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #c0c0c0;
+}
+
+.defrag-grid {
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  padding: 5px;
+  background-color: black;
+  overflow-y: auto;
+}
+
+.defrag-cell {
+  width: 2px;
+  height: 3px;
+}
+
+.defrag-cell.free {
+  background-color: white;
+}
+
+.defrag-cell.unoptimized {
+  background-color: cyan;
+}
+
+.defrag-cell.optimized {
+  background-color: blue;
+}
+
+.defrag-cell.source {
+  background-color: green;
+}
+
+.defrag-cell.destination {
+  background-color: red;
+}
+
+.defrag-controls {
+  padding: 5px;
+  text-align: center;
+  border-top: 1px solid #808080;
+}
