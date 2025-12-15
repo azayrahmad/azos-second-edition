@@ -85,13 +85,55 @@
             #terminal-container {
                 width: 100%;
                 height: 100%;
+                padding: 2em;
+                box-sizing: border-box;
+            }
+            #boot-screen-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding: 2em;
+                padding-bottom: 0;
+                box-sizing: border-box;
+            }
+            #bios-info-row {
+                display: flex;
+                align-items: flex-start;
+                flex-grow: 1;
+            }
+            #bios-logo-column {
+                margin-right: 10px;
+            }
+            #bios-text-column {
+                font-family: "IBM BIOS", Courier, monospace;
+                color: #aaaaaa;
+                font-size: 13px;
+            }
+            #boot-screen-right-column {
+                flex-shrink: 0;
             }
         </style>
     </head>
 
     <body class="scanlines">
         <div id="screen">
-            <div id="terminal-container"></div>
+            <div id="boot-screen-container">
+                <div id="boot-screen-header">
+                    <div id="bios-info-row">
+                        <div id="bios-logo-column">
+                            <img src="/img/award.png" alt="Award BIOS Logo" />
+                        </div>
+                        <div id="bios-text-column">
+                            Award Modular BIOS v4.51PG, An Energy Star Ally<br />
+                            Copyright (C) 1984-85, Award Software, Inc.
+                        </div>
+                    </div>
+                    <div id="boot-screen-right-column">
+                        <img src="/img/energystar.png" alt="Energy Star" />
+                    </div>
+                </div>
+                <div id="terminal-container"></div>
+            </div>
             <svg style="position: absolute; pointer-events: none; bottom: 100%">
                 <defs>
                     <filter

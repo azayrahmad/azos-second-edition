@@ -1,6 +1,8 @@
 import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
 
 let term;
+let fitAddon;
 
 function initTerminal() {
     const terminalContainer = document.getElementById("terminal-container");
@@ -18,7 +20,15 @@ function initTerminal() {
         fontFamily: '"IBM BIOS", Courier, monospace',
     });
 
+    fitAddon = new FitAddon();
+    term.loadAddon(fitAddon);
+
     term.open(terminalContainer);
+    fitAddon.fit();
+
+    window.addEventListener("resize", () => {
+        fitAddon.fit();
+    });
 }
 
 function writeToTerminal(text) {
