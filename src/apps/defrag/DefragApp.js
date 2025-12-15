@@ -163,32 +163,34 @@ export class DefragApp extends Application {
 
   async _highlightAndMove(unoptimizedBlock, freeSlots) {
     const cells = this.gridContainer.children;
-    const sourceIndices = [];
-    const destIndices = [];
 
+    // Make the source empty first, all at once.
     for (let i = 0; i < unoptimizedBlock.length; i++) {
+      if (!this.isDefragging) return;
       const sourceIndex = unoptimizedBlock.start + i;
-      const destIndex = freeSlots[i];
-      sourceIndices.push(sourceIndex);
-      destIndices.push(destIndex);
-      cells[sourceIndex].classList.add("source");
-      cells[destIndex].classList.add("destination");
+      this.data[sourceIndex] = 0;
+      this._updateCellClass(cells[sourceIndex], 0);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // After that, move to the destination cells one by one.
+    for (let i = 0; i < unoptimizedBlock.length; i++) {
+      if (!this.isDefragging) return;
+      const destIndex = freeSlots[i];
+      const cell = cells[destIndex];
 
-    if (this.isDefragging) {
-      // Check if process was stopped during delay
-      for (let i = 0; i < unoptimizedBlock.length; i++) {
-        const sourceIndex = sourceIndices[i];
-        const destIndex = destIndices[i];
+      // 1. make it red
+      cell.classList.add("destination");
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      if (!this.isDefragging) return;
 
-        this.data[destIndex] = 2;
-        this.data[sourceIndex] = 0;
+      // 2. make it cyan first (unoptimized)
+      this._updateCellClass(cell, 1);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      if (!this.isDefragging) return;
 
-        this._updateCellClass(cells[destIndex], 2);
-        this._updateCellClass(cells[sourceIndex], 0);
-      }
+      // 3. make it blue
+      this.data[destIndex] = 2;
+      this._updateCellClass(cell, 2);
     }
   }
 
