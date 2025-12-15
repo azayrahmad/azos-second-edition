@@ -13,6 +13,7 @@ import {
 } from "./cursorManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
 import screensaverManager from "./screensaverUtils.js";
+import { fetchThemeCss, parseCssVariables } from "./themePreview.js";
 
 let parserPromise = null;
 let activeTheme = null; // In-memory cache to avoid repeated localStorage access
@@ -105,22 +106,23 @@ export function getCurrentTheme() {
   return getActiveThemeId();
 }
 
-function applyStylesheet(themeId, cssContent) {
-  const styleId = `${themeId}-theme-styles`;
-  let styleEl = document.getElementById(styleId);
-  if (!styleEl) {
-    styleEl = document.createElement("style");
-    styleEl.id = styleId;
-    document.head.appendChild(styleEl);
+function clearRootCssVariables() {
+  const root = document.documentElement;
+  const style = root.style;
+  const toRemove = [];
+  for (let i = 0; i < style.length; i++) {
+    const propName = style[i];
+    if (propName.startsWith("--")) {
+      toRemove.push(propName);
+    }
   }
-  styleEl.textContent = cssContent;
+  toRemove.forEach((propName) => style.removeProperty(propName));
 }
 
-function removeStylesheet(themeId) {
-  const styleId = `${themeId}-theme-styles`;
-  const styleEl = document.getElementById(styleId);
-  if (styleEl) {
-    styleEl.remove();
+function applyCssVariablesToRoot(variables) {
+  const root = document.documentElement;
+  for (const [key, value] of Object.entries(variables)) {
+    root.style.setProperty(`--${key}`, value);
   }
 }
 
@@ -130,50 +132,45 @@ export async function applyTheme() {
   const colorSchemeId = getColorSchemeId();
   const cursorSchemeId = getCursorSchemeId();
   const colorScheme = allColorSchemes[colorSchemeId];
-  const customThemeForColors = allThemes[colorSchemeId];
+  const themeForColors = allThemes[colorSchemeId];
 
   // --- Cleanup Phase ---
-  // Disable all built-in theme stylesheets
+  // Disable all built-in theme stylesheets. Their variables will be applied manually.
   for (const schemeId in allColorSchemes) {
     const stylesheet = document.getElementById(`${schemeId}-theme`);
     if (stylesheet) stylesheet.disabled = true;
   }
-
-  // Remove all stylesheets for saved custom themes
-  const customThemes = getCustomThemes();
-  for (const themeId in customThemes) {
-    removeStylesheet(themeId);
-  }
-
-  // Remove the generic temporary stylesheet if it exists
-  removeStylesheet("custom");
+  // Clear any variables that were applied inline from a previous run.
+  clearRootCssVariables();
 
   // --- Application Phase ---
   applyCursorTheme(cursorSchemeId);
 
+  let variables = {};
+
   // Check for built-in color scheme first
-  if (colorScheme) {
-    const stylesheet = document.getElementById(`${colorSchemeId}-theme`);
-    if (stylesheet) {
-      stylesheet.disabled = false;
+  if (colorScheme && colorScheme.url) {
+    const cssText = await fetchThemeCss(colorScheme.url);
+    if (cssText) {
+      variables = parseCssVariables(cssText);
     }
-  } else if (customThemeForColors && customThemeForColors.colors) {
-    // It's a custom or temporary theme, so generate and apply its CSS.
-    await loadThemeParser();
-    if (window.makeThemeCSSFile) {
-      const cssContent = window.makeThemeCSSFile(customThemeForColors.colors);
-      // Use 'custom' id for the temporary theme from the app, otherwise the theme's own id.
-      const styleId =
-        customThemeForColors.id === "custom"
-          ? "custom"
-          : customThemeForColors.id;
-      applyStylesheet(styleId, cssContent);
+  } else if (themeForColors && themeForColors.colors) {
+    // It's a custom or temporary theme with an inline 'colors' object
+    for (const [key, value] of Object.entries(themeForColors.colors)) {
+      variables[key.replace(/^--/, "")] = value;
     }
   } else {
-    // Fallback to default if nothing is found
-    const defaultStylesheet = document.getElementById(`default-theme`);
-    if (defaultStylesheet) defaultStylesheet.disabled = false;
+    // Fallback: If no scheme or colors found, apply the default theme's variables.
+    const defaultScheme = allColorSchemes["default"];
+    if (defaultScheme && defaultScheme.url) {
+      const cssText = await fetchThemeCss(defaultScheme.url);
+      if (cssText) {
+        variables = parseCssVariables(cssText);
+      }
+    }
   }
+
+  applyCssVariablesToRoot(variables);
 }
 
 export async function setColorScheme(schemeId) {
