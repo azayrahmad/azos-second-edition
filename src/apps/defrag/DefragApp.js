@@ -1,8 +1,8 @@
-import { Application } from '../Application.js';
+import { Application } from "../Application.js";
 
 export class DefragApp extends Application {
-  constructor() {
-    super();
+  constructor(config) {
+    super(config);
     this.data = [];
     this.gridContainer = null;
     this.startButton = null;
@@ -10,9 +10,18 @@ export class DefragApp extends Application {
     this.isPaused = false;
     this.isComplete = false;
     this.animationFrameId = null;
+    this.win = null;
   }
 
-  async _onLaunch() {
+  _createWindow() {
+    const win = new $Window({
+      title: "Disk Defragmenter",
+      outerWidth: 400,
+      outerHeight: 300,
+      resizable: true,
+      id: "defrag",
+    });
+
     const initialContent = `
       <div class="defrag-container">
         <div class="defrag-grid"></div>
@@ -21,86 +30,85 @@ export class DefragApp extends Application {
         </div>
       </div>
     `;
+    win.$content.append(initialContent);
 
-    const win = this._createWindow({
-      title: 'Disk Defragmenter',
-      width: 400,
-      height: 300,
-      resizable: true,
-      id: 'defrag',
-      content: initialContent,
-    });
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'src/apps/defrag/defrag.css';
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "src/apps/defrag/defrag.css";
     document.head.appendChild(link);
 
-    this.gridContainer = win.$content.find('.defrag-grid')[0];
-    this.startButton = win.$content.find('.start-button')[0];
+    this.gridContainer = win.$content.find(".defrag-grid")[0];
+    this.startButton = win.$content.find(".start-button")[0];
 
     this._generateData();
     this._renderGrid();
 
-    this.startButton.addEventListener('click', () => this._handleButtonClick());
+    this.startButton.addEventListener("click", () => this._handleButtonClick());
 
-    win.on('close', () => this._stopDefrag());
+    win.on("close", () => this._stopDefrag());
 
-    win.setMenuBar([]);
+    return win;
   }
 
   _generateData() {
     this.data = [];
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 2000; i++) {
       this.data.push(Math.round(Math.random()));
     }
   }
 
   _renderGrid() {
     if (!this.gridContainer) return;
-    this.gridContainer.innerHTML = '';
+    this.gridContainer.innerHTML = "";
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < this.data.length; i++) {
-        const cell = this._createCell(i);
-        fragment.appendChild(cell);
+      const cell = this._createCell(i);
+      fragment.appendChild(cell);
     }
     this.gridContainer.appendChild(fragment);
   }
 
   _createCell(index) {
     const value = this.data[index];
-    const cell = document.createElement('div');
-    cell.className = 'defrag-cell';
+    const cell = document.createElement("div");
+    cell.className = "defrag-cell";
     cell.dataset.index = index;
     this._updateCellClass(cell, value);
     return cell;
   }
 
   _updateCellClass(cell, value) {
-    cell.classList.remove('free', 'unoptimized', 'optimized', 'source', 'destination');
-    if (value === 0) cell.classList.add('free');
-    else if (value === 1) cell.classList.add('unoptimized');
-    else if (value === 2) cell.classList.add('optimized');
+    cell.classList.remove(
+      "free",
+      "unoptimized",
+      "optimized",
+      "source",
+      "destination",
+    );
+    if (value === 0) cell.classList.add("free");
+    else if (value === 1) cell.classList.add("unoptimized");
+    else if (value === 2) cell.classList.add("optimized");
   }
 
   _handleButtonClick() {
     if (this.isComplete) return;
 
     if (this.isDefragging) {
-        this._stopDefrag();
-        this.startButton.textContent = 'Start';
+      this._stopDefrag();
+      this.startButton.textContent = "Start";
     } else {
-        this._startDefrag();
-        this.startButton.textContent = 'Stop';
+      this._startDefrag();
+      this.startButton.textContent = "Stop";
     }
   }
 
   _startDefrag() {
     if (this.isDefragging && !this.isPaused) return;
 
-    if (!this.isDefragging) { // First start
-        this._optimizeInitialBlock();
-        this._renderGrid();
+    if (!this.isDefragging) {
+      // First start
+      this._optimizeInitialBlock();
+      this._renderGrid();
     }
 
     this.isDefragging = true;
@@ -126,7 +134,11 @@ export class DefragApp extends Application {
     }
 
     let freeSlotsToFill = [];
-    for (let i = 0; i < this.data.length && freeSlotsToFill.length < unoptimizedBlock.length; i++) {
+    for (
+      let i = 0;
+      i < this.data.length && freeSlotsToFill.length < unoptimizedBlock.length;
+      i++
+    ) {
       if (this.data[i] === 0) {
         freeSlotsToFill.push(i);
       }
@@ -145,7 +157,7 @@ export class DefragApp extends Application {
   _completeDefrag() {
     this.isDefragging = false;
     this.isComplete = true;
-    this.startButton.textContent = 'Finished';
+    this.startButton.textContent = "Finished";
     this.startButton.disabled = true;
   }
 
@@ -159,29 +171,30 @@ export class DefragApp extends Application {
       const destIndex = freeSlots[i];
       sourceIndices.push(sourceIndex);
       destIndices.push(destIndex);
-      cells[sourceIndex].classList.add('source');
-      cells[destIndex].classList.add('destination');
+      cells[sourceIndex].classList.add("source");
+      cells[destIndex].classList.add("destination");
     }
 
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (this.isDefragging) { // Check if process was stopped during delay
-        for (let i = 0; i < unoptimizedBlock.length; i++) {
-            const sourceIndex = sourceIndices[i];
-            const destIndex = destIndices[i];
+    if (this.isDefragging) {
+      // Check if process was stopped during delay
+      for (let i = 0; i < unoptimizedBlock.length; i++) {
+        const sourceIndex = sourceIndices[i];
+        const destIndex = destIndices[i];
 
-            this.data[destIndex] = 2;
-            this.data[sourceIndex] = 0;
+        this.data[destIndex] = 2;
+        this.data[sourceIndex] = 0;
 
-            this._updateCellClass(cells[destIndex], 2);
-            this._updateCellClass(cells[sourceIndex], 0);
-        }
+        this._updateCellClass(cells[destIndex], 2);
+        this._updateCellClass(cells[sourceIndex], 0);
+      }
     }
   }
 
   _optimizeInitialBlock() {
     const firstFree = this.data.indexOf(0);
-    const limit = (firstFree === -1) ? this.data.length : firstFree;
+    const limit = firstFree === -1 ? this.data.length : firstFree;
 
     for (let i = 0; i < limit; i++) {
       if (this.data[i] === 1) {
@@ -195,8 +208,8 @@ export class DefragApp extends Application {
     if (start === -1) return null;
 
     let end = start;
-    while(end + 1 < this.data.length && this.data[end + 1] === 1) {
-        end++;
+    while (end + 1 < this.data.length && this.data[end + 1] === 1) {
+      end++;
     }
     return { start, end, length: end - start + 1 };
   }
