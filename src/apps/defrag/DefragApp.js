@@ -164,6 +164,16 @@ export class DefragApp extends Application {
   async _highlightAndMove(unoptimizedBlock, freeSlots) {
     const cells = this.gridContainer.children;
 
+    // Highlight source cells in green
+    for (let i = 0; i < unoptimizedBlock.length; i++) {
+      if (!this.isDefragging) return;
+      const sourceIndex = unoptimizedBlock.start + i;
+      cells[sourceIndex].classList.add("source");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    if (!this.isDefragging) return;
+
     // Make the source empty first, all at once.
     for (let i = 0; i < unoptimizedBlock.length; i++) {
       if (!this.isDefragging) return;
@@ -184,6 +194,7 @@ export class DefragApp extends Application {
       if (!this.isDefragging) return;
 
       // 2. make it cyan first (unoptimized)
+      this.data[destIndex] = 1;
       this._updateCellClass(cell, 1);
       await new Promise((resolve) => setTimeout(resolve, 200));
       if (!this.isDefragging) return;
