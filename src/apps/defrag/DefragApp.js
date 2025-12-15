@@ -23,6 +23,7 @@ export class DefragApp extends Application {
       outerWidth: 400,
       outerHeight: 350,
       resizable: true,
+      icons: this.icon,
       id: "defrag",
     });
 
