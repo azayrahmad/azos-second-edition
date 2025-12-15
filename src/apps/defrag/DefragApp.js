@@ -44,8 +44,8 @@ export class DefragApp extends Application {
             </div>
           </div>
           <div class="buttons-container">
-            <button class="start-button">Start</button>
-            <button class="pause-button">Pause</button>
+            <button class="start-defrag-button">Start</button>
+            <button class="pause-defrag-button">Pause</button>
             <button class="legend-button">Legend</button>
             <button class="hide-details-button" disabled>Hide Details</button>
           </div>
@@ -60,8 +60,8 @@ export class DefragApp extends Application {
     document.head.appendChild(link);
 
     this.gridContainer = win.$content.find(".defrag-grid")[0];
-    this.startButton = win.$content.find(".start-button")[0];
-    this.pauseButton = win.$content.find(".pause-button")[0];
+    this.startButton = win.$content.find(".start-defrag-button")[0];
+    this.pauseButton = win.$content.find(".pause-defrag-button")[0];
     this.legendButton = win.$content.find(".legend-button")[0];
     this.progressInfo = win.$content.find(".progress-info")[0];
     this.progressText = win.$content.find(".progress-text")[0];
@@ -79,15 +79,15 @@ export class DefragApp extends Application {
 
   _showLegend() {
     ShowDialogWindow({
-      title: "Legend",
+      title: "Defrag Legend",
       text: `
-        <div class="legend-item"><div class="legend-color free"></div> Free</div>
-        <div class="legend-item"><div class="legend-color unoptimized"></div> Unoptimized</div>
-        <div class="legend-item"><div class="legend-color optimized"></div> Optimized</div>
-        <div class="legend-item"><div class="legend-color source"></div> Reading</div>
-        <div class="legend-item"><div class="legend-color destination"></div> Writing</div>
+        <div class="legend-item"><div class="legend-color unoptimized"></div> Unoptimized data</div>
+        <div class="legend-item"><div class="legend-color optimized"></div> Optimized (defragmented) data</div>
+        <div class="legend-item"><div class="legend-color free"></div> Free space</div>
+        <div class="legend-item"><div class="legend-color source"></div> Data that's currently being read</div>
+        <div class="legend-item"><div class="legend-color destination"></div> Data that's currently being written</div>
+        <div class="legend-item">Each box represents one disk cluster.</div>
       `,
-      buttons: "ok",
     });
   }
 
