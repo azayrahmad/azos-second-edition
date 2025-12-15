@@ -123,8 +123,29 @@ export class MediaPlayerApp extends Application {
 
   _loadUrl(url) {
     this.mediaElement.src = url;
+
+    // Extract file extension from URL
+    const encodedFilename = url.split("/").pop().split("?")[0]; // Remove query params
+    const filename = decodeURIComponent(encodedFilename);
+    // Listen for when metadata is loaded to determine type
+    this.mediaElement.onloadedmetadata = () => {
+      // If video dimensions are 0, it's audio-only
+      const isAudio =
+        this.mediaElement.videoWidth === 0 ||
+        this.mediaElement.videoHeight === 0;
+
+      if (isAudio) {
+        this.mediaView.style.display = "none";
+        const windowChromeHeight =
+          this.win.element.offsetHeight - this.win.$content.get(0).offsetHeight;
+        const newHeight = this.mediaControls.offsetHeight + windowChromeHeight;
+        this.win.setDimensions({ outerHeight: newHeight });
+      } else {
+        this.mediaView.style.display = "flex";
+        this.win.setDimensions({ outerHeight: this.originalHeight });
+      }
+    };
     this.mediaElement.play();
-    const filename = url.split("/").pop();
     this.win.title(`${filename} - Media Player`);
   }
 
@@ -252,15 +273,6 @@ export class MediaPlayerApp extends Application {
     this.mediaElement.addEventListener("loadeddata", () => {
       this._setControlsDisabled(false);
       this.playPauseButton.focus();
-    });
-
-    this.mediaElement.addEventListener("error", () => {
-      ShowDialogWindow({
-        title: "Error",
-        text: "The specified media could not be loaded.",
-        buttons: [{ label: "OK", action: () => {}, isDefault: true }],
-      });
-      this._setControlsDisabled(true);
     });
 
     this.mediaElement.addEventListener("ended", () => {
