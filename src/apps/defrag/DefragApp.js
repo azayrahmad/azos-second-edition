@@ -163,32 +163,45 @@ export class DefragApp extends Application {
 
   async _highlightAndMove(unoptimizedBlock, freeSlots) {
     const cells = this.gridContainer.children;
-    const sourceIndices = [];
-    const destIndices = [];
 
+    // Highlight source cells in green
     for (let i = 0; i < unoptimizedBlock.length; i++) {
+      if (!this.isDefragging) return;
       const sourceIndex = unoptimizedBlock.start + i;
-      const destIndex = freeSlots[i];
-      sourceIndices.push(sourceIndex);
-      destIndices.push(destIndex);
       cells[sourceIndex].classList.add("source");
-      cells[destIndex].classList.add("destination");
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    if (!this.isDefragging) return;
 
-    if (this.isDefragging) {
-      // Check if process was stopped during delay
-      for (let i = 0; i < unoptimizedBlock.length; i++) {
-        const sourceIndex = sourceIndices[i];
-        const destIndex = destIndices[i];
+    // Make the source empty first, all at once.
+    for (let i = 0; i < unoptimizedBlock.length; i++) {
+      if (!this.isDefragging) return;
+      const sourceIndex = unoptimizedBlock.start + i;
+      this.data[sourceIndex] = 0;
+      this._updateCellClass(cells[sourceIndex], 0);
+    }
 
-        this.data[destIndex] = 2;
-        this.data[sourceIndex] = 0;
+    // After that, move to the destination cells one by one.
+    for (let i = 0; i < unoptimizedBlock.length; i++) {
+      if (!this.isDefragging) return;
+      const destIndex = freeSlots[i];
+      const cell = cells[destIndex];
 
-        this._updateCellClass(cells[destIndex], 2);
-        this._updateCellClass(cells[sourceIndex], 0);
-      }
+      // 1. make it red
+      cell.classList.add("destination");
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      if (!this.isDefragging) return;
+
+      // 2. make it cyan first (unoptimized)
+      this.data[destIndex] = 1;
+      this._updateCellClass(cell, 1);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      if (!this.isDefragging) return;
+
+      // 3. make it blue
+      this.data[destIndex] = 2;
+      this._updateCellClass(cell, 2);
     }
   }
 
