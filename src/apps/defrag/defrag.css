@@ -3,7 +3,6 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #c0c0c0;
 }
 
 .defrag-grid {
@@ -44,8 +43,20 @@
     background-color: red;
 }
 
+.progress-info {
+    padding: 5px;
+    text-align: left;
+}
+
+.progress-text {
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+.progress-percent {
+    margin-top: 5px;
+}
+
 .defrag-controls {
     padding: 5px;
-    text-align: center;
-    border-top: 1px solid #808080;
 }

@@ -11,13 +11,17 @@ export class DefragApp extends Application {
     this.isComplete = false;
     this.animationFrameId = null;
     this.win = null;
+    this.progressInfo = null;
+    this.progressText = null;
+    this.progressBar = null;
+    this.progressPercent = null;
   }
 
   _createWindow() {
     const win = new $Window({
       title: "Disk Defragmenter",
       outerWidth: 400,
-      outerHeight: 300,
+      outerHeight: 350,
       resizable: true,
       id: "defrag",
     });
@@ -26,6 +30,13 @@ export class DefragApp extends Application {
       <div class="defrag-container">
         <div class="defrag-grid"></div>
         <div class="defrag-controls">
+          <div class="progress-info">
+            <div class="progress-text" style="visibility: hidden;"></div>
+            <div class="progress-indicator segmented">
+              <span class="progress-indicator-bar" style="width: 0%;"></span>
+            </div>
+            <div class="progress-percent" style="visibility: hidden;"></div>
+          </div>
           <button class="start-button">Start</button>
         </div>
       </div>
@@ -39,6 +50,10 @@ export class DefragApp extends Application {
 
     this.gridContainer = win.$content.find(".defrag-grid")[0];
     this.startButton = win.$content.find(".start-button")[0];
+    this.progressInfo = win.$content.find(".progress-info")[0];
+    this.progressText = win.$content.find(".progress-text")[0];
+    this.progressBar = win.$content.find(".progress-indicator-bar")[0];
+    this.progressPercent = win.$content.find(".progress-percent")[0];
 
     this.startButton.addEventListener("click", () => this._handleButtonClick());
 
@@ -47,14 +62,41 @@ export class DefragApp extends Application {
     return win;
   }
 
-  _generateData() {
+  _updateProgress(text, percentage) {
+    this.progressText.textContent = text;
+    this.progressBar.style.width = `${percentage}%`;
+    this.progressPercent.textContent = `${Math.floor(percentage)}% Complete`;
+  }
+
+  _showProgress() {
+    this.progressText.style.visibility = "visible";
+    this.progressPercent.style.visibility = "visible";
+  }
+
+  _hideProgress() {
+    this.progressText.style.visibility = "hidden";
+    this.progressPercent.style.visibility = "hidden";
+  }
+
+  async _generateData() {
     this.data = [];
-    for (let i = 0; i < 2000; i++) {
+    this._showProgress();
+    const totalSteps = 2000;
+
+    for (let i = 0; i < totalSteps; i++) {
+      const percentage = (i / totalSteps) * 5;
+      this._updateProgress("Reading drive information...", percentage);
+
       var diskStatus = Math.round(Math.random() * 2) > 0 ? 1 : 0;
       for (let j = 0; j < 10; j++) {
         this.data.push(diskStatus);
       }
+
+      if (i % 100 === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
     }
+    this._updateProgress("Reading drive information...", 5);
   }
 
   _renderGrid() {
@@ -102,12 +144,12 @@ export class DefragApp extends Application {
     }
   }
 
-  _startDefrag() {
+  async _startDefrag() {
     if (this.isDefragging && !this.isPaused) return;
 
     if (!this.isDefragging) {
       // First start
-      this._generateData();
+      await this._generateData();
       this._renderGrid();
       this._optimizeInitialBlock();
       this._renderGrid();
@@ -136,6 +178,10 @@ export class DefragApp extends Application {
       return;
     }
 
+    const freeStart = this.data.indexOf(0);
+    const progress = 5 + (freeStart / this.data.length) * 95;
+    this._updateProgress("Defragmenting file system...", progress);
+
     this._highlightAndMove(move.source, move.destination).then(() => {
       this.animationFrameId = requestAnimationFrame(() => this._defragStep());
     });
@@ -146,6 +192,7 @@ export class DefragApp extends Application {
     this.isComplete = true;
     this.startButton.textContent = "Finished";
     this.startButton.disabled = true;
+    this._updateProgress("Defragmentation complete.", 100);
   }
 
   async _highlightAndMove(sourceBlock, destinationBlock) {
