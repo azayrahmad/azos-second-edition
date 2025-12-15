@@ -27,6 +27,7 @@
             rel="stylesheet"
             type="text/css"
         />
+        <link rel="stylesheet" href="/node_modules/@xterm/xterm/css/xterm.css" />
         <link rel="stylesheet" href="/src/styles/desktop.css" />
         <link rel="stylesheet" href="/src/styles/taskbar.css" />
         <link rel="stylesheet" href="/src/styles/shutdown-dialog.css" />
@@ -73,150 +74,24 @@
                 justify-content: center;
                 height: 100vh;
                 margin: 0;
+                background-color: black;
             }
             #screen.boot-mode {
-                /*width: 640px;
-                height: 480px;*/
+                width: 100%;
+                height: 100%;
                 overflow: hidden;
                 position: relative;
             }
-            #boot-log div {
-                white-space: pre-wrap;
-            }
-            #boot-screen {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                position: absolute;
-                top: 0;
-                left: 0;
+            #terminal-container {
                 width: 100%;
                 height: 100%;
-                background-color: black;
-                color: #aaaaaa;
-                font-family: "IBM BIOS", Courier, monospace;
-                font-size: 13px;
-                line-height: 1.5;
-                padding: 2em;
-                box-sizing: border-box;
-                overflow-y: auto;
-                z-index: 9999;
-                cursor: none;
-            }
-            #boot-screen-left {
-                flex-grow: 1;
-                margin-right: 20px; /* Some spacing between columns */
-            }
-            #boot-screen-right {
-                width: 130px; /* Approximate width of the Energy Star logo */
-                flex-shrink: 0;
-                display: flex;
-                align-items: flex-end;
-                justify-content: flex-end;
-            }
-            #boot-screen-right img {
-                width: 130px; /* Specific width for the Energy Star logo */
-                height: 130px; /* Specific height for the Energy Star logo */
-            }
-            #bios-info-row {
-                display: flex;
-                align-items: flex-start;
-                margin-bottom: 20px;
-                flex-direction: row;
-            }
-            .bios-text-content {
-                display: flex;
-                flex-direction: column;
-                white-space: pre-wrap;
-                line-height: 1.2;
-            }
-            #bios-text-column {
-                /* Adjusting this from .bios-text-content for more specificity if needed */
-                flex-grow: 1;
-                white-space: pre-wrap;
-                line-height: 1.2;
-            }
-            #initial-boot-message {
-                position: absolute;
-                color: inherit;
-                font-size: 13px;
-                white-space: nowrap;
-            }
-            #boot-screen-content {
-                display: none;
-                height: 100%;
-                width: 100%;
-            }
-            #boot-screen-main-flex-container {
-                display: flex;
-                height: 100%;
-                gap: 20px;
-            }
-            #boot-screen-left-column {
-                flex-grow: 1;
-                display: flex;
-                flex-direction: column;
-            }
-            #bios-logo-column {
-                width: 20px;
-                flex-shrink: 0;
-                margin-right: 10px;
-            }
-            .blinking-cursor {
-                animation: blink 1s step-end infinite;
-            }
-            @keyframes blink {
-                50% {
-                    opacity: 0;
-                }
             }
         </style>
     </head>
 
     <body class="scanlines">
         <div id="screen">
-            <div id="boot-screen">
-                <!-- Initial boot message, visible by default -->
-                <div id="initial-boot-message">Initializing azOS...</div>
-
-                <!-- Main boot screen content (two columns), initially hidden, shown by main.js -->
-                <div id="splash-screen">
-                    <div class="loading-banner"></div>
-                </div>
-                <div id="boot-screen-content">
-                    <div id="boot-screen-main-flex-container">
-                        <!-- Left Column for boot text -->
-                        <div id="boot-screen-left-column">
-                            <!-- Award BIOS info row -->
-                            <div id="bios-info-row">
-                                <div id="bios-logo-column">
-                                    <img
-                                        src="/img/award.png"
-                                        alt="Award BIOS Logo"
-                                    />
-                                </div>
-                                <div id="bios-text-column">
-                                    Award Modular BIOS v4.51PG, An Energy Star
-                                    Ally<br />
-                                    Copyright (C) 1984-85, Award Software, Inc.
-                                </div>
-                            </div>
-                            <!-- Browser Info (will be updated by main.js) -->
-                            <!--<div id="browser-info" style="margin-top: 10px"></div>-->
-                            <!-- Boot Log (will be updated by main.js) -->
-                            <div id="boot-log" style="flex-grow: 1"></div>
-                            <div id="boot-screen-footer">
-                                Press [DEL] to enter SETUP.
-                            </div>
-                        </div>
-
-                        <!-- Right Column for Energy Star logo -->
-                        <div id="boot-screen-right-column">
-                            <img src="/img/energystar.png" alt="Energy Star" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="terminal-container"></div>
             <svg style="position: absolute; pointer-events: none; bottom: 100%">
                 <defs>
                     <filter
