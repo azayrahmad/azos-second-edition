@@ -51,9 +51,9 @@ function disposeTerminal() {
 }
 
 function hideTerminal() {
-    const terminalContainer = document.getElementById("terminal-container");
-    if (terminalContainer) {
-        terminalContainer.style.display = "none";
+    const bootScreenContainer = document.getElementById("boot-screen-container");
+    if (bootScreenContainer) {
+        bootScreenContainer.style.display = "none";
     }
 }
 
