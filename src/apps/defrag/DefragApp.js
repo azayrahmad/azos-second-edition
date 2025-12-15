@@ -127,29 +127,14 @@ export class DefragApp extends Application {
   _defragStep() {
     if (!this.isDefragging) return;
 
-    const unoptimizedBlock = this._findNextUnoptimizedBlock();
-    if (!unoptimizedBlock) {
+    const move = this._analyzeDiskForNextMove();
+
+    if (!move) {
       this._completeDefrag();
       return;
     }
 
-    let freeSlotsToFill = [];
-    for (
-      let i = 0;
-      i < this.data.length && freeSlotsToFill.length < unoptimizedBlock.length;
-      i++
-    ) {
-      if (this.data[i] === 0) {
-        freeSlotsToFill.push(i);
-      }
-    }
-
-    if (freeSlotsToFill.length < unoptimizedBlock.length) {
-      this._completeDefrag();
-      return;
-    }
-
-    this._highlightAndMove(unoptimizedBlock, freeSlotsToFill).then(() => {
+    this._highlightAndMove(move.source, move.destination).then(() => {
       this.animationFrameId = requestAnimationFrame(() => this._defragStep());
     });
   }
@@ -161,13 +146,13 @@ export class DefragApp extends Application {
     this.startButton.disabled = true;
   }
 
-  async _highlightAndMove(unoptimizedBlock, freeSlots) {
+  async _highlightAndMove(sourceBlock, destinationBlock) {
     const cells = this.gridContainer.children;
 
     // Highlight source cells in green
-    for (let i = 0; i < unoptimizedBlock.length; i++) {
+    for (let i = 0; i < sourceBlock.length; i++) {
       if (!this.isDefragging) return;
-      const sourceIndex = unoptimizedBlock.start + i;
+      const sourceIndex = sourceBlock.start + i;
       cells[sourceIndex].classList.add("source");
     }
 
@@ -175,17 +160,17 @@ export class DefragApp extends Application {
     if (!this.isDefragging) return;
 
     // Make the source empty first, all at once.
-    for (let i = 0; i < unoptimizedBlock.length; i++) {
+    for (let i = 0; i < sourceBlock.length; i++) {
       if (!this.isDefragging) return;
-      const sourceIndex = unoptimizedBlock.start + i;
+      const sourceIndex = sourceBlock.start + i;
       this.data[sourceIndex] = 0;
       this._updateCellClass(cells[sourceIndex], 0);
     }
 
     // After that, move to the destination cells one by one.
-    for (let i = 0; i < unoptimizedBlock.length; i++) {
+    for (let i = 0; i < destinationBlock.length; i++) {
       if (!this.isDefragging) return;
-      const destIndex = freeSlots[i];
+      const destIndex = destinationBlock.start + i;
       const cell = cells[destIndex];
 
       // 1. make it red
@@ -216,14 +201,42 @@ export class DefragApp extends Application {
     }
   }
 
-  _findNextUnoptimizedBlock() {
-    const start = this.data.indexOf(1);
-    if (start === -1) return null;
+  _analyzeDiskForNextMove() {
+    // Find the first contiguous block of free space.
+    const freeStart = this.data.indexOf(0);
+    if (freeStart === -1) return null; // No free space, defrag is done.
 
-    let end = start;
-    while (end + 1 < this.data.length && this.data[end + 1] === 1) {
-      end++;
+    let freeEnd = freeStart;
+    while (freeEnd + 1 < this.data.length && this.data[freeEnd + 1] === 0) {
+      freeEnd++;
     }
-    return { start, end, length: end - start + 1 };
+    const freeLength = freeEnd - freeStart + 1;
+
+    // Find the first contiguous block of unoptimized data *after* the free space.
+    let unoptimizedStart = -1;
+    for (let i = freeEnd + 1; i < this.data.length; i++) {
+      if (this.data[i] === 1) {
+        unoptimizedStart = i;
+        break;
+      }
+    }
+    if (unoptimizedStart === -1) return null; // No more unoptimized blocks to move.
+
+    let unoptimizedEnd = unoptimizedStart;
+    while (
+      unoptimizedEnd + 1 < this.data.length &&
+      this.data[unoptimizedEnd + 1] === 1
+    ) {
+      unoptimizedEnd++;
+    }
+    const unoptimizedLength = unoptimizedEnd - unoptimizedStart + 1;
+
+    // Determine the number of cells to move.
+    const moveLength = Math.min(freeLength, unoptimizedLength);
+
+    return {
+      source: { start: unoptimizedStart, length: moveLength },
+      destination: { start: freeStart, length: moveLength },
+    };
   }
 }
