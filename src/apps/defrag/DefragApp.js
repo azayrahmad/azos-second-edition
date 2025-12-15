@@ -1,5 +1,7 @@
+
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import defragSound from "../../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
 
 export class DefragApp extends Application {
   constructor(config) {
@@ -18,6 +20,7 @@ export class DefragApp extends Application {
     this.progressText = null;
     this.progressBar = null;
     this.progressPercent = null;
+    this.audio = null;
   }
 
   _createWindow() {
@@ -72,7 +75,13 @@ export class DefragApp extends Application {
     this.pauseButton.addEventListener("click", () => this._handlePauseClick());
     this.legendButton.addEventListener("click", () => this._showLegend());
 
-    win.on("close", () => this._stopDefrag());
+    win.on("close", () => {
+      this._stopDefrag();
+      if (this.audio) {
+        this.audio.pause();
+        this.audio = null;
+      }
+    });
 
     return win;
   }
@@ -179,6 +188,9 @@ export class DefragApp extends Application {
     if (this.isDefragging) {
       this._stopDefrag();
       this.startButton.textContent = "Resume";
+      if (this.audio) {
+        this.audio.pause();
+      }
     }
   }
 
@@ -199,6 +211,12 @@ export class DefragApp extends Application {
     this.isDefragging = true;
     this.isPaused = false;
     this.animationFrameId = requestAnimationFrame(() => this._defragStep());
+
+    if (!this.audio) {
+      this.audio = new Audio(defragSound);
+      this.audio.loop = true;
+    }
+    this.audio.play();
   }
 
   _stopDefrag() {
@@ -209,6 +227,9 @@ export class DefragApp extends Application {
       cancelAnimationFrame(this.animationFrameId);
     }
     this.pauseButton.disabled = true;
+    if (this.audio) {
+      this.audio.pause();
+    }
   }
 
   _defragStep() {
@@ -237,6 +258,10 @@ export class DefragApp extends Application {
     this.startButton.disabled = true;
     this.pauseButton.disabled = true;
     this._updateProgress("Defragmentation complete.", 100);
+    if (this.audio) {
+      this.audio.pause();
+      this.audio = null;
+    }
   }
 
   async _highlightAndMove(sourceBlock, destinationBlock) {
