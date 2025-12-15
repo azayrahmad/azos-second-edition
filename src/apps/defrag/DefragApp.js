@@ -1,8 +1,7 @@
 
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { soundSchemes } from "../../config/sound-schemes.js";
-import { getSoundSchemeName } from "../../utils/themeManager.js";
+import defragSound from "../../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
 
 export class DefragApp extends Application {
   constructor(config) {
@@ -214,13 +213,8 @@ export class DefragApp extends Application {
     this.animationFrameId = requestAnimationFrame(() => this._defragStep());
 
     if (!this.audio) {
-      const schemeName = getSoundSchemeName();
-      const soundUrl =
-        soundSchemes[schemeName]?.Defrag || soundSchemes["Default"].Defrag;
-      if (soundUrl) {
-        this.audio = new Audio(soundUrl);
-        this.audio.loop = true;
-      }
+      this.audio = new Audio(defragSound);
+      this.audio.loop = true;
     }
     this.audio.play();
   }
