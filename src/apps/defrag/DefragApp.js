@@ -23,7 +23,7 @@ export class DefragApp extends Application {
   _createWindow() {
     const win = new $Window({
       title: "Disk Defragmenter",
-      outerWidth: 400,
+      outerWidth: 500,
       outerHeight: 350,
       resizable: true,
       icons: this.icon,
@@ -189,6 +189,7 @@ export class DefragApp extends Application {
 
     if (!this.isDefragging) {
       // First start
+      this.win.title("Defragmenting Drive C");
       await this._generateData();
       this._renderGrid();
       this._optimizeInitialBlock();
@@ -203,6 +204,7 @@ export class DefragApp extends Application {
   _stopDefrag() {
     this.isDefragging = false;
     this.isPaused = true;
+    this.win.title("Defragmentation Paused");
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
