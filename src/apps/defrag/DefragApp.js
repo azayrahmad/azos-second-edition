@@ -40,9 +40,6 @@ export class DefragApp extends Application {
     this.gridContainer = win.$content.find(".defrag-grid")[0];
     this.startButton = win.$content.find(".start-button")[0];
 
-    this._generateData();
-    this._renderGrid();
-
     this.startButton.addEventListener("click", () => this._handleButtonClick());
 
     win.on("close", () => this._stopDefrag());
@@ -53,7 +50,10 @@ export class DefragApp extends Application {
   _generateData() {
     this.data = [];
     for (let i = 0; i < 2000; i++) {
-      this.data.push(Math.round(Math.random()));
+      var diskStatus = Math.round(Math.random() * 2) > 0 ? 1 : 0;
+      for (let j = 0; j < 10; j++) {
+        this.data.push(diskStatus);
+      }
     }
   }
 
@@ -107,6 +107,8 @@ export class DefragApp extends Application {
 
     if (!this.isDefragging) {
       // First start
+      this._generateData();
+      this._renderGrid();
       this._optimizeInitialBlock();
       this._renderGrid();
     }
@@ -183,8 +185,12 @@ export class DefragApp extends Application {
       this._updateCellClass(cell, 1);
       await new Promise((resolve) => setTimeout(resolve, 200));
       if (!this.isDefragging) return;
+    }
 
-      // 3. make it blue
+    for (let i = 0; i < destinationBlock.length; i++) {
+      // 3. mark as blue (optimized)
+      const destIndex = destinationBlock.start + i;
+      const cell = cells[destIndex];
       this.data[destIndex] = 2;
       this._updateCellClass(cell, 2);
     }
