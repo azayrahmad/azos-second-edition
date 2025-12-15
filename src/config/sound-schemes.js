@@ -8,6 +8,7 @@ import recycle from "../assets/audio/RECYCLE.WAV";
 import start from "../assets/audio/START.WAV";
 import tada from "../assets/audio/TADA.WAV";
 import theMicrosoftSound from "../assets/audio/The Microsoft Sound.wav";
+import defrag from "../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
 
 // 60's USA sounds
 import the60sUsaAsterisk from "../assets/audio/the 60's usa asterisk.wav";
@@ -299,6 +300,7 @@ export const soundSchemes = {
     SystemNotification: "",
     WindowsLogoff: logoff,
     StartNavigation: start,
+    Defrag: defrag,
   },
   "60s USA": {
     Default: the60sUsaBeep,
