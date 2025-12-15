@@ -29,14 +29,14 @@ export class DefragApp extends Application {
     const initialContent = `
       <div class="defrag-container">
         <div class="defrag-grid"></div>
-        <div class="progress-info">
-          <div class="progress-text" style="visibility: hidden;"></div>
-          <div class="progress-indicator segmented">
-            <span class="progress-indicator-bar" style="width: 0%;"></span>
-          </div>
-          <div class="progress-percent" style="visibility: hidden;"></div>
-        </div>
         <div class="defrag-controls">
+          <div class="progress-info">
+            <div class="progress-text" style="visibility: hidden;"></div>
+            <div class="progress-indicator segmented">
+              <span class="progress-indicator-bar" style="width: 0%;"></span>
+            </div>
+            <div class="progress-percent" style="visibility: hidden;"></div>
+          </div>
           <button class="start-button">Start</button>
         </div>
       </div>
