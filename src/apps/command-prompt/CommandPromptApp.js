@@ -124,24 +124,28 @@ export class CommandPromptApp extends Application {
     switch (cmd.toLowerCase()) {
       case "help":
         this.terminal.write("Available commands:\r\n");
-        this.terminal.write("  ls - Lists files and directories\r\n");
+        this.terminal.write("  DIR - Lists files and directories\r\n");
         this.terminal.write(
-          "  cd <directory> - Changes the current directory\r\n",
+          "  CD <directory> - Changes the current directory\r\n",
         );
-        this.terminal.write("  clear - Clears the screen\r\n");
-        this.terminal.write("  help - Displays this help message\r\n");
+        this.terminal.write(
+          "  CHDIR <directory> - Changes the current directory\r\n",
+        );
+        this.terminal.write("  CLS - Clears the screen\r\n");
+        this.terminal.write("  HELP - Displays this help message\r\n");
         this.terminal.write("  <app-id> - Launches an application\r\n");
         break;
 
-      case "ls":
+      case "dir":
         const item = findItemByPath(this.currentDirectory);
         if (item && item.children) {
           item.children.forEach((child) => {
-            this.terminal.write(`${child.name}  <${child.type}>\r\n`);
+            this.terminal.write(this._formatDirEntry(child));
           });
         }
         break;
 
+      case "chdir":
       case "cd":
         if (args.length === 0) {
           this.terminal.write("Usage: cd <directory>\r\n");
@@ -161,7 +165,7 @@ export class CommandPromptApp extends Application {
         }
         break;
 
-      case "clear":
+      case "cls":
         this.terminal.clear();
         break;
 
@@ -215,6 +219,31 @@ export class CommandPromptApp extends Application {
     }
 
     return currentParts.join("/");
+  }
+
+  _formatDirEntry(item) {
+    const parts = item.name.split('.');
+    const hasExtension = parts.length > 1;
+    let baseName = (hasExtension ? parts[0] : item.name).toUpperCase();
+
+    let truncatedName = baseName;
+    if (baseName.length > 8) {
+      truncatedName = `${baseName.substring(0, 6)}~1`;
+    }
+
+    let extension = "";
+    if (item.type === "folder") {
+      extension = "<DIR>";
+    } else if (item.type === "app") {
+      extension = "EXE";
+    } else if (hasExtension) {
+      extension = parts.pop().toUpperCase().substring(0, 3);
+    }
+
+    const nameCol = truncatedName.padEnd(12);
+    const extCol = extension.padEnd(8);
+
+    return `${nameCol}${extCol}${item.name}\r\n`;
   }
 
   _onClose() {
