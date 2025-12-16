@@ -1,6 +1,7 @@
 export class CalculatorLogic {
     constructor() {
         this.clearAll();
+        this.memory = 0;
     }
 
     // Clears all calculator state
@@ -8,7 +9,6 @@ export class CalculatorLogic {
         this.currentValue = '0';
         this.previousValue = null;
         this.operation = null;
-        this.memory = 0;
         this.isNewNumber = true;
         this.base = 10; // 10, 16, 8, 2
         this.angleUnit = 'degrees'; // 'degrees', 'radians', 'gradients'
@@ -67,7 +67,7 @@ export class CalculatorLogic {
 
             switch (this.operation) {
                 case 'And': result = prev & curr; break;
-                case 'Or':  result = prev | curr; break;
+                case 'Or': result = prev | curr; break;
                 case 'Xor': result = prev ^ curr; break;
                 case 'Lsh': result = prev << curr; break;
                 case 'Mod': result = prev % curr; break;
