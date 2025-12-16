@@ -350,7 +350,9 @@ export class CalculatorApp extends Application {
   }
 
   _handleButtonClick(key) {
-    if (!isNaN(parseInt(key, this.logic.base))) {
+    const parsedKey = parseInt(key, this.logic.base);
+    if (!isNaN(parsedKey) && parsedKey < this.logic.base && key.length === 1) {
+      console.log(key);
       this.logic.inputDigit(key);
     } else {
       switch (key) {
