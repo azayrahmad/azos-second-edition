@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import defragSound from "../../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
+import "./defrag.css";
 
 export class DefragApp extends Application {
   constructor(config) {
@@ -59,11 +60,6 @@ export class DefragApp extends Application {
       </div>
     `;
     win.$content.append(initialContent);
-
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "src/apps/defrag/defrag.css";
-    document.head.appendChild(link);
 
     this.gridContainer = win.$content.find(".defrag-grid")[0];
     this.startButton = win.$content.find(".start-defrag-button")[0];
