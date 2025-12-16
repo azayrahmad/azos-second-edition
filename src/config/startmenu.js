@@ -1,13 +1,12 @@
 import { apps } from "./apps.js";
 import { launchApp } from "../utils/appManager.js";
-import { ShowRunDialog } from '../components/RunDialog.js';
+import { ShowRunDialog } from "../components/RunDialog.js";
 import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
   "webamp",
   "tipOfTheDay",
   "internet-explorer",
-  "pinball",
   "keen",
   "buy-me-a-coffee",
   "pdfviewer",
@@ -16,7 +15,7 @@ const startMenuAppIds = [
   "diablo",
   "esheep",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "minesweeper"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
 
 function getAppList(appListIds) {
   return appListIds
@@ -48,7 +47,17 @@ const startMenuConfig = [
           {
             label: "Games",
             icon: ICONS.programs[16],
-            submenu: getAppList(["pinball"]),
+            submenu: getAppList(["pinball", "minesweeper"]),
+          },
+          {
+            label: "Entertainment",
+            icon: ICONS.programs[16],
+            submenu: getAppList(["media-player"]),
+          },
+          {
+            label: "System Tools",
+            icon: ICONS.programs[16],
+            submenu: getAppList(["defrag"]),
           },
           ...getAppList(accessoriesAppIds),
         ],
