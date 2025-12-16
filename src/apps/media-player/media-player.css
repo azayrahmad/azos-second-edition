@@ -103,3 +103,67 @@
 .media-view:focus {
     outline: 1px dotted var(--ButtonHilight);
 }
+
+/* Custom volume slider styles */
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 20px;
+  background: #c0c0c0; /* Same as ButtonFace */
+  border: 1px solid;
+  border-color: var(--ButtonShadow) var(--ButtonHilight) var(--ButtonHilight) var(--ButtonShadow);
+  padding: 0 2px;
+  margin-left: 4px;
+}
+
+.volume-slider:focus {
+  outline: none;
+}
+
+/* Track */
+.volume-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+  background: #2E792E;
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  border: none;
+}
+
+.volume-slider::-moz-range-track {
+  width: 100%;
+  height: 12px;
+  cursor: pointer;
+  background: #2E792E;
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  border: none;
+}
+
+/* Thumb */
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 20px;
+  width: 16px;
+  background: var(--ButtonFace);
+  cursor: pointer;
+  margin-top: -4px;
+  border-left: 2px solid black;
+  border-bottom: 2px solid black;
+  border-top: 1px solid var(--ButtonHilight);
+  border-right: 1px solid var(--ButtonHilight);
+  clip-path: none;
+}
+
+.volume-slider::-moz-range-thumb {
+  border: none;
+  height: 20px;
+  width: 16px;
+  background: var(--ButtonFace);
+  cursor: pointer;
+  border-left: 2px solid black;
+  border-bottom: 2px solid black;
+  border-top: 1px solid var(--ButtonHilight);
+  border-right: 1px solid var(--ButtonHilight);
+}
