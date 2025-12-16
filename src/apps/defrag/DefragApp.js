@@ -1,4 +1,3 @@
-
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import defragSound from "../../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
@@ -21,6 +20,10 @@ export class DefragApp extends Application {
     this.progressBar = null;
     this.progressPercent = null;
     this.audio = null;
+  }
+
+  async _onLaunch() {
+    this._startDefrag();
   }
 
   _createWindow() {
@@ -47,7 +50,7 @@ export class DefragApp extends Application {
             </div>
           </div>
           <div class="buttons-container">
-            <button class="start-defrag-button">Start</button>
+            <button class="start-defrag-button">Stop</button>
             <button class="pause-defrag-button">Pause</button>
             <button class="legend-button">Legend</button>
             <button class="hide-details-button" disabled>Hide Details</button>
@@ -71,7 +74,7 @@ export class DefragApp extends Application {
     this.progressBar = win.$content.find(".progress-indicator-bar")[0];
     this.progressPercent = win.$content.find(".progress-percent")[0];
 
-    this.startButton.addEventListener("click", () => this._handleButtonClick());
+    this.startButton.addEventListener("click", () => this._handleStopClick());
     this.pauseButton.addEventListener("click", () => this._handlePauseClick());
     this.legendButton.addEventListener("click", () => this._showLegend());
 
@@ -170,27 +173,36 @@ export class DefragApp extends Application {
     else if (value === 2) cell.classList.add("optimized");
   }
 
-  _handleButtonClick() {
+  _handleStopClick() {
+    if (this.isComplete) return;
+
+    this._stopDefrag();
+
+    ShowDialogWindow({
+      title: "Are you sure?",
+      text: "Windows has not finished defragmenting drive C.",
+      buttons: [
+        {
+          label: "Resume",
+          action: () => this._startDefrag(),
+        },
+        {
+          label: "Exit",
+          action: () => this.win.close(),
+        },
+      ],
+    });
+  }
+
+  _handlePauseClick() {
     if (this.isComplete) return;
 
     if (this.isDefragging) {
       this._stopDefrag();
-      this.startButton.textContent = "Start";
+      this.pauseButton.textContent = "Resume";
     } else {
       this._startDefrag();
-      this.startButton.textContent = "Stop";
-    }
-  }
-
-  _handlePauseClick() {
-    if (this.isComplete || this.isPaused) return;
-
-    if (this.isDefragging) {
-      this._stopDefrag();
-      this.startButton.textContent = "Resume";
-      if (this.audio) {
-        this.audio.pause();
-      }
+      this.pauseButton.textContent = "Pause";
     }
   }
 
@@ -199,8 +211,7 @@ export class DefragApp extends Application {
 
     this.pauseButton.disabled = false;
 
-    if (!this.isDefragging) {
-      // First start
+    if (this.data.length === 0) {
       this.win.title("Defragmenting Drive C");
       await this._generateData();
       this._renderGrid();
@@ -208,6 +219,7 @@ export class DefragApp extends Application {
       this._renderGrid();
     }
 
+    this.win.title("Defragmenting Drive C");
     this.isDefragging = true;
     this.isPaused = false;
     this.animationFrameId = requestAnimationFrame(() => this._defragStep());
@@ -226,7 +238,7 @@ export class DefragApp extends Application {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
-    this.pauseButton.disabled = true;
+    this.pauseButton.disabled = false;
     if (this.audio) {
       this.audio.pause();
     }
