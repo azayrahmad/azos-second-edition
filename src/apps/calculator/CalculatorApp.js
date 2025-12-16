@@ -350,7 +350,9 @@ export class CalculatorApp extends Application {
   }
 
   _handleButtonClick(key) {
-    if (!isNaN(parseInt(key, this.logic.base))) {
+    if (key === '1/x') {
+      this.logic.reciprocal();
+    } else if (!isNaN(parseInt(key, this.logic.base))) {
       this.logic.inputDigit(key);
     } else {
       switch (key) {
@@ -389,9 +391,6 @@ export class CalculatorApp extends Application {
           break;
         case "%":
           this.logic.percentage();
-          break;
-        case "1/x":
-          this.logic.reciprocal();
           break;
         case "n!":
           this.logic.factorial();
