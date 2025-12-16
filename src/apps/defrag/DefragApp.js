@@ -1,4 +1,3 @@
-
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import defragSound from "../../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
@@ -180,16 +179,18 @@ export class DefragApp extends Application {
     this._stopDefrag();
 
     ShowDialogWindow({
-      title: "Stop Defragmentation",
-      text: "Are you sure you want to stop the process?",
-      buttons: {
-        Resume: () => {
-          this._startDefrag();
+      title: "Are you sure?",
+      text: "Windows has not finished defragmenting drive C.",
+      buttons: [
+        {
+          label: "Resume",
+          action: () => this._startDefrag(),
         },
-        Exit: () => {
-          this.win.close();
+        {
+          label: "Exit",
+          action: () => this.win.close(),
         },
-      },
+      ],
     });
   }
 
