@@ -134,8 +134,12 @@ export class CommandPromptApp extends Application {
           "  CHDIR <directory> - Changes the current directory\r\n",
         );
         this.terminal.write("  CLS - Clears the screen\r\n");
-        this.terminal.write("  COPY <source...> <dest> - Copies one or more files\r\n");
-        this.terminal.write("  MOVE <source...> <dest> - Moves one or more files\r\n");
+        this.terminal.write(
+          "  COPY <source...> <dest> - Copies one or more files\r\n",
+        );
+        this.terminal.write(
+          "  MOVE <source...> <dest> - Moves one or more files\r\n",
+        );
         this.terminal.write("  HELP - Displays this help message\r\n");
         this.terminal.write("  <app-id> - Launches an application\r\n");
         break;
@@ -176,7 +180,9 @@ export class CommandPromptApp extends Application {
       case "copy":
       case "move":
         if (args.length < 2) {
-          this.terminal.write(`Usage: ${cmd.toUpperCase()} <source...> <destination>\r\n`);
+          this.terminal.write(
+            `Usage: ${cmd.toUpperCase()} <source...> <destination>\r\n`,
+          );
           break;
         }
 
@@ -187,53 +193,74 @@ export class CommandPromptApp extends Application {
         const sourcePaths = args.map((arg) => this.resolvePath(arg));
 
         const destinationItem = findItemByPath(destinationPath);
-        const destinationDirectoryPath = destinationPath.substring(0, destinationPath.lastIndexOf('/'));
+        const destinationDirectoryPath = destinationPath.substring(
+          0,
+          destinationPath.lastIndexOf("/"),
+        );
         const destinationDirectory = findItemByPath(destinationDirectoryPath);
 
         if (
           !destinationDirectory ||
-          (destinationDirectory.type !== "folder" && destinationDirectory.type !== "drive")
+          (destinationDirectory.type !== "folder" &&
+            destinationDirectory.type !== "drive")
         ) {
-          this.terminal.write(`Destination directory not found: ${originalDestinationArg}\r\n`);
+          this.terminal.write(
+            `Destination directory not found: ${originalDestinationArg}\r\n`,
+          );
           break;
         }
 
-        if (destinationItem && (destinationItem.type !== "folder" && destinationItem.type !== "drive") && sourcePaths.length > 1) {
-            this.terminal.write(`Cannot copy multiple files to a single file.\r\n`);
-            break;
+        if (
+          destinationItem &&
+          destinationItem.type !== "folder" &&
+          destinationItem.type !== "drive" &&
+          sourcePaths.length > 1
+        ) {
+          this.terminal.write(
+            `Cannot copy multiple files to a single file.\r\n`,
+          );
+          break;
         }
-
 
         const itemsToProcess = [];
         let hasError = false;
         for (let i = 0; i < sourcePaths.length; i++) {
-            const path = sourcePaths[i];
-            if (path === destinationPath) {
-                this.terminal.write(`Cannot ${cmd.toLowerCase()} a file onto itself: ${originalSourceArgs[i]}\r\n`);
-                hasError = true;
-                continue;
-            }
+          const path = sourcePaths[i];
+          if (path === destinationPath) {
+            this.terminal.write(
+              `Cannot ${cmd.toLowerCase()} a file onto itself: ${originalSourceArgs[i]}\r\n`,
+            );
+            hasError = true;
+            continue;
+          }
 
-            if (destinationPath.startsWith(path + '/') && findItemByPath(path).type === 'folder') {
-                this.terminal.write(`Cannot ${cmd.toLowerCase()} a directory into its own subdirectory.\r\n`);
-                hasError = true;
-                continue;
-            }
+          if (
+            destinationPath.startsWith(path + "/") &&
+            findItemByPath(path).type === "folder"
+          ) {
+            this.terminal.write(
+              `Cannot ${cmd.toLowerCase()} a directory into its own subdirectory.\r\n`,
+            );
+            hasError = true;
+            continue;
+          }
 
-            const item = findItemByPath(path);
-            if (item) {
-                itemsToProcess.push(item);
-            } else {
-                this.terminal.write(`File not found: ${originalSourceArgs[i]}\r\n`);
-                hasError = true;
-            }
+          const item = findItemByPath(path);
+          if (item) {
+            itemsToProcess.push(item);
+          } else {
+            this.terminal.write(`File not found: ${originalSourceArgs[i]}\r\n`);
+            hasError = true;
+          }
         }
 
         if (itemsToProcess.length > 0 && !hasError) {
           clipboardManager.set(itemsToProcess, operation);
           pasteItems(destinationPath, itemsToProcess, operation);
           clipboardManager.clear();
-          this.terminal.write(`\t${itemsToProcess.length} file(s) ${operation === "copy" ? "copied" : "moved"}.\r\n`);
+          this.terminal.write(
+            `\t${itemsToProcess.length} file(s) ${operation === "copy" ? "copied" : "moved"}.\r\n`,
+          );
         }
         break;
 
@@ -290,7 +317,8 @@ export class CommandPromptApp extends Application {
   }
 
   _formatDirEntry(item) {
-    const parts = item.name.split('.');
+    console.log(item);
+    const parts = item.name.split(".");
     const hasExtension = parts.length > 1;
     let baseName = (hasExtension ? parts[0] : item.name).toUpperCase();
 
@@ -304,6 +332,8 @@ export class CommandPromptApp extends Application {
       extension = "<DIR>";
     } else if (item.type === "app") {
       extension = "EXE";
+    } else if (item.type === "shortcut") {
+      extension = "LNK";
     } else if (hasExtension) {
       extension = parts.pop().toUpperCase().substring(0, 3);
     }

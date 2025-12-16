@@ -33,15 +33,36 @@ const directory = [
             name: "desktop",
             type: "folder",
             children: [
-              { id: "app-my-computer", type: "app", appId: "my-computer" },
-              { id: "app-my-documents", type: "app", appId: "my-documents" },
-              { id: "app-recycle-bin", type: "app", appId: "recycle-bin" },
+              {
+                id: "app-my-computer",
+                type: "app",
+                appId: "my-computer",
+                name: "My Computer",
+              },
+              {
+                id: "app-my-documents",
+                type: "app",
+                appId: "my-documents",
+                name: "My Documents",
+              },
+              {
+                id: "app-recycle-bin",
+                type: "app",
+                appId: "recycle-bin",
+                name: "Recycle Bin",
+              },
               {
                 id: "app-network-neighborhood",
                 type: "app",
                 appId: "network-neighborhood",
+                name: "Network Neighborhood",
               },
-              { id: "app-my-briefcase", type: "app", appId: "my-briefcase" },
+              {
+                id: "app-my-briefcase",
+                type: "app",
+                appId: "my-briefcase",
+                name: "My Briefcase",
+              },
               {
                 id: "shortcut-to-tipOfTheDay",
                 type: "shortcut",
