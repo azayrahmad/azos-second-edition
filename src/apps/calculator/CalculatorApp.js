@@ -156,7 +156,7 @@ export class CalculatorApp extends Application {
 
       // Group 1: Sta column
       const staGroup = document.createElement("div");
-      staGroup.className = "button-group sta-group";
+      staGroup.className = "calc-sci-button-group sta-group";
       layout.sta.forEach((key) => {
         const button = buttonDefinitions[key];
         if (button) {
@@ -167,7 +167,7 @@ export class CalculatorApp extends Application {
 
       // Group 2: Functions columns
       const functionsGroup = document.createElement("div");
-      functionsGroup.className = "button-group functions-group";
+      functionsGroup.className = "calc-sci-button-group functions-group";
       layout.functions.forEach((col) => {
         const colDiv = document.createElement("div");
         colDiv.className = "button-column";
@@ -183,7 +183,7 @@ export class CalculatorApp extends Application {
 
       // Group 3: Memory column
       const memoryGroup = document.createElement("div");
-      memoryGroup.className = "button-group memory-group";
+      memoryGroup.className = "calc-sci-button-group memory-group";
       layout.memory.forEach((key) => {
         const button = buttonDefinitions[key];
         if (button) {
@@ -194,7 +194,7 @@ export class CalculatorApp extends Application {
 
       // Group 4: Main digits and operators
       const mainGroup = document.createElement("div");
-      mainGroup.className = "button-group main-group";
+      mainGroup.className = "calc-sci-button-group main-group";
       layout.main.forEach((row) => {
         const rowDiv = document.createElement("div");
         rowDiv.className = "button-row";
@@ -266,9 +266,11 @@ export class CalculatorApp extends Application {
                     </fieldset>
                 </div>
                 <div class="control-row">
+                  <fieldset class="group-box">
                     <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
                     <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
                     <div style="width: 25px;"></div>
+                  </fieldset>
                 </div>
             </div>
         `;
