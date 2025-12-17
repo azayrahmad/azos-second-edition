@@ -619,27 +619,69 @@ export class ImageViewerApp extends Application {
     canvas.height = icon.height;
     const ctx = canvas.getContext("2d");
 
-    const imageData = new ImageData(
-      new Uint8ClampedArray(icon.buffer),
-      icon.width,
-      icon.height,
-    );
-    ctx.putImageData(imageData, 0, 0);
+    let imageDataBuffer;
 
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = dataUrl;
+    // Handle different icon bit depths
+    if (icon.bpp === 4 && icon.palette) {
+      // Convert 4-bit indexed color to 32-bit RGBA
+      const rgbaBuffer = new Uint8ClampedArray(icon.width * icon.height * 4);
+      const numPixels = icon.width * icon.height;
 
-    const originalName = this.file.name;
-    const nameWithoutExt =
-      originalName.lastIndexOf(".") !== -1
-        ? originalName.substring(0, originalName.lastIndexOf("."))
-        : originalName;
-    link.download = `${nameWithoutExt}-${icon.width}.png`;
+      for (let i = 0; i < numPixels; i++) {
+        const byteIndex = Math.floor(i / 2);
+        const byte = icon.buffer[byteIndex];
+        const isFirstPixel = i % 2 === 0;
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        // High nibble for the first pixel in a byte, low nibble for the second
+        const paletteIndex = isFirstPixel ? (byte >> 4) : (byte & 0x0f);
+        const color = icon.palette[paletteIndex];
+
+        const offset = i * 4;
+        rgbaBuffer[offset] = color.red;
+        rgbaBuffer[offset + 1] = color.green;
+        rgbaBuffer[offset + 2] = color.blue;
+        rgbaBuffer[offset + 3] = color.alpha;
+      }
+      imageDataBuffer = rgbaBuffer;
+    } else {
+      // For other bit depths (e.g., 32-bit), assume the buffer is already RGBA.
+      // Note: The ico.js library seems to provide a raw buffer for indexed colors
+      // and an RGBA buffer for 32-bit icons. Other indexed formats (1-bit, 8-bit)
+      // would need similar handling but are out of scope for this fix.
+      imageDataBuffer = new Uint8ClampedArray(icon.buffer);
+    }
+
+    try {
+      const imageData = new ImageData(
+        imageDataBuffer,
+        icon.width,
+        icon.height,
+      );
+      ctx.putImageData(imageData, 0, 0);
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataUrl;
+
+      const originalName = this.file.name;
+      const nameWithoutExt =
+        originalName.lastIndexOf(".") !== -1
+          ? originalName.substring(0, originalName.lastIndexOf("."))
+          : originalName;
+      link.download = `${nameWithoutExt}-${icon.width}x${icon.height}-${icon.bpp}bit.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Failed to extract icon:", error);
+      ShowDialogWindow({
+        title: "Error",
+        text: `Could not extract the icon. The format (${icon.bpp}-bit) might be handled incorrectly. Error: ${error.message}`,
+        modal: true,
+        buttons: [{ label: "OK" }],
+      });
+    }
   }
 
   removeBackground() {
