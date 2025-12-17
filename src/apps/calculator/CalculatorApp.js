@@ -98,10 +98,6 @@ export class CalculatorApp extends Application {
         ? this._getStandardLayout()
         : this._getScientificLayout();
 
-    if (this.mode === "scientific") {
-      this._renderScientificControls();
-    }
-
     if (this.mode === "standard") {
       const standardContainer = document.createElement("div");
       standardContainer.className = "standard-layout-container";
@@ -128,10 +124,8 @@ export class CalculatorApp extends Application {
 
       const controlButtons = document.createElement("div");
       controlButtons.className = "control-buttons";
-      console.log(buttonDefinitions);
       layout.controls.forEach((key) => {
         const button = buttonDefinitions[key];
-        console.log("Rendering control button:", button.label, button);
         if (button) {
           controlButtons.appendChild(button.render(this));
         }
@@ -153,8 +147,84 @@ export class CalculatorApp extends Application {
       buttonsContainer.appendChild(standardContainer);
     } else {
       // Scientific mode
+      // Render the top radio button controls
+      const radioControlsHTML = `
+            <div class="scientific-controls">
+                <div class="control-row">
+                    <fieldset class="group-box">
+                        <div class="field-row"><input type="radio" name="number-system" id="hex" value="16"><label for="hex">Hex</label></div>
+                        <div class="field-row"><input type="radio" name="number-system" id="dec" value="10" checked><label for="dec">Dec</label></div>
+                        <div class="field-row"><input type="radio" name="number-system" id="oct" value="8"><label for="oct">Oct</label></div>
+                        <div class="field-row"><input type="radio" name="number-system" id="bin" value="2"><label for="bin">Bin</label></div>
+                    </fieldset>
+                    <fieldset class="group-box">
+                        <div class="field-row"><input type="radio" name="angle-measure" id="degrees" value="degrees" checked><label for="degrees">Degrees</label></div>
+                        <div class="field-row"><input type="radio" name="angle-measure" id="radians" value="radians"><label for="radians">Radians</label></div>
+                        <div class="field-row"><input type="radio" name="angle-measure" id="gradients" value="gradients"><label for="gradients">Gradients</label></div>
+                    </fieldset>
+                </div>
+            </div>
+        `;
+      const displayContainer = this.win.$content.find(
+        ".calculator-display-container",
+      )[0];
+      displayContainer.insertAdjacentHTML("afterend", radioControlsHTML);
+
+      // Add event listeners for radio buttons
+      $.each(
+        this.win.$content.find('input[name="number-system"]'),
+        (index, radio) => {
+          radio.addEventListener("change", (e) =>
+            this._handleBaseChange(parseInt(e.target.value)),
+          );
+        },
+      );
+      $.each(
+        this.win.$content.find('input[name="angle-measure"]'),
+        (index, radio) => {
+          radio.addEventListener("change", (e) =>
+            this.logic.setAngleUnit(e.target.value),
+          );
+        },
+      );
+
+      // --- Create the main button grid ---
       const scientificContainer = document.createElement("div");
       scientificContainer.className = "scientific-layout-container";
+
+      // --- Create and add the new top control row to the grid ---
+      const topControls = document.createElement("div");
+      topControls.className = "scientific-top-controls";
+
+      const invHypGroup = document.createElement("fieldset");
+      invHypGroup.className = "group-box";
+      invHypGroup.innerHTML = `
+        <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
+        <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
+      `;
+      topControls.appendChild(invHypGroup);
+
+      const nestingIndicator = document.createElement("div");
+      nestingIndicator.id = "nesting-level-indicator";
+      nestingIndicator.className = "inset-deep calc-indicator";
+      topControls.appendChild(nestingIndicator);
+
+      const memoryIndicator = document.createElement("div");
+      memoryIndicator.id = "memory-indicator";
+      memoryIndicator.className = "inset-deep calc-indicator";
+      topControls.appendChild(memoryIndicator);
+
+      const controlButtons = document.createElement("div");
+      controlButtons.className = "control-buttons";
+      layout.controls.forEach((key) => {
+        const button = buttonDefinitions[key];
+        if (button) {
+          controlButtons.appendChild(button.render(this));
+        }
+      });
+      topControls.appendChild(controlButtons);
+
+      scientificContainer.appendChild(topControls);
 
       // Group 1: Sta column
       const staGroup = document.createElement("div");
@@ -234,6 +304,7 @@ export class CalculatorApp extends Application {
 
   _getScientificLayout() {
     return {
+      controls: ["Backspace", "CE", "Clear"],
       sta: ["Sta", "Ave", "Sum", "s", "Dat"],
       functions: [
         ["F-E", "dms", "sin", "cos", "tan"],
@@ -249,55 +320,6 @@ export class CalculatorApp extends Application {
         ["A", "B", "C", "D", "E", "F"],
       ],
     };
-  }
-
-  _renderScientificControls() {
-    const controlsHTML = `
-            <div class="scientific-controls">
-                <div class="control-row">
-                    <fieldset class="group-box">
-                        <div class="field-row"><input type="radio" name="number-system" id="hex" value="16"><label for="hex">Hex</label></div>
-                        <div class="field-row"><input type="radio" name="number-system" id="dec" value="10" checked><label for="dec">Dec</label></div>
-                        <div class="field-row"><input type="radio" name="number-system" id="oct" value="8"><label for="oct">Oct</label></div>
-                        <div class="field-row"><input type="radio" name="number-system" id="bin" value="2"><label for="bin">Bin</label></div>
-                    </fieldset>
-                    <fieldset class="group-box">
-                        <div class="field-row"><input type="radio" name="angle-measure" id="degrees" value="degrees" checked><label for="degrees">Degrees</label></div>
-                        <div class="field-row"><input type="radio" name="angle-measure" id="radians" value="radians"><label for="radians">Radians</label></div>
-                        <div class="field-row"><input type="radio" name="angle-measure" id="gradients" value="gradients"><label for="gradients">Gradients</label></div>
-                    </fieldset>
-                </div>
-                <div class="control-row">
-                  <fieldset class="group-box">
-                    <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
-                    <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
-                  </fieldset>
-                  <div id="nesting-level-indicator" class="inset-deep calc-indicator"></div>
-                  <div id="memory-indicator" class="inset-deep calc-indicator"></div>
-                </div>
-            </div>
-        `;
-    const displayContainer = this.win.$content.find(
-      ".calculator-display-container",
-    )[0];
-    displayContainer.insertAdjacentHTML("afterend", controlsHTML);
-
-    $.each(
-      this.win.$content.find('input[name="number-system"]'),
-      (index, radio) => {
-        radio.addEventListener("change", (e) =>
-          this._handleBaseChange(parseInt(e.target.value)),
-        );
-      },
-    );
-    $.each(
-      this.win.$content.find('input[name="angle-measure"]'),
-      (index, radio) => {
-        radio.addEventListener("change", (e) =>
-          this.logic.setAngleUnit(e.target.value),
-        );
-      },
-    );
   }
 
   _handleBaseChange(newBase) {
