@@ -1,0 +1,61 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden; /* Hide scrollbars if the scaled window is too big */
+}
+
+.window-body {
+    text-align: center;
+    padding-top: 1em;
+}
+
+/* Container for the monitor image and iframe */
+.monitor-preview-container {
+    position: relative;
+    width: 96px; /* Original width of Display.png */
+    height: 96px; /* Original height of Display.png */
+    margin: 0 auto; /* Center the container */
+
+    /* Scale the entire container up */
+    transform: scale(5);
+
+    /* Add vertical margin to give space for the scaled element */
+    margin-top: 200px;
+    margin-bottom: 200px;
+}
+
+/* The monitor frame image */
+.monitor-frame {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* The div containing the iframe, positioned over the monitor's screen area */
+.monitor-preview-content {
+    position: absolute;
+    /* These values are based on the original 96x96 image */
+    /* and will be scaled along with the parent */
+    top: 11px;
+    left: 13px;
+    width: 70px;
+    height: 52px;
+    background-color: black; /* Show black while loading */
+    overflow: hidden; /* Hide anything from the iframe spilling out */
+}
+
+/* The iframe itself, filling its container */
+.monitor-preview-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.controls {
+    margin-top: 2em;
+}
+
+/* Fullscreen preview styles - these are handled by the script.js */
