@@ -317,6 +317,7 @@ const buttonDefinitions = {
       new CalculatorButton({
         id: hex,
         label: hex,
+        style: blue,
         action: (app) => app.logic.inputDigit(hex),
       }),
     ]),

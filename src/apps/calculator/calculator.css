@@ -67,11 +67,9 @@
     flex: 1;
 }
 
-.button-row {
-    display: flex;
-    gap: 5px;
-    justify-content: space-between;
-    flex: 1;
+.calculator-buttons button:disabled {
+    text-shadow: none !important;
+    color: grey !important;
 }
 
 .button-row .calc-button {
