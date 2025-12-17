@@ -416,7 +416,7 @@ export class CalculatorApp extends Application {
   }
 
   _openStatisticsWindow() {
-    if (this.statisticsWindow && !this.statisticsWindow.win.isClosed) {
+    if (this.statisticsWindow && !this.statisticsWindow.closed) {
       this.statisticsWindow.win.focus();
       return;
     }
@@ -454,10 +454,13 @@ export class CalculatorApp extends Application {
   }
 
   _updateStatisticsDisplay() {
-    if (this.statisticsWindow && !this.statisticsWindow.win.isClosed) {
-      const listContainer = this.statisticsWindow.$content.find('.statistics-list')[0];
-      listContainer.innerHTML = this.logic.statisticsData.map(num => `<div>${num}</div>`).join('');
-      listContainer.scrollTop = listContainer.scrollHeight;
+    if (this.statisticsWindow && !this.statisticsWindow.closed) {
+      const listContainer = this.statisticsWindow.$content.find('.statistics-list');
+      listContainer.html(this.logic.statisticsData.map(num => `<div>${num}</div>`).join(''));
+      const listElement = listContainer[0];
+      if (listElement) {
+        listElement.scrollTop = listElement.scrollHeight;
+      }
     }
   }
 }
