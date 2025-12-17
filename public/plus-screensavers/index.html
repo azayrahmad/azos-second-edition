@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Screen Savers</title>
-  <link rel="stylesheet" href="../os-gui/windows-98.css">
+  <!-- Using 98.css for the classic Windows 98 look -->
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="window" style="width: 420px; margin: auto;">
+<body style="background-color: teal;">
+
+  <div class="window" style="width: 600px; margin: 2em auto;">
     <div class="title-bar">
       <div class="title-bar-text">Screen Saver Properties</div>
     </div>
@@ -14,20 +18,19 @@
       <fieldset>
         <legend>Screen Saver</legend>
         <div class="monitor-preview-container">
-            <div class="monitor-preview">
-                <div class="monitor-screen">
-                <iframe id="screensaver-iframe" src=""></iframe>
-                </div>
-            </div>
+          <img src="Display.png" class="monitor-frame" alt="Monitor Frame">
+          <div class="monitor-preview-content">
+            <iframe id="screensaver-iframe" src="about:blank" frameborder="0" scrolling="no"></iframe>
+          </div>
         </div>
         <div class="controls">
-            <select id="screensaver-select">
-            </select>
+            <select id="screensaver-select" name="screensaver" style="width: 150px; margin-right: 1em;"></select>
             <button id="preview-button">Preview</button>
         </div>
       </fieldset>
     </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
