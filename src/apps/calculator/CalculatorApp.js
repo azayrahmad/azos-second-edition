@@ -184,8 +184,6 @@ export class CalculatorApp extends Application {
       // Group 3: Memory column
       const memoryGroup = document.createElement("div");
       memoryGroup.className = "button-group memory-group";
-      memoryGroup.innerHTML =
-        '<div id="memory-indicator" class="inset-deep"></div>';
       layout.memory.forEach((key) => {
         const button = buttonDefinitions[key];
         if (button) {

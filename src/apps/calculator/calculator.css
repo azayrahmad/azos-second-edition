@@ -189,12 +189,6 @@
     justify-content: space-between;
 }
 
-.memory-group #memory-indicator {
-    height: 28px;
-    width: 100%;
-    margin-bottom: 5px;
-}
-
 .main-group {
     flex: 1;
     display: flex;
