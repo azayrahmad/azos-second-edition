@@ -153,8 +153,16 @@ const buttonDefinitions = {
   // --- Scientific Buttons ---
   Sta: new CalculatorButton({ label: "Sta", style: scientificControlStyle }),
   "F-E": new CalculatorButton({ label: "F-E", style: magenta }),
-  "(": new CalculatorButton({ label: "(", style: magenta }),
-  ")": new CalculatorButton({ label: ")", style: magenta }),
+  "(": new CalculatorButton({
+    label: "(",
+    style: magenta,
+    action: (app) => app.logic.openParenthesis(),
+  }),
+  ")": new CalculatorButton({
+    label: ")",
+    style: magenta,
+    action: (app) => app.logic.closeParenthesis(),
+  }),
   Mod: new CalculatorButton({
     label: "Mod",
     style: red,
