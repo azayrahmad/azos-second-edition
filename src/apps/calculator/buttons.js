@@ -38,7 +38,8 @@ const buttonDefinitions = {
   "M+": new CalculatorButton({
     label: "M+",
     style: red,
-    tooltip: "Memory Add: Adds the currently displayed number to the number in memory.",
+    tooltip:
+      "Memory Add: Adds the currently displayed number to the number in memory.",
     action: (app) => {
       app.logic.memoryAdd();
       app._updateMemoryIndicator();
@@ -58,7 +59,7 @@ const buttonDefinitions = {
     tooltip: "Clear Entry: Clears the current entry.",
     action: (app) => app.logic.clearEntry(),
   }),
-  C: new CalculatorButton({
+  Clear: new CalculatorButton({
     label: "C",
     style: red,
     tooltip: "Clear: Clears the current calculation.",
@@ -76,7 +77,7 @@ const buttonDefinitions = {
           "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
         action: (app) => app.logic.inputDigit(i.toString()),
       }),
-    ])
+    ]),
   ),
 
   // Operators
@@ -90,8 +91,7 @@ const buttonDefinitions = {
   "*": new CalculatorButton({
     label: "*",
     style: red,
-    tooltip:
-      "Multiplication: Multiplies two numbers.\n**Example:** 2 * 3 = 6.",
+    tooltip: "Multiplication: Multiplies two numbers.\n**Example:** 2 * 3 = 6.",
     action: (app) => app.logic.performOperation("*"),
   }),
   "-": new CalculatorButton({
@@ -125,7 +125,8 @@ const buttonDefinitions = {
   "%": new CalculatorButton({
     label: "%",
     style: blue,
-    tooltip: "Percentage: Calculates a percentage of a number.\n**Example:** 100 * 5% = 5.",
+    tooltip:
+      "Percentage: Calculates a percentage of a number.\n**Example:** 100 * 5% = 5.",
     action: (app) => app.logic.percentage(),
   }),
   "1/x": new CalculatorButton({
@@ -210,7 +211,7 @@ const buttonDefinitions = {
         label: hex,
         action: (app) => app.logic.inputDigit(hex),
       }),
-    ])
+    ]),
   ),
 };
 

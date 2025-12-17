@@ -1,5 +1,7 @@
 // src/apps/calculator/CalculatorButton.js
 
+import { Tooltip } from "../../components/Tooltip.js";
+
 export class CalculatorButton {
   /**
    * @param {object} options
@@ -47,11 +49,11 @@ export class CalculatorButton {
             {
               label: "What's this?",
               action: () => {
-                new window.Tooltip(this.tooltip, button);
+                new Tooltip(this.tooltip, button);
               },
             },
           ],
-          e
+          e,
         );
       });
     }

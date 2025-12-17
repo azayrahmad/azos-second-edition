@@ -17,8 +17,6 @@ export class CalculatorApp extends Application {
     this.win = new $Window({
       id: this.id,
       title: this.title,
-      outerWidth: 260, // Initial width for standard mode
-      outerHeight: 250, // Initial height for standard mode
       resizable: false, // Window is not resizable
       icons: this.icon,
       maximizable: false, // Disable maximize button based on reference image
@@ -78,11 +76,6 @@ export class CalculatorApp extends Application {
   _setMode(newMode) {
     if (this.mode === newMode) return;
     this.mode = newMode;
-    if (this.mode === "scientific") {
-      this.win.setDimensions({ outerWidth: 480, outerHeight: 310 });
-    } else {
-      this.win.setDimensions({ outerWidth: 260, outerHeight: 250 });
-    }
     this._renderButtons();
     this.win.element
       .querySelector(".menus")
@@ -133,8 +126,10 @@ export class CalculatorApp extends Application {
 
       const controlButtons = document.createElement("div");
       controlButtons.className = "control-buttons";
+      console.log(buttonDefinitions);
       layout.controls.forEach((key) => {
         const button = buttonDefinitions[key];
+        console.log("Rendering control button:", button.label, button);
         if (button) {
           controlButtons.appendChild(button.render(this));
         }
@@ -178,7 +173,7 @@ export class CalculatorApp extends Application {
   _getStandardLayout() {
     return {
       memory: ["MC", "MR", "MS", "M+"],
-      controls: ["Backspace", "CE", "C"],
+      controls: ["Backspace", "CE", "Clear"],
       main: [
         ["7", "8", "9", "/", "sqrt"],
         ["4", "5", "6", "*", "%"],
