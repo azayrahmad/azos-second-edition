@@ -211,6 +211,19 @@ export class CalculatorApp extends Application {
       scientificContainer.appendChild(mainGroup);
 
       buttonsContainer.appendChild(scientificContainer);
+
+      const controlButtons = document.createElement("div");
+      controlButtons.className = "control-buttons";
+      console.log(buttonDefinitions);
+      layout.controls.forEach((key) => {
+        const button = buttonDefinitions[key];
+        console.log("Rendering control button:", button.label, button);
+        if (button) {
+          controlButtons.appendChild(button.render(this));
+        }
+      });
+      const controlRow = this.win.$content.find(".control-row-bottom")[0];
+      controlRow.appendChild(controlButtons);
     }
 
     this._updateMemoryIndicator();
@@ -241,6 +254,7 @@ export class CalculatorApp extends Application {
         [")", "ln", "log", "n!", "1/x"],
       ],
       memory: ["MC", "MR", "MS", "M+", "pi"],
+      controls: ["Backspace", "CE", "Clear"],
       main: [
         ["7", "8", "9", "/", "Mod", "And"],
         ["4", "5", "6", "*", "Or", "Xor"],
@@ -267,16 +281,18 @@ export class CalculatorApp extends Application {
                         <div class="field-row"><input type="radio" name="angle-measure" id="gradients" value="gradients"><label for="gradients">Gradients</label></div>
                     </fieldset>
                 </div>
-                <div class="control-row">
-                  <fieldset class="group-box">
+                <div class="control-row control-row-bottom">
+                  <fieldset class="group-box calc-func-switch">
                     <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
                     <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
                   </fieldset>
                   <div id="nesting-level-indicator" class="inset-deep calc-indicator"></div>
                   <div id="memory-indicator" class="inset-deep calc-indicator"></div>
+                  <div style="width: 44px;"></div>
                 </div>
             </div>
         `;
+
     const displayContainer = this.win.$content.find(
       ".calculator-display-container",
     )[0];

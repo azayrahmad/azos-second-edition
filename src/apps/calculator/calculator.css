@@ -57,6 +57,7 @@
 .control-row .checkbox-container {
     display: flex;
     align-items: center;
+    margin-right: 13px;
 }
 
 .calculator-buttons {
@@ -117,6 +118,7 @@
 .control-buttons {
     display: flex;
     gap: 5px;
+    width: 190px;
 }
 
 .main-buttons {
@@ -205,4 +207,8 @@
 .main-group .button-row:last-child {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
+}
+
+.calc-func-switch {
+    max-width: 110px;
 }
