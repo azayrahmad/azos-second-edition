@@ -2,6 +2,7 @@
 import { Application } from "../Application.js";
 import { CalculatorLogic } from "./calculator-logic.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { Tooltip } from "../../components/Tooltip.js";
 import "./calculator.css";
 
 export class CalculatorApp extends Application {
@@ -10,6 +11,41 @@ export class CalculatorApp extends Application {
     this.win = null;
     this.logic = new CalculatorLogic();
     this.mode = "standard"; // 'standard' or 'scientific'
+    this._buttonHelpText = {
+      // Memory functions
+      MC: "Memory Clear: Clears any number stored in memory.",
+      MR: "Memory Recall: Recalls the number stored in memory and uses it as the current entry.",
+      MS: "Memory Store: Stores the currently displayed number in memory, overwriting any previous value.",
+      "M+": "Memory Add: Adds the currently displayed number to the number in memory.",
+      // Control functions
+      Backspace: "Deletes the last digit of the displayed number.",
+      CE: "Clear Entry: Clears the current entry.",
+      C: "Clear: Clears the current calculation.",
+      // Digits
+      0: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      1: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      2: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      3: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      4: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      5: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      6: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      7: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      8: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      9: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
+      // Operators
+      "/": "Division: Divides the previous number by the next.\n**Example:** 8 / 2 = 4.",
+      "*": "Multiplication: Multiplies two numbers.\n**Example:** 2 * 3 = 6.",
+      "-": "Subtraction: Subtracts the next number from the previous.\n**Example:** 5 - 2 = 3.",
+      "+": "Addition: Adds two numbers.\n**Example:** 2 + 3 = 5.",
+      "=": "Equals: Performs the calculation.",
+      // Other functions
+      sqrt: "Square Root: Calculates the square root of the displayed number.\n**Example:** sqrt(9) = 3.",
+      "%": "Percentage: Calculates a percentage of a number.\n**Example:** 100 * 5% = 5.",
+      "1/x":
+        "Reciprocal: Calculates the reciprocal of the displayed number.\n**Example:** 1/4 = 0.25.",
+      "+/-": "Toggle Sign: Changes the sign of the displayed number.",
+      ".": "Decimal Point: Adds a decimal point to the number.",
+    };
   }
 
   _createWindow() {
@@ -341,12 +377,36 @@ export class CalculatorApp extends Application {
   }
 
   _attachButtonListeners() {
-    const buttons = this.win.$content.find(".calc-button");
-    Array.from(buttons).forEach((button) => {
+    const buttons = Array.from(this.win.$content.find(".calc-button"));
+
+    for (const button of buttons) {
       button.addEventListener("click", () =>
         this._handleButtonClick(button.dataset.key),
       );
-    });
+    }
+
+    if (this.mode === "standard") {
+      for (const button of buttons) {
+        button.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          const key = button.dataset.key;
+          const helpText = this._buttonHelpText[key];
+          if (helpText) {
+            new window.ContextMenu(
+              [
+                {
+                  label: "What's this?",
+                  action: () => {
+                    new Tooltip(helpText, button);
+                  },
+                },
+              ],
+              e,
+            );
+          }
+        });
+      }
+    }
   }
 
   _handleButtonClick(key) {
