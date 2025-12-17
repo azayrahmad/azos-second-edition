@@ -324,7 +324,7 @@ export class CalculatorApp extends Application {
 
   _updateHexButtonState() {
     const hexButtons = this.win.$content.find(
-      '[data-key="A"], [data-key="B"], [data-key="C"], [data-key="D"], [data-key="E"], [data-key="F"]',
+      '[data-id="A"], [data-id="B"], [data-id="C"], [data-id="D"], [data-id="E"], [data-id="F"]',
     );
     const disabled = this.logic.base !== 16;
     Array.from(hexButtons).forEach((button) => (button.disabled = disabled));

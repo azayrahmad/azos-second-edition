@@ -11,6 +11,7 @@ const buttonDefinitions = {
 
   // Memory Functions
   MC: new CalculatorButton({
+    id: "MC",
     label: "MC",
     style: red,
     tooltip: "Memory Clear: Clears any number stored in memory.",
@@ -20,6 +21,7 @@ const buttonDefinitions = {
     },
   }),
   MR: new CalculatorButton({
+    id: "MR",
     label: "MR",
     style: red,
     tooltip:
@@ -27,6 +29,7 @@ const buttonDefinitions = {
     action: (app) => app.logic.memoryRecall(),
   }),
   MS: new CalculatorButton({
+    id: "MS",
     label: "MS",
     style: red,
     tooltip:
@@ -37,6 +40,7 @@ const buttonDefinitions = {
     },
   }),
   "M+": new CalculatorButton({
+    id: "M+",
     label: "M+",
     style: red,
     tooltip:
@@ -49,18 +53,21 @@ const buttonDefinitions = {
 
   // Control Functions
   Backspace: new CalculatorButton({
+    id: "Backspace",
     label: "Backspace",
     style: red,
     tooltip: "Deletes the last digit of the displayed number.",
     action: (app) => app.logic.backspace(),
   }),
   CE: new CalculatorButton({
+    id: "CE",
     label: "CE",
     style: red,
     tooltip: "Clear Entry: Clears the current entry.",
     action: (app) => app.logic.clearEntry(),
   }),
   Clear: new CalculatorButton({
+    id: "Clear",
     label: "C",
     style: red,
     tooltip: "Clear: Clears the current calculation.",
@@ -72,6 +79,7 @@ const buttonDefinitions = {
     Array.from({ length: 10 }, (_, i) => [
       i.toString(),
       new CalculatorButton({
+        id: i.toString(),
         label: i.toString(),
         style: blue,
         tooltip:
@@ -83,6 +91,7 @@ const buttonDefinitions = {
 
   // Operators
   "/": new CalculatorButton({
+    id: "/",
     label: "/",
     style: red,
     tooltip:
@@ -90,12 +99,14 @@ const buttonDefinitions = {
     action: (app) => app.logic.performOperation("/"),
   }),
   "*": new CalculatorButton({
+    id: "*",
     label: "*",
     style: red,
     tooltip: "Multiplication: Multiplies two numbers.\n**Example:** 2 * 3 = 6.",
     action: (app) => app.logic.performOperation("*"),
   }),
   "-": new CalculatorButton({
+    id: "-",
     label: "-",
     style: red,
     tooltip:
@@ -103,12 +114,14 @@ const buttonDefinitions = {
     action: (app) => app.logic.performOperation("-"),
   }),
   "+": new CalculatorButton({
+    id: "+",
     label: "+",
     style: red,
     tooltip: "Addition: Adds two numbers.\n**Example:** 2 + 3 = 5.",
     action: (app) => app.logic.performOperation("+"),
   }),
   "=": new CalculatorButton({
+    id: "=",
     label: "=",
     style: red,
     tooltip: "Equals: Performs the calculation.",
@@ -117,6 +130,7 @@ const buttonDefinitions = {
 
   // Other Standard Functions
   sqrt: new CalculatorButton({
+    id: "sqrt",
     label: "sqrt",
     style: blue,
     tooltip:
@@ -124,6 +138,7 @@ const buttonDefinitions = {
     action: (app) => app.logic.squareRoot(),
   }),
   "%": new CalculatorButton({
+    id: "%",
     label: "%",
     style: blue,
     tooltip:
@@ -131,6 +146,7 @@ const buttonDefinitions = {
     action: (app) => app.logic.percentage(),
   }),
   "1/x": new CalculatorButton({
+    id: "1/x",
     label: "1/x",
     style: blue,
     tooltip:
@@ -138,12 +154,14 @@ const buttonDefinitions = {
     action: (app) => app.logic.reciprocal(),
   }),
   "+/-": new CalculatorButton({
+    id: "+/-",
     label: "+/-",
     style: blue,
     tooltip: "Toggle Sign: Changes the sign of the displayed number.",
     action: (app) => app.logic.toggleSign(),
   }),
   ".": new CalculatorButton({
+    id: ".",
     label: ".",
     style: blue,
     tooltip: "Decimal Point: Adds a decimal point to the number.",
@@ -151,105 +169,144 @@ const buttonDefinitions = {
   }),
 
   // --- Scientific Buttons ---
-  Sta: new CalculatorButton({ label: "Sta", style: scientificControlStyle }),
-  "F-E": new CalculatorButton({ label: "F-E", style: magenta }),
+  Sta: new CalculatorButton({
+    id: "Sta",
+    label: "Sta",
+    style: scientificControlStyle,
+  }),
+  "F-E": new CalculatorButton({ id: "F-E", label: "F-E", style: magenta }),
   "(": new CalculatorButton({
+    id: "(",
     label: "(",
     style: magenta,
     action: (app) => app.logic.openParenthesis(),
   }),
   ")": new CalculatorButton({
+    id: ")",
     label: ")",
     style: magenta,
     action: (app) => app.logic.closeParenthesis(),
   }),
   Mod: new CalculatorButton({
+    id: "Mod",
     label: "Mod",
     style: red,
     action: (app) => app.logic.performOperation("Mod"),
   }),
   And: new CalculatorButton({
+    id: "And",
     label: "And",
     style: red,
     action: (app) => app.logic.performOperation("And"),
   }),
-  Ave: new CalculatorButton({ label: "Ave", style: scientificControlStyle }),
-  dms: new CalculatorButton({ label: "dms", style: magenta }),
-  Exp: new CalculatorButton({ label: "Exp", style: magenta }),
+  Ave: new CalculatorButton({
+    id: "Ave",
+    label: "Ave",
+    style: scientificControlStyle,
+  }),
+  dms: new CalculatorButton({ id: "dms", label: "dms", style: magenta }),
+  Exp: new CalculatorButton({ id: "Exp", label: "Exp", style: magenta }),
   ln: new CalculatorButton({
+    id: "ln",
     label: "ln",
     style: magenta,
     action: (app) => app.logic.ln(),
   }),
   Or: new CalculatorButton({
+    id: "Or",
     label: "Or",
     style: red,
     action: (app) => app.logic.performOperation("Or"),
   }),
   Xor: new CalculatorButton({
+    id: "Xor",
     label: "Xor",
     style: red,
     action: (app) => app.logic.performOperation("Xor"),
   }),
-  Sum: new CalculatorButton({ label: "Sum", style: scientificControlStyle }),
+  Sum: new CalculatorButton({
+    id: "Sum",
+    label: "Sum",
+    style: scientificControlStyle,
+  }),
   sin: new CalculatorButton({
+    id: "sin",
     label: "sin",
     style: magenta,
     action: (app) => app.logic.sin(),
   }),
   "x^y": new CalculatorButton({
+    id: "x^y",
     label: "x^y",
     style: magenta,
     action: (app) => app.logic.performOperation("x^y"),
   }),
   log: new CalculatorButton({
+    id: "log",
     label: "log",
     style: magenta,
     action: (app) => app.logic.log(),
   }),
   Lsh: new CalculatorButton({
+    id: "Lsh",
     label: "Lsh",
     style: red,
     action: (app) => app.logic.performOperation("Lsh"),
   }),
   Not: new CalculatorButton({
+    id: "Not",
     label: "Not",
     style: red,
     action: (app) => app.logic.not(),
   }),
-  s: new CalculatorButton({ label: "s", style: scientificControlStyle }),
+  s: new CalculatorButton({
+    id: "s",
+    label: "s",
+    style: scientificControlStyle,
+  }),
   cos: new CalculatorButton({
+    id: "cos",
     label: "cos",
     style: magenta,
     action: (app) => app.logic.cos(),
   }),
   "x^3": new CalculatorButton({
+    id: "x^3",
     label: "x^3",
     style: magenta,
     action: (app) => app.logic.x_cubed(),
   }),
   "n!": new CalculatorButton({
+    id: "n!",
     label: "n!",
     style: magenta,
     action: (app) => app.logic.factorial(),
   }),
   Int: new CalculatorButton({
+    id: "Int",
     label: "Int",
     style: red,
     action: (app) => app.logic.int(),
   }),
-  Dat: new CalculatorButton({ label: "Dat", style: scientificControlStyle }),
+  Dat: new CalculatorButton({
+    id: "Dat",
+    label: "Dat",
+    style: scientificControlStyle,
+  }),
   tan: new CalculatorButton({
+    id: "tan",
     label: "tan",
     style: magenta,
     action: (app) => app.logic.tan(),
   }),
   "x^2": new CalculatorButton({
+    id: "x^2",
     label: "x^2",
     style: magenta,
     action: (app) => app.logic.x_squared(),
   }),
   pi: new CalculatorButton({
+    id: "pi",
     label: "pi",
     style: blue,
     action: (app) => app.logic.pi(),
@@ -258,6 +315,7 @@ const buttonDefinitions = {
     ["A", "B", "C", "D", "E", "F"].map((hex) => [
       hex,
       new CalculatorButton({
+        id: hex,
         label: hex,
         action: (app) => app.logic.inputDigit(hex),
       }),

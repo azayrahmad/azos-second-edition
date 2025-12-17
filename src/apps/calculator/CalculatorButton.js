@@ -5,13 +5,15 @@ import { Tooltip } from "../../components/Tooltip.js";
 export class CalculatorButton {
   /**
    * @param {object} options
+   * @param {string} options.id The unique identifier for the button.
    * @param {string} options.label The text displayed on the button.
    * @param {object} [options.style] CSS styles to apply to the button.
    * @param {string} [options.className] Additional CSS class names.
    * @param {string} [options.tooltip] Help text for the button's context menu.
    * @param {function(CalculatorApp): void} [options.action] The function to execute when the button is clicked.
    */
-  constructor({ label, style, className, tooltip, action }) {
+  constructor({ id, label, style, className, tooltip, action }) {
+    this.id = id;
     this.label = label;
     this.style = style || {};
     this.className = className || "";
@@ -25,8 +27,10 @@ export class CalculatorButton {
    * @returns {HTMLButtonElement}
    */
   render(app) {
+    console.log("Rendering button:", this.label, this);
     const button = document.createElement("button");
     button.dataset.key = this.label;
+    button.dataset.id = this.id;
     button.className = `calc-button ${this.className}`;
     Object.assign(button.style, this.style);
     button.innerHTML = this.label;
