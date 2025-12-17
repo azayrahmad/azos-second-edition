@@ -154,3 +154,61 @@
 .magenta-text {
     color: magenta;
 }
+
+/* Scientific Layout */
+.scientific-layout-container {
+    display: flex;
+    gap: 10px;
+    height: 100%;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sta-group {
+    justify-content: space-between;
+}
+
+.functions-group {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.button-column {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: space-between;
+}
+
+.memory-group {
+    justify-content: space-between;
+}
+
+.memory-group #memory-indicator {
+    height: 28px;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.main-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-group .button-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    flex: 1;
+}
+
+.main-group .button-row:last-child {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+}
