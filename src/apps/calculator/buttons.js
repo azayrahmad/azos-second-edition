@@ -3,6 +3,7 @@ import { CalculatorButton } from "./CalculatorButton.js";
 
 const red = { color: "red" };
 const blue = { color: "blue" };
+const magenta = { color: "magenta" };
 const scientificControlStyle = { width: "40px", color: "blue" };
 
 const buttonDefinitions = {
@@ -151,59 +152,100 @@ const buttonDefinitions = {
 
   // --- Scientific Buttons ---
   Sta: new CalculatorButton({ label: "Sta", style: scientificControlStyle }),
-  "F-E": new CalculatorButton({ label: "F-E" }),
-  "(": new CalculatorButton({ label: "(" }),
-  ")": new CalculatorButton({ label: ")" }),
+  "F-E": new CalculatorButton({ label: "F-E", style: magenta }),
+  "(": new CalculatorButton({ label: "(", style: magenta }),
+  ")": new CalculatorButton({ label: ")", style: magenta }),
   Mod: new CalculatorButton({
     label: "Mod",
+    style: red,
     action: (app) => app.logic.performOperation("Mod"),
   }),
   And: new CalculatorButton({
     label: "And",
+    style: red,
     action: (app) => app.logic.performOperation("And"),
   }),
   Ave: new CalculatorButton({ label: "Ave", style: scientificControlStyle }),
-  dms: new CalculatorButton({ label: "dms" }),
-  Exp: new CalculatorButton({ label: "Exp" }),
-  ln: new CalculatorButton({ label: "ln", action: (app) => app.logic.ln() }),
+  dms: new CalculatorButton({ label: "dms", style: magenta }),
+  Exp: new CalculatorButton({ label: "Exp", style: magenta }),
+  ln: new CalculatorButton({
+    label: "ln",
+    style: magenta,
+    action: (app) => app.logic.ln(),
+  }),
   Or: new CalculatorButton({
     label: "Or",
+    style: red,
     action: (app) => app.logic.performOperation("Or"),
   }),
   Xor: new CalculatorButton({
     label: "Xor",
+    style: red,
     action: (app) => app.logic.performOperation("Xor"),
   }),
   Sum: new CalculatorButton({ label: "Sum", style: scientificControlStyle }),
-  sin: new CalculatorButton({ label: "sin", action: (app) => app.logic.sin() }),
+  sin: new CalculatorButton({
+    label: "sin",
+    style: magenta,
+    action: (app) => app.logic.sin(),
+  }),
   "x^y": new CalculatorButton({
     label: "x^y",
+    style: magenta,
     action: (app) => app.logic.performOperation("x^y"),
   }),
-  log: new CalculatorButton({ label: "log", action: (app) => app.logic.log() }),
+  log: new CalculatorButton({
+    label: "log",
+    style: magenta,
+    action: (app) => app.logic.log(),
+  }),
   Lsh: new CalculatorButton({
     label: "Lsh",
+    style: red,
     action: (app) => app.logic.performOperation("Lsh"),
   }),
-  Not: new CalculatorButton({ label: "Not", action: (app) => app.logic.not() }),
+  Not: new CalculatorButton({
+    label: "Not",
+    style: red,
+    action: (app) => app.logic.not(),
+  }),
   s: new CalculatorButton({ label: "s", style: scientificControlStyle }),
-  cos: new CalculatorButton({ label: "cos", action: (app) => app.logic.cos() }),
+  cos: new CalculatorButton({
+    label: "cos",
+    style: magenta,
+    action: (app) => app.logic.cos(),
+  }),
   "x^3": new CalculatorButton({
     label: "x^3",
+    style: magenta,
     action: (app) => app.logic.x_cubed(),
   }),
   "n!": new CalculatorButton({
     label: "n!",
+    style: magenta,
     action: (app) => app.logic.factorial(),
   }),
-  Int: new CalculatorButton({ label: "Int", action: (app) => app.logic.int() }),
+  Int: new CalculatorButton({
+    label: "Int",
+    style: red,
+    action: (app) => app.logic.int(),
+  }),
   Dat: new CalculatorButton({ label: "Dat", style: scientificControlStyle }),
-  tan: new CalculatorButton({ label: "tan", action: (app) => app.logic.tan() }),
+  tan: new CalculatorButton({
+    label: "tan",
+    style: magenta,
+    action: (app) => app.logic.tan(),
+  }),
   "x^2": new CalculatorButton({
     label: "x^2",
+    style: magenta,
     action: (app) => app.logic.x_squared(),
   }),
-  pi: new CalculatorButton({ label: "pi", action: (app) => app.logic.pi() }),
+  pi: new CalculatorButton({
+    label: "pi",
+    style: blue,
+    action: (app) => app.logic.pi(),
+  }),
   ...Object.fromEntries(
     ["A", "B", "C", "D", "E", "F"].map((hex) => [
       hex,

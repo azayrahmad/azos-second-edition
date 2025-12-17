@@ -151,7 +151,51 @@ export class CalculatorApp extends Application {
       buttonsContainer.appendChild(standardContainer);
     } else {
       // Scientific mode
-      layout.forEach((row) => {
+      const scientificContainer = document.createElement("div");
+      scientificContainer.className = "scientific-layout-container";
+
+      // Group 1: Sta column
+      const staGroup = document.createElement("div");
+      staGroup.className = "calc-sci-button-group sta-group";
+      layout.sta.forEach((key) => {
+        const button = buttonDefinitions[key];
+        if (button) {
+          staGroup.appendChild(button.render(this));
+        }
+      });
+      scientificContainer.appendChild(staGroup);
+
+      // Group 2: Functions columns
+      const functionsGroup = document.createElement("div");
+      functionsGroup.className = "calc-sci-button-group functions-group";
+      layout.functions.forEach((col) => {
+        const colDiv = document.createElement("div");
+        colDiv.className = "button-column";
+        col.forEach((key) => {
+          const button = buttonDefinitions[key];
+          if (button) {
+            colDiv.appendChild(button.render(this));
+          }
+        });
+        functionsGroup.appendChild(colDiv);
+      });
+      scientificContainer.appendChild(functionsGroup);
+
+      // Group 3: Memory column
+      const memoryGroup = document.createElement("div");
+      memoryGroup.className = "calc-sci-button-group memory-group";
+      layout.memory.forEach((key) => {
+        const button = buttonDefinitions[key];
+        if (button) {
+          memoryGroup.appendChild(button.render(this));
+        }
+      });
+      scientificContainer.appendChild(memoryGroup);
+
+      // Group 4: Main digits and operators
+      const mainGroup = document.createElement("div");
+      mainGroup.className = "calc-sci-button-group main-group";
+      layout.main.forEach((row) => {
         const rowDiv = document.createElement("div");
         rowDiv.className = "button-row";
         row.forEach((key) => {
@@ -160,8 +204,11 @@ export class CalculatorApp extends Application {
             rowDiv.appendChild(button.render(this));
           }
         });
-        buttonsContainer.appendChild(rowDiv);
+        mainGroup.appendChild(rowDiv);
       });
+      scientificContainer.appendChild(mainGroup);
+
+      buttonsContainer.appendChild(scientificContainer);
     }
 
     this._updateMemoryIndicator();
@@ -184,13 +231,22 @@ export class CalculatorApp extends Application {
   }
 
   _getScientificLayout() {
-    return [
-      ["Sta", "F-E", "(", ")", "MC", "7", "8", "9", "/", "Mod", "And"],
-      ["Ave", "dms", "Exp", "ln", "MR", "4", "5", "6", "*", "Or", "Xor"],
-      ["Sum", "sin", "x^y", "log", "MS", "1", "2", "3", "-", "Lsh", "Not"],
-      ["s", "cos", "x^3", "n!", "M+", "0", "+/-", ".", "+", "=", "Int"],
-      ["Dat", "tan", "x^2", "1/x", "pi", "A", "B", "C", "D", "E", "F"],
-    ];
+    return {
+      sta: ["Sta", "Ave", "Sum", "s", "Dat"],
+      functions: [
+        ["F-E", "dms", "sin", "cos", "tan"],
+        ["(", "Exp", "x^y", "x^3", "x^2"],
+        [")", "ln", "log", "n!", "1/x"],
+      ],
+      memory: ["MC", "MR", "MS", "M+", "pi"],
+      main: [
+        ["7", "8", "9", "/", "Mod", "And"],
+        ["4", "5", "6", "*", "Or", "Xor"],
+        ["1", "2", "3", "-", "Lsh", "Not"],
+        ["0", "+/-", ".", "+", "=", "Int"],
+        ["A", "B", "C", "D", "E", "F"],
+      ],
+    };
   }
 
   _renderScientificControls() {
@@ -210,9 +266,11 @@ export class CalculatorApp extends Application {
                     </fieldset>
                 </div>
                 <div class="control-row">
+                  <fieldset class="group-box">
                     <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
                     <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
                     <div style="width: 25px;"></div>
+                  </fieldset>
                 </div>
             </div>
         `;
