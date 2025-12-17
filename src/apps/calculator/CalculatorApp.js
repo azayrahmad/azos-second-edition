@@ -33,15 +33,15 @@ export class CalculatorApp extends Application {
       '8': 'Enters the digit 8.',
       '9': 'Enters the digit 9.',
       // Operators
-      '/': 'Division: Divides the previous number by the next. Example: 8 / 2 = 4.',
-      '*': 'Multiplication: Multiplies two numbers. Example: 2 * 3 = 6.',
-      '-': 'Subtraction: Subtracts the next number from the previous. Example: 5 - 2 = 3.',
-      '+': 'Addition: Adds two numbers. Example: 2 + 3 = 5.',
+      '/': 'Division: Divides the previous number by the next.\n**Example:** 8 / 2 = 4.',
+      '*': 'Multiplication: Multiplies two numbers.\n**Example:** 2 * 3 = 6.',
+      '-': 'Subtraction: Subtracts the next number from the previous.\n**Example:** 5 - 2 = 3.',
+      '+': 'Addition: Adds two numbers.\n**Example:** 2 + 3 = 5.',
       '=': 'Equals: Performs the calculation.',
       // Other functions
-      'sqrt': 'Square Root: Calculates the square root of the displayed number. Example: sqrt(9) = 3.',
-      '%': 'Percentage: Calculates a percentage of a number. Example: 100 * 5% = 5.',
-      '1/x': 'Reciprocal: Calculates the reciprocal of the displayed number. Example: 1/4 = 0.25.',
+      'sqrt': 'Square Root: Calculates the square root of the displayed number.\n**Example:** sqrt(9) = 3.',
+      '%': 'Percentage: Calculates a percentage of a number.\n**Example:** 100 * 5% = 5.',
+      '1/x': 'Reciprocal: Calculates the reciprocal of the displayed number.\n**Example:** 1/4 = 0.25.',
       '+/-': 'Toggle Sign: Changes the sign of the displayed number.',
       '.': 'Decimal Point: Adds a decimal point to the number.',
     };
@@ -376,28 +376,31 @@ export class CalculatorApp extends Application {
   }
 
   _attachButtonListeners() {
-    const buttons = this.win.$content.find(".calc-button");
-    Array.from(buttons).forEach((button) => {
-      button.addEventListener("click", () =>
-        this._handleButtonClick(button.dataset.key),
-      );
+    const buttons = Array.from(this.win.$content.find(".calc-button"));
 
-      if (this.mode === 'standard') {
-        button.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          const key = button.dataset.key;
-          const helpText = this._buttonHelpText[key];
-          if (helpText) {
-            new window.ContextMenu([{
-              label: "What's this?",
-              action: () => {
-                new Tooltip(helpText, button);
-              }
-            }], e);
-          }
-        });
-      }
-    });
+    for (const button of buttons) {
+        button.addEventListener("click", () =>
+            this._handleButtonClick(button.dataset.key),
+        );
+    }
+
+    if (this.mode === 'standard') {
+        for (const button of buttons) {
+            button.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const key = button.dataset.key;
+                const helpText = this._buttonHelpText[key];
+                if (helpText) {
+                    new window.ContextMenu([{
+                        label: "What's this?",
+                        action: () => {
+                            new Tooltip(helpText, button);
+                        }
+                    }], e);
+                }
+            });
+        }
+    }
   }
 
   _handleButtonClick(key) {

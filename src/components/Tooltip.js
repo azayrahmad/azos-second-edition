@@ -10,11 +10,12 @@ export class Tooltip {
   _create() {
     this.element = document.createElement('div');
     this.element.className = 'tooltip';
-    this.element.textContent = this.text;
+    if (this.text) {
+        this.element.innerHTML = marked.parseInline(this.text, { breaks: true });
+    }
     document.body.appendChild(this.element);
 
     this._position();
-    this.element.focus();
 
     // Using a timeout to ensure the event listener is set up after the current event cycle
     setTimeout(() => {
