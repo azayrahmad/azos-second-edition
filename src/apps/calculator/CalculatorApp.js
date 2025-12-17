@@ -2,7 +2,7 @@
 import { Application } from "../Application.js";
 import { CalculatorLogic } from "./calculator-logic.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { Tooltip } from "../../components/Tooltip.js";
+import buttonDefinitions from "./buttons.js"; // Import the centralized button definitions
 import "./calculator.css";
 
 export class CalculatorApp extends Application {
@@ -11,41 +11,6 @@ export class CalculatorApp extends Application {
     this.win = null;
     this.logic = new CalculatorLogic();
     this.mode = "standard"; // 'standard' or 'scientific'
-    this._buttonHelpText = {
-      // Memory functions
-      MC: "Memory Clear: Clears any number stored in memory.",
-      MR: "Memory Recall: Recalls the number stored in memory and uses it as the current entry.",
-      MS: "Memory Store: Stores the currently displayed number in memory, overwriting any previous value.",
-      "M+": "Memory Add: Adds the currently displayed number to the number in memory.",
-      // Control functions
-      Backspace: "Deletes the last digit of the displayed number.",
-      CE: "Clear Entry: Clears the current entry.",
-      C: "Clear: Clears the current calculation.",
-      // Digits
-      0: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      1: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      2: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      3: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      4: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      5: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      6: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      7: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      8: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      9: "Puts this number in the calculator display.\n\nKeyboard equivalent = 0-9",
-      // Operators
-      "/": "Division: Divides the previous number by the next.\n**Example:** 8 / 2 = 4.",
-      "*": "Multiplication: Multiplies two numbers.\n**Example:** 2 * 3 = 6.",
-      "-": "Subtraction: Subtracts the next number from the previous.\n**Example:** 5 - 2 = 3.",
-      "+": "Addition: Adds two numbers.\n**Example:** 2 + 3 = 5.",
-      "=": "Equals: Performs the calculation.",
-      // Other functions
-      sqrt: "Square Root: Calculates the square root of the displayed number.\n**Example:** sqrt(9) = 3.",
-      "%": "Percentage: Calculates a percentage of a number.\n**Example:** 100 * 5% = 5.",
-      "1/x":
-        "Reciprocal: Calculates the reciprocal of the displayed number.\n**Example:** 1/4 = 0.25.",
-      "+/-": "Toggle Sign: Changes the sign of the displayed number.",
-      ".": "Decimal Point: Adds a decimal point to the number.",
-    };
   }
 
   _createWindow() {
@@ -126,6 +91,8 @@ export class CalculatorApp extends Application {
 
   _renderButtons() {
     const buttonsContainer = this.win.$content.find(".calculator-buttons")[0];
+    buttonsContainer.innerHTML = ""; // Clear existing buttons
+
     const existingControls = this.win.$content.find(".scientific-controls")[0];
     if (existingControls) {
       existingControls.remove();
@@ -140,179 +107,94 @@ export class CalculatorApp extends Application {
       this._renderScientificControls();
     }
 
-    let buttonsHTML = "";
     if (this.mode === "standard") {
-      buttonsHTML += '<div class="standard-layout-container">';
+      const standardContainer = document.createElement("div");
+      standardContainer.className = "standard-layout-container";
 
       // Column 1: Memory section
-      buttonsHTML += '<div class="memory-section">';
-      buttonsHTML += '<div id="memory-indicator" class="inset-deep"></div>';
-      buttonsHTML += '<div class="memory-buttons">';
-      layout.memory.forEach((button) => {
-        const id = button.id ? `id="${button.id}"` : "";
-        const style = button.style ? `style="${button.style}"` : "";
-        const className = `class="calc-button ${button.class || ""}"`;
-        buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
+      const memorySection = document.createElement("div");
+      memorySection.className = "memory-section";
+      memorySection.innerHTML =
+        '<div id="memory-indicator" class="inset-deep"></div>';
+      const memoryButtons = document.createElement("div");
+      memoryButtons.className = "memory-buttons";
+      layout.memory.forEach((key) => {
+        const button = buttonDefinitions[key];
+        if (button) {
+          memoryButtons.appendChild(button.render(this));
+        }
       });
-      buttonsHTML += "</div>";
-      buttonsHTML += "</div>";
+      memorySection.appendChild(memoryButtons);
+      standardContainer.appendChild(memorySection);
 
       // Column 2: Main area
-      buttonsHTML += '<div class="main-area">';
+      const mainArea = document.createElement("div");
+      mainArea.className = "main-area";
 
-      buttonsHTML += '<div class="control-buttons">';
-      layout.controls.forEach((button) => {
-        const id = button.id ? `id="${button.id}"` : "";
-        const style = button.style ? `style="${button.style}"` : "";
-        const className = `class="calc-button ${button.class || ""}"`;
-        buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
+      const controlButtons = document.createElement("div");
+      controlButtons.className = "control-buttons";
+      layout.controls.forEach((key) => {
+        const button = buttonDefinitions[key];
+        if (button) {
+          controlButtons.appendChild(button.render(this));
+        }
       });
-      buttonsHTML += "</div>";
+      mainArea.appendChild(controlButtons);
 
-      buttonsHTML += '<div class="main-buttons">';
+      const mainButtons = document.createElement("div");
+      mainButtons.className = "main-buttons";
       layout.main.forEach((row) => {
-        row.forEach((button) => {
-          const id = button.id ? `id="${button.id}"` : "";
-          const style = button.style ? `style="${button.style}"` : "";
-          const className = `class="calc-button ${button.class || ""}"`;
-          buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
+        row.forEach((key) => {
+          const button = buttonDefinitions[key];
+          if (button) {
+            mainButtons.appendChild(button.render(this));
+          }
         });
       });
-      buttonsHTML += "</div>";
-
-      buttonsHTML += "</div>"; // end .main-area
-      buttonsHTML += "</div>"; // end .standard-layout-container
+      mainArea.appendChild(mainButtons);
+      standardContainer.appendChild(mainArea);
+      buttonsContainer.appendChild(standardContainer);
     } else {
+      // Scientific mode
       layout.forEach((row) => {
-        buttonsHTML += '<div class="button-row">';
-        row.forEach((button) => {
-          const id = button.id ? `id="${button.id}"` : "";
-          const style = button.style ? `style="${button.style}"` : "";
-          const className = `class="calc-button ${button.class || ""}"`;
-          buttonsHTML += `<button data-key="${button.label}" ${id} ${className} ${style}>${button.label}</button>`;
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "button-row";
+        row.forEach((key) => {
+          const button = buttonDefinitions[key];
+          if (button) {
+            rowDiv.appendChild(button.render(this));
+          }
         });
-        buttonsHTML += "</div>";
+        buttonsContainer.appendChild(rowDiv);
       });
     }
 
-    buttonsContainer.innerHTML = buttonsHTML;
-    this._attachButtonListeners();
     this._updateMemoryIndicator();
+    if (this.mode === "scientific") {
+      this._updateHexButtonState();
+    }
   }
 
   _getStandardLayout() {
     return {
-      memory: [
-        { label: "MC", style: "color: red" },
-        { label: "MR", style: "color: red" },
-        { label: "MS", style: "color: red" },
-        { label: "M+", style: "color: red" },
-      ],
-      controls: [
-        { label: "Backspace", style: "color: red" },
-        { label: "CE", style: "color: red" },
-        { label: "C", style: "color: red" },
-      ],
+      memory: ["MC", "MR", "MS", "M+"],
+      controls: ["Backspace", "CE", "C"],
       main: [
-        [
-          { label: "7", style: "color: blue" },
-          { label: "8", style: "color: blue" },
-          { label: "9", style: "color: blue" },
-          { label: "/", style: "color: red" },
-          { label: "sqrt", style: "color: blue" },
-        ],
-        [
-          { label: "4", style: "color: blue" },
-          { label: "5", style: "color: blue" },
-          { label: "6", style: "color: blue" },
-          { label: "*", style: "color: red" },
-          { label: "%", style: "color: blue" },
-        ],
-        [
-          { label: "1", style: "color: blue" },
-          { label: "2", style: "color: blue" },
-          { label: "3", style: "color: blue" },
-          { label: "-", style: "color: red" },
-          { label: "1/x", style: "color: blue" },
-        ],
-        [
-          { label: "0", style: "color: blue" },
-          { label: "+/-", style: "color: blue" },
-          { label: ".", style: "color: blue" },
-          { label: "+", style: "color: red" },
-          { label: "=", style: "color: red" },
-        ],
+        ["7", "8", "9", "/", "sqrt"],
+        ["4", "5", "6", "*", "%"],
+        ["1", "2", "3", "-", "1/x"],
+        ["0", "+/-", ".", "+", "="],
       ],
     };
   }
 
   _getScientificLayout() {
     return [
-      [
-        { label: "Sta", style: "width: 40px; color: blue" },
-        { label: "F-E" },
-        { label: "(" },
-        { label: ")" },
-        { label: "MC" },
-        { label: "7" },
-        { label: "8" },
-        { label: "9" },
-        { label: "/", style: "color: red" },
-        { label: "Mod" },
-        { label: "And" },
-      ],
-      [
-        { label: "Ave", style: "width: 40px; color: blue" },
-        { label: "dms" },
-        { label: "Exp" },
-        { label: "ln" },
-        { label: "MR" },
-        { label: "4" },
-        { label: "5" },
-        { label: "6" },
-        { label: "*", style: "color: red" },
-        { label: "Or" },
-        { label: "Xor" },
-      ],
-      [
-        { label: "Sum", style: "width: 40px; color: blue" },
-        { label: "sin" },
-        { label: "x^y" },
-        { label: "log" },
-        { label: "MS" },
-        { label: "1" },
-        { label: "2" },
-        { label: "3" },
-        { label: "-", style: "color: red" },
-        { label: "Lsh" },
-        { label: "Not" },
-      ],
-      [
-        { label: "s", style: "width: 40px; color: blue" },
-        { label: "cos" },
-        { label: "x^3" },
-        { label: "n!" },
-        { label: "M+" },
-        { label: "0" },
-        { label: "+/-" },
-        { label: "." },
-        { label: "+", style: "color: red" },
-        { label: "=", style: "color: red" },
-        { label: "Int" },
-      ],
-      [
-        { label: "Dat", style: "width: 40px; color: blue" },
-        { label: "tan" },
-        { label: "x^2" },
-        { label: "1/x" },
-        { label: "pi" },
-        { label: "A" },
-        { label: "B" },
-        { label: "C" },
-        { label: "D" },
-        { label: "E" },
-        { label: "F" },
-      ],
+      ["Sta", "F-E", "(", ")", "MC", "7", "8", "9", "/", "Mod", "And"],
+      ["Ave", "dms", "Exp", "ln", "MR", "4", "5", "6", "*", "Or", "Xor"],
+      ["Sum", "sin", "x^y", "log", "MS", "1", "2", "3", "-", "Lsh", "Not"],
+      ["s", "cos", "x^3", "n!", "M+", "0", "+/-", ".", "+", "=", "Int"],
+      ["Dat", "tan", "x^2", "1/x", "pi", "A", "B", "C", "D", "E", "F"],
     ];
   }
 
@@ -376,137 +258,6 @@ export class CalculatorApp extends Application {
     Array.from(hexButtons).forEach((button) => (button.disabled = disabled));
   }
 
-  _attachButtonListeners() {
-    const buttons = Array.from(this.win.$content.find(".calc-button"));
-
-    for (const button of buttons) {
-      button.addEventListener("click", () =>
-        this._handleButtonClick(button.dataset.key),
-      );
-    }
-
-    if (this.mode === "standard") {
-      for (const button of buttons) {
-        button.addEventListener("contextmenu", (e) => {
-          e.preventDefault();
-          const key = button.dataset.key;
-          const helpText = this._buttonHelpText[key];
-          if (helpText) {
-            new window.ContextMenu(
-              [
-                {
-                  label: "What's this?",
-                  action: () => {
-                    new Tooltip(helpText, button);
-                  },
-                },
-              ],
-              e,
-            );
-          }
-        });
-      }
-    }
-  }
-
-  _handleButtonClick(key) {
-    const parsedKey = parseInt(key, this.logic.base);
-    if (!isNaN(parsedKey) && parsedKey < this.logic.base && key.length === 1) {
-      this.logic.inputDigit(key);
-    } else {
-      switch (key) {
-        case ".":
-          this.logic.inputDecimal();
-          break;
-        case "+":
-        case "-":
-        case "*":
-        case "/":
-        case "x^y":
-        case "And":
-        case "Or":
-        case "Xor":
-        case "Lsh":
-        case "Mod":
-          this.logic.performOperation(key);
-          break;
-        case "=":
-          this.logic.equals();
-          break;
-        case "C":
-          this.logic.clearAll();
-          break;
-        case "CE":
-          this.logic.clearEntry();
-          break;
-        case "Backspace":
-          this.logic.backspace();
-          break;
-        case "+/-":
-          this.logic.toggleSign();
-          break;
-        case "sqrt":
-          this.logic.squareRoot();
-          break;
-        case "%":
-          this.logic.percentage();
-          break;
-        case "1/x":
-          this.logic.reciprocal();
-          break;
-        case "n!":
-          this.logic.factorial();
-          break;
-        case "sin":
-          this.logic.sin();
-          break;
-        case "cos":
-          this.logic.cos();
-          break;
-        case "tan":
-          this.logic.tan();
-          break;
-        case "log":
-          this.logic.log();
-          break;
-        case "ln":
-          this.logic.ln();
-          break;
-        case "pi":
-          this.logic.pi();
-          break;
-        case "x^2":
-          this.logic.x_squared();
-          break;
-        case "x^3":
-          this.logic.x_cubed();
-          break;
-        case "Not":
-          this.logic.not();
-          break;
-        case "Int":
-          this.logic.int();
-          break;
-        case "MC":
-          this.logic.memoryClear();
-          this._updateMemoryIndicator();
-          break;
-        case "MR":
-          this.logic.memoryRecall();
-          break;
-        case "MS":
-          this.logic.memoryStore();
-          this._updateMemoryIndicator();
-          break;
-        case "M+":
-          this.logic.memoryAdd();
-          this._updateMemoryIndicator();
-          break;
-      }
-    }
-    this._updateDisplay();
-  }
-
   _updateMemoryIndicator() {
     const indicator = this.win.$content.find("#memory-indicator")[0];
     if (indicator) {
@@ -549,39 +300,30 @@ export class CalculatorApp extends Application {
   }
 
   _onLaunch(data) {
-    // Keyboard support
     this.win.element.addEventListener("keydown", (e) => {
       e.preventDefault();
       this._handleKeyPress(e.key);
     });
+
+    this.win.element.addEventListener("button-action-complete", () =>
+      this._updateDisplay(),
+    );
+  }
+
+  _triggerButtonAction(key) {
+    const button = buttonDefinitions[key];
+    if (button && button.action) {
+      this.win.element.dispatchEvent(new CustomEvent("button-action-start"));
+      button.action(this);
+      this.win.element.dispatchEvent(new CustomEvent("button-action-complete"));
+    }
   }
 
   _handleKeyPress(key) {
-    if (!isNaN(parseInt(key, this.logic.base))) {
-      this.logic.inputDigit(key);
-    } else {
-      switch (key) {
-        case ".":
-          this.logic.inputDecimal();
-          break;
-        case "+":
-        case "-":
-        case "*":
-        case "/":
-          this.logic.performOperation(key);
-          break;
-        case "Enter":
-        case "=":
-          this.logic.equals();
-          break;
-        case "Escape":
-          this.logic.clearAll();
-          break;
-        case "Backspace":
-          this.logic.backspace();
-          break;
-      }
-    }
-    this._updateDisplay();
+    // Normalize key for certain inputs
+    if (key === "Enter") key = "=";
+    if (key === "Escape") key = "C";
+
+    this._triggerButtonAction(key);
   }
 }
