@@ -37,25 +37,26 @@
 
 .control-row {
     display: flex;
+    gap: 5px;
     margin-bottom: 5px;
 }
 
 .control-row .group-box {
     display: flex;
     padding: 2px 5px;
-    margin-right: 5px;
+    flex-grow: 1;
+    justify-content: space-between;
 }
 
 .control-row .field-row {
     display: flex;
     align-items: center;
-    margin-right: 10px;
+    margin: 2px;
 }
 
 .control-row .checkbox-container {
     display: flex;
     align-items: center;
-    margin-right: 10px;
 }
 
 .calculator-buttons {
