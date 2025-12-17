@@ -36,6 +36,7 @@ export class CalculatorApp extends Application {
 
     this._renderButtons();
     this._updateDisplay();
+    this._updateNestingLevelDisplay();
 
     return this.win;
   }
@@ -80,6 +81,7 @@ export class CalculatorApp extends Application {
     this.win.element
       .querySelector(".menus")
       .dispatchEvent(new CustomEvent("update"));
+    this._updateNestingLevelDisplay();
   }
 
   _renderButtons() {
@@ -108,7 +110,7 @@ export class CalculatorApp extends Application {
       const memorySection = document.createElement("div");
       memorySection.className = "memory-section";
       memorySection.innerHTML =
-        '<div id="memory-indicator" class="inset-deep"></div>';
+        '<div id="memory-indicator" class="inset-deep calc-indicator"></div>';
       const memoryButtons = document.createElement("div");
       memoryButtons.className = "memory-buttons";
       layout.memory.forEach((key) => {
@@ -269,8 +271,9 @@ export class CalculatorApp extends Application {
                   <fieldset class="group-box">
                     <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
                     <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
-                    <div style="width: 25px;"></div>
                   </fieldset>
+                  <div id="nesting-level-indicator" class="inset-deep calc-indicator"></div>
+                  <div id="memory-indicator" class="inset-deep calc-indicator"></div>
                 </div>
             </div>
         `;
@@ -323,6 +326,18 @@ export class CalculatorApp extends Application {
     display.textContent = this.logic.currentValue;
   }
 
+  _updateNestingLevelDisplay() {
+    const indicator = this.win.$content.find("#nesting-level-indicator")[0];
+    if (!indicator) return;
+
+    const level = this.logic.getParenthesisLevel();
+    if (level > 0) {
+      indicator.textContent = `( = ${level}`;
+    } else {
+      indicator.textContent = "";
+    }
+  }
+
   _copyToClipboard() {
     navigator.clipboard.writeText(this.logic.currentValue).catch((err) => {
       console.error("Could not copy text: ", err);
@@ -358,9 +373,10 @@ export class CalculatorApp extends Application {
       this._handleKeyPress(e.key);
     });
 
-    this.win.element.addEventListener("button-action-complete", () =>
-      this._updateDisplay(),
-    );
+    this.win.element.addEventListener("button-action-complete", () => {
+      this._updateDisplay();
+      this._updateNestingLevelDisplay();
+    });
   }
 
   _triggerButtonAction(key) {

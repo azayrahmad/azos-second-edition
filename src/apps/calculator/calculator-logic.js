@@ -12,6 +12,7 @@ export class CalculatorLogic {
         this.isNewNumber = true;
         this.base = 10; // 10, 16, 8, 2
         this.angleUnit = 'degrees'; // 'degrees', 'radians', 'gradients'
+        this.stateStack = [];
     }
 
     // Clears the current entry
@@ -195,6 +196,9 @@ export class CalculatorLogic {
 
     // Equals operation
     equals() {
+        if (this.stateStack.length > 0) {
+            return; // Don't perform equals if inside parentheses
+        }
         if (this.operation) {
             this.calculate();
             this.isNewNumber = true;
@@ -224,5 +228,38 @@ export class CalculatorLogic {
     // Angle unit
     setAngleUnit(unit) {
         this.angleUnit = unit;
+    }
+
+    // Parenthesis
+    getParenthesisLevel() {
+        return this.stateStack.length;
+    }
+
+    openParenthesis() {
+        this.stateStack.push({
+            previousValue: this.previousValue,
+            operation: this.operation,
+        });
+        this.currentValue = '0';
+        this.previousValue = null;
+        this.operation = null;
+        this.isNewNumber = true;
+        this.currentValue = '('.repeat(this.stateStack.length);
+    }
+
+    closeParenthesis() {
+        if (this.stateStack.length === 0) {
+            return;
+        }
+
+        this.calculate();
+
+        const result = this.currentValue;
+        const prevState = this.stateStack.pop();
+
+        this.previousValue = prevState.previousValue;
+        this.operation = prevState.operation;
+        this.currentValue = result;
+        this.isNewNumber = true;
     }
 }

@@ -89,10 +89,10 @@
     width: 35px; /* Fixed width for the memory button column */
 }
 
-#memory-indicator {
+.calc-indicator {
     width: 25px;
     height: 25px;
-    margin: 0 auto;
+    margin: 2px auto;
     display: flex;
     align-items: center;
     justify-content: center;
