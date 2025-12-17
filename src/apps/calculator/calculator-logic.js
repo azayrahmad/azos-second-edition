@@ -2,6 +2,7 @@ export class CalculatorLogic {
     constructor() {
         this.clearAll();
         this.memory = 0;
+        this.statisticsData = [];
     }
 
     // Clears all calculator state
@@ -13,6 +14,7 @@ export class CalculatorLogic {
         this.base = 10; // 10, 16, 8, 2
         this.angleUnit = 'degrees'; // 'degrees', 'radians', 'gradients'
         this.stateStack = [];
+        this.statisticsData = [];
     }
 
     // Clears the current entry
@@ -260,6 +262,47 @@ export class CalculatorLogic {
         this.previousValue = prevState.previousValue;
         this.operation = prevState.operation;
         this.currentValue = result;
+        this.isNewNumber = true;
+    }
+
+    // Statistics functions
+    addToStatistics() {
+        const value = parseFloat(this.currentValue);
+        if (!isNaN(value)) {
+            this.statisticsData.push(value);
+        }
+    }
+
+    calculateSum() {
+        const sum = this.statisticsData.reduce((acc, val) => acc + val, 0);
+        this.currentValue = String(sum);
+        this.isNewNumber = true;
+    }
+
+    calculateAverage() {
+        if (this.statisticsData.length === 0) {
+            this.currentValue = '0';
+            this.isNewNumber = true;
+            return;
+        }
+        const sum = this.statisticsData.reduce((acc, val) => acc + val, 0);
+        const average = sum / this.statisticsData.length;
+        this.currentValue = String(average);
+        this.isNewNumber = true;
+    }
+
+    calculateStdDev() {
+        if (this.statisticsData.length === 0) {
+            this.currentValue = '0';
+            this.isNewNumber = true;
+            return;
+        }
+
+        const n = this.statisticsData.length;
+        const mean = this.statisticsData.reduce((acc, val) => acc + val, 0) / n;
+        const variance = this.statisticsData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / n;
+        const stdDev = Math.sqrt(variance);
+        this.currentValue = String(stdDev);
         this.isNewNumber = true;
     }
 }

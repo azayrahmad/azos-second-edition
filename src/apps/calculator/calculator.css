@@ -212,3 +212,12 @@
 .calc-func-switch {
     max-width: 110px;
 }
+
+.statistics-list {
+  height: 100%;
+  overflow-y: auto;
+  padding: 5px;
+  box-sizing: border-box;
+  background-color: white;
+  color: black;
+}

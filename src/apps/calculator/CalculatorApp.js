@@ -11,6 +11,8 @@ export class CalculatorApp extends Application {
     this.win = null;
     this.logic = new CalculatorLogic();
     this.mode = "standard"; // 'standard' or 'scientific'
+    this.statisticsWindow = null;
+    this.areStatisticsButtonsActive = false;
   }
 
   _createWindow() {
@@ -229,6 +231,7 @@ export class CalculatorApp extends Application {
     this._updateMemoryIndicator();
     if (this.mode === "scientific") {
       this._updateHexButtonState();
+      this._updateStatisticsButtonState();
     }
   }
 
@@ -410,5 +413,51 @@ export class CalculatorApp extends Application {
     if (key === "Escape") key = "C";
 
     this._triggerButtonAction(key);
+  }
+
+  _openStatisticsWindow() {
+    if (this.statisticsWindow && !this.statisticsWindow.win.isClosed) {
+      this.statisticsWindow.win.focus();
+      return;
+    }
+
+    this.statisticsWindow = new $Window({
+      title: "Statistics Box",
+      width: 200,
+      height: 250,
+      content: '<div class="statistics-list inset-deep"></div>',
+      resizable: true,
+      maximizable: true,
+      minimizable: true,
+      icons: this.icon,
+    });
+
+    this.areStatisticsButtonsActive = true;
+    this._updateStatisticsButtonState();
+    this._updateStatisticsDisplay();
+
+    this.statisticsWindow.onClosed = () => {
+      this.areStatisticsButtonsActive = false;
+      this._updateStatisticsButtonState();
+      this.statisticsWindow = null;
+    };
+  }
+
+  _updateStatisticsButtonState() {
+    const buttonIds = ["Ave", "Sum", "s", "Dat"];
+    buttonIds.forEach(id => {
+      const button = this.win.$content.find(`[data-id="${id}"]`)[0];
+      if (button) {
+        button.disabled = !this.areStatisticsButtonsActive;
+      }
+    });
+  }
+
+  _updateStatisticsDisplay() {
+    if (this.statisticsWindow && !this.statisticsWindow.win.isClosed) {
+      const listContainer = this.statisticsWindow.$content.find('.statistics-list')[0];
+      listContainer.innerHTML = this.logic.statisticsData.map(num => `<div>${num}</div>`).join('');
+      listContainer.scrollTop = listContainer.scrollHeight;
+    }
   }
 }
