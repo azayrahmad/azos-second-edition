@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Screen Savers</title>
+  <link rel="stylesheet" href="../os-gui/windows-98.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="window" style="width: 420px; margin: auto;">
+    <div class="title-bar">
+      <div class="title-bar-text">Screen Saver Properties</div>
+    </div>
+    <div class="window-body">
+      <fieldset>
+        <legend>Screen Saver</legend>
+        <div class="monitor-preview-container">
+            <div class="monitor-preview">
+                <div class="monitor-screen">
+                <iframe id="screensaver-iframe" src=""></iframe>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <select id="screensaver-select">
+            </select>
+            <button id="preview-button">Preview</button>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
