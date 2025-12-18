@@ -27,6 +27,7 @@ import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
 import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { CodeEditorApp } from "../apps/codeeditor/CodeEditorApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
 import { ICONS } from "./icons.js";
@@ -66,6 +67,7 @@ export const appClasses = {
   esheep: ESheepApp,
   minesweeper: MinesweeperApp,
   defrag: DefragApp,
+  codeeditor: CodeEditorApp,
 };
 
 export const apps = [
@@ -258,6 +260,21 @@ export const apps = [
       "In Notepad, you can format your code using the 'Format' option in the 'File' menu.",
       "You can preview Markdown files in Notepad by selecting 'Preview Markdown' from the 'View' menu.",
       "Notepad can copy text with syntax highlighting. Use 'Copy with Formatting' from the 'Edit' menu.",
+    ],
+  },
+  {
+    id: "codeeditor",
+    title: "Code Editor",
+    description: "A powerful code editor with syntax highlighting.",
+    icon: ICONS.codeEditor,
+    appClass: CodeEditorApp,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
+    tips: [
+        "The Code Editor is powered by the same engine as VS Code.",
+        "You can right-click for more options.",
     ],
   },
   {

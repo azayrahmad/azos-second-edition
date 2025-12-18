@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 const packageJson = JSON.parse(
   readFileSync(resolve(process.cwd(), "package.json"), "utf-8"),
@@ -40,5 +41,6 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
       },
     }),
+    (monacoEditorPlugin.default || monacoEditorPlugin)({}),
   ],
 });

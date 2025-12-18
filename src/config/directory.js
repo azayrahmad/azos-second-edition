@@ -57,6 +57,12 @@ const directory = [
                 name: "Notepad",
               },
               {
+                id: "shortcut-to-codeeditor",
+                type: "shortcut",
+                targetId: "app-codeeditor",
+                name: "Code Editor",
+              },
+              {
                 id: "shortcut-to-image-viewer",
                 type: "shortcut",
                 targetId: "app-image-viewer",

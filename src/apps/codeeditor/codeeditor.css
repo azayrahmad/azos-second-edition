@@ -1,0 +1,24 @@
+.status-bar {
+    display: flex;
+    gap: 1px;
+    padding: 2px;
+    background-color: var(--ButtonFace);
+}
+
+.status-bar-field {
+    padding: 0 4px;
+    border: 1px inset;
+    border-color: var(--ButtonShadow);
+    background-color: var(--ButtonFace);
+    box-shadow: 1px 1px 0 var(--ButtonHilight) inset;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.status-bar-field:first-child {
+    flex-grow: 1;
+}
+
+.code-editor-container .monaco-editor {
+    font-family: "Fixedsys Excelsior", monospace !important;
+}

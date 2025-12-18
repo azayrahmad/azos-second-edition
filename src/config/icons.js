@@ -223,6 +223,10 @@ export const ICONS = {
     16: new URL("../assets/icons/Ko-fi_COIN-16.gif", import.meta.url).href,
     32: new URL("../assets/icons/Ko-fi_COIN-32.gif", import.meta.url).href,
   },
+  codeEditor: {
+    16: new URL("../assets/icons/notepad_file-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/notepad_file-0.png", import.meta.url).href,
+  },
   textFile: {
     16: new URL("../assets/icons/notepad_file-1.png", import.meta.url).href,
     32: new URL("../assets/icons/notepad_file-0.png", import.meta.url).href,

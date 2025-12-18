@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "monaco-editor": "^0.55.1",
     "vite": "^7.0.4",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-pwa": "^1.1.0"
   },
   "dependencies": {
