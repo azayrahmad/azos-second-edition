@@ -43,17 +43,21 @@ export class CalculatorButton {
       });
     }
 
-    // Add hover-based tooltips
+    // Add "What's this?" context menu for tooltips
     if (this.tooltip) {
-      let tooltipInstance = null;
-      button.addEventListener("mouseenter", () => {
-        tooltipInstance = new Tooltip(this.tooltip, button);
-      });
-      button.addEventListener("mouseleave", () => {
-        if (tooltipInstance) {
-          tooltipInstance._close();
-          tooltipInstance = null;
-        }
+      button.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        new window.ContextMenu(
+          [
+            {
+              label: "What's this?",
+              action: () => {
+                new Tooltip(this.tooltip, button);
+              },
+            },
+          ],
+          e,
+        );
       });
     }
 

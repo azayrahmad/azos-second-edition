@@ -276,21 +276,21 @@ export class CalculatorApp extends Application {
             <div class="scientific-controls">
                 <div class="control-row">
                     <fieldset class="group-box">
-                        <div class="field-row"><input type="radio" name="number-system" id="hex" value="16"><label for="hex">Hex</label></div>
-                        <div class="field-row"><input type="radio" name="number-system" id="dec" value="10" checked><label for="dec">Dec</label></div>
-                        <div class="field-row"><input type="radio" name="number-system" id="oct" value="8"><label for="oct">Oct</label></div>
-                        <div class="field-row"><input type="radio" name="number-system" id="bin" value="2"><label for="bin">Bin</label></div>
+                        <div class="field-row" data-tooltip-id="hex"><input type="radio" name="number-system" id="hex" value="16"><label for="hex">Hex</label></div>
+                        <div class="field-row" data-tooltip-id="dec"><input type="radio" name="number-system" id="dec" value="10" checked><label for="dec">Dec</label></div>
+                        <div class="field-row" data-tooltip-id="oct"><input type="radio" name="number-system" id="oct" value="8"><label for="oct">Oct</label></div>
+                        <div class="field-row" data-tooltip-id="bin"><input type="radio" name="number-system" id="bin" value="2"><label for="bin">Bin</label></div>
                     </fieldset>
                     <fieldset class="group-box">
-                        <div class="field-row"><input type="radio" name="angle-measure" id="degrees" value="degrees" checked><label for="degrees">Degrees</label></div>
-                        <div class="field-row"><input type="radio" name="angle-measure" id="radians" value="radians"><label for="radians">Radians</label></div>
-                        <div class="field-row"><input type="radio" name="angle-measure" id="gradients" value="gradients"><label for="gradients">Gradients</label></div>
+                        <div class="field-row" data-tooltip-id="degrees"><input type="radio" name="angle-measure" id="degrees" value="degrees" checked><label for="degrees">Degrees</label></div>
+                        <div class="field-row" data-tooltip-id="radians"><input type="radio" name="angle-measure" id="radians" value="radians"><label for="radians">Radians</label></div>
+                        <div class="field-row" data-tooltip-id="gradients"><input type="radio" name="angle-measure" id="gradients" value="gradients"><label for="gradients">Gradients</label></div>
                     </fieldset>
                 </div>
                 <div class="control-row control-row-bottom">
                   <fieldset class="group-box calc-func-switch">
-                    <div class="checkbox-container"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
-                    <div class="checkbox-container"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
+                    <div class="checkbox-container" data-tooltip-id="inv"><input type="checkbox" id="inv"><label for="inv">Inv</label></div>
+                    <div class="checkbox-container" data-tooltip-id="hyp"><input type="checkbox" id="hyp"><label for="hyp">Hyp</label></div>
                   </fieldset>
                   <div id="nesting-level-indicator" class="inset-deep calc-indicator"></div>
                   <div id="memory-indicator" class="inset-deep calc-indicator"></div>
@@ -303,6 +303,36 @@ export class CalculatorApp extends Application {
       ".calculator-display-container",
     )[0];
     displayContainer.insertAdjacentHTML("afterend", controlsHTML);
+
+    const tooltips = {
+      hex: "Hexadecimal (base 16)",
+      dec: "Decimal (base 10)",
+      oct: "Octal (base 8)",
+      bin: "Binary (base 2)",
+      degrees: "Degrees",
+      radians: "Radians",
+      gradients: "Gradians",
+      inv: "Inverse function",
+      hyp: "Hyperbolic function",
+    };
+
+    Object.entries(tooltips).forEach(([id, text]) => {
+      const element = this.win.$content.find(`[data-tooltip-id="${id}"]`)[0];
+      if (element) {
+        element.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          new window.ContextMenu(
+            [
+              {
+                label: "What's this?",
+                action: () => new Tooltip(text, element),
+              },
+            ],
+            e,
+          );
+        });
+      }
+    });
 
     $.each(
       this.win.$content.find('input[name="number-system"]'),
@@ -507,15 +537,19 @@ export class CalculatorApp extends Application {
     Object.entries(tooltips).forEach(([action, tooltipText]) => {
       const button = content.find(`button[data-action='${action}']`)[0];
       if (button) {
-        let tooltipInstance = null;
-        $(button).on("mouseenter", () => {
-          tooltipInstance = new Tooltip(tooltipText, button);
-        });
-        $(button).on("mouseleave", () => {
-          if (tooltipInstance) {
-            tooltipInstance._close();
-            tooltipInstance = null;
-          }
+        $(button).on("contextmenu", (e) => {
+          e.preventDefault();
+          new window.ContextMenu(
+            [
+              {
+                label: "What's this?",
+                action: () => {
+                  new Tooltip(tooltipText, button);
+                },
+              },
+            ],
+            e,
+          );
         });
       }
     });
