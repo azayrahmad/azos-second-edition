@@ -14,6 +14,7 @@ export class CalculatorApp extends Application {
     this.mode = "standard"; // 'standard' or 'scientific'
     this.statisticsWindow = null;
     this.areStatisticsButtonsActive = false;
+    this.selectedStatisticsIndex = -1;
   }
 
   _createWindow() {
@@ -418,7 +419,7 @@ export class CalculatorApp extends Application {
 
   _openStatisticsWindow() {
     if (this.statisticsWindow && !this.statisticsWindow.closed) {
-      this.statisticsWindow.win.focus();
+      this.statisticsWindow.focus();
       return;
     }
 
@@ -432,11 +433,23 @@ export class CalculatorApp extends Application {
       icons: ICONS.windows,
     });
 
-    this.statisticsWindow.$content.html(
-      '<div class="statistics-list inset-deep"></div>',
-    );
+    this.statisticsWindow.$content.html(`
+      <div class="statistics-container" style="display: flex; flex-direction: column; height: 100%; padding: 5px;">
+        <ul class="statistics-list inset-deep" style="flex-grow: 1; margin: 0; padding: 0; height: 100px;"></ul>
+        <div class="statistics-buttons" style="display: flex; justify-content: space-around; margin: 5px 0;">
+          <button data-action="ret">RET</button>
+          <button data-action="load">LOAD</button>
+          <button data-action="cd">CD</button>
+          <button data-action="cad">CAD</button>
+        </div>
+        <div class="statistics-count" style="text-align: center;">n=0</div>
+      </div>
+    `);
+
+    this._setupStatisticsEventListeners();
 
     this.areStatisticsButtonsActive = true;
+    this.selectedStatisticsIndex = this.logic.statisticsData.length > 0 ? 0 : -1;
     this._updateStatisticsButtonState();
     this._updateStatisticsDisplay();
 
@@ -444,7 +457,44 @@ export class CalculatorApp extends Application {
       this.areStatisticsButtonsActive = false;
       this._updateStatisticsButtonState();
       this.statisticsWindow = null;
+      this.selectedStatisticsIndex = -1;
     };
+  }
+
+  _setupStatisticsEventListeners() {
+    const content = this.statisticsWindow.$content;
+
+    content.on("click", ".statistics-list li", (e) => {
+      const index = $(e.currentTarget).index();
+      this.selectedStatisticsIndex = index;
+      this._updateStatisticsDisplay();
+    });
+
+    content.on("click", "button[data-action='ret']", () => this.win.focus());
+
+    content.on("click", "button[data-action='load']", () => {
+      if (this.selectedStatisticsIndex !== -1) {
+        this.logic.currentValue = this.logic.statisticsData[this.selectedStatisticsIndex];
+        this.logic.isNewNumber = true;
+        this._updateDisplay();
+      }
+    });
+
+    content.on("click", "button[data-action='cd']", () => {
+      if (this.selectedStatisticsIndex !== -1) {
+        this.logic.statisticsData.splice(this.selectedStatisticsIndex, 1);
+        if (this.selectedStatisticsIndex >= this.logic.statisticsData.length) {
+          this.selectedStatisticsIndex = this.logic.statisticsData.length - 1;
+        }
+        this._updateStatisticsDisplay();
+      }
+    });
+
+    content.on("click", "button[data-action='cad']", () => {
+      this.logic.statisticsData = [];
+      this.selectedStatisticsIndex = -1;
+      this._updateStatisticsDisplay();
+    });
   }
 
   _updateStatisticsButtonState() {
@@ -458,16 +508,34 @@ export class CalculatorApp extends Application {
   }
 
   _updateStatisticsDisplay() {
-    if (this.statisticsWindow && !this.statisticsWindow.closed) {
-      const listContainer =
-        this.statisticsWindow.$content.find(".statistics-list");
-      listContainer.html(
-        this.logic.statisticsData.map((num) => `<div>${num}</div>`).join(""),
-      );
-      const listElement = listContainer[0];
-      if (listElement) {
-        listElement.scrollTop = listElement.scrollHeight;
+    if (!this.statisticsWindow || this.statisticsWindow.closed) return;
+
+    const list = this.statisticsWindow.$content.find(".statistics-list");
+    const countDisplay = this.statisticsWindow.$content.find(".statistics-count");
+    const buttons = this.statisticsWindow.$content.find(".statistics-buttons button");
+
+    list.empty();
+    this.logic.statisticsData.forEach((num, index) => {
+      const item = $(`<li>${num}</li>`);
+      if (index === this.selectedStatisticsIndex) {
+        item.addClass("highlighted");
       }
+      list.append(item);
+    });
+
+    const count = this.logic.statisticsData.length;
+    countDisplay.text(`n=${count}`);
+
+    const hasSelection = this.selectedStatisticsIndex !== -1;
+    const hasItems = count > 0;
+
+    buttons.filter("[data-action='load']").prop("disabled", !hasSelection);
+    buttons.filter("[data-action='cd']").prop("disabled", !hasSelection);
+    buttons.filter("[data-action='cad']").prop("disabled", !hasItems);
+
+    const listElement = list[0];
+    if (listElement) {
+        listElement.scrollTop = listElement.scrollHeight;
     }
   }
 }
