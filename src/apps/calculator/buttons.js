@@ -173,8 +173,6 @@ const buttonDefinitions = {
     id: "Sta",
     label: "Sta",
     style: scientificControlStyle,
-    tooltip: "Opens the Statistics Box to view and manage your data.",
-    action: (app) => app._openStatisticsWindow(),
   }),
   "F-E": new CalculatorButton({ id: "F-E", label: "F-E", style: magenta }),
   "(": new CalculatorButton({
@@ -205,8 +203,6 @@ const buttonDefinitions = {
     id: "Ave",
     label: "Ave",
     style: scientificControlStyle,
-    tooltip: "Calculates the average of the numbers in the Statistics Box.",
-    action: (app) => app.logic.calculateAverage(),
   }),
   dms: new CalculatorButton({ id: "dms", label: "dms", style: magenta }),
   Exp: new CalculatorButton({ id: "Exp", label: "Exp", style: magenta }),
@@ -232,8 +228,6 @@ const buttonDefinitions = {
     id: "Sum",
     label: "Sum",
     style: scientificControlStyle,
-    tooltip: "Calculates the sum of the numbers in the Statistics Box.",
-    action: (app) => app.logic.calculateSum(),
   }),
   sin: new CalculatorButton({
     id: "sin",
@@ -269,8 +263,6 @@ const buttonDefinitions = {
     id: "s",
     label: "s",
     style: scientificControlStyle,
-    tooltip: "Calculates the population standard deviation of the numbers in the Statistics Box.",
-    action: (app) => app.logic.calculateStdDev(),
   }),
   cos: new CalculatorButton({
     id: "cos",
@@ -300,11 +292,6 @@ const buttonDefinitions = {
     id: "Dat",
     label: "Dat",
     style: scientificControlStyle,
-    tooltip: "Adds the current number to the Statistics Box.",
-    action: (app) => {
-      app.logic.addToStatistics();
-      app._updateStatisticsDisplay();
-    },
   }),
   tan: new CalculatorButton({
     id: "tan",
