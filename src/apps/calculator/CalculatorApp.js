@@ -2,6 +2,7 @@
 import { Application } from "../Application.js";
 import { CalculatorLogic } from "./calculator-logic.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { Tooltip } from "../../components/Tooltip.js";
 import buttonDefinitions from "./buttons.js"; // Import the centralized button definitions
 import "./calculator.css";
 import { ICONS } from "../../config/icons.js";
@@ -494,6 +495,29 @@ export class CalculatorApp extends Application {
       this.logic.statisticsData = [];
       this.selectedStatisticsIndex = -1;
       this._updateStatisticsDisplay();
+    });
+
+    const tooltips = {
+      ret: "Return: Closes the Statistics Box and returns to the calculator.",
+      load: "Load: Copies the selected number to the calculator display.",
+      cd: "Clear Data: Removes the selected number from the list.",
+      cad: "Clear All Data: Removes all numbers from the list."
+    };
+
+    Object.entries(tooltips).forEach(([action, tooltipText]) => {
+      const button = content.find(`button[data-action='${action}']`)[0];
+      if (button) {
+        let tooltipInstance = null;
+        $(button).on("mouseenter", () => {
+          tooltipInstance = new Tooltip(tooltipText, button);
+        });
+        $(button).on("mouseleave", () => {
+          if (tooltipInstance) {
+            tooltipInstance._close();
+            tooltipInstance = null;
+          }
+        });
+      }
     });
   }
 
