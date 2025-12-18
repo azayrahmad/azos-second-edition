@@ -198,7 +198,7 @@ export class CalculatorLogic {
   }
 
   x_cubed() {
-    this.currentValue = String(Math.pow(parseFloat(this.currentVlaue), 3));
+    this.currentValue = String(Math.pow(parseFloat(this.currentValue), 3));
   }
 
   not() {
