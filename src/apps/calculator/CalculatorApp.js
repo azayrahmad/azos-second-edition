@@ -4,6 +4,7 @@ import { CalculatorLogic } from "./calculator-logic.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import buttonDefinitions from "./buttons.js"; // Import the centralized button definitions
 import "./calculator.css";
+import { ICONS } from "../../config/icons.js";
 
 export class CalculatorApp extends Application {
   constructor(config) {
@@ -423,14 +424,17 @@ export class CalculatorApp extends Application {
 
     this.statisticsWindow = new $Window({
       title: "Statistics Box",
-      width: 200,
-      height: 250,
-      content: '<div class="statistics-list inset-deep"></div>',
-      resizable: true,
-      maximizable: true,
-      minimizable: true,
-      icons: this.icon,
+      outerWidth: 200,
+      outerHeight: 250,
+      resizable: false,
+      maximizeButton: false,
+      minimizeButton: false,
+      icons: ICONS.windows,
     });
+
+    this.statisticsWindow.$content.html(
+      '<div class="statistics-list inset-deep"></div>',
+    );
 
     this.areStatisticsButtonsActive = true;
     this._updateStatisticsButtonState();
@@ -445,7 +449,7 @@ export class CalculatorApp extends Application {
 
   _updateStatisticsButtonState() {
     const buttonIds = ["Ave", "Sum", "s", "Dat"];
-    buttonIds.forEach(id => {
+    buttonIds.forEach((id) => {
       const button = this.win.$content.find(`[data-id="${id}"]`)[0];
       if (button) {
         button.disabled = !this.areStatisticsButtonsActive;
@@ -455,8 +459,11 @@ export class CalculatorApp extends Application {
 
   _updateStatisticsDisplay() {
     if (this.statisticsWindow && !this.statisticsWindow.closed) {
-      const listContainer = this.statisticsWindow.$content.find('.statistics-list');
-      listContainer.html(this.logic.statisticsData.map(num => `<div>${num}</div>`).join(''));
+      const listContainer =
+        this.statisticsWindow.$content.find(".statistics-list");
+      listContainer.html(
+        this.logic.statisticsData.map((num) => `<div>${num}</div>`).join(""),
+      );
       const listElement = listContainer[0];
       if (listElement) {
         listElement.scrollTop = listElement.scrollHeight;
