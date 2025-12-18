@@ -27,7 +27,6 @@ export class CalculatorButton {
    * @returns {HTMLButtonElement}
    */
   render(app) {
-    console.log("Rendering button:", this.label, this);
     const button = document.createElement("button");
     button.dataset.key = this.label;
     button.dataset.id = this.id;
