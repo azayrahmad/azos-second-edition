@@ -302,6 +302,7 @@ export class CalculatorLogic {
     if (!isNaN(value)) {
       this.statisticsData.push(value);
     }
+    this.isNewNumber = true;
   }
 
   calculateSum() {
