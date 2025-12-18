@@ -218,4 +218,11 @@
   box-sizing: border-box;
   background-color: white;
   color: black;
+  list-style: none;
+  margin: 0;
+}
+
+.statistics-list li.highlighted {
+  background-color: var(--highlight, navy);
+  color: var(--highlight-text, white);
 }
