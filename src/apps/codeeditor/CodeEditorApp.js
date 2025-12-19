@@ -174,6 +174,9 @@ export class CodeEditorApp extends Application {
             theme: 'windows-98', // Set the custom theme
             fontFamily: '"Fixedsys Excelsior", monospace',
             fontSize: 16,
+            minimap: {
+                enabled: false
+            },
         });
 
         this.editor.onDidChangeCursorPosition(() => this.updateStatusBar());
@@ -184,5 +187,74 @@ export class CodeEditorApp extends Application {
         this.win.on('resize', () => {
             this.editor.layout();
         });
+
+        const style = document.createElement('style');
+        this.win.onClosed(() => {
+            style.remove();
+        });
+        style.innerHTML = `
+            .code-editor-container ::-webkit-scrollbar,
+            .code-editor-container ::-webkit-scrollbar-thumb,
+            .code-editor-container ::-webkit-scrollbar-button {
+                width: 13px;
+                height: 13px;
+            }
+
+            .code-editor-container ::-webkit-scrollbar {
+                background: var(--checker);
+                image-rendering: pixelated;
+            }
+            .code-editor-container ::-webkit-scrollbar-thumb {
+                background-color: var(--ButtonFace);
+                border-top: 1px solid var(--ButtonFace);
+                border-left: 1px solid var(--ButtonFace);
+                border-right: 1px solid var(--ButtonDkShadow);
+                border-bottom: 1px solid var(--ButtonDkShadow);
+                box-shadow: 1px 1px 0 var(--ButtonHilight) inset, -1px -1px 0 var(--ButtonShadow) inset;
+            }
+            .code-editor-container ::-webkit-scrollbar-corner {
+                background-color: var(--ButtonFace);
+            }
+
+            .code-editor-container ::-webkit-scrollbar-button {
+                background-color: var(--ButtonFace);
+                border-top: 1px solid var(--ButtonFace);
+                border-left: 1px solid var(--ButtonFace);
+                border-right: 1px solid var(--ButtonDkShadow);
+                border-bottom: 1px solid var(--ButtonDkShadow);
+                box-shadow: 1px 1px 0 var(--ButtonHilight) inset, -1px -1px 0 var(--ButtonShadow) inset;
+                background-image: var(--scrollbar-arrows-ButtonText);
+                image-rendering: pixelated;
+                width: 13px;
+                height: 13px;
+                box-sizing: border-box;
+            }
+
+            .code-editor-container ::-webkit-scrollbar-button:not(.disabled):hover:active {
+                border: 1px solid var(--ButtonShadow);
+                box-shadow: none;
+            }
+
+            .code-editor-container ::-webkit-scrollbar-button:horizontal:decrement {
+                background-position: calc(9px * -3 + 1px) 1px;
+            }
+
+            .code-editor-container ::-webkit-scrollbar-button:horizontal:increment {
+                background-position: calc(9px * -2 + 1px) 1px;
+            }
+
+            .code-editor-container ::-webkit-scrollbar-button:vertical:decrement {
+                background-position: calc(9px * -1 + 1px) 1px;
+            }
+
+            .code-editor-container ::-webkit-scrollbar-button:vertical:increment {
+                background-position: calc(9px * -0 + 1px) 1px;
+            }
+            .code-editor-container ::-webkit-scrollbar-button:start:increment,
+            .code-editor-container ::-webkit-scrollbar-button:end:decrement {
+                display: none;
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
