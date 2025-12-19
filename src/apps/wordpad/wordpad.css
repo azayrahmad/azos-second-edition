@@ -90,16 +90,16 @@
 .wordpad-sprite-icon {
     background-image: url('assets/wordpad-toolbar2.png');
     background-repeat: no-repeat;
-    width: 23px;
-    height: 22px;
+    width: 22px;
+    height: 21px;
     padding: 0;
 }
 
-#wordpad-bold { background-position: 2px 2px; }
-#wordpad-italic { background-position: -14px 2px; }
-#wordpad-underline { background-position: -30px 2px; }
-#wordpad-color { background-position: -46px 2px; }
-#wordpad-align-left { background-position: -62px 2px; }
-#wordpad-align-center { background-position: -78px 2px; }
-#wordpad-align-right { background-position: -94px 2px; }
-#wordpad-bullets { background-position: -110px 2px; }
+#wordpad-bold { background-position: 3px 2px; }
+#wordpad-italic { background-position: -13px 2px; }
+#wordpad-underline { background-position: -29px 2px; }
+#wordpad-color { background-position: -45px 2px; }
+#wordpad-align-left { background-position: -61px 2px; }
+#wordpad-align-center { background-position: -77px 2px; }
+#wordpad-align-right { background-position: -93px 2px; }
+#wordpad-bullets { background-position: -109px 2px; }
