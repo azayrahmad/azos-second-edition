@@ -171,6 +171,12 @@ const directory = [
                 targetId: "app-calculator",
                 name: "Calculator",
               },
+              {
+                id: "shortcut-to-defrag",
+                type: "shortcut",
+                targetId: "app-defrag",
+                name: "Disk Defragmenter",
+              },
             ],
           },
           {

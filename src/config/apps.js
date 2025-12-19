@@ -25,6 +25,7 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
+import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
@@ -66,6 +67,7 @@ export const appClasses = {
   esheep: ESheepApp,
   minesweeper: MinesweeperApp,
   calculator: CalculatorApp,
+  defrag: DefragApp,
 };
 
 export const apps = [
@@ -412,7 +414,7 @@ export const apps = [
   },
   {
     id: "pinball",
-    title: "Pinball",
+    title: "Space Cadet Pinball",
     description: "Play a classic game of pinball.",
     icon: ICONS.pinball,
     appClass: PinballApp,
@@ -572,6 +574,16 @@ export const apps = [
     width: 260,
     height: 280,
     resizable: false,
+  },
+  {
+    id: "defrag",
+    title: "Disk Defragmenter",
+    description: "Defragments your disk for optimal performance.",
+    icon: ICONS.defrag,
+    appClass: DefragApp,
+    width: 400,
+    height: 300,
+    resizable: true,
     isSingleton: true,
   },
 ];
