@@ -27,32 +27,50 @@ export class WordPadApp extends Application {
         this.win.$content.append(`
             <div class="wordpad-container">
                 <div class="wordpad-toolbar">
-                    <select id="wordpad-font-family">
-                        <option>Times New Roman</option>
-                        <option>Calisto MT</option>
-                        <option>Fixedsys Excelsior</option>
-                        <option>MSW98UI</option>
-                        <option>OCR A Extended</option>
-                        <option>Westminster</option>
-                    </select>
-                    <select id="wordpad-font-size">
-                        <option>8</option>
-                        <option>9</option>
-                        <option>10</option>
-                        <option>11</option>
-                        <option>12</option>
-                        <option>14</option>
-                        <option>16</option>
-                        <option>18</option>
-                        <option>20</option>
-                        <option>24</option>
-                        <option>36</option>
-                        <option>48</option>
-                        <option>72</option>
-                    </select>
-                    <button id="wordpad-bold"><b>B</b></button>
-                    <button id="wordpad-italic"><i>I</i></button>
-                    <button id="wordpad-underline"><u>U</u></button>
+                    <div class="toolbar-group">
+                        <select id="wordpad-font-family">
+                            <option>Times New Roman</option>
+                            <option>Calisto MT</option>
+                            <option>Fixedsys Excelsior</option>
+                            <option>MSW98UI</option>
+                            <option>OCR A Extended</option>
+                            <option>Westminster</option>
+                        </select>
+                        <select id="wordpad-font-size">
+                            <option>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                            <option>11</option>
+                            <option>12</option>
+                            <option>14</option>
+                            <option>16</option>
+                            <option>18</option>
+                            <option>20</option>
+                            <option>24</option>
+                            <option>36</option>
+                            <option>48</option>
+                            <option>72</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="wordpad-bold"><b>B</b></button>
+                        <button id="wordpad-italic"><i>I</i></button>
+                        <button id="wordpad-underline"><u>U</u></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <div class="wordpad-color-picker">
+                            <button id="wordpad-color">A</button>
+                            <div id="wordpad-color-palette" class="wordpad-color-palette" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="wordpad-align-left">L</button>
+                        <button id="wordpad-align-center">C</button>
+                        <button id="wordpad-align-right">R</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="wordpad-bullets">•</button>
+                    </div>
                 </div>
                 <div class="wordpad-editor" contenteditable="true"></div>
                 <div class="wordpad-statusbar">
@@ -107,6 +125,7 @@ export class WordPadApp extends Application {
     async _onLaunch(data) {
         this.editor = this.win.$content.find('.wordpad-editor')[0];
         this._setupToolbarListeners();
+        this._populateColorPalette();
         this.updateTitle();
 
         this.editor.addEventListener('input', () => {
@@ -114,12 +133,18 @@ export class WordPadApp extends Application {
             this.updateTitle();
         });
 
-        this.win.on('close', (e) => {
-            if (this.isDirty) {
-                e.preventDefault();
-                this.showUnsavedChangesDialogOnClose();
-            }
-        });
+        const closeButton = this.win.element.querySelector('.window-close-button');
+        if (closeButton) {
+            const newCloseButton = closeButton.cloneNode(true);
+            closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+            newCloseButton.addEventListener('click', () => {
+                if (this.isDirty) {
+                    this.showUnsavedChangesDialogOnClose();
+                } else {
+                   this.win.close(true); // Force close
+                }
+            });
+        }
 
         this.editor.focus();
         document.execCommand('fontName', false, 'Times New Roman');
@@ -133,6 +158,12 @@ export class WordPadApp extends Application {
         const boldButton = this.win.$content.find('#wordpad-bold')[0];
         const italicButton = this.win.$content.find('#wordpad-italic')[0];
         const underlineButton = this.win.$content.find('#wordpad-underline')[0];
+        const colorButton = this.win.$content.find('#wordpad-color')[0];
+        const colorPalette = this.win.$content.find('#wordpad-color-palette')[0];
+        const alignLeftButton = this.win.$content.find('#wordpad-align-left')[0];
+        const alignCenterButton = this.win.$content.find('#wordpad-align-center')[0];
+        const alignRightButton = this.win.$content.find('#wordpad-align-right')[0];
+        const bulletsButton = this.win.$content.find('#wordpad-bullets')[0];
 
         fontFamily.addEventListener('change', () => {
             document.execCommand('fontName', false, fontFamily.value);
@@ -164,6 +195,42 @@ export class WordPadApp extends Application {
             editor.focus();
         });
 
+        colorButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = colorPalette.style.display === 'none';
+            colorPalette.style.display = isHidden ? 'grid' : 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!colorPalette.contains(e.target) && e.target !== colorButton) {
+                colorPalette.style.display = 'none';
+            }
+        });
+
+        alignLeftButton.addEventListener('click', () => {
+            document.execCommand('justifyLeft');
+            editor.focus();
+            updateToolbar();
+        });
+
+        alignCenterButton.addEventListener('click', () => {
+            document.execCommand('justifyCenter');
+            editor.focus();
+            updateToolbar();
+        });
+
+        alignRightButton.addEventListener('click', () => {
+            document.execCommand('justifyRight');
+            editor.focus();
+            updateToolbar();
+        });
+
+        bulletsButton.addEventListener('click', () => {
+            document.execCommand('insertUnorderedList');
+            editor.focus();
+            updateToolbar();
+        });
+
         const updateToolbar = () => {
             const isBold = document.queryCommandState('bold');
             const isItalic = document.queryCommandState('italic');
@@ -174,6 +241,11 @@ export class WordPadApp extends Application {
             italicButton.classList.toggle('active', isItalic);
             underlineButton.classList.toggle('active', isUnderline);
 
+            alignLeftButton.classList.toggle('active', document.queryCommandState('justifyLeft'));
+            alignCenterButton.classList.toggle('active', document.queryCommandState('justifyCenter'));
+            alignRightButton.classList.toggle('active', document.queryCommandState('justifyRight'));
+            bulletsButton.classList.toggle('active', document.queryCommandState('insertUnorderedList'));
+
             if (currentFont) {
                 fontFamily.value = currentFont;
             }
@@ -182,6 +254,41 @@ export class WordPadApp extends Application {
         editor.addEventListener('keyup', updateToolbar);
         editor.addEventListener('mouseup', updateToolbar);
         editor.addEventListener('focus', updateToolbar);
+    }
+
+    _populateColorPalette() {
+        const colorPalette = this.win.$content.find('#wordpad-color-palette')[0];
+        const colors = [
+            { name: 'Black', value: '#000000' }, { name: 'Maroon', value: '#800000' },
+            { name: 'Green', value: '#008000' }, { name: 'Olive', value: '#808000' },
+            { name: 'Navy', value: '#000080' }, { name: 'Purple', value: '#800080' },
+            { name: 'Teal', value: '#008080' }, { name: 'Gray', value: '#808080' },
+            { name: 'Silver', value: '#C0C0C0' }, { name: 'Red', value: '#FF0000' },
+            { name: 'Lime', value: '#00FF00' }, { name: 'Yellow', value: '#FFFF00' },
+            { name: 'Blue', value: '#0000FF' }, { name: 'Fuchsia', value: '#FF00FF' },
+            { name: 'Aqua', value: '#00FFFF' }, { name: 'White', value: '#FFFFFF' },
+        ];
+
+        let paletteHTML = '';
+        colors.forEach(color => {
+            paletteHTML += `
+                <div class="color-swatch" data-color="${color.value}" style="background-color: ${color.value};"></div>
+                <div class="color-label" data-color="${color.value}">${color.name}</div>
+            `;
+        });
+        paletteHTML += `
+            <div class="color-swatch" data-color="#000000" style="background-color: #000000; border: 1px solid white;"></div>
+            <div class="color-label" data-color="#000000">Automatic</div>
+        `;
+        colorPalette.innerHTML = paletteHTML;
+
+        colorPalette.addEventListener('click', (e) => {
+            if (e.target.dataset.color) {
+                document.execCommand('foreColor', false, e.target.dataset.color);
+                colorPalette.style.display = 'none';
+                this.editor.focus();
+            }
+        });
     }
 
     updateTitle() {
