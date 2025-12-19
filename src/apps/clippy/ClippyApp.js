@@ -1,5 +1,5 @@
 import { Application, openApps } from '../Application.js';
-import { launchClippyApp } from './clippy.js';
+import { launchClippyApp, cleanupInactivityMonitor } from './clippy.js';
 import { appManager } from '../../utils/appManager.js';
 
 export class ClippyApp extends Application {
@@ -18,6 +18,7 @@ export class ClippyApp extends Application {
     }
 
     _cleanup() {
+        cleanupInactivityMonitor();
         const agent = window.clippyAgent;
         if (agent) {
             agent.hide();

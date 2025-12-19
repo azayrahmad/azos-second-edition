@@ -5,6 +5,7 @@ import {
 } from "../../utils/localStorage.js";
 import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
 import { appManager } from "../../utils/appManager.js";
+import { apps } from "../../config/apps.js";
 
 window.clippyAppInstance = null;
 let currentAgentName =
@@ -120,6 +121,80 @@ async function askClippy(agent, question) {
 
 import { AGENT_NAMES } from "../../config/agents.js";
 
+// --- Inactivity Monitor ---
+let inactivityTimer = null;
+const INACTIVITY_TIMEOUT = 60000; // 1 minute
+
+function resetInactivityTimer() {
+  // Clear existing timer and listeners before starting a new one
+  cleanupInactivityMonitor();
+  startInactivityMonitor();
+}
+
+function triggerInactivityAction() {
+  const agent = window.clippyAgent;
+  if (!agent || agent.isSpeaking || document.querySelector(".menu-popup")) {
+    // If Clippy is busy or a menu is open, just restart the timer and wait.
+    resetInactivityTimer();
+    return;
+  }
+
+  const runningApps = appManager.getRunningApps();
+  const runningAppIds = Object.keys(runningApps);
+
+  const relevantTips = apps
+    .filter(
+      (app) =>
+        app.id !== "clippy" && // Exclude Clippy's own tips
+        runningAppIds.includes(app.id) &&
+        app.tips?.length > 0,
+    )
+    .flatMap((app) => app.tips);
+
+  if (relevantTips.length > 0) {
+    const randomTip =
+      relevantTips[Math.floor(Math.random() * relevantTips.length)];
+    const ttsEnabled = agent.isTTSEnabled();
+
+    // A simple regex to strip out any HTML tags from the tip
+    const cleanTip = randomTip.replace(/<[^>]*>?/gm, "");
+
+    agent.speakAndAnimate(cleanTip, "Explain", {
+      useTTS: ttsEnabled,
+      callback: () => {
+        // Restart the timer after speaking
+        startInactivityMonitor();
+      },
+    });
+  } else {
+    // If no tips found, just restart the timer
+    startInactivityMonitor();
+  }
+}
+
+function startInactivityMonitor() {
+  // Clear any existing timer before starting a new one
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+  }
+
+  inactivityTimer = setTimeout(triggerInactivityAction, INACTIVITY_TIMEOUT);
+
+  // Add listeners that will reset the timer.
+  document.addEventListener("mousedown", resetInactivityTimer);
+  document.addEventListener("keydown", resetInactivityTimer);
+}
+
+export function cleanupInactivityMonitor() {
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = null;
+  }
+  document.removeEventListener("mousedown", resetInactivityTimer);
+  document.removeEventListener("keydown", resetInactivityTimer);
+}
+// --- End Inactivity Monitor ---
+
 export function getClippyMenuItems(app) {
   const appInstance = app || window.clippyAppInstance;
   const agent = window.clippyAgent;
@@ -207,6 +282,9 @@ export function launchClippyApp(app, agentName = currentAgentName) {
     window.clippyAppInstance = app;
   }
   const appInstance = app || window.clippyAppInstance;
+
+  // Cleanup previous instance's monitor before creating a new one
+  cleanupInactivityMonitor();
 
   if (window.clippyAgent) {
     // Gracefully hide and remove the current agent before loading a new one
@@ -351,6 +429,9 @@ export function launchClippyApp(app, agentName = currentAgentName) {
       contextMenuOpened = true;
       showClippyContextMenu(e, appInstance);
     });
+
+    // Start the inactivity monitor for the new agent
+    startInactivityMonitor();
   });
 }
 
