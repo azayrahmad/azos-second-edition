@@ -17,6 +17,7 @@ const directory = [
           { id: "app-esheep", type: "app", appId: "esheep" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
+          { id: "app-wordpad", type: "app", appId: "wordpad" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -169,6 +170,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-defrag",
                 name: "Disk Defragmenter",
+              },
+              {
+                id: "shortcut-to-wordpad",
+                type: "shortcut",
+                targetId: "app-wordpad",
+                name: "WordPad",
               },
             ],
           },

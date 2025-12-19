@@ -28,6 +28,11 @@ export class WordPadApp extends Application {
             <div class="wordpad-container">
                 <div class="wordpad-toolbar">
                     <div class="toolbar-group">
+                        <button id="wordpad-print">Print</button>
+                    </div>
+                </div>
+                <div class="wordpad-toolbar">
+                    <div class="toolbar-group">
                         <select id="wordpad-font-family">
                             <option>Times New Roman</option>
                             <option>Calisto MT</option>
@@ -164,6 +169,11 @@ export class WordPadApp extends Application {
         const alignCenterButton = this.win.$content.find('#wordpad-align-center')[0];
         const alignRightButton = this.win.$content.find('#wordpad-align-right')[0];
         const bulletsButton = this.win.$content.find('#wordpad-bullets')[0];
+        const printButton = this.win.$content.find('#wordpad-print')[0];
+
+        printButton.addEventListener('click', () => {
+            this._printDocument();
+        });
 
         fontFamily.addEventListener('change', () => {
             document.execCommand('fontName', false, fontFamily.value);
@@ -429,5 +439,27 @@ export class WordPadApp extends Application {
                 ],
             });
         });
+    }
+
+    _printDocument() {
+        const printFrame = document.createElement('iframe');
+        printFrame.style.position = 'absolute';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = '0';
+        document.body.appendChild(printFrame);
+
+        const frameDoc = printFrame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write('<!DOCTYPE html><html><head><title>Print</title></head><body>' + this.editor.innerHTML + '</body></html>');
+        frameDoc.close();
+
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+
+        // Clean up the iframe after printing
+        setTimeout(() => {
+            document.body.removeChild(printFrame);
+        }, 1000);
     }
 }
