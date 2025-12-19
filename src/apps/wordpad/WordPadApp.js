@@ -28,7 +28,25 @@ export class WordPadApp extends Application {
             <div class="wordpad-container">
                 <div class="wordpad-toolbar">
                     <div class="toolbar-group">
+                        <button id="wordpad-new">New</button>
+                        <button id="wordpad-open">Open</button>
+                        <button id="wordpad-save">Save</button>
+                    </div>
+                    <div class="toolbar-separator"></div>
+                    <div class="toolbar-group">
                         <button id="wordpad-print">Print</button>
+                        <button id="wordpad-print-preview" disabled>Preview</button>
+                    </div>
+                    <div class="toolbar-separator"></div>
+                    <div class="toolbar-group">
+                        <button id="wordpad-cut">Cut</button>
+                        <button id="wordpad-copy">Copy</button>
+                        <button id="wordpad-paste">Paste</button>
+                        <button id="wordpad-undo">Undo</button>
+                    </div>
+                    <div class="toolbar-separator"></div>
+                    <div class="toolbar-group">
+                        <button id="wordpad-insert-date" disabled>Date</button>
                     </div>
                 </div>
                 <div class="wordpad-toolbar">
@@ -158,6 +176,14 @@ export class WordPadApp extends Application {
 
     _setupToolbarListeners() {
         const editor = this.editor;
+        const newButton = this.win.$content.find('#wordpad-new')[0];
+        const openButton = this.win.$content.find('#wordpad-open')[0];
+        const saveButton = this.win.$content.find('#wordpad-save')[0];
+        const printButton = this.win.$content.find('#wordpad-print')[0];
+        const cutButton = this.win.$content.find('#wordpad-cut')[0];
+        const copyButton = this.win.$content.find('#wordpad-copy')[0];
+        const pasteButton = this.win.$content.find('#wordpad-paste')[0];
+        const undoButton = this.win.$content.find('#wordpad-undo')[0];
         const fontFamily = this.win.$content.find('#wordpad-font-family')[0];
         const fontSize = this.win.$content.find('#wordpad-font-size')[0];
         const boldButton = this.win.$content.find('#wordpad-bold')[0];
@@ -171,8 +197,32 @@ export class WordPadApp extends Application {
         const bulletsButton = this.win.$content.find('#wordpad-bullets')[0];
         const printButton = this.win.$content.find('#wordpad-print')[0];
 
+        newButton.addEventListener('click', () => this.clearContent());
+        openButton.addEventListener('click', () => this.openFile());
+        saveButton.addEventListener('click', () => this.saveFile());
+
         printButton.addEventListener('click', () => {
             this._printDocument();
+        });
+
+        cutButton.addEventListener('click', () => {
+            document.execCommand('cut');
+            editor.focus();
+        });
+
+        copyButton.addEventListener('click', () => {
+            document.execCommand('copy');
+            editor.focus();
+        });
+
+        pasteButton.addEventListener('click', () => {
+            document.execCommand('paste');
+            editor.focus();
+        });
+
+        undoButton.addEventListener('click', () => {
+            document.execCommand('undo');
+            editor.focus();
         });
 
         fontFamily.addEventListener('change', () => {
