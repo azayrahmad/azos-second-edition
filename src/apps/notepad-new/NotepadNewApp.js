@@ -320,7 +320,11 @@ export class NotepadNewApp extends Application {
                 this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
             }
         });
-        setTimeout(() => dialog.element.querySelector('#find-text').focus().select(), 0);
+        setTimeout(() => {
+            const findInput = dialog.element.querySelector('#find-text');
+            findInput.focus();
+            findInput.select();
+        }, 0);
     }
 
     findNext() {
@@ -337,6 +341,7 @@ export class NotepadNewApp extends Application {
         if (found) {
             this.editor.setSelection(cursor.from(), cursor.to());
         } else {
+            // If not found, show a dialog
             ShowDialogWindow({
                 title: 'Notepad',
                 text: `Cannot find "${term}"`,
