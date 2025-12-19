@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@playwright/test": "^1.56.1",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "ani-cursor": "^0.0.5",
     "os-gui": "^0.7.3"
   }
