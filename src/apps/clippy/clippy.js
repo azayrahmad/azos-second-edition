@@ -139,36 +139,50 @@ function triggerInactivityAction() {
     return;
   }
 
-  const runningApps = appManager.getRunningApps();
-  const runningAppIds = Object.keys(runningApps);
+  const speakRandomTip = () => {
+    const runningApps = appManager.getRunningApps();
+    const runningAppIds = Object.keys(runningApps);
 
-  const relevantTips = apps
-    .filter(
-      (app) =>
-        app.id !== "clippy" && // Exclude Clippy's own tips
-        runningAppIds.includes(app.id) &&
-        app.tips?.length > 0,
-    )
-    .flatMap((app) => app.tips);
+    const relevantTips = apps
+      .filter(
+        (app) =>
+          app.id !== "clippy" && // Exclude Clippy's own tips
+          runningAppIds.includes(app.id) &&
+          app.tips?.length > 0,
+      )
+      .flatMap((app) => app.tips);
 
-  if (relevantTips.length > 0) {
-    const randomTip =
-      relevantTips[Math.floor(Math.random() * relevantTips.length)];
-    const ttsEnabled = agent.isTTSEnabled();
+    if (relevantTips.length > 0) {
+      const randomTip =
+        relevantTips[Math.floor(Math.random() * relevantTips.length)];
+      const ttsEnabled = agent.isTTSEnabled();
 
-    // A simple regex to strip out any HTML tags from the tip
-    const cleanTip = randomTip.replace(/<[^>]*>?/gm, "");
+      // A simple regex to strip out any HTML tags from the tip
+      const cleanTip = randomTip.replace(/<[^>]*>?/gm, "");
 
-    agent.speakAndAnimate(cleanTip, "Explain", {
-      useTTS: ttsEnabled,
-      callback: () => {
-        // Restart the timer after speaking
-        startInactivityMonitor();
-      },
-    });
+      agent.speakAndAnimate(cleanTip, "Explain", {
+        useTTS: ttsEnabled,
+        callback: () => {
+          // Restart the timer after speaking
+          startInactivityMonitor();
+        },
+      });
+    } else {
+      // If no tips found, just restart the timer
+      startInactivityMonitor();
+    }
+  };
+
+  // Check if the agent is in the middle of a non-interruptible idle animation
+  const isIdle =
+    agent._animator &&
+    agent._animator.currentAnimationName &&
+    agent._animator.currentAnimationName.startsWith("Idle");
+
+  if (isIdle && agent._idleDfd && agent._idleDfd.state() === "pending") {
+    agent._idleDfd.done(speakRandomTip);
   } else {
-    // If no tips found, just restart the timer
-    startInactivityMonitor();
+    speakRandomTip();
   }
 }
 
