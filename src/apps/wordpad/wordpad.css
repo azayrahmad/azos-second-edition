@@ -80,26 +80,31 @@
     padding: 0 2px;
 }
 
+.wordpad-toolbar button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toolbar-icon {
+    width: 16px;
+    height: 16px;
+    background-image: url('assets/wordpad-toolbar2.png');
+    background-repeat: no-repeat;
+}
+
+.icon-bold { background-position: 0 0; }
+.icon-italic { background-position: -16px 0; }
+.icon-underline { background-position: -32px 0; }
+.icon-color { background-position: -48px 0; }
+.icon-align-left { background-position: -64px 0; }
+.icon-align-center { background-position: -80px 0; }
+.icon-align-right { background-position: -96px 0; }
+.icon-bullets { background-position: -112px 0; }
+
 .wordpad-statusbar-panel {
     border: 1px solid var(--ButtonShadow);
     padding: 2px 4px;
     flex-grow: 1;
     margin: 1px;
 }
-
-.wordpad-sprite-icon {
-    background-image: url('assets/wordpad-toolbar2.png');
-    background-repeat: no-repeat;
-    width: 22px;
-    height: 21px;
-    padding: 0;
-}
-
-#wordpad-bold { background-position: 3px 2px; }
-#wordpad-italic { background-position: -13px 2px; }
-#wordpad-underline { background-position: -29px 2px; }
-#wordpad-color { background-position: -45px 2px; }
-#wordpad-align-left { background-position: -61px 2px; }
-#wordpad-align-center { background-position: -77px 2px; }
-#wordpad-align-right { background-position: -93px 2px; }
-#wordpad-bullets { background-position: -109px 2px; }
