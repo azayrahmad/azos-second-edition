@@ -58,23 +58,23 @@ export class WordPadApp extends Application {
                         </select>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bold"><b>B</b></button>
-                        <button id="wordpad-italic"><i>I</i></button>
-                        <button id="wordpad-underline"><u>U</u></button>
+                        <button id="wordpad-bold"><div class="toolbar-icon icon-bold"></div></button>
+                        <button id="wordpad-italic"><div class="toolbar-icon icon-italic"></div></button>
+                        <button id="wordpad-underline"><div class="toolbar-icon icon-underline"></div></button>
                     </div>
                     <div class="toolbar-group">
                         <div class="wordpad-color-picker">
-                            <button id="wordpad-color">A</button>
+                            <button id="wordpad-color"><div class="toolbar-icon icon-color"></div></button>
                             <div id="wordpad-color-palette" class="wordpad-color-palette" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-align-left">L</button>
-                        <button id="wordpad-align-center">C</button>
-                        <button id="wordpad-align-right">R</button>
+                        <button id="wordpad-align-left"><div class="toolbar-icon icon-align-left"></div></button>
+                        <button id="wordpad-align-center"><div class="toolbar-icon icon-align-center"></div></button>
+                        <button id="wordpad-align-right"><div class="toolbar-icon icon-align-right"></div></button>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bullets">•</button>
+                        <button id="wordpad-bullets"><div class="toolbar-icon icon-bullets"></div></button>
                     </div>
                 </div>
                 <div class="wordpad-editor" contenteditable="true"></div>
