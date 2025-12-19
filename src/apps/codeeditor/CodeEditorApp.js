@@ -1,5 +1,6 @@
 import { Application } from '../Application.js';
 import * as monaco from 'monaco-editor';
+import { ShowDialogWindow } from '../../components/DialogWindow.js';
 // MenuBar is loaded globally from a script tag in index.html
 import './codeeditor.css';
 
@@ -10,6 +11,10 @@ export class CodeEditorApp extends Application {
         this.win = null;
         this.wordWrap = false;
         this.statusBar = null;
+
+        this.fileName = 'Untitled';
+        this.fileHandle = null;
+        this.isDirty = false;
     }
 
     _createWindow() {
@@ -57,16 +62,16 @@ export class CodeEditorApp extends Application {
                 {
                     label: "&Open",
                     shortcutLabel: "Ctrl+O",
-                    action: () => alert("Open... (not implemented)"),
+                    action: () => this.openFile(),
                 },
                 {
                     label: "&Save",
                     shortcutLabel: "Ctrl+S",
-                    action: () => alert("Save... (not implemented)"),
+                    action: () => this.saveFile(),
                 },
                 {
                     label: "Save &As...",
-                    action: () => alert("Save As... (not implemented)"),
+                    action: () => this.saveAs(),
                 },
                 "MENU_DIVIDER",
                 {
@@ -137,6 +142,136 @@ export class CodeEditorApp extends Application {
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
     }
 
+    updateTitle() {
+        const dirtyIndicator = this.isDirty ? '*' : '';
+        this.win.title(`${dirtyIndicator}${this.fileName} - Code Editor`);
+    }
+
+    showUnsavedChangesDialog(options = {}) {
+        return ShowDialogWindow({
+            title: 'Code Editor',
+            text: `<div style="white-space: pre-wrap">The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?</div>`,
+            contentIconUrl: new URL('../../assets/icons/msg_warning-0.png', import.meta.url).href,
+            modal: true,
+            soundEvent: 'SystemQuestion',
+            buttons: options.buttons || [],
+        });
+    }
+
+    showUnsavedChangesDialogOnClose() {
+        this.showUnsavedChangesDialog({
+            buttons: [
+                {
+                    label: 'Yes',
+                    action: async () => {
+                        await this.saveFile();
+                        if (!this.isDirty) this.win.close(true);
+                        else return false;
+                    },
+                    isDefault: true,
+                },
+                { label: 'No', action: () => this.win.close(true) },
+                { label: 'Cancel' }
+            ],
+        });
+    }
+
+    async openFile() {
+        if (await this.checkForUnsavedChanges() === 'cancel') return;
+
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '*/*';
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            this.fileName = file.name;
+            this.fileHandle = null;
+            this.isDirty = false;
+            this.updateTitle();
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.editor.setValue(event.target.result);
+                this.isDirty = false;
+                this.updateTitle();
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
+
+    async saveFile() {
+        if (this.fileHandle) {
+            try {
+                await this.writeFile(this.fileHandle);
+                this.isDirty = false;
+                this.updateTitle();
+            } catch (err) {
+                console.error('Error saving file:', err);
+            }
+        } else {
+            await this.saveAs();
+        }
+    }
+
+    async saveAs() {
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: this.fileName,
+                });
+                this.fileHandle = handle;
+                this.fileName = handle.name;
+                await this.writeFile(handle);
+                this.isDirty = false;
+                this.updateTitle();
+            } catch (err) {
+                if (err.name !== 'AbortError') console.error('Error saving file:', err);
+            }
+        } else {
+            const newFileName = prompt("Enter a filename:", this.fileName);
+            if (!newFileName) return;
+
+            this.fileName = newFileName;
+            const blob = new Blob([this.editor.getValue()], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = this.fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            this.isDirty = false;
+            this.updateTitle();
+        }
+    }
+
+    async writeFile(fileHandle) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(this.editor.getValue());
+        await writable.close();
+    }
+
+    async checkForUnsavedChanges() {
+        if (!this.isDirty) return 'continue';
+        return new Promise(resolve => {
+            this.showUnsavedChangesDialog({
+                buttons: [
+                    {
+                        label: 'Yes',
+                        action: async () => {
+                            await this.saveFile();
+                            resolve(!this.isDirty ? 'continue' : 'cancel');
+                        },
+                        isDefault: true,
+                    },
+                    { label: 'No', action: () => resolve('continue') },
+                    { label: 'Cancel', action: () => resolve('cancel') }
+                ],
+            });
+        });
+    }
+
     updateStatusBar() {
         const position = this.editor.getPosition();
         const model = this.editor.getModel();
@@ -176,13 +311,29 @@ export class CodeEditorApp extends Application {
             fontSize: 16,
         });
 
+        this.fileName = 'Untitled';
+        this.fileHandle = null;
+        this.isDirty = false;
+        this.updateTitle();
+
         this.editor.onDidChangeCursorPosition(() => this.updateStatusBar());
         this.editor.onDidChangeModel(() => this.updateStatusBar());
-        this.editor.onDidChangeModelContent(() => this.updateStatusBar());
+        this.editor.onDidChangeModelContent(() => {
+            this.isDirty = true;
+            this.updateTitle();
+            this.updateStatusBar();
+        });
         this.updateStatusBar();
 
         this.win.on('resize', () => {
             this.editor.layout();
+        });
+
+        this.win.on('close', (e) => {
+            if (this.isDirty) {
+                e.preventDefault();
+                this.showUnsavedChangesDialogOnClose();
+            }
         });
     }
 }
