@@ -86,3 +86,10 @@
     flex-grow: 1;
     margin: 1px;
 }
+
+.toolbar-separator {
+    width: 1px;
+    height: 22px;
+    background-color: var(--ButtonShadow);
+    margin: 0 4px;
+}
