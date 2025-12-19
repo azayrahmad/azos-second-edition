@@ -239,13 +239,12 @@ export class WordPadApp extends Application {
 
     async saveAs() {
         const fileTypes = [
-            { description: 'Rich Text Format', accept: { 'application/rtf': ['.rtf'] } },
             { description: 'HTML Document', accept: { 'text/html': ['.html'] } },
         ];
 
         if (window.showSaveFilePicker) {
             try {
-                const handle = await window.showSaveFilePicker({ types: fileTypes, suggestedName: this.fileName });
+                const handle = await window.showSaveFilePicker({ types: fileTypes, suggestedName: 'Untitled.html' });
                 this.fileHandle = handle;
                 this.fileName = handle.name;
                 await this.writeFile(handle);
@@ -256,33 +255,22 @@ export class WordPadApp extends Application {
             }
         } else {
             // Fallback for older browsers
-            const fileType = this.fileName.endsWith('.rtf') ? 'rtf' : 'html';
-            let content, blob;
-            if (fileType === 'rtf') {
-                content = html2rtf(this.editor.innerHTML);
-                blob = new Blob([content], { type: 'application/rtf' });
-            } else {
-                content = this.editor.innerHTML;
-                blob = new Blob([content], { type: 'text/html' });
-            }
+            const content = this.editor.innerHTML;
+            const blob = new Blob([content], { type: 'text/html' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = this.fileName;
+            a.download = this.fileName.endsWith('.html') ? this.fileName : 'Untitled.html';
             a.click();
             URL.revokeObjectURL(a.href);
             this.isDirty = false;
+            this.fileName = a.download;
             this.updateTitle();
         }
     }
 
     async writeFile(fileHandle) {
         const writable = await fileHandle.createWritable();
-        let content;
-        if (fileHandle.name.endsWith('.rtf')) {
-            content = html2rtf(this.editor.innerHTML);
-        } else {
-            content = this.editor.innerHTML;
-        }
+        const content = this.editor.innerHTML;
         await writable.write(content);
         await writable.close();
     }
