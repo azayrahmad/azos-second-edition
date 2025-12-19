@@ -317,6 +317,10 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  calculator: {
+    16: new URL("../assets/icons/calc-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/calc-32.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {

@@ -29,6 +29,7 @@ import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
+import { CalculatorApp } from "../apps/calculator/CalculatorApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -65,6 +66,7 @@ export const appClasses = {
   diablo: DiabloApp,
   esheep: ESheepApp,
   minesweeper: MinesweeperApp,
+  calculator: CalculatorApp,
   defrag: DefragApp,
 };
 
@@ -562,6 +564,16 @@ export const apps = [
     height: 280,
     resizable: false,
     isSingleton: true,
+  },
+  {
+    id: "calculator",
+    title: "Calculator",
+    description: "Perform calculations.",
+    icon: ICONS.calculator,
+    appClass: CalculatorApp,
+    width: 260,
+    height: 280,
+    resizable: false,
   },
   {
     id: "defrag",
