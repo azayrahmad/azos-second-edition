@@ -133,10 +133,8 @@ export class CalculatorApp extends Application {
 
       const controlButtons = document.createElement("div");
       controlButtons.className = "control-buttons";
-      console.log(buttonDefinitions);
       layout.controls.forEach((key) => {
         const button = buttonDefinitions[key];
-        console.log("Rendering control button:", button.label, button);
         if (button) {
           controlButtons.appendChild(button.render(this));
         }
@@ -219,10 +217,8 @@ export class CalculatorApp extends Application {
 
       const controlButtons = document.createElement("div");
       controlButtons.className = "control-buttons";
-      console.log(buttonDefinitions);
       layout.controls.forEach((key) => {
         const button = buttonDefinitions[key];
-        console.log("Rendering control button:", button.label, button);
         if (button) {
           controlButtons.appendChild(button.render(this));
         }
@@ -480,7 +476,8 @@ export class CalculatorApp extends Application {
     this._setupStatisticsEventListeners();
 
     this.areStatisticsButtonsActive = true;
-    this.selectedStatisticsIndex = this.logic.statisticsData.length > 0 ? 0 : -1;
+    this.selectedStatisticsIndex =
+      this.logic.statisticsData.length > 0 ? 0 : -1;
     this._updateStatisticsButtonState();
     this._updateStatisticsDisplay();
 
@@ -505,7 +502,8 @@ export class CalculatorApp extends Application {
 
     content.on("click", "button[data-action='load']", () => {
       if (this.selectedStatisticsIndex !== -1) {
-        this.logic.currentValue = this.logic.statisticsData[this.selectedStatisticsIndex];
+        this.logic.currentValue =
+          this.logic.statisticsData[this.selectedStatisticsIndex];
         this.logic.isNewNumber = true;
         this._updateDisplay();
       }
@@ -531,7 +529,7 @@ export class CalculatorApp extends Application {
       ret: "Return: Closes the Statistics Box and returns to the calculator.",
       load: "Load: Copies the selected number to the calculator display.",
       cd: "Clear Data: Removes the selected number from the list.",
-      cad: "Clear All Data: Removes all numbers from the list."
+      cad: "Clear All Data: Removes all numbers from the list.",
     };
 
     Object.entries(tooltips).forEach(([action, tooltipText]) => {
@@ -569,8 +567,11 @@ export class CalculatorApp extends Application {
     if (!this.statisticsWindow || this.statisticsWindow.closed) return;
 
     const list = this.statisticsWindow.$content.find(".statistics-list");
-    const countDisplay = this.statisticsWindow.$content.find(".statistics-count");
-    const buttons = this.statisticsWindow.$content.find(".statistics-buttons button");
+    const countDisplay =
+      this.statisticsWindow.$content.find(".statistics-count");
+    const buttons = this.statisticsWindow.$content.find(
+      ".statistics-buttons button",
+    );
 
     list.empty();
     this.logic.statisticsData.forEach((num, index) => {
@@ -593,7 +594,7 @@ export class CalculatorApp extends Application {
 
     const listElement = list[0];
     if (listElement) {
-        listElement.scrollTop = listElement.scrollHeight;
+      listElement.scrollTop = listElement.scrollHeight;
     }
   }
 }
