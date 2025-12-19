@@ -1,0 +1,44 @@
+.wordpad-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--ButtonFace);
+}
+
+.wordpad-toolbar {
+    border-bottom: 1px solid var(--ButtonShadow);
+    padding: 2px;
+    background-color: var(--ButtonFace);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wordpad-editor {
+    flex-grow: 1;
+    border: 1px solid var(--ButtonShadow);
+    padding: 5px;
+    background-color: white;
+    overflow-y: scroll;
+    font-family: "Calisto MT", serif;
+    font-size: 10pt;
+    color: black;
+}
+
+.wordpad-editor:focus {
+    outline: none;
+}
+
+.wordpad-statusbar {
+    border-top: 1px solid var(--ButtonShadow);
+    display: flex;
+    height: 21px;
+    padding: 0 2px;
+}
+
+.wordpad-statusbar-panel {
+    border: 1px solid var(--ButtonShadow);
+    padding: 2px 4px;
+    flex-grow: 1;
+    margin: 1px;
+}

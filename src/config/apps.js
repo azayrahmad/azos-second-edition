@@ -29,6 +29,7 @@ import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
+import { WordPadApp } from "../apps/wordpad/WordPadApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -66,6 +67,7 @@ export const appClasses = {
   esheep: ESheepApp,
   minesweeper: MinesweeperApp,
   defrag: DefragApp,
+  wordpad: WordPadApp,
 };
 
 export const apps = [
@@ -573,5 +575,16 @@ export const apps = [
     height: 300,
     resizable: true,
     isSingleton: true,
+  },
+  {
+    id: "wordpad",
+    title: "WordPad",
+    description: "A simple rich text editor.",
+    icon: ICONS.notepad,
+    appClass: WordPadApp,
+    width: 600,
+    height: 400,
+    resizable: true,
+    isSingleton: false,
   },
 ];
