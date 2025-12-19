@@ -13,7 +13,7 @@
     "vite-plugin-pwa": "^1.1.0"
   },
   "dependencies": {
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.57.0",
     "ani-cursor": "^0.0.5",
     "os-gui": "^0.7.3"
   }

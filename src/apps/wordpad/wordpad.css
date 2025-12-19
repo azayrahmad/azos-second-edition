@@ -11,7 +11,51 @@
     background-color: var(--ButtonFace);
     display: flex;
     align-items: center;
+    gap: 6px;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.wordpad-toolbar button.active {
+    background-color: var(--button-face-active);
+    border-style: inset;
+}
+
+.wordpad-color-picker {
+    position: relative;
+    display: inline-block;
+}
+
+#wordpad-color-palette {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    border: 1px solid var(--button-shadow);
+    background-color: var(--button-face);
+    padding: 4px;
+    z-index: 100;
+    width: 160px;
+    display: grid;
+    grid-template-columns: auto 1fr;
     gap: 4px;
+}
+
+.color-swatch {
+    width: 24px;
+    height: 16px;
+    border: 1px solid var(--button-shadow);
+    cursor: pointer;
+}
+
+.color-label {
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    padding-top: 2px;
 }
 
 .wordpad-editor {
