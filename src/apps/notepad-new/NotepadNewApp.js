@@ -306,7 +306,8 @@ export class NotepadNewApp extends Application {
                         this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
 
                         this.findNext();
-                        return true;
+                        // Keep dialog open for subsequent searches
+                        return false;
                     },
                     isDefault: true,
                 },
@@ -319,22 +320,28 @@ export class NotepadNewApp extends Application {
                 this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
             }
         });
-        setTimeout(() => dialog.element.querySelector('#find-text').focus().select(), 0);
+        setTimeout(() => {
+            const findInput = dialog.element.querySelector('#find-text');
+            findInput.focus();
+            findInput.select();
+        }, 0);
     }
 
     findNext() {
+        this.editor.focus();
         const { term, caseSensitive, direction } = this.findState;
         if (!term) {
             this.showFindDialog();
             return;
         }
 
-        const cursor = this.editor.getSearchCursor(term, this.editor.getCursor(), { caseFold: !caseSensitive });
-        const found = direction === 'down' ? cursor.findNext() : cursor.findPrevious();
+        const cursor = this.editor.getSearchCursor(term, this.editor.getCursor(direction === 'down' ? 'to' : 'from'), { caseFold: !caseSensitive });
+        const found = cursor.find(direction === 'down');
 
         if (found) {
             this.editor.setSelection(cursor.from(), cursor.to());
         } else {
+            // If not found, show a dialog
             ShowDialogWindow({
                 title: 'Notepad',
                 text: `Cannot find "${term}"`,
