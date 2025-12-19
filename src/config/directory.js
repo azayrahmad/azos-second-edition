@@ -57,6 +57,12 @@ const directory = [
                 name: "Notepad",
               },
               {
+                id: "shortcut-to-notepad-new",
+                type: "shortcut",
+                targetId: "app-notepad-new",
+                name: "Notepad New",
+              },
+              {
                 id: "shortcut-to-image-viewer",
                 type: "shortcut",
                 targetId: "app-image-viewer",

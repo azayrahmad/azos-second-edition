@@ -1,6 +1,7 @@
 import { AboutApp } from "../apps/about/AboutApp.js";
 import { AppMakerApp } from "../apps/appmaker/AppMakerApp.js";
 import { NotepadApp } from "../apps/notepad/NotepadApp.js";
+import { NotepadNewApp } from "../apps/notepad-new/NotepadNewApp.js";
 import { PdfViewerApp } from "../apps/pdfviewer/PdfViewerApp.js";
 import { TipOfTheDayApp } from "../apps/tipOfTheDay/TipOfTheDayApp.js";
 import { ClippyApp } from "../apps/clippy/ClippyApp.js";
@@ -42,6 +43,7 @@ export const appClasses = {
   about: AboutApp,
   appmaker: AppMakerApp,
   notepad: NotepadApp,
+  "notepad-new": NotepadNewApp,
   pdfviewer: PdfViewerApp,
   tipOfTheDay: TipOfTheDayApp,
   clippy: ClippyApp,
@@ -259,6 +261,17 @@ export const apps = [
       "You can preview Markdown files in Notepad by selecting 'Preview Markdown' from the 'View' menu.",
       "Notepad can copy text with syntax highlighting. Use 'Copy with Formatting' from the 'Edit' menu.",
     ],
+  },
+  {
+    id: "notepad-new",
+    title: "Notepad New",
+    description: "A simple text editor with CodeMirror.",
+    icon: ICONS.notepad,
+    appClass: NotepadNewApp,
+    width: 600,
+    height: 400,
+    resizable: true,
+    isSingleton: false,
   },
   {
     id: "image-resizer",
