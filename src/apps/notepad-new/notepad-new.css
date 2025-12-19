@@ -11,12 +11,6 @@
   outline-color: var(--ButtonDkShadow);
 }
 
-.CodeMirror pre {
-  background: none;
-  box-shadow: none;
-  padding: 0;
-}
-
-.CodeMirror {
+.cm-editor {
   height: 100%;
 }

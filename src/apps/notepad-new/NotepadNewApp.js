@@ -1,7 +1,12 @@
 import { Application } from '../Application.js';
 import './notepad-new.css';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
+import { EditorView, keymap } from '@codemirror/view';
+import { EditorState, Compartment } from '@codemirror/state';
+import { history, defaultKeymap, historyKeymap, undo } from '@codemirror/commands';
+import { searchKeymap, search, openSearchPanel } from '@codemirror/search';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
+import { notepadTheme } from './notepad-theme.js';
 
 export class NotepadNewApp extends Application {
     constructor(config) {
@@ -60,7 +65,7 @@ export class NotepadNewApp extends Application {
                 {
                     label: "&Undo",
                     shortcutLabel: "Ctrl+Z",
-                    action: () => this.editor.undo(),
+                    action: () => undo(this.editor),
                 },
                 "MENU_DIVIDER",
                 {
@@ -87,13 +92,15 @@ export class NotepadNewApp extends Application {
                 {
                     label: "De&lete",
                     shortcutLabel: "Del",
-                    action: () => this.editor.replaceSelection(""),
+                    action: () => this.editor.dispatch({
+                        changes: { from: this.editor.state.selection.main.from, to: this.editor.state.selection.main.to, insert: '' }
+                    }),
                 },
                 "MENU_DIVIDER",
                 {
                     label: "Select &All",
                     shortcutLabel: "Ctrl+A",
-                    action: () => this.editor.execCommand("selectAll"),
+                    action: () => this.editor.dispatch({ selection: { anchor: 0, head: this.editor.state.doc.length } }),
                 },
                 "MENU_DIVIDER",
                 {
@@ -108,13 +115,7 @@ export class NotepadNewApp extends Application {
                 {
                     label: "&Find...",
                     shortcutLabel: "Ctrl+F",
-                    action: () => this.showFindDialog(),
-                },
-                {
-                    label: "Find &Next",
-                    shortcutLabel: "F3",
-                    action: () => this.findNext(),
-                    enabled: () => this.findState?.term,
+                    action: () => openSearchPanel(this.editor),
                 },
             ],
             "&Help": [
@@ -128,15 +129,28 @@ export class NotepadNewApp extends Application {
 
     _onLaunch(data) {
         const container = this.win.$content.find('.notepad-container')[0];
-        this.editor = CodeMirror(container, {
-            lineNumbers: false,
-            mode: 'text/plain',
-            lineWrapping: this.wordWrap,
+        this.wordWrapCompartment = new Compartment();
+
+        const state = EditorState.create({
+            doc: '',
+            extensions: [
+                history(),
+                keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
+                search({ top: true }),
+                this.wordWrapCompartment.of(this.wordWrap ? EditorView.lineWrapping : []),
+                notepadTheme,
+                EditorView.updateListener.of((update) => {
+                    if (update.docChanged) {
+                        this.isDirty = true;
+                        this.updateTitle();
+                    }
+                }),
+            ],
         });
 
-        this.editor.on('change', () => {
-            this.isDirty = true;
-            this.updateTitle();
+        this.editor = new EditorView({
+            state,
+            parent: container,
         });
 
         this.fileHandle = null;
@@ -161,7 +175,9 @@ export class NotepadNewApp extends Application {
             })
             .then((text) => {
               this.fileName = data.split("/").pop();
-              this.editor.setValue(text);
+              this.editor.dispatch({
+                changes: { from: 0, to: this.editor.state.doc.length, insert: text }
+              });
               this.isDirty = false;
               this.updateTitle();
             })
@@ -178,7 +194,9 @@ export class NotepadNewApp extends Application {
           if (data.content) {
             this.fileName = data.name;
             const content = atob(data.content.split(",")[1]);
-            this.editor.setValue(content);
+            this.editor.dispatch({
+                changes: { from: 0, to: this.editor.state.doc.length, insert: content }
+              });
             this.isDirty = false;
             this.updateTitle();
           } else {
@@ -191,7 +209,9 @@ export class NotepadNewApp extends Application {
 
             const reader = new FileReader();
             reader.onload = (event) => {
-              this.editor.setValue(event.target.result);
+                this.editor.dispatch({
+                    changes: { from: 0, to: this.editor.state.doc.length, insert: event.target.result }
+                });
               this.isDirty = false; // Reset dirty flag after loading
               this.updateTitle();
             };
@@ -241,7 +261,9 @@ export class NotepadNewApp extends Application {
 
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.editor.setValue(event.target.result);
+                this.editor.dispatch({
+                    changes: { from: 0, to: this.editor.state.doc.length, insert: event.target.result }
+                });
                 this.isDirty = false;
                 this.updateTitle();
             };
@@ -258,90 +280,11 @@ export class NotepadNewApp extends Application {
 
     toggleWordWrap() {
         this.wordWrap = !this.wordWrap;
-        this.editor.setOption('lineWrapping', this.wordWrap);
+        this.editor.dispatch({
+            effects: this.wordWrapCompartment.reconfigure(this.wordWrap ? EditorView.lineWrapping : [])
+        });
         setItem(LOCAL_STORAGE_KEYS.NOTEPAD_WORD_WRAP, this.wordWrap);
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
-    }
-
-    showFindDialog() {
-        const dialogContent = `
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="find-text" style="margin-right: 5px;">Find what:</label>
-                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
-                    <label for="match-case">Match case</label>
-                </div>
-                <fieldset class="group-box" style="padding: 5px 10px;">
-                    <legend>Direction</legend>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === 'up' ? 'checked' : ''}>
-                        <label for="dir-up">Up</label>
-                    </div>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === 'down' ? 'checked' : ''}>
-                        <label for="dir-down">Down</label>
-                    </div>
-                </fieldset>
-            </div>
-        `;
-
-        const dialog = ShowDialogWindow({
-            title: 'Find',
-            width: 380,
-            height: 'auto',
-            text: dialogContent,
-            buttons: [
-                {
-                    label: 'Find Next',
-                    action: (win) => {
-                        const findInput = win.element.querySelector('#find-text');
-                        const term = findInput.value;
-                        if (!term) return false;
-
-                        this.findState.term = term;
-                        this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
-                        this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
-
-                        this.findNext();
-                        return true;
-                    },
-                    isDefault: true,
-                },
-                { label: 'Cancel' }
-            ],
-            onclose: (win) => {
-                const findInput = win.element.querySelector('#find-text');
-                this.findState.term = findInput.value;
-                this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
-                this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
-            }
-        });
-        setTimeout(() => dialog.element.querySelector('#find-text').focus().select(), 0);
-    }
-
-    findNext() {
-        const { term, caseSensitive, direction } = this.findState;
-        if (!term) {
-            this.showFindDialog();
-            return;
-        }
-
-        const cursor = this.editor.getSearchCursor(term, this.editor.getCursor(), { caseFold: !caseSensitive });
-        const found = direction === 'down' ? cursor.findNext() : cursor.findPrevious();
-
-        if (found) {
-            this.editor.setSelection(cursor.from(), cursor.to());
-        } else {
-            ShowDialogWindow({
-                title: 'Notepad',
-                text: `Cannot find "${term}"`,
-                soundEvent: 'SystemHand',
-                buttons: [{ label: 'OK', isDefault: true }],
-            });
-        }
     }
 
     showUnsavedChangesDialog(options = {}) {
@@ -413,7 +356,9 @@ export class NotepadNewApp extends Application {
             this.updateTitle();
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.editor.setValue(event.target.result);
+                this.editor.dispatch({
+                    changes: { from: 0, to: this.editor.state.doc.length, insert: event.target.result }
+                });
                 this.isDirty = false;
                 this.updateTitle();
             };
@@ -424,7 +369,9 @@ export class NotepadNewApp extends Application {
 
     async clearContent() {
         if (await this.checkForUnsavedChanges() === 'cancel') return;
-        this.editor.setValue('');
+        this.editor.dispatch({
+            changes: { from: 0, to: this.editor.state.doc.length, insert: '' }
+        });
         this.fileName = 'Untitled';
         this.fileHandle = null;
         this.isDirty = false;
@@ -467,7 +414,7 @@ export class NotepadNewApp extends Application {
             const newFileName = prompt("Enter a filename:", this.fileName === 'Untitled' ? 'Untitled.txt' : this.fileName);
             if (!newFileName) return;
             this.fileName = newFileName;
-            const blob = new Blob([this.editor.getValue()], { type: 'text/plain' });
+            const blob = new Blob([this.editor.state.doc.toString()], { type: 'text/plain' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = this.fileName;
@@ -480,13 +427,15 @@ export class NotepadNewApp extends Application {
 
     async writeFile(fileHandle) {
         const writable = await fileHandle.createWritable();
-        await writable.write(this.editor.getValue());
+        await writable.write(this.editor.state.doc.toString());
         await writable.close();
     }
 
     pasteText() {
         navigator.clipboard.readText().then(text => {
-            this.editor.replaceSelection(text);
+            this.editor.dispatch({
+                changes: { from: this.editor.state.selection.main.from, to: this.editor.state.selection.main.to, insert: text }
+            });
         }).catch(() => {
             // Fallback for browsers that don't support clipboard API in this context
             // Note: This is not a reliable fallback.
