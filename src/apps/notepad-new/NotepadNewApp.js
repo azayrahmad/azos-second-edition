@@ -4,7 +4,6 @@ import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.j
 import { EditorView, keymap } from '@codemirror/view';
 import { EditorState, Compartment } from '@codemirror/state';
 import { history, defaultKeymap, historyKeymap, undo } from '@codemirror/commands';
-import { searchKeymap, search, openSearchPanel } from '@codemirror/search';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import { notepadTheme } from './notepad-theme.js';
 
@@ -115,7 +114,13 @@ export class NotepadNewApp extends Application {
                 {
                     label: "&Find...",
                     shortcutLabel: "Ctrl+F",
-                    action: () => openSearchPanel(this.editor),
+                    action: () => this.showFindDialog(),
+                },
+                {
+                    label: "Find &Next",
+                    shortcutLabel: "F3",
+                    action: () => this.findNext(),
+                    enabled: () => this.findState?.term,
                 },
             ],
             "&Help": [
@@ -135,8 +140,7 @@ export class NotepadNewApp extends Application {
             doc: '',
             extensions: [
                 history(),
-                keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
-                search({ top: true }),
+                keymap.of([...defaultKeymap, ...historyKeymap]),
                 this.wordWrapCompartment.of(this.wordWrap ? EditorView.lineWrapping : []),
                 notepadTheme,
                 EditorView.updateListener.of((update) => {
@@ -441,5 +445,107 @@ export class NotepadNewApp extends Application {
             // Note: This is not a reliable fallback.
             alert("Could not paste from clipboard. Your browser might not support this feature in this context.");
         });
+    }
+
+    showFindDialog() {
+        const dialogContent = `
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="find-text" style="margin-right: 5px;">Find what:</label>
+                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
+                    <label for="match-case">Match case</label>
+                </div>
+                <fieldset class="group-box" style="padding: 5px 10px;">
+                    <legend>Direction</legend>
+                    <div class="field-row">
+                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === 'up' ? 'checked' : ''}>
+                        <label for="dir-up">Up</label>
+                    </div>
+                    <div class="field-row">
+                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === 'down' ? 'checked' : ''}>
+                        <label for="dir-down">Down</label>
+                    </div>
+                </fieldset>
+            </div>
+        `;
+
+        const dialog = ShowDialogWindow({
+            title: 'Find',
+            width: 380,
+            height: 'auto',
+            text: dialogContent,
+            buttons: [
+                {
+                    label: 'Find Next',
+                    action: (win) => {
+                        const findInput = win.element.querySelector('#find-text');
+                        const term = findInput.value;
+                        if (!term) return false;
+
+                        this.findState.term = term;
+                        this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
+                        this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
+
+                        this.findNext();
+                        return true;
+                    },
+                    isDefault: true,
+                },
+                { label: 'Cancel' }
+            ],
+            onClose: (win) => {
+                const findInput = win.element.querySelector('#find-text');
+                this.findState.term = findInput.value;
+                this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
+                this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
+            }
+        });
+        setTimeout(() => dialog.element.querySelector('#find-text').focus().select(), 0);
+    }
+
+    findNext() {
+        const { term, caseSensitive, direction } = this.findState;
+        if (!term) {
+            this.showFindDialog();
+            return;
+        }
+
+        const editorState = this.editor.state;
+        const text = editorState.doc.toString();
+        const searchTerm = caseSensitive ? term : term.toLowerCase();
+        const textToSearch = caseSensitive ? text : text.toLowerCase();
+
+        let from = direction === 'down' ? editorState.selection.main.head : editorState.selection.main.from;
+        let index;
+
+        if (direction === 'down') {
+            index = textToSearch.indexOf(searchTerm, from);
+            if (index === -1) {
+                index = textToSearch.indexOf(searchTerm, 0); // Wrap around
+            }
+        } else { // Up
+            index = textToSearch.lastIndexOf(searchTerm, from - 1);
+            if (index === -1) {
+                index = textToSearch.lastIndexOf(searchTerm); // Wrap around
+            }
+        }
+
+        if (index !== -1) {
+            this.editor.dispatch({
+                selection: { anchor: index, head: index + term.length },
+                scrollIntoView: true,
+            });
+            this.editor.focus();
+        } else {
+            ShowDialogWindow({
+                title: 'Notepad',
+                text: `Cannot find "${term}"`,
+                soundEvent: 'SystemHand',
+                buttons: [{ label: 'OK', isDefault: true }],
+            });
+        }
     }
 }

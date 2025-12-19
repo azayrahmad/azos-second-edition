@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.1",
-    "@codemirror/search": "^6.5.11",
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.39.4",
     "@playwright/test": "^1.56.1",
