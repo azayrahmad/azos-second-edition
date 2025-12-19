@@ -317,6 +317,10 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  wordpad: {
+    16: new URL("../assets/icons/write_wordpad-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/write_wordpad-1.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {

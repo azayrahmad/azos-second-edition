@@ -580,7 +580,7 @@ export const apps = [
     id: "wordpad",
     title: "WordPad",
     description: "A simple rich text editor.",
-    icon: ICONS.notepad,
+    icon: ICONS.wordpad,
     appClass: WordPadApp,
     width: 600,
     height: 400,
