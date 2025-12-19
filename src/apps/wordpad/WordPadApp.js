@@ -58,23 +58,23 @@ export class WordPadApp extends Application {
                         </select>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bold"><b>B</b></button>
-                        <button id="wordpad-italic"><i>I</i></button>
-                        <button id="wordpad-underline"><u>U</u></button>
+                        <button id="wordpad-bold" class="wordpad-sprite-icon"></button>
+                        <button id="wordpad-italic" class="wordpad-sprite-icon"></button>
+                        <button id="wordpad-underline" class="wordpad-sprite-icon"></button>
                     </div>
                     <div class="toolbar-group">
                         <div class="wordpad-color-picker">
-                            <button id="wordpad-color">A</button>
+                            <button id="wordpad-color" class="wordpad-sprite-icon"></button>
                             <div id="wordpad-color-palette" class="wordpad-color-palette" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-align-left">L</button>
-                        <button id="wordpad-align-center">C</button>
-                        <button id="wordpad-align-right">R</button>
+                        <button id="wordpad-align-left" class="wordpad-sprite-icon"></button>
+                        <button id="wordpad-align-center" class="wordpad-sprite-icon"></button>
+                        <button id="wordpad-align-right" class="wordpad-sprite-icon"></button>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bullets">•</button>
+                        <button id="wordpad-bullets" class="wordpad-sprite-icon"></button>
                     </div>
                 </div>
                 <div class="wordpad-editor" contenteditable="true"></div>
