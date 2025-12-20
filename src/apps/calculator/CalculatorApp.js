@@ -371,7 +371,13 @@ export class CalculatorApp extends Application {
 
   _updateDisplay() {
     const display = this.win.$content.find(".calculator-display")[0];
-    display.textContent = this.logic.currentValue;
+    const value = parseFloat(this.logic.currentValue);
+
+    if (this.logic.scientificNotation && !this.logic.isEnteringExponent) {
+      display.textContent = value.toExponential();
+    } else {
+      display.textContent = this.logic.currentValue;
+    }
   }
 
   _updateNestingLevelDisplay() {
