@@ -1,9 +1,46 @@
 import { Application } from "../Application.js";
 import helpTopics from "../../config/help-topics.json";
+import "./HelpApp.css";
 
 export class HelpApp extends Application {
   constructor(options) {
     super(options);
+  }
+
+  // Helper function to recursively find a topic by its ID in the nested structure
+  _findTopicById(topics, id) {
+    for (const topic of topics) {
+      if (topic.id === id) {
+        return topic;
+      }
+      if (topic.children) {
+        const found = this._findTopicById(topic.children, id);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Helper function to recursively build the HTML for the topics tree view
+  _buildTopicsHtml(topics) {
+    return topics.map(topic => {
+      if (topic.children && topic.children.length > 0) {
+        return `
+          <li>
+            <details>
+              <summary data-topic-id="${topic.id}">${topic.title}</summary>
+              <ul>
+                ${this._buildTopicsHtml(topic.children)}
+              </ul>
+            </details>
+          </li>
+        `;
+      } else {
+        return `<li data-topic-id="${topic.id}">${topic.title}</li>`;
+      }
+    }).join('');
   }
 
   _createWindow() {
@@ -18,20 +55,17 @@ export class HelpApp extends Application {
     });
 
     const content = document.createElement("div");
-    content.style.display = "flex";
-    content.style.height = "100%";
+    content.className = "help-app-content";
 
-    const topicsList = helpTopics.topics.map(topic =>
-      `<li data-topic-id="${topic.id}">${topic.title}</li>`
-    ).join('');
+    const topicsHtml = this._buildTopicsHtml(helpTopics.topics);
 
     content.innerHTML = `
-      <div class="topics" style="width: 150px; border-right: 1px solid #ccc; padding: 10px; overflow-y: auto;">
-        <ul>
-          ${topicsList}
+      <div class="topics">
+        <ul class="tree-view">
+          ${topicsHtml}
         </ul>
       </div>
-      <div class="content" style="flex-grow: 1; padding: 10px; overflow-y: auto;">
+      <div class="content">
         <h2>Welcome to Help Topics</h2>
         <p>Select a topic from the left to get started.</p>
       </div>
@@ -39,14 +73,15 @@ export class HelpApp extends Application {
 
     win.$content.append(content);
 
-    const topicElements = content.querySelectorAll(".topics li");
     const contentElement = content.querySelector(".content");
 
-    topicElements.forEach(topicElement => {
+    // Add event listeners to all clickable topic elements (li and summary)
+    content.querySelectorAll(".topics [data-topic-id]").forEach(topicElement => {
       topicElement.addEventListener("click", () => {
         const topicId = topicElement.dataset.topicId;
-        const topic = helpTopics.topics.find(t => t.id === topicId);
-        if (topic) {
+        const topic = this._findTopicById(helpTopics.topics, topicId);
+
+        if (topic && topic.content) {
           contentElement.innerHTML = topic.content;
         }
       });

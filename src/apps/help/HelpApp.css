@@ -1,0 +1,24 @@
+.help-app-content {
+  display: flex;
+  height: 100%;
+}
+
+.help-app-content .topics {
+  width: 200px;
+  border-right: 2px solid #fff;
+  padding: 2px;
+  overflow-y: auto;
+  background-color: #fff;
+  border-top: 1px solid #000;
+  border-left: 1px solid #000;
+  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #c0c0c0;
+}
+
+.help-app-content .content {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #808080;
+  box-shadow: inset 1px 1px 0px #000;
+}

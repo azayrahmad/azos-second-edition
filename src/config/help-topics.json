@@ -8,7 +8,19 @@
     {
       "id": "using-the-desktop",
       "title": "Using the Desktop",
-      "content": "<h2>Using the Desktop</h2><p>The desktop is your main workspace. You can launch applications, open files, and customize its appearance.</p>"
+      "content": "<h2>Using the Desktop</h2><p>The desktop is your main workspace. You can launch applications, open files, and customize its appearance.</p>",
+      "children": [
+        {
+          "id": "desktop-icons",
+          "title": "Desktop Icons",
+          "content": "<h2>Desktop Icons</h2><p>Icons on the desktop represent applications and files.</p>"
+        },
+        {
+          "id": "taskbar",
+          "title": "Taskbar",
+          "content": "<h2>The Taskbar</h2><p>The taskbar contains the Start button, running applications, and the system tray.</p>"
+        }
+      ]
     }
   ]
 }
