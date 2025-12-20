@@ -107,23 +107,8 @@ export class HelpApp extends Application {
           const topicId = topicElement.dataset.topicId;
           const topic = this._findTopicById(this.helpTopics.topics, topicId);
 
-          if (topic) {
-            if (topic.content) {
-              contentElement.innerHTML = topic.content;
-            } else if (topic.link) {
-              try {
-                const response = await fetch(topic.link);
-                if (!response.ok) {
-                  throw new Error(
-                    `Failed to load content from: ${topic.link}`
-                  );
-                }
-                contentElement.innerHTML = await response.text();
-              } catch (error) {
-                console.error(error);
-                contentElement.innerHTML = `<p>Error loading content.</p>`;
-              }
-            }
+          if (topic && topic.content) {
+            contentElement.innerHTML = topic.content;
           }
         });
       });

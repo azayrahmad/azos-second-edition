@@ -8,7 +8,7 @@
         {
           "id": "how-to-use",
           "title": "How to Use",
-          "link": "/apps/notepad/help/how-to-use.html"
+          "content": "<h1>How to Use Notepad</h1><p>Simply type in the text area. You can save your work using the File menu.</p>"
         },
         {
           "id": "features",
