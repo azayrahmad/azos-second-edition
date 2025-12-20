@@ -719,4 +719,114 @@ export class WordPadApp extends Application {
       }
     }
   }
+        });
+        this.fileHandle = handle;
+        this.fileName = handle.name;
+        await this.writeFile(handle);
+        this.isDirty = false;
+        this.updateTitle();
+      } catch (err) {
+        if (err.name !== "AbortError") console.error("Error saving file:", err);
+      }
+    } else {
+      // Fallback for older browsers
+      const content = this.editor.innerHTML;
+      const blob = new Blob([content], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = this.fileName.endsWith(".html")
+        ? this.fileName
+        : "Untitled.html";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      this.isDirty = false;
+      this.fileName = a.download;
+      this.updateTitle();
+    }
+  }
+
+  async writeFile(fileHandle) {
+    const writable = await fileHandle.createWritable();
+    const content = this.editor.innerHTML;
+    await writable.write(content);
+    await writable.close();
+  }
+
+  showUnsavedChangesDialog(options = {}) {
+    return ShowDialogWindow({
+      title: "WordPad",
+      text: `<div style="white-space: pre-wrap">The text in the ${this.fileName} file has changed.\n\nDo you want to save the changes?</div>`,
+      contentIconUrl: new URL(
+        "../../assets/icons/msg_warning-0.png",
+        import.meta.url,
+      ).href,
+      modal: true,
+      soundEvent: "SystemQuestion",
+      buttons: options.buttons || [],
+    });
+  }
+
+  showUnsavedChangesDialogOnClose() {
+    this.showUnsavedChangesDialog({
+      buttons: [
+        {
+          label: "Yes",
+          action: async () => {
+            await this.saveFile();
+            if (!this.isDirty) this.win.close(true);
+            else return false;
+          },
+          isDefault: true,
+        },
+        { label: "No", action: () => this.win.close(true) },
+        { label: "Cancel" },
+      ],
+    });
+  }
+
+  async checkForUnsavedChanges() {
+    if (!this.isDirty) return "continue";
+    return new Promise((resolve) => {
+      this.showUnsavedChangesDialog({
+        buttons: [
+          {
+            label: "Yes",
+            action: async () => {
+              await this.saveFile();
+              resolve(!this.isDirty ? "continue" : "cancel");
+            },
+            isDefault: true,
+          },
+          { label: "No", action: () => resolve("continue") },
+          { label: "Cancel", action: () => resolve("cancel") },
+        ],
+      });
+    });
+  }
+
+  _printDocument() {
+    const printFrame = document.createElement("iframe");
+    printFrame.style.position = "absolute";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(
+      "<!DOCTYPE html><html><head><title>Print</title></head><body>" +
+        this.editor.innerHTML +
+        "</body></html>",
+    );
+    frameDoc.close();
+
+    printFrame.contentWindow.focus();
+    printFrame.contentWindow.print();
+
+    // Clean up the iframe after printing
+    setTimeout(() => {
+      document.body.removeChild(printFrame);
+    }, 1000);
+  }
 }
