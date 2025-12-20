@@ -33,7 +33,7 @@
     border: 1px solid var(--ButtonShadow);
     background-color: var(--ButtonFace);
     padding: 4px;
-    z-index: 100;
+    z-index: 99999;
     width: 160px;
     display: grid;
     grid-template-columns: auto 1fr;

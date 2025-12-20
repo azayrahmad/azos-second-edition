@@ -7,6 +7,7 @@ export class WordPadApp extends Application {
     super(config);
     this.win = null;
     this.editor = null;
+    this.colorPalette = null;
     this.fileHandle = null;
     this.isDirty = false;
     this.fileName = "Untitled";
@@ -88,7 +89,6 @@ export class WordPadApp extends Application {
                     <div class="toolbar-group">
                         <div class="wordpad-color-picker">
                             <button id="wordpad-color"><div class="toolbar-icon-2 icon-color"></div></button>
-                            <div id="wordpad-color-palette" class="wordpad-color-palette" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="toolbar-group">
@@ -163,8 +163,22 @@ export class WordPadApp extends Application {
     });
   }
 
+  _createColorPalette() {
+    this.colorPalette = document.createElement("div");
+    this.colorPalette.className = "wordpad-color-palette";
+    this.colorPalette.style.display = "none";
+    document.body.appendChild(this.colorPalette);
+  }
+
   async _onLaunch(data) {
+    this.win.on("close", () => {
+      if (this.colorPalette && this.colorPalette.parentNode) {
+        this.colorPalette.parentNode.removeChild(this.colorPalette);
+      }
+    });
+
     this.editor = this.win.$content.find(".wordpad-editor")[0];
+    this._createColorPalette();
     this._setupToolbarListeners();
     this._populateColorPalette();
     this.updateTitle();
@@ -209,7 +223,6 @@ export class WordPadApp extends Application {
     const italicButton = this.win.$content.find("#wordpad-italic")[0];
     const underlineButton = this.win.$content.find("#wordpad-underline")[0];
     const colorButton = this.win.$content.find("#wordpad-color")[0];
-    const colorPalette = this.win.$content.find("#wordpad-color-palette")[0];
     const alignLeftButton = this.win.$content.find("#wordpad-align-left")[0];
     const alignCenterButton = this.win.$content.find(
       "#wordpad-align-center",
@@ -290,13 +303,26 @@ export class WordPadApp extends Application {
 
     colorButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isHidden = colorPalette.style.display === "none";
-      colorPalette.style.display = isHidden ? "grid" : "none";
+      const isHidden = this.colorPalette.style.display === "none";
+      if (isHidden) {
+        const rect = colorButton.getBoundingClientRect();
+        const paletteWidth = this.colorPalette.offsetWidth;
+        let left = rect.left;
+        if (left + paletteWidth > window.innerWidth) {
+          left = window.innerWidth - paletteWidth - 5; // 5px buffer
+        }
+
+        this.colorPalette.style.top = `${rect.bottom}px`;
+        this.colorPalette.style.left = `${left}px`;
+        this.colorPalette.style.display = "grid";
+      } else {
+        this.colorPalette.style.display = "none";
+      }
     });
 
     document.addEventListener("click", (e) => {
-      if (!colorPalette.contains(e.target) && e.target !== colorButton) {
-        colorPalette.style.display = "none";
+      if (!this.colorPalette.contains(e.target) && e.target !== colorButton) {
+        this.colorPalette.style.display = "none";
       }
     });
 
@@ -373,7 +399,6 @@ export class WordPadApp extends Application {
   }
 
   _populateColorPalette() {
-    const colorPalette = this.win.$content.find("#wordpad-color-palette")[0];
     const colors = [
       { name: "Black", value: "#000000" },
       { name: "Maroon", value: "#800000" },
@@ -404,12 +429,12 @@ export class WordPadApp extends Application {
             <div class="color-swatch" data-color="#000000" style="background-color: #000000; border: 1px solid white;"></div>
             <div class="color-label" data-color="#000000">Automatic</div>
         `;
-    colorPalette.innerHTML = paletteHTML;
+    this.colorPalette.innerHTML = paletteHTML;
 
-    colorPalette.addEventListener("click", (e) => {
+    this.colorPalette.addEventListener("click", (e) => {
       if (e.target.dataset.color) {
         document.execCommand("foreColor", false, e.target.dataset.color);
-        colorPalette.style.display = "none";
+        this.colorPalette.style.display = "none";
         this.editor.focus();
       }
     });
