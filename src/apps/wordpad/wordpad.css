@@ -6,23 +6,19 @@
 }
 
 .wordpad-toolbar {
-    border-bottom: 1px solid var(--ButtonShadow);
     padding: 2px;
-    background-color: var(--ButtonFace);
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
+.wordpad-toolbar button {
+    padding: 2px;
+}
+
 .toolbar-group {
     display: flex;
     align-items: center;
-    gap: 2px;
-}
-
-.wordpad-toolbar button.active {
-    background-color: var(--button-face-active);
-    border-style: inset;
 }
 
 .wordpad-color-picker {
@@ -73,52 +69,82 @@
     outline: none;
 }
 
-.wordpad-statusbar {
-    border-top: 1px solid var(--ButtonShadow);
-    display: flex;
-    height: 21px;
-    padding: 0 2px;
-}
-
 .wordpad-toolbar button {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.toolbar-icon {
+.toolbar-icon-1 {
     width: 16px;
     height: 16px;
-    background-image: url('assets/wordpad-toolbar1.png');
+    background-image: url("assets/wordpad-toolbar1.png");
+    background-repeat: no-repeat;
+}
+.toolbar-icon-2 {
+    width: 16px;
+    height: 16px;
+    background-image: url("assets/wordpad-toolbar2.png");
     background-repeat: no-repeat;
 }
 
-.icon-new { background-position: 0 0; }
-.icon-open { background-position: -16px 0; }
-.icon-save { background-position: -32px 0; }
-.icon-print { background-position: -48px 0; }
-.icon-print-preview { background-position: -64px 0; }
-.icon-find { background-position: -80px 0; }
-.icon-cut { background-position: -96px 0; }
-.icon-copy { background-position: -112px 0; }
-.icon-paste { background-position: -128px 0; }
-.icon-undo { background-position: -144px 0; }
-.icon-insert-date { background-position: -160px 0; }
+.icon-new {
+    background-position: 0 0;
+}
+.icon-open {
+    background-position: -16px 0;
+}
+.icon-save {
+    background-position: -32px 0;
+}
+.icon-print {
+    background-position: -48px 0;
+}
+.icon-print-preview {
+    background-position: -64px 0;
+}
+.icon-find {
+    background-position: -80px 0;
+}
+.icon-cut {
+    background-position: -96px 0;
+}
+.icon-copy {
+    background-position: -112px 0;
+}
+.icon-paste {
+    background-position: -128px 0;
+}
+.icon-undo {
+    background-position: -144px 0;
+}
+.icon-insert-date {
+    background-position: -160px 0;
+}
 
-.icon-bold { background-position: -176px 0; }
-.icon-italic { background-position: -192px 0; }
-.icon-underline { background-position: -208px 0; }
-.icon-color { background-position: -224px 0; }
-.icon-align-left { background-position: -240px 0; }
-.icon-align-center { background-position: -256px 0; }
-.icon-align-right { background-position: -272px 0; }
-.icon-bullets { background-position: -288px 0; }
-
-.wordpad-statusbar-panel {
-    border: 1px solid var(--ButtonShadow);
-    padding: 2px 4px;
-    flex-grow: 1;
-    margin: 1px;
+.icon-bold {
+    background-position: 0 0;
+}
+.icon-italic {
+    background-position: -16px 0;
+}
+.icon-underline {
+    background-position: -32px 0;
+}
+.icon-color {
+    background-position: -48px 0;
+}
+.icon-align-left {
+    background-position: -64px 0;
+}
+.icon-align-center {
+    background-position: -80px 0;
+}
+.icon-align-right {
+    background-position: -96px 0;
+}
+.icon-bullets {
+    background-position: -112px 0;
 }
 
 .toolbar-separator {
