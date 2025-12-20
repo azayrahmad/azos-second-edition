@@ -100,7 +100,7 @@ export class WordPadApp extends Application {
                         <button id="wordpad-bullets"><div class="toolbar-icon-2 icon-bullets"></div></button>
                     </div>
                 </div>
-                <div class="wordpad-editor" contenteditable="true"></div>
+                <div class="wordpad-editor inset-deep" contenteditable="true"></div>
                 <div class="wordpad-statusbar status-bar">
                     <div class="wordpad-statusbar-panel status-bar-field">For Help, press F1</div>
                 </div>

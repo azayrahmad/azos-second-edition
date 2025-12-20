@@ -30,8 +30,8 @@
     position: absolute;
     top: 100%;
     left: 0;
-    border: 1px solid var(--button-shadow);
-    background-color: var(--button-face);
+    border: 1px solid var(--ButtonShadow);
+    background-color: var(--ButtonFace);
     padding: 4px;
     z-index: 100;
     width: 160px;
@@ -43,7 +43,7 @@
 .color-swatch {
     width: 24px;
     height: 16px;
-    border: 1px solid var(--button-shadow);
+    border: 1px solid var(--ButtonShadow);
     cursor: pointer;
 }
 
@@ -56,13 +56,13 @@
 
 .wordpad-editor {
     flex-grow: 1;
-    border: 1px solid var(--ButtonShadow);
-    padding: 5px;
+    padding: 10px;
     background-color: white;
-    overflow-y: scroll;
-    font-family: "Calisto MT", serif;
+    overflow: auto;
+    font-family: "Times New Roman", serif;
     font-size: 10pt;
     color: black;
+    margin: 2px;
 }
 
 .wordpad-editor:focus {
