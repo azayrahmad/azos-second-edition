@@ -10,6 +10,11 @@ export class WordPadApp extends Application {
     this.fileHandle = null;
     this.isDirty = false;
     this.fileName = "Untitled";
+    this.findState = {
+      term: "",
+      caseSensitive: false,
+      direction: "down",
+    };
   }
 
   _createWindow() {
@@ -28,31 +33,31 @@ export class WordPadApp extends Application {
             <div class="wordpad-container">
                 <div class="wordpad-toolbar">
                     <div class="toolbar-group">
-                        <button id="wordpad-new">New</button>
-                        <button id="wordpad-open">Open</button>
-                        <button id="wordpad-save">Save</button>
+                        <button id="wordpad-new"><div class="toolbar-icon-1 icon-new"></div></button>
+                        <button id="wordpad-open"><div class="toolbar-icon-1 icon-open"></div></button>
+                        <button id="wordpad-save"><div class="toolbar-icon-1 icon-save"></div></button>
                     </div>
-                    <div class="toolbar-separator"></div>
                     <div class="toolbar-group">
-                        <button id="wordpad-print">Print</button>
-                        <button id="wordpad-print-preview" disabled>Preview</button>
+                        <button id="wordpad-print"><div class="toolbar-icon-1 icon-print"></div></button>
+                        <button id="wordpad-print-preview" disabled><div class="toolbar-icon-1 icon-print-preview"></div></button>
                     </div>
-                    <div class="toolbar-separator"></div>
                     <div class="toolbar-group">
-                        <button id="wordpad-cut">Cut</button>
-                        <button id="wordpad-copy">Copy</button>
-                        <button id="wordpad-paste">Paste</button>
-                        <button id="wordpad-undo">Undo</button>
+                        <button id="wordpad-find"><div class="toolbar-icon-1 icon-find"></div></button>
                     </div>
-                    <div class="toolbar-separator"></div>
                     <div class="toolbar-group">
-                        <button id="wordpad-insert-date" disabled>Date</button>
+                        <button id="wordpad-cut"><div class="toolbar-icon-1 icon-cut"></div></button>
+                        <button id="wordpad-copy"><div class="toolbar-icon-1 icon-copy"></div></button>
+                        <button id="wordpad-paste"><div class="toolbar-icon-1 icon-paste"></div></button>
+                        <button id="wordpad-undo"><div class="toolbar-icon-1 icon-undo"></div></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="wordpad-insert-date" disabled><div class="toolbar-icon-1 icon-insert-date"></div></button>
                     </div>
                 </div>
                 <div class="wordpad-toolbar">
                     <div class="toolbar-group">
                         <select id="wordpad-font-family">
-                            <option>Times New Roman</option>
+                            <option selected>Times New Roman</option>
                             <option>Calisto MT</option>
                             <option>Fixedsys Excelsior</option>
                             <option>MSW98UI</option>
@@ -76,28 +81,28 @@ export class WordPadApp extends Application {
                         </select>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bold"><div class="toolbar-icon icon-bold"></div></button>
-                        <button id="wordpad-italic"><div class="toolbar-icon icon-italic"></div></button>
-                        <button id="wordpad-underline"><div class="toolbar-icon icon-underline"></div></button>
+                        <button id="wordpad-bold"><div class="toolbar-icon-2 icon-bold"></div></button>
+                        <button id="wordpad-italic"><div class="toolbar-icon-2 icon-italic"></div></button>
+                        <button id="wordpad-underline"><div class="toolbar-icon-2 icon-underline"></div></button>
                     </div>
                     <div class="toolbar-group">
                         <div class="wordpad-color-picker">
-                            <button id="wordpad-color"><div class="toolbar-icon icon-color"></div></button>
+                            <button id="wordpad-color"><div class="toolbar-icon-2 icon-color"></div></button>
                             <div id="wordpad-color-palette" class="wordpad-color-palette" style="display: none;"></div>
                         </div>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-align-left"><div class="toolbar-icon icon-align-left"></div></button>
-                        <button id="wordpad-align-center"><div class="toolbar-icon icon-align-center"></div></button>
-                        <button id="wordpad-align-right"><div class="toolbar-icon icon-align-right"></div></button>
+                        <button id="wordpad-align-left" class="toggle selected"><div class="toolbar-icon-2 icon-align-left"></div></button>
+                        <button id="wordpad-align-center" class="toggle"><div class="toolbar-icon-2 icon-align-center"></div></button>
+                        <button id="wordpad-align-right" class="toggle"><div class="toolbar-icon-2 icon-align-right"></div></button>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bullets"><div class="toolbar-icon icon-bullets"></div></button>
+                        <button id="wordpad-bullets"><div class="toolbar-icon-2 icon-bullets"></div></button>
                     </div>
                 </div>
                 <div class="wordpad-editor" contenteditable="true"></div>
-                <div class="wordpad-statusbar">
-                    <div class="wordpad-statusbar-panel">For Help, press F1</div>
+                <div class="wordpad-statusbar status-bar">
+                    <div class="wordpad-statusbar-panel status-bar-field">For Help, press F1</div>
                 </div>
             </div>
         `);
@@ -133,6 +138,19 @@ export class WordPadApp extends Application {
         },
       ],
       "&Edit": [],
+      "&Search": [
+        {
+          label: "&Find...",
+          shortcutLabel: "Ctrl+F",
+          action: () => this.showFindDialog(),
+        },
+        {
+          label: "Find &Next",
+          shortcutLabel: "F3",
+          action: () => this.findNext(),
+          enabled: () => this.findState?.term,
+        },
+      ],
       "&View": [],
       "&Insert": [],
       "&Format": [],
@@ -180,6 +198,7 @@ export class WordPadApp extends Application {
     const openButton = this.win.$content.find("#wordpad-open")[0];
     const saveButton = this.win.$content.find("#wordpad-save")[0];
     const printButton = this.win.$content.find("#wordpad-print")[0];
+    const findButton = this.win.$content.find("#wordpad-find")[0];
     const cutButton = this.win.$content.find("#wordpad-cut")[0];
     const copyButton = this.win.$content.find("#wordpad-copy")[0];
     const pasteButton = this.win.$content.find("#wordpad-paste")[0];
@@ -201,6 +220,8 @@ export class WordPadApp extends Application {
     newButton.addEventListener("click", () => this.clearContent());
     openButton.addEventListener("click", () => this.openFile());
     saveButton.addEventListener("click", () => this.saveFile());
+
+    findButton.addEventListener("click", () => this.showFindDialog());
 
     printButton.addEventListener("click", () => {
       this._printDocument();
@@ -281,18 +302,27 @@ export class WordPadApp extends Application {
 
     alignLeftButton.addEventListener("click", () => {
       document.execCommand("justifyLeft");
+      alignLeftButton.classList.add("selected");
+      alignCenterButton.classList.remove("selected");
+      alignRightButton.classList.remove("selected");
       editor.focus();
       updateToolbar();
     });
 
     alignCenterButton.addEventListener("click", () => {
       document.execCommand("justifyCenter");
+      alignCenterButton.classList.add("selected");
+      alignLeftButton.classList.remove("selected");
+      alignRightButton.classList.remove("selected");
       editor.focus();
       updateToolbar();
     });
 
     alignRightButton.addEventListener("click", () => {
       document.execCommand("justifyRight");
+      alignRightButton.classList.add("selected");
+      alignCenterButton.classList.remove("selected");
+      alignLeftButton.classList.remove("selected");
       editor.focus();
       updateToolbar();
     });
@@ -397,6 +427,11 @@ export class WordPadApp extends Application {
     this.fileHandle = null;
     this.isDirty = false;
     this.updateTitle();
+    this.findState = {
+      term: "",
+      caseSensitive: false,
+      direction: "down",
+    };
   }
 
   async openFile() {
@@ -557,5 +592,131 @@ export class WordPadApp extends Application {
     setTimeout(() => {
       document.body.removeChild(printFrame);
     }, 1000);
+  }
+
+  showFindDialog() {
+    const dialogContent = `
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <label for="find-text" style="margin-right: 5px;">Find what:</label>
+                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? "checked" : ""}>
+                    <label for="match-case">Match case</label>
+                </div>
+                <fieldset class="group-box" style="padding: 5px 10px;">
+                    <legend>Direction</legend>
+                    <div class="field-row">
+                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === "up" ? "checked" : ""}>
+                        <label for="dir-up">Up</label>
+                    </div>
+                    <div class="field-row">
+                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === "down" ? "checked" : ""}>
+                        <label for="dir-down">Down</label>
+                    </div>
+                </fieldset>
+            </div>
+        `;
+
+    const dialog = ShowDialogWindow({
+      title: "Find",
+      width: 380,
+      height: "auto",
+      text: dialogContent,
+      buttons: [
+        {
+          label: "Find Next",
+          action: (win) => {
+            const findInput = win.element.querySelector("#find-text");
+            const term = findInput.value;
+            if (!term) return false;
+
+            this.findState.term = term;
+            this.findState.caseSensitive =
+              win.element.querySelector("#match-case").checked;
+            this.findState.direction = win.element.querySelector(
+              'input[name="direction"]:checked',
+            ).value;
+
+            this.findNext();
+            return true;
+          },
+          isDefault: true,
+        },
+        { label: "Cancel" },
+      ],
+      onclose: (win) => {
+        const findInput = win.element.querySelector("#find-text");
+        this.findState.term = findInput.value;
+        this.findState.caseSensitive =
+          win.element.querySelector("#match-case").checked;
+        this.findState.direction = win.element.querySelector(
+          'input[name="direction"]:checked',
+        ).value;
+      },
+    });
+    setTimeout(
+      () => dialog.element.querySelector("#find-text").focus().select(),
+      0,
+    );
+  }
+
+  findNext() {
+    const { term, caseSensitive, direction } = this.findState;
+    if (!term) {
+      this.showFindDialog();
+      return;
+    }
+
+    this.editor.focus();
+
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      if (direction === "down") {
+        range.collapse(false);
+      } else {
+        range.collapse(true);
+      }
+    }
+
+    const found = window.find(
+      term,
+      caseSensitive,
+      direction === "up",
+      false,
+      false,
+      false,
+      false,
+    );
+
+    if (!found) {
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      const range = document.createRange();
+      range.selectNodeContents(this.editor);
+      range.collapse(direction !== "up");
+      selection.addRange(range);
+
+      const wrappedFound = window.find(
+        term,
+        caseSensitive,
+        direction === "up",
+        false,
+        false,
+        false,
+        false,
+      );
+
+      if (!wrappedFound) {
+        ShowDialogWindow({
+          title: "WordPad",
+          text: `Cannot find "${term}"`,
+          soundEvent: "SystemHand",
+          buttons: [{ label: "OK", isDefault: true }],
+        });
+      }
+    }
   }
 }
