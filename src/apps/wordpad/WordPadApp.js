@@ -227,18 +227,49 @@ export class WordPadApp extends Application {
       this._printDocument();
     });
 
-    cutButton.addEventListener("click", () => {
-      document.execCommand("cut");
+    cutButton.addEventListener("click", async () => {
+      const selection = window.getSelection().toString();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(selection);
+          document.execCommand("delete");
+        } catch (err) {
+          console.error("Failed to cut using Clipboard API: ", err);
+          document.execCommand("cut"); // Fallback
+        }
+      } else {
+        document.execCommand("cut"); // Fallback for older browsers
+      }
       editor.focus();
     });
 
-    copyButton.addEventListener("click", () => {
-      document.execCommand("copy");
+    copyButton.addEventListener("click", async () => {
+      const selection = window.getSelection().toString();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(selection);
+        } catch (err) {
+          console.error("Failed to copy using Clipboard API: ", err);
+          document.execCommand("copy"); // Fallback
+        }
+      } else {
+        document.execCommand("copy"); // Fallback for older browsers
+      }
       editor.focus();
     });
 
-    pasteButton.addEventListener("click", () => {
-      document.execCommand("paste");
+    pasteButton.addEventListener("click", async () => {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          const text = await navigator.clipboard.readText();
+          document.execCommand("insertText", false, text);
+        } catch (err) {
+          console.error("Failed to paste using Clipboard API: ", err);
+          document.execCommand("paste"); // Fallback
+        }
+      } else {
+        document.execCommand("paste"); // Fallback for older browsers
+      }
       editor.focus();
     });
 
