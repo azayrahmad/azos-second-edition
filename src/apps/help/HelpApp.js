@@ -1,10 +1,10 @@
 import { Application } from "../Application.js";
-import helpTopics from "../../config/help-topics.json";
 import "./HelpApp.css";
 
 export class HelpApp extends Application {
   constructor(options) {
     super(options);
+    this.filePath = options.filePath || "/apps/help/help-topics.json";
   }
 
   // Helper function to recursively find a topic by its ID in the nested structure
@@ -23,29 +23,53 @@ export class HelpApp extends Application {
     return null;
   }
 
+  async _loadHelpTopics() {
+    try {
+      const response = await fetch(this.filePath);
+      if (!response.ok) {
+        throw new Error(`Failed to load help file: ${response.statusText}`);
+      }
+      this.helpTopics = await response.json();
+    } catch (error) {
+      console.error(error);
+      this.helpTopics = { title: "Error", topics: [] };
+      // Optionally, display an error message in the UI
+    }
+  }
+
   // Helper function to recursively build the HTML for the topics tree view
   _buildTopicsHtml(topics) {
-    return topics.map(topic => {
-      if (topic.children && topic.children.length > 0) {
-        return `
+    return topics
+      .map((topic) => {
+        const hasChildren = topic.children && topic.children.length > 0;
+        const iconClass = hasChildren ? "book-icon" : "page-icon"; // CSS classes for icons
+        const titleHtml = `<span class="${iconClass}"></span><span class="title-text">${topic.title}</span>`;
+
+        if (hasChildren) {
+          return `
           <li>
             <details>
-              <summary data-topic-id="${topic.id}">${topic.title}</summary>
+              <summary data-topic-id="${topic.id}">${titleHtml}</summary>
               <ul>
                 ${this._buildTopicsHtml(topic.children)}
               </ul>
             </details>
           </li>
         `;
-      } else {
-        return `<li data-topic-id="${topic.id}">${topic.title}</li>`;
-      }
-    }).join('');
+        } else {
+          return `<li><span data-topic-id="${
+            topic.id
+          }">${titleHtml}</span></li>`;
+        }
+      })
+      .join("");
   }
 
-  _createWindow() {
+  async _createWindow() {
+    await this._loadHelpTopics();
+
     const win = new $Window({
-      title: this.title,
+      title: this.helpTopics.title || this.title,
       outerWidth: this.width,
       outerHeight: this.height,
       resizable: this.resizable,
@@ -57,7 +81,7 @@ export class HelpApp extends Application {
     const content = document.createElement("div");
     content.className = "help-app-content";
 
-    const topicsHtml = this._buildTopicsHtml(helpTopics.topics);
+    const topicsHtml = this._buildTopicsHtml(this.helpTopics.topics);
 
     content.innerHTML = `
       <div class="topics">
@@ -75,17 +99,34 @@ export class HelpApp extends Application {
 
     const contentElement = content.querySelector(".content");
 
-    // Add event listeners to all clickable topic elements (li and summary)
-    content.querySelectorAll(".topics [data-topic-id]").forEach(topicElement => {
-      topicElement.addEventListener("click", () => {
-        const topicId = topicElement.dataset.topicId;
-        const topic = this._findTopicById(helpTopics.topics, topicId);
+    // Add event listeners to all clickable topic elements
+    content
+      .querySelectorAll(".topics [data-topic-id]")
+      .forEach((topicElement) => {
+        topicElement.addEventListener("click", async () => {
+          const topicId = topicElement.dataset.topicId;
+          const topic = this._findTopicById(this.helpTopics.topics, topicId);
 
-        if (topic && topic.content) {
-          contentElement.innerHTML = topic.content;
-        }
+          if (topic) {
+            if (topic.content) {
+              contentElement.innerHTML = topic.content;
+            } else if (topic.link) {
+              try {
+                const response = await fetch(topic.link);
+                if (!response.ok) {
+                  throw new Error(
+                    `Failed to load content from: ${topic.link}`
+                  );
+                }
+                contentElement.innerHTML = await response.text();
+              } catch (error) {
+                console.error(error);
+                contentElement.innerHTML = `<p>Error loading content.</p>`;
+              }
+            }
+          }
+        });
       });
-    });
 
     return win;
   }

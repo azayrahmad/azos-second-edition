@@ -1,0 +1,26 @@
+{
+  "title": "Notepad Help",
+  "topics": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "children": [
+        {
+          "id": "how-to-use",
+          "title": "How to Use",
+          "link": "/apps/notepad/help/how-to-use.html"
+        },
+        {
+          "id": "features",
+          "title": "Features",
+          "content": "<h1>Features</h1><p>Notepad is a simple text editor with syntax highlighting.</p>"
+        }
+      ]
+    },
+    {
+      "id": "about-notepad",
+      "title": "About Notepad",
+      "content": "<h1>About Notepad</h1><p>A simple text editor for the modern web.</p>"
+    }
+  ]
+}

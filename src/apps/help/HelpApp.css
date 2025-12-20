@@ -5,20 +5,49 @@
 
 .help-app-content .topics {
   width: 200px;
-  border-right: 2px solid #fff;
-  padding: 2px;
+  border-right: 1px solid #000;
+  padding: 5px;
   overflow-y: auto;
-  background-color: #fff;
-  border-top: 1px solid #000;
-  border-left: 1px solid #000;
-  box-shadow: inset 1px 1px 0px #808080, inset -1px -1px 0px #c0c0c0;
+  background-color: white;
 }
 
 .help-app-content .content {
   flex-grow: 1;
   padding: 10px;
   overflow-y: auto;
-  background-color: #fff;
-  border: 1px solid #808080;
-  box-shadow: inset 1px 1px 0px #000;
+  background-color: white;
+}
+
+.tree-view {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.tree-view li {
+  margin: 5px 0;
+}
+
+.tree-view summary,
+.tree-view li > span {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.book-icon,
+.page-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.book-icon {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAHBJREFUOE+tkosRgDAMQ+8kM4hG6AiN0BGM4AgG6ZBCIs0y+g26zX++u/1hV4T/A/A9yYyA/yMghwB8HwC3wA0w3y+YAn43gB2w2QKwWwE89/Y1s/EB8aUv11h/A03wR/PAeuA8gC9geA4gC3gZgA1gD/gZgA3gD1jfA7gCvu/w/wBI+gB2YDxVAAAAAElFTkSuQmCC');
+}
+
+.page-icon {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAJpJREFUOE9jZKAyYKSyeQz0ZgAyi4A0gMQsQAxRA0g8C5AAJGBCQYACJKBBIgNkIAEWASKwAEsYgAaYgRSIBckBUtgASOAmEMABSIgDyIASmAEkYIKBAUiwgAlwIJGBCZAAEhhQQRbKgAaYgBcgxRxAARswAySQAQkwgRSIBfFBYM2AABswgRcgBfJgAiwwgZkghQ9MM0IAADx9IqjE69KCAAAAAElFTkSuQmCC');
 }

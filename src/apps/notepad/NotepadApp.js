@@ -152,6 +152,15 @@ export class NotepadApp extends Application {
             ],
             "&Help": [
                 {
+                    label: "Help &Topics",
+                    action: () => {
+                        window.System.launchApp("help", {
+                            filePath: "/apps/notepad/help/notepad.json",
+                        });
+                    },
+                },
+                "MENU_DIVIDER",
+                {
                     label: "&About Notepad",
                     action: () => alert("A simple text editor."),
                 },
