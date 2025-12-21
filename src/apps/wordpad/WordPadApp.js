@@ -100,7 +100,7 @@ export class WordPadApp extends Application {
                         <button id="wordpad-bullets"><div class="toolbar-icon-2 icon-bullets"></div></button>
                     </div>
                 </div>
-                <div class="wordpad-ruler"></div>
+                <div class="wordpad-ruler inset-deep"></div>
                 <div class="wordpad-editor inset-deep" contenteditable="true"></div>
                 <div class="wordpad-statusbar status-bar">
                     <div class="wordpad-statusbar-panel status-bar-field">For Help, press F1</div>
@@ -379,41 +379,41 @@ export class WordPadApp extends Application {
     const ppi = 96; // Standard pixels per inch
 
     const drawRuler = () => {
-        this.ruler.innerHTML = ''; // Clear existing ticks
-        const widthInPixels = this.ruler.offsetWidth;
-        const widthInInches = widthInPixels / ppi;
+      this.ruler.innerHTML = ""; // Clear existing ticks
+      const widthInPixels = this.ruler.offsetWidth;
+      const widthInInches = widthInPixels / ppi;
 
-        for (let i = 0; i < widthInInches; i++) {
-            const inchMarkPos = i * ppi;
+      for (let i = 0; i < widthInInches; i++) {
+        const inchMarkPos = i * ppi;
 
-            const inchNumber = document.createElement('span');
-            inchNumber.className = 'ruler-number';
-            inchNumber.textContent = i + 1;
-            inchNumber.style.left = `${inchMarkPos + ppi}px`;
-            this.ruler.appendChild(inchNumber);
+        const inchNumber = document.createElement("span");
+        inchNumber.className = "ruler-number";
+        inchNumber.textContent = i + 1;
+        inchNumber.style.left = `${inchMarkPos + ppi}px`;
+        this.ruler.appendChild(inchNumber);
 
-            // Half-inch mark
-            if (i + 0.5 < widthInInches) {
-                const halfTick = document.createElement('span');
-                halfTick.className = 'ruler-tick half';
-                halfTick.style.left = `${inchMarkPos + ppi / 2}px`;
-                this.ruler.appendChild(halfTick);
-            }
-
-            // Quarter-inch marks
-            if (i + 0.25 < widthInInches) {
-                const quarterTick1 = document.createElement('span');
-                quarterTick1.className = 'ruler-tick quarter';
-                quarterTick1.style.left = `${inchMarkPos + ppi / 4}px`;
-                this.ruler.appendChild(quarterTick1);
-            }
-            if (i + 0.75 < widthInInches) {
-                const quarterTick2 = document.createElement('span');
-                quarterTick2.className = 'ruler-tick quarter';
-                quarterTick2.style.left = `${inchMarkPos + (ppi * 3) / 4}px`;
-                this.ruler.appendChild(quarterTick2);
-            }
+        // Half-inch mark
+        if (i + 0.5 < widthInInches) {
+          const halfTick = document.createElement("span");
+          halfTick.className = "ruler-tick half";
+          halfTick.style.left = `${inchMarkPos + ppi / 2}px`;
+          this.ruler.appendChild(halfTick);
         }
+
+        // Quarter-inch marks
+        if (i + 0.25 < widthInInches) {
+          const quarterTick1 = document.createElement("span");
+          quarterTick1.className = "ruler-tick quarter";
+          quarterTick1.style.left = `${inchMarkPos + ppi / 4}px`;
+          this.ruler.appendChild(quarterTick1);
+        }
+        if (i + 0.75 < widthInInches) {
+          const quarterTick2 = document.createElement("span");
+          quarterTick2.className = "ruler-tick quarter";
+          quarterTick2.style.left = `${inchMarkPos + (ppi * 3) / 4}px`;
+          this.ruler.appendChild(quarterTick2);
+        }
+      }
     };
 
     drawRuler();

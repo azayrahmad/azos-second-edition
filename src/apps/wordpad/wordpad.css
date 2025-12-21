@@ -70,11 +70,9 @@
 }
 
 .wordpad-ruler {
-    height: 24px;
-    background-color: var(--ButtonFace);
-    border-bottom: 1px solid var(--ButtonShadow);
-    padding-left: 10px; /* Same as editor padding */
-    margin: 2px 2px 0px 2px;
+    height: 15px;
+    background-color: white;
+    margin: 2px 2px 10px 12px;
     box-sizing: border-box;
     position: relative;
     flex-shrink: 0;
