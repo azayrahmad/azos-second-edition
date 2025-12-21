@@ -167,7 +167,7 @@ export class WordPadApp extends Application {
     this.colorPalette = document.createElement("div");
     this.colorPalette.className = "wordpad-color-palette";
     this.colorPalette.style.display = "none";
-    document.body.appendChild(this.colorPalette);
+    document.querySelector('.desktop').appendChild(this.colorPalette);
   }
 
   async _onLaunch(data) {
