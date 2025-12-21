@@ -386,12 +386,6 @@ export class WordPadApp extends Application {
         for (let i = 0; i < widthInInches; i++) {
             const inchMarkPos = i * ppi;
 
-            // Inch mark
-            const inchTick = document.createElement('span');
-            inchTick.className = 'ruler-tick inch';
-            inchTick.style.left = `${inchMarkPos}px`;
-            this.ruler.appendChild(inchTick);
-
             const inchNumber = document.createElement('span');
             inchNumber.className = 'ruler-number';
             inchNumber.textContent = i + 1;

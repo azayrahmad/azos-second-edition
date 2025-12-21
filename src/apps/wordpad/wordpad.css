@@ -84,9 +84,10 @@
 
 .ruler-tick {
     position: absolute;
-    bottom: 0;
     width: 1px;
     background-color: var(--ButtonText);
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .ruler-tick.quarter {
@@ -97,16 +98,12 @@
     height: 6px;
 }
 
-.ruler-tick.inch {
-    height: 10px;
-}
-
 .ruler-number {
     position: absolute;
-    bottom: 10px;
     font-size: 10px;
     color: var(--ButtonText);
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .wordpad-toolbar button {
