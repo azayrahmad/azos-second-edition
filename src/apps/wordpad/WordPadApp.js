@@ -16,6 +16,7 @@ export class WordPadApp extends Application {
       caseSensitive: false,
       direction: "down",
     };
+    this.savedSelectionRange = null;
   }
 
   _createWindow() {
@@ -339,6 +340,10 @@ export class WordPadApp extends Application {
       e.stopPropagation();
       const isHidden = this.colorPalette.style.display === "none";
       if (isHidden) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          this.savedSelectionRange = selection.getRangeAt(0).cloneRange();
+        }
         // Temporarily display the palette to measure its dimensions
         this.colorPalette.style.visibility = "hidden";
         this.colorPalette.style.display = "grid";
@@ -525,13 +530,56 @@ export class WordPadApp extends Application {
     this.colorPalette.innerHTML = paletteHTML;
 
     this.colorPalette.addEventListener("click", (e) => {
-      if (e.target.dataset.color) {
-        document.execCommand("foreColor", false, e.target.dataset.color);
-        console.log("Color selected:", e.target.dataset.color);
+      const color = e.target.dataset.color;
+      if (color) {
+        this._applyColor(color);
         this.colorPalette.style.display = "none";
-        this.editor.focus();
       }
     });
+  }
+
+  _applyColor(color) {
+    this.editor.focus();
+    const selection = window.getSelection();
+
+    // Restore the saved selection before applying color
+    if (this.savedSelectionRange) {
+        selection.removeAllRanges();
+        selection.addRange(this.savedSelectionRange);
+    }
+
+    if (!selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+
+    if (range.collapsed) {
+      // No text is selected; apply color to future typing
+      const span = document.createElement("span");
+      span.style.color = color;
+      // Use a zero-width space to hold the style
+      span.innerHTML = "&#8203;";
+      range.insertNode(span);
+
+      // Move the cursor inside the new span
+      range.selectNodeContents(span);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      // Text is selected; wrap it with a span
+      const span = document.createElement("span");
+      span.style.color = color;
+
+      try {
+        // SurroundContents is cleaner but can fail if the selection
+        // spans across different block-level elements.
+        range.surroundContents(span);
+      } catch (e) {
+        // Fallback for complex selections
+        document.execCommand("foreColor", false, color);
+        console.warn("Complex selection, fell back to execCommand:", e);
+      }
+    }
   }
 
   updateTitle() {
