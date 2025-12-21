@@ -167,7 +167,7 @@ export class WordPadApp extends Application {
     this.colorPalette = document.createElement("div");
     this.colorPalette.className = "wordpad-color-palette";
     this.colorPalette.style.display = "none";
-    document.querySelector('.desktop').appendChild(this.colorPalette);
+    document.querySelector(".desktop").appendChild(this.colorPalette);
   }
 
   async _onLaunch(data) {
@@ -311,7 +311,9 @@ export class WordPadApp extends Application {
 
         const paletteWidth = this.colorPalette.offsetWidth;
         const buttonRect = colorButton.getBoundingClientRect();
-        const desktopRect = document.querySelector('.desktop').getBoundingClientRect();
+        const desktopRect = document
+          .querySelector(".desktop")
+          .getBoundingClientRect();
 
         let top = buttonRect.bottom - desktopRect.top;
         let left = buttonRect.left - desktopRect.left;
@@ -444,6 +446,7 @@ export class WordPadApp extends Application {
     this.colorPalette.addEventListener("click", (e) => {
       if (e.target.dataset.color) {
         document.execCommand("foreColor", false, e.target.dataset.color);
+        console.log("Color selected:", e.target.dataset.color);
         this.colorPalette.style.display = "none";
         this.editor.focus();
       }
