@@ -26,29 +26,25 @@
     display: inline-block;
 }
 
-#wordpad-color-palette {
+.wordpad-color-palette {
     position: absolute;
-    top: 100%;
-    left: 0;
-    border: 1px solid var(--ButtonShadow);
     background-color: var(--ButtonFace);
     padding: 4px;
-    z-index: 100;
-    width: 160px;
+    z-index: 99999;
+    width: 120px;
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 4px;
 }
 
 .color-swatch {
-    width: 24px;
-    height: 16px;
-    border: 1px solid var(--ButtonShadow);
+    width: 45px;
+    height: 11px;
+    border: 1px solid black;
     cursor: pointer;
 }
 
 .color-label {
-    font-size: 12px;
     white-space: nowrap;
     cursor: pointer;
     padding-top: 2px;
