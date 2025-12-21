@@ -58,11 +58,46 @@
     font-family: "Times New Roman", serif;
     font-size: 10pt;
     color: black;
-    margin: 2px;
+    margin: 0px 2px 2px 2px;
 }
 
 .wordpad-editor:focus {
     outline: none;
+}
+
+.wordpad-ruler {
+    height: 15px;
+    background-color: white;
+    margin: 2px 2px 10px 12px;
+    box-sizing: border-box;
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+}
+
+.ruler-tick {
+    position: absolute;
+    width: 1px;
+    background-color: var(--ButtonText);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ruler-tick.quarter {
+    height: 4px;
+}
+
+.ruler-tick.half {
+    height: 6px;
+}
+
+.ruler-number {
+    position: absolute;
+    font-size: 10px;
+    color: var(--ButtonText);
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .wordpad-toolbar button {
