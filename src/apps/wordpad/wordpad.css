@@ -26,10 +26,8 @@
     display: inline-block;
 }
 
-#wordpad-color-palette {
+.wordpad-color-palette {
     position: absolute;
-    top: 100%;
-    left: 0;
     border: 1px solid var(--ButtonShadow);
     background-color: var(--ButtonFace);
     padding: 4px;
