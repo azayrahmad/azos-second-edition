@@ -305,21 +305,24 @@ export class WordPadApp extends Application {
       e.stopPropagation();
       const isHidden = this.colorPalette.style.display === "none";
       if (isHidden) {
-        // Temporarily display the palette off-screen to measure its dimensions
+        // Temporarily display the palette to measure its dimensions
         this.colorPalette.style.visibility = "hidden";
         this.colorPalette.style.display = "grid";
 
         const paletteWidth = this.colorPalette.offsetWidth;
-        const rect = colorButton.getBoundingClientRect();
-        let left = rect.left;
+        const buttonRect = colorButton.getBoundingClientRect();
+        const desktopRect = document.querySelector('.desktop').getBoundingClientRect();
 
-        // Adjust position if it overflows the right edge of the screen
-        if (left + paletteWidth > window.innerWidth) {
-          left = window.innerWidth - paletteWidth - 5; // Add a 5px buffer
+        let top = buttonRect.bottom - desktopRect.top;
+        let left = buttonRect.left - desktopRect.left;
+
+        // Adjust position if it overflows the right edge of the desktop
+        if (left + paletteWidth > desktopRect.width) {
+          left = desktopRect.width - paletteWidth - 5; // Add a 5px buffer
         }
 
         // Set the final position and make it visible
-        this.colorPalette.style.top = `${rect.bottom}px`;
+        this.colorPalette.style.top = `${top}px`;
         this.colorPalette.style.left = `${left}px`;
         this.colorPalette.style.visibility = "visible";
       } else {
