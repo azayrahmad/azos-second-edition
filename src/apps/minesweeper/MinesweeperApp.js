@@ -5,7 +5,7 @@ import { SpriteDisplay } from "./SpriteDisplay.js";
 import "./minesweeper.css";
 
 const HIGH_SCORES_KEY = "minesweeper_high_scores";
-const use98Style = true;
+const STYLE_KEY = "minesweeper.use98style";
 
 export class MinesweeperApp extends Application {
   _createWindow() {
@@ -49,6 +49,21 @@ export class MinesweeperApp extends Application {
           },
         },
         "MENU_DIVIDER",
+        {
+          label: "Win9x Style",
+          checkbox: {
+            check: () => this.use98Style,
+            toggle: () => {
+              this.use98Style = !this.use98Style;
+              setItem(STYLE_KEY, this.use98Style);
+              this.win.$content
+                .find(".minesweeper-app")
+                .toggleClass("style-98", this.use98Style);
+              this.renderBoard();
+            },
+          },
+        },
+        "MENU_DIVIDER",
         { label: "Best Times...", action: () => this.showHighScores() },
         "MENU_DIVIDER",
         { label: "Exit", action: () => this.win.close() },
@@ -66,9 +81,9 @@ export class MinesweeperApp extends Application {
     win.$content.html(`
         <div class="minesweeper-app">
           <div class="game-header">
-            <div class="mine-count"></div>
+            <div class="mine-count inset-shallow"></div>
             <div class="smiley"></div>
-            <div class="timer"></div>
+            <div class="timer inset-shallow"></div>
           </div>
           <div class="game-board"></div>
         </div>
@@ -77,6 +92,12 @@ export class MinesweeperApp extends Application {
     this.win = win;
     this.difficulty = "beginner";
     this.isGameStarted = false;
+
+    this.use98Style = getItem(STYLE_KEY);
+    if (this.use98Style === null) {
+      this.use98Style = true;
+    }
+
     this.highScores = getItem(HIGH_SCORES_KEY);
     if (!this.highScores || typeof this.highScores.beginner === "number") {
       this.highScores = {
@@ -90,7 +111,7 @@ export class MinesweeperApp extends Application {
     this.setDifficulty(9, 9, 10, "beginner");
 
     this.boardEl = win.$content.find(".game-board");
-    if (use98Style) {
+    if (this.use98Style) {
       win.$content.find(".minesweeper-app").addClass("style-98");
     }
 
@@ -128,10 +149,6 @@ export class MinesweeperApp extends Application {
     this.difficulty = difficulty;
     this.game = new MinesweeperGame(width, height, mines);
     this.resetGame();
-    // Adjust window size
-    const newWidth = width * 16 + 27;
-    const newHeight = height * 16 + 110;
-    this.win.setDimensions({ outerWidth: newWidth, outerHeight: newHeight });
     this.menuBar.element.dispatchEvent(new Event("update"));
   }
 
@@ -182,21 +199,21 @@ export class MinesweeperApp extends Application {
     const createScoresContent = (scores) => `
       <fieldset>
         <legend>Fastest Mine Sweepers</legend>
-        <table style="width: 100%; border-spacing: 5px;">
+        <table style="width: 300px; border-spacing: 5px; background: transparent;">
           <tbody>
             <tr>
-              <td>Beginner</td>
-              <td style="text-align: right;">${scores.beginner.time}</td>
+              <td>Beginner:</td>
+              <td>${scores.beginner.time} seconds</td>
               <td>${scores.beginner.name}</td>
             </tr>
             <tr>
-              <td>Intermediate</td>
-              <td style="text-align: right;">${scores.intermediate.time}</td>
+              <td>Intermediate:</td>
+              <td>${scores.intermediate.time} seconds</td>
               <td>${scores.intermediate.name}</td>
             </tr>
             <tr>
-              <td>Expert</td>
-              <td style="text-align: right;">${scores.expert.time}</td>
+              <td>Expert:</td>
+              <td>${scores.expert.time} seconds</td>
               <td>${scores.expert.name}</td>
             </tr>
           </tbody>
@@ -208,7 +225,7 @@ export class MinesweeperApp extends Application {
     contentElement.innerHTML = createScoresContent(this.highScores);
 
     ShowDialogWindow({
-      title: "Fastest Mine Sweepers",
+      title: "Best Times",
       content: contentElement,
       buttons: [
         {
@@ -395,6 +412,7 @@ export class MinesweeperApp extends Application {
         ShowDialogWindow({
           title: "Congratulations",
           content: content,
+          modal: true,
           buttons: [
             {
               label: "OK",
@@ -407,6 +425,7 @@ export class MinesweeperApp extends Application {
                 };
                 setItem(HIGH_SCORES_KEY, this.highScores);
                 win.close();
+                this.showHighScores();
               },
             },
           ],
@@ -444,7 +463,7 @@ export class MinesweeperApp extends Application {
         cellEl.dataset.x = x;
         cellEl.dataset.y = y;
 
-        if (use98Style) {
+        if (this.use98Style) {
           const tile = document.createElement("div");
           tile.classList.add("tile");
           let tileClass = "unopened";

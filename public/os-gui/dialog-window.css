@@ -34,9 +34,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--checker) repeat;
+    background: var(--checker-black) repeat;
     z-index: 4; /* Below the window's default z-index */
-    opacity: 0.5;
 }
 
 /* New layout for buttons on the right */

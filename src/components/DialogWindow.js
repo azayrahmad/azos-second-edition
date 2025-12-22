@@ -1,4 +1,4 @@
-import { playSound } from '../utils/soundManager.js';
+import { playSound } from "../utils/soundManager.js";
 
 /**
  * @typedef {object} DialogButton
@@ -132,11 +132,11 @@ function ShowDialogWindow(options) {
 }
 
 function ShowComingSoonDialog(title) {
-    ShowDialogWindow({
-        title: title,
-        text: 'Coming soon.',
-        modal: true,
-    });
+  ShowDialogWindow({
+    title: title,
+    text: "Coming soon.",
+    modal: true,
+  });
 }
 
 export { ShowDialogWindow, ShowComingSoonDialog };

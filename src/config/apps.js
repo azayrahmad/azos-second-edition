@@ -25,7 +25,11 @@ import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
+import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { ESheepApp } from "../apps/esheep/ESheepApp.js";
+import { getESheepMenuItems } from "../apps/esheep/esheep.js";
+import { CalculatorApp } from "../apps/calculator/CalculatorApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -60,7 +64,10 @@ export const appClasses = {
   cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
+  esheep: ESheepApp,
   minesweeper: MinesweeperApp,
+  calculator: CalculatorApp,
+  defrag: DefragApp,
 };
 
 export const apps = [
@@ -186,6 +193,7 @@ export const apps = [
     id: "about",
     title: "About",
     description: "Displays information about this application.",
+    summary: "<b>azOS Second Edition</b><br>Copyright © 2024",
     icon: ICONS.windowsUpdate,
     appClass: AboutApp,
     width: 400,
@@ -406,7 +414,7 @@ export const apps = [
   },
   {
     id: "pinball",
-    title: "Pinball",
+    title: "Space Cadet Pinball",
     description: "Play a classic game of pinball.",
     icon: ICONS.pinball,
     appClass: PinballApp,
@@ -535,6 +543,18 @@ export const apps = [
     },
   },
   {
+    id: "esheep",
+    title: "eSheep",
+    description: "A classic desktop pet.",
+    icon: ICONS.esheep,
+    appClass: ESheepApp,
+    hasTray: true,
+    isSingleton: true,
+    tray: {
+      contextMenu: getESheepMenuItems,
+    },
+  },
+  {
     id: "minesweeper",
     title: "Minesweeper",
     description: "Play the classic game of Minesweeper.",
@@ -543,6 +563,27 @@ export const apps = [
     width: 200,
     height: 280,
     resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "calculator",
+    title: "Calculator",
+    description: "Perform calculations.",
+    icon: ICONS.calculator,
+    appClass: CalculatorApp,
+    width: 260,
+    height: 280,
+    resizable: false,
+  },
+  {
+    id: "defrag",
+    title: "Disk Defragmenter",
+    description: "Defragments your disk for optimal performance.",
+    icon: ICONS.defrag,
+    appClass: DefragApp,
+    width: 400,
+    height: 300,
+    resizable: true,
     isSingleton: true,
   },
 ];

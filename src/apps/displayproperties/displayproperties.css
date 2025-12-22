@@ -179,8 +179,6 @@
 /**** PREVIEW STYLES ****/
 #displayproperties .preview-container {
     flex-grow: 1;
-    width: 394px;
-    min-height: 355px; /* Important for flexbox shrinking */
     border: 2px inset var(--border-color, #fff);
     overflow: hidden;
     position: relative;

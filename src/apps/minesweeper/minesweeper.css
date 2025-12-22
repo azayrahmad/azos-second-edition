@@ -24,9 +24,6 @@
 .timer {
     background-color: var(--ButtonDkShadow);
     padding: 1px;
-    border: 1px solid var(--ButtonShadow);
-    /* The height is 23px from the image + 1px padding top/bottom */
-    height: 25px;
 }
 
 .sprite-display {
@@ -40,18 +37,23 @@
 }
 
 .smiley {
-    width: 26px;
-    height: 26px;
+    width: 23px;
+    height: 23px;
     background-image: url("/src/assets/minesweeper/minesweeper-smiley-neutral.png");
-    background-size: contain;
+    background-size: auto;
+    background-position: center;
+    background-repeat: no-repeat;
     border: 2px solid;
-    border-color: var(--ButtonHilight) var(--ButtonShadow) var(--ButtonShadow)
-        var(--ButtonHilight);
+    border-color: var(--ButtonHilight) var(--ButtonDkShadow)
+        var(--ButtonDkShadow) var(--ButtonHilight);
+    box-shadow: 1px 1px 0 var(--ButtonShadow);
 }
 
 .smiley:active {
-    border-color: var(--ButtonShadow) var(--ButtonHilight) var(--ButtonHilight)
-        var(--ButtonShadow);
+    border-color: var(--ButtonDkShadow) var(--ButtonHilight)
+        var(--ButtonHilight) var(--ButtonDkShadow);
+    box-shadow: inset 1px 1px 0 var(--ButtonShadow);
+    background-position: calc(50% + 1px) calc(50% + 1px);
 }
 
 .game-board {

@@ -14,8 +14,10 @@ const directory = [
         children: [
           ...generateProgramFiles(),
           { id: "app-doom", type: "app", appId: "doom" },
+          { id: "app-esheep", type: "app", appId: "esheep" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
+          { id: "app-calculator", type: "app", appId: "calculator" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -146,6 +148,12 @@ const directory = [
                 name: "Commander Keen",
               },
               {
+                id: "shortcut-to-esheep",
+                type: "shortcut",
+                targetId: "app-esheep",
+                name: "eSheep",
+              },
+              {
                 id: "shortcut-to-diablo",
                 type: "shortcut",
                 targetId: "app-diablo",
@@ -156,6 +164,18 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-minesweeper",
                 name: "Minesweeper",
+              },
+              {
+                id: "shortcut-to-calculator",
+                type: "shortcut",
+                targetId: "app-calculator",
+                name: "Calculator",
+              },
+              {
+                id: "shortcut-to-defrag",
+                type: "shortcut",
+                targetId: "app-defrag",
+                name: "Disk Defragmenter",
               },
             ],
           },

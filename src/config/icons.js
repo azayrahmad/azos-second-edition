@@ -53,6 +53,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_7-16.png", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_7-32.png", import.meta.url).href,
   },
+  defrag: {
+    16: new URL("../assets/icons/defragment-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/defragment-0.png", import.meta.url).href,
+  },
   drive: {
     16: new URL("../assets/icons/SHELL32_9-16.png", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_9-32.png", import.meta.url).href,
@@ -299,9 +303,23 @@ export const ICONS = {
     16: new URL("../assets/icons/diablo-16.png", import.meta.url).href,
     32: new URL("../assets/icons/diablo-32.png", import.meta.url).href,
   },
+  esheep: {
+    16: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
+    32: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
+  },
   minesweeper: {
-    16: new URL("../assets/minesweeper/minesweeper-icon-small.png", import.meta.url).href,
-    32: new URL("../assets/minesweeper/minesweeper-icon-large.png", import.meta.url).href,
+    16: new URL(
+      "../assets/minesweeper/minesweeper-icon-small.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/minesweeper/minesweeper-icon-large.png",
+      import.meta.url,
+    ).href,
+  },
+  calculator: {
+    16: new URL("../assets/icons/calc-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/calc-32.png", import.meta.url).href,
   },
 };
 

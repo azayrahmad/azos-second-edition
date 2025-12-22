@@ -100,6 +100,24 @@ function promptToContinue() {
     });
 }
 
+function showSetupScreen() {
+    const bootLogEl = document.getElementById("boot-log");
+    const biosInfoRow = document.getElementById("bios-info-row");
+    const rightColumn = document.getElementById("boot-screen-right-column");
+    const footer = document.getElementById("boot-screen-footer");
+
+    if (bootLogEl) bootLogEl.innerHTML = "";
+    if (biosInfoRow) biosInfoRow.style.display = "none";
+    if (rightColumn) rightColumn.style.display = "none";
+    if (footer) footer.style.display = "none";
+
+    if (bootLogEl) {
+        const welcomeMessage = document.createElement("div");
+        welcomeMessage.textContent = "Welcome to setup screen";
+        bootLogEl.appendChild(welcomeMessage);
+    }
+}
+
 export {
     hideBootScreen,
     startBootProcessStep,
@@ -107,4 +125,5 @@ export {
     showBlinkingCursor,
     promptToContinue,
     removeLastBlinkingCursor,
+    showSetupScreen,
 };
