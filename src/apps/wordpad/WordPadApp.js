@@ -17,6 +17,11 @@ export class WordPadApp extends Application {
       direction: "down",
     };
     this.savedSelectionRange = null;
+
+    this.isToolbarVisible = true;
+    this.isFormatBarVisible = true;
+    this.isRulerVisible = true;
+    this.isStatusBarVisible = true;
   }
 
   _createWindow() {
@@ -33,7 +38,7 @@ export class WordPadApp extends Application {
 
     this.win.$content.append(`
             <div class="wordpad-container">
-                <div class="wordpad-toolbar">
+                <div class="wordpad-toolbar" id="wordpad-main-toolbar">
                     <div class="toolbar-group">
                         <button id="wordpad-new"><div class="toolbar-icon-1 icon-new"></div></button>
                         <button id="wordpad-open"><div class="toolbar-icon-1 icon-open"></div></button>
@@ -56,7 +61,7 @@ export class WordPadApp extends Application {
                         <button id="wordpad-insert-date" disabled><div class="toolbar-icon-1 icon-insert-date"></div></button>
                     </div>
                 </div>
-                <div class="wordpad-toolbar">
+                <div class="wordpad-toolbar" id="wordpad-format-toolbar">
                     <div class="toolbar-group">
                         <select id="wordpad-font-family">
                             <option selected>Times New Roman</option>
@@ -115,12 +120,12 @@ export class WordPadApp extends Application {
     return new MenuBar({
       "&File": [
         {
-          label: "&New",
+          label: "&New...",
           shortcutLabel: "Ctrl+N",
           action: () => this.clearContent(),
         },
         {
-          label: "&Open",
+          label: "&Open...",
           shortcutLabel: "Ctrl+O",
           action: () => this.openFile(),
         },
@@ -135,28 +140,188 @@ export class WordPadApp extends Application {
         },
         "MENU_DIVIDER",
         {
+          label: "&Print...",
+          shortcutLabel: "Ctrl+P",
+          enabled: false,
+        },
+        {
+          label: "Print Pre&view",
+          enabled: false,
+        },
+        {
+          label: "Page Set&up...",
+          enabled: false,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Recent File",
+          enabled: false,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Sen&d...",
+          enabled: false,
+        },
+        "MENU_DIVIDER",
+        {
           label: "E&xit",
           action: () => this.win.close(),
         },
       ],
-      "&Edit": [],
-      "&Search": [
+      "&Edit": [
+        {
+          label: "&Undo",
+          shortcutLabel: "Ctrl+Z",
+          action: () => this.undoButton.click(),
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Cu&t",
+          shortcutLabel: "Ctrl+X",
+          action: () => this.cutButton.click(),
+        },
+        {
+          label: "&Copy",
+          shortcutLabel: "Ctrl+C",
+          action: () => this.copyButton.click(),
+        },
+        {
+          label: "&Paste",
+          shortcutLabel: "Ctrl+V",
+          action: () => this.pasteButton.click(),
+        },
+        {
+          label: "Paste &Special...",
+          enabled: false,
+        },
+        {
+          label: "Cle&ar",
+          shortcutLabel: "Del",
+          enabled: false,
+        },
+        {
+          label: "Select A&ll",
+          shortcutLabel: "Ctrl+A",
+          action: () => document.execCommand("selectAll", false, null),
+        },
+        "MENU_DIVIDER",
         {
           label: "&Find...",
           shortcutLabel: "Ctrl+F",
-          action: () => this.showFindDialog(),
+          action: () => this.findButton.click(),
         },
         {
           label: "Find &Next",
           shortcutLabel: "F3",
           action: () => this.findNext(),
-          enabled: () => this.findState?.term,
+        },
+        {
+          label: "R&eplace...",
+          shortcutLabel: "Ctrl+H",
+          enabled: false,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Lin&ks...",
+          enabled: false,
+        },
+        {
+          label: "Object P&roperties",
+          shortcutLabel: "Alt+Enter",
+          enabled: false,
+        },
+        {
+          label: "Object",
+          enabled: false,
         },
       ],
-      "&View": [],
-      "&Insert": [],
-      "&Format": [],
+      "&View": [
+        {
+          label: "&Toolbar",
+          checkbox: {
+            check: () => this.isToolbarVisible,
+            toggle: () => {
+              this.isToolbarVisible = !this.isToolbarVisible;
+              this.mainToolbar.style.display = this.isToolbarVisible
+                ? "flex"
+                : "none";
+            },
+          },
+        },
+        {
+          label: "&Format Bar",
+          checkbox: {
+            check: () => this.isFormatBarVisible,
+            toggle: () => {
+              this.isFormatBarVisible = !this.isFormatBarVisible;
+              this.formatToolbar.style.display = this.isFormatBarVisible
+                ? "flex"
+                : "none";
+            },
+          },
+        },
+        {
+          label: "&Ruler",
+          checkbox: {
+            check: () => this.isRulerVisible,
+            toggle: () => {
+              this.isRulerVisible = !this.isRulerVisible;
+              this.ruler.style.display = this.isRulerVisible ? "block" : "none";
+            },
+          },
+        },
+        {
+          label: "&Status Bar",
+          checkbox: {
+            check: () => this.isStatusBarVisible,
+            toggle: () => {
+              this.isStatusBarVisible = !this.isStatusBarVisible;
+              this.statusBar.style.display = this.isStatusBarVisible
+                ? "flex"
+                : "none";
+            },
+          },
+        },
+        "MENU_DIVIDER",
+        {
+          label: "&Options...",
+          enabled: false,
+        },
+      ],
+      "&Insert": [
+        {
+          label: "&Date and Time...",
+          enabled: false,
+        },
+        {
+          label: "&Object...",
+          enabled: false,
+        },
+      ],
+      "F&ormat": [
+        {
+          label: "&Font...",
+          enabled: false,
+        },
+        {
+          label: "&Bullet Style",
+          enabled: false,
+        },
+        {
+          label: "&Paragraph...",
+          enabled: false,
+        },
+        {
+          label: "&Tabs...",
+          enabled: false,
+        },
+      ],
       "&Help": [
+        {
+          label: "&Help Topics",
+          enabled: false,
+        },
+        "MENU_DIVIDER",
         {
           label: "&About WordPad",
           action: () => alert("A simple rich text editor."),
@@ -180,7 +345,16 @@ export class WordPadApp extends Application {
     });
 
     this.editor = this.win.$content.find(".wordpad-editor")[0];
+    this.mainToolbar = this.win.$content.find("#wordpad-main-toolbar")[0];
+    this.formatToolbar = this.win.$content.find("#wordpad-format-toolbar")[0];
     this.ruler = this.win.$content.find(".wordpad-ruler")[0];
+    this.statusBar = this.win.$content.find(".wordpad-statusbar")[0];
+    this.findButton = this.win.$content.find("#wordpad-find")[0];
+    this.undoButton = this.win.$content.find("#wordpad-undo")[0];
+    this.cutButton = this.win.$content.find("#wordpad-cut")[0];
+    this.copyButton = this.win.$content.find("#wordpad-copy")[0];
+    this.pasteButton = this.win.$content.find("#wordpad-paste")[0];
+
     this._createColorPalette();
     this._setupToolbarListeners();
     this._populateColorPalette();
