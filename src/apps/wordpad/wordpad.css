@@ -59,6 +59,7 @@
     font-family: "Times New Roman", serif;
     font-size: 10pt;
     margin: 0px 2px 2px 2px;
+    line-height: 1.4;
 }
 
 .wordpad-editor:focus {
