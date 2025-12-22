@@ -37,3 +37,30 @@
     background: var(--checker-black) repeat;
     z-index: 4; /* Below the window's default z-index */
 }
+
+/* New layout for buttons on the right */
+.button-layout-right .window-content > form {
+    display: flex;
+    padding: 12px;
+}
+
+.button-layout-right .window-content > form > div:first-child {
+    flex-grow: 1; /* This is the '$main' content area */
+}
+
+.button-layout-right .button-group {
+    flex-shrink: 0;
+    padding-left: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.button-layout-right .button-group button {
+    margin-bottom: 6px;
+    min-width: 75px;
+}
+
+.button-layout-right .button-group button:last-child {
+    margin-bottom: 0;
+}
