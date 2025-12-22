@@ -1,5 +1,6 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { convertHtmlToRtf } from "../../utils/htmlToRtf.js";
 import "./wordpad.css";
 
 export class WordPadApp extends Application {
@@ -826,22 +827,31 @@ export class WordPadApp extends Application {
       const reader = new FileReader();
       reader.onload = (event) => {
         const rtfContent = event.target.result;
-        rtfToHTML.fromString(rtfContent, (err, html) => {
-          if (err) {
-            console.error("Error converting RTF to HTML:", err);
+        if (window.rtfToHTML) {
+          window.rtfToHTML.fromString(rtfContent, (err, html) => {
+            if (err) {
+              console.error("Error converting RTF to HTML:", err);
+              ShowDialogWindow({
+                title: "Error",
+                text: "Could not open the RTF file. It may be corrupted or in an unsupported format.",
+                modal: true,
+              });
+              return;
+            }
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            this.editor.innerHTML = doc.body.innerHTML;
+            this.isDirty = false;
+            this.updateTitle();
+          });
+        } else {
+            console.error("rtfToHTML library not found.");
             ShowDialogWindow({
-              title: "Error",
-              text: "Could not open the RTF file. It may be corrupted or in an unsupported format.",
-              modal: true,
+                title: "Error",
+                text: "The RTF to HTML library is not loaded.",
+                modal: true,
             });
-            return;
-          }
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
-          this.editor.innerHTML = doc.body.innerHTML;
-          this.isDirty = false;
-          this.updateTitle();
-        });
+        }
       };
       reader.readAsText(file);
     };
@@ -886,7 +896,7 @@ export class WordPadApp extends Application {
       }
     } else {
       // Fallback for older browsers
-      const content = htmlToRtf(this.editor.innerHTML);
+      const content = convertHtmlToRtf(this.editor.innerHTML);
       const blob = new Blob([content], { type: "application/rtf" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -903,7 +913,7 @@ export class WordPadApp extends Application {
 
   async writeFile(fileHandle) {
     const writable = await fileHandle.createWritable();
-    const content = htmlToRtf(this.editor.innerHTML);
+    const content = convertHtmlToRtf(this.editor.innerHTML);
     await writable.write(content);
     await writable.close();
   }

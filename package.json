@@ -16,7 +16,6 @@
   "dependencies": {
     "@iarna/rtf-to-html": "^1.1.0",
     "ani-cursor": "^0.0.5",
-    "html-to-rtf": "^2.1.0",
     "os-gui": "^0.7.3"
   }
 }
