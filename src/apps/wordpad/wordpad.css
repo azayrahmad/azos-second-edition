@@ -53,6 +53,7 @@
 .wordpad-editor {
     flex-grow: 1;
     padding: 10px;
+    padding-top: 2px;
     background-color: white;
     overflow: auto;
     font-family: "Times New Roman", serif;
@@ -73,6 +74,7 @@
     flex-shrink: 0;
     display: flex;
     align-items: flex-end;
+    overflow: hidden;
 }
 
 .ruler-tick {
@@ -84,11 +86,11 @@
 }
 
 .ruler-tick.quarter {
-    height: 4px;
+    height: 2px;
 }
 
 .ruler-tick.half {
-    height: 6px;
+    height: 5px;
 }
 
 .ruler-number {

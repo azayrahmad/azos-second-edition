@@ -69,7 +69,7 @@ export class WordPadApp extends Application {
                         <select id="wordpad-font-size">
                             <option>8</option>
                             <option>9</option>
-                            <option>10</option>
+                            <option selected>10</option>
                             <option>11</option>
                             <option>12</option>
                             <option>14</option>
@@ -208,6 +208,11 @@ export class WordPadApp extends Application {
     this.editor.focus();
     document.execCommand("fontName", false, "Times New Roman");
     document.execCommand("fontSize", false, "2"); // Corresponds to 10pt
+
+    const fontFamily = this.win.$content.find("#wordpad-font-family")[0];
+    const fontSize = this.win.$content.find("#wordpad-font-size")[0];
+    fontFamily.value = "Times New Roman";
+    fontSize.value = "10";
   }
 
   _setupToolbarListeners() {
@@ -487,6 +492,35 @@ export class WordPadApp extends Application {
           quarterTick2.style.left = `${inchMarkPos + (ppi * 3) / 4}px`;
           this.ruler.appendChild(quarterTick2);
         }
+
+        // Half-quarter
+        if (i + 0.125 < widthInInches) {
+          const halfQuarterTick1 = document.createElement("span");
+          halfQuarterTick1.className = "ruler-tick quarter";
+          halfQuarterTick1.style.left = `${inchMarkPos + ppi / 8}px`;
+          this.ruler.appendChild(halfQuarterTick1);
+        }
+
+        if (i + 0.375 < widthInInches) {
+          const halfQuarterTick2 = document.createElement("span");
+          halfQuarterTick2.className = "ruler-tick quarter";
+          halfQuarterTick2.style.left = `${inchMarkPos + (ppi * 7) / 8}px`;
+          this.ruler.appendChild(halfQuarterTick2);
+        }
+
+        if (i + 0.625 < widthInInches) {
+          const halfQuarterTick3 = document.createElement("span");
+          halfQuarterTick3.className = "ruler-tick quarter";
+          halfQuarterTick3.style.left = `${inchMarkPos + (ppi * 5) / 8}px`;
+          this.ruler.appendChild(halfQuarterTick3);
+        }
+
+        if (i + 0.875 < widthInInches) {
+          const halfQuarterTick4 = document.createElement("span");
+          halfQuarterTick4.className = "ruler-tick quarter";
+          halfQuarterTick4.style.left = `${inchMarkPos + (ppi * 3) / 8}px`;
+          this.ruler.appendChild(halfQuarterTick4);
+        }
       }
     };
 
@@ -544,8 +578,8 @@ export class WordPadApp extends Application {
 
     // Restore the saved selection before applying color
     if (this.savedSelectionRange) {
-        selection.removeAllRanges();
-        selection.addRange(this.savedSelectionRange);
+      selection.removeAllRanges();
+      selection.addRange(this.savedSelectionRange);
     }
 
     if (!selection.rangeCount) return;
