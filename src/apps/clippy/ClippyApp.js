@@ -12,9 +12,12 @@ export class ClippyApp extends Application {
         return null;
     }
 
-    _onLaunch() {
-        // Call the legacy launch function.
-        launchClippyApp(this);
+    async _onLaunch(data) {
+        // Get the agent name from the config, fallback to data, then default to 'Clippy'
+        const agentName = this.config?.agent || data?.agent || "Clippy";
+
+        // Pass this app instance and any provided data to the launcher
+        await launchClippyApp(this, agentName, data);
     }
 
     _cleanup() {
