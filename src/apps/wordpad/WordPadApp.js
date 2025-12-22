@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { convertHtmlToRtf } from "../../utils/htmlToRtf.js";
+import { convertRtfToHtml } from "../../utils/rtfToHtml.js";
 import "./wordpad.css";
 
 export class WordPadApp extends Application {
@@ -827,31 +828,10 @@ export class WordPadApp extends Application {
       const reader = new FileReader();
       reader.onload = (event) => {
         const rtfContent = event.target.result;
-        if (window.rtfToHTML) {
-          window.rtfToHTML.fromString(rtfContent, (err, html) => {
-            if (err) {
-              console.error("Error converting RTF to HTML:", err);
-              ShowDialogWindow({
-                title: "Error",
-                text: "Could not open the RTF file. It may be corrupted or in an unsupported format.",
-                modal: true,
-              });
-              return;
-            }
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            this.editor.innerHTML = doc.body.innerHTML;
-            this.isDirty = false;
-            this.updateTitle();
-          });
-        } else {
-            console.error("rtfToHTML library not found.");
-            ShowDialogWindow({
-                title: "Error",
-                text: "The RTF to HTML library is not loaded.",
-                modal: true,
-            });
-        }
+        const html = convertRtfToHtml(rtfContent);
+        this.editor.innerHTML = html;
+        this.isDirty = false;
+        this.updateTitle();
       };
       reader.readAsText(file);
     };
