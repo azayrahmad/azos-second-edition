@@ -194,28 +194,6 @@ export async function setColorScheme(schemeId) {
   }
 }
 
-export async function applyCustomColorScheme(colorObject) {
-  if (!colorObject) {
-    console.error("applyCustomColorScheme received an invalid color object.");
-    return;
-  }
-
-  applyBusyCursor(document.body);
-  try {
-    await loadThemeParser();
-    if (window.makeThemeCSSFile) {
-      const cssContent = window.makeThemeCSSFile(colorObject);
-      applyStylesheet("custom", cssContent);
-    }
-    // Set a temporary key in localStorage so other parts of the system
-    // know that a custom, non-saved theme is active.
-    setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, "custom");
-    document.dispatchEvent(new CustomEvent("theme-changed"));
-  } finally {
-    clearBusyCursor(document.body);
-  }
-}
-
 export async function setTheme(themeKey) {
   applyBusyCursor(document.body);
   try {
