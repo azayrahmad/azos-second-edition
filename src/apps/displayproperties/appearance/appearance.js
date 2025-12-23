@@ -2,8 +2,6 @@ import {
   getColorSchemes,
   getColorSchemeId,
   setColorScheme,
-  loadThemeParser,
-  applyCustomColorScheme,
 } from "../../../utils/themeManager.js";
 import {
   applyThemeToPreview,
@@ -58,8 +56,8 @@ export const appearanceTab = {
     `;
     $previewContainer.prepend(styleBlock);
 
-    let currentSchemeId = getColorSchemeId();
     const schemes = getColorSchemes();
+    const currentSchemeId = getColorSchemeId();
 
     Object.entries(schemes).forEach(([id, scheme]) => {
       const $option = $("<option>").val(id).text(scheme.name);
@@ -158,11 +156,6 @@ export const appearanceTab = {
   applyChanges: function (app) {
     const $schemeSelect = app.win.$content.find("#appearance .scheme-select");
     const newSchemeId = $schemeSelect.val();
-
-    if (newSchemeId === "__load__" && this.loadedCustomScheme) {
-      applyCustomColorScheme(this.loadedCustomScheme);
-    } else {
-      setColorScheme(newSchemeId);
-    }
+    setColorScheme(newSchemeId);
   },
 };
