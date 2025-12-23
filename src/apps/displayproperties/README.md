@@ -40,3 +40,7 @@ The Display Properties application allows users to customize various visual sett
     -   Use the "Colors" dropdown to change the color depth.
     -   Use the "Screen area" slider to adjust the resolution.
     -   Click **Apply** or **OK** to save your settings.
+
+## Screenshot
+
+![Screenshot of the displayproperties app](./screenshot.png)

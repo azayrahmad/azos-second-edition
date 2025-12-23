@@ -14,3 +14,7 @@ The "About" app is a simple utility that displays essential information about th
 
 1.  Launch the application from the desktop or start menu.
 2.  The "About" window will appear, displaying the system information.
+
+## Screenshot
+
+![About App Screenshot](./screenshot.png)

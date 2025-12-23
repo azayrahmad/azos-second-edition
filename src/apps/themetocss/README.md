@@ -18,3 +18,7 @@ A developer utility to convert `.theme` INI files into CSS.
 2.  Go to `File > Open` in the menu bar and select a `.theme` file.
 3.  The converted CSS will appear in the editor.
 4.  To save the output, go to `File > Save` and choose a location for the `.css` file.
+
+## Screenshot
+
+![Screenshot of the themetocss app](./screenshot.png)

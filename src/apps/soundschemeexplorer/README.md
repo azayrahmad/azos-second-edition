@@ -18,3 +18,7 @@ The Sound Scheme Explorer is a utility that allows users to browse, preview, and
 3.  To explore other schemes, select one from the **Sound Scheme** dropdown menu at the top.
 4.  The list will update to show all the sounds associated with the selected scheme.
 5.  Click the triangular "Play" icon next to any event name to hear the corresponding sound.
+
+## Screenshot
+
+![Screenshot of the soundschemeexplorer app](./screenshot.png)

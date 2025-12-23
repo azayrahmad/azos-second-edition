@@ -25,3 +25,7 @@ The "Tip of the Day" app is a helpful utility that displays useful hints and tri
   - **os-gui**: The UI component library for the main application window.
 - **App Integration**:
   - **`handleAppAction`**: A utility function used to launch other applications from within a tip.
+
+## Screenshot
+
+![Screenshot of the tipOfTheDay app](./screenshot.png)

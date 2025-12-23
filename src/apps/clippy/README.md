@@ -34,3 +34,7 @@ I originally built this as a companion to my portfolio website, the original azO
 - Custom user provided LLM Provider for OpenAI-compatible API.
 - Distinct personality for each agent character. 
 - Improved animation and speech 
+
+## Screenshot
+
+![Screenshot of the clippy app](./screenshot.png)
