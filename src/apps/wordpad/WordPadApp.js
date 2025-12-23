@@ -88,9 +88,9 @@ export class WordPadApp extends Application {
                         </select>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bold"><div class="toolbar-icon-2 icon-bold"></div></button>
-                        <button id="wordpad-italic"><div class="toolbar-icon-2 icon-italic"></div></button>
-                        <button id="wordpad-underline"><div class="toolbar-icon-2 icon-underline"></div></button>
+                        <button id="wordpad-bold" class="toggle"><div class="toolbar-icon-2 icon-bold"></div></button>
+                        <button id="wordpad-italic" class="toggle"><div class="toolbar-icon-2 icon-italic"></div></button>
+                        <button id="wordpad-underline" class="toggle"><div class="toolbar-icon-2 icon-underline"></div></button>
                     </div>
                     <div class="toolbar-group">
                         <div class="wordpad-color-picker">
@@ -103,7 +103,7 @@ export class WordPadApp extends Application {
                         <button id="wordpad-align-right" class="toggle"><div class="toolbar-icon-2 icon-align-right"></div></button>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bullets"><div class="toolbar-icon-2 icon-bullets"></div></button>
+                        <button id="wordpad-bullets" class="toggle"><div class="toolbar-icon-2 icon-bullets"></div></button>
                     </div>
                 </div>
                 <div class="wordpad-ruler inset-deep"></div>
@@ -597,24 +597,24 @@ export class WordPadApp extends Application {
         .queryCommandValue("fontName")
         .replace(/['"]/g, "");
 
-      boldButton.classList.toggle("active", isBold);
-      italicButton.classList.toggle("active", isItalic);
-      underlineButton.classList.toggle("active", isUnderline);
+      boldButton.classList.toggle("selected", isBold);
+      italicButton.classList.toggle("selected", isItalic);
+      underlineButton.classList.toggle("selected", isUnderline);
 
       alignLeftButton.classList.toggle(
-        "active",
+        "selected",
         document.queryCommandState("justifyLeft"),
       );
       alignCenterButton.classList.toggle(
-        "active",
+        "selected",
         document.queryCommandState("justifyCenter"),
       );
       alignRightButton.classList.toggle(
-        "active",
+        "selected",
         document.queryCommandState("justifyRight"),
       );
       bulletsButton.classList.toggle(
-        "active",
+        "selected",
         document.queryCommandState("insertUnorderedList"),
       );
 
