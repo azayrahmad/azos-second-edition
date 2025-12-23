@@ -1,4 +1,3 @@
-
 import {
   getColorSchemes,
   getColorSchemeId,
@@ -6,14 +5,17 @@ import {
   loadThemeParser,
   applyCustomColorScheme,
 } from "../../../utils/themeManager.js";
-import { applyThemeToPreview, applyPropertiesToPreview } from "../../../utils/themePreview.js";
+import {
+  applyThemeToPreview,
+  applyPropertiesToPreview,
+} from "../../../utils/themePreview.js";
 import { ShowDialogWindow } from "../../../components/DialogWindow.js";
 import previewHtml from "./AppearancePreview.html?raw";
 import "./appearance.css";
 
 export const appearanceTab = {
   loadedCustomScheme: null,
-  init: function(win, app) {
+  init: function (win, app) {
     const self = this;
     const $tab = win.$content.find("#appearance");
     const $schemeSelect = $tab.find(".scheme-select");
@@ -21,7 +23,9 @@ export const appearanceTab = {
     $previewContainer.html(previewHtml);
 
     // Add a hidden file input for theme loading
-    const $fileInput = $('<input type="file" accept=".theme" style="display: none;">');
+    const $fileInput = $(
+      '<input type="file" accept=".theme" style="display: none;">',
+    );
     $tab.append($fileInput);
 
     // Inject a style block to map preview variables to os-gui variables
@@ -66,7 +70,9 @@ export const appearanceTab = {
     });
 
     // Add the "Load Color Scheme..." option
-    const $loadOption = $("<option>").val("__load__").text("Load Color Scheme...");
+    const $loadOption = $("<option>")
+      .val("__load__")
+      .text("Load Color Scheme...");
     if (currentSchemeId === "custom") {
       $loadOption.text("Custom");
       $loadOption.prop("selected", true);
@@ -82,7 +88,9 @@ export const appearanceTab = {
       } else {
         currentSchemeId = selectedValue;
         self.loadedCustomScheme = null; // Clear custom scheme if a built-in one is selected
-        $schemeSelect.find('option[value="__load__"]').text("Load Color Scheme...");
+        $schemeSelect
+          .find('option[value="__load__"]')
+          .text("Load Color Scheme...");
         app._enableApplyButton(win);
         applyThemeToPreview(
           selectedValue,
@@ -103,11 +111,17 @@ export const appearanceTab = {
         const colors = window.getColorsFromThemeFile(fileContent);
 
         if (colors) {
-          const cssProperties = window.generateThemePropertiesFromColors(colors);
+          const cssProperties =
+            window.generateThemePropertiesFromColors(colors);
           self.loadedCustomScheme = cssProperties;
+          let variables = {};
+          for (const [key, value] of Object.entries(cssProperties)) {
+            variables[key.replace(/^--/, "")] = value;
+          }
+
           applyPropertiesToPreview(
-            self.loadedCustomScheme,
-            $previewContainer.find("#appearance-preview-wrapper")[0]
+            variables,
+            $previewContainer.find("#appearance-preview-wrapper")[0],
           );
           // Update dropdown to show a temporary "Custom" entry
           $schemeSelect.find('option[value="__load__"]').text("Custom");
@@ -141,7 +155,7 @@ export const appearanceTab = {
     );
   },
 
-  applyChanges: function(app) {
+  applyChanges: function (app) {
     const $schemeSelect = app.win.$content.find("#appearance .scheme-select");
     const newSchemeId = $schemeSelect.val();
 
