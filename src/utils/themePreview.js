@@ -57,6 +57,7 @@ function applyCssVariables(container, variables) {
       variables["ButtonShadow"] || "rgb(128, 128, 128)",
     "--preview-button-dk-shadow": variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
     "--preview-hilight-text": variables["HilightText"] || "rgb(0, 0, 0)",
+    "--preview-background": variables["Background"] || "rgb(240, 240, 240)",
 
     // Font properties
     "--preview-font-family-title":

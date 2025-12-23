@@ -31,3 +31,7 @@ The Desktop Themes application provides a centralized interface for managing the
 7.  To delete a saved custom theme:
     -   Select a custom theme from the dropdown menu.
     -   Click the **Delete** button and confirm the action.
+
+## Screenshot
+
+![Screenshot of the desktopthemes app](./screenshot.png)

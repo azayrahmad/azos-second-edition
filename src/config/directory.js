@@ -18,6 +18,7 @@ const directory = [
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
           { id: "app-wordpad", type: "app", appId: "wordpad" },
+          { id: "app-calculator", type: "app", appId: "calculator" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -164,6 +165,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-minesweeper",
                 name: "Minesweeper",
+              },
+              {
+                id: "shortcut-to-calculator",
+                type: "shortcut",
+                targetId: "app-calculator",
+                name: "Calculator",
               },
               {
                 id: "shortcut-to-defrag",
