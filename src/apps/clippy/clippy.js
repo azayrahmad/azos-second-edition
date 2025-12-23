@@ -120,6 +120,10 @@ async function askClippy(agent, question) {
 
 import { AGENT_NAMES } from "../../config/agents.js";
 import { startTutorial } from "./tutorial.js";
+import {
+  addStartupApp,
+  removeStartupApp,
+} from "../../utils/startupManager.js";
 
 const actionSets = {
   tutorial: startTutorial,
@@ -173,14 +177,20 @@ export function getClippyMenuItems(app) {
       },
     },
     {
-      label: "Run Tutorial at Startup",
+      label: "Run Tutorial at Next Startup",
       checkbox: {
         check: () =>
           getItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP) ?? false,
         toggle: () => {
           const currentState =
             getItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP) ?? false;
-          setItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP, !currentState);
+          const newState = !currentState;
+          setItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP, newState);
+          if (newState) {
+            addStartupApp("clippy");
+          } else {
+            removeStartupApp("clippy");
+          }
         },
       },
     },
