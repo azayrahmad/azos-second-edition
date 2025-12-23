@@ -6,7 +6,7 @@ import {
   loadThemeParser,
   applyCustomColorScheme,
 } from "../../../utils/themeManager.js";
-import { applyThemeToPreview } from "../../../utils/themePreview.js";
+import { applyThemeToPreview, applyPropertiesToPreview } from "../../../utils/themePreview.js";
 import { ShowDialogWindow } from "../../../components/DialogWindow.js";
 import previewHtml from "./AppearancePreview.html?raw";
 import "./appearance.css";
@@ -105,7 +105,7 @@ export const appearanceTab = {
         if (colors) {
           const cssProperties = window.generateThemePropertiesFromColors(colors);
           self.loadedCustomScheme = cssProperties;
-          applyThemeToPreview(
+          applyPropertiesToPreview(
             self.loadedCustomScheme,
             $previewContainer.find("#appearance-preview-wrapper")[0]
           );
