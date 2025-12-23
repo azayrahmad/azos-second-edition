@@ -13,11 +13,26 @@ export class ClippyApp extends Application {
     }
 
     async _onLaunch(data) {
-        // Get the agent name from the config, fallback to data, then default to 'Clippy'
+        const { getItem, setItem, LOCAL_STORAGE_KEYS } = await import(
+            "../../utils/localStorage.js"
+        );
+
         const agentName = this.config?.agent || data?.agent || "Clippy";
 
+        // Check if the tutorial should run on startup
+        const runTutorialAtStartup = getItem(
+            LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP,
+        );
+
+        let launchData = data;
+        if (runTutorialAtStartup) {
+            launchData = { ...data, actionSet: "tutorial" };
+            // Reset the flag so it doesn't run again next time
+            setItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP, false);
+        }
+
         // Pass this app instance and any provided data to the launcher
-        await launchClippyApp(this, agentName, data);
+        await launchClippyApp(this, agentName, launchData);
     }
 
     _cleanup() {

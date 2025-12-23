@@ -172,6 +172,18 @@ export function getClippyMenuItems(app) {
         },
       },
     },
+    {
+      label: "Run Tutorial at Startup",
+      checkbox: {
+        check: () =>
+          getItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP) ?? false,
+        toggle: () => {
+          const currentState =
+            getItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP) ?? false;
+          setItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP, !currentState);
+        },
+      },
+    },
     "MENU_DIVIDER",
     {
       label: "A&gent",
