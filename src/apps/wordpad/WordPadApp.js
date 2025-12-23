@@ -103,7 +103,7 @@ export class WordPadApp extends Application {
                         <button id="wordpad-align-right" class="toggle"><div class="toolbar-icon-2 icon-align-right"></div></button>
                     </div>
                     <div class="toolbar-group">
-                        <button id="wordpad-bullets"><div class="toolbar-icon-2 icon-bullets"></div></button>
+                        <button id="wordpad-bullets" class="toggle"><div class="toolbar-icon-2 icon-bullets"></div></button>
                     </div>
                 </div>
                 <div class="wordpad-ruler inset-deep"></div>
