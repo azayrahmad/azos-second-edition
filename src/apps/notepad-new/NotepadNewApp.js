@@ -166,8 +166,12 @@ export class NotepadNewApp extends Application {
         notepadTheme,
         EditorView.theme({
           ".cm-selectionBackground": {
-            background: "blue !important",
-            color: "white !important",
+            background: "var(--Highlight, blue)",
+            color: "var(--HighlightText, white)",
+          },
+          "&.cm-focused .cm-selectionBackground": {
+            background: "var(--Highlight, blue)",
+            color: "var(--HighlightText, white)",
           },
         }),
         EditorView.updateListener.of((update) => {
@@ -573,7 +577,11 @@ export class NotepadNewApp extends Application {
         selection: { anchor: index, head: index + term.length },
         scrollIntoView: true,
       });
-      this.findDialog.focus();
+      if (this.findDialog) {
+        this.findDialog.focus();
+      } else {
+        this.editor.focus();
+      }
     } else {
       ShowDialogWindow({
         title: "Notepad",

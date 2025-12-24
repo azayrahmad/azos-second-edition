@@ -102,6 +102,5 @@ export class FindDialog {
     if (!this.win) return;
     this.win.focus();
     this.findInput.focus();
-    this.findInput.select();
   }
 }
