@@ -164,6 +164,12 @@ export class NotepadNewApp extends Application {
           this.wordWrap ? EditorView.lineWrapping : [],
         ),
         notepadTheme,
+        EditorView.theme({
+          ".cm-selectionBackground": {
+            background: "blue !important",
+            color: "white !important",
+          },
+        }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             this.isDirty = true;
@@ -187,7 +193,7 @@ export class NotepadNewApp extends Application {
       direction: "down",
     };
     this.committedFindState = { ...this.findState };
-    this.findDialog = new FindDialog(this);
+    this.findDialog = null;
 
     this.updateTitle();
 
@@ -516,6 +522,9 @@ export class NotepadNewApp extends Application {
   }
 
   showFindDialog() {
+    if (!this.findDialog) {
+      this.findDialog = new FindDialog(this);
+    }
     this.findDialog.show();
     this.findDialog.focus();
   }

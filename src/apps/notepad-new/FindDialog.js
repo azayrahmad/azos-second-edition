@@ -12,10 +12,10 @@ export class FindDialog {
       resizable: false,
       minimizeButton: false,
       maximizeButton: false,
-      onClose: () => {
-        this.win.hide();
-        return false;
-      },
+    });
+
+    this.win.onClosed(() => {
+      this.app.findDialog = null;
     });
 
     const dialogContent = `
@@ -59,7 +59,7 @@ export class FindDialog {
     this.cancelButton = this.win.element.querySelector("#cancel-btn");
 
     this.findNextButton.addEventListener("click", () => this._onFindNext());
-    this.cancelButton.addEventListener("click", () => this.win.hide());
+    this.cancelButton.addEventListener("click", () => this.win.close());
     this.findInput.addEventListener("input", () => this._updateFindNextButtonState());
 
     this._updateFindNextButtonState();
