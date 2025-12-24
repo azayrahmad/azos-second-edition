@@ -31,12 +31,34 @@ class HelpApp extends Application {
     });
   }
 
-  async _onLaunch() {
+  async _onLaunch(filePath) {
     const { win } = this;
     win.$content.html(contentHtml);
 
+    let currentHelpData = helpData; // Default help data
+
+    if (typeof filePath === "string") {
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        currentHelpData = await response.json();
+      } catch (error) {
+        console.error(`Failed to load help content from ${filePath}:`, error);
+        // Optionally show a dialog to the user
+        this.win.close(); // Close the app if content fails to load
+        return;
+      }
+    }
+
+    // Set the window title from the loaded data
+    if (currentHelpData.title) {
+      win.title(currentHelpData.title);
+    }
+
     const treeContainer = win.$content.find("#contents")[0];
-    this.treeView = new TreeView(treeContainer, helpData);
+    this.treeView = new TreeView(treeContainer, currentHelpData);
     this.treeView.render();
 
     // Event listener for topic selection
@@ -49,7 +71,8 @@ class HelpApp extends Application {
     this._setupTabs(win);
 
     // Show the first topic by default
-    const firstTopic = helpData.topics[0]?.children?.[0] || helpData.topics[0];
+    const firstTopic =
+      currentHelpData.topics[0]?.children?.[0] || currentHelpData.topics[0];
     if (firstTopic) {
       this._showTopic(firstTopic, true);
     }
@@ -57,7 +80,14 @@ class HelpApp extends Application {
 
   _showTopic(topic, addToHistory = false) {
     const contentPanel = this.win.$content.find(".content-panel");
-    contentPanel.html(topic.content || "");
+    if (topic.content) {
+      contentPanel.html(`
+        <h2 class="help-topic-title">${topic.title}</h2>
+        <div class="help-topic-content">${topic.content}</div>
+      `);
+    } else {
+      contentPanel.html(""); // Clear content if topic has no content
+    }
 
     if (addToHistory) {
       // If we select a new topic after going back, clear the "forward" history

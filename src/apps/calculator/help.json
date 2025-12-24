@@ -1,0 +1,17 @@
+{
+  "title": "Calculator Help",
+  "topics": [
+    {
+      "title": "How to use the calculator",
+      "content": "The calculator is a simple application for performing mathematical calculations. You can use the buttons to enter numbers and perform calculations."
+    },
+    {
+      "title": "Performing basic calculations",
+      "content": "To perform a basic calculation, enter the first number, select an operator (+, -, *, /), enter the second number, and then press the '=' button to see the result."
+    },
+    {
+      "title": "Using the history",
+      "content": "The calculator does not currently have a history feature. All calculations are performed in real-time."
+    }
+  ]
+}
