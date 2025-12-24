@@ -42,10 +42,11 @@ class TreeView {
       li.appendChild(childrenUl);
 
       label.addEventListener('click', () => {
-        const isExpanded = childrenUl.style.display === 'block';
-        childrenUl.style.display = isExpanded ? 'none' : 'block';
-        icon.classList.toggle('icon-book-closed', !isExpanded);
-        icon.classList.toggle('icon-book-open', isExpanded);
+        const isCurrentlyExpanded = childrenUl.style.display === 'block';
+        const isNowExpanded = !isCurrentlyExpanded;
+        childrenUl.style.display = isNowExpanded ? 'block' : 'none';
+        icon.classList.toggle('icon-book-closed', !isNowExpanded);
+        icon.classList.toggle('icon-book-open', isNowExpanded);
       });
     } else {
       li.classList.add('leaf');
