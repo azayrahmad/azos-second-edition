@@ -564,7 +564,7 @@ export class NotepadNewApp extends Application {
         selection: { anchor: index, head: index + term.length },
         scrollIntoView: true,
       });
-      this.editor.focus();
+      this.findDialog.focus();
     } else {
       ShowDialogWindow({
         title: "Notepad",
