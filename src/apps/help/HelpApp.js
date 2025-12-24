@@ -3,6 +3,7 @@ import TreeView from "./TreeView.js";
 import helpData from "../../config/help.json";
 import "./help.css";
 import contentHtml from "./help.html?raw";
+import defaultTopicHtml from "./content/default.htm?raw";
 
 class HelpApp extends Application {
   constructor(data) {
@@ -31,25 +32,28 @@ class HelpApp extends Application {
     });
   }
 
-  async _onLaunch(filePath) {
+  async _onLaunch(data) {
     const { win } = this;
     win.$content.html(contentHtml);
 
     let currentHelpData = helpData; // Default help data
 
-    if (typeof filePath === "string") {
+    if (typeof data === "string") {
       try {
-        const response = await fetch(filePath);
+        // This is a path to a JSON file
+        const response = await fetch(data);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         currentHelpData = await response.json();
       } catch (error) {
-        console.error(`Failed to load help content from ${filePath}:`, error);
-        // Optionally show a dialog to the user
-        this.win.close(); // Close the app if content fails to load
+        console.error(`Failed to load help content from ${data}:`, error);
+        this.win.close();
         return;
       }
+    } else if (typeof data === "object" && data !== null) {
+      // This is a JSON object
+      currentHelpData = data;
     }
 
     // Set the window title from the loaded data
@@ -72,7 +76,7 @@ class HelpApp extends Application {
 
     // Show the default topic by default
     const defaultTopic = {
-      file: "help/content/default.htm",
+      isDefault: true,
       title: "Welcome",
     };
     await this._showTopic(defaultTopic, true);
@@ -82,13 +86,23 @@ class HelpApp extends Application {
     const contentPanel = this.win.$content.find(".content-panel");
     contentPanel.html(""); // Clear content first
 
-    if (topic.file) {
+    if (topic.isDefault) {
+      const iframe = document.createElement("iframe");
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+      contentPanel.append(iframe);
+
+      iframe.contentWindow.document.open();
+      iframe.contentWindow.document.write(defaultTopicHtml);
+      iframe.contentWindow.document.close();
+    } else if (topic.file) {
       try {
         // The path in topic.file is relative to the `src/apps` directory
         const module = await import(/* @vite-ignore */ `../${topic.file}?raw`);
         const htmlContent = module.default;
 
-        const iframe = document.createElement('iframe');
+        const iframe = document.createElement("iframe");
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
