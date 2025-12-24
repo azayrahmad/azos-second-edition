@@ -1,140 +1,139 @@
 .help-app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: var(--button-face);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--ButtonFace);
+    font-family: Arial, sans-serif;
+    font-size: 10px;
 }
 
 .help-app .toolbar {
-  padding: 2px;
-  border-bottom: 1px solid var(--button-shadow);
-  display: flex;
-  gap: 2px;
+    padding: 2px;
+    border-bottom: none;
+    display: flex;
+    gap: 2px;
+    font-size: 10px;
 }
 
 .help-app .toolbar button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2px 6px;
-  min-width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px 6px;
+    min-width: 50px;
 }
 
 .help-app .toolbar button .icon {
-  width: 16px;
-  height: 16px;
-  margin-bottom: 2px;
-  /* Placeholder for icons */
-  background-color: #c0c0c0;
+    width: 16px;
+    height: 16px;
+    margin-bottom: 2px;
+    /* Placeholder for icons */
+    background-color: #c0c0c0;
 }
 
-.main-area {
-  display: flex;
-  flex-grow: 1;
-  padding: 4px;
-  gap: 4px;
+.help-app .main-area {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    padding: 4px;
+    gap: 4px;
+    overflow: auto;
 }
 
-.sidebar {
-  width: 200px;
-  flex-shrink: 0;
+.help-app .sidebar {
+    width: 200px;
+    flex-shrink: 0;
 }
 
-.sidebar.hidden {
-  display: none;
+.help-app .sidebar.hidden {
+    display: none;
 }
 
-.content-panel {
-  flex-grow: 1;
-  padding: 8px;
-  background-color: var(--window-background);
-  overflow-y: auto;
-}
-
-/* Tab styles */
-.sidebar [role="tablist"] {
-  display: flex;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border-bottom: none;
-}
-
-.sidebar [role="tab"] {
-  margin-right: 2px;
-}
-
-.sidebar [role="tab"] a {
-  display: block;
-  padding: 2px 5px;
-  text-decoration: none;
-  color: var(--button-text);
-  border-radius: 0;
-}
-
-.sidebar [role="tab"][aria-selected="true"] {
-  border: 1px solid var(--button-shadow);
-  border-bottom: 1px solid transparent; /* This creates the tab effect */
-  background: var(--button-face);
-  position: relative;
-  top: 1px;
-  z-index: 1;
+.help-app .content-panel {
+    flex-grow: 1;
+    padding: 8px;
+    overflow-y: auto;
 }
 
 .sidebar .tab-content {
-    border: 1px solid var(--button-shadow);
     padding: 6px;
-    margin-top: -1px; /* Overlap with tab border */
+    margin-top: 1px;
+    margin-left: 1px;
 }
 
 /* Tree view styles */
-.tree-view {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.help-app .tree-view {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    height: 100%;
 }
 
-.tree-view li {
-  padding-left: 22px;
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-  line-height: 20px;
+.help-app ul.tree-view {
+    list-style: none;
+    margin: 0;
+    padding: 2px;
 }
 
-.tree-view .tree-node > .node-label {
-  display: flex;
-  align-items: center;
+.help-app .tree-view li {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
 }
 
-.tree-view .icon {
-  width: 20px;
-  height: 17px;
-  margin-right: 2px;
-  background-image: url("../../assets/icons/helptree.png");
-  background-repeat: no-repeat;
+.help-app ul.tree-view ul {
+    border-left: none;
+    margin-left: 16px;
+    padding-left: 0;
+}
+.help-app ul.tree-view ul > li:before {
+    border-bottom: none;
+}
+ul.tree-view ul > li:last-child:after {
+    background: none;
 }
 
-.tree-view .icon-book-closed {
-  background-position: 0 0;
+.help-app .tree-view .tree-node > .node-label {
+    display: flex;
+    align-items: center;
 }
 
-.tree-view .icon-book-open {
-  background-position: -20px 0;
+.help-app .tree-view .icon {
+    width: 20px;
+    height: 17px;
+    margin-right: 2px;
+    background-image: url("../../assets/icons/helptree.png");
+    background-repeat: no-repeat;
+}
+
+.help-app .tree-view .icon-book-closed {
+    background-position: 0 0;
+}
+
+.help-app .tree-view .icon-book-open {
+    background-position: -20px 0;
 }
 
 .tree-view .icon-page {
-  background-position: -40px 0;
+    background-position: -40px 0;
 }
 
+.help-content-wrapper {
+    font-family: Verdana, Tahoma, sans-serif;
+}
+
+.help-content-wrapper h1 {
+    font-size: 13px;
+    font-weight: bold;
+}
 
 /* Content styles */
 .help-content-wrapper ul {
-  list-style: disc;
-  padding-left: 20px;
-  margin: 8px 0;
+    list-style: disc;
+    padding-left: 20px;
+    margin: 8px 0;
 }
 
 .help-content-wrapper li {
-  margin-bottom: 4px;
+    margin-bottom: 4px;
 }
