@@ -15,6 +15,7 @@ import {
 } from "@codemirror/commands";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { notepadTheme } from "./notepad-theme.js";
+import { FindDialog } from "./FindDialog.js";
 
 export class NotepadNewApp extends Application {
   constructor(config) {
@@ -23,6 +24,7 @@ export class NotepadNewApp extends Application {
     this.currentLanguage = "text";
     this.win = null;
     this.editor = null;
+    this.findDialog = null;
   }
 
   _createWindow() {
@@ -137,7 +139,7 @@ export class NotepadNewApp extends Application {
           label: "Find &Next",
           shortcutLabel: "F3",
           action: () => this.findNext(),
-          enabled: () => this.findState?.term,
+          enabled: () => this.committedFindState?.term,
         },
       ],
       "&Help": [
@@ -162,6 +164,16 @@ export class NotepadNewApp extends Application {
           this.wordWrap ? EditorView.lineWrapping : [],
         ),
         notepadTheme,
+        EditorView.theme({
+          ".cm-selectionBackground": {
+            background: "var(--Highlight, blue)",
+            color: "var(--HighlightText, white)",
+          },
+          "&.cm-focused .cm-selectionBackground": {
+            background: "var(--Highlight, blue)",
+            color: "var(--HighlightText, white)",
+          },
+        }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             this.isDirty = true;
@@ -184,6 +196,8 @@ export class NotepadNewApp extends Application {
       caseSensitive: false,
       direction: "down",
     };
+    this.committedFindState = { ...this.findState };
+    this.findDialog = null;
 
     this.updateTitle();
 
@@ -512,75 +526,23 @@ export class NotepadNewApp extends Application {
   }
 
   showFindDialog() {
-    const dialogContent = `
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="find-text" style="margin-right: 5px;">Find what:</label>
-                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? "checked" : ""}>
-                    <label for="match-case">Match case</label>
-                </div>
-                <fieldset class="group-box" style="padding: 5px 10px;">
-                    <legend>Direction</legend>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === "up" ? "checked" : ""}>
-                        <label for="dir-up">Up</label>
-                    </div>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === "down" ? "checked" : ""}>
-                        <label for="dir-down">Down</label>
-                    </div>
-                </fieldset>
-            </div>
-        `;
-
-    const dialog = ShowDialogWindow({
-      title: "Find",
-      width: 380,
-      height: "auto",
-      text: dialogContent,
-      buttons: [
-        {
-          label: "Find Next",
-          action: (win) => {
-            const findInput = win.element.querySelector("#find-text");
-            const term = findInput.value;
-            if (!term) return false;
-
-            this.findState.term = term;
-            this.findState.caseSensitive =
-              win.element.querySelector("#match-case").checked;
-            this.findState.direction = win.element.querySelector(
-              'input[name="direction"]:checked',
-            ).value;
-
-            this.findNext();
-            return true;
-          },
-          isDefault: true,
-        },
-        { label: "Cancel" },
-      ],
-      onClose: (win) => {
-        const findInput = win.element.querySelector("#find-text");
-        this.findState.term = findInput.value;
-        this.findState.caseSensitive =
-          win.element.querySelector("#match-case").checked;
-        this.findState.direction = win.element.querySelector(
-          'input[name="direction"]:checked',
-        ).value;
-      },
-    });
-    setTimeout(
-      () => dialog.element.querySelector("#find-text").focus().select(),
-      0,
-    );
+    if (!this.findDialog) {
+      this.findDialog = new FindDialog(this);
+    }
+    this.findDialog.show();
+    this.findDialog.focus();
   }
 
-  findNext() {
-    const { term, caseSensitive, direction } = this.findState;
+  performSearchAndUpdateState(findState) {
+    this.findState = findState;
+    this.committedFindState = { ...findState };
+    this.findNext(true);
+  }
+
+  findNext(fromDialog = false) {
+    const { term, caseSensitive, direction } = fromDialog
+      ? this.findState
+      : this.committedFindState;
     if (!term) {
       this.showFindDialog();
       return;
@@ -615,7 +577,11 @@ export class NotepadNewApp extends Application {
         selection: { anchor: index, head: index + term.length },
         scrollIntoView: true,
       });
-      this.editor.focus();
+      if (this.findDialog) {
+        this.findDialog.focus();
+      } else {
+        this.editor.focus();
+      }
     } else {
       ShowDialogWindow({
         title: "Notepad",
