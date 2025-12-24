@@ -31,6 +31,7 @@ import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
 import { WordPadApp } from "../apps/wordpad/WordPadApp.js";
 import { CalculatorApp } from "../apps/calculator/CalculatorApp.js";
+import HelpApp from "../apps/help/HelpApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -70,6 +71,7 @@ export const appClasses = {
   calculator: CalculatorApp,
   defrag: DefragApp,
   wordpad: WordPadApp,
+  help: HelpApp,
 };
 
 export const apps = [
@@ -598,5 +600,15 @@ export const apps = [
     height: 400,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "help",
+    title: "Help",
+    description: "Provides help and support.",
+    icon: ICONS.help,
+    appClass: HelpApp,
+    width: 550,
+    height: 450,
+    resizable: true,
   },
 ];

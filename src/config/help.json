@@ -1,0 +1,32 @@
+{
+  "title": "Windows Help",
+  "topics": [
+    {
+      "title": "Troubleshooting",
+      "icon": "book",
+      "children": [
+        {
+          "title": "Printing Problems",
+          "icon": "page",
+          "content": "<div class='help-content-wrapper'><h1>Print Troubleshooter</h1><p>This troubleshooter helps you solve problems with printing.</p><p>What type of problem are you having?</p><ul><li>My document didn't print at all.</li><li>Graphics are distorted or incomplete.</li><li>Fonts are missing or do not appear as they do on the screen.</li></ul></div>"
+        },
+        {
+          "title": "Network Problems",
+          "icon": "page",
+          "content": "<div class='help-content-wrapper'><h1>Network Troubleshooter</h1><p>Content for network problems goes here.</p></div>"
+        }
+      ]
+    },
+    {
+      "title": "Using Accessibility Features",
+      "icon": "book",
+      "children": [
+        {
+          "title": "Magnifier",
+          "icon": "page",
+          "content": "<div class='help-content-wrapper'><h1>Using Magnifier</h1><p>Content for Magnifier goes here.</p></div>"
+        }
+      ]
+    }
+  ]
+}

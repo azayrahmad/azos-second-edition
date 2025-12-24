@@ -195,7 +195,7 @@ const startMenuConfig = [
   {
     label: "Help",
     icon: ICONS.help[32],
-    action: () => ShowComingSoonDialog("Help"),
+    action: () => launchApp("help"),
   },
   {
     label: "Run",
