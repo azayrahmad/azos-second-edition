@@ -4,7 +4,7 @@
     height: 100%;
     background-color: var(--ButtonFace);
     font-family: Arial, sans-serif;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .help-app .toolbar {
@@ -12,7 +12,6 @@
     border-bottom: none;
     display: flex;
     gap: 2px;
-    font-size: 10px;
 }
 
 .help-app .toolbar button {
@@ -21,6 +20,7 @@
     align-items: center;
     padding: 2px 6px;
     min-width: 50px;
+    font-size: 11px;
 }
 
 .help-app .toolbar button .icon {
