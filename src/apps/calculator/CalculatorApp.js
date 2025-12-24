@@ -6,6 +6,7 @@ import { Tooltip } from "../../components/Tooltip.js";
 import buttonDefinitions from "./buttons.js"; // Import the centralized button definitions
 import "./calculator.css";
 import { ICONS } from "../../config/icons.js";
+import helpData from "./help.json";
 
 export class CalculatorApp extends Application {
   constructor(config) {
@@ -73,8 +74,7 @@ export class CalculatorApp extends Application {
       "&Help": [
         {
           label: "Help &Topics",
-          action: () =>
-            window.System.launchApp("help", "src/apps/calculator/help.json"),
+          action: () => window.System.launchApp("help", helpData),
         },
         {
           label: "&About Calculator",
