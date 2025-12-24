@@ -62,31 +62,51 @@ class HelpApp extends Application {
     this.treeView.render();
 
     // Event listener for topic selection
-    treeContainer.addEventListener("topic-selected", (e) => {
-      this._showTopic(e.detail, true);
+    treeContainer.addEventListener("topic-selected", async (e) => {
+      await this._showTopic(e.detail, true);
     });
 
     // Setup toolbar
     this._setupToolbar(win);
     this._setupTabs(win);
 
-    // Show the first topic by default
-    const firstTopic =
-      currentHelpData.topics[0]?.children?.[0] || currentHelpData.topics[0];
-    if (firstTopic) {
-      this._showTopic(firstTopic, true);
-    }
+    // Show the default topic by default
+    const defaultTopic = {
+      file: "help/content/default.htm",
+      title: "Welcome",
+    };
+    await this._showTopic(defaultTopic, true);
   }
 
-  _showTopic(topic, addToHistory = false) {
+  async _showTopic(topic, addToHistory = false) {
     const contentPanel = this.win.$content.find(".content-panel");
-    if (topic.content) {
+    contentPanel.html(""); // Clear content first
+
+    if (topic.file) {
+      try {
+        // The path in topic.file is relative to the `src/apps` directory
+        const module = await import(/* @vite-ignore */ `../${topic.file}?raw`);
+        const htmlContent = module.default;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        contentPanel.append(iframe);
+
+        // Write content to iframe
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(htmlContent);
+        iframe.contentWindow.document.close();
+      } catch (error) {
+        console.error(`Failed to load help content from ${topic.file}:`, error);
+        contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
+      }
+    } else if (topic.content) {
       contentPanel.html(`
         <h2 class="help-topic-title">${topic.title}</h2>
         <div class="help-topic-content">${topic.content}</div>
       `);
-    } else {
-      contentPanel.html(""); // Clear content if topic has no content
     }
 
     if (addToHistory) {
@@ -118,17 +138,17 @@ class HelpApp extends Application {
       hideButton.innerHTML = `<span class="icon"></span>${isHidden ? "Show" : "Hide"}`;
     });
 
-    backButton.addEventListener("click", () => {
+    backButton.addEventListener("click", async () => {
       if (this.historyIndex > 0) {
         this.historyIndex--;
-        this._showTopic(this.history[this.historyIndex], false);
+        await this._showTopic(this.history[this.historyIndex], false);
       }
     });
 
-    forwardButton.addEventListener("click", () => {
+    forwardButton.addEventListener("click", async () => {
       if (this.historyIndex < this.history.length - 1) {
         this.historyIndex++;
-        this._showTopic(this.history[this.historyIndex], false);
+        await this._showTopic(this.history[this.historyIndex], false);
       }
     });
   }

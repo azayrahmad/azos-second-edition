@@ -86,14 +86,16 @@
     margin-left: 16px;
     padding-left: 0;
 }
-.help-app ul.tree-view ul > li:before {
+
+.help-app ul.tree-view ul>li:before {
     border-bottom: none;
 }
-ul.tree-view ul > li:last-child:after {
+
+ul.tree-view ul>li:last-child:after {
     background: none;
 }
 
-.help-app .tree-view .tree-node > .node-label {
+.help-app .tree-view .tree-node>.node-label {
     display: flex;
     align-items: center;
 }
@@ -120,6 +122,7 @@ ul.tree-view ul > li:last-child:after {
 
 .help-content-wrapper {
     font-family: Verdana, Tahoma, sans-serif;
+
 }
 
 .help-content-wrapper h1 {
@@ -136,4 +139,8 @@ ul.tree-view ul > li:last-child:after {
 
 .help-content-wrapper li {
     margin-bottom: 4px;
+}
+
+.content-panel {
+    padding: 0 !important;
 }
