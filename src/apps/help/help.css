@@ -95,10 +95,11 @@
 }
 
 .tree-view li {
-  padding-left: 18px;
+  padding-left: 22px;
   position: relative;
   cursor: pointer;
   user-select: none;
+  line-height: 20px;
 }
 
 .tree-view .tree-node > .node-label {
@@ -107,13 +108,25 @@
 }
 
 .tree-view .icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 4px;
-  background-size: contain;
+  width: 20px;
+  height: 17px;
+  margin-right: 2px;
+  background-image: url("../../assets/icons/helptree.png");
   background-repeat: no-repeat;
-  background-position: center;
 }
+
+.tree-view .icon-book-closed {
+  background-position: 0 0;
+}
+
+.tree-view .icon-book-open {
+  background-position: -20px 0;
+}
+
+.tree-view .icon-page {
+  background-position: -40px 0;
+}
+
 
 /* Content styles */
 .help-content-wrapper ul {

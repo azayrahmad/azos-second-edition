@@ -1,5 +1,3 @@
-import { ICONS } from '../../config/icons.js';
-
 class TreeView {
   constructor(container, data) {
     this.container = container;
@@ -34,7 +32,7 @@ class TreeView {
 
     if (topic.children && topic.children.length > 0) {
       li.classList.add('branch');
-      icon.style.backgroundImage = `url(${ICONS.helpBook[16]})`;
+      icon.classList.add('icon-book-closed');
 
       const childrenUl = document.createElement('ul');
       childrenUl.style.display = 'none'; // Initially collapsed
@@ -46,11 +44,12 @@ class TreeView {
       label.addEventListener('click', () => {
         const isExpanded = childrenUl.style.display === 'block';
         childrenUl.style.display = isExpanded ? 'none' : 'block';
-        icon.style.backgroundImage = `url(${isExpanded ? ICONS.helpBook[16] : ICONS.helpBookOpen[16]})`;
+        icon.classList.toggle('icon-book-closed', !isExpanded);
+        icon.classList.toggle('icon-book-open', isExpanded);
       });
     } else {
       li.classList.add('leaf');
-      icon.style.backgroundImage = `url(${ICONS.helpPage[16]})`;
+      icon.classList.add('icon-page');
       label.addEventListener('click', () => {
         if (this.selectedNode) {
           this.selectedNode.classList.remove('selected');
