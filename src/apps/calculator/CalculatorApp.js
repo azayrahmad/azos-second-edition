@@ -72,6 +72,11 @@ export class CalculatorApp extends Application {
       ],
       "&Help": [
         {
+          label: "Help &Topics",
+          action: () =>
+            window.System.launchApp("help", "src/apps/calculator/help.json"),
+        },
+        {
           label: "&About Calculator",
           action: () => this._showAboutDialog(),
         },
