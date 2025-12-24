@@ -70,12 +70,12 @@ class HelpApp extends Application {
     this._setupToolbar(win);
     this._setupTabs(win);
 
-    // Show the first topic by default
-    const firstTopic =
-      currentHelpData.topics[0]?.children?.[0] || currentHelpData.topics[0];
-    if (firstTopic) {
-      await this._showTopic(firstTopic, true);
-    }
+    // Show the default topic by default
+    const defaultTopic = {
+      file: "help/content/default.htm",
+      title: "Welcome",
+    };
+    await this._showTopic(defaultTopic, true);
   }
 
   async _showTopic(topic, addToHistory = false) {
@@ -83,25 +83,25 @@ class HelpApp extends Application {
     contentPanel.html(""); // Clear content first
 
     if (topic.file) {
-        try {
-            // The path in topic.file is relative to the `src/apps` directory
-            const module = await import(/* @vite-ignore */ `../${topic.file}?raw`);
-            const htmlContent = module.default;
+      try {
+        // The path in topic.file is relative to the `src/apps` directory
+        const module = await import(/* @vite-ignore */ `../${topic.file}?raw`);
+        const htmlContent = module.default;
 
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            contentPanel.append(iframe);
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        contentPanel.append(iframe);
 
-            // Write content to iframe
-            iframe.contentWindow.document.open();
-            iframe.contentWindow.document.write(htmlContent);
-            iframe.contentWindow.document.close();
-        } catch (error) {
-            console.error(`Failed to load help content from ${topic.file}:`, error);
-            contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
-        }
+        // Write content to iframe
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(htmlContent);
+        iframe.contentWindow.document.close();
+      } catch (error) {
+        console.error(`Failed to load help content from ${topic.file}:`, error);
+        contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
+      }
     } else if (topic.content) {
       contentPanel.html(`
         <h2 class="help-topic-title">${topic.title}</h2>
