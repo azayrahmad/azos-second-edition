@@ -171,6 +171,11 @@ class StartMenu {
         this.openSubmenus = [];
       }
 
+      const startupFolderItem = submenuItems.find(item => item.id === 'startup-folder');
+      if (startupFolderItem) {
+        startupFolderItem.submenu = this._getStartupSubmenuItems();
+      }
+
       const menuWrapper = document.createElement("div");
       menuWrapper.className = "menu-popup-wrapper";
       menuWrapper.style.position = "absolute";
@@ -230,98 +235,33 @@ class StartMenu {
     this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
   }
 
-  attachDynamicSubmenu(menuItem, getSubmenuItems) {
-    let activeMenu = null;
-    let closeTimeout;
-
-    const closeAndCleanup = () => {
-      if (!activeMenu) return;
-      const menuToClose = activeMenu;
-      activeMenu = null;
-
-      this.openSubmenus = this.openSubmenus.filter((m) => m !== menuToClose);
-      menuToClose.close(false);
-      if (
-        menuToClose.wrapperElement &&
-        menuToClose.wrapperElement.parentElement
-      ) {
-        menuToClose.wrapperElement.remove();
-      }
-    };
-
-    const openMenu = () => {
-      clearTimeout(closeTimeout);
-      if (activeMenu) return;
-
-      if (this.openSubmenus.length > 0) {
-        [...this.openSubmenus].forEach((menu) => {
-          menu.close();
-          if (menu.wrapperElement && menu.wrapperElement.parentElement) {
-            menu.wrapperElement.remove();
-          }
-        });
-        this.openSubmenus = [];
-      }
-
-      const submenuItems = getSubmenuItems(); // Generate items dynamically
-
-      const menuWrapper = document.createElement("div");
-      menuWrapper.className = "menu-popup-wrapper";
-      menuWrapper.style.position = "absolute";
-      menuWrapper.style.overflow = "hidden";
-
-      activeMenu = new window.MenuPopup(submenuItems, {
-        parentMenuPopup: null,
-        handleKeyDown: (e) => e.key === "Escape" && closeAndCleanup(),
-        closeMenus: closeAndCleanup,
-        setActiveMenuPopup: (menu) => {
-          activeMenu = menu;
-        },
-        send_info_event: () => {},
-        refocus_outside_menus: () => {},
-      });
-      activeMenu.wrapperElement = menuWrapper;
-
-      menuWrapper.appendChild(activeMenu.element);
-      const screen = document.getElementById("screen");
-      screen.appendChild(menuWrapper);
-
-      menuWrapper.style.display = "block";
-      menuWrapper.style.zIndex = window.os_gui_utils.get_new_menu_z_index();
-      menuWrapper.style.left = "-9999px";
-      menuWrapper.style.top = "-9999px";
-
-      const rect = menuItem.getBoundingClientRect();
-      const menuRect = activeMenu.element.getBoundingClientRect();
-      const screenRect = screen.getBoundingClientRect();
-
-      let finalX = rect.right - screenRect.left;
-      let finalY = rect.top - screenRect.top;
-      if (finalY + menuRect.height > screenRect.height) {
-        finalY = Math.max(0, screenRect.height - menuRect.height);
-      }
-      if (finalX + menuRect.width > screenRect.width) {
-        finalX = rect.left - menuRect.width - screenRect.left;
-      }
-      menuWrapper.style.left = `${finalX}px`;
-      menuWrapper.style.top = `${finalY}px`;
-
-      setTimeout(() => {
-        menuWrapper.style.setProperty("--width", `${menuRect.width}px`);
-        menuWrapper.style.setProperty("--height", `${menuRect.height}px`);
-        menuWrapper.style.width = "var(--width)";
-        menuWrapper.style.height = "var(--height)";
-        menuWrapper.classList.add("to-right");
-      }, 0);
-
-      if (typeof window.playSound === "function") window.playSound("MenuPopup");
-      this.openSubmenus.push(activeMenu);
-      this.addTrackedEventListener(menuWrapper, "pointerenter", () => {
-        clearTimeout(closeTimeout);
-      });
-    };
-
-    this.addTrackedEventListener(menuItem, "pointerenter", openMenu);
+  _getStartupSubmenuItems() {
+    const startupAppsList = getStartupApps();
+    if (startupAppsList.length === 0) {
+      return [{ label: "(Empty)", enabled: false }];
+    }
+    return startupAppsList
+      .map((appId) => {
+        const app = apps.find((a) => a.id === appId);
+        if (app) {
+          return {
+            label: app.title,
+            icon: app.icon[16],
+            action: () => launchApp(app.id),
+          };
+        }
+        const file = findItemByPath(appId);
+        if (file) {
+          const app = apps.find(app => app.id === getAssociation(file.name).appId);
+          return {
+            label: file.name,
+            icon: app.icon[16],
+            action: () => launchApp(app.id, appId),
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
   }
 
   bindMenuItems() {
@@ -331,36 +271,7 @@ class StartMenu {
       );
       if (!menuItem) return;
 
-      if (itemConfig.id === "startup-folder") {
-        this.attachDynamicSubmenu(menuItem, () => {
-          const startupAppsList = getStartupApps();
-          if (startupAppsList.length === 0) {
-            return [{ label: "(Empty)", enabled: false }];
-          }
-          return startupAppsList
-            .map((appId) => {
-              const app = apps.find((a) => a.id === appId);
-              if (app) {
-                return {
-                  label: app.title,
-                  icon: app.icon[16],
-                  action: () => launchApp(app.id),
-                };
-              }
-              const file = findItemByPath(appId);
-              if (file) {
-                const app = apps.find(app => app.id === getAssociation(file.name).appId);
-                return {
-                  label: file.name,
-                  icon: app.icon[16],
-                  action: () => launchApp(app.id, appId),
-                };
-              }
-              return null;
-            })
-            .filter(Boolean);
-        });
-      } else if (itemConfig.submenu) {
+      if (itemConfig.submenu) {
         this.attachSubmenu(menuItem, itemConfig.submenu);
       } else if (itemConfig.action) {
         this.addTrackedEventListener(menuItem, "click", () => {
