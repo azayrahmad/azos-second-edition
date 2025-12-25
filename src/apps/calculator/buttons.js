@@ -181,6 +181,7 @@ const buttonDefinitions = {
     label: "F-E",
     style: magenta,
     tooltip: "Toggles scientific notation.",
+    action: (app) => app.logic.toggleScientificNotation(),
   }),
   "(": new CalculatorButton({
     id: "(",
@@ -228,6 +229,7 @@ const buttonDefinitions = {
     label: "Exp",
     style: magenta,
     tooltip: "Allows entry of numbers in scientific notation.",
+    action: (app) => app.logic.inputExponent(),
   }),
   ln: new CalculatorButton({
     id: "ln",

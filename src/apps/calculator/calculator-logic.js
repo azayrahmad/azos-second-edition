@@ -15,17 +15,30 @@ export class CalculatorLogic {
     this.angleUnit = "degrees"; // 'degrees', 'radians', 'gradients'
     this.stateStack = [];
     this.statisticsData = [];
+    this.scientificNotation = false;
+    this.isEnteringExponent = false;
   }
 
   // Clears the current entry
   clearEntry() {
     this.currentValue = "0";
     this.isNewNumber = true;
+    this.isEnteringExponent = false;
   }
 
   // Handles digit and decimal inputs
   inputDigit(digit) {
-    if (this.isNewNumber) {
+    if (this.isEnteringExponent) {
+      const parts = this.currentValue.split("e");
+      if (parts[1] === "+0") {
+        parts[1] = "+" + digit;
+      } else if (parts[1] === "-0") {
+        parts[1] = "-" + digit;
+      } else {
+        parts[1] += digit;
+      }
+      this.currentValue = parts.join("e");
+    } else if (this.isNewNumber) {
       this.currentValue = digit;
       this.isNewNumber = false;
     } else {
@@ -51,7 +64,7 @@ export class CalculatorLogic {
     if (this.operation) {
       this.calculate();
     }
-
+    this.isEnteringExponent = false;
     this.previousValue = this.currentValue;
     this.operation = nextOperation;
     this.isNewNumber = true;
@@ -60,7 +73,7 @@ export class CalculatorLogic {
   // Performs the calculation
   calculate() {
     if (!this.operation || this.previousValue === null) return;
-
+    this.isEnteringExponent = false;
     const isBitwise = ["And", "Or", "Xor", "Lsh", "Mod"].includes(
       this.operation,
     );
@@ -117,7 +130,15 @@ export class CalculatorLogic {
 
   // Handles unary operations
   toggleSign() {
-    if (this.base === 10) {
+    if (this.isEnteringExponent) {
+      const parts = this.currentValue.split("e");
+      if (parts[1].startsWith("+")) {
+        parts[1] = "-" + parts[1].substring(1);
+      } else if (parts[1].startsWith("-")) {
+        parts[1] = "+" + parts[1].substring(1);
+      }
+      this.currentValue = parts.join("e");
+    } else if (this.base === 10) {
       this.currentValue = String(parseFloat(this.currentValue) * -1);
     }
   }
@@ -340,5 +361,25 @@ export class CalculatorLogic {
     const stdDev = Math.sqrt(variance);
     this.currentValue = String(stdDev);
     this.isNewNumber = true;
+  }
+
+  inputExponent() {
+    if (this.currentValue.includes("e")) return;
+    this.currentValue += "e+0";
+    this.isEnteringExponent = true;
+    this.isNewNumber = false;
+  }
+  toggleScientificNotation() {
+    if (this.isEnteringExponent) return;
+    this.scientificNotation = !this.scientificNotation;
+    const value = parseFloat(this.currentValue);
+    if (this.scientificNotation) {
+      this.currentValue = value.toExponential();
+    } else {
+      this.currentValue = value.toLocaleString("en-US", {
+        maximumFractionDigits: 20,
+        useGrouping: false,
+      });
+    }
   }
 }
