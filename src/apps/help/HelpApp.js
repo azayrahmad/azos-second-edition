@@ -3,7 +3,13 @@ import TreeView from "./TreeView.js";
 import helpData from "../../config/help.json";
 import "./help.css";
 import contentHtml from "./help.html?raw";
-import defaultTopicHtml from "./content/default.htm?raw";
+
+// Use Vite's glob import to eagerly load all possible help content.
+// This ensures they are included in the production build with correct paths.
+const htmContentModules = import.meta.glob('/src/apps/**/*.htm', { as: 'raw', eager: true });
+const jsonContentModules = import.meta.glob('/src/apps/**/*.json', { eager: true });
+console.log('[HelpApp] Available JSON modules:', Object.keys(jsonContentModules));
+
 
 class HelpApp extends Application {
   constructor(data) {
@@ -39,20 +45,17 @@ class HelpApp extends Application {
     let currentHelpData = helpData; // Default help data
 
     if (typeof data === "string") {
-      try {
-        // This is a path to a JSON file
-        const response = await fetch(data);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        currentHelpData = await response.json();
-      } catch (error) {
-        console.error(`Failed to load help content from ${data}:`, error);
+      // Handle file path for default help topics
+      const fullPath = `/src/apps/${data}`;
+      if (jsonContentModules[fullPath]) {
+        currentHelpData = jsonContentModules[fullPath].default;
+      } else {
+        console.error(`Failed to find pre-loaded help content for ${data}`);
         this.win.close();
         return;
       }
     } else if (typeof data === "object" && data !== null) {
-      // This is a JSON object
+      // Handle direct JSON object from Calculator
       currentHelpData = data;
     }
 
@@ -76,7 +79,7 @@ class HelpApp extends Application {
 
     // Show the default topic by default
     const defaultTopic = {
-      isDefault: true,
+      file: "help/content/default.htm",
       title: "Welcome",
     };
     await this._showTopic(defaultTopic, true);
@@ -86,37 +89,24 @@ class HelpApp extends Application {
     const contentPanel = this.win.$content.find(".content-panel");
     contentPanel.html(""); // Clear content first
 
-    if (topic.isDefault) {
-      const iframe = document.createElement("iframe");
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "none";
-      contentPanel.append(iframe);
+    if (topic.file) {
+      const fullPath = `/src/apps/${topic.file}`;
+      const htmlContent = htmContentModules[fullPath];
 
-      iframe.contentWindow.document.open();
-      iframe.contentWindow.document.write(defaultTopicHtml);
-      iframe.contentWindow.document.close();
-    } else if (topic.file) {
-      try {
-        // The path in topic.file is relative to the `src/apps` directory
-        const module = await import(/* @vite-ignore */ `../${topic.file}?raw`);
-        const htmlContent = module.default;
-
-        const iframe = document.createElement("iframe");
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        contentPanel.append(iframe);
-
-        // Write content to iframe
-        iframe.contentWindow.document.open();
-        iframe.contentWindow.document.write(htmlContent);
-        iframe.contentWindow.document.close();
-      } catch (error) {
-        console.error(`Failed to load help content from ${topic.file}:`, error);
+      if (htmlContent) {
+        // Render directly into a div to avoid iframe issues with the windowing library
+        const contentDiv = document.createElement('div');
+        contentDiv.style.width = '100%';
+        contentDiv.style.height = '100%';
+        contentDiv.style.overflow = 'auto';
+        contentDiv.innerHTML = htmlContent;
+        contentPanel.append(contentDiv);
+      } else {
+        console.error(`Failed to find pre-loaded help content for ${topic.file}`);
         contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
       }
     } else if (topic.content) {
+      // This can be used for topics that define content directly
       contentPanel.html(`
         <h2 class="help-topic-title">${topic.title}</h2>
         <div class="help-topic-content">${topic.content}</div>
