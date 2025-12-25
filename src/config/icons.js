@@ -303,6 +303,10 @@ export const ICONS = {
     16: new URL("../assets/icons/diablo-16.png", import.meta.url).href,
     32: new URL("../assets/icons/diablo-32.png", import.meta.url).href,
   },
+  msdos: {
+    16: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+  },
   esheep: {
     16: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
     32: new URL("../apps/esheep/esheep.webp", import.meta.url).href,

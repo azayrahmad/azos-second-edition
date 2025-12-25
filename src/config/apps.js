@@ -27,6 +27,7 @@ import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
 import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
 import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
+import { CommandPromptApp } from "../apps/command-prompt/CommandPromptApp.js";
 import { ESheepApp } from "../apps/esheep/ESheepApp.js";
 import { getESheepMenuItems } from "../apps/esheep/esheep.js";
 import { WordPadApp } from "../apps/wordpad/WordPadApp.js";
@@ -66,6 +67,7 @@ export const appClasses = {
   cursorexplorer: CursorExplorerApp,
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
+  "command-prompt": CommandPromptApp,
   esheep: ESheepApp,
   minesweeper: MinesweeperApp,
   calculator: CalculatorApp,
@@ -545,6 +547,17 @@ export const apps = [
         });
       },
     },
+  },
+  {
+    id: "command-prompt",
+    title: "MS-DOS Prompt",
+    description: "Starts a new MS-DOS prompt.",
+    icon: ICONS.msdos,
+    appClass: CommandPromptApp,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
   },
   {
     id: "esheep",

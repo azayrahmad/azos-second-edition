@@ -161,6 +161,12 @@ const directory = [
                 name: "Diablo",
               },
               {
+                id: "shortcut-to-command-prompt",
+                type: "shortcut",
+                targetId: "command-prompt",
+                name: "MS-DOS Prompt",
+              },
+              {
                 id: "shortcut-to-minesweeper",
                 type: "shortcut",
                 targetId: "app-minesweeper",
