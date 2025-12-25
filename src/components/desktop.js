@@ -968,7 +968,7 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
 }
 
 // Initialize desktop behavior
-export async function initDesktop() {
+export async function initDesktop(profile = null) {
   console.log("Initializing Desktop Manager...");
   await applyTheme();
   applyWallpaper();
@@ -1050,13 +1050,24 @@ export async function initDesktop() {
 
   init(); // Initialize the taskbar manager
 
-  // Launch startup apps
-  const startupApps = getStartupApps();
-  if (startupApps && startupApps.length > 0) {
-    startupApps.forEach((appId) => {
-      // A small delay can prevent the UI from freezing if many apps start at once.
-      setTimeout(() => launchApp(appId), 100);
-    });
+  if (profile) {
+    // Launch apps from profile
+    if (profile.startup && profile.startup.length > 0) {
+      profile.startup.forEach(app => {
+        const appId = typeof app === 'string' ? app : app.appId;
+        const data = typeof app === 'object' ? app.data : null;
+        setTimeout(() => launchApp(appId, data), 100);
+      });
+    }
+  } else {
+    // Launch startup apps from storage
+    const startupApps = getStartupApps();
+    if (startupApps && startupApps.length > 0) {
+      startupApps.forEach((appId) => {
+        // A small delay can prevent the UI from freezing if many apps start at once.
+        setTimeout(() => launchApp(appId), 100);
+      });
+    }
   }
 
   document.addEventListener("wallpaper-changed", applyWallpaper);

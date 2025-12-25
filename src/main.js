@@ -16,7 +16,8 @@ import { registerCustomApp } from "./utils/customAppManager.js";
 import { taskbar } from "./components/taskbar.js";
 import { ShowDialogWindow } from "./components/DialogWindow.js";
 import { playSound } from "./utils/soundManager.js";
-import { setTheme, getCurrentTheme } from "./utils/themeManager.js";
+import { setTheme, getCurrentTheme, setColorScheme } from "./utils/themeManager.js";
+import { profiles } from "./config/profiles.js";
 import {
   hideBootScreen,
   startBootProcessStep,
@@ -102,6 +103,18 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
+  const path = window.location.pathname;
+  const profileName = path.startsWith('/azos-second-edition/')
+    ? path.substring('/azos-second-edition/'.length).split('/')[0]
+    : '';
+
+  window.activeProfile = null;
+  if (profileName && profiles[profileName]) {
+    window.activeProfile = profiles[profileName];
+    await setTheme(window.activeProfile.theme);
+    await setColorScheme(window.activeProfile.colorScheme);
+  }
+
   let setupEntered = false;
 
   const handleKeyDown = (e) => {
@@ -249,7 +262,7 @@ async function initializeOS() {
     await executeBootStep(async () => {
       let logElement = startBootProcessStep("Setting up desktop...");
       await new Promise((resolve) => setTimeout(resolve, 50));
-      await initDesktop();
+      await initDesktop(window.activeProfile);
       document.dispatchEvent(new CustomEvent("desktop-refresh"));
       finalizeBootProcessStep(logElement, "OK");
     });
