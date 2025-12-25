@@ -199,7 +199,7 @@ export class DesktopThemesApp extends Application {
         currentColors[`--${key.replace(/^--/, "")}`] = value;
       }
     } else if (currentColorScheme) {
-      const cssText = await fetchThemeCss(currentColorScheme.url);
+      const cssText = await fetchThemeCss(currentColorSchemeId);
       if (cssText) {
         const parsedVariables = parseCssVariables(cssText);
         for (const [key, value] of Object.entries(parsedVariables)) {
