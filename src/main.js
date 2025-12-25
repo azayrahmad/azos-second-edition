@@ -188,17 +188,6 @@ async function initializeOS() {
       });
     }
 
-    function loadThemeStylesheets() {
-      Object.entries(colorSchemes).forEach(([id, scheme]) => {
-        const link = document.createElement("link");
-        link.id = `${id}-theme`;
-        link.rel = "stylesheet";
-        link.href = `./${scheme.url}`;
-        link.disabled = id !== "default"; // Enable default theme initially
-        document.head.appendChild(link);
-      });
-    }
-
     await executeBootStep(async () => {
       let logElement = startBootProcessStep("Detecting keyboard...");
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -228,12 +217,6 @@ async function initializeOS() {
         await preloadThemeAssets(currentTheme);
         finalizeBootProcessStep(logElement, "OK");
       }
-    });
-
-    await executeBootStep(() => {
-      let logElement = startBootProcessStep("Loading theme stylesheets...");
-      loadThemeStylesheets();
-      finalizeBootProcessStep(logElement, "OK");
     });
 
     await executeBootStep(async () => {
