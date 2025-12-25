@@ -53,6 +53,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_7-16.png", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_7-32.png", import.meta.url).href,
   },
+  defrag: {
+    16: new URL("../assets/icons/defragment-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/defragment-0.png", import.meta.url).href,
+  },
   drive: {
     16: new URL("../assets/icons/SHELL32_9-16.png", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_9-32.png", import.meta.url).href,
@@ -302,6 +306,40 @@ export const ICONS = {
   msdos: {
     16: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
     32: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+  },
+  esheep: {
+    16: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
+    32: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
+  },
+  minesweeper: {
+    16: new URL(
+      "../assets/minesweeper/minesweeper-icon-small.png",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/minesweeper/minesweeper-icon-large.png",
+      import.meta.url,
+    ).href,
+  },
+  wordpad: {
+    16: new URL("../assets/icons/write_wordpad-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/write_wordpad-1.png", import.meta.url).href,
+  },
+  calculator: {
+    16: new URL("../assets/icons/calc-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/calc-32.png", import.meta.url).href,
+  },
+  helpBook: {
+    16: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
+    32: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
+  },
+  helpBookOpen: {
+    16: new URL("../assets/icons/directory_explorer-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/directory_explorer-4.png", import.meta.url).href,
+  },
+  helpPage: {
+    16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/file_lines-0.png", import.meta.url).href,
   },
 };
 

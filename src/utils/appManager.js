@@ -55,6 +55,7 @@ export async function launchApp(appId, data = null) {
             appManager.runningApps[appId] = appInstance;
             await appInstance.launch(data);
             document.dispatchEvent(new CustomEvent('app-launched', { detail: { appId } }));
+            return appInstance;
         } else if (appConfig.action?.type === "function") {
             appConfig.action.handler();
         } else {

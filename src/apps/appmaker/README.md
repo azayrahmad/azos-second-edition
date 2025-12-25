@@ -26,3 +26,7 @@ App Maker is a simple development tool that allows users to create their own cus
 7.  When you are ready to save, go to `File > Save`.
 8.  A confirmation dialog will appear. Click "Yes" to save the app.
 9.  A new icon for your application will now be visible on the desktop, and you can launch it by double-clicking it.
+
+## Screenshot
+
+![Screenshot of the appmaker app](./screenshot.png)

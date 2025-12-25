@@ -1,18 +1,32 @@
 import {
-  getThemes,
+  getColorSchemes,
   getColorSchemeId,
   setColorScheme,
+  loadThemeParser,
+  applyCustomColorScheme,
 } from "../../../utils/themeManager.js";
-import { applyThemeToPreview } from "../../../utils/themePreview.js";
+import {
+  applyThemeToPreview,
+  applyPropertiesToPreview,
+} from "../../../utils/themePreview.js";
+import { ShowDialogWindow } from "../../../components/DialogWindow.js";
 import previewHtml from "./AppearancePreview.html?raw";
 import "./appearance.css";
 
 export const appearanceTab = {
-  init: (win, app) => {
+  loadedCustomScheme: null,
+  init: function (win, app) {
+    const self = this;
     const $tab = win.$content.find("#appearance");
     const $schemeSelect = $tab.find(".scheme-select");
     const $previewContainer = $tab.find(".preview-container");
     $previewContainer.html(previewHtml);
+
+    // Add a hidden file input for theme loading
+    const $fileInput = $(
+      '<input type="file" accept=".theme" style="display: none;">',
+    );
+    $tab.append($fileInput);
 
     // Inject a style block to map preview variables to os-gui variables
     const styleBlock = `
@@ -44,24 +58,94 @@ export const appearanceTab = {
     `;
     $previewContainer.prepend(styleBlock);
 
-    const themes = getThemes();
-    const currentSchemeId = getColorSchemeId();
+    let currentSchemeId = getColorSchemeId();
+    const schemes = getColorSchemes();
 
-    Object.values(themes).forEach((theme) => {
-      const $option = $("<option>").val(theme.id).text(theme.name);
-      if (theme.id === currentSchemeId) {
+    Object.entries(schemes).forEach(([id, scheme]) => {
+      const $option = $("<option>").val(id).text(scheme.name);
+      if (id === currentSchemeId) {
         $option.prop("selected", true);
       }
       $schemeSelect.append($option);
     });
 
+    // Add the "Load Color Scheme..." option
+    const $loadOption = $("<option>")
+      .val("__load__")
+      .text("Load Color Scheme...");
+    if (currentSchemeId === "custom") {
+      $loadOption.text("Custom");
+      $loadOption.prop("selected", true);
+    }
+    $schemeSelect.append($loadOption);
+
     $schemeSelect.on("change", () => {
+      const selectedValue = $schemeSelect.val();
+      if (selectedValue === "__load__") {
+        $fileInput.click();
+        // Reset the dropdown to the previous value after a brief moment
+        setTimeout(() => $schemeSelect.val(currentSchemeId), 100);
+      } else {
+        currentSchemeId = selectedValue;
+        self.loadedCustomScheme = null; // Clear custom scheme if a built-in one is selected
+        $schemeSelect
+          .find('option[value="__load__"]')
+          .text("Load Color Scheme...");
+        app._enableApplyButton(win);
+        applyThemeToPreview(
+          selectedValue,
+          $previewContainer.find("#appearance-preview-wrapper")[0],
+        );
+      }
+    });
+
+    $fileInput.on("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
       app._enableApplyButton(win);
-      // Pass the wrapper element for applying styles
-      applyThemeToPreview(
-        $schemeSelect.val(),
-        $previewContainer.find("#appearance-preview-wrapper")[0],
-      );
+
+      try {
+        const fileContent = await file.text();
+        await loadThemeParser();
+        const colors = window.getColorsFromThemeFile(fileContent);
+
+        if (colors) {
+          const cssProperties =
+            window.generateThemePropertiesFromColors(colors);
+          self.loadedCustomScheme = cssProperties;
+          let variables = {};
+          for (const [key, value] of Object.entries(cssProperties)) {
+            variables[key.replace(/^--/, "")] = value;
+          }
+
+          applyPropertiesToPreview(
+            variables,
+            $previewContainer.find("#appearance-preview-wrapper")[0],
+          );
+          // Update dropdown to show a temporary "Custom" entry
+          $schemeSelect.find('option[value="__load__"]').text("Custom");
+          $schemeSelect.val("__load__");
+        } else {
+          self.loadedCustomScheme = null;
+          ShowDialogWindow({
+            title: "Error",
+            text: "This is not a valid theme file or it does not contain color information.",
+          });
+          $schemeSelect.val(currentSchemeId); // Revert to last selection
+        }
+      } catch (error) {
+        console.error("Error parsing theme file:", error);
+        self.loadedCustomScheme = null;
+        ShowDialogWindow({
+          title: "Error",
+          text: "An error occurred while trying to load the theme file.",
+        });
+        $schemeSelect.val(currentSchemeId); // Revert to last selection
+      } finally {
+        // Reset file input so the same file can be loaded again
+        $fileInput.val("");
+      }
     });
 
     // Pass the wrapper element for applying styles on initial load
@@ -71,9 +155,14 @@ export const appearanceTab = {
     );
   },
 
-  applyChanges: (app) => {
+  applyChanges: function (app) {
     const $schemeSelect = app.win.$content.find("#appearance .scheme-select");
     const newSchemeId = $schemeSelect.val();
-    setColorScheme(newSchemeId);
+
+    if (newSchemeId === "__load__" && this.loadedCustomScheme) {
+      applyCustomColorScheme(this.loadedCustomScheme);
+    } else {
+      setColorScheme(newSchemeId);
+    }
   },
 };

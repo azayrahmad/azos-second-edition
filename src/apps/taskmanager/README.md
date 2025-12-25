@@ -20,3 +20,7 @@ The Task Manager is a system utility that provides a list of all currently runni
 3.  Click on a program in the list to select it.
 4.  Once a program is selected, the **End Task** button will become active.
 5.  Click the **End Task** button to close the selected program.
+
+## Screenshot
+
+![Screenshot of the taskmanager app](./screenshot.png)

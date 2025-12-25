@@ -1188,6 +1188,17 @@ export class ExplorerApp extends Application {
   }
 
   showProperties(item) {
+    // Check if the item is an app from the main configuration
+    if (item.appId && item.isStatic) {
+      const appConfig = apps.find(app => app.id === item.appId);
+      if (appConfig && appConfig.appClass) {
+        const tempAppInstance = new appConfig.appClass(appConfig);
+        tempAppInstance.showProperties();
+        return;
+      }
+    }
+
+    // Fallback for files, folders, and other items
     const displayName = item.name || item.filename || item.title;
     const itemType = item.type || "File";
     let iconUrl;

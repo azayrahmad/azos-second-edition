@@ -1,10 +1,10 @@
-import { getThemes } from "./themeManager.js";
+import { getThemes, getColorSchemes } from "./themeManager.js";
 
 const themeCssCache = {};
 
 export async function fetchThemeCss(stylesheet) {
   if (!stylesheet) return null;
-  const url = `./os-gui/${stylesheet}`;
+  const url = `./${stylesheet}`;
   if (themeCssCache[url]) return themeCssCache[url];
   try {
     const response = await fetch(url);
@@ -57,6 +57,7 @@ function applyCssVariables(container, variables) {
       variables["ButtonShadow"] || "rgb(128, 128, 128)",
     "--preview-button-dk-shadow": variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
     "--preview-hilight-text": variables["HilightText"] || "rgb(0, 0, 0)",
+    "--preview-background": variables["Background"] || "rgb(240, 240, 240)",
 
     // Font properties
     "--preview-font-family-title":
@@ -80,20 +81,21 @@ function applyCssVariables(container, variables) {
   }
 }
 
-export async function applyThemeToPreview(themeId, previewContainer) {
+export async function applyThemeToPreview(schemeId, previewContainer) {
+  const schemes = getColorSchemes();
   const themes = getThemes();
-  const theme = themes[themeId];
-  if (!theme) return null;
+  const scheme = schemes[schemeId];
+  const theme = themes[schemeId]; // For custom themes
 
   let variables = {};
-  if (theme.isCustom && theme.colors) {
-    for (const [key, value] of Object.entries(theme.colors)) {
-      variables[key.replace(/^--/, "")] = value;
-    }
-  } else if (theme.stylesheet) {
-    const cssText = await fetchThemeCss(theme.stylesheet);
+  if (scheme) {
+    const cssText = await fetchThemeCss(scheme.url);
     if (cssText) {
       variables = parseCssVariables(cssText);
+    }
+  } else if (theme?.isCustom && theme.colors) {
+    for (const [key, value] of Object.entries(theme.colors)) {
+      variables[key.replace(/^--/, "")] = value;
     }
   }
 

@@ -1,13 +1,12 @@
 import { apps } from "./apps.js";
 import { launchApp } from "../utils/appManager.js";
-import { ShowComingSoonDialog } from "../components/DialogWindow.js";
+import { ShowRunDialog } from "../components/RunDialog.js";
 import { ICONS } from "./icons.js";
 
 const startMenuAppIds = [
   "webamp",
   "tipOfTheDay",
   "internet-explorer",
-  "pinball",
   "keen",
   "command-prompt",
   "buy-me-a-coffee",
@@ -15,8 +14,9 @@ const startMenuAppIds = [
   "doom",
   "simcity2000",
   "diablo",
+  "esheep",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "wordpad", "calculator"];
 
 function getAppList(appListIds) {
   return appListIds
@@ -48,7 +48,17 @@ const startMenuConfig = [
           {
             label: "Games",
             icon: ICONS.programs[16],
-            submenu: getAppList(["pinball"]),
+            submenu: getAppList(["pinball", "minesweeper"]),
+          },
+          {
+            label: "Entertainment",
+            icon: ICONS.programs[16],
+            submenu: getAppList(["media-player"]),
+          },
+          {
+            label: "System Tools",
+            icon: ICONS.programs[16],
+            submenu: getAppList(["defrag"]),
           },
           ...getAppList(accessoriesAppIds),
         ],
@@ -186,12 +196,12 @@ const startMenuConfig = [
   {
     label: "Help",
     icon: ICONS.help[32],
-    action: () => ShowComingSoonDialog("Help"),
+    action: () => launchApp("help"),
   },
   {
     label: "Run",
     icon: ICONS.run[32],
-    action: () => ShowComingSoonDialog("Run"),
+    action: () => ShowRunDialog(),
   },
 ];
 

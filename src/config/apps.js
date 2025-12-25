@@ -24,8 +24,15 @@ import { getClippyMenuItems } from "../apps/clippy/clippy.js";
 import { getWebampMenuItems } from "../apps/webamp/webamp.js";
 import { DiabloApp } from "../apps/diablo/DiabloApp.js";
 import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
+import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
+import { DefragApp } from "../apps/defrag/DefragApp.js";
 import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
 import { CommandPromptApp } from "../apps/command-prompt/CommandPromptApp.js";
+import { ESheepApp } from "../apps/esheep/ESheepApp.js";
+import { getESheepMenuItems } from "../apps/esheep/esheep.js";
+import { WordPadApp } from "../apps/wordpad/WordPadApp.js";
+import { CalculatorApp } from "../apps/calculator/CalculatorApp.js";
+import HelpApp from "../apps/help/HelpApp.js";
 import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -61,6 +68,12 @@ export const appClasses = {
   "media-player": MediaPlayerApp,
   diablo: DiabloApp,
   "command-prompt": CommandPromptApp,
+  esheep: ESheepApp,
+  minesweeper: MinesweeperApp,
+  calculator: CalculatorApp,
+  defrag: DefragApp,
+  wordpad: WordPadApp,
+  help: HelpApp,
 };
 
 export const apps = [
@@ -407,7 +420,7 @@ export const apps = [
   },
   {
     id: "pinball",
-    title: "Pinball",
+    title: "Space Cadet Pinball",
     description: "Play a classic game of pinball.",
     icon: ICONS.pinball,
     appClass: PinballApp,
@@ -545,5 +558,70 @@ export const apps = [
     height: 480,
     resizable: true,
     isSingleton: false,
+  },
+  {
+    id: "esheep",
+    title: "eSheep",
+    description: "A classic desktop pet.",
+    icon: ICONS.esheep,
+    appClass: ESheepApp,
+    hasTray: true,
+    isSingleton: true,
+    tray: {
+      contextMenu: getESheepMenuItems,
+    },
+  },
+  {
+    id: "minesweeper",
+    title: "Minesweeper",
+    description: "Play the classic game of Minesweeper.",
+    icon: ICONS.minesweeper,
+    appClass: MinesweeperApp,
+    width: 200,
+    height: 280,
+    resizable: false,
+    isSingleton: true,
+  },
+  {
+    id: "calculator",
+    title: "Calculator",
+    description: "Perform calculations.",
+    icon: ICONS.calculator,
+    appClass: CalculatorApp,
+    width: 260,
+    height: 280,
+    resizable: false,
+  },
+  {
+    id: "defrag",
+    title: "Disk Defragmenter",
+    description: "Defragments your disk for optimal performance.",
+    icon: ICONS.defrag,
+    appClass: DefragApp,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: true,
+  },
+  {
+    id: "wordpad",
+    title: "WordPad",
+    description: "A simple rich text editor.",
+    icon: ICONS.wordpad,
+    appClass: WordPadApp,
+    width: 600,
+    height: 400,
+    resizable: true,
+    isSingleton: false,
+  },
+  {
+    id: "help",
+    title: "Help",
+    description: "Provides help and support.",
+    icon: ICONS.help,
+    appClass: HelpApp,
+    width: 550,
+    height: 450,
+    resizable: true,
   },
 ];
