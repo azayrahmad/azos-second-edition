@@ -14,6 +14,7 @@ export default defineConfig({
   },
   assetsInclude: ["**/*.ani"],
   base: "/azos-second-edition/",
+  appType: 'spa',
   plugins: [
     VitePWA({
       registerType: "autoUpdate",
