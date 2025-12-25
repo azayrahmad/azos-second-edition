@@ -42,11 +42,20 @@ class TreeView {
       li.appendChild(childrenUl);
 
       label.addEventListener('click', () => {
+        // Toggle expansion
         const isCurrentlyExpanded = childrenUl.style.display === 'block';
         const isNowExpanded = !isCurrentlyExpanded;
         childrenUl.style.display = isNowExpanded ? 'block' : 'none';
         icon.classList.toggle('icon-book-closed', !isNowExpanded);
         icon.classList.toggle('icon-book-open', isNowExpanded);
+
+        // Also select the topic to show its content
+        if (this.selectedNode) {
+          this.selectedNode.classList.remove('selected');
+        }
+        label.classList.add('selected');
+        this.selectedNode = label;
+        this.container.dispatchEvent(new CustomEvent('topic-selected', { detail: topic }));
       });
     } else {
       li.classList.add('leaf');

@@ -4,6 +4,7 @@
     {
       "title": "Troubleshooting",
       "icon": "book",
+      "file": "help/content/troubleshooting.htm",
       "children": [
         {
           "title": "Printing Problems",
