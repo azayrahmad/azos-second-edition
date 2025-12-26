@@ -1050,25 +1050,28 @@ export async function initDesktop(profile = null) {
 
   init(); // Initialize the taskbar manager
 
-  if (profile) {
-    // Launch apps from profile
-    if (profile.startup && profile.startup.length > 0) {
-      profile.startup.forEach(app => {
-        const appId = typeof app === 'string' ? app : app.appId;
-        const data = typeof app === 'object' ? app.data : null;
-        setTimeout(() => launchApp(appId, data), 100);
-      });
+  const launchStartupApps = () => {
+    if (profile) {
+      // Launch apps from profile
+      if (profile.startup && profile.startup.length > 0) {
+        profile.startup.forEach(app => {
+          const appId = typeof app === 'string' ? app : app.appId;
+          const data = typeof app === 'object' ? app.data : null;
+          launchApp(appId, data);
+        });
+      }
+    } else {
+      // Launch startup apps from storage
+      const startupApps = getStartupApps();
+      if (startupApps && startupApps.length > 0) {
+        startupApps.forEach((appId) => {
+          launchApp(appId);
+        });
+      }
     }
-  } else {
-    // Launch startup apps from storage
-    const startupApps = getStartupApps();
-    if (startupApps && startupApps.length > 0) {
-      startupApps.forEach((appId) => {
-        // A small delay can prevent the UI from freezing if many apps start at once.
-        setTimeout(() => launchApp(appId), 100);
-      });
-    }
-  }
+  };
+
+  document.addEventListener("logon-sound-finished", launchStartupApps, { once: true });
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
 

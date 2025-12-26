@@ -145,9 +145,9 @@ async function initializeOS() {
       if (splashScreen) {
         splashScreen.style.display = "block";
         splashScreenVisible = true;
-        splashScreenTimer = setTimeout(() => {
+        splashScreenTimer = setTimeout(async () => {
           if (bootProcessFinished) {
-            hideBootAndSplash();
+            await hideBootAndSplash();
           } else {
             hideSplashScreenOnly();
           }
@@ -162,18 +162,19 @@ async function initializeOS() {
       splashScreenVisible = false;
     }
 
-    function hideBootAndSplash() {
+    async function hideBootAndSplash() {
       hideSplashScreenOnly();
       hideBootScreen();
       document.body.classList.remove("booting");
       document.getElementById("screen").classList.remove("boot-mode");
-      playSound("WindowsLogon");
+      await playSound("WindowsLogon");
+      document.dispatchEvent(new CustomEvent("logon-sound-finished"));
     }
 
-    function handleBootCompletion() {
+    async function handleBootCompletion() {
       bootProcessFinished = true;
       if (!splashScreenVisible) {
-        hideBootAndSplash();
+        await hideBootAndSplash();
       }
     }
 
@@ -278,7 +279,7 @@ async function initializeOS() {
     });
 
     window.removeEventListener("keydown", handleKeyDown);
-    handleBootCompletion();
+    await handleBootCompletion();
 
     window.ShowDialogWindow = ShowDialogWindow;
     window.playSound = playSound;
