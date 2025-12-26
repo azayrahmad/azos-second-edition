@@ -2026,6 +2026,10 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
       $w.closed = true;
       minimize_slots[$w._minimize_slot_index] = null;
 
+      for (const $childWindow of $w.child_$windows) {
+        $childWindow.close(true);
+      }
+
       $event_target.triggerHandler("closed");
       $w.trigger("closed");
       // TODO: change usages of "close" to "closed" where appropriate

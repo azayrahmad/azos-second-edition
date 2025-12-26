@@ -35,6 +35,7 @@ export class NotepadApp extends Application {
         this.currentLanguage = 'text';
         this.win = null;
         this.editor = null;
+        this.findWindow = null;
     }
 
     _createWindow() {
@@ -347,63 +348,124 @@ export class NotepadApp extends Application {
         this.win.element.querySelector('.menus').dispatchEvent(new CustomEvent('update'));
     }
 
-    showFindDialog() {
-        const dialogContent = `
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <label for="find-text" style="margin-right: 5px;">Find what:</label>
-                <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
+    _createFindWindow() {
+        this.findWindow = new $Window({
+            title: 'Find',
+            outerWidth: 400,
+            toolWindow: true,
+            parentWindow: this.win,
+            resizable: false,
+        });
+
+        const contentContainer = document.createElement('div');
+        contentContainer.style.cssText = 'display: flex; padding: 15px 10px; align-items: flex-start;';
+
+        const mainContent = document.createElement('div');
+        mainContent.style.cssText = 'display: flex; flex-direction: column; flex-grow: 1; margin-right: 10px;';
+
+        const findWhatRow = document.createElement('div');
+        findWhatRow.style.cssText = 'display: flex; align-items: center; margin-bottom: 15px;';
+        findWhatRow.innerHTML = `
+            <label for="find-text" style="margin-right: 5px; white-space: nowrap;">Find what:</label>
+            <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
+        `;
+        mainContent.appendChild(findWhatRow);
+
+        const optionsRow = document.createElement('div');
+        optionsRow.style.cssText = 'display: flex; align-items: center;';
+
+        const matchCaseContainer = document.createElement('div');
+        matchCaseContainer.className = 'checkbox-container';
+        matchCaseContainer.innerHTML = `
+            <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
+            <label for="match-case">Match case</label>
+        `;
+        optionsRow.appendChild(matchCaseContainer);
+
+        const directionGroup = document.createElement('fieldset');
+        directionGroup.className = 'group-box';
+        directionGroup.style.cssText = 'padding: 5px 10px; margin-left: 20px;';
+        directionGroup.innerHTML = `
+            <legend>Direction</legend>
+            <div class="field-row" style="justify-content: flex-start;">
+                <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === 'up' ? 'checked' : ''}>
+                <label for="dir-up">Up</label>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
-                    <label for="match-case">Match case</label>
-                </div>
-                <fieldset class="group-box" style="padding: 5px 10px;">
-                    <legend>Direction</legend>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-up" value="up" ${this.findState.direction === 'up' ? 'checked' : ''}>
-                        <label for="dir-up">Up</label>
-                    </div>
-                    <div class="field-row">
-                        <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === 'down' ? 'checked' : ''}>
-                        <label for="dir-down">Down</label>
-                    </div>
-                </fieldset>
+            <div class="field-row" style="justify-content: flex-start;">
+                <input type="radio" name="direction" id="dir-down" value="down" ${this.findState.direction === 'down' ? 'checked' : ''}>
+                <label for="dir-down">Down</label>
             </div>
         `;
+        optionsRow.appendChild(directionGroup);
+        mainContent.appendChild(optionsRow);
 
-        const dialog = ShowDialogWindow({
-            title: 'Find',
-            width: 380,
-            height: 'auto',
-            text: dialogContent,
-            buttons: [
-                {
-                    label: 'Find Next',
-                    action: (win) => {
-                        const findInput = win.element.querySelector('#find-text');
-                        const term = findInput.value;
-                        if (!term) return false;
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'button-group';
+        buttonGroup.style.cssText = 'display: flex; flex-direction: column; gap: 5px;';
+        buttonGroup.innerHTML = `
+            <button id="find-next-btn" style="width: 75px;">Find Next</button>
+            <button id="cancel-btn" style="width: 75px;">Cancel</button>
+        `;
 
-                        this.findState.term = term;
-                        this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
-                        this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
+        contentContainer.appendChild(mainContent);
+        contentContainer.appendChild(buttonGroup);
 
-                        this.findNext();
-                        return true;
-                    },
-                    isDefault: true,
-                },
-                { label: 'Cancel' }
-            ],
-            onclose: (win) => {
-                const findInput = win.element.querySelector('#find-text');
-                this.findState.term = findInput.value;
-                this.findState.caseSensitive = win.element.querySelector('#match-case').checked;
-                this.findState.direction = win.element.querySelector('input[name="direction"]:checked').value;
+        this.findWindow.$content.append(contentContainer);
+
+        const findInput = contentContainer.querySelector('#find-text');
+        const findNextBtn = contentContainer.querySelector('#find-next-btn');
+        const cancelBtn = contentContainer.querySelector('#cancel-btn');
+
+        findNextBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+        });
+
+        findNextBtn.addEventListener('click', () => {
+            const term = findInput.value;
+            if (!term) return;
+
+            this.findState.term = term;
+            this.findState.caseSensitive = contentContainer.querySelector('#match-case').checked;
+            this.findState.direction = contentContainer.querySelector('input[name="direction"]:checked').value;
+
+            this.findNext();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            this.findWindow.close();
+        });
+
+        const updateFindState = () => {
+            if (!this.findWindow || this.findWindow.closed) return;
+            this.findState.term = findInput.value;
+            this.findState.caseSensitive = contentContainer.querySelector('#match-case').checked;
+            this.findState.direction = contentContainer.querySelector('input[name="direction"]:checked').value;
+        };
+
+        this.findWindow.onClosed(() => {
+            updateFindState();
+            this.findWindow = null;
+        });
+
+        this.findWindow.element.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.findWindow.close();
             }
         });
-        setTimeout(() => dialog.element.querySelector('#find-text').focus().select(), 0);
+
+        setTimeout(() => {
+            findInput.focus();
+            findInput.select();
+            this.findWindow.setDimensions({ innerHeight: contentContainer.offsetHeight });
+        }, 0);
+    }
+
+    showFindDialog() {
+        if (!this.findWindow || this.findWindow.closed) {
+            this._createFindWindow();
+        } else {
+            this.findWindow.focus();
+        }
     }
 
     findNext() {
@@ -414,17 +476,34 @@ export class NotepadApp extends Application {
         }
 
         const editor = this.editor.codeInput;
+        editor.focus(); // Focus the editor first to get the correct selection state
         const text = editor.value;
         const searchTerm = caseSensitive ? term : term.toLowerCase();
         const textToSearch = caseSensitive ? text : text.toLowerCase();
 
         let index;
+        let currentPos = editor.selectionEnd;
+
         if (direction === 'down') {
-            index = textToSearch.indexOf(searchTerm, editor.selectionEnd);
-            if (index === -1) index = textToSearch.indexOf(searchTerm);
-        } else {
-            index = textToSearch.lastIndexOf(searchTerm, editor.selectionStart - 1);
-            if (index === -1) index = textToSearch.lastIndexOf(searchTerm);
+            // If there's a selection, start searching after it.
+            // Otherwise, start from the current cursor position.
+            if (editor.selectionStart !== editor.selectionEnd) {
+                currentPos = editor.selectionEnd;
+            } else {
+                currentPos = editor.selectionEnd > 0 ? editor.selectionEnd : 0;
+            }
+            index = textToSearch.indexOf(searchTerm, currentPos);
+            // Wrap around if not found
+            if (index === -1) {
+                index = textToSearch.indexOf(searchTerm);
+            }
+        } else { // direction === 'up'
+            currentPos = editor.selectionStart;
+            index = textToSearch.lastIndexOf(searchTerm, currentPos - 1);
+            // Wrap around if not found
+            if (index === -1) {
+                index = textToSearch.lastIndexOf(searchTerm);
+            }
         }
 
         if (index !== -1) {
