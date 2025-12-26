@@ -190,6 +190,11 @@ const directory = [
                 targetId: "app-wordpad",
                 name: "WordPad",
               },
+              {
+                id: "app-quake",
+                type: "app",
+                appId: "quake"
+              },
             ],
           },
           {
