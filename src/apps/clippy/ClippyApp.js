@@ -1,8 +1,26 @@
 import { Application, openApps } from '../Application.js';
-import { launchClippyApp } from './clippy.js';
+import { launchClippyApp, getClippyMenuItems } from './clippy.js';
 import { appManager } from '../../utils/appManager.js';
+import { ICONS } from '../../config/icons.js';
 
 export class ClippyApp extends Application {
+    static config = {
+        id: "clippy",
+        title: "Assistant",
+        description: "Your friendly assistant.",
+        icon: ICONS.clippy,
+        hasTray: true,
+        isSingleton: true,
+        tray: {
+          contextMenu: getClippyMenuItems,
+        },
+        tips: [
+          "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Assistant</a> for assistance with azOS features.",
+          "You can ask Clippy about Aziz's resume by clicking on it.",
+          "Right-click on Clippy to see more options, like changing the agent or making it animate.",
+        ],
+    };
+
     constructor(config) {
         super(config);
     }

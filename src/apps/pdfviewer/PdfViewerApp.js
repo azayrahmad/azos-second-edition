@@ -1,7 +1,22 @@
 import { Application } from "../Application.js";
 import { createPdfViewerContent } from "./pdfviewer.js";
+import { ICONS } from "../../config/icons.js";
 
 export class PdfViewerApp extends Application {
+  static config = {
+    id: "pdfviewer",
+    title: "PDF Viewer",
+    description: "View PDF documents.",
+    icon: ICONS.pdf,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
+    tips: [
+      "You can open PDF files by double-clicking them on the desktop or in the file explorer.",
+    ],
+  };
+
   constructor(config) {
     super(config);
     pdfjsLib.GlobalWorkerOptions.workerSrc =

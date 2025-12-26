@@ -6,6 +6,7 @@ import {
 } from "../../components/taskbar.js";
 import { ICONS } from "../../config/icons.js";
 import { appManager } from "../../utils/appManager.js";
+import { getWebampMenuItems } from "./webamp.js";
 
 let webampInstance = null;
 let webampContainer = null;
@@ -13,6 +14,22 @@ let webampTaskbarButton = null;
 let isMinimized = false;
 
 export class WebampApp extends Application {
+  static config = {
+    id: "webamp",
+    title: "Winamp",
+    description: "A classic music player.",
+    icon: ICONS.webamp,
+    hasTaskbarButton: true,
+    isSingleton: true,
+    tray: {
+      contextMenu: getWebampMenuItems,
+    },
+    tips: [
+      "Webamp is a music player that looks and feels like the classic Winamp.",
+      "You can minimize and restore Webamp using its button in the taskbar.",
+    ],
+  };
+
   constructor(config) {
     super(config);
     this.hasTaskbarButton = true;

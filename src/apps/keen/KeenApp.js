@@ -1,6 +1,18 @@
 import { IFrameApplication } from "../IFrameApplication.js";
+import { ICONS } from "../../config/icons.js";
 
 export class KeenApp extends IFrameApplication {
+  static config = {
+    id: "keen",
+    title: "Commander Keen",
+    description: "Play the classic game Commander Keen.",
+    icon: ICONS.keen,
+    width: 640,
+    height: 480,
+    resizable: false,
+    isSingleton: true,
+  };
+
   constructor(config) {
     super(config);
   }

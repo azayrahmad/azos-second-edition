@@ -1,8 +1,20 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./imageviewer.css";
+import { ICONS } from "../../config/icons.js";
 
 export class ImageViewerApp extends Application {
+  static config = {
+    id: "image-viewer",
+    title: "Image Viewer",
+    description: "View images.",
+    icon: ICONS.imageViewer,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
     this.file = null;

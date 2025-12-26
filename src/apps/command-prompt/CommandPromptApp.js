@@ -6,8 +6,20 @@ import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
 import { findItemByPath } from "../../utils/directory.js";
 import { launchApp } from "../../utils/appManager.js";
+import { ICONS } from "../../config/icons.js";
 
 export class CommandPromptApp extends Application {
+  static config = {
+    id: "command-prompt",
+    title: "MS-DOS Prompt",
+    description: "Starts a new MS-DOS prompt.",
+    icon: ICONS.msdos,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
     this.terminal = null;

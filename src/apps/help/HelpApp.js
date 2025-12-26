@@ -7,20 +7,24 @@ import contentHtml from "./help.html?raw";
 // Use Vite's glob import to eagerly load all possible help content.
 // This ensures they are included in the production build with correct paths.
 const htmContentModules = import.meta.glob('/src/apps/**/*.htm', { as: 'raw', eager: true });
+import { ICONS } from "../../config/icons.js";
 const jsonContentModules = import.meta.glob('/src/apps/**/*.json', { eager: true });
 console.log('[HelpApp] Available JSON modules:', Object.keys(jsonContentModules));
 
 
 class HelpApp extends Application {
+  static config = {
+    id: "help",
+    title: "Help",
+    description: "Provides help and support.",
+    icon: ICONS.help,
+    width: 550,
+    height: 450,
+    resizable: true,
+  };
+
   constructor(data) {
-    super({
-      id: "help",
-      title: "Windows Help",
-      width: 550,
-      height: 450,
-      resizable: true,
-      ...data,
-    });
+    super(data);
 
     this.history = [];
     this.historyIndex = -1;

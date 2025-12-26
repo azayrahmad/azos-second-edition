@@ -6,6 +6,17 @@ import browseUiIconsGrayscale from "../../assets/icons/browse-ui-icons-grayscale
 import { ICONS } from "../../config/icons.js";
 
 export class InternetExplorerApp extends IFrameApplication {
+  static config = {
+    id: "internet-explorer",
+    title: "Internet Explorer",
+    description: "Browse the web.",
+    icon: ICONS["internet-explorer"],
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(options) {
     super(options);
     this.retroMode = true;

@@ -41,14 +41,6 @@ import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js
 import { StatusBar } from "../../components/StatusBar.js";
 import "./explorer.css";
 
-function getExplorerIconPositions() {
-  return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
-}
-
-function setExplorerIconPositions(positions) {
-  setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
-}
-
 function isAutoArrangeEnabled() {
   const autoArrange = getItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE);
   return autoArrange === null ? false : !!autoArrange;
@@ -106,6 +98,17 @@ function isFileDropEnabled(path) {
 }
 
 export class ExplorerApp extends Application {
+  static config = {
+    id: "explorer",
+    title: "Explorer",
+    description: "Browse files and folders.",
+    icon: ICONS.computer,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
     this.initialPath = "/";
@@ -333,8 +336,9 @@ export class ExplorerApp extends Application {
         label: "Properties",
         iconName: "properties",
         action: () => {
-          const selectedIcon = this.iconManager.selectedIcons.values().next()
-            .value;
+          const selectedIcon = this.iconManager.selectedIcons
+            .values()
+            .next().value;
           const item = this.getItemFromIcon(selectedIcon);
           if (item) {
             this.showProperties(item);
@@ -750,7 +754,8 @@ export class ExplorerApp extends Application {
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
     const originalName = item.name || item.filename || item.title || app.title;
-    const displayName = item.type === "drive" ? `(${originalName})` : originalName;
+    const displayName =
+      item.type === "drive" ? `(${originalName})` : originalName;
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
@@ -1190,7 +1195,7 @@ export class ExplorerApp extends Application {
   showProperties(item) {
     // Check if the item is an app from the main configuration
     if (item.appId && item.isStatic) {
-      const appConfig = apps.find(app => app.id === item.appId);
+      const appConfig = apps.find((app) => app.id === item.appId);
       if (appConfig && appConfig.appClass) {
         const tempAppInstance = new appConfig.appClass(appConfig);
         tempAppInstance.showProperties();
@@ -1223,4 +1228,12 @@ export class ExplorerApp extends Application {
       buttons: [{ label: "OK", isDefault: true }],
     });
   }
+}
+
+function getExplorerIconPositions() {
+  return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
+}
+
+function setExplorerIconPositions(positions) {
+  setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
 }

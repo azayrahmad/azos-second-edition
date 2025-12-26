@@ -3,8 +3,20 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./media-player.css";
 import mediaPlayerHTML from "./media-player.html?raw";
 import mediaPlayerIcon from "../../assets/img/mediaplayer.png";
+import { ICONS } from "../../config/icons.js";
 
 export class MediaPlayerApp extends Application {
+  static config = {
+    id: "media-player",
+    title: "Media Player",
+    description: "Play audio and video files.",
+    icon: ICONS.mediaPlayer,
+    width: 480,
+    height: 360,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
   }
