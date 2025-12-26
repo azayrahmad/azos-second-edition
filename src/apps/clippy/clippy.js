@@ -174,25 +174,6 @@ export function getClippyMenuItems(app) {
       },
     },
     {
-      label: "Run Tutorial at Next Startup",
-      checkbox: {
-        check: () =>
-          getItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP) ?? false,
-        toggle: () => {
-          const currentState =
-            getItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP) ?? false;
-          const newState = !currentState;
-          setItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP, newState);
-          if (newState) {
-            addStartupApp("clippy");
-          } else {
-            removeStartupApp("clippy");
-          }
-        },
-      },
-    },
-    "MENU_DIVIDER",
-    {
       label: "A&gent",
       submenu: [
         {
