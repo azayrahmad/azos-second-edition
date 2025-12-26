@@ -21,3 +21,7 @@ The PDF Viewer is a simple and efficient application for viewing PDF documents w
 
 - **Web Platform APIs**:
   - **HTML `<object>` tag**: The core technology used to embed and render the PDF document within the application window.
+
+## Screenshot
+
+![Screenshot of the pdfviewer app](./screenshot.png)

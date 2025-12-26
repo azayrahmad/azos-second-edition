@@ -1,7 +1,22 @@
 import { Application } from "../Application.js";
 import { createPdfViewerContent } from "./pdfviewer.js";
+import { ICONS } from "../../config/icons.js";
 
 export class PdfViewerApp extends Application {
+  static config = {
+    id: "pdfviewer",
+    title: "PDF Viewer",
+    description: "View PDF documents.",
+    icon: ICONS.pdf,
+    width: 800,
+    height: 600,
+    resizable: true,
+    isSingleton: false,
+    tips: [
+      "You can open PDF files by double-clicking them on the desktop or in the file explorer.",
+    ],
+  };
+
   constructor(config) {
     super(config);
     pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -15,9 +30,12 @@ export class PdfViewerApp extends Application {
     this.scrollTop = 0;
   }
 
-  _createWindow() {
+  _createWindow(filePath) {
+    const fileName = filePath ? filePath.split("/").pop() : null;
+    const title = fileName ? `${fileName} - ${this.title}` : this.title;
+
     this.win = new $Window({
-      title: this.title,
+      title: title,
       outerWidth: this.width,
       outerHeight: this.height,
       resizable: this.resizable,

@@ -1,5 +1,6 @@
 import { getIconSchemeName } from "./themeManager.js";
 import { iconSchemes } from "../config/icon-schemes.js";
+import { ICONS } from "../config/icons.js";
 
 /**
  * Retrieves the icon for a given identifier, considering the current icon scheme.
@@ -12,5 +13,5 @@ export function getIcon(iconIdentifier) {
   const iconSchemeName = getIconSchemeName() || "default";
   const scheme = iconSchemes[iconSchemeName] || iconSchemes["default"];
 
-  return scheme[iconIdentifier] || null;
+  return scheme[iconIdentifier] || ICONS[iconIdentifier] || ICONS.file;
 }

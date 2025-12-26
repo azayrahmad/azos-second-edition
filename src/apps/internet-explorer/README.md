@@ -22,3 +22,7 @@ Internet Explorer is a web browser for the azOS environment that allows users to
 3.  The page will load in the main content area. By default, it will attempt to load the 1998 version.
 4.  To view the modern version of a website, go to the `File` menu and uncheck **Retro Mode**. Then, navigate to the site again.
 5.  Use the `Go` menu to navigate back and forward through your browsing history or to go up one level in the current URL's directory structure.
+
+## Screenshot
+
+![Screenshot of the internet-explorer app](./screenshot.png)

@@ -1,8 +1,20 @@
 import { Application } from "../Application.js";
 import { NotepadEditor } from "../../components/NotepadEditor.js";
 import "./themetocss.css";
+import { ICONS } from "../../config/icons.js";
 
 export class ThemeToCssApp extends Application {
+  static config = {
+    id: "themetocss",
+    title: "Theme to CSS",
+    description: "Convert a Windows theme file to CSS.",
+    icon: ICONS.themetocss,
+    width: 700,
+    height: 350,
+    resizable: true,
+    isSingleton: true,
+  };
+
   constructor(config) {
     super(config);
   }

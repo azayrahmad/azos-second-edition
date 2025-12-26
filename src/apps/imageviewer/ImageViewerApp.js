@@ -1,8 +1,20 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./imageviewer.css";
+import { ICONS } from "../../config/icons.js";
 
 export class ImageViewerApp extends Application {
+  static config = {
+    id: "image-viewer",
+    title: "Image Viewer",
+    description: "View images.",
+    icon: ICONS.imageViewer,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
     this.file = null;
@@ -104,17 +116,27 @@ export class ImageViewerApp extends Application {
   }
 
   async _onLaunch(data) {
+    try {
     this.img = this.win.$content.find("img")[0];
     const imageContainer = this.win.$content.find(".image-viewer-container")[0];
 
     if (typeof data === "string") {
       // It's a file path
       fetch(data)
-        .then((response) => response.blob())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.blob();
+        })
         .then((blob) => {
           const fileName = decodeURIComponent(data.split("/").pop());
           const file = new File([blob], fileName);
           this.loadFile(file);
+        })
+        .catch((e) => {
+          console.error("Error loading image:", e);
+          this.win.close(); // Close the window if the image fails to load
         });
     } else if (data && typeof data === "object") {
       // It's a file object from drag-and-drop
@@ -181,6 +203,10 @@ export class ImageViewerApp extends Application {
     imageContainer.addEventListener("touchend", stopPanning);
     imageContainer.addEventListener("touchcancel", stopPanning);
     imageContainer.addEventListener("touchmove", doPan, { passive: false });
+    } catch (e) {
+      console.error("Error in ImageViewerApp._onLaunch:", e);
+      this.win.close();
+    }
   }
 
   loadFile(file) {

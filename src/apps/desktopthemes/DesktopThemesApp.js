@@ -27,6 +27,17 @@ import previewHtml from "./DesktopThemesPreview.html?raw";
 import "./desktopthemes.css";
 
 export class DesktopThemesApp extends Application {
+  static config = {
+    id: "desktopthemes",
+    title: "Desktop Themes",
+    description: "Customize your desktop's appearance.",
+    icon: ICONS.desktopthemes,
+    width: 550,
+    height: 500,
+    resizable: false,
+    isSingleton: true,
+  };
+
   constructor(config) {
     super(config);
     this.previousThemeId = null;
@@ -199,7 +210,7 @@ export class DesktopThemesApp extends Application {
         currentColors[`--${key.replace(/^--/, "")}`] = value;
       }
     } else if (currentColorScheme) {
-      const cssText = await fetchThemeCss(currentColorScheme.url);
+      const cssText = await fetchThemeCss(currentColorSchemeId);
       if (cssText) {
         const parsedVariables = parseCssVariables(cssText);
         for (const [key, value] of Object.entries(parsedVariables)) {

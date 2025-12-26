@@ -257,17 +257,44 @@ export function launchClippyApp(
       $(".clippy, .clippy-balloon").remove();
     }
 
-    const existingMenus = document.querySelectorAll(".menu-popup");
-    existingMenus.forEach((menu) => menu.remove());
+  // Ensure the menu is removed if it exists
+  const existingMenus = document.querySelectorAll(".menu-popup");
+  existingMenus.forEach((menu) => menu.remove());
 
-    clippy.load(agentName, function (agent) {
-      window.clippyAgent = agent;
+  clippy.load(agentName, function (agent) {
+    window.clippyAgent = agent;
+    agent._el[0].setAttribute('data-testid', 'clippy-agent');
 
-      const ttsUserPref =
-        getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
-      agent.setTTSEnabled(ttsUserPref);
+    const ttsUserPref = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+    agent.setTTSEnabled(ttsUserPref);
 
-      agent.show();
+    agent.show();
+
+    let contextMenuOpened = false;
+
+    const ttsEnabled = agent.isTTSEnabled();
+    if (ttsEnabled) {
+      const setDefaultVoice = () => {
+        const voices = agent.getTTSVoices();
+        if (voices.length > 0) {
+          // Improved voice selection logic
+          const englishVoices = voices.filter((v) => v.lang.startsWith("en"));
+
+          // Prioritize male-sounding voices by name patterns
+          let defaultVoice = englishVoices.find(
+            (v) =>
+              v.name.toLowerCase().includes("male") ||
+              v.name.toLowerCase().includes("david") ||
+              v.name.toLowerCase().includes("alex") ||
+              v.name.toLowerCase().includes("fred") ||
+              v.name.toLowerCase().includes("daniel") ||
+              v.name.toLowerCase().includes("george") ||
+              v.name.toLowerCase().includes("paul") ||
+              v.name.toLowerCase().includes("tom") ||
+              v.name.toLowerCase().includes("mark") ||
+              v.name.toLowerCase().includes("james") ||
+              v.name.toLowerCase().includes("michael"),
+          );
 
       let contextMenuOpened = false;
 

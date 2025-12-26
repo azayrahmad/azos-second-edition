@@ -19,3 +19,7 @@ This application provides a fully functional calculator with both "Standard" and
 - Use the "View" menu to switch between "Standard" and "Scientific" modes.
 - Click the buttons with your mouse or use your keyboard to enter numbers and perform calculations.
 - The display at the top shows the current input and results.
+
+## Screenshot
+
+![Screenshot of the calculator app](./screenshot.png)

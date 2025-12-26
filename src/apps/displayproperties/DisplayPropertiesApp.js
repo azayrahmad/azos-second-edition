@@ -13,17 +13,22 @@ import screensaverHtml from "./screensaver/screensaver.html?raw";
 import settingsHtml from "./settings/settings.html?raw";
 import appearanceHtml from "./appearance/appearance.html?raw";
 import energystar from "../../assets/img/EnergyStarDisplay.png";
+import { ICONS } from "../../config/icons.js";
 
 class DisplayPropertiesApp extends Application {
+  static config = {
+    id: "displayproperties",
+    title: "Display",
+    description: "Customize your display settings.",
+    icon: ICONS.displayProperties,
+    width: 404,
+    height: 448,
+    resizable: false,
+    isSingleton: true,
+  };
+
   constructor(data) {
-    super({
-      id: "displayproperties",
-      title: "Display Properties",
-      width: 480,
-      height: 420,
-      resizable: false,
-      ...data,
-    });
+    super(data);
   }
 
   _createWindow() {

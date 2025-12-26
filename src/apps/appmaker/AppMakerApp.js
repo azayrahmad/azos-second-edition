@@ -7,8 +7,20 @@ import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.j
 import { registerCustomApp } from '../../utils/customAppManager.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
 import { renderHTML } from '../../utils/domUtils.js';
+import { ICONS } from '../../config/icons.js';
 
 export class AppMakerApp extends Application {
+    static config = {
+        id: "appmaker",
+        title: "App Maker",
+        description: "Create your own applications.",
+        icon: ICONS.appmaker,
+        width: 600,
+        height: 500,
+        resizable: true,
+        isSingleton: true,
+    };
+
     constructor(config) {
         super(config);
         this.appWidth = 400;

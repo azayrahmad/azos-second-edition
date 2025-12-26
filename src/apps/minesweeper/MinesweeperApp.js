@@ -3,18 +3,30 @@ import { MinesweeperGame } from "./MinesweeperGame.js";
 import { getItem, setItem } from "../../utils/localStorage.js";
 import { SpriteDisplay } from "./SpriteDisplay.js";
 import "./minesweeper.css";
+import { ICONS } from "../../config/icons.js";
 
 const HIGH_SCORES_KEY = "minesweeper_high_scores";
 const STYLE_KEY = "minesweeper.use98style";
 
 export class MinesweeperApp extends Application {
+  static config = {
+    id: "minesweeper",
+    title: "Minesweeper",
+    description: "Play the classic game of Minesweeper.",
+    icon: ICONS.minesweeper,
+    width: 200,
+    height: 280,
+    resizable: false,
+    isSingleton: true,
+  };
+
   _createWindow() {
     const win = new $Window({
-      title: "Minesweeper",
+      title: this.title,
       icons: this.icon,
-      width: 200,
-      height: 280,
-      resizable: false,
+      width: this.width,
+      height: this.height,
+      resizable: this.resizable,
     });
 
     this.difficulty = "beginner";

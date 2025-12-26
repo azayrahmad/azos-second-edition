@@ -25,3 +25,7 @@ Explorer is a file and folder navigation tool for the azOS environment. It provi
 5.  To manage items in the **Recycle Bin**:
     -   Navigate to the Recycle Bin by opening it from the desktop.
     -   Right-click an item to **Restore** it to the desktop or to **Delete** it permanently.
+
+## Screenshot
+
+![Screenshot of the explorer app](./screenshot.png)

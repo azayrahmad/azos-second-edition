@@ -8,6 +8,7 @@ const startMenuAppIds = [
   "tipOfTheDay",
   "internet-explorer",
   "keen",
+  "command-prompt",
   "buy-me-a-coffee",
   "pdfviewer",
   "doom",
@@ -15,7 +16,7 @@ const startMenuAppIds = [
   "diablo",
   "esheep",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "calculator"];
+const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "wordpad", "calculator"];
 
 function getAppList(appListIds) {
   return appListIds
@@ -195,7 +196,7 @@ const startMenuConfig = [
   {
     label: "Help",
     icon: ICONS.help[32],
-    action: () => ShowComingSoonDialog("Help"),
+    action: () => launchApp("help"),
   },
   {
     label: "Run",

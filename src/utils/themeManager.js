@@ -133,46 +133,48 @@ export async function applyTheme() {
   const customThemeForColors = allThemes[colorSchemeId];
 
   // --- Cleanup Phase ---
-  // Disable all built-in theme stylesheets
-  for (const schemeId in allColorSchemes) {
-    const stylesheet = document.getElementById(`${schemeId}-theme`);
-    if (stylesheet) stylesheet.disabled = true;
-  }
-
-  // Remove all stylesheets for saved custom themes
+  // Remove all previously injected style tags
+  Object.keys(allColorSchemes).forEach(removeStylesheet);
   const customThemes = getCustomThemes();
-  for (const themeId in customThemes) {
-    removeStylesheet(themeId);
-  }
-
-  // Remove the generic temporary stylesheet if it exists
-  removeStylesheet("custom");
+  Object.keys(customThemes).forEach(removeStylesheet);
+  removeStylesheet("custom"); // For temporary themes
 
   // --- Application Phase ---
   applyCursorTheme(cursorSchemeId);
 
-  // Check for built-in color scheme first
-  if (colorScheme) {
-    const stylesheet = document.getElementById(`${colorSchemeId}-theme`);
-    if (stylesheet) {
-      stylesheet.disabled = false;
+  // Handle built-in color schemes
+  if (colorScheme && colorScheme.loader) {
+    try {
+      const cssModule = await colorScheme.loader();
+      applyStylesheet(colorSchemeId, cssModule.default);
+    } catch (error) {
+      console.error(`Failed to load color scheme "${colorSchemeId}":`, error);
+      // Fallback to default if loading fails
+      const defaultScheme = allColorSchemes["default"];
+      if (defaultScheme && defaultScheme.loader) {
+        const cssModule = await defaultScheme.loader();
+        applyStylesheet("default", cssModule.default);
+      }
     }
   } else if (customThemeForColors && customThemeForColors.colors) {
     // It's a custom or temporary theme, so generate and apply its CSS.
     await loadThemeParser();
     if (window.makeThemeCSSFile) {
       const cssContent = window.makeThemeCSSFile(customThemeForColors.colors);
-      // Use 'custom' id for the temporary theme from the app, otherwise the theme's own id.
-      const styleId =
-        customThemeForColors.id === "custom"
-          ? "custom"
-          : customThemeForColors.id;
+      const styleId = customThemeForColors.id === "custom" ? "custom" : customThemeForColors.id;
       applyStylesheet(styleId, cssContent);
     }
   } else {
-    // Fallback to default if nothing is found
-    const defaultStylesheet = document.getElementById(`default-theme`);
-    if (defaultStylesheet) defaultStylesheet.disabled = false;
+    // Fallback for default or if nothing is found
+    const defaultScheme = allColorSchemes["default"];
+    if (defaultScheme && defaultScheme.loader) {
+      try {
+        const cssModule = await defaultScheme.loader();
+        applyStylesheet("default", cssModule.default);
+      } catch (error) {
+        console.error("Failed to load default color scheme:", error);
+      }
+    }
   }
 }
 
@@ -188,6 +190,28 @@ export async function setColorScheme(schemeId) {
     }
     setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, schemeId);
     await applyTheme();
+    document.dispatchEvent(new CustomEvent("theme-changed"));
+  } finally {
+    clearBusyCursor(document.body);
+  }
+}
+
+export async function applyCustomColorScheme(colorObject) {
+  if (!colorObject) {
+    console.error("applyCustomColorScheme received an invalid color object.");
+    return;
+  }
+
+  applyBusyCursor(document.body);
+  try {
+    await loadThemeParser();
+    if (window.makeThemeCSSFile) {
+      const cssContent = window.makeThemeCSSFile(colorObject);
+      applyStylesheet("custom", cssContent);
+    }
+    // Set a temporary key in localStorage so other parts of the system
+    // know that a custom, non-saved theme is active.
+    setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, "custom");
     document.dispatchEvent(new CustomEvent("theme-changed"));
   } finally {
     clearBusyCursor(document.body);

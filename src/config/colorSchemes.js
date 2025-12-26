@@ -1,78 +1,81 @@
 export const colorSchemes = {
   default: {
     name: "Windows Default",
-    url: "os-gui/windows-default.css",
+    loader: () => import("../styles/color-schemes/windows-default.css?inline"),
   },
   "60s-usa": {
     name: "The 60's USA",
-    url: "os-gui/60s-usa.css",
+    loader: () => import("../styles/color-schemes/60s-usa.css?inline"),
   },
   "dangerous-creatures": {
     name: "Dangerous Creatures",
-    url: "os-gui/dangerous-creatures.css",
+    loader: () =>
+      import("../styles/color-schemes/dangerous-creatures.css?inline"),
   },
   baseball: {
     name: "Baseball",
-    url: "os-gui/baseball.css",
+    loader: () => import("../styles/color-schemes/baseball.css?inline"),
   },
   jungle: {
     name: "Jungle",
-    url: "os-gui/jungle.css",
+    loader: () => import("../styles/color-schemes/jungle.css?inline"),
   },
   space: {
     name: "Space",
-    url: "os-gui/space.css",
+    loader: () => import("../styles/color-schemes/space.css?inline"),
   },
   underwater: {
     name: "Underwater",
-    url: "os-gui/underwater.css",
+    loader: () => import("../styles/color-schemes/underwater.css?inline"),
   },
   "inside-your-computer": {
     name: "Inside Your Computer",
-    url: "os-gui/inside-your-computer.css",
+    loader: () =>
+      import("../styles/color-schemes/inside-your-computer.css?inline"),
   },
   sports: {
     name: "Sports",
-    url: "os-gui/sports.css",
+    loader: () => import("../styles/color-schemes/sports.css?inline"),
   },
   "leonardo-da-vinci": {
     name: "Leonardo da Vinci",
-    url: "os-gui/leonardo-da-vinci.css",
+    loader: () =>
+      import("../styles/color-schemes/leonardo-da-vinci.css?inline"),
   },
   "more-windows": {
     name: "More Windows",
-    url: "os-gui/more-windows.css",
+    loader: () => import("../styles/color-schemes/more-windows.css?inline"),
   },
   mystery: {
     name: "Mystery",
-    url: "os-gui/mystery.css",
+    loader: () => import("../styles/color-schemes/mystery.css?inline"),
   },
   nature: {
     name: "Nature",
-    url: "os-gui/nature.css",
+    loader: () => import("../styles/color-schemes/nature.css?inline"),
   },
   science: {
     name: "Science",
-    url: "os-gui/science.css",
+    loader: () => import("../styles/color-schemes/science.css?inline"),
   },
   "the-golden-era": {
     name: "The Golden Era",
-    url: "os-gui/the-golden-era.css",
+    loader: () => import("../styles/color-schemes/the-golden-era.css?inline"),
   },
   travel: {
     name: "Travel",
-    url: "os-gui/travel.css",
+    loader: () => import("../styles/color-schemes/travel.css?inline"),
   },
   "windows-98": {
     name: "Windows 98",
-    url: "os-gui/win-98.css",
+    loader: () => import("../styles/color-schemes/win-98.css?inline"),
   },
   blue: {
     name: "(OS-GUI) Blue",
-    url: "os-gui/blue.css",
+    loader: () => import("../styles/color-schemes/blue.css?inline"),
   },
   "peggys-pastels": {
     name: "(OS-GUI) Peggy's Pastels",
-    url: "os-gui/peggys-pastels.css",
+    loader: () => import("../styles/color-schemes/peggys-pastels.css?inline"),
   },
 };

@@ -6,8 +6,19 @@ import { Tooltip } from "../../components/Tooltip.js";
 import buttonDefinitions from "./buttons.js"; // Import the centralized button definitions
 import "./calculator.css";
 import { ICONS } from "../../config/icons.js";
+import helpData from "./help.json";
 
 export class CalculatorApp extends Application {
+  static config = {
+    id: "calculator",
+    title: "Calculator",
+    description: "Perform calculations.",
+    icon: ICONS.calculator,
+    width: 260,
+    height: 280,
+    resizable: false,
+  };
+
   constructor(config) {
     super(config);
     this.win = null;
@@ -71,6 +82,10 @@ export class CalculatorApp extends Application {
         },
       ],
       "&Help": [
+        {
+          label: "Help &Topics",
+          action: () => window.System.launchApp("help", helpData),
+        },
         {
           label: "&About Calculator",
           action: () => this._showAboutDialog(),

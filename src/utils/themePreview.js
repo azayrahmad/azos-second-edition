@@ -2,19 +2,25 @@ import { getThemes, getColorSchemes } from "./themeManager.js";
 
 const themeCssCache = {};
 
-export async function fetchThemeCss(stylesheet) {
-  if (!stylesheet) return null;
-  const url = `./${stylesheet}`;
-  if (themeCssCache[url]) return themeCssCache[url];
-  try {
-    const response = await fetch(url);
-    if (!response.ok)
-      throw new Error(`Failed to fetch CSS: ${response.statusText}`);
-    const cssText = await response.text();
-    themeCssCache[url] = cssText;
-    return cssText;
-  } catch (error) {
-    console.error("Error fetching theme CSS:", error);
+export async function fetchThemeCss(schemeId) {
+  if (!schemeId) return null;
+  if (themeCssCache[schemeId]) return themeCssCache[schemeId];
+
+  const schemes = getColorSchemes();
+  const scheme = schemes[schemeId];
+
+  if (scheme && scheme.loader) {
+    try {
+      const cssModule = await scheme.loader();
+      const cssText = cssModule.default;
+      themeCssCache[schemeId] = cssText;
+      return cssText;
+    } catch (error) {
+      console.error(`Error loading theme CSS for "${schemeId}":`, error);
+      return null;
+    }
+  } else {
+    console.error(`No loader found for schemeId "${schemeId}"`);
     return null;
   }
 }
@@ -57,6 +63,7 @@ function applyCssVariables(container, variables) {
       variables["ButtonShadow"] || "rgb(128, 128, 128)",
     "--preview-button-dk-shadow": variables["ButtonDkShadow"] || "rgb(0, 0, 0)",
     "--preview-hilight-text": variables["HilightText"] || "rgb(0, 0, 0)",
+    "--preview-background": variables["Background"] || "rgb(240, 240, 240)",
 
     // Font properties
     "--preview-font-family-title":
@@ -88,7 +95,7 @@ export async function applyThemeToPreview(schemeId, previewContainer) {
 
   let variables = {};
   if (scheme) {
-    const cssText = await fetchThemeCss(scheme.url);
+    const cssText = await fetchThemeCss(schemeId);
     if (cssText) {
       variables = parseCssVariables(cssText);
     }

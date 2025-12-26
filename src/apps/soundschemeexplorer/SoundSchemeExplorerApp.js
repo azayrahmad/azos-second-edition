@@ -3,8 +3,20 @@ import { soundSchemes } from "../../config/sound-schemes.js";
 import { themes } from "../../config/themes.js";
 import { getCurrentTheme } from "../../utils/themeManager.js";
 import { playSound } from "../../utils/soundManager.js";
+import { ICONS } from "../../config/icons.js";
 
 export class SoundSchemeExplorerApp extends Application {
+  static config = {
+    id: "soundschemeexplorer",
+    title: "Sound Scheme Explorer",
+    description: "Explore and listen to sound schemes.",
+    icon: ICONS.soundschemeexplorer,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: true,
+  };
+
   constructor(options) {
     super(options);
     this.currentSchemeName = "";
@@ -12,10 +24,10 @@ export class SoundSchemeExplorerApp extends Application {
 
   _createWindow() {
     const win = new $Window({
-      title: "Sound Scheme Explorer",
-      width: 400,
-      height: 300,
-      resizable: true,
+      title: this.title,
+      width: this.width,
+      height: this.height,
+      resizable: this.resizable,
       id: this.id,
     });
 

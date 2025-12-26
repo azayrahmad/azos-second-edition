@@ -1,36 +1,6 @@
-import { AboutApp } from "../apps/about/AboutApp.js";
-import { AppMakerApp } from "../apps/appmaker/AppMakerApp.js";
-import { NotepadApp } from "../apps/notepad/NotepadApp.js";
-import { PdfViewerApp } from "../apps/pdfviewer/PdfViewerApp.js";
-import { TipOfTheDayApp } from "../apps/tipOfTheDay/TipOfTheDayApp.js";
-import { ClippyApp } from "../apps/clippy/ClippyApp.js";
-import { WebampApp } from "../apps/webamp/WebampApp.js";
-import { ImageResizerApp } from "../apps/image-resizer/ImageResizerApp.js";
-import { ImageViewerApp } from "../apps/imageviewer/ImageViewerApp.js";
-import { TaskManagerApp } from "../apps/taskmanager/TaskManagerApp.js";
-import { ExplorerApp } from "../apps/explorer/ExplorerApp.js";
-import { InternetExplorerApp } from "../apps/internet-explorer/InternetExplorerApp.js";
-import { PinballApp } from "../apps/pinball/PinballApp.js";
-import { KeenApp } from "../apps/keen/KeenApp.js";
-import { DosGameApp } from "../apps/dosgame/DosGameApp.js";
-import { PaintApp } from "../apps/paint/PaintApp.js";
-import DisplayPropertiesApp from "../apps/displayproperties/DisplayPropertiesApp.js";
-import { DesktopThemesApp } from "../apps/desktopthemes/DesktopThemesApp.js";
-import { ThemeToCssApp } from "../apps/themetocss/ThemeToCssApp.js";
-import { SoundSchemeExplorerApp } from "../apps/soundschemeexplorer/SoundSchemeExplorerApp.js";
-import { CursorExplorerApp } from "../apps/cursorexplorer/CursorExplorerApp.js";
+// src/config/apps.js
+
 import { ShowDialogWindow } from "../components/DialogWindow.js";
-import { getClippyMenuItems } from "../apps/clippy/clippy.js";
-import { getWebampMenuItems } from "../apps/webamp/webamp.js";
-import { DiabloApp } from "../apps/diablo/DiabloApp.js";
-import { MediaPlayerApp } from "../apps/media-player/MediaPlayerApp.js";
-import { MinesweeperApp } from "../apps/minesweeper/MinesweeperApp.js";
-import { DefragApp } from "../apps/defrag/DefragApp.js";
-import { BuyMeACoffeeApp } from "../apps/buy-me-a-coffee/BuyMeACoffeeApp.js";
-import { ESheepApp } from "../apps/esheep/ESheepApp.js";
-import { getESheepMenuItems } from "../apps/esheep/esheep.js";
-import { CalculatorApp } from "../apps/calculator/CalculatorApp.js";
-import { ICONS } from "./icons.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
 import {
@@ -39,38 +9,42 @@ import {
 } from "../utils/recycleBinManager.js";
 import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
 
-export const appClasses = {
-  about: AboutApp,
-  appmaker: AppMakerApp,
-  notepad: NotepadApp,
-  pdfviewer: PdfViewerApp,
-  tipOfTheDay: TipOfTheDayApp,
-  clippy: ClippyApp,
-  webamp: WebampApp,
-  "image-resizer": ImageResizerApp,
-  "image-viewer": ImageViewerApp,
-  themetocss: ThemeToCssApp,
-  desktopthemes: DesktopThemesApp,
-  taskmanager: TaskManagerApp,
-  soundschemeexplorer: SoundSchemeExplorerApp,
-  explorer: ExplorerApp,
-  "internet-explorer": InternetExplorerApp,
-  pinball: PinballApp,
-  keen: KeenApp,
-  dosgame: DosGameApp,
-  paint: PaintApp,
-  displayproperties: DisplayPropertiesApp,
-  "buy-me-a-coffee": BuyMeACoffeeApp,
-  cursorexplorer: CursorExplorerApp,
-  "media-player": MediaPlayerApp,
-  diablo: DiabloApp,
-  esheep: ESheepApp,
-  minesweeper: MinesweeperApp,
-  calculator: CalculatorApp,
-  defrag: DefragApp,
-};
+// --- Dynamic App Loading ---
 
-export const apps = [
+// Use Vite's glob import to get all App modules
+const appModules = import.meta.glob('../apps/*/*App.js', { eager: true });
+
+export const appClasses = {};
+const staticConfigs = [];
+
+for (const path in appModules) {
+    const appModule = appModules[path];
+    let AppClass = null;
+
+    // Check for a named export ending in 'App'
+    const appClassName = Object.keys(appModule).find(key => key.endsWith('App'));
+    if (appClassName) {
+        AppClass = appModule[appClassName];
+    }
+    // If not found, check for a default export
+    else if (appModule.default) {
+        AppClass = appModule.default;
+    }
+
+    if (AppClass && AppClass.config) {
+        const configs = Array.isArray(AppClass.config) ? AppClass.config : [AppClass.config];
+        configs.forEach(config => {
+            if (config.id) {
+                appClasses[config.id] = AppClass;
+                staticConfigs.push({ ...config, appClass: AppClass });
+            }
+        });
+    }
+}
+
+// --- Static & System App Definitions ---
+
+const systemApps = [
   {
     id: "my-computer",
     title: "My Computer",
@@ -92,7 +66,7 @@ export const apps = [
     id: "my-briefcase",
     title: "My Briefcase",
     description: "Stores your uploaded files.",
-    icon: ICONS.briefcase,
+    get icon() { return getIcon("briefcase"); },
     action: {
       type: "function",
       handler: () => {
@@ -178,7 +152,7 @@ export const apps = [
     id: "my-documents",
     title: "My Documents",
     description: "A common repository for documents.",
-    icon: ICONS.folder,
+    get icon() { return getIcon("folder"); },
     action: {
       type: "function",
       handler: () => {
@@ -190,348 +164,10 @@ export const apps = [
     },
   },
   {
-    id: "about",
-    title: "About",
-    description: "Displays information about this application.",
-    summary: "<b>azOS Second Edition</b><br>Copyright © 2024",
-    icon: ICONS.windowsUpdate,
-    appClass: AboutApp,
-    width: 400,
-    height: 216,
-    resizable: false,
-    minimizeButton: false,
-    maximizeButton: false,
-    isSingleton: true,
-  },
-  {
-    id: "keen",
-    title: "Commander Keen",
-    description: "Play the classic game Commander Keen.",
-    icon: ICONS.keen,
-    appClass: KeenApp,
-    width: 640,
-    height: 480,
-    resizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "tipOfTheDay",
-    title: "Tip of the Day",
-    description: "Provides useful tips about using the system.",
-    icon: ICONS.tip,
-    appClass: TipOfTheDayApp,
-    width: 400,
-    height: 300,
-    resizable: false,
-    minimizeButton: false,
-    maximizeButton: false,
-    isSingleton: true,
-    tips: [
-      "To open a file or an application from desktop, double-click the icon.",
-      "To close a window, click the X in the top-right corner.",
-    ],
-  },
-  {
-    id: "pdfviewer",
-    title: "PDF Viewer",
-    description: "View PDF documents.",
-    icon: ICONS.pdf,
-    appClass: PdfViewerApp,
-    width: 800,
-    height: 600,
-    resizable: true,
-    isSingleton: false,
-    tips: [
-      "You can open PDF files by double-clicking them on the desktop or in the file explorer.",
-    ],
-  },
-  {
-    id: "notepad",
-    title: "Notepad",
-    description: "A simple text editor.",
-    icon: ICONS.notepad,
-    appClass: NotepadApp,
-    width: 600,
-    height: 400,
-    resizable: true,
-    isSingleton: false,
-    tips: [
-      "Notepad can be used for more than just text. It also supports syntax highlighting for various programming languages.",
-      "In Notepad, you can format your code using the 'Format' option in the 'File' menu.",
-      "You can preview Markdown files in Notepad by selecting 'Preview Markdown' from the 'View' menu.",
-      "Notepad can copy text with syntax highlighting. Use 'Copy with Formatting' from the 'Edit' menu.",
-    ],
-  },
-  {
-    id: "image-resizer",
-    title: "Image Resizer",
-    description: "Resize and convert images.",
-    icon: ICONS.image,
-    appClass: ImageResizerApp,
-    width: 920,
-    height: 720,
-    resizable: true,
-    isSingleton: false,
-  },
-  {
-    id: "image-viewer",
-    title: "Image Viewer",
-    description: "View images.",
-    icon: ICONS.imageViewer,
-    appClass: ImageViewerApp,
-    width: 400,
-    height: 300,
-    resizable: true,
-    isSingleton: false,
-  },
-  {
-    id: "clippy",
-    title: "Assistant",
-    description: "Your friendly assistant.",
-    icon: ICONS.clippy,
-    appClass: ClippyApp,
-    hasTray: true,
-    isSingleton: true,
-    tray: {
-      contextMenu: getClippyMenuItems,
-    },
-    tips: [
-      "Need help? Try the <a href='#' class='tip-link' data-app='clippy'>Assistant</a> for assistance with azOS features.",
-      "You can ask Clippy about Aziz's resume by clicking on it.",
-      "Right-click on Clippy to see more options, like changing the agent or making it animate.",
-    ],
-  },
-  {
-    id: "webamp",
-    title: "Winamp",
-    description: "A classic music player.",
-    icon: ICONS.webamp,
-    appClass: WebampApp,
-    hasTaskbarButton: true,
-    isSingleton: true,
-    tray: {
-      contextMenu: getWebampMenuItems,
-    },
-    tips: [
-      "Webamp is a music player that looks and feels like the classic Winamp.",
-      "You can minimize and restore Webamp using its button in the taskbar.",
-    ],
-  },
-  {
-    id: "appmaker",
-    title: "App Maker",
-    description: "Create your own applications.",
-    icon: ICONS.appmaker,
-    appClass: AppMakerApp,
-    width: 600,
-    height: 500,
-    resizable: true,
-    isSingleton: true,
-  },
-  {
-    id: "alertTest",
-    title: "Alert Test",
-    description: "A test for the alert dialog.",
-    icon: ICONS.about,
-    action: {
-      type: "function",
-      handler: () => {
-        ShowDialogWindow({
-          title: "Alert",
-          text: "The alert works.",
-          soundEvent: "SystemHand",
-          contentIconUrl: ICONS.about[32],
-          buttons: [{ label: "OK", isDefault: true }],
-        });
-      },
-    },
-  },
-  {
-    id: "themetocss",
-    title: "Theme to CSS",
-    description: "Convert a Windows theme file to CSS.",
-    icon: ICONS.themetocss,
-    appClass: ThemeToCssApp,
-    width: 700,
-    height: 350,
-    resizable: true,
-    isSingleton: true,
-  },
-  {
-    id: "desktopthemes",
-    title: "Desktop Themes",
-    description: "Customize your desktop's appearance.",
-    icon: ICONS.desktopthemes,
-    appClass: DesktopThemesApp,
-    width: 550,
-    height: 500,
-    resizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "taskmanager",
-    title: "Task Manager",
-    description: "Manage running applications.",
-    icon: ICONS.windows,
-    appClass: TaskManagerApp,
-    width: 300,
-    height: 400,
-    resizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "soundschemeexplorer",
-    title: "Sound Scheme Explorer",
-    description: "Explore and listen to sound schemes.",
-    icon: ICONS.soundschemeexplorer,
-    appClass: SoundSchemeExplorerApp,
-    width: 400,
-    height: 300,
-    resizable: true,
-    isSingleton: true,
-  },
-  {
-    id: "explorer",
-    title: "Explorer",
-    description: "Browse files and folders.",
-    icon: ICONS.computer,
-    appClass: ExplorerApp,
-    width: 640,
-    height: 480,
-    resizable: true,
-    isSingleton: false,
-  },
-  {
-    id: "internet-explorer",
-    title: "Internet Explorer",
-    description: "Browse the web.",
-    icon: ICONS["internet-explorer"],
-    appClass: InternetExplorerApp,
-    width: 800,
-    height: 600,
-    resizable: true,
-    isSingleton: false,
-  },
-  {
-    id: "pinball",
-    title: "Space Cadet Pinball",
-    description: "Play a classic game of pinball.",
-    icon: ICONS.pinball,
-    appClass: PinballApp,
-    width: 600,
-    height: 400,
-    resizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "paint",
-    title: "Paint",
-    description: "Create and edit images.",
-    icon: ICONS.paint,
-    appClass: PaintApp,
-    width: 800,
-    height: 600,
-    resizable: true,
-    isSingleton: false,
-  },
-  {
-    id: "displayproperties",
-    title: "Display",
-    description: "Customize your display settings.",
-    icon: ICONS.displayProperties,
-    appClass: DisplayPropertiesApp,
-    width: 404,
-    height: 448,
-    resizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "buy-me-a-coffee",
-    title: "Buy me a coffee",
-    description: "Support the developer.",
-    icon: ICONS["buy-me-a-coffee"],
-    appClass: BuyMeACoffeeApp,
-    width: 300,
-    height: 650,
-    resizable: false,
-    maximizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "cursorexplorer",
-    title: "Mouse",
-    description: "Explore and preview cursor schemes.",
-    icon: ICONS["mouse"],
-    appClass: CursorExplorerApp,
-    width: 400,
-    height: 500,
-    resizable: true,
-    isSingleton: true,
-  },
-  {
-    id: "dosgame",
-    title: "DOS Game", // Generic title, will be overridden by specific game config
-    description: "A generic launcher for various DOS games.",
-    icon: ICONS.doom, // Placeholder icon for the generic launcher
-    appClass: DosGameApp,
-    // Default window properties, can be overridden by launchApp config
-    width: 640,
-    height: 480,
-    resizable: false,
-    maximizable: false,
-    isSingleton: false, // Allow multiple instances if needed
-  },
-  {
-    id: "doom", // Unique ID for this specific game launcher
-    title: "Doom",
-    description: "Play the classic game Doom.",
-    icon: ICONS.doom, // Specific icon for Doom
-    gameUrl: "games/doom/index.html",
-    width: 800,
-    height: 500,
-    resizable: true,
-    maximizable: true,
-    appClass: DosGameApp,
-  },
-  {
-    id: "simcity2000",
-    title: "SimCity 2000 Demo",
-    description: "Play the SimCity 2000 demo.",
-    icon: ICONS.simcity2000,
-    gameUrl: "games/dos/simcity2000/index.html",
-    width: 640,
-    height: 480,
-    resizable: true,
-    maximizable: true,
-    appClass: DosGameApp,
-  },
-  {
-    id: "media-player",
-    title: "Media Player",
-    description: "Play audio and video files.",
-    icon: ICONS.mediaPlayer,
-    appClass: MediaPlayerApp,
-    width: 480,
-    height: 360,
-    resizable: true,
-    isSingleton: false,
-  },
-  {
-    id: "diablo",
-    title: "Diablo",
-    description: "Play the classic game Diablo.",
-    icon: ICONS.diablo,
-    appClass: DiabloApp,
-    width: 800,
-    height: 600,
-    resizable: true,
-    isSingleton: true,
-  },
-  {
     id: "control-panel",
     title: "Control Panel",
     description: "Access system settings and utilities.",
-    icon: ICONS.controlPanel,
+    get icon() { return getIcon("controlPanel"); },
     action: {
       type: "function",
       handler: () => {
@@ -543,47 +179,25 @@ export const apps = [
     },
   },
   {
-    id: "esheep",
-    title: "eSheep",
-    description: "A classic desktop pet.",
-    icon: ICONS.esheep,
-    appClass: ESheepApp,
-    hasTray: true,
-    isSingleton: true,
-    tray: {
-      contextMenu: getESheepMenuItems,
+    id: "alertTest",
+    title: "Alert Test",
+    description: "A test for the alert dialog.",
+    get icon() { return getIcon("about"); },
+    action: {
+      type: "function",
+      handler: () => {
+        ShowDialogWindow({
+          title: "Alert",
+          text: "The alert works.",
+          soundEvent: "SystemHand",
+          get contentIconUrl() { return getIcon("about", 32); },
+          buttons: [{ label: "OK", isDefault: true }],
+        });
+      },
     },
   },
-  {
-    id: "minesweeper",
-    title: "Minesweeper",
-    description: "Play the classic game of Minesweeper.",
-    icon: ICONS.minesweeper,
-    appClass: MinesweeperApp,
-    width: 200,
-    height: 280,
-    resizable: false,
-    isSingleton: true,
-  },
-  {
-    id: "calculator",
-    title: "Calculator",
-    description: "Perform calculations.",
-    icon: ICONS.calculator,
-    appClass: CalculatorApp,
-    width: 260,
-    height: 280,
-    resizable: false,
-  },
-  {
-    id: "defrag",
-    title: "Disk Defragmenter",
-    description: "Defragments your disk for optimal performance.",
-    icon: ICONS.defrag,
-    appClass: DefragApp,
-    width: 400,
-    height: 300,
-    resizable: true,
-    isSingleton: true,
-  },
 ];
+
+// --- Combine and Export ---
+
+export const apps = [...systemApps, ...staticConfigs];

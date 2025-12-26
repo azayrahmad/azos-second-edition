@@ -23,3 +23,7 @@
     -   **Right Table Bump:** `.` (Period)
 5.  Press **F3** to **Pause** or **Resume** the game at any time.
 6.  To play in full screen, select `Options > Full Screen`.
+
+## Screenshot
+
+![Screenshot of the pinball app](./screenshot.png)

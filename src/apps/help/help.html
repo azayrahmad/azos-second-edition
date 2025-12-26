@@ -1,0 +1,52 @@
+<div class="help-app">
+    <div class="toolbar">
+        <button class="hide-button lightweight">
+            <span class="icon"></span>Hide
+        </button>
+        <button class="back-button lightweight" disabled>
+            <span class="icon"></span>Back
+        </button>
+        <button class="forward-button lightweight" disabled>
+            <span class="icon"></span>Forward
+        </button>
+        <button class="options-button lightweight">
+            <span class="icon"></span>Options
+        </button>
+        <button class="web-help-button lightweight" disabled>
+            <span class="icon"></span>Web Help
+        </button>
+    </div>
+    <div class="main-area">
+        <div class="sidebar">
+            <div style="height: 100%; display: flex; flex-direction: column">
+                <menu role="tablist">
+                    <li role="tab" aria-selected="true">
+                        <a href="#" data-target="#contents">Contents</a>
+                    </li>
+                    <li role="tab" aria-selected="false">
+                        <a href="#" data-target="#index">Index</a>
+                    </li>
+                    <li role="tab" aria-selected="false">
+                        <a href="#" data-target="#search">Search</a>
+                    </li>
+                </menu>
+                <div
+                    class="tab-content outset-deep"
+                    id="contents"
+                    style="flex-grow: 1"
+                >
+                    <!-- Tree view will be rendered here -->
+                </div>
+                <div class="tab-content" id="index" style="display: none">
+                    <!-- Index content goes here -->
+                </div>
+                <div class="tab-content" id="search" style="display: none">
+                    <!-- Search content goes here -->
+                </div>
+            </div>
+        </div>
+        <div class="content-panel sunken-panel">
+            <!-- Selected topic content will be rendered here -->
+        </div>
+    </div>
+</div>

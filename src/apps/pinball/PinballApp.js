@@ -1,7 +1,19 @@
 import { IFrameApplication } from "../IFrameApplication.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { ICONS } from "../../config/icons.js";
 
 export class PinballApp extends IFrameApplication {
+  static config = {
+    id: "pinball",
+    title: "Space Cadet Pinball",
+    description: "Play a classic game of pinball.",
+    icon: ICONS.pinball,
+    width: 600,
+    height: 400,
+    resizable: false,
+    isSingleton: true,
+  };
+
   constructor(config) {
     super(config);
   }

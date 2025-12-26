@@ -303,6 +303,10 @@ export const ICONS = {
     16: new URL("../assets/icons/diablo-16.png", import.meta.url).href,
     32: new URL("../assets/icons/diablo-32.png", import.meta.url).href,
   },
+  msdos: {
+    16: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+  },
   esheep: {
     16: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
     32: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
@@ -317,9 +321,25 @@ export const ICONS = {
       import.meta.url,
     ).href,
   },
+  wordpad: {
+    16: new URL("../assets/icons/write_wordpad-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/write_wordpad-1.png", import.meta.url).href,
+  },
   calculator: {
     16: new URL("../assets/icons/calc-16.png", import.meta.url).href,
     32: new URL("../assets/icons/calc-32.png", import.meta.url).href,
+  },
+  helpBook: {
+    16: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
+    32: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
+  },
+  helpBookOpen: {
+    16: new URL("../assets/icons/directory_explorer-4.png", import.meta.url).href,
+    32: new URL("../assets/icons/directory_explorer-4.png", import.meta.url).href,
+  },
+  helpPage: {
+    16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/file_lines-0.png", import.meta.url).href,
   },
 };
 
