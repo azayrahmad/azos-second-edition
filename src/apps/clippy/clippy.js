@@ -223,6 +223,7 @@ export function launchClippyApp(app, agentName = currentAgentName) {
 
   clippy.load(agentName, function (agent) {
     window.clippyAgent = agent;
+    agent._el[0].setAttribute('data-testid', 'clippy-agent');
 
     const ttsUserPref = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
     agent.setTTSEnabled(ttsUserPref);

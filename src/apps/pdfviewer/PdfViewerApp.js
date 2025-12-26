@@ -30,9 +30,12 @@ export class PdfViewerApp extends Application {
     this.scrollTop = 0;
   }
 
-  _createWindow() {
+  _createWindow(filePath) {
+    const fileName = filePath ? filePath.split("/").pop() : null;
+    const title = fileName ? `${fileName} - ${this.title}` : this.title;
+
     this.win = new $Window({
-      title: this.title,
+      title: title,
       outerWidth: this.width,
       outerHeight: this.height,
       resizable: this.resizable,
