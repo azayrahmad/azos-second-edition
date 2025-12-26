@@ -32,6 +32,7 @@ import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
+import { cacheCurrentThemeAssets } from "./utils/pwaCacheManager.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -310,6 +311,12 @@ async function initializeOS() {
 
     resetInactivityTimer();
     initScreenManager(); // Initialize the screen manager
+
+    window.addEventListener('appinstalled', () => {
+      console.log('App installed successfully.');
+      cacheCurrentThemeAssets();
+    });
+
   } catch (error) {
     if (error.message !== "Setup interrupted") {
       console.error("An error occurred during boot:", error);
