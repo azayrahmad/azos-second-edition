@@ -41,7 +41,6 @@ import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js
 import { StatusBar } from "../../components/StatusBar.js";
 import "./explorer.css";
 
-
 function isAutoArrangeEnabled() {
   const autoArrange = getItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE);
   return autoArrange === null ? false : !!autoArrange;
@@ -337,8 +336,9 @@ export class ExplorerApp extends Application {
         label: "Properties",
         iconName: "properties",
         action: () => {
-          const selectedIcon = this.iconManager.selectedIcons.values().next()
-            .value;
+          const selectedIcon = this.iconManager.selectedIcons
+            .values()
+            .next().value;
           const item = this.getItemFromIcon(selectedIcon);
           if (item) {
             this.showProperties(item);
@@ -605,7 +605,7 @@ export class ExplorerApp extends Application {
       // this.iconManager.clearSelection(); // Keeping this commented for now as per previous instruction. If the user wants to revert, they can.
       // if (clipboardManager.operation === "cut") {
       //   clipboardManager.clear();
-      }
+      // }
     });
 
     this.handleMouseUp = () => {
@@ -754,7 +754,8 @@ export class ExplorerApp extends Application {
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
     const originalName = item.name || item.filename || item.title || app.title;
-    const displayName = item.type === "drive" ? `(${originalName})` : originalName;
+    const displayName =
+      item.type === "drive" ? `(${originalName})` : originalName;
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
@@ -1194,7 +1195,7 @@ export class ExplorerApp extends Application {
   showProperties(item) {
     // Check if the item is an app from the main configuration
     if (item.appId && item.isStatic) {
-      const appConfig = apps.find(app => app.id === item.appId);
+      const appConfig = apps.find((app) => app.id === item.appId);
       if (appConfig && appConfig.appClass) {
         const tempAppInstance = new appConfig.appClass(appConfig);
         tempAppInstance.showProperties();
