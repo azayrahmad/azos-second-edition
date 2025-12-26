@@ -1,6 +1,6 @@
 import { Application } from '../Application.js';
 import { getItem, setItem } from '../../utils/localStorage.js';
-import emulators from 'emulators';
+import * as emulators from 'emulators';
 
 const SAVE_DATA_KEY = 'quake_save_data';
 
