@@ -468,6 +468,63 @@ export class NotepadApp extends Application {
         }
     }
 
+    _scrollToSelection(textarea) {
+        const text = textarea.value;
+        const selectionStart = textarea.selectionStart;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.visibility = 'hidden';
+        // Use scrollWidth to account for horizontal overflow
+        tempDiv.style.width = textarea.scrollWidth + 'px';
+
+        const styles = window.getComputedStyle(textarea);
+        tempDiv.style.whiteSpace = styles.whiteSpace;
+        tempDiv.style.overflowWrap = styles.overflowWrap;
+        [
+            'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing',
+            'lineHeight', 'paddingTop', 'paddingLeft', 'paddingRight', 'paddingBottom',
+            'borderTopWidth', 'borderLeftWidth', 'borderRightWidth', 'borderBottomWidth'
+        ].forEach(prop => {
+            tempDiv.style[prop] = styles[prop];
+        });
+
+        const textBefore = document.createTextNode(text.substring(0, selectionStart));
+        const selectionSpan = document.createElement('span');
+        selectionSpan.textContent = text.substring(selectionStart, textarea.selectionEnd);
+
+        tempDiv.appendChild(textBefore);
+        tempDiv.appendChild(selectionSpan);
+        // Append the rest of the text to ensure correct layout
+        const textAfter = document.createTextNode(text.substring(textarea.selectionEnd));
+        tempDiv.appendChild(textAfter);
+
+        document.body.appendChild(tempDiv);
+
+        const spanTop = selectionSpan.offsetTop;
+        const spanLeft = selectionSpan.offsetLeft;
+        const spanHeight = selectionSpan.offsetHeight;
+        const spanWidth = selectionSpan.offsetWidth;
+
+        document.body.removeChild(tempDiv);
+
+        // Vertical scroll adjustment
+        const scrollTop = textarea.scrollTop;
+        const clientHeight = textarea.clientHeight;
+        if (spanTop < scrollTop || (spanTop + spanHeight) > (scrollTop + clientHeight)) {
+            // Center the found text vertically
+            textarea.scrollTop = spanTop - (clientHeight / 2) + (spanHeight / 2);
+        }
+
+        // Horizontal scroll adjustment
+        const scrollLeft = textarea.scrollLeft;
+        const clientWidth = textarea.clientWidth;
+        if (spanLeft < scrollLeft || (spanLeft + spanWidth) > (scrollLeft + clientWidth)) {
+            // Center the found text horizontally
+            textarea.scrollLeft = spanLeft - (clientWidth / 2) + (spanWidth / 2);
+        }
+    }
+
     findNext() {
         const { term, caseSensitive, direction } = this.findState;
         if (!term) {
@@ -509,6 +566,7 @@ export class NotepadApp extends Application {
         if (index !== -1) {
             editor.focus();
             editor.setSelectionRange(index, index + term.length);
+            this._scrollToSelection(editor);
         } else {
             ShowDialogWindow({
                 title: 'Notepad',
