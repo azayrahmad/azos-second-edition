@@ -1,6 +1,18 @@
 import { Application } from '../Application.js';
+import { ICONS } from '../../config/icons.js';
 
 export class PaintApp extends Application {
+    static config = {
+        id: "paint",
+        title: "Paint",
+        description: "Create and edit images.",
+        icon: ICONS.paint,
+        width: 800,
+        height: 600,
+        resizable: true,
+        isSingleton: false,
+    };
+
     constructor(config) {
         super(config);
     }

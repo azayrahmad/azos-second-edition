@@ -41,13 +41,6 @@ import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js
 import { StatusBar } from "../../components/StatusBar.js";
 import "./explorer.css";
 
-function getExplorerIconPositions() {
-  return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
-}
-
-function setExplorerIconPositions(positions) {
-  setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
-}
 
 function isAutoArrangeEnabled() {
   const autoArrange = getItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE);
@@ -106,6 +99,17 @@ function isFileDropEnabled(path) {
 }
 
 export class ExplorerApp extends Application {
+  static config = {
+    id: "explorer",
+    title: "Explorer",
+    description: "Browse files and folders.",
+    icon: ICONS.computer,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
     this.initialPath = "/";
@@ -601,7 +605,7 @@ export class ExplorerApp extends Application {
       // this.iconManager.clearSelection(); // Keeping this commented for now as per previous instruction. If the user wants to revert, they can.
       // if (clipboardManager.operation === "cut") {
       //   clipboardManager.clear();
-      // }
+      }
     });
 
     this.handleMouseUp = () => {
@@ -1223,4 +1227,12 @@ export class ExplorerApp extends Application {
       buttons: [{ label: "OK", isDefault: true }],
     });
   }
+}
+
+function getExplorerIconPositions() {
+  return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
+}
+
+function setExplorerIconPositions(positions) {
+  setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
 }

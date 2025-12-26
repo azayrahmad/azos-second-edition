@@ -1,7 +1,20 @@
 import { Application } from '../Application.js';
-import { launchESheepApp, closeAllESheep } from './esheep.js';
+import { launchESheepApp, closeAllESheep, getESheepMenuItems } from './esheep.js';
+import { ICONS } from '../../config/icons.js';
 
 export class ESheepApp extends Application {
+    static config = {
+        id: "esheep",
+        title: "eSheep",
+        description: "A classic desktop pet.",
+        icon: ICONS.esheep,
+        hasTray: true,
+        isSingleton: true,
+        tray: {
+            contextMenu: getESheepMenuItems,
+        },
+    };
+
     constructor(config) {
         super(config);
     }

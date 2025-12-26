@@ -1,8 +1,20 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./wordpad.css";
+import { ICONS } from "../../config/icons.js";
 
 export class WordPadApp extends Application {
+  static config = {
+    id: "wordpad",
+    title: "WordPad",
+    description: "A simple rich text editor.",
+    icon: ICONS.wordpad,
+    width: 600,
+    height: 400,
+    resizable: true,
+    isSingleton: false,
+  };
+
   constructor(config) {
     super(config);
     this.win = null;

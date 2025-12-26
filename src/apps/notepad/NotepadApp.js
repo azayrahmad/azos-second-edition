@@ -7,10 +7,28 @@ import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.j
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
 import { renderHTML } from '../../utils/domUtils.js';
+import { ICONS } from '../../config/icons.js';
 
 const DEFAULT_THEME = 'atom-one-light';
 
 export class NotepadApp extends Application {
+    static config = {
+        id: "notepad",
+        title: "Notepad",
+        description: "A simple text editor.",
+        icon: ICONS.notepad,
+        width: 600,
+        height: 400,
+        resizable: true,
+        isSingleton: false,
+        tips: [
+            "Notepad can be used for more than just text. It also supports syntax highlighting for various programming languages.",
+            "In Notepad, you can format your code using the 'Format' option in the 'File' menu.",
+            "You can preview Markdown files in Notepad by selecting 'Preview Markdown' from the 'View' menu.",
+            "Notepad can copy text with syntax highlighting. Use 'Copy with Formatting' from the 'Edit' menu.",
+        ],
+    };
+
     constructor(config) {
         super(config);
         this.wordWrap = getItem(LOCAL_STORAGE_KEYS.NOTEPAD_WORD_WRAP) ?? false;

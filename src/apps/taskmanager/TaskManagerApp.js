@@ -2,8 +2,20 @@ import { Application } from "../Application.js";
 import { ShowComingSoonDialog } from "../../components/DialogWindow.js";
 import { appManager } from "../../utils/appManager.js";
 import "./taskmanager.css";
+import { ICONS } from "../../config/icons.js";
 
 export class TaskManagerApp extends Application {
+  static config = {
+    id: "taskmanager",
+    title: "Task Manager",
+    description: "Manage running applications.",
+    icon: ICONS.windows,
+    width: 300,
+    height: 400,
+    resizable: false,
+    isSingleton: true,
+  };
+
   async _onLaunch() {
     this.win.element.style.zIndex = $Window.Z_INDEX++; // Bring to front on launch
     this._updateTaskList();

@@ -1,17 +1,29 @@
 import { Application } from '../Application.js';
 import './image-resizer.css';
+import { ICONS } from '../../config/icons.js';
 
 export class ImageResizerApp extends Application {
+    static config = {
+        id: "image-resizer",
+        title: "Image Resizer",
+        description: "Resize and convert images.",
+        icon: ICONS.image,
+        width: 920,
+        height: 720,
+        resizable: true,
+        isSingleton: false,
+    };
+
     constructor(config) {
         super(config);
     }
 
     _createWindow() {
         const win = this.win = new $Window({
-            title: 'Image Resizer',
-            width: 600,
-            height: 480,
-            resizable: true,
+            title: this.title,
+            width: this.width,
+            height: this.height,
+            resizable: this.resizable,
             icons: this.icon,
         });
 

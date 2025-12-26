@@ -1,6 +1,19 @@
 import { IFrameApplication } from "../IFrameApplication.js";
+import { ICONS } from "../../config/icons.js";
 
 export class BuyMeACoffeeApp extends IFrameApplication {
+  static config = {
+    id: "buy-me-a-coffee",
+    title: "Buy me a coffee",
+    description: "Support the developer.",
+    icon: ICONS["buy-me-a-coffee"],
+    width: 300,
+    height: 650,
+    resizable: false,
+    maximizable: false,
+    isSingleton: true,
+  };
+
   constructor(config) {
     super(config);
   }
@@ -8,10 +21,10 @@ export class BuyMeACoffeeApp extends IFrameApplication {
   _createWindow(gameConfig) {
     const win = new $Window({
       title: this.title,
-      outerWidth: 300,
-      outerHeight: 650,
-      resizable: false,
-      maximizable: false,
+      outerWidth: this.width,
+      outerHeight: this.height,
+      resizable: this.resizable,
+      maximizable: this.maximizable,
       icons: this.icon,
     });
 

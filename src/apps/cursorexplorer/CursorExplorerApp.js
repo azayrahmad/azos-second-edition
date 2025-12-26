@@ -1,14 +1,26 @@
 import { Application } from "../Application.js";
 import { cursors } from "../../config/cursors.js";
 import { convertAniBinaryToCSS } from "ani-cursor";
+import { ICONS } from "../../config/icons.js";
 
 export class CursorExplorerApp extends Application {
+  static config = {
+    id: "cursorexplorer",
+    title: "Mouse",
+    description: "Explore and preview cursor schemes.",
+    icon: ICONS["mouse"],
+    width: 400,
+    height: 500,
+    resizable: true,
+    isSingleton: true,
+  };
+
   _createWindow() {
     const win = new window.$Window({
-      title: "Cursor Explorer",
-      outerWidth: 400,
-      outerHeight: 500,
-      resizable: true,
+      title: this.title,
+      outerWidth: this.width,
+      outerHeight: this.height,
+      resizable: this.resizable,
       icons: this.icon,
     });
 

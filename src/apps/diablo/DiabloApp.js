@@ -1,7 +1,19 @@
 import { Application } from '../Application.js';
 import './diablo.css';
+import { ICONS } from '../../config/icons.js';
 
 export class DiabloApp extends Application {
+    static config = {
+        id: "diablo",
+        title: "Diablo",
+        description: "Play the classic game Diablo.",
+        icon: ICONS.diablo,
+        width: 800,
+        height: 600,
+        resizable: true,
+        isSingleton: true,
+    };
+
     constructor(config) {
         super(config);
         this.win = null;

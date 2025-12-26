@@ -3,8 +3,26 @@ import { tipOfTheDayContent } from './tipOfTheDay.js';
 import { apps } from '../../config/apps.js';
 import { launchApp } from '../../utils/appManager.js';
 import { getStartupApps, addStartupApp, removeStartupApp } from '../../utils/startupManager.js';
+import { ICONS } from '../../config/icons.js';
 
 export class TipOfTheDayApp extends Application {
+    static config = {
+        id: "tipOfTheDay",
+        title: "Tip of the Day",
+        description: "Provides useful tips about using the system.",
+        icon: ICONS.tip,
+        width: 400,
+        height: 300,
+        resizable: false,
+        minimizeButton: false,
+        maximizeButton: false,
+        isSingleton: true,
+        tips: [
+            "To open a file or an application from desktop, double-click the icon.",
+            "To close a window, click the X in the top-right corner.",
+        ],
+    };
+
     constructor(config) {
         super(config);
     }

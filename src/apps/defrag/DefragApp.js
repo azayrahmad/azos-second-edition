@@ -2,8 +2,20 @@ import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import defragSound from "../../assets/audio/mtrk_internal-hard-drive-defrag_clicks-clanks_1_fsp4824-35843.mp3";
 import "./defrag.css";
+import { ICONS } from "../../config/icons.js";
 
 export class DefragApp extends Application {
+  static config = {
+    id: "defrag",
+    title: "Disk Defragmenter",
+    description: "Defragments your disk for optimal performance.",
+    icon: ICONS.defrag,
+    width: 400,
+    height: 300,
+    resizable: true,
+    isSingleton: true,
+  };
+
   constructor(config) {
     super(config);
     this.data = [];

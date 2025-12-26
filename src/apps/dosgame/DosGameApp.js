@@ -1,6 +1,43 @@
 import { IFrameApplication } from "../IFrameApplication.js";
+import { ICONS } from "../../config/icons.js";
 
 export class DosGameApp extends IFrameApplication {
+  static config = [
+    {
+      id: "dosgame",
+      title: "DOS Game",
+      description: "A generic launcher for various DOS games.",
+      icon: ICONS.doom,
+      width: 640,
+      height: 480,
+      resizable: false,
+      maximizable: false,
+      isSingleton: false,
+    },
+    {
+      id: "doom",
+      title: "Doom",
+      description: "Play the classic game Doom.",
+      icon: ICONS.doom,
+      gameUrl: "games/doom/index.html",
+      width: 800,
+      height: 500,
+      resizable: true,
+      maximizable: true,
+    },
+    {
+      id: "simcity2000",
+      title: "SimCity 2000 Demo",
+      description: "Play the SimCity 2000 demo.",
+      icon: ICONS.simcity2000,
+      gameUrl: "games/dos/simcity2000/index.html",
+      width: 640,
+      height: 480,
+      resizable: true,
+      maximizable: true,
+    },
+  ];
+
   constructor(config) {
     super(config);
   }

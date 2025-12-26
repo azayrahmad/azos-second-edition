@@ -9,6 +9,16 @@ import { ICONS } from "../../config/icons.js";
 import helpData from "./help.json";
 
 export class CalculatorApp extends Application {
+  static config = {
+    id: "calculator",
+    title: "Calculator",
+    description: "Perform calculations.",
+    icon: ICONS.calculator,
+    width: 260,
+    height: 280,
+    resizable: false,
+  };
+
   constructor(config) {
     super(config);
     this.win = null;
