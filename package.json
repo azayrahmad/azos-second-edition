@@ -16,6 +16,7 @@
   "dependencies": {
     "@xterm/xterm": "^5.5.0",
     "ani-cursor": "^0.0.5",
+    "emulators": "^8.3.9",
     "os-gui": "^0.7.3"
   }
 }
