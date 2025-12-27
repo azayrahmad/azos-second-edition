@@ -48,7 +48,7 @@ const startMenuConfig = [
           {
             label: "Games",
             icon: ICONS.programs[16],
-            submenu: getAppList(["pinball", "minesweeper"]),
+            submenu: getAppList(["pinball", "minesweeper", "quake"]),
           },
           {
             label: "Entertainment",

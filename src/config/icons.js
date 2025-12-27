@@ -341,6 +341,10 @@ export const ICONS = {
     16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
     32: new URL("../assets/icons/file_lines-0.png", import.meta.url).href,
   },
+  quake: {
+    16: new URL("../assets/icons/quake-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/quake-32.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {
