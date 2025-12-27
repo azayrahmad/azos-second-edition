@@ -37,7 +37,29 @@
                         fetch('default.cfg').then(response => response.arrayBuffer())
                     ]).then(([wad, cfg]) => {
                         Module.FS_createDataFile('/', 'doom1.wad', new Uint8Array(wad), true, true);
-                        Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
+
+                        // Load save game from localStorage if it exists
+                        const savedGame = localStorage.getItem('doom_save_game');
+                        if (savedGame) {
+                            try {
+                                const binaryString = atob(savedGame);
+                                const len = binaryString.length;
+                                const bytes = new Uint8Array(len);
+                                for (let i = 0; i < len; i++) {
+                                    bytes[i] = binaryString.charCodeAt(i);
+                                }
+                                Module.FS_createDataFile('/', 'default.cfg', bytes, true, true, true);
+                                console.log('Loaded saved game from localStorage.');
+                            } catch (e) {
+                                console.error('Failed to load saved game from localStorage:', e);
+                                // Fallback to default config
+                                Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
+                            }
+                        } else {
+                            // No save game found, use default config
+                            Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
+                        }
+
                         callMain(commonArgs);
                     });
                 },
@@ -71,6 +93,25 @@ arguments).join(" ");
                     Module.setStatus(left ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.");
                 },
             };
+
+            window.addEventListener('beforeunload', function(event) {
+                try {
+                    const configData = Module.FS.readFile('/default.cfg', { encoding: 'binary' });
+                    if (configData) {
+                        let binary = '';
+                        const bytes = new Uint8Array(configData);
+                        const len = bytes.byteLength;
+                        for (let i = 0; i < len; i++) {
+                            binary += String.fromCharCode(bytes[i]);
+                        }
+                        const base64Data = btoa(binary);
+                        localStorage.setItem('doom_save_game', base64Data);
+                        console.log('Saved game to localStorage.');
+                    }
+                } catch (e) {
+                    console.error('Failed to save game to localStorage:', e);
+                }
+            });
 
             window.onerror = function (event) {
                 Module.setStatus("Exception thrown, see JavaScript console");
