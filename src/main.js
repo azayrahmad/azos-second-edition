@@ -167,8 +167,8 @@ async function initializeOS() {
       hideBootScreen();
       document.body.classList.remove("booting");
       document.getElementById("screen").classList.remove("boot-mode");
-      await playSound("WindowsLogon");
-      document.dispatchEvent(new CustomEvent("logon-sound-finished"));
+      playSound("WindowsLogon");
+      document.dispatchEvent(new CustomEvent("desktop-ready-to-launch-apps"));
     }
 
     async function handleBootCompletion() {
