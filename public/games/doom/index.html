@@ -37,27 +37,29 @@
                         fetch('default.cfg').then(response => response.arrayBuffer())
                     ]).then(([wad, cfg]) => {
                         Module.FS_createDataFile('/', 'doom1.wad', new Uint8Array(wad), true, true);
+                        Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
 
-                        // Load save game from localStorage if it exists
-                        const savedGame = localStorage.getItem('doom_save_game');
-                        if (savedGame) {
-                            try {
-                                const binaryString = atob(savedGame);
-                                const len = binaryString.length;
-                                const bytes = new Uint8Array(len);
-                                for (let i = 0; i < len; i++) {
-                                    bytes[i] = binaryString.charCodeAt(i);
+                        // Load all save games from localStorage
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key.startsWith('doom_save_')) {
+                                const filename = key.substring('doom_save_'.length);
+                                const savedGame = localStorage.getItem(key);
+                                if (savedGame) {
+                                    try {
+                                        const binaryString = atob(savedGame);
+                                        const len = binaryString.length;
+                                        const bytes = new Uint8Array(len);
+                                        for (let j = 0; j < len; j++) {
+                                            bytes[j] = binaryString.charCodeAt(j);
+                                        }
+                                        Module.FS_createDataFile('/', filename, bytes, true, true, true);
+                                        console.log(`Loaded ${filename} from localStorage.`);
+                                    } catch (e) {
+                                        console.error(`Failed to load ${filename} from localStorage:`, e);
+                                    }
                                 }
-                                Module.FS_createDataFile('/', 'default.cfg', bytes, true, true, true);
-                                console.log('Loaded saved game from localStorage.');
-                            } catch (e) {
-                                console.error('Failed to load saved game from localStorage:', e);
-                                // Fallback to default config
-                                Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
                             }
-                        } else {
-                            // No save game found, use default config
-                            Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
                         }
 
                         callMain(commonArgs);
@@ -96,18 +98,24 @@ arguments).join(" ");
 
             window.addEventListener('beforeunload', function(event) {
                 try {
-                    const configData = Module.FS.readFile('/default.cfg', { encoding: 'binary' });
-                    if (configData) {
-                        let binary = '';
-                        const bytes = new Uint8Array(configData);
-                        const len = bytes.byteLength;
-                        for (let i = 0; i < len; i++) {
-                            binary += String.fromCharCode(bytes[i]);
+                    // Save all DOOMSAV*.DSG files to localStorage
+                    const files = Module.FS.readdir('/');
+                    files.forEach(file => {
+                        if (file.startsWith('DOOMSAV') && file.endsWith('.DSG')) {
+                            const fileData = Module.FS.readFile(`/${file}`, { encoding: 'binary' });
+                            if (fileData) {
+                                let binary = '';
+                                const bytes = new Uint8Array(fileData);
+                                const len = bytes.byteLength;
+                                for (let i = 0; i < len; i++) {
+                                    binary += String.fromCharCode(bytes[i]);
+                                }
+                                const base64Data = btoa(binary);
+                                localStorage.setItem(`doom_save_${file}`, base64Data);
+                                console.log(`Saved ${file} to localStorage.`);
+                            }
                         }
-                        const base64Data = btoa(binary);
-                        localStorage.setItem('doom_save_game', base64Data);
-                        console.log('Saved game to localStorage.');
-                    }
+                    });
                 } catch (e) {
                     console.error('Failed to save game to localStorage:', e);
                 }
