@@ -1071,7 +1071,7 @@ export async function initDesktop(profile = null) {
     }
   };
 
-  document.addEventListener("logon-sound-finished", launchStartupApps, { once: true });
+  document.addEventListener("desktop-ready-to-launch-apps", launchStartupApps, { once: true });
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
 
