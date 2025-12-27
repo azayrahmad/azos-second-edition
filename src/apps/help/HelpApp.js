@@ -6,7 +6,7 @@ import contentHtml from "./help.html?raw";
 
 // Use Vite's glob import to eagerly load all possible help content.
 // This ensures they are included in the production build with correct paths.
-const htmContentModules = import.meta.glob('/src/apps/**/*.htm', { as: 'raw', eager: true });
+const htmContentModules = import.meta.glob('/src/apps/**/*.htm', { as: 'url', eager: true });
 import { ICONS } from "../../config/icons.js";
 const jsonContentModules = import.meta.glob('/src/apps/**/*.json', { eager: true });
 console.log('[HelpApp] Available JSON modules:', Object.keys(jsonContentModules));
@@ -98,13 +98,12 @@ class HelpApp extends Application {
       const htmlContent = htmContentModules[fullPath];
 
       if (htmlContent) {
-        // Render directly into a div to avoid iframe issues with the windowing library
-        const contentDiv = document.createElement('div');
-        contentDiv.style.width = '100%';
-        contentDiv.style.height = '100%';
-        contentDiv.style.overflow = 'auto';
-        contentDiv.innerHTML = htmlContent;
-        contentPanel.append(contentDiv);
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.src = htmlContent;
+        contentPanel.append(iframe);
       } else {
         console.error(`Failed to find pre-loaded help content for ${topic.file}`);
         contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);

@@ -19,6 +19,7 @@ const directory = [
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
           { id: "app-wordpad", type: "app", appId: "wordpad" },
           { id: "app-calculator", type: "app", appId: "calculator" },
+          { id: "app-help", type: "app", appId: "help" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -189,6 +190,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-wordpad",
                 name: "WordPad",
+              },
+              {
+                id: "shortcut-to-help",
+                type: "shortcut",
+                targetId: "app-help",
+                name: "Help",
               },
             ],
           },
