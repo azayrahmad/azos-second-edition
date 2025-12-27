@@ -14,6 +14,7 @@ const directory = [
         children: [
           ...generateProgramFiles(),
           { id: "app-doom", type: "app", appId: "doom" },
+          { id: "app-quake", type: "app", appId: "quake" },
           { id: "app-esheep", type: "app", appId: "esheep" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
@@ -189,6 +190,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-wordpad",
                 name: "WordPad",
+              },
+              {
+                id: "shortcut-to-quake",
+                type: "shortcut",
+                targetId: "app-quake",
+                name: "Quake",
               },
             ],
           },
