@@ -1054,9 +1054,12 @@ export async function initDesktop(profile = null) {
     if (profile) {
       // Launch apps from profile
       if (profile.startup && profile.startup.length > 0) {
-        profile.startup.forEach(app => {
-          const appId = typeof app === 'string' ? app : app.appId;
-          const data = typeof app === 'object' ? app.data : null;
+        profile.startup.forEach((app) => {
+          const appId = typeof app === "string" ? app : app.appId;
+          let data = typeof app === "object" ? app.data : null;
+          if (appId === "clippy" && profile.runTutorial) {
+            data = { actionSet: "tutorial" };
+          }
           launchApp(appId, data);
         });
       }

@@ -30,9 +30,31 @@ export class ClippyApp extends Application {
         return null;
     }
 
-    _onLaunch() {
-        // Call the legacy launch function.
-        launchClippyApp(this);
+    async _onLaunch(data) {
+        const { getItem, setItem, LOCAL_STORAGE_KEYS } = await import(
+            "../../utils/localStorage.js"
+        );
+        const { removeStartupApp } = await import(
+            "../../utils/startupManager.js"
+        );
+
+        const agentName = this.config?.agent || data?.agent || "Clippy";
+
+        // Check if the tutorial should run on startup
+        const runTutorialAtStartup = getItem(
+            LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP,
+        );
+
+        let launchData = data;
+        if (runTutorialAtStartup) {
+            launchData = { ...data, actionSet: "tutorial" };
+            // Reset the flag so it doesn't run again next time
+            setItem(LOCAL_STORAGE_KEYS.CLIPPY_TUTORIAL_STARTUP, false);
+            removeStartupApp("clippy");
+        }
+
+        // Pass this app instance and any provided data to the launcher
+        await launchClippyApp(this, agentName, launchData);
     }
 
     _cleanup() {

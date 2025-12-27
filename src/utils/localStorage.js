@@ -5,6 +5,7 @@ export const LOCAL_STORAGE_KEYS = {
   SHOW_TIPS_AT_STARTUP: 'showTipsAtStartup',
   CLIPPY_AGENT_NAME: 'clippyAgentName',
   CLIPPY_TTS_ENABLED: 'clippyTTSEnabled',
+  CLIPPY_TUTORIAL_STARTUP: 'clippyTutorialStartup',
   NOTEPAD_THEME: 'notepad-theme',
   NOTEPAD_WORD_WRAP: 'notepad-word-wrap',
   WALLPAPER_MODE: 'wallpaperMode',
