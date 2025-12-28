@@ -329,6 +329,10 @@ export const ICONS = {
     16: new URL("../assets/icons/calc-16.png", import.meta.url).href,
     32: new URL("../assets/icons/calc-32.png", import.meta.url).href,
   },
+  canabalt: {
+    16: new URL("../assets/icons/canabalt-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/canabalt-32.png", import.meta.url).href,
+  },
   helpBook: {
     16: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
     32: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,

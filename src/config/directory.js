@@ -26,6 +26,7 @@ const directory = [
             type: "folder",
             children: generatePlusFiles(),
           },
+          { id: "app-canabalt", type: "app", appId: "canabalt" },
         ],
       },
       {
@@ -196,6 +197,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-help",
                 name: "Help",
+              },
+              {
+                id: "shortcut-to-canabalt",
+                type: "shortcut",
+                targetId: "app-canabalt",
+                name: "Canabalt",
               },
             ],
           },
