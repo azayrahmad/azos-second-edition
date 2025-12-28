@@ -173,11 +173,20 @@ function showSetupScreen() {
             bootLogEl.appendChild(confirmationEl);
 
             const confirmationHandler = (e) => {
+                // Ignore modifier keys so user can press Shift + y
+                if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) {
+                    return;
+                }
+
                 window.removeEventListener("keydown", confirmationHandler);
                 if (e.key.toLowerCase() === "y") {
                     localStorage.clear();
+                    window.location.reload();
+                } else {
+                    // Cancellation: Re-render the menu and re-attach the main listener
+                    renderMenu();
+                    window.addEventListener("keydown", handleKeyDown);
                 }
-                window.location.reload();
             };
             window.addEventListener("keydown", confirmationHandler);
         } else {
