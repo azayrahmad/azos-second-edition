@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-us">
     <head>
         <title>Websockets Doom</title>
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
         <style>
-            html, body {
+            html,
+            body {
                 height: 100%;
                 width: 100%;
                 margin: 0;
@@ -26,25 +27,123 @@
         <meta name="viewport" content="width=device-width,initial-scale=1" />
     </head>
     <body>
-        <canvas class="frame" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+        <canvas
+            class="frame"
+            id="canvas"
+            oncontextmenu="event.preventDefault()"
+            tabindex="-1"
+        ></canvas>
         <script>
-            var commonArgs = ["-iwad", "doom1.wad", "-window", "-nogui", "-nomusic", "-config", "default.cfg", "-servername", "doomflare"];
+            var commonArgs = [
+                "-iwad",
+                "doom1.wad",
+                "-window",
+                "-nogui",
+                "-nomusic",
+                "-config",
+                "default.cfg",
+                "-servername",
+                "doomflare",
+            ];
+
+            function ensureDirectoryExistence(filePath) {
+                let dirname = filePath.substring(0, filePath.lastIndexOf("/"));
+                if (dirname === "" || dirname === "/") return; // No directory or root
+
+                let parts = dirname.split("/").filter((p) => p !== "");
+                let currentPath = "";
+                for (let i = 0; i < parts.length; i++) {
+                    currentPath += "/" + parts[i];
+                    try {
+                        Module.FS.stat(currentPath);
+                    } catch (e) {
+                        // Directory does not exist, create it
+                        Module.FS.mkdir(currentPath);
+                        console.log(`Created directory: ${currentPath}`);
+                    }
+                }
+            }
 
             var Module = {
                 onRuntimeInitialized: () => {
                     Promise.all([
-                        fetch('doom1.wad').then(response => response.arrayBuffer()),
-                        fetch('default.cfg').then(response => response.arrayBuffer())
+                        fetch("doom1.wad").then((response) =>
+                            response.arrayBuffer(),
+                        ),
+                        fetch("default.cfg").then((response) =>
+                            response.arrayBuffer(),
+                        ),
                     ]).then(([wad, cfg]) => {
-                        Module.FS_createDataFile('/', 'doom1.wad', new Uint8Array(wad), true, true);
-                        Module.FS_createDataFile('/', 'default.cfg', new Uint8Array(cfg), true, true);
+                        Module.FS_createDataFile(
+                            "/",
+                            "doom1.wad",
+                            new Uint8Array(wad),
+                            true,
+                            true,
+                        );
+                        Module.FS_createDataFile(
+                            "/",
+                            "default.cfg",
+                            new Uint8Array(cfg),
+                            true,
+                            true,
+                        );
+
+                        // Load all save games from localStorage
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key.startsWith("doom_save_")) {
+                                const filename = key.substring(
+                                    "doom_save_".length,
+                                );
+                                const savedGame = localStorage.getItem(key);
+                                if (savedGame) {
+                                    try {
+                                        const binaryString = atob(savedGame);
+                                        const len = binaryString.length;
+                                        const bytes = new Uint8Array(len);
+                                        for (let j = 0; j < len; j++) {
+                                            bytes[j] =
+                                                binaryString.charCodeAt(j);
+                                        }
+                                        ensureDirectoryExistence(filename); // Ensure parent directories exist
+                                        const parentDir =
+                                            filename.substring(
+                                                0,
+                                                filename.lastIndexOf("/"),
+                                            ) || "/";
+                                        const baseFilename = filename.substring(
+                                            filename.lastIndexOf("/") + 1,
+                                        );
+
+                                        Module.FS_createDataFile(
+                                            parentDir,
+                                            baseFilename,
+                                            bytes,
+                                            true,
+                                            true,
+                                            true,
+                                        );
+                                        console.log(
+                                            `Loaded ${filename} from localStorage.`,
+                                        );
+                                    } catch (e) {
+                                        console.error(
+                                            `Failed to load ${filename} from localStorage:`,
+                                            e,
+                                        );
+                                    }
+                                }
+                            }
+                        }
+
                         callMain(commonArgs);
                     });
                 },
                 noInitialRun: true,
                 printErr: function (text) {
-                    if (arguments.length > 1) text = Array.prototype.slice.call(
-arguments).join(" ");
+                    if (arguments.length > 1)
+                        text = Array.prototype.slice.call(arguments).join(" ");
                     console.error(text);
                 },
                 canvas: (function () {
@@ -52,10 +151,12 @@ arguments).join(" ");
                     canvas.addEventListener(
                         "webglcontextlost",
                         function (e) {
-                            alert("WebGL context lost. You will need to reload the page.");
+                            alert(
+                                "WebGL context lost. You will need to reload the page.",
+                            );
                             e.preventDefault();
                         },
-                        false
+                        false,
                     );
                     return canvas;
                 })(),
@@ -67,15 +168,97 @@ arguments).join(" ");
                 },
                 totalDependencies: 0,
                 monitorRunDependencies: function (left) {
-                    this.totalDependencies = Math.max(this.totalDependencies, left);
-                    Module.setStatus(left ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.");
+                    this.totalDependencies = Math.max(
+                        this.totalDependencies,
+                        left,
+                    );
+                    Module.setStatus(
+                        left
+                            ? "Preparing... (" +
+                                  (this.totalDependencies - left) +
+                                  "/" +
+                                  this.totalDependencies +
+                                  ")"
+                            : "All downloads complete.",
+                    );
                 },
             };
+
+            function readAllFiles(path) {
+                let allFiles = [];
+                let filesInDir = Module.FS.readdir(path);
+                // Remove '.' and '..' special entries
+                filesInDir = filesInDir.filter(
+                    (entry) => entry !== "." && entry !== "..",
+                );
+
+                filesInDir.forEach((entry) => {
+                    // Construct the full path for the current entry
+                    const fullPath =
+                        path === "/" ? `/${entry}` : `${path}/${entry}`;
+                    try {
+                        const stat = Module.FS.stat(fullPath);
+                        if (Module.FS.isDir(stat.mode)) {
+                            // If it's a directory, recursively read its contents
+                            allFiles = allFiles.concat(readAllFiles(fullPath));
+                        } else if (Module.FS.isFile(stat.mode)) {
+                            // If it's a file, add its full path to the list
+                            allFiles.push(fullPath);
+                        }
+                    } catch (e) {
+                        console.warn(`Could not stat ${fullPath}: ${e}`);
+                    }
+                });
+                return allFiles;
+            }
+
+            function saveDoomProgress() {
+                try {
+                    // Save all DOOMSAV*.DSG files to localStorage
+                    const files = readAllFiles("/"); // Get all files recursively
+                    console.log("All files in FS:", files); // Log all files for debugging
+                    files.forEach((file) => {
+                        // Extract just the filename for checking against DOOMSAV pattern
+                        const filenameOnly = file.substring(
+                            file.lastIndexOf("/") + 1,
+                        );
+                        if (
+                            filenameOnly.startsWith("doomsav") &&
+                            filenameOnly.endsWith(".dsg")
+                        ) {
+                            console.log(`Saving file ${file}`);
+                            // Read the file using its full path
+                            const fileData = Module.FS.readFile(file, {
+                                encoding: "binary",
+                            });
+                            if (fileData) {
+                                let binary = "";
+                                const bytes = new Uint8Array(fileData);
+                                const len = bytes.byteLength;
+                                for (let i = 0; i < len; i++) {
+                                    binary += String.fromCharCode(bytes[i]);
+                                }
+                                const base64Data = btoa(binary);
+                                localStorage.setItem(
+                                    `doom_save_${file}`, // Use full path for localStorage key
+                                    base64Data,
+                                );
+                                console.log(`Saved ${file} to localStorage.`);
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Failed to save game to localStorage:", e);
+                }
+            }
+            window.saveDoomProgress = saveDoomProgress;
+            window.addEventListener("beforeunload", saveDoomProgress);
 
             window.onerror = function (event) {
                 Module.setStatus("Exception thrown, see JavaScript console");
                 Module.setStatus = function (text) {
-                    if (text) Module.printErr("[post-exception status] " + text);
+                    if (text)
+                        Module.printErr("[post-exception status] " + text);
                 };
             };
         </script>
