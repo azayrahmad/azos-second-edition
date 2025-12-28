@@ -1,0 +1,49 @@
+{
+  "dependencies": [
+    {
+      "name": "checkstyle",
+      "type": "haxelib",
+      "version": "2.8.5"
+    },
+    {
+      "name": "flixel",
+      "type": "haxelib",
+      "version": "5.8.0"
+    },
+    {
+      "name": "formatter",
+      "type": "haxelib",
+      "version": "1.16.0"
+    },
+    {
+      "name": "hmm",
+      "type": "haxelib",
+      "version": "3.1.0"
+    },
+    {
+      "name": "hscript",
+      "type": "haxelib",
+      "version": "2.5.0"
+    },
+    {
+      "name": "hxcpp",
+      "type": "haxelib",
+      "version": "4.3.2"
+    },
+    {
+      "name": "lime",
+      "type": "haxelib",
+      "version": "8.1.2"
+    },
+    {
+      "name": "newgrounds",
+      "type": "haxelib",
+      "version": "2.0.2"
+    },
+    {
+      "name": "openfl",
+      "type": "haxelib",
+      "version": "9.3.3"
+    }
+  ]
+}
