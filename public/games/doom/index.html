@@ -212,7 +212,7 @@
                 return allFiles;
             }
 
-            window.addEventListener("beforeunload", function (event) {
+            function saveDoomProgress() {
                 try {
                     // Save all DOOMSAV*.DSG files to localStorage
                     const files = readAllFiles("/"); // Get all files recursively
@@ -250,7 +250,9 @@
                 } catch (e) {
                     console.error("Failed to save game to localStorage:", e);
                 }
-            });
+            }
+            window.saveDoomProgress = saveDoomProgress;
+            window.addEventListener("beforeunload", saveDoomProgress);
 
             window.onerror = function (event) {
                 Module.setStatus("Exception thrown, see JavaScript console");
