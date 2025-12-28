@@ -44,6 +44,16 @@ export class PinballApp extends IFrameApplication {
     this.iframe = win.$content.find("iframe")[0];
     this._setupIframeForInactivity(this.iframe);
 
+    win.on("close", () => {
+      if (
+        this.iframe &&
+        this.iframe.contentWindow &&
+        typeof this.iframe.contentWindow.logFileSystem === "function"
+      ) {
+        this.iframe.contentWindow.logFileSystem();
+      }
+    });
+
     return win;
   }
 

@@ -119,6 +119,79 @@
             };
         </script>
 
+        <script>
+            function readAllFiles(path) {
+                let allFiles = [];
+                if (!Module.FS || !Module.FS.readdir) {
+                    // console.log('FS not ready yet.');
+                    return allFiles;
+                }
+                try {
+                    let filesInDir = Module.FS.readdir(path);
+                    // Remove '.' and '..' special entries
+                    filesInDir = filesInDir.filter(
+                        (entry) => entry !== "." && entry !== "..",
+                    );
+
+                    filesInDir.forEach((entry) => {
+                        // Construct the full path for the current entry
+                        const fullPath =
+                            path === "/" ? `/${entry}` : `${path}/${entry}`;
+                        try {
+                            const stat = Module.FS.stat(fullPath);
+                            if (Module.FS.isDir(stat.mode)) {
+                                // If it's a directory, recursively read its contents
+                                allFiles = allFiles.concat(readAllFiles(fullPath));
+                            } else if (Module.FS.isFile(stat.mode)) {
+                                // If it's a file, add its full path to the list
+                                allFiles.push(fullPath);
+                            }
+                        } catch (e) {
+                            // ignore errors for now
+                        }
+                    });
+                } catch (e) {
+                    // ignore fs errors
+                }
+                return allFiles;
+            }
+
+            function logFileSystem() {
+                if (!Module.FS) return;
+                console.log('--- Logging Pinball FS ---');
+                const allFiles = readAllFiles("/");
+                console.log("All files in FS:", allFiles);
+
+                allFiles.forEach(file => {
+                    try {
+                        const fileData = Module.FS.readFile(file, { encoding: 'binary' });
+                        if (fileData) {
+                             let binary = "";
+                            const bytes = new Uint8Array(fileData);
+                            const len = bytes.byteLength;
+                            for (let i = 0; i < len; i++) {
+                                binary += String.fromCharCode(bytes[i]);
+                            }
+                            const base64Data = btoa(binary);
+                            console.log(`Content of ${file} (base64):`, base64Data);
+                        }
+                    } catch(e) {
+                        console.error(`Could not read file ${file}`, e);
+                    }
+                });
+                console.log('--- End Pinball FS Log ---');
+            }
+
+            // Expose to parent window
+            window.logFileSystem = logFileSystem;
+
+            // Log FS periodically
+            setInterval(logFileSystem, 5000);
+
+            // Log FS on close
+            window.addEventListener("beforeunload", logFileSystem);
+        </script>
+
         <script async src="SpaceCadetPinball.js"></script>
     </body>
 </html>
