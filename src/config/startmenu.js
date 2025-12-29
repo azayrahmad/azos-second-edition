@@ -15,8 +15,16 @@ const startMenuAppIds = [
   "simcity2000",
   "diablo",
   "esheep",
+  "quake",
 ];
-const accessoriesAppIds = ["notepad", "clippy", "paint", "image-viewer", "wordpad", "calculator"];
+const accessoriesAppIds = [
+  "notepad",
+  "clippy",
+  "paint",
+  "image-viewer",
+  "wordpad",
+  "calculator",
+];
 
 function getAppList(appListIds) {
   return appListIds
@@ -48,7 +56,7 @@ const startMenuConfig = [
           {
             label: "Games",
             icon: ICONS.programs[16],
-            submenu: getAppList(["pinball", "minesweeper", "quake"]),
+            submenu: getAppList(["pinball", "minesweeper"]),
           },
           {
             label: "Entertainment",
