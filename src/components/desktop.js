@@ -10,7 +10,11 @@ import {
   removeItem,
   LOCAL_STORAGE_KEYS,
 } from "../utils/localStorage.js";
-import { getDesktopContents, getAssociation } from "../utils/directory.js";
+import {
+  getDesktopContents,
+  getAssociation,
+  findItemByPath,
+} from "../utils/directory.js";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import {
   getThemes,
@@ -45,6 +49,7 @@ import {
   getCurrentResolutionId,
 } from "../utils/screenManager.js";
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
+import { downloadFile } from "../utils/fileDownloader.js";
 import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
 
 function getIconId(app, item = null) {
@@ -192,6 +197,42 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
     ),
   };
 
+  const downloadItem = {
+    label: "&Download",
+    action: () => {
+      itemsToOperateOn.forEach((item) => {
+        let fileToDownload;
+        let filename;
+        let content;
+
+        if (item.itemType === "dropped-file") {
+          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+          fileToDownload = droppedFiles.find((f) => f.id === item.id);
+          if (!fileToDownload) return;
+          filename = fileToDownload.name;
+          content = fileToDownload.contentUrl || fileToDownload.content;
+        } else if (item.itemType === "virtual-file") {
+          fileToDownload = findItemByPath(item.path);
+          if (!fileToDownload || !fileToDownload.content) return;
+          filename = fileToDownload.filename;
+          content = fileToDownload.content;
+        } else {
+          return; // Not a downloadable file
+        }
+
+        if (content) {
+          downloadFile(filename, content);
+        }
+      });
+    },
+    enabled:
+      itemsToOperateOn.length > 0 &&
+      itemsToOperateOn.every(
+        (item) =>
+          item.itemType === "dropped-file" || item.itemType === "virtual-file",
+      ),
+  };
+
   if (app.id === "recycle-bin" || app.id === "network") {
     copyItem.enabled = false;
     cutItem.enabled = false;
@@ -212,6 +253,7 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
       },
       copyItem,
       cutItem,
+      downloadItem,
       {
         label: "&Delete",
         action: () => deleteDroppedFile(fileId),
