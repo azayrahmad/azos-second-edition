@@ -49,8 +49,17 @@
 
         <script>
             var Module = {
-                preRun: [],
-                postRun: [],
+                preRun: [function() {
+                    // Pre-load root folder from IndexedDB
+                    FS.mount(IDBFS, {}, '/');
+                    FS.syncfs(true, function (err) {
+                        if (err) {
+                            console.error('Error loading data from IndexedDB:', err);
+                        } else {
+                            console.log('Successfully loaded data from IndexedDB.');
+                        }
+                    });
+                }],
                 print: function (text) {
                     console.log(text);
                 },
@@ -102,79 +111,19 @@
                         : "All downloads complete.";
                     console.log(statusText);
                 },
-                // ✅ Add this: ensure canvas is revealed when runtime is ready
                 onRuntimeInitialized: function () {
-                    // Original logic to show canvas
                     document.getElementById("splash-image").style.display =
                         "none";
                     document.getElementById("canvas").style.display = "block";
 
-                    // --- Logging logic ---
-                    function readAllFiles(path) {
-                        let allFiles = [];
-                        try {
-                            let filesInDir = Module.FS.readdir(path);
-                            filesInDir = filesInDir.filter(
-                                (entry) => entry !== "." && entry !== "..",
-                            );
-
-                            filesInDir.forEach((entry) => {
-                                const fullPath =
-                                    path === "/" ? `/${entry}` : `${path}/${entry}`;
-                                try {
-                                    const stat = Module.FS.stat(fullPath);
-                                    if (Module.FS.isDir(stat.mode)) {
-                                        allFiles = allFiles.concat(readAllFiles(fullPath));
-                                    } else if (Module.FS.isFile(stat.mode)) {
-                                        allFiles.push(fullPath);
-                                    }
-                                } catch (e) {
-                                    // ignore stat errors
-                                }
-                            });
-                        } catch (e) {
-                            // ignore readdir errors
-                        }
-                        return allFiles;
-                    }
-
-                    function logFileSystem() {
-                        console.log('--- Logging Pinball FS ---');
-                        const allFiles = readAllFiles("/");
-                        console.log("All files in FS:", allFiles);
-
-                        allFiles.forEach(file => {
-                            try {
-                                const fileData = Module.FS.readFile(file, { encoding: 'binary' });
-                                if (fileData) {
-                                     let binary = "";
-                                    const bytes = new Uint8Array(fileData);
-                                    const len = bytes.byteLength;
-                                    for (let i = 0; i < len; i++) {
-                                        binary += String.fromCharCode(bytes[i]);
-                                    }
-                                    const base64Data = btoa(binary);
-                                    console.log(`Content of ${file} (base64):`, base64Data);
-                                }
-                            } catch(e) {
-                                console.error(`Could not read file ${file}`, e);
+                    // Periodically sync the file system to IndexedDB
+                    setInterval(function() {
+                        FS.syncfs(false, function (err) {
+                            if (err) {
+                                console.error('Error saving data to IndexedDB:', err);
                             }
                         });
-                        console.log('--- End Pinball FS Log ---');
-                    }
-
-                    // Expose to parent window
-                    window.logFileSystem = logFileSystem;
-
-                    // Log FS periodically
-                    setInterval(logFileSystem, 5000);
-
-                    // Log FS on close
-                    window.addEventListener("beforeunload", logFileSystem);
-
-                    // Initial log to confirm it's working
-                    console.log("Pinball runtime initialized. Logging FS for the first time.");
-                    logFileSystem();
+                    }, 5000); // Sync every 5 seconds
                 },
             };
 
