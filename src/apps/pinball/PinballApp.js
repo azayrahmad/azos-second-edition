@@ -45,12 +45,26 @@ export class PinballApp extends IFrameApplication {
     this._setupIframeForInactivity(this.iframe);
 
     win.on("close", () => {
+      console.log("Pinball window is closing.");
       if (
         this.iframe &&
         this.iframe.contentWindow &&
         typeof this.iframe.contentWindow.logFileSystem === "function"
       ) {
+        console.log("Iframe and logFileSystem function found. Calling it.");
         this.iframe.contentWindow.logFileSystem();
+      } else {
+        console.error("Could not call logFileSystem. Diagnostics:");
+        console.log("this.iframe:", this.iframe);
+        if (this.iframe) {
+          console.log("this.iframe.contentWindow:", this.iframe.contentWindow);
+        }
+        if (this.iframe && this.iframe.contentWindow) {
+          console.log(
+            "typeof this.iframe.contentWindow.logFileSystem:",
+            typeof this.iframe.contentWindow.logFileSystem
+          );
+        }
       }
     });
 
@@ -75,6 +89,21 @@ export class PinballApp extends IFrameApplication {
           label: "&Pause/Resume",
           shortcutLabel: "F3",
           action: () => this.sendKey("F3"),
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Log File System",
+          action: () => {
+            if (
+              this.iframe &&
+              this.iframe.contentWindow &&
+              typeof this.iframe.contentWindow.logFileSystem === "function"
+            ) {
+              this.iframe.contentWindow.logFileSystem();
+            } else {
+              console.error("Could not call logFileSystem from menu.");
+            }
+          },
         },
         "MENU_DIVIDER",
         {
