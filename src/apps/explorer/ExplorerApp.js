@@ -39,6 +39,7 @@ import clipboardManager from "../../utils/clipboardManager.js";
 import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import { StatusBar } from "../../components/StatusBar.js";
+import { downloadFile } from "../../utils/fileDownloader.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -1057,6 +1058,32 @@ export class ExplorerApp extends Application {
         enabled: !itemsToOperateOn.some((item) => item.isStatic),
       };
 
+      const downloadItem = {
+        label: "Download",
+        action: () => {
+          itemsToOperateOn.forEach((item) => {
+            if (item.isStatic || item.type === "folder" || item.type === "drive")
+              return;
+
+            const filename = item.name || item.filename;
+            const content = item.contentUrl || item.content;
+
+            if (content) {
+              downloadFile(filename, content);
+            }
+          });
+        },
+        enabled:
+          itemsToOperateOn.length > 0 &&
+          itemsToOperateOn.every(
+            (item) =>
+              !item.isStatic &&
+              item.type !== "folder" &&
+              item.type !== "drive" &&
+              item.type !== "app",
+          ),
+      };
+
       if (
         this.currentPath === "/" ||
         this.currentPath === "//network-neighborhood" ||
@@ -1085,7 +1112,7 @@ export class ExplorerApp extends Application {
         });
       }
 
-      menuItems.push(copyItem, cutItem, "MENU_DIVIDER");
+      menuItems.push(copyItem, cutItem, "MENU_DIVIDER", downloadItem);
 
       if (clickedItem.type === "drive") {
         menuItems.push({ label: "Format...", enabled: false });
