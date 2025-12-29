@@ -49,17 +49,6 @@
 
         <script>
             var Module = {
-                preRun: [function() {
-                    // Pre-load root folder from IndexedDB
-                    FS.mount(IDBFS, {}, '/');
-                    FS.syncfs(true, function (err) {
-                        if (err) {
-                            console.error('Error loading data from IndexedDB:', err);
-                        } else {
-                            console.log('Successfully loaded data from IndexedDB.');
-                        }
-                    });
-                }],
                 print: function (text) {
                     console.log(text);
                 },
@@ -116,14 +105,88 @@
                         "none";
                     document.getElementById("canvas").style.display = "block";
 
-                    // Periodically sync the file system to IndexedDB
-                    setInterval(function() {
-                        FS.syncfs(false, function (err) {
-                            if (err) {
-                                console.error('Error saving data to IndexedDB:', err);
+                    function logFileSystem() {
+                        console.log('--- Logging Pinball FS ---');
+                        const allFiles = readAllFiles("/");
+                        console.log("All files in FS:", allFiles);
+                    }
+
+                    function readAllFiles(path) {
+                        let allFiles = [];
+                        try {
+                            let filesInDir = Module.FS.readdir(path);
+                            filesInDir = filesInDir.filter(
+                                (entry) => entry !== "." && entry !== "..",
+                            );
+                            filesInDir.forEach((entry) => {
+                                const fullPath =
+                                    path === "/" ? `/${entry}` : `${path}/${entry}`;
+                                try {
+                                    const stat = Module.FS.stat(fullPath);
+                                    if (Module.FS.isDir(stat.mode)) {
+                                        allFiles = allFiles.concat(readAllFiles(fullPath));
+                                    } else if (Module.FS.isFile(stat.mode)) {
+                                        allFiles.push(fullPath);
+                                    }
+                                } catch (e) {}
+                            });
+                        } catch (e) {}
+                        return allFiles;
+                    }
+
+                    function loadPinballDat() {
+                        const savedGame = localStorage.getItem('pinball.dat');
+                        if (savedGame) {
+                            try {
+                                const binaryString = atob(savedGame);
+                                const len = binaryString.length;
+                                const bytes = new Uint8Array(len);
+                                for (let i = 0; i < len; i++) {
+                                    bytes[i] = binaryString.charCodeAt(i);
+                                }
+                                Module.FS_createDataFile(
+                                    "/",
+                                    "pinball.dat",
+                                    bytes,
+                                    true,
+                                    true,
+                                    true
+                                );
+                                console.log('Loaded pinball.dat from localStorage.');
+                            } catch (e) {
+                                console.error('Failed to load pinball.dat from localStorage:', e);
                             }
-                        });
-                    }, 5000); // Sync every 5 seconds
+                        }
+                    }
+
+                    function savePinballDat() {
+                        try {
+                            const fileData = Module.FS.readFile("/pinball.dat", {
+                                encoding: "binary",
+                            });
+                            if (fileData) {
+                                let binary = "";
+                                const bytes = new Uint8Array(fileData);
+                                const len = bytes.byteLength;
+                                for (let i = 0; i < len; i++) {
+                                    binary += String.fromCharCode(bytes[i]);
+                                }
+                                const base64Data = btoa(binary);
+                                localStorage.setItem(
+                                    'pinball.dat',
+                                    base64Data,
+                                );
+                                console.log('Saved pinball.dat to localStorage.');
+                            }
+                        } catch (e) {
+                            console.error("Failed to save pinball.dat to localStorage:", e);
+                        }
+                    }
+
+                    window.logFileSystem = logFileSystem;
+                    window.savePinballDat = savePinballDat;
+
+                    loadPinballDat();
                 },
             };
 
