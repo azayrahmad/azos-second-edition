@@ -1,5 +1,6 @@
 import { generateProgramFiles } from "./generateProgramFiles.js";
 import { generatePlusFiles } from "./generatePlusFiles.js";
+import { getDoomFiles } from "../utils/doomFileManager.js";
 
 const directory = [
   {
@@ -13,7 +14,43 @@ const directory = [
         type: "folder",
         children: [
           ...generateProgramFiles(),
-          { id: "app-doom", type: "app", appId: "doom" },
+          {
+            id: "folder-doom",
+            name: "Doom",
+            type: "folder",
+            children: [
+              { id: "app-doom", type: "app", appId: "doom" },
+              {
+                id: "file-doom-wad",
+                name: "doom1.wad",
+                type: "file",
+                contentUrl: "games/doom/doom1.wad",
+                readOnly: true,
+              },
+              {
+                id: "file-doom-index",
+                name: "index.html",
+                type: "file",
+                contentUrl: "games/doom/index.html",
+                readOnly: true,
+              },
+              {
+                id: "file-doom-js",
+                name: "websockets-doom.js",
+                type: "file",
+                contentUrl: "games/doom/websockets-doom.js",
+                readOnly: true,
+              },
+              {
+                id: "file-doom-wasm",
+                name: "websockets-doom.wasm",
+                type: "file",
+                contentUrl: "games/doom/websockets-doom.wasm",
+                readOnly: true,
+              },
+              ...getDoomFiles(),
+            ],
+          },
           { id: "app-quake", type: "app", appId: "quake" },
           { id: "app-esheep", type: "app", appId: "esheep" },
           { id: "app-simcity2000", type: "app", appId: "simcity2000" },
