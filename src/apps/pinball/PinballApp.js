@@ -68,6 +68,35 @@ export class PinballApp extends IFrameApplication {
         },
         "MENU_DIVIDER",
         {
+          label: "Log File System",
+          action: () => {
+            if (
+              this.iframe &&
+              this.iframe.contentWindow &&
+              typeof this.iframe.contentWindow.logFileSystem === "function"
+            ) {
+              this.iframe.contentWindow.logFileSystem();
+            } else {
+              console.error("Could not call logFileSystem from menu.");
+            }
+          },
+        },
+        {
+          label: "Save State",
+          action: () => {
+            if (
+              this.iframe &&
+              this.iframe.contentWindow &&
+              typeof this.iframe.contentWindow.savePinballDat === "function"
+            ) {
+              this.iframe.contentWindow.savePinballDat();
+            } else {
+              console.error("Could not call savePinballDat from menu.");
+            }
+          },
+        },
+        "MENU_DIVIDER",
+        {
           label: "E&xit",
           action: () => this.win.close(),
         },
