@@ -24,7 +24,6 @@ function ShowAboutDialog(title, icon) {
 export class SpiderSolitaireApp extends Application {
   _createWindow() {
     let gameInstance = null;
-    let undoMenuItem = null;
 
     const win = new $Window({
       title: "Spider Solitaire",
@@ -67,7 +66,7 @@ export class SpiderSolitaireApp extends Application {
           {
             label: "Undo",
             action: () => gameInstance?.undo(),
-            enabled: false,
+            enabled: () => gameInstance && gameInstance.moves.length > 0,
           },
           {
             label: "Exit",
@@ -90,8 +89,6 @@ export class SpiderSolitaireApp extends Application {
       },
     ];
 
-    undoMenuItem = menu[0].submenu[3];
-
     const iframe = document.createElement("iframe");
     iframe.style.width = "100%";
     iframe.style.height = "100%";
@@ -100,25 +97,13 @@ export class SpiderSolitaireApp extends Application {
 
     iframe.onload = () => {
         gameInstance = iframe.contentWindow.spiderSolitaireGame;
-
-        const originalRefreshTable = gameInstance.refreshTable;
-        gameInstance.refreshTable = () => {
-            originalRefreshTable();
-            undoMenuItem.enabled = gameInstance.moves.length > 0;
-            menuBar.render(menu);
-        };
-
-        gameInstance.refreshTable();
     };
 
     win.$content.append(iframe);
 
-    const menuBar = new MenuBar({
-      menu,
-      win,
-    });
+    const menuBar = new MenuBar(menu);
 
-    win.setMenuBar(menuBar);
+    win.setMenuBar(menuBar.element);
 
     return win;
   }
