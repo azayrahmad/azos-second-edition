@@ -30,9 +30,10 @@ export class WebampApp extends Application {
     ],
   };
 
-  constructor(config) {
+  constructor(config, data = null) {
     super(config);
     this.hasTaskbarButton = true;
+    this.initialTracks = data?.initialTracks;
   }
 
   _createWindow() {
@@ -44,6 +45,9 @@ export class WebampApp extends Application {
   async _onLaunch() {
     return new Promise((resolve, reject) => {
       if (webampInstance) {
+        if (this.initialTracks) {
+          webampInstance.setTracksToPlay(this.initialTracks);
+        }
         this.showWebamp();
         return resolve();
       }
@@ -86,7 +90,7 @@ export class WebampApp extends Application {
                 name: "Mac OSX v1.5 (Aqua)",
               },
             ],
-            initialTracks: [
+            initialTracks: this.initialTracks || [
               {
                 metaData: {
                   artist: "DJ Mike Llama",

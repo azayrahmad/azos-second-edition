@@ -1,5 +1,57 @@
 import { generateProgramFiles } from "./generateProgramFiles.js";
 import { generatePlusFiles } from "./generatePlusFiles.js";
+import { ICONS } from "./icons.js";
+
+const anosciSongNames = [
+  "anosci - Blank VHS Tape Jingle Collection - 01 spun telecom tape.ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 02 golden springs tape.ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 03 gentle envelopment.ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 04 waiting room disco tape (loop).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 05 checker field tape (stinger).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 06 gridsquare tape (fade).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 07 augs and 6ths study (15).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 08 augs and 6th study (30).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 09 beach tape (cut).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 10 synth tape (loop).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 11 kinda western tape (15).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 12 kinda western tape (15 + intro).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 13 three hit tape (loop).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 14 2 bright tape (15).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 15 2 bright tape (30).ogg",
+  "anosci - Blank VHS Tape Jingle Collection - 16 water basin tape (loop).ogg",
+];
+
+const anosciSongFiles = anosciSongNames.map((songName) => ({
+  id: `file-anosci-${songName.replace(/[^a-zA-Z0-9]/g, "-")}`,
+  name: songName,
+  type: "file",
+  icon: ICONS.winampFile,
+}));
+
+const anosciPlaylist = {
+  id: "playlist-anosci",
+  name: "anosci - Blank VHS Tape Jingle Collection.m3u",
+  type: "file",
+  icon: ICONS.winampFile,
+  action: async () => {
+    const { appManager } = await import("../utils/appManager.js");
+    if (appManager.getApp("webamp")) {
+      await appManager.closeApp("webamp");
+    }
+    const initialTracks = anosciSongNames.map((songName) => ({
+      metaData: {
+        title: songName.replace(
+          "anosci - Blank VHS Tape Jingle Collection - ",
+          "",
+        ),
+      },
+      url: `songs/anosci - Blank VHS Tape Jingle Collection/${encodeURIComponent(
+        songName,
+      )}`,
+    }));
+    appManager.launchApp("webamp", { initialTracks });
+  },
+};
 
 const directory = [
   {
@@ -227,7 +279,21 @@ const directory = [
     id: "drive-d",
     name: "D:",
     type: "drive",
-    children: [],
+    children: [
+      {
+        id: "folder-songs",
+        name: "Songs",
+        type: "folder",
+        children: [
+          {
+            id: "folder-anosci",
+            name: "anosci - Blank VHS Tape Jingle Collection",
+            type: "folder",
+            children: [...anosciSongFiles, anosciPlaylist],
+          },
+        ],
+      },
+    ],
   },
   {
     id: "folder-briefcase",
