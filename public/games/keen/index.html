@@ -108,39 +108,67 @@
         }
       }
 
-      function saveKeenProgress() {
-        const saveFileNames = [
-            "/SCORES.CK1",
-            "/SAVED1.CK1", "/SAVED2.CK1", "/SAVED3.CK1",
-            "/SAVED4.CK1", "/SAVED5.CK1", "/SAVED6.CK1",
-            "/SAVED7.CK1", "/SAVED8.CK1", "/SAVED9.CK1",
-        ];
+      function readAllFiles(path) {
+        let allFiles = [];
+        let filesInDir = Module.FS.readdir(path);
+        // Remove '.' and '..' special entries
+        filesInDir = filesInDir.filter(
+            (entry) => entry !== "." && entry !== "..",
+        );
 
-        saveFileNames.forEach(file => {
+        filesInDir.forEach((entry) => {
+            // Construct the full path for the current entry
+            const fullPath =
+                path === "/" ? `/${entry}` : `${path}/${entry}`;
             try {
-                const fileData = Module.FS.readFile(file, {
-                    encoding: "binary",
-                });
-
-                if (fileData) {
-                    let binary = "";
-                    const bytes = new Uint8Array(fileData);
-                    const len = bytes.byteLength;
-                    for (let i = 0; i < len; i++) {
-                        binary += String.fromCharCode(bytes[i]);
-                    }
-                    const base64Data = btoa(binary);
-                    localStorage.setItem(
-                        `keen_save_${file}`,
-                        base64Data,
-                    );
-                    console.log(`Saved ${file} to localStorage.`);
+                const stat = Module.FS.stat(fullPath);
+                if (Module.FS.isDir(stat.mode)) {
+                    // If it's a directory, recursively read its contents
+                    allFiles = allFiles.concat(readAllFiles(fullPath));
+                } else if (Module.FS.isFile(stat.mode)) {
+                    // If it's a file, add its full path to the list
+                    allFiles.push(fullPath);
                 }
             } catch (e) {
-                // This will throw if the file doesn't exist, which is fine.
-                // We just ignore the error and continue.
+                console.warn(`Could not stat ${fullPath}: ${e}`);
             }
         });
+        return allFiles;
+      }
+
+      function saveKeenProgress() {
+        try {
+            const files = readAllFiles("/"); // Get all files recursively
+            files.forEach((file) => {
+                const filenameOnly = file.substring(
+                    file.lastIndexOf("/") + 1,
+                );
+                if (
+                    filenameOnly.toUpperCase() === "SCORES.CK1" ||
+                    (filenameOnly.toUpperCase().startsWith("SAVED") && filenameOnly.toUpperCase().endsWith(".CK1"))
+                ) {
+                    const fileData = Module.FS.readFile(file, {
+                        encoding: "binary",
+                    });
+                    if (fileData) {
+                        let binary = "";
+                        const bytes = new Uint8Array(fileData);
+                        const len = bytes.byteLength;
+                        for (let i = 0; i < len; i++) {
+                            binary += String.fromCharCode(bytes[i]);
+                        }
+                        const base64Data = btoa(binary);
+                        localStorage.setItem(
+                            `keen_save_${file}`,
+                            base64Data,
+                        );
+                        console.log(`Saved ${file} to localStorage.`);
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Failed to save game to localStorage:", e);
+        }
       }
       window.saveKeenProgress = saveKeenProgress;
       window.addEventListener("beforeunload", saveKeenProgress);
