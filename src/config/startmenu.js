@@ -12,6 +12,7 @@ const startMenuAppIds = [
   "buy-me-a-coffee",
   "pdfviewer",
   "doom",
+  "simcity2000",
   "diablo",
   "esheep",
   "quake",
