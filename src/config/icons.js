@@ -353,6 +353,10 @@ export const ICONS = {
     16: new URL("../assets/icons/quake-16.png", import.meta.url).href,
     32: new URL("../assets/icons/quake-32.png", import.meta.url).href,
   },
+  spidersolitaire: {
+    16: new URL("../assets/icons/card_deck-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/card_deck-32.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {
