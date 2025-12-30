@@ -199,6 +199,10 @@ export const ICONS = {
     16: new URL("../assets/icons/PINBALL-16.png", import.meta.url).href,
     32: new URL("../assets/icons/PINBALL-32.png", import.meta.url).href,
   },
+  princeofpersia: {
+    16: new URL("../assets/icons/pop-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/pop-32.png", import.meta.url).href,
+  },
   paint: {
     16: new URL("../assets/icons/Paint-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Paint-32.png", import.meta.url).href,
@@ -330,12 +334,16 @@ export const ICONS = {
     32: new URL("../assets/icons/calc-32.png", import.meta.url).href,
   },
   helpBook: {
-    16: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
-    32: new URL("../assets/icons/directory_explorer-3.png", import.meta.url).href,
+    16: new URL("../assets/icons/directory_explorer-3.png", import.meta.url)
+      .href,
+    32: new URL("../assets/icons/directory_explorer-3.png", import.meta.url)
+      .href,
   },
   helpBookOpen: {
-    16: new URL("../assets/icons/directory_explorer-4.png", import.meta.url).href,
-    32: new URL("../assets/icons/directory_explorer-4.png", import.meta.url).href,
+    16: new URL("../assets/icons/directory_explorer-4.png", import.meta.url)
+      .href,
+    32: new URL("../assets/icons/directory_explorer-4.png", import.meta.url)
+      .href,
   },
   helpPage: {
     16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
