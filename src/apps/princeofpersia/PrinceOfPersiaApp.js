@@ -39,8 +39,8 @@ export class PrinceOfPersiaApp extends Application {
     win.$content.append(this.iframe);
 
     const menuItems = this.createMenuBar();
-    const menuBar = new MenuBar(menuItems);
-    win.setMenuBar(menuBar);
+    this.menuBar = new MenuBar(menuItems);
+    win.setMenuBar(this.menuBar);
 
     return win;
   }
@@ -70,9 +70,10 @@ export class PrinceOfPersiaApp extends Application {
               level: 1,
               health: 3,
               time: 60,
-              strength: this.gameState.strength,
+              strength: 100, // Reset to normal
             };
             this.updateGameUrl();
+            this.menuBar.element.dispatchEvent(new CustomEvent("update"));
           },
         },
         {
@@ -83,48 +84,50 @@ export class PrinceOfPersiaApp extends Application {
         },
       ],
       "&Difficulty": [
-        {
-          label: "&Easy",
-          action: () => {
-            this.gameState.strength = 50;
-            this.updateGameUrl();
+          {
+              radioItems: [
+                  { label: "Easy", value: 50 },
+                  { label: "Normal", value: 100 },
+                  { label: "Hard", value: 150 },
+              ],
+              getValue: () => this.gameState.strength,
+              setValue: (value) => {
+                  this.gameState.strength = value;
+                  this.updateGameUrl();
+                  this.menuBar.element.dispatchEvent(new CustomEvent("update"));
+              },
           },
-        },
-        {
-          label: "&Normal",
-          action: () => {
-            this.gameState.strength = 100;
-            this.updateGameUrl();
-          },
-        },
-        {
-          label: "&Hard",
-          action: () => {
-            this.gameState.strength = 150;
-            this.updateGameUrl();
-          },
-        },
       ],
       "&Cheats": [
         {
           label: "Max &Health",
-          submenu: [3, 4, 5, 6, 7, 8, 9, 10].map((hp) => ({
-            label: `${hp} Health`,
-            action: () => {
-              this.gameState.health = hp;
-              this.updateGameUrl();
-            },
-          })),
+          submenu: [{
+              radioItems: [3, 4, 5, 6, 7, 8, 9, 10].map((hp) => ({
+                label: `${hp} Health`,
+                value: hp,
+              })),
+              getValue: () => this.gameState.health,
+              setValue: (value) => {
+                  this.gameState.health = value;
+                  this.updateGameUrl();
+                  this.menuBar.element.dispatchEvent(new CustomEvent("update"));
+              },
+          }],
         },
         {
           label: "&Time",
-          submenu: [15, 30, 60, 90, 120].map((time) => ({
-            label: `${time} Minutes`,
-            action: () => {
-              this.gameState.time = time;
-              this.updateGameUrl();
-            },
-          })),
+          submenu: [{
+              radioItems: [15, 30, 60, 90, 120].map((time) => ({
+                label: `${time} Minutes`,
+                value: time,
+              })),
+              getValue: () => this.gameState.time,
+              setValue: (value) => {
+                  this.gameState.time = value;
+                  this.updateGameUrl();
+                  this.menuBar.element.dispatchEvent(new CustomEvent("update"));
+              },
+          }],
         },
       ],
       "&Help": [
