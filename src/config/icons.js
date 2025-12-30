@@ -353,6 +353,10 @@ export const ICONS = {
     16: new URL("../assets/icons/quake-16.png", import.meta.url).href,
     32: new URL("../assets/icons/quake-32.png", import.meta.url).href,
   },
+  solitaire: {
+    16: new URL("../assets/icons/solitaire-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/solitaire-32.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {
