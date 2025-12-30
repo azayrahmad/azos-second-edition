@@ -37,6 +37,15 @@ export class KeenApp extends IFrameApplication {
     this.iframe = win.$content.find("iframe")[0];
     this._setupIframeForInactivity(this.iframe);
 
+    win.on("close", () => {
+      if (
+        this.iframe &&
+        this.iframe.contentWindow &&
+        typeof this.iframe.contentWindow.saveKeenProgress === "function"
+      ) {
+        this.iframe.contentWindow.saveKeenProgress();
+      }
+    });
     return win;
   }
 
