@@ -26,6 +26,13 @@ const anosciSongFiles = anosciSongNames.map((songName) => ({
   name: songName,
   type: "file",
   icon: ICONS.winampFile,
+  action: async () => {
+    const { appManager } = await import("../utils/appManager.js");
+    const url = `songs/anosci - Blank VHS Tape Jingle Collection/${encodeURIComponent(
+      songName,
+    )}`;
+    appManager.launchApp("media-player", { url });
+  },
 }));
 
 const anosciPlaylist = {
