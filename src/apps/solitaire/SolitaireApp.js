@@ -3,7 +3,6 @@ import { ICONS } from "../../config/icons.js";
 import { sprite } from "./sprite.js";
 import solitaireHTML from "./solitaire.html?raw";
 import "./solitaire.css";
-import { MenuBar } from "/public/os-gui/MenuBar.js";
 import { ShowComingSoonDialog } from "../../components/DialogWindow.js";
 
 export class SolitaireApp extends Application {
@@ -14,35 +13,13 @@ export class SolitaireApp extends Application {
     width: 675,
     height: 500,
     resizable: false,
-    menu: [],
-  };
-
-  _createWindow() {
-    const win = super._createWindow(this.constructor.config);
-    win.$content.html(solitaireHTML);
-    win.$content.addClass("solitaire-container");
-
-    // Add card sprite sheet to the document head
-    if (!document.getElementById("solitaire-sprite-style")) {
-      const css = document.createElement("style");
-      css.id = "solitaire-sprite-style";
-      css.textContent = `.card--front { background-image: url("${sprite}"); }`;
-      document.head.appendChild(css);
-    }
-
-    this._setupMenu(win);
-
-    return win;
-  }
-
-  _setupMenu(win) {
-    const menuConfig = [
+    menu: [
       {
         label: "Game",
         submenu: [
           {
             label: "New Game",
-            action: () => this._resetGame(),
+            action: "app.resetGame",
           },
           {
             type: "divider",
@@ -51,12 +28,12 @@ export class SolitaireApp extends Application {
             label: "Options...",
             action: () => ShowComingSoonDialog("Options"),
           },
-           {
+          {
             type: "divider",
           },
           {
             label: "Exit",
-            action: () => this.win.close(),
+            action: "app.win.close",
           },
         ],
       },
@@ -73,9 +50,24 @@ export class SolitaireApp extends Application {
           },
         ],
       },
-    ];
-    const menuBar = new MenuBar(menuConfig);
-    win.setMenuBar(menuBar);
+    ],
+  };
+
+  _createWindow() {
+    const win = super._createWindow(this.constructor.config);
+    win.app = this; // Make app instance available to menu actions
+    win.$content.html(solitaireHTML);
+    win.$content.addClass("solitaire-container");
+
+    // Add card sprite sheet to the document head
+    if (!document.getElementById("solitaire-sprite-style")) {
+      const css = document.createElement("style");
+      css.id = "solitaire-sprite-style";
+      css.textContent = `.card--front { background-image: url("${sprite}"); }`;
+      document.head.appendChild(css);
+    }
+
+    return win;
   }
 
   async _onLaunch() {
@@ -152,10 +144,10 @@ export class SolitaireApp extends Application {
     this.win.$content[0].onmousemove = (e) => this._handleMove(e);
     this.win.$content[0].onmouseup = (e) => this._releaseMove(e);
 
-    this._resetGame();
+    this.resetGame();
   }
 
-  _resetGame() {
+  resetGame() {
     if (this.winAnimation) {
         this.winAnimation.stop();
         this.winAnimation = null;
@@ -509,7 +501,6 @@ export class SolitaireApp extends Application {
   _runWinAnimation() {
     const cardWidth = 71;
     const cardHeight = 96;
-    const gameRect = this.gameEl.getBoundingClientRect();
     const contentRect = this.win.$content[0].getBoundingClientRect();
 
     const canvas = document.createElement('canvas');
@@ -533,18 +524,16 @@ export class SolitaireApp extends Application {
     };
 
     const Particle = function(id, x, y, sx, sy) {
-        const typeIndex = Math.floor(id / 13);
-        const numberIndex = id % 13;
-
         let spriteX, spriteY;
 
+        // Correctly calculate sprite offsets based on CSS, accounting for borders
         switch(this.state.cards[id].type) {
-            case 'h': spriteX = 0; break;
-            case 'c': spriteX = cardWidth; break;
-            case 'd': spriteX = cardWidth * 2; break;
-            case 's': spriteX = cardWidth * 3; break;
+            case 'h': spriteX = 1; break;
+            case 'c': spriteX = 72; break;
+            case 'd': spriteX = 143; break;
+            case 's': spriteX = 214; break;
         }
-        spriteY = (this.state.cards[id].number - 1) * cardHeight;
+        spriteY = (this.state.cards[id].number - 1) * 97 + 1;
 
         this.update = () => {
             x += sx;
