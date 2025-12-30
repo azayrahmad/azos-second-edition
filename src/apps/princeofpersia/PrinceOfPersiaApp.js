@@ -1,5 +1,6 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { ICONS } from "../../config/icons.js";
 
 // The $Window and MenuBar classes are loaded globally via <script> tags in index.html,
 // so they are available here without explicit imports.
@@ -8,17 +9,17 @@ export class PrinceOfPersiaApp extends Application {
   static config = {
     id: "princeofpersia",
     title: "Prince of Persia",
-    icon: "princeofpersia",
+    icon: ICONS.princeofpersia,
     width: 640,
-    height: 480,
+    height: 420,
     resizable: true,
   };
 
   _createWindow() {
     const win = new $Window({
       title: this.title,
-      outerWidth: this.width,
-      outerHeight: this.height,
+      innerWidth: this.width,
+      innerHeight: this.height,
       resizable: this.resizable,
       icons: this.icon,
     });
