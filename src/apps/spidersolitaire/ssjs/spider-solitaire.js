@@ -60,6 +60,7 @@ jQuery(function($) {
 
         // initialise the object
         this.init = function (elementName) {
+            window.spiderSolitaireGame = this;
             if (elementName === undefined) {
                 elementName = 'spidersolitaire';
             }
@@ -90,10 +91,6 @@ jQuery(function($) {
             ssDiv.on('click', '#Undo', ssObj.undo);
 
             ssDiv.on('click', '#Menu', ssObj.showMenu);
-
-            ssDiv.on('click', '#Just', ssObj.compact);
-
-            ssDiv.on('click', '#Hide', ssObj.hide);
 
             // and if they click on an stack to deal it
             ssDiv.on('click', '.deal', ssObj.deal);
@@ -583,8 +580,6 @@ jQuery(function($) {
             try {
                 if (ev.ctrlKey && ((ev.key.toLowerCase() == 'z') ||(ev.keyCode == 90)) && ssObj.moves.length > 0) {
                     ssObj.undo();
-                } else if (ev.key.toLowerCase() == 'escape' || ev.keyCode == 27) {
-                    ssObj.hide();
                 }
             } catch (ex) {}
             ev.preventDefault();
@@ -769,37 +764,9 @@ jQuery(function($) {
         };
 
 
-        // hide everything except the game
-        this.compact = function () {
-            if (ssObj.compacted == true) {
-                $(document.body).removeClass('sscompact');
-                ssObj.compacted = false;
-                $('#Just').attr('value', 'Compact');
-            } else {
-                $(document.body).addClass('sscompact');
-                $('#spidersolitaire *, #spidersolitaire').addClass('ssexceptme');
-                var e = $('#spidersolitaire').parent();
-                while (e[0].nodeName != 'BODY') {
-                    e.addClass('ssexceptme');
-                    e = e.parent();
-                }
-                ssObj.compacted = true;
-                $('#Just').attr('value', 'Whole');
-            }
-        };
-
-
-        // hide everything except the buttons
-        this.hide = function () {
-            if (ssObj.hidden == true) {
-                $('.spidersolitaire').removeClass('sshide');
-                $('#Hide').attr('value', 'Hide');
-                ssObj.hidden = false;
-            } else {
-                $('.spidersolitaire').addClass('sshide');
-                $('#Hide').attr('value', 'Show');
-                ssObj.hidden = true;
-            }
+        this.setDifficulty = function(suits) {
+            ssObj.howManySuitsNext = suits;
+            ssObj.newGame(true);
         }
 
 
@@ -1188,15 +1155,7 @@ jQuery(function($) {
             var templates = {
                 'tableaux' :
                     '<div id="workspace">' +
-                        '<form name="ButtonsForm">' +
-                            '<input type="button" id="Undo" value="Undo" disabled="true">' +
-                            '<input type="button" id="Deal" value="Deal" >' +
-                            '<input type="button" id="Menu" value="Menu" >' +
-                            '<input type="button" id="New" value="New" >' +
-                            '<input type="button" id="Just" value="Compact" >' +
-                            '<input type="button" id="Hide" value="Hide" >' +
                             '<span id="ssScore"/>' +
-                        '</form>' +
                     '</div>' +
                     '<div id="table">' +
                     '</div>',
