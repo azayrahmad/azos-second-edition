@@ -56,4 +56,4 @@
     exports.get_new_menu_z_index = get_new_menu_z_index;
     exports.get_direction = get_direction;
     exports.is_disabled = is_disabled;
-})(typeof module !== "undefined" ? module.exports : (window.os_gui_utils = {}));
+})(window.os_gui_utils = {});

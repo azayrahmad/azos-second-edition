@@ -311,6 +311,10 @@ export const ICONS = {
     16: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
     32: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
   },
+  digger: {
+    16: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/ms_dos-1.png", import.meta.url).href,
+  },
   esheep: {
     16: new URL("../apps/esheep/esheep.webp", import.meta.url).href,
     32: new URL("../apps/esheep/esheep.webp", import.meta.url).href,

@@ -13,6 +13,7 @@ const directory = [
         type: "folder",
         children: [
           ...generateProgramFiles(),
+          { id: "app-digger", type: "app", appId: "digger" },
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-quake", type: "app", appId: "quake" },
           { id: "app-esheep", type: "app", appId: "esheep" },
@@ -210,6 +211,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-princeofpersia",
                 name: "Prince of Persia",
+              },
+              {
+                id: "shortcut-to-digger",
+                type: "shortcut",
+                targetId: "app-digger",
+                name: "Digger",
               },
             ],
           },
