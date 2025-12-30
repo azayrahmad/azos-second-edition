@@ -1,16 +1,24 @@
 let lastCursorElement = null;
 
 function hideBootScreen() {
-    const bootScreenEl = document.getElementById("boot-screen");
-    if (bootScreenEl) {
-        const contentEl = document.getElementById("boot-screen-content");
-        if (contentEl) {
-            contentEl.style.visibility = "hidden";
+    const onReady = () => {
+        const bootScreenEl = document.getElementById("boot-screen");
+        if (bootScreenEl) {
+            const contentEl = document.getElementById("boot-screen-content");
+            if (contentEl) {
+                contentEl.style.visibility = "hidden";
+            }
+            bootScreenEl.classList.add("fade-out");
+            setTimeout(() => {
+                bootScreenEl.remove();
+            }, 500);
         }
-        bootScreenEl.classList.add("fade-out");
-        setTimeout(() => {
-            bootScreenEl.remove();
-        }, 500);
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", onReady);
+    } else {
+        onReady();
     }
 }
 
