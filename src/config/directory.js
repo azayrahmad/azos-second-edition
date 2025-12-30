@@ -21,6 +21,7 @@ const directory = [
           { id: "app-wordpad", type: "app", appId: "wordpad" },
           { id: "app-calculator", type: "app", appId: "calculator" },
           { id: "app-help", type: "app", appId: "help" },
+          { id: "app-princeofpersia", type: "app", appId: "princeofpersia" },
           {
             id: "folder-plus",
             name: "Plus!",
@@ -203,6 +204,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-help",
                 name: "Help",
+              },
+              {
+                id: "shortcut-to-princeofpersia",
+                type: "shortcut",
+                targetId: "app-princeofpersia",
+                name: "Prince of Persia",
               },
             ],
           },

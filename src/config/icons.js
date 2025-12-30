@@ -199,6 +199,10 @@ export const ICONS = {
     16: new URL("../assets/icons/PINBALL-16.png", import.meta.url).href,
     32: new URL("../assets/icons/PINBALL-32.png", import.meta.url).href,
   },
+  princeofpersia: {
+    16: new URL("../assets/icons/Paint-16.png", import.meta.url).href,
+    32: new URL("../assets/icons/Paint-32.png", import.meta.url).href,
+  },
   paint: {
     16: new URL("../assets/icons/Paint-16.png", import.meta.url).href,
     32: new URL("../assets/icons/Paint-32.png", import.meta.url).href,
