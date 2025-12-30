@@ -211,6 +211,12 @@ const directory = [
                 targetId: "app-princeofpersia",
                 name: "Prince of Persia",
               },
+              {
+                id: "shortcut-to-solitaire",
+                type: "shortcut",
+                targetId: "app-solitaire",
+                name: "Solitaire",
+              },
             ],
           },
           {
