@@ -354,8 +354,8 @@ export const ICONS = {
     32: new URL("../assets/icons/quake-32.png", import.meta.url).href,
   },
   spidersolitaire: {
-    16: new URL("../assets/icons/card_deck-16.png", import.meta.url).href,
-    32: new URL("../assets/icons/card_deck-32.png", import.meta.url).href,
+    16: new URL("../assets/icons/Spider_1998.svg", import.meta.url).href,
+    32: new URL("../assets/icons/Spider_1998.svg", import.meta.url).href,
   },
 };
 
