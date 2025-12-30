@@ -16,7 +16,6 @@ const directory = [
           { id: "app-doom", type: "app", appId: "doom" },
           { id: "app-quake", type: "app", appId: "quake" },
           { id: "app-esheep", type: "app", appId: "esheep" },
-          { id: "app-simcity2000", type: "app", appId: "simcity2000" },
           { id: "app-minesweeper", type: "app", appId: "minesweeper" },
           { id: "app-wordpad", type: "app", appId: "wordpad" },
           { id: "app-calculator", type: "app", appId: "calculator" },
@@ -132,12 +131,6 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-media-player",
                 name: "Media Player",
-              },
-              {
-                id: "shortcut-to-simcity2000",
-                type: "shortcut",
-                targetId: "app-simcity2000",
-                name: "SimCity 2000 Demo",
               },
               {
                 id: "shortcut-to-buy-me-a-coffee",
