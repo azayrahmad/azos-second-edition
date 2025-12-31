@@ -24,6 +24,12 @@
     right: 10px;
     z-index: 10;
 }
+.spidersolitaire #home-cells {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 10;
+}
 .spidersolitaire #table {padding:20px;min-height:350px;height:calc(100% - 40px);background-color:#008800;position: relative;}
 
 .spidersolitaire .base {width:71px;min-height:96px;background-image:url(../ssimages/card_pos.gif);position:relative;background-repeat:no-repeat;line-height:0;}

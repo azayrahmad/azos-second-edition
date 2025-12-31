@@ -239,6 +239,7 @@ jQuery(function($) {
                     .replace('%zindex%', 0)
                     );
             }
+            var target = $('#home-cells');
             var base = ssObj.getTemplate('home-base');
             for (var home = 5; home < 13; home++) {
                 target.append(base
@@ -1157,6 +1158,7 @@ jQuery(function($) {
                     '<div id="table">' +
                         '<span id="ssScore"/>' +
                         '<div id="deal-piles"></div>' +
+                        '<div id="home-cells"></div>' +
                     '</div>',
                 'card-face' :
                     '<div id="%id%" class="card faceup %dropClass%" style="z-index:200;background-image:url(ssimages/card_%face%.gif);" ondragover="event.preventDefault();" />',
