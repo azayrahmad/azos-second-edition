@@ -27,32 +27,18 @@ export class SolitaireApp extends Application {
     async _onLaunch() {
         const win = this._createWindow();
 
-        // Load the game's HTML content from the public directory
-        try {
-            const response = await fetch('apps/solitaire/index.html');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch content: ${response.statusText}`);
-            }
-            const html = await response.text();
+        // Create an iframe to sandbox the game
+        const iframe = document.createElement('iframe');
+        iframe.src = 'apps/solitaire/index.html';
 
-            // Inject the HTML and then load the script
-            win.$content.html(html);
+        // Style the iframe to fill the window's content area
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
 
-            const script = document.createElement('script');
-            script.src = 'apps/solitaire/main.js';
-            script.type = 'text/javascript';
-            script.onload = () => {
-                console.log('Solitaire script loaded successfully.');
-            };
-            script.onerror = () => {
-                console.error('Failed to load Solitaire script.');
-                win.$content.html('<p>Error: Could not load game files.</p>');
-            };
-            win.$content[0].appendChild(script);
+        // Append the iframe to the window's content
+        win.$content.append(iframe);
 
-        } catch (error) {
-            console.error('Error loading Solitaire app content:', error);
-            win.$content.html(`<p>Error loading application: ${error.message}</p>`);
-        }
+        return win;
     }
 }
