@@ -31,7 +31,7 @@ export class SpiderSolitaireApp extends Application {
       title: "Spider Solitaire",
       outerWidth: 1000,
       outerHeight: 600,
-      id: "spidersolitaire",
+      id: "spidersolitaire", // Keep original ID for the window
       resizable: true,
       icons: ICONS.spidersolitaire,
     });
@@ -86,21 +86,101 @@ export class SpiderSolitaireApp extends Application {
       ],
     };
 
-    const iframe = document.createElement("iframe");
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "none";
-    iframe.src = "src/apps/spidersolitaire/game.html";
+    const gameContainerId = "spidersolitaire-game-container";
+    const gameContainer = document.createElement("div");
+    gameContainer.id = gameContainerId;
 
-    iframe.onload = () => {
-      gameInstance = iframe.contentWindow.spiderSolitaireGame;
-    };
+    // The game's CSS expects the container to take up all the space.
+    // The game's own JS will add the 'spidersolitaire' class to this container.
+    win.$content.css({
+      display: "flex",
+      height: "100%",
+    });
+    gameContainer.style.width = "100%";
+    gameContainer.style.height = "100%";
 
-    win.$content.append(iframe);
+
+    win.$content.append(gameContainer);
 
     const menuBar = new MenuBar(menu);
-
     win.setMenuBar(menuBar);
+
+    const styleId = "spidersolitaire-styles";
+    const jqueryUiStyleId = "jquery-ui-styles";
+
+    const loadScript = (url) => {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+          resolve();
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = url;
+        script.async = false; // Ensure scripts load in order
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    };
+
+    const loadCss = async () => {
+      const response = await fetch("src/apps/spidersolitaire/sscss/spider-solitaire.css");
+      let css = await response.text();
+      const selector = `#${win.id}`;
+
+      // Fix image paths
+      let scopedCss = css.replace(/url\(\.\.\/ssimages/g, "url(src/apps/spidersolitaire/ssimages");
+
+      // Scope the main game container styles to the window
+      scopedCss = scopedCss.replace(/(\.spidersolitaire|\.ssParent)/g, `${selector} $1`);
+
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = scopedCss;
+      document.head.appendChild(style);
+    };
+
+    const initGame = async () => {
+      try {
+        await loadCss();
+        await loadScript("https://code.jquery.com/jquery-1.12.4.min.js");
+        await loadScript("https://code.jquery.com/ui/1.12.0/jquery-ui.min.js");
+
+        if (!document.getElementById(jqueryUiStyleId)) {
+          const link = document.createElement("link");
+          link.id = jqueryUiStyleId;
+          link.rel = "stylesheet";
+          link.href = "https://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css";
+          document.head.appendChild(link);
+        }
+
+        // This script is not a module and defines `SpiderSolitaire` globally.
+        await loadScript("src/apps/spidersolitaire/ssjs/spider-solitaire.js");
+
+        if (window.SpiderSolitaire) {
+          const game = new window.SpiderSolitaire();
+          game.init(gameContainerId); // Init with our container's ID
+          gameInstance = window.spiderSolitaireGame;
+          // After init, the game JS adds ssParent to win.$content and spidersolitaire to gameContainer
+          // So the CSS scoping should work.
+        } else {
+          console.error("SpiderSolitaire object not found after loading script.");
+        }
+      } catch (error) {
+        console.error("Failed to initialize Spider Solitaire:", error);
+        win.$content.text("Failed to load game assets.");
+      }
+    };
+
+    initGame();
+
+    win.on("close", () => {
+      const styleElement = document.getElementById(styleId);
+      if (styleElement) styleElement.remove();
+
+      const jqueryUiStyleElement = document.getElementById(jqueryUiStyleId);
+      if (jqueryUiStyleElement) jqueryUiStyleElement.remove();
+    });
 
     return win;
   }
