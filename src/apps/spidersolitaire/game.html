@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Spider Solitaire</title>
+        <script
+            type="text/javascript"
+            src="https://code.jquery.com/jquery-1.12.4.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"
+        ></script>
+        <link
+            rel="stylesheet"
+            href="https://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css"
+        />
+
+        <script
+            type="text/javascript"
+            src="./ssjs/spider-solitaire.js"
+        ></script>
+        <link
+            rel="stylesheet"
+            href="./sscss/spider-solitaire.css"
+            type="text/css"
+        />
+
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+            #spidersolitaire {
+                width: 100%;
+                height: 100%;
+                display: flex;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="spidersolitaire"></div>
+        <script type="text/javascript">
+            jQuery(function ($) {
+                new SpiderSolitaire().init();
+            });
+        </script>
+    </body>
+</html>

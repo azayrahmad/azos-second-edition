@@ -28,6 +28,7 @@ const directory = [
             type: "folder",
             children: generatePlusFiles(),
           },
+          { id: "app-spidersolitaire", type: "app", appId: "spidersolitaire" },
         ],
       },
       {
@@ -210,6 +211,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-princeofpersia",
                 name: "Prince of Persia",
+              },
+              {
+                id: "shortcut-to-spidersolitaire",
+                type: "shortcut",
+                targetId: "app-spidersolitaire",
+                name: "Spider Solitaire",
               },
               {
                 id: "shortcut-to-solitaire",
