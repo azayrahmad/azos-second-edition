@@ -7,9 +7,24 @@
 .spidersolitaire div form {display:inline-block;text-align:center;}
 .spidersolitaire div form input {width:45%;margin-bottom:3px;height:40px;}
 .spidersolitaire div form input:nth-child(odd) {margin-right:3px;}
-.spidersolitaire #ssScore {width: 128px;background-color:white;display:inline-block;margin:3px;}
-.spidersolitaire #workspace {padding:20px;width:142px;vertical-align:top;background-color:#807000;height:calc(100% - 40px);min-height:350px;}
-.spidersolitaire #table {padding:20px;min-height:350px;height:calc(100% - 40px);background-color:#008800;}
+.spidersolitaire #ssScore {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 128px;
+    background-color: white;
+    display: inline-block;
+    margin: 3px;
+    z-index: 10;
+}
+.spidersolitaire #deal-piles {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 10;
+}
+.spidersolitaire #table {padding:20px;min-height:350px;height:calc(100% - 40px);background-color:#008800;position: relative;}
 
 .spidersolitaire .base {width:71px;min-height:96px;background-image:url(../ssimages/card_pos.gif);position:relative;background-repeat:no-repeat;line-height:0;}
 
@@ -32,8 +47,7 @@
 
 .spidersolitaire .card:first-child {margin-top:0 !important;}
 
-.spidersolitaire.sshide #table, .spidersolitaire.sshide .card, .spidersolitaire.sshide .base {visibility:hidden;}
-.spidersolitaire.sshide #workspace {background-color:inherit;}
+.spidersolitaire.sshide .card, .spidersolitaire.sshide .base {visibility:hidden;}
 
 .ssmenu {font-size:0.9em;}
 .ssscores {min-width:270px;}

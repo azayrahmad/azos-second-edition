@@ -231,7 +231,7 @@ jQuery(function($) {
 
             // draw the buttons and pile locations
             ssDiv.html('').append(ssObj.getTemplate('tableaux'));
-            var target = $('#workspace');
+            var target = $('#deal-piles');
             var base = ssObj.getTemplate('deal-base');
             for (var home = 0; home < 5; home++) {
                 target.append(base
@@ -1154,10 +1154,9 @@ jQuery(function($) {
         this.getTemplate = function (templateName) {
             var templates = {
                 'tableaux' :
-                    '<div id="workspace">' +
-                            '<span id="ssScore"/>' +
-                    '</div>' +
                     '<div id="table">' +
+                        '<span id="ssScore"/>' +
+                        '<div id="deal-piles"></div>' +
                     '</div>',
                 'card-face' :
                     '<div id="%id%" class="card faceup %dropClass%" style="z-index:200;background-image:url(ssimages/card_%face%.gif);" ondragover="event.preventDefault();" />',
