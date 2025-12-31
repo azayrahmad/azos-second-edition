@@ -56,14 +56,19 @@ jQuery(function($) {
         ssObj.tablePadding = 40;
 
         ssObj.maxCardSpacing = ssObj.cardHeight / 4;
+        ssObj.imagesBaseUrl = '.';
 
 
         // initialise the object
-        this.init = function (elementName) {
+        this.init = function (options) {
             window.spiderSolitaireGame = this;
-            if (elementName === undefined) {
-                elementName = 'spidersolitaire';
+            if (typeof options === 'string') {
+                options = { elementId: options };
             }
+            options = options || {};
+            const elementName = options.elementId || 'spidersolitaire';
+            ssObj.imagesBaseUrl = options.imagesBaseUrl || 'src/apps/spidersolitaire/ssimages';
+
             ssDiv = $('#' + elementName);
             if (!ssDiv.length || ssDiv[0].tagName != 'DIV') {
                 throw new ssObj.Exception('\'' + elementName + '\' element not defined as DIV in HTML');
@@ -450,7 +455,7 @@ jQuery(function($) {
                 for (var count = 0; count < 10; count++) {
                     var card = ssObj.piles[stack].pop();
                     card.facingUp = true;
-                    $('#' + card.id).css('background-image', 'url(ssimages/card_' + card.suit + card.value + '.gif)');
+                    $('#' + card.id).css('background-image', 'url(' + ssObj.imagesBaseUrl + '/card_' + card.suit + card.value + '.gif)');
                     $('#' + card.id).addClass('canDrop');
                     $('#' + card.id).addClass('faceup');
                     ssObj.piles[13 + count].push(card);
@@ -489,7 +494,7 @@ jQuery(function($) {
                     !ssObj.piles[sourcePile.result][ssObj.piles[sourcePile.result].length - 1].facingUp) {
                     ssObj.piles[sourcePile.result][ssObj.piles[sourcePile.result].length - 1].facingUp = true;
                     var card = ssObj.piles[sourcePile.result][ssObj.piles[sourcePile.result].length - 1];
-                    $('#' + card.id).css('background-image', 'url(ssimages/card_' + card.suit + card.value + '.gif)');
+                    $('#' + card.id).css('background-image', 'url(' + ssObj.imagesBaseUrl + '/card_' + card.suit + card.value + '.gif)');
                     $('#' + card.id).addClass('faceup');
                     resultedInTurn = true;
                 }
@@ -830,7 +835,7 @@ jQuery(function($) {
                         if (ssObj.piles[stack].length > 0 && !ssObj.piles[stack][ssObj.piles[stack].length - 1].facingUp) {
                             ssObj.piles[stack][ssObj.piles[stack].length - 1].facingUp = true;
                             var tmpCard = ssObj.piles[stack][ssObj.piles[stack].length - 1];
-                            $('#' + tmpCard.id).css('background-image', 'url(ssimages/card_' + tmpCard.suit + tmpCard.value + '.gif)');
+                            $('#' + tmpCard.id).css('background-image', 'url(' + ssObj.imagesBaseUrl + '/card_' + tmpCard.suit + tmpCard.value + '.gif)');
                             $('#' + tmpCard.id).addClass('faceup');
                             turned = true;
                         }
@@ -1089,7 +1094,7 @@ jQuery(function($) {
                 $('#workspace').append('<div id="imageLoader" style="display:none;"/>');
             }
             var tmpCard = ssObj.deck[ssObj.initCard];
-            $('#imageLoader').css('background-image', 'url(ssimages/card_' + tmpCard.suit + tmpCard.value + '.gif)');
+            $('#imageLoader').css('background-image', 'url(' + ssObj.imagesBaseUrl + '/card_' + tmpCard.suit + tmpCard.value + '.gif)');
             ssObj.initCard++;
             if (ssObj.initCard < ssObj.deck.length) {
                 setTimeout(ssObj.loadImages, 100);
@@ -1161,7 +1166,7 @@ jQuery(function($) {
                         '<div id="home-cells"></div>' +
                     '</div>',
                 'card-face' :
-                    '<div id="%id%" class="card faceup %dropClass%" style="z-index:200;background-image:url(ssimages/card_%face%.gif);" ondragover="event.preventDefault();" />',
+                    '<div id="%id%" class="card faceup %dropClass%" style="z-index:200;background-image:url(' + ssObj.imagesBaseUrl + '/card_%face%.gif);" ondragover="event.preventDefault();" />',
                 'card-back' :
                     '<div id="%id%" class="card %dropClass%" style="z-index:200;" ondragover="%dropFunction%"/>',
                 'stack-base' :

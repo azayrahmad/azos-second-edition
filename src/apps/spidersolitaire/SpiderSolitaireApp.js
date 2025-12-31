@@ -4,6 +4,9 @@ import {
   ShowDialogWindow,
   ShowComingSoonDialog,
 } from "../../components/DialogWindow.js";
+import cssUrl from './sscss/spider-solitaire.css?url';
+import gameScriptUrl from './ssjs/spider-solitaire.js?url';
+import cardImageUrl from './ssimages/card_back.gif?url';
 
 function ShowAboutDialog(title, icon) {
   const content = document.createElement("div");
@@ -124,15 +127,12 @@ export class SpiderSolitaireApp extends Application {
     };
 
     const loadCss = async () => {
-      const response = await fetch("src/apps/spidersolitaire/sscss/spider-solitaire.css");
+      const response = await fetch(cssUrl);
       let css = await response.text();
       const selector = `#${win.id}`;
 
-      // Fix image paths
-      let scopedCss = css.replace(/url\(\.\.\/ssimages/g, "url(src/apps/spidersolitaire/ssimages");
-
       // Scope the main game container styles to the window
-      scopedCss = scopedCss.replace(/(\.spidersolitaire|\.ssParent)/g, `${selector} $1`);
+      const scopedCss = css.replace(/(\.spidersolitaire|\.ssParent)/g, `${selector} $1`);
 
       const style = document.createElement("style");
       style.id = styleId;
@@ -155,11 +155,15 @@ export class SpiderSolitaireApp extends Application {
         }
 
         // This script is not a module and defines `SpiderSolitaire` globally.
-        await loadScript("src/apps/spidersolitaire/ssjs/spider-solitaire.js");
+        await loadScript(gameScriptUrl);
 
         if (window.SpiderSolitaire) {
           const game = new window.SpiderSolitaire();
-          game.init(gameContainerId); // Init with our container's ID
+          const imagesBaseUrl = cardImageUrl.substring(0, cardImageUrl.lastIndexOf('/'));
+          game.init({
+            elementId: gameContainerId,
+            imagesBaseUrl: imagesBaseUrl
+          }); // Init with our container's ID
           gameInstance = window.spiderSolitaireGame;
           // After init, the game JS adds ssParent to win.$content and spidersolitaire to gameContainer
           // So the CSS scoping should work.
