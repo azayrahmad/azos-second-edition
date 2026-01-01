@@ -917,33 +917,139 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
     isNativeDragActive = false;
   });
 
-  icon.addEventListener("mousedown", (e) => {
-    if (e.button === 0) {
-      iconManager.handleIconMouseDown(e, icon);
-    }
-  });
+  const handleDragStart = (e) => {
+    if (e.button === 2) return; // Ignore right-click
+    if (isNativeDragActive) return;
 
-  icon.addEventListener("touchstart", (e) => {
+    // Unify event source
+    const eventSrc = e.touches ? e.touches[0] : e;
+    const isTouchEvent = !!e.touches;
+
+    // 1. Handle selection
     iconManager.handleIconMouseDown(e, icon);
 
-    longPressTimer = setTimeout(() => {
-      isLongPress = true;
-      const touch = e.touches[0];
-      const mockEvent = {
-        pageX: touch.pageX,
-        pageY: touch.pageY,
-        preventDefault: () => e.preventDefault(),
-      };
-      showIconContextMenu(mockEvent, app, null, iconManager);
-    }, 500);
-  });
+    // 2. Setup for potential drag or long-press
+    isDragging = false;
+    wasDragged = false;
+    isLongPress = false;
 
-  const cancelLongPress = () => {
-    clearTimeout(longPressTimer);
+    if (isTouchEvent) {
+      longPressTimer = setTimeout(() => {
+        isLongPress = true;
+        const touch = e.touches[0];
+        const mockEvent = {
+          pageX: touch.pageX,
+          pageY: touch.pageY,
+          preventDefault: () => e.preventDefault(),
+        };
+        showIconContextMenu(mockEvent, app, null, iconManager);
+      }, 500);
+    }
+
+    const desktop = document.querySelector(".desktop");
+    const desktopRect = desktop.getBoundingClientRect();
+    dragStartX = eventSrc.clientX - desktopRect.left;
+    dragStartY = eventSrc.clientY - desktopRect.top;
+
+    dragOffsets.clear();
+    iconManager.selectedIcons.forEach((selectedIcon) => {
+      const rect = selectedIcon.getBoundingClientRect();
+      dragOffsets.set(selectedIcon, {
+        x: eventSrc.clientX - rect.left,
+        y: eventSrc.clientY - rect.top,
+      });
+    });
+
+    if (isTouchEvent) {
+      // Passive listeners can't prevent scrolling
+      e.preventDefault();
+      document.addEventListener("touchmove", handleDragMove, { passive: false });
+      document.addEventListener("touchend", handleDragEnd);
+    } else {
+      document.addEventListener("mousemove", handleDragMove);
+      document.addEventListener("mouseup", handleDragEnd);
+    }
   };
 
-  icon.addEventListener("touchend", cancelLongPress);
-  icon.addEventListener("touchmove", cancelLongPress);
+  const handleDragMove = (e) => {
+    clearTimeout(longPressTimer);
+    if (isLongPress) return;
+
+    const eventSrc = e.touches ? e.touches[0] : e;
+    if (!wasDragged) {
+      // First move after starting
+      const dx = eventSrc.clientX - (dragStartX + dragOffsets.get(icon).x);
+      const dy = eventSrc.clientY - (dragStartY + dragOffsets.get(icon).y);
+      if (Math.sqrt(dx * dx + dy * dy) < 5) {
+        // Drag threshold
+        return;
+      }
+      wasDragged = true;
+      isDragging = true;
+
+      // Switch to absolute positioning if needed
+      const desktop = document.querySelector(".desktop");
+      if (!isAutoArrangeEnabled() && !desktop.classList.contains("has-absolute-icons")) {
+        captureGridIconPositions();
+        desktop.refreshIcons(); // Re-render with absolute positions
+      }
+    }
+
+    if (e.cancelable) e.preventDefault();
+
+    const desktop = document.querySelector(".desktop");
+    const desktopRect = desktop.getBoundingClientRect();
+
+    iconManager.selectedIcons.forEach((selectedIcon) => {
+      const offset = dragOffsets.get(selectedIcon);
+      const x = eventSrc.clientX - desktopRect.left - offset.x;
+      const y = eventSrc.clientY - desktopRect.top - offset.y;
+      selectedIcon.style.transform = `translate(${x - selectedIcon.offsetLeft}px, ${y - selectedIcon.offsetTop}px)`;
+    });
+  };
+
+  const handleDragEnd = (e) => {
+    clearTimeout(longPressTimer);
+
+    if (wasDragged) {
+      const iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
+      iconManager.selectedIcons.forEach((selectedIcon) => {
+        // Extract the translation values
+        const transform = selectedIcon.style.transform;
+        const translateMatch = /translate\(([^,]+)px, ([^,]+)px\)/.exec(transform);
+        if (translateMatch) {
+          const dx = parseFloat(translateMatch[1]);
+          const dy = parseFloat(translateMatch[2]);
+          const newX = selectedIcon.offsetLeft + dx;
+          const newY = selectedIcon.offsetTop + dy;
+
+          const id = selectedIcon.getAttribute("data-icon-id");
+          iconPositions[id] = { x: `${newX}px`, y: `${newY}px` };
+        }
+        selectedIcon.style.transform = ""; // Reset transform
+      });
+      setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
+
+      // Refresh to apply final positions from storage
+      document.querySelector(".desktop").refreshIcons();
+    }
+
+    isDragging = false;
+
+    // Cleanup listeners
+    document.removeEventListener("mousemove", handleDragMove);
+    document.removeEventListener("mouseup", handleDragEnd);
+    document.removeEventListener("touchmove", handleDragMove);
+    document.removeEventListener("touchend", handleDragEnd);
+
+    // This is deferred to prevent the 'click' event from firing after a drag
+    setTimeout(() => {
+      wasDragged = false;
+    }, 0);
+  };
+
+  icon.addEventListener("mousedown", handleDragStart);
+  icon.addEventListener("touchstart", handleDragStart, { passive: false });
 
   icon.addEventListener("dragover", (e) => {
     const targetAppId = icon.getAttribute("data-app-id");
