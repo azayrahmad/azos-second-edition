@@ -56,7 +56,7 @@ jQuery(function($) {
         ssObj.tablePadding = 40;
 
         ssObj.maxCardSpacing = ssObj.cardHeight / 4;
-        ssObj.imagesBaseUrl = '.';
+        ssObj.imagesBaseUrl = '/apps/spidersolitaire/ssimages';
 
 
         // initialise the object
@@ -67,7 +67,7 @@ jQuery(function($) {
             }
             options = options || {};
             const elementName = options.elementId || 'spidersolitaire';
-            ssObj.imagesBaseUrl = options.imagesBaseUrl || 'src/apps/spidersolitaire/ssimages';
+            ssObj.imagesBaseUrl = options.imagesBaseUrl || '/apps/spidersolitaire/ssimages';
 
             ssDiv = $('#' + elementName);
             if (!ssDiv.length || ssDiv[0].tagName != 'DIV') {
