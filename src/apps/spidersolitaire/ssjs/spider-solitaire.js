@@ -60,6 +60,7 @@ jQuery(function($) {
 
         // initialise the object
         this.init = function (elementName) {
+            window.spiderSolitaireGame = this;
             if (elementName === undefined) {
                 elementName = 'spidersolitaire';
             }
@@ -90,10 +91,6 @@ jQuery(function($) {
             ssDiv.on('click', '#Undo', ssObj.undo);
 
             ssDiv.on('click', '#Menu', ssObj.showMenu);
-
-            ssDiv.on('click', '#Just', ssObj.compact);
-
-            ssDiv.on('click', '#Hide', ssObj.hide);
 
             // and if they click on an stack to deal it
             ssDiv.on('click', '.deal', ssObj.deal);
@@ -583,8 +580,6 @@ jQuery(function($) {
             try {
                 if (ev.ctrlKey && ((ev.key.toLowerCase() == 'z') ||(ev.keyCode == 90)) && ssObj.moves.length > 0) {
                     ssObj.undo();
-                } else if (ev.key.toLowerCase() == 'escape' || ev.keyCode == 27) {
-                    ssObj.hide();
                 }
             } catch (ex) {}
             ev.preventDefault();
@@ -769,37 +764,9 @@ jQuery(function($) {
         };
 
 
-        // hide everything except the game
-        this.compact = function () {
-            if (ssObj.compacted == true) {
-                $(document.body).removeClass('sscompact');
-                ssObj.compacted = false;
-                $('#Just').attr('value', 'Compact');
-            } else {
-                $(document.body).addClass('sscompact');
-                $('#spidersolitaire *, #spidersolitaire').addClass('ssexceptme');
-                var e = $('#spidersolitaire').parent();
-                while (e[0].nodeName != 'BODY') {
-                    e.addClass('ssexceptme');
-                    e = e.parent();
-                }
-                ssObj.compacted = true;
-                $('#Just').attr('value', 'Whole');
-            }
-        };
-
-
-        // hide everything except the buttons
-        this.hide = function () {
-            if (ssObj.hidden == true) {
-                $('.spidersolitaire').removeClass('sshide');
-                $('#Hide').attr('value', 'Hide');
-                ssObj.hidden = false;
-            } else {
-                $('.spidersolitaire').addClass('sshide');
-                $('#Hide').attr('value', 'Show');
-                ssObj.hidden = true;
-            }
+        this.setDifficulty = function(suits) {
+            ssObj.howManySuitsNext = suits;
+            ssObj.newGame(true);
         }
 
 
@@ -990,30 +957,50 @@ jQuery(function($) {
 
         // set the attributes of the cards so only the draggable ones can be dragged
         this.setDraggableCards = function () {
-            // iterate through each pile to see if cards can be dragged
-            //first set all cards to non-draggable:
-            ssObj.piles.forEach ( function (pile, pileIndex) {
-                pile.forEach( function (card, cardIndex) {
-                    card.canDrag = false;
-                    $('#' + card.id).removeClass('canDrag');
-                });
+            // First, set all cards to non-draggable
+            ssObj.deck.forEach(card => {
+                card.canDrag = false;
+                $('#' + card.id).removeClass('canDrag');
             });
 
-            // now go determine which cards can be dragged and set them up accordingly
-            ssObj.piles.forEach ( function (pile, pileIndex) {
-                if (pileIndex >= 13) {
-                    if (pile.length) {
-                        pile[pile.length - 1].canDrag = true;
-                        $('#' + pile[pile.length - 1].id).addClass('canDrag');
-                    }
-                    for (var cardIndex = pile.length - 2; cardIndex >= 0; cardIndex--) {
-                        if ((pile[cardIndex].hierarchy == pile[cardIndex + 1].hierarchy + 1) &&(pile[cardIndex].suit == pile[cardIndex + 1].suit)) {
-                            pile[cardIndex].canDrag = true;
-                               $('#' + pile[cardIndex].id).addClass('canDrag');
-                        } else {
+            // Now, determine which cards can be dragged
+            ssObj.piles.forEach((pile, pileIndex) => {
+                if (pileIndex >= 13 && pile.length > 0) { // Only check playing piles
+                    let lastDraggableCard = null;
+
+                    // Start from the bottom card and go up
+                    for (let i = pile.length - 1; i >= 0; i--) {
+                        const card = pile[i];
+
+                        if (!card.facingUp) {
+                            // If we hit a face-down card, nothing above it can be dragged
                             break;
                         }
+
+                        if (i === pile.length - 1) {
+                            // The bottom-most card is always draggable if it's face up
+                            card.canDrag = true;
+                        } else {
+                            // For cards above the bottom, they must be in a valid sequence
+                            const cardBelow = pile[i + 1];
+                            if (
+                                card.suit === cardBelow.suit &&
+                                card.hierarchy === cardBelow.hierarchy + 1
+                            ) {
+                                card.canDrag = true;
+                            } else {
+                                // Sequence is broken
+                                break;
+                            }
+                        }
                     }
+                }
+            });
+
+            // Apply the canDrag property to the DOM
+            ssObj.deck.forEach(card => {
+                if (card.canDrag) {
+                    $('#' + card.id).addClass('canDrag');
                 }
             });
 
@@ -1188,15 +1175,7 @@ jQuery(function($) {
             var templates = {
                 'tableaux' :
                     '<div id="workspace">' +
-                        '<form name="ButtonsForm">' +
-                            '<input type="button" id="Undo" value="Undo" disabled="true">' +
-                            '<input type="button" id="Deal" value="Deal" >' +
-                            '<input type="button" id="Menu" value="Menu" >' +
-                            '<input type="button" id="New" value="New" >' +
-                            '<input type="button" id="Just" value="Compact" >' +
-                            '<input type="button" id="Hide" value="Hide" >' +
                             '<span id="ssScore"/>' +
-                        '</form>' +
                     '</div>' +
                     '<div id="table">' +
                     '</div>',
