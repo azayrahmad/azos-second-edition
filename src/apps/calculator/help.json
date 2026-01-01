@@ -8,22 +8,22 @@
         {
           "title": "Perform a simple calculation",
           "icon": "page",
-          "file": "calculator/content/calc_simple.htm"
+          "file": "/azos-second-edition/calculator/content/calc_simple.htm"
         },
         {
           "title": "Perform a statistical calculation",
           "icon": "page",
-          "file": "calculator/content/calc_statistics.htm"
+          "file": "/azos-second-edition/calculator/content/calc_statistics.htm"
         },
         {
           "title": "Perform a scientific calculation",
           "icon": "page",
-          "file": "calculator/content/calc_scientific.htm"
+          "file": "/azos-second-edition/calculator/content/calc_scientific.htm"
         },
         {
           "title": "Convert values to other number systems",
           "icon": "page",
-          "file": "calculator/content/calc_number_system.htm"
+          "file": "/azos-second-edition/calculator/content/calc_number_system.htm"
         }
       ]
     },
@@ -34,32 +34,32 @@
         {
           "title": "Find out what a Calculator button does",
           "icon": "page",
-          "file": "calculator/content/calc_buttons.htm"
+          "file": "/azos-second-edition/calculator/content/calc_buttons.htm"
         },
         {
           "title": "Work with numbers stored in memory",
           "icon": "page",
-          "file": "calculator/content/calc_memory.htm"
+          "file": "/azos-second-edition/calculator/content/calc_memory.htm"
         },
         {
           "title": "Use keyboard equivalents of Calculator buttons",
           "icon": "page",
-          "file": "calculator/content/calc_list_equiv.htm"
+          "file": "/azos-second-edition/calculator/content/calc_list_equiv.htm"
         },
         {
           "title": "Use key sequences as functions",
           "icon": "page",
-          "file": "calculator/content/calc_keyboard_seq.htm"
+          "file": "/azos-second-edition/calculator/content/calc_keyboard_seq.htm"
         },
         {
           "title": "Understanding extended precision",
           "icon": "page",
-          "file": "calculator/content/calc_precision.htm"
+          "file": "/azos-second-edition/calculator/content/calc_precision.htm"
         },
         {
           "title": "Transfer numbers between standard and scientific view",
           "icon": "page",
-          "file": "calculator/content/calc_transfer.htm"
+          "file": "/azos-second-edition/calculator/content/calc_transfer.htm"
         }
       ]
     }

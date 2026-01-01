@@ -4,13 +4,7 @@ import helpData from "../../config/help.json";
 import "./help.css";
 import contentHtml from "./help.html?raw";
 
-// Use Vite's glob import to eagerly load all possible help content.
-// This ensures they are included in the production build with correct paths.
-const rawContentModules = import.meta.glob('/src/apps/**/*.{htm,html}', { as: 'raw', eager: true });
-const urlContentModules = import.meta.glob('/src/apps/**/*.{htm,html}', { as: 'url', eager: true });
 import { ICONS } from "../../config/icons.js";
-const jsonContentModules = import.meta.glob('/src/apps/**/*.json', { eager: true });
-console.log('[HelpApp] Available JSON modules:', Object.keys(jsonContentModules));
 
 
 class HelpApp extends Application {
@@ -49,17 +43,7 @@ class HelpApp extends Application {
 
     let currentHelpData = helpData; // Default help data
 
-    if (typeof data === "string") {
-      // Handle file path for default help topics
-      const fullPath = `/src/apps/${data}`;
-      if (jsonContentModules[fullPath]) {
-        currentHelpData = jsonContentModules[fullPath].default;
-      } else {
-        console.error(`Failed to find pre-loaded help content for ${data}`);
-        this.win.close();
-        return;
-      }
-    } else if (typeof data === "object" && data !== null) {
+    if (typeof data === "object" && data !== null) {
       // Handle direct JSON object from Calculator
       currentHelpData = data;
     }
@@ -82,9 +66,9 @@ class HelpApp extends Application {
     this._setupToolbar(win);
     this._setupTabs(win);
 
-    // Show the default topic by default
+    // Show the default topic by default, which is now root-relative
     const defaultTopic = {
-      file: "help/content/default.htm",
+      file: "/azos-second-edition/help/content/default.htm",
       title: "Welcome",
     };
     await this._showTopic(defaultTopic, true);
@@ -95,25 +79,12 @@ class HelpApp extends Application {
     contentPanel.html(""); // Clear content first
 
     if (topic.file) {
-      const fullPath = `/src/apps/${topic.file}`;
-      const rawHtml = rawContentModules[fullPath];
-      const baseUrl = urlContentModules[fullPath];
-
-      if (rawHtml && baseUrl) {
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-
-        // Inject a <base> tag to fix relative paths for assets like images and CSS
-        const finalHtml = `<base href="${baseUrl}">${rawHtml}`;
-        iframe.srcdoc = finalHtml;
-
-        contentPanel.append(iframe);
-      } else {
-        console.error(`Failed to find pre-loaded help content for ${topic.file}`);
-        contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
-      }
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      iframe.src = topic.file; // The path is now a direct public URL
+      contentPanel.append(iframe);
     } else if (topic.content) {
       // This can be used for topics that define content directly
       contentPanel.html(`
