@@ -48,15 +48,16 @@
     border-radius: 5px;
     margin-bottom: -80px;
     box-sizing: border-box;
-    font-size: 18px;
-    text-align: center;
-    line-height: 100px;
+    font-size: 16px;
+    text-align: left;
+    line-height: normal;
+    padding: 2px 4px;
     cursor: pointer;
     user-select: none;
+    background-color: #ffffff;
 }
 
 .card.face-up {
-    background-color: #fff;
     color: #000;
 }
 

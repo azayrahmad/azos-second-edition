@@ -80,6 +80,7 @@ export class SpiderSolitaireNewApp extends Application {
             }
         }
 
+        event.dataTransfer.setData('text/plain', card.dataset.rank);
         this.draggedStack = draggedStack;
     }
 
