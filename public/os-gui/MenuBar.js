@@ -348,27 +348,8 @@
       });
       menus_el.appendChild(menu_button_el);
 
-      const menu_popup_el = E("div", { class: "menu-popup-wrapper to-down" });
-      document.body?.appendChild(menu_popup_el);
-      const menu_popup = new MenuPopup(menu_items, {
-        handleKeyDown,
-        closeMenus: close_menus,
-        refocus_outside_menus,
-        send_info_event,
-        setActiveMenuPopup,
-        wrapperElement: menu_popup_el,
-      });
-      const menu_popup_el_actual = menu_popup.element;
-      menu_popup_el.appendChild(menu_popup_el_actual);
-
-      menu_button_el.id = `menu-button-${menus_key}-${uid()}`;
-      menu_popup_el.dataset.semanticParent = menu_button_el.id;
-      menu_button_el.setAttribute("aria-controls", menu_popup_el.id);
-      menu_popup_el.setAttribute("aria-labelledby", menu_button_el.id);
-      menus_el.setAttribute(
-        "aria-owns",
-        `${menus_el.getAttribute("aria-owns") || ""} ${menu_popup_el.id}`,
-      );
+      let menu_popup_el;
+      let menu_popup;
 
       const update_position = () => {
         const rect = menu_button_el.getBoundingClientRect();
@@ -385,9 +366,7 @@
         }
       };
       window.addEventListener("resize", update_position);
-      menu_popup_el.addEventListener("update", update_position);
 
-      menu_popup_el.style.display = "none";
       menu_button_el.innerHTML = `<span>${AccessKeys.toHTML(menus_key)}</span>`;
       menu_button_el.tabIndex = -1;
 
@@ -421,6 +400,28 @@
           window.playSound("MenuPopup");
         }
         close_menus();
+
+        menu_popup_el = E("div", { class: "menu-popup-wrapper to-down" });
+        menu_popup = new MenuPopup(menu_items, {
+          handleKeyDown,
+          closeMenus: close_menus,
+          refocus_outside_menus,
+          send_info_event,
+          setActiveMenuPopup,
+          wrapperElement: menu_popup_el,
+        });
+        const menu_popup_el_actual = menu_popup.element;
+        menu_popup_el.appendChild(menu_popup_el_actual);
+
+        menu_button_el.id = `menu-button-${menus_key}-${uid()}`;
+        menu_popup_el.dataset.semanticParent = menu_button_el.id;
+        menu_button_el.setAttribute("aria-controls", menu_popup_el.id);
+        menu_popup_el.setAttribute("aria-labelledby", menu_button_el.id);
+        menus_el.setAttribute(
+          "aria-owns",
+          `${menus_el.getAttribute("aria-owns") || ""} ${menu_popup_el.id}`,
+        );
+
         menu_button_el.classList.add("active");
         menu_button_el.setAttribute("aria-expanded", "true");
         menu_popup_el.style.display = "";
@@ -428,6 +429,10 @@
         // Make visible off-screen to measure
         menu_popup_el.style.left = "-9999px";
         menu_popup_el.style.top = "-9999px";
+
+        document.body.appendChild(menu_popup_el);
+        menu_popup_el.addEventListener("update", update_position);
+
         const rect = menu_popup_el
           .querySelector(".menu-popup")
           .getBoundingClientRect();
@@ -445,8 +450,7 @@
         }, 0);
         menu_popup_el.setAttribute("dir", get_direction());
         if (window.inheritTheme) window.inheritTheme(menu_popup_el, menus_el);
-        if (!menu_popup_el.parentElement)
-          document.body.appendChild(menu_popup_el);
+
         top_level_highlight(menus_key);
         menu_popup_el.dispatchEvent(new CustomEvent("update", {}));
         selecting_menus = true;
@@ -458,6 +462,8 @@
         } else {
           send_info_event();
         }
+        top_level_menus[new_index].menu_popup = menu_popup;
+        top_level_menus[new_index].menu_popup_el = menu_popup_el;
       }
 
       menu_button_el.addEventListener("release", () => {
@@ -466,15 +472,14 @@
         if (!window.debugKeepMenusOpen) {
           menu_popup.close(true);
           menu_button_el.setAttribute("aria-expanded", "false");
-          menu_popup_el.style.display = "none"; // Explicitly hide the wrapper
         }
         menus_el.dispatchEvent(new CustomEvent("default-info", {}));
       });
 
       top_level_menus.push({
         menu_button_el,
-        menu_popup_el,
-        menu_popup,
+        menu_popup_el: null, // created on open
+        menu_popup: null, // created on open
         menus_key,
         access_key: AccessKeys.get(menus_key),
         open_top_level_menu,

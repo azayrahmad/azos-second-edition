@@ -17,10 +17,7 @@
     // 2. Closing logic
     // ──────────────────────────────────────────────
     const closeMenu = () => {
-      if (menuPopup && menuPopup.element.parentNode) {
-        menuPopup.close(false);
-        wrap.remove();
-      }
+      menuPopup.close();
       document.removeEventListener("pointerdown", closeMenuOnClickOutside);
     };
 
@@ -34,6 +31,7 @@
     // 3. Create actual menu DOM using your MenuPopup
     // ──────────────────────────────────────────────
     menuPopup = new window.MenuPopup(menuItems, {
+      wrapperElement: wrap,
       closeMenus: closeMenu,
       handleKeyDown: (e) => {
         if (e.key === "Escape") closeMenu();
