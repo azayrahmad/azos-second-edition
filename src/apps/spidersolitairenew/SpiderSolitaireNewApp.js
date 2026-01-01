@@ -307,6 +307,7 @@ export class SpiderSolitaireNewApp extends Application {
     if (card.faceUp) {
       cardDiv.classList.add("face-up");
       cardDiv.textContent = `${card.rank}${card.suit}`;
+      cardDiv.draggable = true;
     } else {
       cardDiv.classList.add("face-down");
     }
