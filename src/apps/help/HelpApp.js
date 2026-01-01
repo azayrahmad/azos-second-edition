@@ -6,7 +6,8 @@ import contentHtml from "./help.html?raw";
 
 // Use Vite's glob import to eagerly load all possible help content.
 // This ensures they are included in the production build with correct paths.
-const htmContentModules = import.meta.glob('/src/apps/**/*.htm', { as: 'url', eager: true });
+const rawContentModules = import.meta.glob('/src/apps/**/*.{htm,html}', { as: 'raw', eager: true });
+const urlContentModules = import.meta.glob('/src/apps/**/*.{htm,html}', { as: 'url', eager: true });
 import { ICONS } from "../../config/icons.js";
 const jsonContentModules = import.meta.glob('/src/apps/**/*.json', { eager: true });
 console.log('[HelpApp] Available JSON modules:', Object.keys(jsonContentModules));
@@ -95,14 +96,19 @@ class HelpApp extends Application {
 
     if (topic.file) {
       const fullPath = `/src/apps/${topic.file}`;
-      const htmlContent = htmContentModules[fullPath];
+      const rawHtml = rawContentModules[fullPath];
+      const baseUrl = urlContentModules[fullPath];
 
-      if (htmlContent) {
+      if (rawHtml && baseUrl) {
         const iframe = document.createElement('iframe');
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
-        iframe.src = htmlContent;
+
+        // Inject a <base> tag to fix relative paths for assets like images and CSS
+        const finalHtml = `<base href="${baseUrl}">${rawHtml}`;
+        iframe.srcdoc = finalHtml;
+
         contentPanel.append(iframe);
       } else {
         console.error(`Failed to find pre-loaded help content for ${topic.file}`);
