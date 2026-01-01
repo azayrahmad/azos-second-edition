@@ -1,0 +1,65 @@
+.solitaire-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #008000;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.tableau-piles {
+    display: flex;
+    justify-content: space-around;
+    flex-grow: 1;
+}
+
+.tableau-pile {
+    width: 70px;
+    min-height: 100px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #006400;
+}
+
+.bottom-area {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+}
+
+.foundation-piles, .stock-pile {
+    display: flex;
+}
+
+.foundation-pile, .stock-card-placeholder {
+    width: 70px;
+    height: 100px;
+    border: 1px dashed #333;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.card {
+    width: 70px;
+    height: 100px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    margin-bottom: -80px;
+    box-sizing: border-box;
+    font-size: 18px;
+    text-align: center;
+    line-height: 100px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.card.face-up {
+    background-color: #fff;
+    color: #000;
+}
+
+.card.face-down {
+    background-color: #8B0000;
+}
