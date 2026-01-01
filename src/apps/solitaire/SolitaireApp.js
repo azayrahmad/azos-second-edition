@@ -23,39 +23,37 @@ export class SolitaireApp extends Application {
     });
 
     // Create a menu bar
-    const menuBar = new MenuBar([
-      {
-        label: "Game",
-        submenu: [
-          {
-            label: "New Game",
-            action: () => {
-              win.gameStart();
-            },
+    const menuBar = new MenuBar({
+      "Game": [
+        {
+          label: "New Game",
+          action: () => {
+            win.gameStart();
           },
-        ],
-      },
-    ]);
+        },
+      ],
+    });
     win.setMenuBar(menuBar);
 
     // Load CSS
     const cssLink = document.createElement("link");
     cssLink.rel = "stylesheet";
     cssLink.href = "apps/solitaire/solitaire.css";
-    win.content.appendChild(cssLink);
+    win.$content[0].appendChild(cssLink);
 
     // Load card deck script
     const cardDeckScript = document.createElement("script");
     cardDeckScript.src = "apps/solitaire/carddeck.js";
-    win.content.appendChild(cardDeckScript);
+    win.$content[0].appendChild(cardDeckScript);
 
     // Load app script and initialize the game
     const appScript = document.createElement("script");
     appScript.src = "apps/solitaire/app.js";
     appScript.onload = () => {
-      win.initSolitaire(win.content);
+      initSolitaire(win.$content[0]);
+      win.gameStart = window.gameStart;
     };
-    win.content.appendChild(appScript);
+    win.$content[0].appendChild(appScript);
 
     return win;
   }
