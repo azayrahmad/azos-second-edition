@@ -90,7 +90,7 @@ export class SpiderSolitaireApp extends Application {
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
-    iframe.src = "src/apps/spidersolitaire/game.html";
+    iframe.src = `${import.meta.env.BASE_URL}apps/spidersolitaire/game.html`;
 
     iframe.onload = () => {
       gameInstance = iframe.contentWindow.spiderSolitaireGame;
