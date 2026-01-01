@@ -1,4 +1,8 @@
 export const ICONS = {
+  magiclines: {
+    16: new URL("../assets/icons/magiclines.svg", import.meta.url).href,
+    32: new URL("../assets/icons/magiclines.svg", import.meta.url).href,
+  },
   appmaker: {
     16: new URL("../assets/icons/appwizard-0.png", import.meta.url).href,
     32: new URL("../assets/icons/appwizard-2.png", import.meta.url).href,

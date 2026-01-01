@@ -1,0 +1,52 @@
+.magic-lines-app {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  width: 150px;
+  padding: 10px;
+  border-right: 2px solid var(--border-light);
+  background-color: var(--button-face);
+  text-align: center;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+}
+
+#score {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.game-board {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  gap: 2px;
+  padding: 10px;
+  background-color: #808080;
+}
+
+.cell {
+  background-color: #c0c0c0;
+  border: 2px solid;
+  border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell.selected {
+  background-color: #a0a0a0;
+  border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+}
+
+.ball {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  border: 1px solid #000;
+}
