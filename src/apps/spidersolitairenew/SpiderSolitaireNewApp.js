@@ -255,9 +255,13 @@ export class SpiderSolitaireNewApp extends Application {
 
   animateDealing(cards) {
     return new Promise((resolve) => {
-      const stockPileRect = this.container
-        .querySelector(".stock-pile")
-        .getBoundingClientRect();
+      const stockPilePlaceholders = this.container.querySelectorAll(
+        ".stock-card-placeholder",
+      );
+      const startRect =
+        stockPilePlaceholders[0]?.getBoundingClientRect() ||
+        this.container.querySelector(".stock-pile").getBoundingClientRect();
+
       const tableauPileRects = Array.from(
         this.container.querySelectorAll(".tableau-pile"),
       ).map((pile) => pile.getBoundingClientRect());
@@ -270,11 +274,12 @@ export class SpiderSolitaireNewApp extends Application {
       let animationsCompleted = 0;
 
       cards.forEach((card, index) => {
+        card.faceUp = true; // Ensure card is face-up before creating the element
         const cardDiv = card.element;
-        card.faceUp = true;
+
         cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${stockPileRect.left - containerRect.left}px`;
-        cardDiv.style.top = `${stockPileRect.top - containerRect.top}px`;
+        cardDiv.style.left = `${startRect.left - containerRect.left}px`;
+        cardDiv.style.top = `${startRect.top - containerRect.top}px`;
         cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
         cardDiv.style.zIndex = 100 + index;
         animationLayer.appendChild(cardDiv);
@@ -282,7 +287,12 @@ export class SpiderSolitaireNewApp extends Application {
         setTimeout(() => {
           const pile = this.game.tableauPiles[index];
           const targetRect = tableauPileRects[index];
-          const topOffset = pile.cards.length * 20;
+
+          // Calculate final top offset based on CSS margins
+          let topOffset = 0;
+          for (let i = 0; i < pile.cards.length; i++) {
+            topOffset += pile.cards[i].faceUp ? 20 : 5;
+          }
 
           cardDiv.style.left = `${targetRect.left - containerRect.left}px`;
           cardDiv.style.top = `${targetRect.top - containerRect.top + topOffset}px`;
