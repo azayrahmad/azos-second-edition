@@ -23,17 +23,14 @@ export class SpiderSolitaireNewApp extends Application {
       icons: this.icon,
     });
 
-    const menuBar = new window.MenuBar([
-      {
-        label: "Game",
-        items: [
-          {
-            label: "New Game",
-            action: () => this._showNewGameDialog(),
-          },
-        ],
-      },
-    ]);
+    const menuBar = new window.MenuBar({
+      Game: [
+        {
+          label: "New Game",
+          action: () => this._showNewGameDialog(),
+        },
+      ],
+    });
     win.setMenuBar(menuBar);
 
     win.element.querySelector(".window-content").innerHTML = `
@@ -64,11 +61,11 @@ export class SpiderSolitaireNewApp extends Application {
         buttons: [
           {
             label: "Yes",
-            onClick: () => this._showDifficultyDialog(),
+            action: () => this._showDifficultyDialog(),
           },
           {
             label: "No",
-            onClick: () => {},
+            action: () => {},
           },
         ],
       });
@@ -101,7 +98,7 @@ export class SpiderSolitaireNewApp extends Application {
       buttons: [
         {
           label: "OK",
-          onClick: () => {
+          action: () => {
             const selected = content.querySelector(
               'input[name="difficulty"]:checked',
             );
@@ -113,7 +110,7 @@ export class SpiderSolitaireNewApp extends Application {
         },
         {
           label: "Cancel",
-          onClick: () => {},
+          action: () => {},
         },
       ],
     });
