@@ -1,72 +1,81 @@
 .spider-solitaire-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  background-color: #008000;
-  padding: 10px;
-  box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #008000;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.spider-solitaire-container .game-board {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .spider-solitaire-container .toolbar {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .spider-solitaire-container .tableau-piles {
-  display: flex;
-  justify-content: space-around;
-  flex-grow: 1;
+    display: flex;
+    justify-content: space-around;
+    flex-grow: 1;
 }
 
 .spider-solitaire-container .tableau-pile {
-  width: 70px;
-  min-height: 100px;
-  border: 1px solid #333;
-  border-radius: 5px;
-  padding: 5px;
-  background-color: #006400;
+    width: 70px;
+    min-height: 100px;
+    padding: 5px;
 }
 
 .spider-solitaire-container .bottom-area {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
 }
 
 .spider-solitaire-container .foundation-piles,
 .spider-solitaire-container .stock-pile {
-  display: flex;
+    display: flex;
 }
 
 .spider-solitaire-container .foundation-pile,
 .spider-solitaire-container .stock-card-placeholder {
-  width: 70px;
-  height: 100px;
-  border: 1px dashed #333;
-  border-radius: 5px;
-  margin: 0 5px;
+    width: 70px;
+    height: 100px;
+    border: 1px dashed #333;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.spider-solitaire-container .foundation-pile {
+    margin-right: -55px;
 }
 
 .spider-solitaire-container .card {
-  width: 70px;
-  height: 100px;
-  border: 1px solid #000;
-  border-radius: 5px;
-  margin-bottom: -80px;
-  box-sizing: border-box;
-  font-size: 16px;
-  text-align: left;
-  line-height: normal;
-  padding: 2px 4px;
-  cursor: pointer;
-  user-select: none;
-  background-color: #ffffff;
+    width: 70px;
+    height: 100px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    margin-bottom: -80px;
+    box-sizing: border-box;
+    font-size: 16px;
+    text-align: left;
+    line-height: normal;
+    padding: 2px 4px;
+    cursor: pointer;
+    user-select: none;
+    background-color: #ffffff;
 }
 
 .spider-solitaire-container .card.face-up {
-  color: #000;
+    color: #000;
 }
 
 .spider-solitaire-container .card.face-down {
-  background-color: #8b0000;
+    background-color: #8b0000;
+    margin-bottom: -95px;
 }

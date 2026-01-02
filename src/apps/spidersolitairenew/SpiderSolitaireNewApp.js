@@ -6,9 +6,9 @@ import "./spidersolitairenew.css";
 export class SpiderSolitaireNewApp extends Application {
   static config = {
     id: "spidersolitairenew",
-    title: "Spider Solitaire",
-    width: 800,
-    height: 600,
+    title: "Spider",
+    width: 1024,
+    height: 768,
     resizable: true,
     icon: ICONS.spidersolitairenew,
   };
@@ -16,8 +16,8 @@ export class SpiderSolitaireNewApp extends Application {
   async _createWindow() {
     const win = new window.$Window({
       title: this.config.title,
-      width: this.config.width,
-      height: this.config.height,
+      outerWidth: this.config.width,
+      outerHeight: this.config.height,
       resizable: this.config.resizable,
       icons: this.icon,
     });
@@ -90,9 +90,8 @@ export class SpiderSolitaireNewApp extends Application {
   }
 
   renderFoundations() {
-    const foundationContainer = this.container.querySelector(
-      ".foundation-piles",
-    );
+    const foundationContainer =
+      this.container.querySelector(".foundation-piles");
     foundationContainer.innerHTML = "";
     this.game.foundationPiles.forEach((pile) => {
       const pileDiv = document.createElement("div");
@@ -114,8 +113,9 @@ export class SpiderSolitaireNewApp extends Application {
     this.container
       .querySelector('[data-action="new-game"]')
       .addEventListener("click", () => {
-        const difficulty =
-          this.container.querySelector('[data-action="difficulty"]').value;
+        const difficulty = this.container.querySelector(
+          '[data-action="difficulty"]',
+        ).value;
         this.startNewGame(parseInt(difficulty, 10));
       });
   }
@@ -184,7 +184,8 @@ export class SpiderSolitaireNewApp extends Application {
   }
 
   async showWinDialog() {
-    const { ShowDialogWindow } = await import("../../components/DialogWindow.js");
+    const { ShowDialogWindow } =
+      await import("../../components/DialogWindow.js");
     ShowDialogWindow({
       title: "Congratulations!",
       text: "You Win!",
