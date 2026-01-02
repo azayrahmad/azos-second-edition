@@ -29,6 +29,11 @@ export class SpiderSolitaireNewApp extends Application {
           label: "New Game",
           action: () => this._showNewGameDialog(),
         },
+        {
+          label: "Deal New Row",
+          action: () => this.onStockClick(),
+          enabled: () => canDeal,
+        },
       ],
     });
     this._updateMenuBar(win);
@@ -137,14 +142,26 @@ export class SpiderSolitaireNewApp extends Application {
           enabled: () => canDeal,
         },
       ],
-      "Deal!": [
-        {
-          label: "Deal New Row",
-          action: () => this.onStockClick(),
-          enabled: () => canDeal,
-        },
-      ],
     });
+
+    const dealButton = document.createElement("div");
+    dealButton.className = "menu-button";
+    dealButton.innerHTML = "<span>Deal!</span>";
+    dealButton.addEventListener("click", () => {
+      if (canDeal) {
+        this.onStockClick();
+      }
+    });
+
+    if (canDeal) {
+      dealButton.removeAttribute("disabled");
+      dealButton.removeAttribute("aria-disabled");
+    } else {
+      dealButton.setAttribute("disabled", "");
+      dealButton.setAttribute("aria-disabled", "true");
+    }
+
+    menuBar.element.appendChild(dealButton);
 
     win.setMenuBar(menuBar);
   }
