@@ -259,7 +259,9 @@ export class SpiderSolitaireNewApp extends Application {
         ".stock-card-placeholder",
       );
       const startRect =
-        stockPilePlaceholders[0]?.getBoundingClientRect() ||
+        stockPilePlaceholders[
+          stockPilePlaceholders.length
+        ]?.getBoundingClientRect() ||
         this.container.querySelector(".stock-pile").getBoundingClientRect();
 
       const tableauPileRects = Array.from(
@@ -278,7 +280,7 @@ export class SpiderSolitaireNewApp extends Application {
         const cardDiv = card.element;
 
         cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${startRect.left - containerRect.left}px`;
+        cardDiv.style.left = `${startRect.left - containerRect.left - 70}px`;
         cardDiv.style.top = `${startRect.top - containerRect.top}px`;
         cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
         cardDiv.style.zIndex = 100 + index;
@@ -294,8 +296,8 @@ export class SpiderSolitaireNewApp extends Application {
             topOffset += pile.cards[i].faceUp ? 20 : 5;
           }
 
-          cardDiv.style.left = `${targetRect.left - containerRect.left}px`;
-          cardDiv.style.top = `${targetRect.top - containerRect.top + topOffset}px`;
+          cardDiv.style.left = `${targetRect.left - containerRect.left + 5}px`;
+          cardDiv.style.top = `${targetRect.top - containerRect.top + 5 + topOffset}px`;
 
           cardDiv.addEventListener(
             "transitionend",
