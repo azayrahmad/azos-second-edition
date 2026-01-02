@@ -45,6 +45,7 @@ fieldset {
 .field-row {
     align-items: center;
     display: flex;
+    position: relative;
 }
 [class^="field-row"] + [class^="field-row"] {
     margin-top: 6px;
@@ -63,17 +64,6 @@ label {
     align-items: center;
     display: inline-flex;
     user-select: none;
-}
-input[type="checkbox"],
-input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: 0;
-    border: none;
-    margin: 0;
-    opacity: 0;
-    position: fixed;
 }
 input[type="checkbox"] + label,
 input[type="radio"] + label {
@@ -117,6 +107,23 @@ input[type="radio"][disabled] + label:before {
 input[type="radio"][disabled]:checked + label:after {
     background: var(--radio-dot-disabled-svg);
 }
+input[type="checkbox"],
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: 0;
+    border: none;
+    margin: 0;
+    opacity: 0;
+    height: 13px;
+    width: 13px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
 input[type="checkbox"] + label {
     margin-left: 19px;
     position: relative;

@@ -988,7 +988,7 @@ export class WordPadApp extends Application {
                 <input type="text" id="find-text" value="${this.findState.term}" style="flex-grow: 1;">
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="checkbox-container">
+                <div class="field-row">
                     <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? "checked" : ""}>
                     <label for="match-case">Match case</label>
                 </div>

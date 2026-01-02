@@ -58,6 +58,7 @@
     display: flex;
     align-items: center;
     margin-right: 13px;
+    position: relative;
 }
 
 .calculator-buttons {
