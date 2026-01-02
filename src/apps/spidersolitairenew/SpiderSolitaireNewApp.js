@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./spidersolitairenew.css";
 
 export class SpiderSolitaireNewApp extends Application {
@@ -22,16 +23,18 @@ export class SpiderSolitaireNewApp extends Application {
       icons: this.icon,
     });
 
+    const menuBar = new window.MenuBar({
+      Game: [
+        {
+          label: "New Game",
+          action: () => this._showNewGameDialog(),
+        },
+      ],
+    });
+    win.setMenuBar(menuBar);
+
     win.element.querySelector(".window-content").innerHTML = `
             <div class="spider-solitaire-container">
-                <div class="toolbar">
-                    <button data-action="new-game">New Game</button>
-                    <select data-action="difficulty">
-                        <option value="1">Easy (1 Suit)</option>
-                        <option value="2">Medium (2 Suits)</option>
-                        <option value="4">Hard (4 Suits)</option>
-                    </select>
-                </div>
                 <div class="game-board">
                     <div class="tableau-piles"></div>
                     <div class="bottom-area">
@@ -45,9 +48,72 @@ export class SpiderSolitaireNewApp extends Application {
     this.win = win;
     this.container = win.element.querySelector(".spider-solitaire-container");
     this.addEventListeners();
-    this.startNewGame();
+    this.startNewGame(4); // Default to hard
 
     return win;
+  }
+
+  _showNewGameDialog() {
+    if (this.game) {
+      ShowDialogWindow({
+        title: "New Game",
+        text: "Are you sure you want to start a new game?",
+        buttons: [
+          {
+            label: "Yes",
+            action: () => this._showDifficultyDialog(),
+          },
+          {
+            label: "No",
+            action: () => {},
+          },
+        ],
+      });
+    } else {
+      this._showDifficultyDialog();
+    }
+  }
+
+  _showDifficultyDialog() {
+    let selectedDifficulty = 4;
+    const content = document.createElement("div");
+    content.innerHTML = `
+            <div class="field-row">
+                <input type="radio" name="difficulty" value="1" id="easy">
+                <label for="easy">1 Suit (Easy)</label>
+            </div>
+            <div class="field-row">
+                <input type="radio" name="difficulty" value="2" id="medium">
+                <label for="medium">2 Suits (Medium)</label>
+            </div>
+            <div class="field-row">
+                <input type="radio" name="difficulty" value="4" id="hard" checked>
+                <label for="hard">4 Suits (Hard)</label>
+            </div>
+        `;
+
+    ShowDialogWindow({
+      title: "New Game",
+      content: content,
+      buttons: [
+        {
+          label: "OK",
+          action: () => {
+            const selected = content.querySelector(
+              'input[name="difficulty"]:checked',
+            );
+            if (selected) {
+              selectedDifficulty = parseInt(selected.value, 10);
+            }
+            this.startNewGame(selectedDifficulty);
+          },
+        },
+        {
+          label: "Cancel",
+          action: () => {},
+        },
+      ],
+    });
   }
 
   startNewGame(difficulty = 1) {
@@ -115,14 +181,6 @@ export class SpiderSolitaireNewApp extends Application {
     this.container
       .querySelector(".stock-pile")
       .addEventListener("click", this.onStockClick.bind(this));
-    this.container
-      .querySelector('[data-action="new-game"]')
-      .addEventListener("click", () => {
-        const difficulty = this.container.querySelector(
-          '[data-action="difficulty"]',
-        ).value;
-        this.startNewGame(parseInt(difficulty, 10));
-      });
   }
 
   onDragStart(event) {
