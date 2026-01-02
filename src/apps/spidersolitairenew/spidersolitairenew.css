@@ -1,66 +1,72 @@
-.solitaire-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    background-color: #008000;
-    padding: 10px;
-    box-sizing: border-box;
+.spider-solitaire-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #008000;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-.tableau-piles {
-    display: flex;
-    justify-content: space-around;
-    flex-grow: 1;
+.spider-solitaire-container .toolbar {
+  margin-bottom: 10px;
 }
 
-.tableau-pile {
-    width: 70px;
-    min-height: 100px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    padding: 5px;
-    background-color: #006400;
+.spider-solitaire-container .tableau-piles {
+  display: flex;
+  justify-content: space-around;
+  flex-grow: 1;
 }
 
-.bottom-area {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 10px;
+.spider-solitaire-container .tableau-pile {
+  width: 70px;
+  min-height: 100px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #006400;
 }
 
-.foundation-piles, .stock-pile {
-    display: flex;
+.spider-solitaire-container .bottom-area {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
 }
 
-.foundation-pile, .stock-card-placeholder {
-    width: 70px;
-    height: 100px;
-    border: 1px dashed #333;
-    border-radius: 5px;
-    margin: 0 5px;
+.spider-solitaire-container .foundation-piles,
+.spider-solitaire-container .stock-pile {
+  display: flex;
 }
 
-.card {
-    width: 70px;
-    height: 100px;
-    border: 1px solid #000;
-    border-radius: 5px;
-    margin-bottom: -80px;
-    box-sizing: border-box;
-    font-size: 16px;
-    text-align: left;
-    line-height: normal;
-    padding: 2px 4px;
-    cursor: pointer;
-    user-select: none;
-    background-color: #ffffff;
+.spider-solitaire-container .foundation-pile,
+.spider-solitaire-container .stock-card-placeholder {
+  width: 70px;
+  height: 100px;
+  border: 1px dashed #333;
+  border-radius: 5px;
+  margin: 0 5px;
 }
 
-.card.face-up {
-    color: #000;
+.spider-solitaire-container .card {
+  width: 70px;
+  height: 100px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  margin-bottom: -80px;
+  box-sizing: border-box;
+  font-size: 16px;
+  text-align: left;
+  line-height: normal;
+  padding: 2px 4px;
+  cursor: pointer;
+  user-select: none;
+  background-color: #ffffff;
 }
 
-.card.face-down {
-    background-color: #8B0000;
+.spider-solitaire-container .card.face-up {
+  color: #000;
+}
+
+.spider-solitaire-container .card.face-down {
+  background-color: #8b0000;
 }

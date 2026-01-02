@@ -23,7 +23,7 @@ export class SpiderSolitaireNewApp extends Application {
     });
 
     win.element.querySelector(".window-content").innerHTML = `
-            <div class="solitaire-container">
+            <div class="spider-solitaire-container">
                 <div class="toolbar">
                     <button data-action="new-game">New Game</button>
                     <select data-action="difficulty">
@@ -43,7 +43,7 @@ export class SpiderSolitaireNewApp extends Application {
         `;
 
     this.win = win;
-    this.container = win.element.querySelector(".solitaire-container");
+    this.container = win.element.querySelector(".spider-solitaire-container");
     this.addEventListeners();
     this.startNewGame();
 
