@@ -9,5 +9,6 @@ export const profiles = {
         data: "files/Resume.pdf",
       },
     ],
+    runTutorial: true,
   },
 };

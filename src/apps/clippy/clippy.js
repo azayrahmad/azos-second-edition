@@ -119,6 +119,21 @@ async function askClippy(agent, question) {
 }
 
 import { AGENT_NAMES } from "../../config/agents.js";
+import { startTutorial } from "./tutorial.js";
+import { addStartupApp, removeStartupApp } from "../../utils/startupManager.js";
+
+const actionSets = {
+  tutorial: startTutorial,
+};
+
+export function runActionSet(setName, agent) {
+  const action = actionSets[setName];
+  if (action) {
+    action(agent);
+  } else {
+    console.error(`Unknown action set: ${setName}`);
+  }
+}
 
 export function getClippyMenuItems(app) {
   const appInstance = app || window.clippyAppInstance;
@@ -142,7 +157,7 @@ export function getClippyMenuItems(app) {
     {
       label: "&Tutorial",
       action: () => {
-        startTutorial(agent);
+        runActionSet("tutorial", agent);
       },
     },
     {
@@ -158,7 +173,6 @@ export function getClippyMenuItems(app) {
         },
       },
     },
-    "MENU_DIVIDER",
     {
       label: "A&gent",
       submenu: [
@@ -202,498 +216,128 @@ export function showClippyContextMenu(event, app) {
   new window.ContextMenu(menuItems, event);
 }
 
-export function launchClippyApp(app, agentName = currentAgentName) {
-  if (app) {
-    window.clippyAppInstance = app;
-  }
-  const appInstance = app || window.clippyAppInstance;
+export function launchClippyApp(app, agentName = currentAgentName, data = {}) {
+  return new Promise((resolve) => {
+    if (app) {
+      window.clippyAppInstance = app;
+    }
+    const appInstance = app || window.clippyAppInstance;
 
-  if (window.clippyAgent) {
-    // Gracefully hide and remove the current agent before loading a new one
-    window.clippyAgent.hide(() => {
+    if (window.clippyAgent) {
+      window.clippyAgent.hide(() => {
+        $(".clippy, .clippy-balloon").remove();
+      });
+    } else {
       $(".clippy, .clippy-balloon").remove();
-    });
-  } else {
-    $(".clippy, .clippy-balloon").remove();
-  }
+    }
 
-  // Ensure the menu is removed if it exists
-  const existingMenus = document.querySelectorAll(".menu-popup");
-  existingMenus.forEach((menu) => menu.remove());
+    // Ensure the menu is removed if it exists
+    const existingMenus = document.querySelectorAll(".menu-popup");
+    existingMenus.forEach((menu) => menu.remove());
 
-  clippy.load(agentName, function (agent) {
-    window.clippyAgent = agent;
-    agent._el[0].setAttribute('data-testid', 'clippy-agent');
+    clippy.load(agentName, function (agent) {
+      window.clippyAgent = agent;
+      agent._el[0].setAttribute("data-testid", "clippy-agent");
 
-    const ttsUserPref = getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
-    agent.setTTSEnabled(ttsUserPref);
+      const ttsUserPref =
+        getItem(LOCAL_STORAGE_KEYS.CLIPPY_TTS_ENABLED) ?? true;
+      agent.setTTSEnabled(ttsUserPref);
 
-    agent.show();
+      agent.show();
 
-    let contextMenuOpened = false;
+      let contextMenuOpened = false;
 
-    const ttsEnabled = agent.isTTSEnabled();
-    if (ttsEnabled) {
-      const setDefaultVoice = () => {
-        const voices = agent.getTTSVoices();
-        if (voices.length > 0) {
-          // Improved voice selection logic
-          const englishVoices = voices.filter((v) => v.lang.startsWith("en"));
-
-          // Prioritize male-sounding voices by name patterns
-          let defaultVoice = englishVoices.find(
-            (v) =>
-              v.name.toLowerCase().includes("male") ||
-              v.name.toLowerCase().includes("david") ||
-              v.name.toLowerCase().includes("alex") ||
-              v.name.toLowerCase().includes("fred") ||
-              v.name.toLowerCase().includes("daniel") ||
-              v.name.toLowerCase().includes("george") ||
-              v.name.toLowerCase().includes("paul") ||
-              v.name.toLowerCase().includes("tom") ||
-              v.name.toLowerCase().includes("mark") ||
-              v.name.toLowerCase().includes("james") ||
-              v.name.toLowerCase().includes("michael"),
-          );
-
-          // If no male voice found, prefer voices that are NOT obviously female
-          if (!defaultVoice) {
-            const femaleNames = [
-              "zira",
-              "hazel",
-              "samantha",
-              "susan",
-              "karen",
-              "sara",
-              "emma",
-              "lucy",
-              "anna",
-            ];
-            const nonFemaleVoices = englishVoices.filter(
+      const ttsEnabled = agent.isTTSEnabled();
+      if (ttsEnabled) {
+        const setDefaultVoice = () => {
+          const voices = agent.getTTSVoices();
+          if (voices.length > 0) {
+            const englishVoices = voices.filter((v) => v.lang.startsWith("en"));
+            let defaultVoice = englishVoices.find(
               (v) =>
-                !femaleNames.some((name) =>
-                  v.name.toLowerCase().includes(name),
-                ) && !v.name.toLowerCase().includes("female"),
+                v.name.toLowerCase().includes("male") ||
+                v.name.toLowerCase().includes("david") ||
+                v.name.toLowerCase().includes("alex"),
             );
-
-            if (nonFemaleVoices.length > 0) {
-              defaultVoice = nonFemaleVoices[0]; // Take first non-female voice
-            } else {
-              defaultVoice = englishVoices[0]; // Fallback to any English voice
+            if (!defaultVoice) {
+              const femaleNames = ["zira", "hazel", "samantha", "susan"];
+              const nonFemaleVoices = englishVoices.filter(
+                (v) =>
+                  !femaleNames.some((name) =>
+                    v.name.toLowerCase().includes(name),
+                  ) && !v.name.toLowerCase().includes("female"),
+              );
+              defaultVoice = nonFemaleVoices[0] || englishVoices[0];
             }
+            agent.setTTSOptions({
+              voice: defaultVoice,
+              rate: 0.9,
+              pitch: 0.9,
+              volume: 0.8,
+            });
           }
-
-          agent.setTTSOptions({
-            voice: defaultVoice,
-            rate: 0.9,
-            pitch: 0.9,
-            volume: 0.8,
-          });
+        };
+        if (window.speechSynthesis.getVoices().length) {
+          setDefaultVoice();
+        } else {
+          window.speechSynthesis.addEventListener(
+            "voiceschanged",
+            setDefaultVoice,
+            { once: true },
+          );
         }
+      }
+
+      agent.isSpeaking = false;
+
+      const originalSpeakAndAnimate = agent.speakAndAnimate;
+      agent.speakAndAnimate = function (text, animation, options) {
+        agent.isSpeaking = true;
+        const clippyEl = agent._el[0];
+        const balloonEl = agent._balloon._balloon[0];
+        applyBusyCursor(clippyEl);
+        applyBusyCursor(balloonEl);
+        const originalCallback = options?.callback;
+        const newOptions = {
+          ...options,
+          callback: () => {
+            if (originalCallback) originalCallback();
+            agent.isSpeaking = false;
+            clearBusyCursor(clippyEl);
+            clearBusyCursor(balloonEl);
+          },
+        };
+        return originalSpeakAndAnimate.call(this, text, animation, newOptions);
       };
-      if (window.speechSynthesis.getVoices().length) {
-        setDefaultVoice();
+
+      if (data?.actionSet) {
+        runActionSet(data.actionSet, agent);
       } else {
-        window.speechSynthesis.addEventListener(
-          "voiceschanged",
-          setDefaultVoice,
-          { once: true },
+        agent.speakAndAnimate(
+          "Hey, there. Want quick answers to your questions? Just click me.",
+          "Explain",
+          { useTTS: ttsEnabled },
         );
       }
-    }
 
-    agent.isSpeaking = false; // Initial state
+      agent._el.on("click", (e) => {
+        if (contextMenuOpened) {
+          contextMenuOpened = false;
+          return;
+        }
+        if (agent.isSpeaking) return;
+        if (document.querySelector(".menu-popup")) return;
+        showClippyInputBalloon();
+      });
 
-    // Wrap the original speakAndAnimate function
-    const originalSpeakAndAnimate = agent.speakAndAnimate;
-    agent.speakAndAnimate = function (text, animation, options) {
-      agent.isSpeaking = true;
+      agent._el.on("contextmenu", function (e) {
+        if (agent.isSpeaking) return;
+        e.preventDefault();
+        contextMenuOpened = true;
+        showClippyContextMenu(e, appInstance);
+      });
 
-      const clippyEl = agent._el[0];
-      const balloonEl = agent._balloon._balloon[0];
-      applyBusyCursor(clippyEl);
-      applyBusyCursor(balloonEl);
-
-      const originalCallback = options?.callback;
-      const newOptions = {
-        ...options,
-        callback: () => {
-          if (originalCallback) {
-            originalCallback();
-          }
-          agent.isSpeaking = false;
-          clearBusyCursor(clippyEl);
-          clearBusyCursor(balloonEl);
-        },
-      };
-      return originalSpeakAndAnimate.call(this, text, animation, newOptions);
-    };
-
-    agent.speakAndAnimate(
-      "Hey, there. Want quick answers to your questions? Just click me.",
-      "Explain",
-      { useTTS: ttsEnabled },
-    );
-
-    agent._el.on("click", (e) => {
-      if (contextMenuOpened) {
-        contextMenuOpened = false;
-        return;
-      }
-      if (agent.isSpeaking) return;
-      // Also check if a context menu is open
-      if (document.querySelector(".menu-popup")) return;
-      showClippyInputBalloon();
-    });
-
-    agent._el.on("contextmenu", function (e) {
-      if (agent.isSpeaking) return;
-      e.preventDefault();
-      contextMenuOpened = true;
-      showClippyContextMenu(e, appInstance);
+      resolve(agent);
     });
   });
-}
-
-function startTutorial(agent) {
-  if (!agent || agent.isSpeaking) return;
-
-  agent.stop();
-  const ttsEnabled = agent.isTTSEnabled();
-  const initialPos = agent._el.offset();
-
-  const getElementTopLeft = (selector) => {
-    const el = document.querySelector(selector);
-    if (!el) return null;
-    const rect = el.getBoundingClientRect();
-    return { x: rect.left, y: rect.top };
-  };
-
-  const getElementCenter = (selector) => {
-    const el = document.querySelector(selector);
-    if (!el) return null;
-    const rect = el.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  };
-
-  const playGesture = (x, y, callback) => {
-    const direction = agent._getDirection(x, y);
-    const gestureAnim = "Gesture" + direction;
-    const lookAnim = "Look" + direction;
-    const animation = agent.hasAnimation(gestureAnim) ? gestureAnim : lookAnim;
-    agent.play(animation, 3000, callback);
-  };
-
-  const toggleIconHighlight = (iconEl, highlight) => {
-    if (!iconEl) return;
-    const iconImg = iconEl.querySelector(".icon img");
-    const iconLabel = iconEl.querySelector(".icon-label");
-    const action = highlight ? "add" : "remove";
-    if (iconImg) iconImg.classList[action]("highlighted-icon");
-    if (iconLabel) {
-      iconLabel.classList[action]("highlighted-label", "selected");
-    }
-  };
-
-  const startButton = getElementCenter(".start-button");
-  const iconsArea = { x: 40, y: 100 };
-
-  const sequence = [];
-
-  // 1. Welcome
-  sequence.push((done) =>
-    agent.speakAndAnimate(
-      "Hi! I'm Clippy, your azOS assistant. Let me give you a quick tour of azOS.",
-      "Explain",
-      { useTTS: ttsEnabled, callback: done },
-    ),
-  );
-
-  // 2. Start Menu
-  if (startButton) {
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: startButton.y - 80, left: startButton.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) =>
-      playGesture(startButton.x, startButton.y, () => {
-        const startButtonEl = document.querySelector(".start-button");
-        if (startButtonEl) {
-          startButtonEl.classList.add("active");
-          setTimeout(() => {
-            startButtonEl.click(); // This opens the menu
-            done(); // Done with opening the menu
-          }, 500);
-        } else {
-          done();
-        }
-      }),
-    );
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "The Start button gives you access to all your programs.",
-        "Explain",
-        {
-          useTTS: ttsEnabled,
-          callback: () => {
-            const startButtonEl = document.querySelector(".start-button");
-            if (startButtonEl) {
-              startButtonEl.click(); // Click to close the menu
-              startButtonEl.classList.remove("active"); // Remove the active class
-            }
-            done(); // Indicate that this sequence step is complete
-          },
-        },
-      ),
-    );
-  }
-
-  // 3. Desktop Icons
-  sequence.push((done) =>
-    agent._el.animate(
-      { top: iconsArea.y, left: iconsArea.x + 100 },
-      1500,
-      done,
-    ),
-  );
-  sequence.push((done) => playGesture(iconsArea.x, iconsArea.y, done));
-  sequence.push((done) =>
-    agent.speakAndAnimate(
-      "On the left, you'll find desktop icons. Double-click them to launch any program.",
-      "Explain",
-      { useTTS: ttsEnabled, callback: done },
-    ),
-  );
-
-  const internetExplorerIcon = getElementTopLeft(
-    '.desktop-icon[data-app-id="internet-explorer"]',
-  );
-  const webampIcon = getElementTopLeft('.desktop-icon[data-app-id="webamp"]');
-  const pinballIcon = getElementTopLeft('.desktop-icon[data-app-id="pinball"]');
-  const briefcaseIcon = getElementTopLeft(
-    '.desktop-icon[data-app-id="my-briefcase"]',
-  );
-  const coffeeIcon = getElementTopLeft(
-    '.desktop-icon[data-app-id="buy-me-a-coffee"]',
-  );
-  const readmeIcon = getElementTopLeft(
-    '.desktop-icon[data-app-id="file-readme"]',
-  );
-
-  // 4. Internet Explorer
-  if (internetExplorerIcon) {
-    const iconEl = document.querySelector(
-      '.desktop-icon[data-app-id="internet-explorer"]',
-    );
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: internetExplorerIcon.y, left: internetExplorerIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, true);
-      playGesture(internetExplorerIcon.x, internetExplorerIcon.y, () => {
-        setTimeout(done, 500);
-      });
-    });
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "Surf the web like it's 1999. Open any URL and Internet Explorer will load the page as it was in 1999. Really.",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, false);
-      done();
-    });
-  }
-
-  // 5. Winamp
-  if (webampIcon) {
-    const iconEl = document.querySelector(
-      '.desktop-icon[data-app-id="webamp"]',
-    );
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: webampIcon.y, left: webampIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, true);
-      playGesture(webampIcon.x, webampIcon.y, () => {
-        setTimeout(done, 500);
-      });
-    });
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "Got some mp3 files? Play it with Winamp! Customize the skin as well!",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, false);
-      done();
-    });
-  }
-
-  // 6. Pinball
-  if (pinballIcon) {
-    const iconEl = document.querySelector(
-      '.desktop-icon[data-app-id="pinball"]',
-    );
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: pinballIcon.y, left: pinballIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, true);
-      playGesture(pinballIcon.x, pinballIcon.y, () => {
-        setTimeout(done, 500);
-      });
-    });
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "Try playing a round of the classic Space Cadet Pinball game.",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, false);
-      done();
-    });
-  }
-
-  // 7. My Briefcase
-  if (briefcaseIcon) {
-    const iconEl = document.querySelector(
-      '.desktop-icon[data-app-id="my-briefcase"]',
-    );
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: briefcaseIcon.y, left: briefcaseIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, true);
-      playGesture(briefcaseIcon.x, briefcaseIcon.y, () => {
-        setTimeout(done, 500);
-      });
-    });
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "Drag files from your device to an open My Briefcase window to use it in azOS.",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, false);
-      done();
-    });
-  }
-
-  // 8. Buy me a coffee
-  if (coffeeIcon) {
-    const iconEl = document.querySelector(
-      '.desktop-icon[data-app-id="buy-me-a-coffee"]',
-    );
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: coffeeIcon.y, left: coffeeIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, true);
-      playGesture(coffeeIcon.x, coffeeIcon.y, () => {
-        setTimeout(done, 500);
-      });
-    });
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "If you have some to spare, consider supporting azOS to keep it alive and well.",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, false);
-      done();
-    });
-  }
-
-  // 9. Readme.md
-  if (readmeIcon) {
-    const iconEl = document.querySelector(
-      '.desktop-icon[data-app-id="file-readme"]',
-    );
-    sequence.push((done) =>
-      agent._el.animate(
-        { top: readmeIcon.y, left: readmeIcon.x + 80 },
-        1500,
-        done,
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, true);
-      playGesture(readmeIcon.x, readmeIcon.y, () => {
-        setTimeout(done, 500);
-      });
-    });
-    sequence.push((done) =>
-      agent.speakAndAnimate(
-        "For more information about the project, read the README.md file here.",
-        "Explain",
-        { useTTS: ttsEnabled, callback: done },
-      ),
-    );
-    sequence.push((done) => {
-      toggleIconHighlight(iconEl, false);
-      done();
-    });
-  }
-
-  // 10. Return home
-  sequence.push((done) =>
-    agent._el.animate(
-      { top: initialPos.top, left: initialPos.left },
-      2000,
-      done,
-    ),
-  );
-  sequence.push((done) =>
-    agent.speakAndAnimate(
-      "That's the tour! Feel free to play around with azOS. If you have any questions or need assistance, feel free to ask. Just click me!",
-      "Wave",
-      { useTTS: ttsEnabled, callback: done },
-    ),
-  );
-
-  // --- Sequence Executor ---
-  let currentIndex = 0;
-  function runNext() {
-    if (currentIndex < sequence.length) {
-      const step = sequence[currentIndex];
-      currentIndex++;
-      step(runNext); // Pass the executor as the 'done' callback
-    }
-  }
-
-  runNext();
 }
