@@ -1,7 +1,6 @@
 import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
-import { MenuBar } from "/public/os-gui/MenuBar.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./spidersolitairenew.css";
 
@@ -24,7 +23,7 @@ export class SpiderSolitaireNewApp extends Application {
       icons: this.icon,
     });
 
-    const menuBar = new MenuBar([
+    const menuBar = new window.MenuBar([
       {
         label: "Game",
         items: [
@@ -57,29 +56,28 @@ export class SpiderSolitaireNewApp extends Application {
     return win;
   }
 
-  async _showNewGameDialog() {
+  _showNewGameDialog() {
     if (this.game) {
-      const confirmation = await new Promise((resolve) => {
-        ShowDialogWindow({
-          title: "New Game",
-          text: "Are you sure you want to start a new game?",
-          buttons: [
-            {
-              label: "Yes",
-              onClick: () => resolve(true),
-            },
-            {
-              label: "No",
-              onClick: () => resolve(false),
-            },
-          ],
-        });
+      ShowDialogWindow({
+        title: "New Game",
+        text: "Are you sure you want to start a new game?",
+        buttons: [
+          {
+            label: "Yes",
+            onClick: () => this._showDifficultyDialog(),
+          },
+          {
+            label: "No",
+            onClick: () => {},
+          },
+        ],
       });
-      if (!confirmation) {
-        return;
-      }
+    } else {
+      this._showDifficultyDialog();
     }
+  }
 
+  _showDifficultyDialog() {
     let selectedDifficulty = 4;
     const content = document.createElement("div");
     content.innerHTML = `
