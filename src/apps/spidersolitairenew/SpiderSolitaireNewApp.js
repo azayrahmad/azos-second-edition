@@ -31,7 +31,7 @@ export class SpiderSolitaireNewApp extends Application {
         },
       ],
     });
-    win.setMenuBar(menuBar);
+    this._updateMenuBar(win);
 
     win.element.querySelector(".window-content").innerHTML = `
             <div class="spider-solitaire-container">
@@ -119,6 +119,34 @@ export class SpiderSolitaireNewApp extends Application {
   startNewGame(difficulty = 1) {
     this.game = new Game(difficulty);
     this.render();
+    this._updateMenuBar(this.win);
+  }
+
+  _updateMenuBar(win) {
+    const canDeal = this.game?.stockPile?.canDeal() && !this.game?.checkForWin();
+
+    const menuBar = new window.MenuBar({
+      Game: [
+        {
+          label: "New Game",
+          action: () => this._showNewGameDialog(),
+        },
+        {
+          label: "Deal New Row",
+          action: () => this.onStockClick(),
+          enabled: () => canDeal,
+        },
+      ],
+      "Deal!": [
+        {
+          label: "Deal New Row",
+          action: () => this.onStockClick(),
+          enabled: () => canDeal,
+        },
+      ],
+    });
+
+    win.setMenuBar(menuBar);
   }
 
   render() {
@@ -244,6 +272,7 @@ export class SpiderSolitaireNewApp extends Application {
     }
 
     this.render();
+    this._updateMenuBar(this.win);
   }
 
   async showWinDialog() {
@@ -254,5 +283,6 @@ export class SpiderSolitaireNewApp extends Application {
       text: "You Win!",
       buttons: [{ label: "OK" }],
     });
+    this._updateMenuBar(this.win);
   }
 }
