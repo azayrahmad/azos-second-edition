@@ -83,9 +83,14 @@ export class SpiderSolitaireNewApp extends Application {
     const stockContainer = this.container.querySelector(".stock-pile");
     stockContainer.innerHTML = "";
     if (this.game.stockPile.canDeal()) {
-      const placeholder = document.createElement("div");
-      placeholder.className = "card face-down";
-      stockContainer.appendChild(placeholder);
+      const dealsLeft = Math.floor(this.game.stockPile.cards.length / 10);
+      for (let i = 0; i < dealsLeft; i++) {
+        const placeholder = document.createElement("div");
+        placeholder.className = "stock-card-placeholder";
+        // To make the leftmost card appear on top, set the z-index in reverse order.
+        placeholder.style.zIndex = dealsLeft - i;
+        stockContainer.appendChild(placeholder);
+      }
     }
   }
 
