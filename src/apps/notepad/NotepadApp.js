@@ -375,7 +375,7 @@ export class NotepadApp extends Application {
         optionsRow.style.cssText = 'display: flex; align-items: center;';
 
         const matchCaseContainer = document.createElement('div');
-        matchCaseContainer.className = 'checkbox-container';
+        matchCaseContainer.className = 'field-row';
         matchCaseContainer.innerHTML = `
             <input type="checkbox" id="match-case" ${this.findState.caseSensitive ? 'checked' : ''}>
             <label for="match-case">Match case</label>
