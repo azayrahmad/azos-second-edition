@@ -260,7 +260,7 @@ export class SpiderSolitaireNewApp extends Application {
       );
       const startRect =
         stockPilePlaceholders[
-          stockPilePlaceholders.length - 1
+          stockPilePlaceholders.length
         ]?.getBoundingClientRect() ||
         this.container.querySelector(".stock-pile").getBoundingClientRect();
 
@@ -280,7 +280,7 @@ export class SpiderSolitaireNewApp extends Application {
         const cardDiv = card.element;
 
         cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${startRect.left - containerRect.left}px`;
+        cardDiv.style.left = `${startRect.left - containerRect.left - 70}px`;
         cardDiv.style.top = `${startRect.top - containerRect.top}px`;
         cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
         cardDiv.style.zIndex = 100 + index;
