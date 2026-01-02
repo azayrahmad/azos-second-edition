@@ -194,6 +194,33 @@ export class SpiderSolitaireNewApp extends Application {
         JSON.stringify({ pileIndex, cardIndex }),
       );
       event.dataTransfer.effectAllowed = "move";
+
+      // Create a custom drag image that includes all cards in the stack
+      const dragImageContainer = document.createElement("div");
+      // Position it off-screen so it's not visible to the user
+      dragImageContainer.style.position = "absolute";
+      dragImageContainer.style.top = "-1000px";
+      dragImageContainer.style.left = "-1000px";
+      dragImageContainer.style.zIndex = "10000";
+
+      const sourcePileDiv = cardDiv.closest(".tableau-pile");
+      const allCardDivsInPile = Array.from(
+        sourcePileDiv.querySelectorAll(".card"),
+      );
+      const startIndex = allCardDivsInPile.indexOf(cardDiv);
+      const cardElementsToDrag = allCardDivsInPile.slice(startIndex);
+
+      cardElementsToDrag.forEach((cardEl) => {
+        dragImageContainer.appendChild(cardEl.cloneNode(true));
+      });
+
+      document.body.appendChild(dragImageContainer);
+      event.dataTransfer.setDragImage(dragImageContainer, 0, 0);
+
+      // Clean up the temporary element after the browser has captured the image
+      setTimeout(() => {
+        document.body.removeChild(dragImageContainer);
+      }, 0);
     } else {
       event.preventDefault();
     }
