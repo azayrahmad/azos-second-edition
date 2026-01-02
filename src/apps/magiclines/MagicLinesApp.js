@@ -1,15 +1,13 @@
-import { Application } from '../Application.js';
-import { getIcon } from '../../utils/iconManager.js';
-import { MenuBar } from '/public/os-gui/MenuBar.js';
-import { ShowDialogWindow } from '../../components/DialogWindow.js';
-import { Window as $Window } from '/public/os-gui/$Window.js';
-import './magiclines.css';
+import { Application } from "../Application.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import "./magiclines.css";
+import { ICONS } from "../../config/icons.js";
 
 export class MagicLinesApp extends Application {
   static config = {
-    id: 'magiclines',
-    title: 'Magic Lines',
-    icon: getIcon('magiclines'),
+    id: "magiclines",
+    title: "Magic Lines",
+    icon: ICONS.magiclines,
     width: 600,
     height: 480,
     resizable: false,
@@ -22,9 +20,19 @@ export class MagicLinesApp extends Application {
   }
 
   newGame() {
-    this.board = Array(9).fill(null).map(() => Array(9).fill(null));
+    this.board = Array(9)
+      .fill(null)
+      .map(() => Array(9).fill(null));
     this.score = 0;
-    this.colors = ['#ff0000', '#0000ff', '#00ff00', '#ffff00', '#800080', '#ffa500', '#00ffff'];
+    this.colors = [
+      "#ff0000",
+      "#0000ff",
+      "#00ff00",
+      "#ffff00",
+      "#800080",
+      "#ffa500",
+      "#00ffff",
+    ];
     this.selectedBall = null;
     this.turnHistory = [];
     this.placeNewBalls(5);
@@ -32,21 +40,30 @@ export class MagicLinesApp extends Application {
   }
 
   renderBoard() {
-    const boardElement = this.win.$content.find('.game-board');
-    const scoreElement = this.win.$content.find('#score');
+    const boardElement = this.win.$content.find(".game-board");
+    const scoreElement = this.win.$content.find("#score");
     boardElement.empty();
 
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
-        const cell = $('<div>').addClass('cell').attr('data-r', r).attr('data-c', c);
+        const cell = $("<div>")
+          .addClass("cell")
+          .attr("data-r", r)
+          .attr("data-c", c);
 
         if (this.board[r][c]) {
-          const ball = $('<div>').addClass('ball').css('background-color', this.board[r][c]);
+          const ball = $("<div>")
+            .addClass("ball")
+            .css("background-color", this.board[r][c]);
           cell.append(ball);
         }
 
-        if (this.selectedBall && this.selectedBall.r === r && this.selectedBall.c === c) {
-          cell.addClass('selected');
+        if (
+          this.selectedBall &&
+          this.selectedBall.r === r &&
+          this.selectedBall.c === c
+        ) {
+          cell.addClass("selected");
         }
 
         boardElement.append(cell);
@@ -70,7 +87,8 @@ export class MagicLinesApp extends Application {
     for (let i = 0; i < ballsToPlace; i++) {
       const randomIndex = Math.floor(Math.random() * emptyCells.length);
       const cell = emptyCells.splice(randomIndex, 1)[0];
-      const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+      const randomColor =
+        this.colors[Math.floor(Math.random() * this.colors.length)];
       this.board[cell.r][cell.c] = randomColor;
       newBallCoords.push(cell);
     }
@@ -101,8 +119,10 @@ export class MagicLinesApp extends Application {
         const key = `${nr},${nc}`;
 
         if (
-          nr >= 0 && nr < 9 &&
-          nc >= 0 && nc < 9 &&
+          nr >= 0 &&
+          nr < 9 &&
+          nc >= 0 &&
+          nc < 9 &&
           !visited.has(key) &&
           this.board[nr][nc] === null
         ) {
@@ -130,7 +150,7 @@ export class MagicLinesApp extends Application {
     const ballsToRemove = new Set();
 
     for (const dir of directions) {
-      const line = [{...coords}];
+      const line = [{ ...coords }];
       // Check in the positive direction
       for (let i = 1; i < 9; i++) {
         const r = coords.r + i * dir.r;
@@ -158,13 +178,13 @@ export class MagicLinesApp extends Application {
           scoreForLine += i - 4;
         }
         totalScore += scoreForLine;
-        line.forEach(ball => ballsToRemove.add(`${ball.r},${ball.c}`));
+        line.forEach((ball) => ballsToRemove.add(`${ball.r},${ball.c}`));
       }
     }
 
     if (ballsToRemove.size > 0) {
-      ballsToRemove.forEach(key => {
-        const [r, c] = key.split(',').map(Number);
+      ballsToRemove.forEach((key) => {
+        const [r, c] = key.split(",").map(Number);
         this.board[r][c] = null;
       });
       this.score += totalScore;
@@ -176,8 +196,8 @@ export class MagicLinesApp extends Application {
 
   handleCellClick(event) {
     const cell = $(event.currentTarget);
-    const r = parseInt(cell.attr('data-r'));
-    const c = parseInt(cell.attr('data-c'));
+    const r = parseInt(cell.attr("data-r"));
+    const c = parseInt(cell.attr("data-c"));
 
     if (this.board[r][c]) {
       // Clicked on a ball
@@ -227,11 +247,11 @@ export class MagicLinesApp extends Application {
 
     if (emptyCells.length === 0) {
       ShowDialogWindow({
-        title: 'Game Over',
+        title: "Game Over",
         text: `The board is full. Your final score is ${this.score}.`,
         buttons: [
           {
-            label: 'New Game',
+            label: "New Game",
             action: () => this.newGame(),
           },
         ],
@@ -253,27 +273,24 @@ export class MagicLinesApp extends Application {
       title: this.config.title,
       width: this.config.width,
       height: this.config.height,
-      icon: this.config.icon,
+      icons: this.config.icon,
       resizable: this.config.resizable,
       minimizeButton: this.config.minimizeButton,
       maximizeButton: this.config.maximizeButton,
     });
 
-    const menuBar = new MenuBar([
-      {
-        label: 'Game',
-        submenu: [
-          {
-            label: 'New Game',
-            action: () => this.newGame(),
-          },
-          {
-            label: 'Undo',
-            action: () => this.undoMove(),
-          },
-        ],
-      },
-    ]);
+    const menuBar = new MenuBar({
+      Game: [
+        {
+          label: "New Game",
+          action: () => this.newGame(),
+        },
+        {
+          label: "Undo",
+          action: () => this.undoMove(),
+        },
+      ],
+    });
     win.setMenuBar(menuBar);
 
     const content = `
@@ -288,7 +305,7 @@ export class MagicLinesApp extends Application {
     win.$content.html(content);
 
     // Attach event listener after content is added
-    win.$content.on('click', '.cell', this.handleCellClick.bind(this));
+    win.$content.on("click", ".cell", this.handleCellClick.bind(this));
 
     return win;
   }
