@@ -272,11 +272,20 @@ export class SpiderSolitaireNewApp extends Application {
     const result = this.game.dealFromStock();
 
     if (result.success) {
-      this.game.tableauPiles.forEach((pile, index) => {
-        this.game.checkForCompletedSets(index);
-      });
-      if (this.game.checkForWin()) {
-        this.showWinDialog();
+      this.container.style.pointerEvents = "none";
+      try {
+        this.renderStock();
+        await this.animateDealing(result.cards);
+        this.game.addDealtCardsToTableau(result.cards);
+        this.renderTableau();
+        this.game.tableauPiles.forEach((pile, index) => {
+          this.game.checkForCompletedSets(index);
+        });
+        if (this.game.checkForWin()) {
+          this.showWinDialog();
+        }
+      } finally {
+        this.container.style.pointerEvents = "auto";
       }
     } else if (result.reason === "EMPTY_PILE") {
       const { ShowDialogWindow } =
@@ -287,7 +296,68 @@ export class SpiderSolitaireNewApp extends Application {
         buttons: [{ label: "OK" }],
       });
     }
+  }
 
+  animateDealing(cards) {
+    return new Promise((resolve) => {
+      const stockPilePlaceholders = this.container.querySelectorAll(
+        ".stock-card-placeholder",
+      );
+      const startRect =
+        stockPilePlaceholders[
+          stockPilePlaceholders.length
+        ]?.getBoundingClientRect() ||
+        this.container.querySelector(".stock-pile").getBoundingClientRect();
+
+      const tableauPileRects = Array.from(
+        this.container.querySelectorAll(".tableau-pile"),
+      ).map((pile) => pile.getBoundingClientRect());
+      const containerRect = this.container.getBoundingClientRect();
+
+      const animationLayer = document.createElement("div");
+      animationLayer.className = "animation-layer";
+      this.container.appendChild(animationLayer);
+
+      let animationsCompleted = 0;
+
+      cards.forEach((card, index) => {
+        card.faceUp = true; // Ensure card is face-up before creating the element
+        const cardDiv = card.element;
+
+        cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${startRect.left - containerRect.left - 70}px`;
+        cardDiv.style.top = `${startRect.top - containerRect.top}px`;
+        cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+        cardDiv.style.zIndex = 100 + index;
+        animationLayer.appendChild(cardDiv);
+
+        setTimeout(() => {
+          const pile = this.game.tableauPiles[index];
+          const targetRect = tableauPileRects[index];
+
+          // Calculate final top offset based on CSS margins
+          let topOffset = 0;
+          for (let i = 0; i < pile.cards.length; i++) {
+            topOffset += pile.cards[i].faceUp ? 20 : 5;
+          }
+
+          cardDiv.style.left = `${targetRect.left - containerRect.left + 5}px`;
+          cardDiv.style.top = `${targetRect.top - containerRect.top + 5 + topOffset}px`;
+
+          cardDiv.addEventListener(
+            "transitionend",
+            () => {
+              animationsCompleted++;
+              if (animationsCompleted === cards.length) {
+                animationLayer.remove();
+                resolve();
+              }
+            },
+            { once: true },
+          );
+        }, index * 100);
+      });
+    });
     this.render();
     this._updateMenuBar(this.win);
   }

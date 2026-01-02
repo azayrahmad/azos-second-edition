@@ -37,13 +37,16 @@ export class Game {
 
     if (this.stockPile.canDeal()) {
       const cardsToDeal = this.stockPile.deal();
-      cardsToDeal.forEach((card, index) => {
-        card.faceUp = true;
-        this.tableauPiles[index].addCard(card);
-      });
-      return { success: true };
+      return { success: true, cards: cardsToDeal };
     }
     return { success: false, reason: "NO_STOCK" };
+  }
+
+  addDealtCardsToTableau(cards) {
+    cards.forEach((card, index) => {
+      card.faceUp = true;
+      this.tableauPiles[index].addCard(card);
+    });
   }
 
   moveCards(fromPileIndex, cardIndex, toPileIndex) {
