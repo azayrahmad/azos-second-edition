@@ -125,6 +125,7 @@ export class SpiderSolitaireNewApp extends Application {
       if (topCard.classList.contains("face-down")) {
         topCard.classList.remove("face-down");
         topCard.classList.add("face-up");
+        topCard.draggable = true;
         topCard.textContent = `${topCard.dataset.rank}${topCard.dataset.suit}`;
       }
     }
