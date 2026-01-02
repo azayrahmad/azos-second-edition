@@ -1,11 +1,12 @@
 import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
+import { Game } from "./Game.js";
 import "./spidersolitairenew.css";
 
 export class SpiderSolitaireNewApp extends Application {
   static config = {
     id: "spidersolitairenew",
-    title: "Spider Solitaire New",
+    title: "Spider Solitaire",
     width: 800,
     height: 600,
     resizable: true,
@@ -21,81 +22,118 @@ export class SpiderSolitaireNewApp extends Application {
       icons: this.icon,
     });
 
-    const gameBoard = document.createElement("div");
-    gameBoard.className = "solitaire-container";
-    gameBoard.innerHTML = `
-            <div class="tableau-piles">
-                ${Array(10).fill('<div class="tableau-pile"></div>').join("")}
-            </div>
-            <div class="bottom-area">
-                <div class="foundation-piles">
-                    ${Array(8).fill('<div class="foundation-pile"></div>').join("")}
+    win.element.querySelector(".window-content").innerHTML = `
+            <div class="solitaire-container">
+                <div class="toolbar">
+                    <button data-action="new-game">New Game</button>
+                    <select data-action="difficulty">
+                        <option value="1">Easy (1 Suit)</option>
+                        <option value="2">Medium (2 Suits)</option>
+                        <option value="4">Hard (4 Suits)</option>
+                    </select>
                 </div>
-                <div class="stock-pile">
-                    <div class="stock-card-placeholder"></div>
+                <div class="game-board">
+                    <div class="tableau-piles"></div>
+                    <div class="bottom-area">
+                        <div class="foundation-piles"></div>
+                        <div class="stock-pile"></div>
+                    </div>
                 </div>
             </div>
         `;
 
-    win.element.querySelector(".window-content").appendChild(gameBoard);
-    this.gameBoard = gameBoard;
-    this.initGame();
+    this.win = win;
+    this.container = win.element.querySelector(".solitaire-container");
+    this.addEventListeners();
+    this.startNewGame();
 
     return win;
   }
 
-  initGame() {
-    this.dealCards();
-    this.addEventListeners();
+  startNewGame(difficulty = 1) {
+    this.game = new Game(difficulty);
+    this.render();
+  }
+
+  render() {
+    this.renderTableau();
+    this.renderStock();
+    this.renderFoundations();
+  }
+
+  renderTableau() {
+    const tableauContainer = this.container.querySelector(".tableau-piles");
+    tableauContainer.innerHTML = "";
+    this.game.tableauPiles.forEach((pile, pileIndex) => {
+      const pileDiv = document.createElement("div");
+      pileDiv.className = "tableau-pile";
+      pileDiv.dataset.pileIndex = pileIndex;
+
+      pile.cards.forEach((card, cardIndex) => {
+        const cardDiv = card.element;
+        cardDiv.dataset.pileIndex = pileIndex;
+        cardDiv.dataset.cardIndex = cardIndex;
+        pileDiv.appendChild(cardDiv);
+      });
+      tableauContainer.appendChild(pileDiv);
+    });
+  }
+
+  renderStock() {
+    const stockContainer = this.container.querySelector(".stock-pile");
+    stockContainer.innerHTML = "";
+    if (this.game.stockPile.canDeal()) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "card face-down";
+      stockContainer.appendChild(placeholder);
+    }
+  }
+
+  renderFoundations() {
+    const foundationContainer = this.container.querySelector(
+      ".foundation-piles",
+    );
+    foundationContainer.innerHTML = "";
+    this.game.foundationPiles.forEach((pile) => {
+      const pileDiv = document.createElement("div");
+      pileDiv.className = "foundation-pile";
+      if (pile.topCard) {
+        pileDiv.appendChild(pile.topCard.element);
+      }
+      foundationContainer.appendChild(pileDiv);
+    });
   }
 
   addEventListeners() {
-    this.gameBoard.addEventListener("dragstart", this.onDragStart.bind(this));
-    this.gameBoard.addEventListener("dragover", this.onDragOver.bind(this));
-    this.gameBoard.addEventListener("drop", this.onDrop.bind(this));
-    this.gameBoard
+    this.container.addEventListener("dragstart", this.onDragStart.bind(this));
+    this.container.addEventListener("dragover", this.onDragOver.bind(this));
+    this.container.addEventListener("drop", this.onDrop.bind(this));
+    this.container
       .querySelector(".stock-pile")
-      .addEventListener("click", this.dealFromStock.bind(this));
+      .addEventListener("click", this.onStockClick.bind(this));
+    this.container
+      .querySelector('[data-action="new-game"]')
+      .addEventListener("click", () => {
+        const difficulty =
+          this.container.querySelector('[data-action="difficulty"]').value;
+        this.startNewGame(parseInt(difficulty, 10));
+      });
   }
 
   onDragStart(event) {
-    const card = event.target;
-    if (!card.classList.contains("face-up")) {
+    const cardDiv = event.target;
+    const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+    const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+
+    if (this.game.isValidMoveStack(pileIndex, cardIndex)) {
+      event.dataTransfer.setData(
+        "text/plain",
+        JSON.stringify({ pileIndex, cardIndex }),
+      );
+      event.dataTransfer.effectAllowed = "move";
+    } else {
       event.preventDefault();
-      return;
     }
-
-    const pile = card.parentElement;
-    const pileCards = Array.from(pile.children);
-    const cardIndex = pileCards.indexOf(card);
-    const draggedStack = pileCards.slice(cardIndex);
-
-    const ranks = [
-      "A",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K",
-    ];
-    for (let i = 0; i < draggedStack.length - 1; i++) {
-      const currentRankIndex = ranks.indexOf(draggedStack[i].dataset.rank);
-      const nextRankIndex = ranks.indexOf(draggedStack[i + 1].dataset.rank);
-      if (currentRankIndex !== nextRankIndex + 1) {
-        event.preventDefault();
-        return;
-      }
-    }
-
-    event.dataTransfer.setData("text/plain", card.dataset.rank);
-    this.draggedStack = draggedStack;
   }
 
   onDragOver(event) {
@@ -104,125 +142,35 @@ export class SpiderSolitaireNewApp extends Application {
 
   onDrop(event) {
     event.preventDefault();
-    const targetPile = event.target.closest(".tableau-pile");
-    if (
-      targetPile &&
-      this.draggedStack &&
-      this.isValidMove(this.draggedStack[0], targetPile)
-    ) {
-      const originalPile = this.draggedStack[0].parentElement;
-      this.draggedStack.forEach((card) => targetPile.appendChild(card));
+    const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    const toPileDiv = event.target.closest(".tableau-pile");
 
-      this.checkForCompletedSet(targetPile);
-      this.flipTopCard(originalPile);
-    }
-    this.draggedStack = null;
-  }
+    if (toPileDiv) {
+      const fromPileIndex = parseInt(data.pileIndex, 10);
+      const cardIndex = parseInt(data.cardIndex, 10);
+      const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
 
-  flipTopCard(pile) {
-    if (pile.children.length > 0) {
-      const topCard = pile.children[pile.children.length - 1];
-      if (topCard.classList.contains("face-down")) {
-        topCard.classList.remove("face-down");
-        topCard.classList.add("face-up");
-        topCard.draggable = true;
-        topCard.textContent = `${topCard.dataset.rank}${topCard.dataset.suit}`;
+      if (this.game.moveCards(fromPileIndex, cardIndex, toPileIndex)) {
+        this.game.checkForCompletedSets(toPileIndex);
+        if (this.game.checkForWin()) {
+          this.showWinDialog();
+        }
       }
+      this.render();
     }
   }
 
-  checkForCompletedSet(pile) {
-    const ranks = [
-      "A",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K",
-    ];
-    const pileCards = Array.from(pile.children);
-    if (pileCards.length < 13) return;
+  async onStockClick() {
+    const result = this.game.dealFromStock();
 
-    const top13 = pileCards.slice(-13);
-    let isSet = true;
-    for (let i = 0; i < 13; i++) {
-      if (top13[i].dataset.rank !== ranks[12 - i]) {
-        isSet = false;
-        break;
-      }
-    }
-
-    if (isSet) {
-      top13.forEach((card) => card.remove());
-      const foundationPiles =
-        this.gameBoard.querySelectorAll(".foundation-pile");
-      const emptyPile = Array.from(foundationPiles).find(
-        (p) => p.children.length === 0,
-      );
-      if (emptyPile) {
-        const completedSet = document.createElement("div");
-        completedSet.className = "card face-up";
-        completedSet.textContent = "K♠️";
-        emptyPile.appendChild(completedSet);
-      }
-      this.checkForWin();
-    }
-  }
-
-  async checkForWin() {
-    const foundationPiles = this.gameBoard.querySelectorAll(".foundation-pile");
-    const completedSets = Array.from(foundationPiles).filter(
-      (p) => p.children.length > 0,
-    ).length;
-    if (completedSets === 8) {
-      const { ShowDialogWindow } =
-        await import("../../components/DialogWindow.js");
-      ShowDialogWindow({
-        title: "Congratulations!",
-        text: "You Win!",
-        buttons: [{ label: "OK" }],
+    if (result.success) {
+      this.game.tableauPiles.forEach((pile, index) => {
+        this.game.checkForCompletedSets(index);
       });
-    }
-  }
-
-  isValidMove(card, pile) {
-    const pileCards = Array.from(pile.children);
-    if (pileCards.length === 0) {
-      return true;
-    }
-    const topCard = pileCards[pileCards.length - 1];
-    const ranks = [
-      "A",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K",
-    ];
-    const draggedRankIndex = ranks.indexOf(card.dataset.rank);
-    const topRankIndex = ranks.indexOf(topCard.dataset.rank);
-    return topRankIndex === draggedRankIndex + 1;
-  }
-
-  async dealFromStock() {
-    const tableauPiles = Array.from(
-      this.gameBoard.querySelectorAll(".tableau-pile"),
-    );
-    if (tableauPiles.some((pile) => pile.children.length === 0)) {
+      if (this.game.checkForWin()) {
+        this.showWinDialog();
+      }
+    } else if (result.reason === "EMPTY_PILE") {
       const { ShowDialogWindow } =
         await import("../../components/DialogWindow.js");
       ShowDialogWindow({
@@ -230,89 +178,17 @@ export class SpiderSolitaireNewApp extends Application {
         text: "You cannot deal from the stock while a tableau pile is empty.",
         buttons: [{ label: "OK" }],
       });
-      return;
     }
 
-    if (this.stock.length > 0) {
-      for (let i = 0; i < 10; i++) {
-        if (this.stock.length > 0) {
-          const card = this.stock.pop();
-          card.faceUp = true;
-          const cardElement = this.createCardElement(card);
-          tableauPiles[i].appendChild(cardElement);
-          this.checkForCompletedSet(tableauPiles[i]);
-        }
-      }
-    }
+    this.render();
   }
 
-  createDecks() {
-    const ranks = [
-      "A",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K",
-    ];
-    const suit = "♠️";
-    let deck = [];
-    for (let i = 0; i < 8; i++) {
-      for (const rank of ranks) {
-        deck.push({ rank, suit, faceUp: false });
-      }
-    }
-    return deck;
-  }
-
-  shuffleDeck(deck) {
-    for (let i = deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-  }
-
-  dealCards() {
-    const deck = this.createDecks();
-    this.shuffleDeck(deck);
-
-    const tableauPiles = this.gameBoard.querySelectorAll(".tableau-pile");
-
-    // Deal 54 cards to the tableau
-    for (let i = 0; i < 54; i++) {
-      const card = deck.pop();
-      const pileIndex = i % 10;
-      if (i >= 44) {
-        card.faceUp = true;
-      }
-      const cardElement = this.createCardElement(card);
-      tableauPiles[pileIndex].appendChild(cardElement);
-    }
-
-    this.stock = deck; // Remaining 50 cards
-  }
-
-  createCardElement(card) {
-    const cardDiv = document.createElement("div");
-    cardDiv.className = "card";
-    cardDiv.dataset.rank = card.rank;
-    cardDiv.dataset.suit = card.suit;
-
-    if (card.faceUp) {
-      cardDiv.classList.add("face-up");
-      cardDiv.textContent = `${card.rank}${card.suit}`;
-      cardDiv.draggable = true;
-    } else {
-      cardDiv.classList.add("face-down");
-    }
-
-    return cardDiv;
+  async showWinDialog() {
+    const { ShowDialogWindow } = await import("../../components/DialogWindow.js");
+    ShowDialogWindow({
+      title: "Congratulations!",
+      text: "You Win!",
+      buttons: [{ label: "OK" }],
+    });
   }
 }
