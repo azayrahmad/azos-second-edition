@@ -227,11 +227,20 @@ export class SpiderSolitaireNewApp extends Application {
     const result = this.game.dealFromStock();
 
     if (result.success) {
-      this.game.tableauPiles.forEach((pile, index) => {
-        this.game.checkForCompletedSets(index);
-      });
-      if (this.game.checkForWin()) {
-        this.showWinDialog();
+      this.container.style.pointerEvents = "none";
+      try {
+        this.renderStock();
+        await this.animateDealing(result.cards);
+        this.game.addDealtCardsToTableau(result.cards);
+        this.renderTableau();
+        this.game.tableauPiles.forEach((pile, index) => {
+          this.game.checkForCompletedSets(index);
+        });
+        if (this.game.checkForWin()) {
+          this.showWinDialog();
+        }
+      } finally {
+        this.container.style.pointerEvents = "auto";
       }
     } else if (result.reason === "EMPTY_PILE") {
       const { ShowDialogWindow } =
@@ -242,8 +251,56 @@ export class SpiderSolitaireNewApp extends Application {
         buttons: [{ label: "OK" }],
       });
     }
+  }
 
-    this.render();
+  animateDealing(cards) {
+    return new Promise((resolve) => {
+      const stockPileRect = this.container
+        .querySelector(".stock-pile")
+        .getBoundingClientRect();
+      const tableauPileRects = Array.from(
+        this.container.querySelectorAll(".tableau-pile"),
+      ).map((pile) => pile.getBoundingClientRect());
+      const containerRect = this.container.getBoundingClientRect();
+
+      const animationLayer = document.createElement("div");
+      animationLayer.className = "animation-layer";
+      this.container.appendChild(animationLayer);
+
+      let animationsCompleted = 0;
+
+      cards.forEach((card, index) => {
+        const cardDiv = card.element;
+        card.faceUp = true;
+        cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${stockPileRect.left - containerRect.left}px`;
+        cardDiv.style.top = `${stockPileRect.top - containerRect.top}px`;
+        cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+        cardDiv.style.zIndex = 100 + index;
+        animationLayer.appendChild(cardDiv);
+
+        setTimeout(() => {
+          const pile = this.game.tableauPiles[index];
+          const targetRect = tableauPileRects[index];
+          const topOffset = pile.cards.length * 20;
+
+          cardDiv.style.left = `${targetRect.left - containerRect.left}px`;
+          cardDiv.style.top = `${targetRect.top - containerRect.top + topOffset}px`;
+
+          cardDiv.addEventListener(
+            "transitionend",
+            () => {
+              animationsCompleted++;
+              if (animationsCompleted === cards.length) {
+                animationLayer.remove();
+                resolve();
+              }
+            },
+            { once: true },
+          );
+        }, index * 100);
+      });
+    });
   }
 
   async showWinDialog() {
