@@ -89,8 +89,9 @@
       }
       if (this.wrapperElement) {
         this.wrapperElement.style.display = "none";
+      } else {
+        menu_popup_el.style.display = "none";
       }
-      menu_popup_el.style.display = "none";
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
     };
