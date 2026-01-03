@@ -9,10 +9,16 @@ export class Game {
     this.deck = new Deck(this.numberOfSuits);
     this.tableauPiles = Array.from({ length: 10 }, () => new TableauPile());
     this.foundationPiles = Array.from({ length: 8 }, () => new FoundationPile());
+    this.history = [];
     this.initializeGame();
   }
 
+  clearHistory() {
+    this.history = [];
+  }
+
   initializeGame() {
+    this.clearHistory();
     this.score = 500;
     this.moves = 0;
     this.dealInitialCards();
@@ -38,6 +44,7 @@ export class Game {
     }
 
     if (this.stockPile.canDeal()) {
+      this.clearHistory();
       const cardsToDeal = this.stockPile.deal();
       return { success: true, cards: cardsToDeal };
     }
@@ -57,6 +64,17 @@ export class Game {
     const cardsToMove = fromPile.cards.slice(cardIndex);
 
     if (cardsToMove.length > 0 && toPile.canAccept(cardsToMove[0])) {
+      const topCardOfFromPile =
+        cardIndex > 0 ? fromPile.cards[cardIndex - 1] : null;
+      const wasFlipped = topCardOfFromPile ? !topCardOfFromPile.faceUp : false;
+
+      this.history.push({
+        fromPileIndex,
+        toPileIndex,
+        cards: cardsToMove,
+        wasFlipped,
+      });
+
       // Move cards
       fromPile.cards.splice(cardIndex);
       toPile.cards.push(...cardsToMove);
@@ -108,6 +126,16 @@ export class Game {
       );
       if (emptyFoundation) {
         emptyFoundation.addSet(completedSet);
+
+        const lastMove = this.history[this.history.length - 1];
+        if (lastMove) {
+          lastMove.completedSet = {
+            cards: completedSet,
+            fromPileIndex: pileIndex,
+            foundationPileIndex: this.foundationPiles.indexOf(emptyFoundation),
+          };
+        }
+
         this.score += 100;
         return true;
       }
@@ -117,5 +145,47 @@ export class Game {
 
   checkForWin() {
     return this.foundationPiles.every((pile) => pile.cards.length > 0);
+  }
+
+  undo() {
+    if (this.history.length === 0) {
+      return false;
+    }
+
+    const lastMove = this.history.pop();
+    const { fromPileIndex, toPileIndex, cards, wasFlipped, completedSet } =
+      lastMove;
+
+    // Reverse the main card movement
+    const fromPile = this.tableauPiles[fromPileIndex];
+    const toPile = this.tableauPiles[toPileIndex];
+
+    const startIndex = toPile.cards.length - cards.length;
+    toPile.cards.splice(startIndex);
+
+    fromPile.cards.push(...cards);
+
+    if (wasFlipped) {
+      const topCardIndex = fromPile.cards.length - cards.length - 1;
+      if (topCardIndex >= 0) {
+        fromPile.cards[topCardIndex].faceUp = false;
+      }
+    }
+
+    // If a set was completed, move it back from the foundation
+    if (completedSet) {
+      const { foundationPileIndex, fromPileIndex: setSourcePileIndex } =
+        completedSet;
+      const foundationPile = this.foundationPiles[foundationPileIndex];
+      const tableauPile = this.tableauPiles[setSourcePileIndex];
+
+      // Remove the set from the foundation (it's the only thing on it)
+      const setCards = foundationPile.cards.splice(0);
+
+      // Add the set's cards back to the tableau pile they came from
+      tableauPile.cards.push(...setCards);
+    }
+
+    return true;
   }
 }

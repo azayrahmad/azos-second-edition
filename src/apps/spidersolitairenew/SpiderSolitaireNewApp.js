@@ -132,14 +132,28 @@ export class SpiderSolitaireNewApp extends Application {
     this._updateStatusBar();
   }
 
+  undoMove() {
+    if (this.game.undo()) {
+      this.render();
+      this._updateMenuBar(this.win);
+    }
+  }
+
   _updateMenuBar(win) {
     const canDeal = this.game?.stockPile?.canDeal() && !this.game?.checkForWin();
+    const canUndo = this.game?.history?.length > 0;
 
     const menuBar = new window.MenuBar({
       Game: [
         {
           label: "New Game",
           action: () => this._showNewGameDialog(),
+        },
+        {
+          label: "Undo",
+          action: () => this.undoMove(),
+          enabled: () => canUndo,
+          shortcut: "Ctrl+Z",
         },
         {
           label: "Deal New Row",
@@ -232,6 +246,12 @@ export class SpiderSolitaireNewApp extends Application {
     this.container
       .querySelector(".stock-pile")
       .addEventListener("click", this.onStockClick.bind(this));
+    this.win.element.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.key === "z") {
+        event.preventDefault();
+        this.undoMove();
+      }
+    });
   }
 
   onDragStart(event) {
@@ -271,6 +291,7 @@ export class SpiderSolitaireNewApp extends Application {
         }
       }
       this.render();
+      this._updateMenuBar(this.win);
       this._updateStatusBar();
     }
   }
