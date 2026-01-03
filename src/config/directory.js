@@ -224,6 +224,12 @@ const directory = [
                 targetId: "app-solitaire",
                 name: "Solitaire",
               },
+              {
+                id: "shortcut-to-magiclines",
+                type: "shortcut",
+                targetId: "app-magiclines",
+                name: "Magic Lines",
+              },
             ],
           },
           {
