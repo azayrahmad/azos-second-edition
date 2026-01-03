@@ -137,6 +137,7 @@ export class Game {
         }
 
         this.score += 100;
+        this.clearHistory();
         return true;
       }
     }
@@ -185,7 +186,7 @@ export class Game {
       // Add the set's cards back to the tableau pile they came from
       tableauPile.cards.push(...setCards);
     }
-
+    this.moves++;
     return true;
   }
 }
