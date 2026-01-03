@@ -13,6 +13,8 @@ export class Game {
   }
 
   initializeGame() {
+    this.score = 500;
+    this.moves = 0;
     this.dealInitialCards();
     // The rest of the deck becomes the stock
     this.stockPile = new StockPile(this.deck.cards);
@@ -62,6 +64,9 @@ export class Game {
       // Flip the new top card of the source pile
       fromPile.flipTopCard();
 
+      this.moves++;
+      this.score--;
+
       return true;
     }
     return false;
@@ -103,6 +108,7 @@ export class Game {
       );
       if (emptyFoundation) {
         emptyFoundation.addSet(completedSet);
+        this.score += 100;
         return true;
       }
     }

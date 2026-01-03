@@ -47,6 +47,10 @@ export class SpiderSolitaireNewApp extends Application {
                         <div class="stock-pile"></div>
                     </div>
                 </div>
+                <div class="status-bar">
+                    <div class="status-bar-field" id="score-display">Score: 500</div>
+                    <div class="status-bar-field" id="moves-display">Moves: 0</div>
+                </div>
             </div>
         `;
 
@@ -125,6 +129,7 @@ export class SpiderSolitaireNewApp extends Application {
     this.game = new Game(difficulty);
     this.render();
     this._updateMenuBar(this.win);
+    this._updateStatusBar();
   }
 
   _updateMenuBar(win) {
@@ -170,6 +175,7 @@ export class SpiderSolitaireNewApp extends Application {
     this.renderTableau();
     this.renderStock();
     this.renderFoundations();
+    this._updateStatusBar();
   }
 
   renderTableau() {
@@ -265,6 +271,7 @@ export class SpiderSolitaireNewApp extends Application {
         }
       }
       this.render();
+      this._updateStatusBar();
     }
   }
 
@@ -284,6 +291,7 @@ export class SpiderSolitaireNewApp extends Application {
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }
+        this._updateStatusBar();
       } finally {
         this.container.style.pointerEvents = "auto";
       }
@@ -360,6 +368,17 @@ export class SpiderSolitaireNewApp extends Application {
     });
     this.render();
     this._updateMenuBar(this.win);
+  }
+
+  _updateStatusBar() {
+    const scoreDisplay = this.container.querySelector("#score-display");
+    const movesDisplay = this.container.querySelector("#moves-display");
+    if (scoreDisplay) {
+      scoreDisplay.textContent = `Score: ${this.game.score}`;
+    }
+    if (movesDisplay) {
+      movesDisplay.textContent = `Moves: ${this.game.moves}`;
+    }
   }
 
   async showWinDialog() {
