@@ -417,19 +417,29 @@ class MinesweeperApp {
           tile.classList.add(tileClass);
           cellEl.appendChild(tile);
         } else {
-            // This is the old style which is not fully supported by the copied assets
-            // but we'll keep the logic simple.
           if (cell.isRevealed) {
             cellEl.classList.add("revealed");
             if (cell.isMine) {
-              cellEl.classList.add("mine");
+              const img = document.createElement("img");
+              img.src = "assets/mine.png";
+              cellEl.appendChild(img);
             } else if (cell.neighborMines > 0) {
-              cellEl.textContent = cell.neighborMines;
+              const img = document.createElement("img");
+              img.src = `assets/${cell.neighborMines}.png`;
+              cellEl.appendChild(img);
             }
           } else if (cell.isFlagged) {
-            cellEl.classList.add("flagged");
+            const img = document.createElement("img");
+            img.src = "assets/flag.png";
+            cellEl.appendChild(img);
+          } else if (cell.isQuestion) {
+            const img = document.createElement("img");
+            img.src = "assets/question-mark.png";
+            cellEl.appendChild(img);
           } else if (this.game.isGameOver && cell.isMine) {
-            cellEl.classList.add("mine");
+            const img = document.createElement("img");
+            img.src = "assets/mine.png";
+            cellEl.appendChild(img);
             cellEl.classList.add("revealed");
           }
         }
