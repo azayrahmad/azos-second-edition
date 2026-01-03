@@ -1,7 +1,7 @@
 import { Application } from "../Application.js";
-import { MinesweeperGame } from "./MinesweeperGame.js";
+import { MinesweeperGame } from "../../games/minesweeper-common/MinesweeperGame.js";
 import { getItem, setItem } from "../../utils/localStorage.js";
-import { SpriteDisplay } from "./SpriteDisplay.js";
+import { SpriteDisplay } from "../../games/minesweeper-common/SpriteDisplay.js";
 import "./minesweeper.css";
 import { ICONS } from "../../config/icons.js";
 

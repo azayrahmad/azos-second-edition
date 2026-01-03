@@ -1,39 +1,28 @@
-// No longer a module, so no imports/exports
+import { MinesweeperGame } from "../../games/minesweeper-common/MinesweeperGame.js";
+import { SpriteDisplay } from "../../games/minesweeper-common/SpriteDisplay.js";
+import { getItem, setItem } from "../../utils/localStorage.js";
+
+// Import assets so Vite can process them
+import "./minesweeper.css";
+import iconSmall from "./assets/minesweeper-icon-small.png";
+import iconLarge from "./assets/minesweeper-icon-large.png";
+import smileyNeutral from "./assets/minesweeper-smiley-neutral.png";
+import smileyClick from "./assets/minesweeper-smiley-click.png";
+import smileyLose from "./assets/minesweeper-smiley-lose.png";
+import smileyWin from "./assets/minesweeper-smiley-win.png";
 
 const HIGH_SCORES_KEY = "minesweeper_high_scores";
 const STYLE_KEY = "minesweeper.use98style";
 
-// Helper functions to replace the app's localStorage utility
-function getItem(key) {
-    const value = localStorage.getItem(key);
-    try {
-        return JSON.parse(value);
-    } catch (e) {
-        return value;
-    }
-}
-
-function setItem(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-}
-
-// A dummy ShowDialogWindow to avoid errors if called
-function ShowDialogWindow(options) {
-    alert(options.title + "\n\n" + (options.text || "This feature is not available in the standalone version."));
-}
-
-
 class MinesweeperApp {
-  // Config properties moved to constructor
   constructor() {
     this.title = "Minesweeper";
     this.width = 200;
     this.height = 280;
     this.resizable = false;
-    // Dummy icon property to avoid errors
     this.icon = {
-      16: "assets/minesweeper-icon-small.png",
-      32: "assets/minesweeper-icon-large.png",
+      16: iconSmall,
+      32: iconLarge,
     };
   }
 
@@ -95,7 +84,7 @@ class MinesweeperApp {
         "MENU_DIVIDER",
         { label: "Best Times...", action: () => this.showHighScores() },
         "MENU_DIVIDER",
-        { label: "Exit", enabled: false }, // Disabling the Exit button
+        { label: "Exit", enabled: false },
       ],
       Help: [
         {
@@ -159,7 +148,7 @@ class MinesweeperApp {
     this.boundHandleMouseUp = this.handleMouseUp.bind(this);
 
     this.boardEl.on("mousedown", this.handleMouseDown.bind(this));
-    $(document).on("mouseup", this.boundHandleMouseUp); // Listen on document for mouseup
+    $(document).on("mouseup", this.boundHandleMouseUp);
     this.boardEl.on("mouseover", this.handleMouseOver.bind(this));
     this.boardEl.on("mouseout", this.handleMouseOut.bind(this));
     this.boardEl.on("contextmenu", this.handleCellFlag.bind(this));
@@ -167,7 +156,6 @@ class MinesweeperApp {
     this.renderBoard();
 
     win.on("close", () => {
-      // Clean up the global mouseup listener when the window is closed
       $(document).off("mouseup", this.boundHandleMouseUp);
     });
 
@@ -182,12 +170,10 @@ class MinesweeperApp {
   }
 
   showCustomDialog() {
-    // This relied on a complex, app-specific dialog.
     alert("Custom difficulty is not available in this version.");
   }
 
   showHighScores() {
-    // This relied on a complex, app-specific dialog.
     const scores = this.highScores;
     alert(
       `Fastest Mine Sweepers:\n\n` +
@@ -210,22 +196,18 @@ class MinesweeperApp {
     this.isGameStarted = false;
     this.explodedMine = null;
     if (this.boardEl) {
-      // Check if UI is initialized
       this.renderBoard();
       this.stopTimer();
       this.updateMineCount();
       this.timerDisplay.setValue(0);
-      this.smileyEl.css(
-        "backgroundImage",
-        `url('assets/minesweeper-smiley-neutral.png')`
-      );
+      this.smileyEl.css("backgroundImage", `url('${smileyNeutral}')`);
     }
   }
 
   startTimer() {
     this.timer = 0;
     this.timerDisplay.setValue(0);
-    this.stopTimer(); // ensure no multiple timers
+    this.stopTimer();
     this.timerInterval = setInterval(() => {
       if (this.timer < 999) {
         this.timer++;
@@ -257,10 +239,7 @@ class MinesweeperApp {
 
     if (!cell.isRevealed && !cell.isFlagged) {
       this.isMouseDown = true;
-      this.smileyEl.css(
-        "backgroundImage",
-        `url('assets/minesweeper-smiley-click.png')`
-      );
+      this.smileyEl.css("backgroundImage", `url('${smileyClick}')`);
       cellEl.classList.add("pressed");
       this.pressedCellEl = cellEl;
     }
@@ -279,10 +258,7 @@ class MinesweeperApp {
     }
 
     if (!this.game.isGameOver) {
-      this.smileyEl.css(
-        "backgroundImage",
-        `url('assets/minesweeper-smiley-neutral.png')`
-      );
+      this.smileyEl.css("backgroundImage", `url('${smileyNeutral}')`);
     }
   }
 
@@ -331,18 +307,12 @@ class MinesweeperApp {
       this.game.isGameOver = true;
       this.explodedMine = { x: parseInt(x), y: parseInt(y) };
       this.stopTimer();
-      this.smileyEl.css(
-        "backgroundImage",
-        `url('assets/minesweeper-smiley-lose.png')`
-      );
+      this.smileyEl.css("backgroundImage", `url('${smileyLose}')`);
       this.renderBoard();
     } else if (result === "win") {
       this.game.isGameOver = true;
       this.stopTimer();
-      this.smileyEl.css(
-        "backgroundImage",
-        `url('assets/minesweeper-smiley-win.png')`
-      );
+      this.smileyEl.css("backgroundImage", `url('${smileyWin}')`);
       if (
         this.difficulty !== "custom" &&
         this.timer < this.highScores[this.difficulty].time
@@ -417,8 +387,6 @@ class MinesweeperApp {
           tile.classList.add(tileClass);
           cellEl.appendChild(tile);
         } else {
-            // This is the old style which is not fully supported by the copied assets
-            // but we'll keep the logic simple.
           if (cell.isRevealed) {
             cellEl.classList.add("revealed");
             if (cell.isMine) {
@@ -438,3 +406,10 @@ class MinesweeperApp {
     }
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const app = new MinesweeperApp();
+  const win = app._createWindow();
+  document.body.appendChild(win.element);
+  win.center();
+});

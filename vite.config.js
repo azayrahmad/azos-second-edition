@@ -41,4 +41,15 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        minesweeper: resolve(
+          __dirname,
+          "src/games/minesweeper-standalone/index.html",
+        ),
+      },
+    },
+  },
 });
