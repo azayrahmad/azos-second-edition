@@ -3,7 +3,7 @@
   height: 100%;
 }
 
-.sidebar {
+.magic-lines-app .sidebar {
   width: 150px;
   padding: 10px;
   border-right: 2px solid var(--border-light);
@@ -11,16 +11,16 @@
   text-align: center;
 }
 
-.sidebar h2 {
+.magic-lines-app .sidebar h2 {
   margin-top: 0;
 }
 
-#score {
+.magic-lines-app #score {
   font-size: 2em;
   font-weight: bold;
 }
 
-.game-board {
+.magic-lines-app .game-board {
   flex-grow: 1;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
@@ -30,7 +30,7 @@
   background-color: #808080;
 }
 
-.cell {
+.magic-lines-app .cell {
   background-color: #c0c0c0;
   border: 2px solid;
   border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
@@ -39,12 +39,12 @@
   align-items: center;
 }
 
-.cell.selected {
+.magic-lines-app .cell.selected {
   background-color: #a0a0a0;
   border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
 }
 
-.ball {
+.magic-lines-app .ball {
   width: 80%;
   height: 80%;
   border-radius: 50%;

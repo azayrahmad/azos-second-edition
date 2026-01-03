@@ -6,6 +6,7 @@ import { ICONS } from "../../config/icons.js";
 export class MagicLinesApp extends Application {
   static config = {
     id: "magiclines",
+    isSingleton: true,
     title: "Magic Lines",
     icon: ICONS.magiclines,
     width: 600,
