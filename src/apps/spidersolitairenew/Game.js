@@ -8,7 +8,10 @@ export class Game {
     this.numberOfSuits = numberOfSuits;
     this.deck = new Deck(this.numberOfSuits);
     this.tableauPiles = Array.from({ length: 10 }, () => new TableauPile());
-    this.foundationPiles = Array.from({ length: 8 }, () => new FoundationPile());
+    this.foundationPiles = Array.from(
+      { length: 8 },
+      () => new FoundationPile(),
+    );
     this.history = [];
     this.initializeGame();
   }
@@ -137,6 +140,7 @@ export class Game {
         }
 
         this.score += 100;
+        this.clearHistory();
         return true;
       }
     }
@@ -172,20 +176,7 @@ export class Game {
       }
     }
 
-    // If a set was completed, move it back from the foundation
-    if (completedSet) {
-      const { foundationPileIndex, fromPileIndex: setSourcePileIndex } =
-        completedSet;
-      const foundationPile = this.foundationPiles[foundationPileIndex];
-      const tableauPile = this.tableauPiles[setSourcePileIndex];
-
-      // Remove the set from the foundation (it's the only thing on it)
-      const setCards = foundationPile.cards.splice(0);
-
-      // Add the set's cards back to the tableau pile they came from
-      tableauPile.cards.push(...setCards);
-    }
-
+    this.moves++;
     return true;
   }
 }

@@ -140,7 +140,8 @@ export class SpiderSolitaireNewApp extends Application {
   }
 
   _updateMenuBar(win) {
-    const canDeal = this.game?.stockPile?.canDeal() && !this.game?.checkForWin();
+    const canDeal =
+      this.game?.stockPile?.canDeal() && !this.game?.checkForWin();
     const canUndo = this.game?.history?.length > 0;
 
     const menuBar = new window.MenuBar({
@@ -312,6 +313,7 @@ export class SpiderSolitaireNewApp extends Application {
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }
+        this._updateMenuBar(this.win);
         this._updateStatusBar();
       } finally {
         this.container.style.pointerEvents = "auto";
