@@ -89,10 +89,10 @@
     font-size: 16px;
     text-align: left;
     line-height: normal;
-    padding: 2px 4px;
+    padding: 2px 4px !important;
     cursor: pointer;
     user-select: none;
-    background-color: #ffffff;
+    background-color: #ffffff !important;
 }
 
 .spider-solitaire-container .card.face-up {
