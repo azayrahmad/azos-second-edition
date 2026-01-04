@@ -23,8 +23,8 @@
 .magic-lines-app .game-board {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(9, 1fr);
+  grid-template-columns: repeat(9, 40px);
+  grid-template-rows: repeat(9, 40px);
   gap: 2px;
   padding: 10px;
   background-color: #808080;
@@ -45,8 +45,15 @@
 }
 
 .magic-lines-app .ball {
-  width: 80%;
-  height: 80%;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #000;
+}
+
+.magic-lines-app .preview-ball {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   border: 1px solid #000;
 }

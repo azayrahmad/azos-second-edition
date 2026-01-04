@@ -19,10 +19,25 @@ export class Game {
       '#00ffff',
     ];
     this.turnHistory = [];
-    this.placeNewBalls(5);
+    this.nextBalls = [];
+    this._placeRandomBalls(5);
+    this._generateNextBalls();
   }
 
-  placeNewBalls(count) {
+  _generateNextBalls() {
+    this.nextBalls = [];
+    const emptyCells = this.board.getEmptyCells();
+    const ballsToPlace = Math.min(3, emptyCells.length);
+
+    for (let i = 0; i < ballsToPlace; i++) {
+      const randomIndex = Math.floor(Math.random() * emptyCells.length);
+      const cell = emptyCells.splice(randomIndex, 1)[0];
+      const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+      this.nextBalls.push({ r: cell.r, c: cell.c, color: randomColor });
+    }
+  }
+
+  _placeRandomBalls(count) {
     const emptyCells = this.board.getEmptyCells();
     const ballsToPlace = Math.min(count, emptyCells.length);
     const newBallCoords = [];
@@ -34,6 +49,26 @@ export class Game {
       this.board.placeBall(new Ball(randomColor), cell.r, cell.c);
       newBallCoords.push(cell);
     }
+    return newBallCoords;
+  }
+
+  placeNewBalls() {
+    const newBallCoords = [];
+    for (const ball of this.nextBalls) {
+      if (this.board.getBall(ball.r, ball.c)) {
+        const emptyCells = this.board.getEmptyCells();
+        if (emptyCells.length > 0) {
+          const randomIndex = Math.floor(Math.random() * emptyCells.length);
+          const cell = emptyCells.splice(randomIndex, 1)[0];
+          this.board.placeBall(new Ball(ball.color), cell.r, cell.c);
+          newBallCoords.push(cell);
+        }
+      } else {
+        this.board.placeBall(new Ball(ball.color), ball.r, ball.c);
+        newBallCoords.push({ r: ball.r, c: ball.c });
+      }
+    }
+    this.nextBalls = [];
     return newBallCoords;
   }
 
@@ -54,13 +89,14 @@ export class Game {
       if (clearedCount > 0) {
         this.updateScore(clearedCount);
       } else {
-        const newBalls = this.placeNewBalls(3);
+        const newBalls = this.placeNewBalls();
         for (const ball of newBalls) {
           const clearedCountAfterNew = this.board.findAndClearLines(ball);
           if (clearedCountAfterNew > 0) {
             this.updateScore(clearedCountAfterNew);
           }
         }
+        this._generateNextBalls();
       }
       return true; // Move successful
     }
