@@ -430,21 +430,31 @@ export class SpiderSolitaireNewApp extends Application {
 
   _updateSuitsRemovedStatus() {
     const suitsRemovedDisplay = this.container.querySelector("#suits-removed-display");
-    if (suitsRemovedDisplay) {
+    if (suitsRemovedDisplay && this.game) {
       const suitSymbols = {
         spades: '♠',
         hearts: '♥',
         diamonds: '♦',
         clubs: '♣',
       };
+
       const completedSets = this.game.completedSetsBySuit;
-      let html = "Suits removed: ";
-      for (const suit in completedSets) {
-        if (completedSets[suit] > 0) {
-          html += `${suitSymbols[suit]} ${completedSets[suit]} `;
-        }
+      const numberOfSuits = this.game.numberOfSuits;
+
+      let suitsToDisplay;
+      if (numberOfSuits === 1) {
+        suitsToDisplay = ['spades'];
+      } else if (numberOfSuits === 2) {
+        suitsToDisplay = ['spades', 'hearts'];
+      } else {
+        suitsToDisplay = ['spades', 'hearts', 'diamonds', 'clubs'];
       }
-      suitsRemovedDisplay.innerHTML = html;
+
+      let html = "Suits removed: ";
+      for (const suit of suitsToDisplay) {
+        html += `${suitSymbols[suit]} ${completedSets[suit] ?? 0} `;
+      }
+      suitsRemovedDisplay.innerHTML = html.trim();
     }
   }
 
