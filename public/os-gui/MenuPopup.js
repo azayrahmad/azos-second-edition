@@ -197,13 +197,13 @@
             "point-right",
             get_direction() === "rtl",
           );
+          submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
           const submenu_popup = new MenuPopup(item.submenu, {
             ...options,
             parentMenuPopup: this,
             wrapperElement: submenu_popup_el,
           });
           const submenu_popup_el_actual = submenu_popup.element;
-          submenu_popup_el = E("div", { class: "menu-popup-wrapper" });
           submenu_popup_el.appendChild(submenu_popup_el_actual);
 
           document.body?.appendChild(submenu_popup_el);
