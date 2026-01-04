@@ -3,7 +3,7 @@ import { Ball } from './Ball.js';
 
 export class Game {
   constructor() {
-    this.newGame();
+    // constructor is now empty, initialization is handled by newGame()
   }
 
   newGame() {
@@ -20,8 +20,9 @@ export class Game {
     ];
     this.turnHistory = [];
     this.nextBalls = [];
-    this._placeRandomBalls(5);
+    const initialBalls = this._placeRandomBalls(5);
     this._generateNextBalls();
+    return initialBalls;
   }
 
   _generateNextBalls() {
@@ -74,7 +75,7 @@ export class Game {
 
   moveBall(start, end) {
     if (!this.board.getBall(start.r, start.c) || this.board.getBall(end.r, end.c)) {
-      return null; // Invalid move
+      return { path: null, newBalls: [] }; // Invalid move
     }
 
     const path = this.board.findPath(start, end);
@@ -86,11 +87,12 @@ export class Game {
 
       this.board.moveBall(start, end);
       const clearedCount = this.board.findAndClearLines(end);
+      let newBalls = [];
 
       if (clearedCount > 0) {
         this.updateScore(clearedCount);
       } else {
-        const newBalls = this.placeNewBalls();
+        newBalls = this.placeNewBalls();
         for (const ball of newBalls) {
           const clearedCountAfterNew = this.board.findAndClearLines(ball);
           if (clearedCountAfterNew > 0) {
@@ -99,9 +101,9 @@ export class Game {
         }
         this._generateNextBalls();
       }
-      return path; // Move successful
+      return { path, newBalls }; // Move successful
     }
-    return null; // No path
+    return { path: null, newBalls: [] }; // No path
   }
 
   updateScore(clearedCount) {

@@ -53,6 +53,32 @@
     border: 1px solid #000;
 }
 
+.magic-lines-app .ball-enter {
+    animation: scale-in 250ms ease-out forwards;
+}
+
+.magic-lines-app .ball-promoting {
+    animation: scale-up 250ms ease-out forwards;
+}
+
+@keyframes scale-in {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes scale-up {
+    from {
+        transform: scale(0.27); /* (10px / 36px) */
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
 .magic-lines-app .preview-ball {
     width: 10px;
     height: 10px;

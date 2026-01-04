@@ -20,13 +20,16 @@ export class MagicLinesApp extends Application {
   async _onLaunch() {
     this.game = new Game();
     this.selectedBallCoords = null;
+    const initialBalls = this.game.newGame();
     this.renderBoard();
+    this.animateBallEntrance(initialBalls);
   }
 
   newGame() {
-    this.game.newGame();
+    const initialBalls = this.game.newGame();
     this.selectedBallCoords = null;
     this.renderBoard();
+    this.animateBallEntrance(initialBalls);
   }
 
   renderBoard() {
@@ -150,6 +153,47 @@ export class MagicLinesApp extends Application {
     boardElement.css("pointer-events", "auto");
   }
 
+  async animateBallEntrance(newBallCoords) {
+    const boardElement = this.win.$content.find(".game-board");
+    boardElement.css("pointer-events", "none");
+
+    const animations = newBallCoords.map(coord => {
+        return new Promise(resolve => {
+            const cell = boardElement.find(`.cell[data-r='${coord.r}'][data-c='${coord.c}']`);
+            let ballElement = cell.find('.ball, .preview-ball');
+            const isPreview = ballElement.hasClass('preview-ball');
+
+            // If it's a preview, we transform it. If it's a new ball, we create it.
+            if (isPreview) {
+                ballElement.removeClass('preview-ball').addClass('ball ball-promoting');
+            } else if (!ballElement.length) {
+                const ballInfo = this.game.board.getBall(coord.r, coord.c);
+                if (ballInfo) {
+                    ballElement = $("<div>")
+                        .addClass("ball ball-enter")
+                        .css("background-color", ballInfo.color);
+                    cell.append(ballElement);
+                }
+            }
+
+            if (ballElement.length) {
+                setTimeout(() => {
+                    ballElement.removeClass('ball-enter ball-promoting');
+                    resolve();
+                }, 250); // Animation duration
+            } else {
+                resolve(); // No ball to animate
+            }
+        });
+    });
+
+    await Promise.all(animations);
+
+    this.renderBoard();
+    this.checkGameOver();
+    boardElement.css("pointer-events", "auto");
+  }
+
   handleCellClick(event) {
     if (
       this.win.$content.find(".game-board").css("pointer-events") === "none"
@@ -168,10 +212,14 @@ export class MagicLinesApp extends Application {
     } else {
       if (this.selectedBallCoords) {
         const startCoords = this.selectedBallCoords;
-        const path = this.game.moveBall(startCoords, { r, c });
-        if (path) {
+        const moveResult = this.game.moveBall(startCoords, { r, c });
+        if (moveResult.path) {
           this.selectedBallCoords = null;
-          this.animateBallMove(path, startCoords);
+          this.animateBallMove(moveResult.path, startCoords).then(() => {
+            if (moveResult.newBalls.length > 0) {
+              this.animateBallEntrance(moveResult.newBalls);
+            }
+          });
         }
       }
     }
