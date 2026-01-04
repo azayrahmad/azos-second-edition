@@ -10,8 +10,8 @@ export class MagicLinesApp extends Application {
     isSingleton: true,
     title: "Magic Lines",
     icon: ICONS.magiclines,
-    width: 600,
-    height: 480,
+    width: 550,
+    height: 450,
     resizable: false,
     minimizeButton: true,
     maximizeButton: false,
@@ -48,6 +48,16 @@ export class MagicLinesApp extends Application {
             .addClass("ball")
             .css("background-color", ball.color);
           cell.append(ballElement);
+        } else {
+          const nextBall = this.game.nextBalls.find(
+            (b) => b.r === r && b.c === c
+          );
+          if (nextBall) {
+            const ballElement = $("<div>")
+              .addClass("preview-ball")
+              .css("background-color", nextBall.color);
+            cell.append(ballElement);
+          }
         }
 
         if (

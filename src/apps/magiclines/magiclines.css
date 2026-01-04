@@ -1,52 +1,61 @@
 .magic-lines-app {
-  display: flex;
-  height: 100%;
+    display: flex;
+    height: 100%;
 }
 
 .magic-lines-app .sidebar {
-  width: 150px;
-  padding: 10px;
-  border-right: 2px solid var(--border-light);
-  background-color: var(--button-face);
-  text-align: center;
+    width: 150px;
+    padding: 10px;
+    border-right: 2px solid var(--border-light);
+    background-color: var(--button-face);
+    text-align: center;
 }
 
 .magic-lines-app .sidebar h2 {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .magic-lines-app #score {
-  font-size: 2em;
-  font-weight: bold;
+    font-size: 2em;
+    font-weight: bold;
 }
 
 .magic-lines-app .game-board {
-  flex-grow: 1;
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(9, 1fr);
-  gap: 2px;
-  padding: 10px;
-  background-color: #808080;
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(9, 40px);
+    grid-template-rows: repeat(9, 40px);
+    padding: 10px;
+    background-color: #808080;
 }
 
 .magic-lines-app .cell {
-  background-color: #c0c0c0;
-  border: 2px solid;
-  border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    width: 40px;
+    height: 40px;
+    background-color: #c0c0c0;
+    border: 1px solid;
+    border-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .magic-lines-app .cell.selected {
-  background-color: #a0a0a0;
-  border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+    background-color: #a0a0a0;
+    border-color: var(--border-dark) var(--border-light) var(--border-light)
+        var(--border-dark);
 }
 
 .magic-lines-app .ball {
-  width: 80%;
-  height: 80%;
-  border-radius: 50%;
-  border: 1px solid #000;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #000;
+}
+
+.magic-lines-app .preview-ball {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #000;
 }
