@@ -121,3 +121,17 @@
 .spider-solitaire-container.style-98 .bottom-area {
     display: none;
 }
+
+.spider-solitaire-container .tableau-placeholder {
+    width: 70px;
+    height: 100px;
+    border: 1px solid white;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #008000;
+}
+
+.spider-solitaire-container .card.card-highlight,
+.spider-solitaire-container .tableau-placeholder.card-highlight {
+    filter: invert(1);
+}

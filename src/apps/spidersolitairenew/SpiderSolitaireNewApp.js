@@ -55,6 +55,7 @@ export class SpiderSolitaireNewApp extends Application {
     if (this.use98Style) {
       this.container.classList.add("style-98");
     }
+    this.availableMovesIndex = 0;
     this.addEventListeners();
     this.startNewGame(4); // Default to hard
 
@@ -160,6 +161,10 @@ export class SpiderSolitaireNewApp extends Application {
           action: () => this.onStockClick(),
           enabled: () => canDeal,
         },
+        {
+          label: "Show Available Moves",
+          action: () => this.showNextAvailableMove(),
+        },
         "MENU_DIVIDER",
         {
           label: "98 Style",
@@ -213,12 +218,18 @@ export class SpiderSolitaireNewApp extends Application {
       pileDiv.className = "tableau-pile";
       pileDiv.dataset.pileIndex = pileIndex;
 
-      pile.cards.forEach((card, cardIndex) => {
-        const cardDiv = card.element;
+      if (pile.cards.length === 0) {
+        const placeholderDiv = document.createElement("div");
+        placeholderDiv.className = "tableau-placeholder";
+        pileDiv.appendChild(placeholderDiv);
+      } else {
+        pile.cards.forEach((card, cardIndex) => {
+          const cardDiv = card.element;
         cardDiv.dataset.pileIndex = pileIndex;
         cardDiv.dataset.cardIndex = cardIndex;
         pileDiv.appendChild(cardDiv);
-      });
+        });
+      }
       tableauContainer.appendChild(pileDiv);
     });
   }
@@ -467,5 +478,52 @@ export class SpiderSolitaireNewApp extends Application {
       buttons: [{ label: "OK" }],
     });
     this._updateMenuBar(this.win);
+  }
+
+  showNextAvailableMove() {
+    const moves = this.game.findAllAvailableMoves();
+    if (moves.length === 0) {
+      window.playSound('Warning');
+      return;
+    }
+
+    if (this.availableMovesIndex >= moves.length) {
+      this.availableMovesIndex = 0;
+    }
+
+    const move = moves[this.availableMovesIndex];
+    const { fromPileIndex, cardIndex, toPileIndex } = move;
+
+    const fromPile = this.game.tableauPiles[fromPileIndex];
+    const cardsToHighlight = fromPile.cards.slice(cardIndex);
+
+    const sourceElements = cardsToHighlight.map(card => {
+        return this.container.querySelector(`.card[data-uid='${card.uid}']`);
+    }).filter(el => el);
+    sourceElements.forEach(el => el.classList.add('card-highlight'));
+
+    const toPileDiv = this.container.querySelector(`.tableau-pile[data-pile-index='${toPileIndex}']`);
+    let targetElement;
+    if (this.game.tableauPiles[toPileIndex].cards.length === 0) {
+      targetElement = toPileDiv.querySelector('.tableau-placeholder');
+    } else {
+      const topCard = this.game.tableauPiles[toPileIndex].topCard;
+      targetElement = this.container.querySelector(`.card[data-uid='${topCard.uid}']`);
+    }
+
+    setTimeout(() => {
+      sourceElements.forEach(el => el.classList.remove('card-highlight'));
+      if (targetElement) {
+        targetElement.classList.add('card-highlight');
+      }
+
+      setTimeout(() => {
+        if (targetElement) {
+          targetElement.classList.remove('card-highlight');
+        }
+      }, 500);
+    }, 500);
+
+    this.availableMovesIndex++;
   }
 }
