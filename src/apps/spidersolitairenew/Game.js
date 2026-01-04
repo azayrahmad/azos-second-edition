@@ -24,6 +24,12 @@ export class Game {
     this.clearHistory();
     this.score = 500;
     this.moves = 0;
+    this.completedSetsBySuit = {
+      spades: 0,
+      hearts: 0,
+      diamonds: 0,
+      clubs: 0,
+    };
     this.dealInitialCards();
     // The rest of the deck becomes the stock
     this.stockPile = new StockPile(this.deck.cards);
@@ -128,6 +134,8 @@ export class Game {
         (p) => p.cards.length === 0,
       );
       if (emptyFoundation) {
+        const suit = completedSet[0].suit;
+        this.completedSetsBySuit[suit]++;
         emptyFoundation.addSet(completedSet);
 
         const lastMove = this.history[this.history.length - 1];

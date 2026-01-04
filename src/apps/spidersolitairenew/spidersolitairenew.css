@@ -116,3 +116,8 @@
   padding: 0 4px;
   color: var(--ButtonText);
 }
+
+/* 98 Style Layout */
+.spider-solitaire-container.style-98 .bottom-area {
+    display: none;
+}

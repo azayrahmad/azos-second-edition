@@ -2,7 +2,10 @@ import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { getItem, setItem } from "../../utils/localStorage.js";
 import "./spidersolitairenew.css";
+
+const STYLE_KEY = "spidersolitairenew.use98style";
 
 export class SpiderSolitaireNewApp extends Application {
   static config = {
@@ -15,6 +18,11 @@ export class SpiderSolitaireNewApp extends Application {
   };
 
   async _createWindow() {
+    this.use98Style = getItem(STYLE_KEY);
+    if (this.use98Style === null) {
+      this.use98Style = true;
+    }
+
     const win = new window.$Window({
       title: this.config.title,
       outerWidth: this.config.width,
@@ -23,19 +31,6 @@ export class SpiderSolitaireNewApp extends Application {
       icons: this.icon,
     });
 
-    const menuBar = new window.MenuBar({
-      Game: [
-        {
-          label: "New Game",
-          action: () => this._showNewGameDialog(),
-        },
-        {
-          label: "Deal New Row",
-          action: () => this.onStockClick(),
-          enabled: () => canDeal,
-        },
-      ],
-    });
     this._updateMenuBar(win);
 
     win.element.querySelector(".window-content").innerHTML = `
@@ -50,12 +45,16 @@ export class SpiderSolitaireNewApp extends Application {
                 <div class="status-bar">
                     <div class="status-bar-field" id="score-display">Score: 500</div>
                     <div class="status-bar-field" id="moves-display">Moves: 0</div>
+                    <div class="status-bar-field" id="suits-removed-display">Suits removed: </div>
                 </div>
             </div>
         `;
 
     this.win = win;
     this.container = win.element.querySelector(".spider-solitaire-container");
+    if (this.use98Style) {
+      this.container.classList.add("style-98");
+    }
     this.addEventListeners();
     this.startNewGame(4); // Default to hard
 
@@ -160,6 +159,19 @@ export class SpiderSolitaireNewApp extends Application {
           label: "Deal New Row",
           action: () => this.onStockClick(),
           enabled: () => canDeal,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "98 Style",
+          checkbox: {
+            check: () => this.use98Style,
+            toggle: () => {
+              this.use98Style = !this.use98Style;
+              setItem(STYLE_KEY, this.use98Style);
+              this.container.classList.toggle("style-98", this.use98Style);
+              this.render();
+            },
+          },
         },
       ],
     });
@@ -331,14 +343,25 @@ export class SpiderSolitaireNewApp extends Application {
 
   animateDealing(cards) {
     return new Promise((resolve) => {
-      const stockPilePlaceholders = this.container.querySelectorAll(
-        ".stock-card-placeholder",
-      );
-      const startRect =
-        stockPilePlaceholders[
-          stockPilePlaceholders.length
-        ]?.getBoundingClientRect() ||
-        this.container.querySelector(".stock-pile").getBoundingClientRect();
+      let startRect;
+      if (this.use98Style) {
+        const containerRect = this.container.getBoundingClientRect();
+        startRect = {
+          left: containerRect.left,
+          top: containerRect.bottom,
+          width: 0,
+          height: 0,
+        };
+      } else {
+        const stockPilePlaceholders = this.container.querySelectorAll(
+          ".stock-card-placeholder",
+        );
+        startRect =
+          stockPilePlaceholders[
+            stockPilePlaceholders.length
+          ]?.getBoundingClientRect() ||
+          this.container.querySelector(".stock-pile").getBoundingClientRect();
+      }
 
       const tableauPileRects = Array.from(
         this.container.querySelectorAll(".tableau-pile"),
@@ -401,6 +424,27 @@ export class SpiderSolitaireNewApp extends Application {
     }
     if (movesDisplay) {
       movesDisplay.textContent = `Moves: ${this.game.moves}`;
+    }
+    this._updateSuitsRemovedStatus();
+  }
+
+  _updateSuitsRemovedStatus() {
+    const suitsRemovedDisplay = this.container.querySelector("#suits-removed-display");
+    if (suitsRemovedDisplay) {
+      const suitSymbols = {
+        spades: '♠',
+        hearts: '♥',
+        diamonds: '♦',
+        clubs: '♣',
+      };
+      const completedSets = this.game.completedSetsBySuit;
+      let html = "Suits removed: ";
+      for (const suit in completedSets) {
+        if (completedSets[suit] > 0) {
+          html += `${suitSymbols[suit]} ${completedSets[suit]} `;
+        }
+      }
+      suitsRemovedDisplay.innerHTML = html;
     }
   }
 
