@@ -74,10 +74,11 @@ export class Game {
 
   moveBall(start, end) {
     if (!this.board.getBall(start.r, start.c) || this.board.getBall(end.r, end.c)) {
-      return false; // Invalid move
+      return null; // Invalid move
     }
 
-    if (this.board.isPathAvailable(start, end)) {
+    const path = this.board.findPath(start, end);
+    if (path) {
       this.turnHistory.push({
         board: JSON.parse(JSON.stringify(this.board.grid)),
         score: this.score,
@@ -98,9 +99,9 @@ export class Game {
         }
         this._generateNextBalls();
       }
-      return true; // Move successful
+      return path; // Move successful
     }
-    return false; // No path
+    return null; // No path
   }
 
   updateScore(clearedCount) {

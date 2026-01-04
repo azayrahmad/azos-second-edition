@@ -31,7 +31,7 @@ export class Board {
     this.grid[r][c] = null;
   }
 
-  isPathAvailable(start, end) {
+  findPath(start, end) {
     const queue = [[start]];
     const visited = new Set([`${start.r},${start.c}`]);
 
@@ -40,7 +40,7 @@ export class Board {
       const { r, c } = path[path.length - 1];
 
       if (r === end.r && c === end.c) {
-        return true; // Path found
+        return path; // Path found
       }
 
       const neighbors = [
@@ -68,7 +68,7 @@ export class Board {
         }
       }
     }
-    return false; // No path found
+    return null; // No path found
   }
 
   findAndClearLines(coords) {
