@@ -74,7 +74,79 @@ export class MagicLinesApp extends Application {
     scoreElement.text(this.game.score);
   }
 
+  async animateBallMove(path, startCoords) {
+    const boardElement = this.win.$content.find('.game-board');
+    boardElement.css('pointer-events', 'none');
+
+    const startCell = boardElement.find(`.cell[data-r='${startCoords.r}'][data-c='${startCoords.c}']`);
+    const ballElement = startCell.find('.ball').first();
+
+    if (!ballElement.length) {
+      this.renderBoard();
+      boardElement.css('pointer-events', 'auto');
+      return;
+    }
+
+    startCell.removeClass('selected');
+
+    const startOffset = ballElement.position();
+
+    ballElement.css({
+      position: 'absolute',
+      top: startOffset.top,
+      left: startOffset.left,
+      transition: 'all 100ms linear',
+      'z-index': 10,
+    });
+    boardElement.append(ballElement);
+
+    for (let i = 0; i < path.length - 1; i++) {
+      const start = path[i];
+      const end = path[i + 1];
+
+      const startCellEl = boardElement.find(`.cell[data-r='${start.r}'][data-c='${start.c}']`);
+      const endCellEl = boardElement.find(`.cell[data-r='${end.r}'][data-c='${end.c}']`);
+      const startPos = startCellEl.position();
+      const endPos = endCellEl.position();
+
+      const midTop = (startPos.top + endPos.top) / 2;
+      const midLeft = (startPos.left + endPos.left) / 2;
+
+      let transform = 'scale(1)';
+      if (end.r !== start.r) { // Vertical move
+        transform = 'scale(0.8, 1.2)';
+      } else { // Horizontal move
+        transform = 'scale(1.2, 0.8)';
+      }
+
+      await new Promise(r => setTimeout(r, 10));
+
+      ballElement.css({
+        top: midTop,
+        left: midLeft,
+        transform: transform,
+      });
+      await new Promise(r => setTimeout(r, 100));
+
+      ballElement.css({
+        top: endPos.top,
+        left: endPos.left,
+        transform: 'scale(1)',
+      });
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    ballElement.remove();
+    this.renderBoard();
+    this.checkGameOver();
+    boardElement.css('pointer-events', 'auto');
+  }
+
   handleCellClick(event) {
+    if (this.win.$content.find('.game-board').css('pointer-events') === 'none') {
+      return;
+    }
+
     const cell = $(event.currentTarget);
     const r = parseInt(cell.attr("data-r"));
     const c = parseInt(cell.attr("data-c"));
@@ -85,11 +157,11 @@ export class MagicLinesApp extends Application {
       this.renderBoard();
     } else {
       if (this.selectedBallCoords) {
-        const moveSuccessful = this.game.moveBall(this.selectedBallCoords, { r, c });
-        if (moveSuccessful) {
+        const startCoords = this.selectedBallCoords;
+        const path = this.game.moveBall(startCoords, { r, c });
+        if (path) {
           this.selectedBallCoords = null;
-          this.renderBoard();
-          this.checkGameOver();
+          this.animateBallMove(path, startCoords);
         }
       }
     }
