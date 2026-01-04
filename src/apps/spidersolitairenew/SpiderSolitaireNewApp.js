@@ -298,9 +298,7 @@ export class SpiderSolitaireNewApp extends Application {
       const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
 
       if (this.game.moveCards(fromPileIndex, cardIndex, toPileIndex)) {
-        if (this.game.checkForCompletedSets(toPileIndex)) {
-          this._updateStatusBar();
-        }
+        this.game.checkForCompletedSets(toPileIndex);
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }

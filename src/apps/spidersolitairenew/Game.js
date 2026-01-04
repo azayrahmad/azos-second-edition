@@ -148,6 +148,7 @@ export class Game {
         }
 
         this.score += 100;
+        this.clearHistory();
         return true;
       }
     }
