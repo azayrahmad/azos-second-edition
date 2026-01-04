@@ -159,6 +159,26 @@ export class Game {
     return this.foundationPiles.every((pile) => pile.cards.length > 0);
   }
 
+  findAllAvailableMoves() {
+    const moves = [];
+    // Check for moves between tableau piles
+    this.tableauPiles.forEach((fromPile, fromPileIndex) => {
+      if (fromPile.cards.length === 0) return;
+
+      for (let i = 0; i < fromPile.cards.length; i++) {
+        if (this.isValidMoveStack(fromPileIndex, i)) {
+          const cardToMove = fromPile.cards[i];
+          this.tableauPiles.forEach((toPile, toPileIndex) => {
+            if (fromPileIndex !== toPileIndex && toPile.canAccept(cardToMove)) {
+              moves.push({ fromPileIndex, cardIndex: i, toPileIndex });
+            }
+          });
+        }
+      }
+    });
+    return moves;
+  }
+
   undo() {
     if (this.history.length === 0) {
       return false;

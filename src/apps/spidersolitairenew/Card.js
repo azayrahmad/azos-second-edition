@@ -3,6 +3,7 @@ export class Card {
     this.suit = suit;
     this.rank = rank;
     this.faceUp = false;
+    this.uid = 'card-' + Math.random().toString(36).substr(2, 9);
   }
 
   get element() {
@@ -10,6 +11,7 @@ export class Card {
     cardDiv.className = "card";
     cardDiv.dataset.rank = this.rank;
     cardDiv.dataset.suit = this.suit;
+    cardDiv.dataset.uid = this.uid;
 
     if (this.faceUp) {
       cardDiv.classList.add("face-up");
