@@ -1,3 +1,4 @@
+import { Card } from "./Card.js";
 import { Deck, RANKS } from "./Deck.js";
 import { TableauPile } from "./TableauPile.js";
 import { StockPile } from "./StockPile.js";
@@ -250,5 +251,71 @@ export class Game {
 
     this.moves++;
     return true;
+  }
+
+  toJSON() {
+    return {
+      numberOfSuits: this.numberOfSuits,
+      tableauPiles: this.tableauPiles.map((pile) =>
+        pile.cards.map((card) => card.toJSON()),
+      ),
+      foundationPiles: this.foundationPiles.map((pile) =>
+        pile.cards.map((card) => card.toJSON()),
+      ),
+      stockPile: this.stockPile.cards.map((card) => card.toJSON()),
+      score: this.score,
+      moves: this.moves,
+      completedSetsBySuit: this.completedSetsBySuit,
+      initialState: {
+        tableauPiles: this.initialState.tableauPiles.map((pile) =>
+          pile.cards.map((card) => card.toJSON()),
+        ),
+        stockPileCards: this.initialState.stockPileCards.map((card) =>
+          card.toJSON(),
+        ),
+      },
+    };
+  }
+
+  static fromJSON(json) {
+    const game = new Game(json.numberOfSuits);
+
+    const createCardFromJSON = (cardData) => {
+      const card = new Card(cardData.suit, cardData.rank);
+      card.faceUp = cardData.faceUp;
+      card.uid = cardData.uid;
+      return card;
+    };
+
+    game.score = json.score;
+    game.moves = json.moves;
+    game.completedSetsBySuit = json.completedSetsBySuit;
+
+    game.tableauPiles = json.tableauPiles.map((pileData) => {
+      const pile = new TableauPile();
+      pile.cards = pileData.map(createCardFromJSON);
+      return pile;
+    });
+
+    game.foundationPiles = json.foundationPiles.map((pileData) => {
+      const pile = new FoundationPile();
+      pile.cards = pileData.map(createCardFromJSON);
+      return pile;
+    });
+
+    game.stockPile = new StockPile(json.stockPile.map(createCardFromJSON));
+
+    game.initialState = {
+      tableauPiles: json.initialState.tableauPiles.map((pileData) => {
+        const pile = new TableauPile();
+        pile.cards = pileData.map(createCardFromJSON);
+        return pile;
+      }),
+      stockPileCards: json.initialState.stockPileCards.map(createCardFromJSON),
+    };
+
+    game.history = [];
+
+    return game;
   }
 }

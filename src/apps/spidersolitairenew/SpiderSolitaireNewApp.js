@@ -6,6 +6,7 @@ import { getItem, setItem } from "../../utils/localStorage.js";
 import "./spidersolitairenew.css";
 
 const STYLE_KEY = "spidersolitairenew.use98style";
+const SAVE_KEY = "spidersolitairenew-saved-game";
 
 export class SpiderSolitaireNewApp extends Application {
   static config = {
@@ -202,10 +203,12 @@ export class SpiderSolitaireNewApp extends Application {
         MENU_DIVIDER,
         {
           label: "Save This Game",
+          action: () => this._saveGame(),
           shortcut: "Ctrl+S",
         },
         {
           label: "Open Last Saved Game",
+          action: () => this._openGame(),
           shortcut: "Ctrl+O",
         },
         MENU_DIVIDER,
@@ -308,6 +311,12 @@ export class SpiderSolitaireNewApp extends Application {
       if (event.ctrlKey && event.key === "z") {
         event.preventDefault();
         this.undoMove();
+      } else if (event.ctrlKey && event.key === "s") {
+        event.preventDefault();
+        this._saveGame();
+      } else if (event.ctrlKey && event.key === "o") {
+        event.preventDefault();
+        this._openGame();
       } else if (event.key === "d") {
         event.preventDefault();
         this.onStockClick();
@@ -573,5 +582,79 @@ export class SpiderSolitaireNewApp extends Application {
     }, 300);
 
     this.availableMovesIndex++;
+  }
+
+  _saveGame() {
+    const savedGame = getItem(SAVE_KEY);
+    if (savedGame) {
+      ShowDialogWindow({
+        title: "Save Game",
+        text: "A saved game already exists. Are you sure you want to replace your previously saved game with your current game?",
+        buttons: [
+          {
+            label: "Yes",
+            action: () => this._performSave(),
+          },
+          { label: "No" },
+        ],
+      });
+    } else {
+      this._performSave();
+    }
+  }
+
+  _performSave() {
+    try {
+      const gameState = this.game.toJSON();
+      setItem(SAVE_KEY, gameState);
+    } catch (error) {
+      console.error("Failed to save game:", error);
+      window.playSound("Warning");
+      ShowDialogWindow({
+        title: "Error",
+        text: "Unable to save game.",
+        buttons: [{ label: "OK" }],
+      });
+    }
+  }
+
+  _openGame() {
+    ShowDialogWindow({
+      title: "Open Game",
+      text: "Are you sure you want to discard the game you are currently playing, and load your previously saved game?",
+      buttons: [
+        {
+          label: "Yes",
+          action: () => this._performOpen(),
+        },
+        { label: "No" },
+      ],
+    });
+  }
+
+  _performOpen() {
+    try {
+      const savedGame = getItem(SAVE_KEY);
+      if (!savedGame) {
+        window.playSound("Warning");
+        ShowDialogWindow({
+          title: "Error",
+          text: "Unable to load game. No saved game found.",
+          buttons: [{ label: "OK" }],
+        });
+        return;
+      }
+      this.game = Game.fromJSON(savedGame);
+      this.render();
+      this._updateMenuBar(this.win);
+    } catch (error) {
+      console.error("Failed to load game:", error);
+      window.playSound("Warning");
+      ShowDialogWindow({
+        title: "Error",
+        text: "Unable to load game.",
+        buttons: [{ label: "OK" }],
+      });
+    }
   }
 }
