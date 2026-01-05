@@ -32,6 +32,15 @@ export class MagicLinesApp extends Application {
   renderBoard() {
     const boardElement = this.win.$content.find(".game-board");
     const scoreElement = this.win.$content.find("#score");
+
+    const previousPreviewCoords = new Set();
+    boardElement.find(".preview-ball").each(function () {
+      const cell = $(this).closest(".cell");
+      const r = cell.data("r");
+      const c = cell.data("c");
+      previousPreviewCoords.add(`${r},${c}`);
+    });
+
     boardElement.empty();
 
     const grid = this.game.board.grid;
@@ -47,6 +56,15 @@ export class MagicLinesApp extends Application {
           const ballElement = $("<div>")
             .addClass("ball")
             .css("background-color", ball.color);
+
+          const coordKey = `${r},${c}`;
+          if (previousPreviewCoords.has(coordKey)) {
+            ballElement.addClass("animate-ball-grow");
+          } else if (ball.isNew) {
+            ballElement.addClass("animate-ball-enter");
+          }
+          ball.isNew = false;
+
           cell.append(ballElement);
         } else {
           const nextBall = this.game.nextBalls.find(
@@ -56,6 +74,12 @@ export class MagicLinesApp extends Application {
             const ballElement = $("<div>")
               .addClass("preview-ball")
               .css("background-color", nextBall.color);
+
+            if (nextBall.isNew) {
+              ballElement.addClass("animate-preview-enter");
+            }
+            nextBall.isNew = false;
+
             cell.append(ballElement);
           }
         }
