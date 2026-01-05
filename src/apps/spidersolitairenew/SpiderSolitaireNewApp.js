@@ -11,8 +11,8 @@ export class SpiderSolitaireNewApp extends Application {
   static config = {
     id: "spidersolitairenew",
     title: "Spider",
-    width: 1024,
-    height: 768,
+    width: 880,
+    height: 550,
     resizable: true,
     icon: ICONS.spidersolitairenew,
   };
