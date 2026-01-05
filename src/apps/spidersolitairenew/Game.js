@@ -14,6 +14,50 @@ export class Game {
     );
     this.history = [];
     this.initializeGame();
+    this.saveInitialState();
+  }
+
+  _deepCloneCards(cards) {
+    return cards.map((card) => {
+      const newCard = new card.constructor(card.suit, card.rank);
+      newCard.faceUp = card.faceUp;
+      newCard.uid = card.uid;
+      return newCard;
+    });
+  }
+
+  saveInitialState() {
+    this.initialState = {
+      tableauPiles: this.tableauPiles.map((pile) => {
+        const newPile = new pile.constructor();
+        newPile.cards = this._deepCloneCards(pile.cards);
+        return newPile;
+      }),
+      stockPileCards: this._deepCloneCards(this.stockPile.cards),
+    };
+  }
+
+  restartGame() {
+    this.clearHistory();
+    this.score = 500;
+    this.moves = 0;
+    this.completedSetsBySuit = {
+      spades: 0,
+      hearts: 0,
+      diamonds: 0,
+      clubs: 0,
+    };
+    this.foundationPiles = Array.from(
+      { length: 8 },
+      () => new FoundationPile(),
+    );
+
+    this.tableauPiles = this.initialState.tableauPiles.map((pile) => {
+      const newPile = new pile.constructor();
+      newPile.cards = this._deepCloneCards(pile.cards);
+      return newPile;
+    });
+    this.stockPile.cards = this._deepCloneCards(this.initialState.stockPileCards);
   }
 
   clearHistory() {

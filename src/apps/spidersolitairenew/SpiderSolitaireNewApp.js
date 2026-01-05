@@ -132,6 +132,13 @@ export class SpiderSolitaireNewApp extends Application {
     this._updateStatusBar();
   }
 
+  restartCurrentGame() {
+    this.game.restartGame();
+    this.render();
+    this._updateMenuBar(this.win);
+    this._updateStatusBar();
+  }
+
   undoMove() {
     if (this.game.undo()) {
       this.render();
@@ -149,6 +156,10 @@ export class SpiderSolitaireNewApp extends Application {
         {
           label: "New Game",
           action: () => this._showNewGameDialog(),
+        },
+        {
+          label: "Restart this game",
+          action: () => this.restartCurrentGame(),
         },
         {
           label: "Undo",
