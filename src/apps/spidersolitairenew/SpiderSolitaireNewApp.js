@@ -308,6 +308,12 @@ export class SpiderSolitaireNewApp extends Application {
       if (event.ctrlKey && event.key === "z") {
         event.preventDefault();
         this.undoMove();
+      } else if (event.key === "d") {
+        event.preventDefault();
+        this.onStockClick();
+      } else if (event.key === "m") {
+        event.preventDefault();
+        this.showNextAvailableMove();
       }
     });
   }
@@ -563,8 +569,8 @@ export class SpiderSolitaireNewApp extends Application {
         if (targetElement) {
           targetElement.classList.remove("card-highlight");
         }
-      }, 500);
-    }, 500);
+      }, 300);
+    }, 300);
 
     this.availableMovesIndex++;
   }
