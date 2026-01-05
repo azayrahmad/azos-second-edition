@@ -3,6 +3,9 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./magiclines.css";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
+import { getItem, setItem } from "../../utils/localStorage.js";
+
+const MAGIC_LINES_3D_VIEW_KEY = "magic-lines-3d-view";
 
 export class MagicLinesApp extends Application {
   static config = {
@@ -18,6 +21,7 @@ export class MagicLinesApp extends Application {
   };
 
   async _onLaunch() {
+    this.is3dView = getItem(MAGIC_LINES_3D_VIEW_KEY) ?? false;
     this.game = new Game();
     this.selectedBallCoords = null;
     this.renderBoard();
@@ -55,7 +59,12 @@ export class MagicLinesApp extends Application {
         if (ball) {
           const ballElement = $("<div>")
             .addClass("ball")
+            .css("--ball-color", ball.color)
             .css("background-color", ball.color);
+
+          if (this.is3dView) {
+            ballElement.addClass("three-d");
+          }
 
           const coordKey = `${r},${c}`;
           if (previousPreviewCoords.has(coordKey)) {
@@ -81,7 +90,12 @@ export class MagicLinesApp extends Application {
           if (nextBall) {
             const ballElement = $("<div>")
               .addClass("preview-ball")
+              .css("--ball-color", nextBall.color)
               .css("background-color", nextBall.color);
+
+            if (this.is3dView) {
+              ballElement.addClass("three-d");
+            }
 
             if (nextBall.isNew) {
               ballElement.addClass("animate-preview-enter");
@@ -220,6 +234,37 @@ export class MagicLinesApp extends Application {
     this.renderBoard();
   }
 
+  showOptionsDialog() {
+    const content = `
+      <div class="field-row" style="padding-block: 10px;">
+        <input type="checkbox" id="magic-lines-3d-view" ${this.is3dView ? "checked" : ""}>
+        <label for="magic-lines-3d-view">3D View</label>
+      </div>
+    `;
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = content;
+
+    ShowDialogWindow({
+      title: "Options",
+      content: contentElement,
+      buttons: [
+        {
+          label: "OK",
+          action: (win) => {
+            const checkbox = win.$content.find("#magic-lines-3d-view")[0];
+            this.is3dView = checkbox.checked;
+            setItem(MAGIC_LINES_3D_VIEW_KEY, this.is3dView);
+            this.renderBoard();
+          },
+        },
+        {
+          label: "Cancel",
+        },
+      ],
+      modal: true,
+    });
+  }
+
   _createWindow() {
     const win = new $Window({
       title: this.config.title,
@@ -241,6 +286,10 @@ export class MagicLinesApp extends Application {
           label: "Undo",
           action: () => this.undoMove(),
         },
+        {
+          label: "Options",
+          action: () => this.showOptionsDialog(),
+        },
       ],
     });
     win.setMenuBar(menuBar);
@@ -257,6 +306,20 @@ export class MagicLinesApp extends Application {
     win.$content.html(content);
 
     win.$content.on("click", ".cell", this.handleCellClick.bind(this));
+
+    const boardElement = win.$content.find(".game-board");
+
+    boardElement.on("mousemove", (e) => {
+      if (!this.is3dView) return;
+      const boardRect = boardElement[0].getBoundingClientRect();
+      const x = e.clientX - boardRect.left;
+      const y = e.clientY - boardRect.top;
+      const lightX = (x / boardRect.width) * 100;
+      const lightY = (y / boardRect.height) * 100;
+
+      boardElement[0].style.setProperty("--light-x", `${lightX}%`);
+      boardElement[0].style.setProperty("--light-y", `${lightY}%`);
+    });
 
     return win;
   }

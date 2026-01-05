@@ -27,6 +27,8 @@
     grid-template-rows: repeat(9, 40px);
     padding: 10px;
     background-color: #808080;
+    --light-x: 50%;
+    --light-y: 50%;
 }
 
 .magic-lines-app .cell {
@@ -45,6 +47,18 @@
     height: 36px;
     border-radius: 50%;
     border: 1px solid #000;
+}
+
+.magic-lines-app .ball.three-d,
+.magic-lines-app .preview-ball.three-d {
+    background-image: radial-gradient(
+        circle at var(--light-x) var(--light-y),
+        rgba(255, 255, 255, 0.3),
+        rgba(255, 255, 255, 0.2) 30%,
+        var(--ball-color) 50%,
+        rgba(0, 0, 0, 0.5) 100%
+    );
+    border: none;
 }
 
 .magic-lines-app .selected-ball {
