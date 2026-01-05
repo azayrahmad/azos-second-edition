@@ -40,17 +40,29 @@
     align-items: center;
 }
 
-.magic-lines-app .cell.selected {
-    background-color: #a0a0a0;
-    border-color: var(--border-dark) var(--border-light) var(--border-light)
-        var(--border-dark);
-}
-
 .magic-lines-app .ball {
     width: 36px;
     height: 36px;
     border-radius: 50%;
     border: 1px solid #000;
+}
+
+.magic-lines-app .selected-ball {
+    animation: squeeze 1000ms infinite;
+}
+
+@keyframes squeeze {
+    0%,
+    50%,
+    100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(0.7, 1);
+    }
+    75% {
+        transform: scale(1, 0.7);
+    }
 }
 
 @keyframes expand-from-zero {
