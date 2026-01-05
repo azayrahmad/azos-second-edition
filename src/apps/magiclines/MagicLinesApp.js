@@ -90,7 +90,12 @@ export class MagicLinesApp extends Application {
           if (nextBall) {
             const ballElement = $("<div>")
               .addClass("preview-ball")
+              .css("--ball-color", nextBall.color)
               .css("background-color", nextBall.color);
+
+            if (this.is3dView) {
+              ballElement.addClass("three-d");
+            }
 
             if (nextBall.isNew) {
               ballElement.addClass("animate-preview-enter");
