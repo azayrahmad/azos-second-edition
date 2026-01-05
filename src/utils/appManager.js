@@ -37,6 +37,11 @@ export async function launchApp(appId, data = null) {
     applyWaitCursor();
 
     const appConfig = appManager.getAppConfig(appId);
+    if (appConfig.isSingleton && appManager.runningApps[appId]) {
+        appManager.runningApps[appId].win.focus();
+        clearWaitCursor();
+        return;
+    }
     playSound("Open");
     if (!appConfig) {
         console.error(`No application config found for ID: ${appId}`);
