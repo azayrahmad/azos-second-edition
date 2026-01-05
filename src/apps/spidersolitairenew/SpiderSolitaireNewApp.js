@@ -442,7 +442,7 @@ export class SpiderSolitaireNewApp extends Application {
         cardDiv.style.left = `${startRect.left - containerRect.left - 70}px`;
         cardDiv.style.top = `${startRect.top - containerRect.top}px`;
         cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
-        cardDiv.style.zIndex = 100 + index;
+        cardDiv.style.zIndex = 100 - index;
         animationLayer.appendChild(cardDiv);
 
         setTimeout(() => {
@@ -450,9 +450,13 @@ export class SpiderSolitaireNewApp extends Application {
           const targetRect = tableauPileRects[index];
 
           // Calculate final top offset based on CSS margins
+          const pileEl =
+            this.container.querySelectorAll(".tableau-pile")[index];
+          const lastCardEl = pileEl.querySelector(".card:last-child");
+
           let topOffset = 0;
-          for (let i = 0; i < pile.cards.length; i++) {
-            topOffset += pile.cards[i].faceUp ? 20 : 5;
+          if (lastCardEl) {
+            topOffset = lastCardEl.offsetTop;
           }
 
           cardDiv.style.left = `${targetRect.left - containerRect.left + 5}px`;
