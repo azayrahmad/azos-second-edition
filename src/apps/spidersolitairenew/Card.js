@@ -9,13 +9,21 @@ export class Card {
   get element() {
     const cardDiv = document.createElement("div");
     cardDiv.className = "card";
-    cardDiv.dataset.rank = this.rank;
-    cardDiv.dataset.suit = this.suit;
+    cardDiv.setAttribute("data-rank", this.rank);
+    cardDiv.setAttribute("data-suit", this.suit);
     cardDiv.dataset.uid = this.uid;
 
     if (this.faceUp) {
       cardDiv.classList.add("face-up");
-      cardDiv.textContent = `${this.rank}${this.suit}`;
+      const rankMap = {
+        A: "Ace",
+        K: "King",
+        Q: "Queen",
+        J: "Jack",
+      };
+      const rankName = rankMap[this.rank] || this.rank;
+      const suitName = this.suit.charAt(0).toUpperCase() + this.suit.slice(1);
+      cardDiv.setAttribute("aria-label", `${rankName} of ${suitName}s`);
       cardDiv.draggable = true;
     } else {
       cardDiv.classList.add("face-down");

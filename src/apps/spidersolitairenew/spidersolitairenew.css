@@ -27,8 +27,8 @@
 }
 
 .spider-solitaire-container .tableau-pile {
-    width: 72px;
-    min-height: 97px;
+    width: 71px;
+    min-height: 96px;
     padding: 5px;
 }
 
@@ -48,8 +48,8 @@
 }
 
 .spider-solitaire-container .foundation-pile {
-    width: 72px;
-    height: 97px;
+    width: 71px;
+    height: 96px;
     border-radius: 5px;
     box-sizing: border-box;
     font-size: 16px;
@@ -61,8 +61,8 @@
 }
 
 .spider-solitaire-container .stock-card-placeholder {
-    width: 72px;
-    height: 97px;
+    width: 71px;
+    height: 96px;
     border: 1px solid #000;
     border-radius: 5px;
     margin-left: -60px;
@@ -82,8 +82,8 @@
 }
 
 .spider-solitaire-container .card {
-    width: 72px;
-    height: 97px;
+    width: 71px;
+    height: 96px;
     border: 1px solid #000;
     border-radius: 5px;
     margin-bottom: -80px;
@@ -99,7 +99,8 @@
 }
 
 .spider-solitaire-container .card.face-up {
-    color: #000;
+    color: transparent;
+    font-size: 0;
 }
 
 .spider-solitaire-container .card.face-down {
@@ -114,8 +115,8 @@
 }
 
 .spider-solitaire-container .tableau-placeholder {
-    width: 72px;
-    height: 97px;
+    width: 71px;
+    height: 96px;
     border: 1px solid white;
     border-radius: 5px;
     box-sizing: border-box;
