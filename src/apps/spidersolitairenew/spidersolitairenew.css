@@ -27,8 +27,8 @@
 }
 
 .spider-solitaire-container .tableau-pile {
-    width: 70px;
-    min-height: 100px;
+    width: 72px;
+    min-height: 97px;
     padding: 5px;
 }
 
@@ -48,8 +48,8 @@
 }
 
 .spider-solitaire-container .foundation-pile {
-    width: 70px;
-    height: 100px;
+    width: 72px;
+    height: 97px;
     border-radius: 5px;
     box-sizing: border-box;
     font-size: 16px;
@@ -61,8 +61,8 @@
 }
 
 .spider-solitaire-container .stock-card-placeholder {
-    width: 70px;
-    height: 100px;
+    width: 72px;
+    height: 97px;
     border: 1px solid #000;
     border-radius: 5px;
     margin-left: -60px;
@@ -82,8 +82,8 @@
 }
 
 .spider-solitaire-container .card {
-    width: 70px;
-    height: 100px;
+    width: 72px;
+    height: 97px;
     border: 1px solid #000;
     border-radius: 5px;
     margin-bottom: -80px;
@@ -104,7 +104,7 @@
 
 .spider-solitaire-container .card.face-down {
     background-color: #8b0000;
-    margin-bottom: -92px;
+    margin-bottom: -89px;
     background-image: url("/src/apps/spidersolitairenew/assets/CARDBACK.bmp");
 }
 
@@ -114,8 +114,8 @@
 }
 
 .spider-solitaire-container .tableau-placeholder {
-    width: 70px;
-    height: 100px;
+    width: 72px;
+    height: 97px;
     border: 1px solid white;
     border-radius: 5px;
     box-sizing: border-box;
