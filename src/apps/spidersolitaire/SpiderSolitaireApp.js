@@ -127,11 +127,12 @@ export class SpiderSolitaireApp extends Application {
     });
   }
 
-  startNewGame(difficulty = 1) {
+  async startNewGame(difficulty = 1) {
     this.game = new Game(difficulty);
     this.render();
     this._updateMenuBar(this.win);
     this._updateStatusBar();
+    await this.onStockClick();
   }
 
   restartCurrentGame() {

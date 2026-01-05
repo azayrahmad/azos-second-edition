@@ -81,15 +81,12 @@ export class Game {
   }
 
   dealInitialCards() {
-    // 54 cards are dealt to the tableau
-    for (let i = 0; i < 54; i++) {
+    // 44 cards are dealt face down to the tableau
+    for (let i = 0; i < 44; i++) {
       const card = this.deck.cards.pop();
       const pileIndex = i % 10;
       this.tableauPiles[pileIndex].addCard(card);
     }
-
-    // Flip the top card of each tableau pile
-    this.tableauPiles.forEach((pile) => pile.flipTopCard());
   }
 
   dealFromStock() {
