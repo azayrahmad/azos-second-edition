@@ -307,25 +307,17 @@ export class MagicLinesApp extends Application {
       const boardRect = boardElement[0].getBoundingClientRect();
       const x = e.clientX - boardRect.left;
       const y = e.clientY - boardRect.top;
+      const lightX = (x / boardRect.width) * 100;
+      const lightY = (y / boardRect.height) * 100;
 
-      boardElement.find(".ball").each((i, ball) => {
-        const ballRect = ball.getBoundingClientRect();
-        const ballX = x - (ballRect.left - boardRect.left);
-        const ballY = y - (ballRect.top - boardRect.top);
-        const lightX = (ballX / ballRect.width) * 100;
-        const lightY = (ballY / ballRect.height) * 100;
-
-        ball.style.setProperty("--light-x", `${lightX}%`);
-        ball.style.setProperty("--light-y", `${lightY}%`);
-      });
+      boardElement[0].style.setProperty("--light-x", `${lightX}%`);
+      boardElement[0].style.setProperty("--light-y", `${lightY}%`);
     });
 
     boardElement.on("mouseleave", () => {
       if (!this.is3dView) return;
-      boardElement.find(".ball").each((i, ball) => {
-        ball.style.setProperty("--light-x", `50%`);
-        ball.style.setProperty("--light-y", `50%`);
-      });
+      boardElement[0].style.setProperty("--light-x", "50%");
+      boardElement[0].style.setProperty("--light-y", "50%");
     });
 
     return win;
