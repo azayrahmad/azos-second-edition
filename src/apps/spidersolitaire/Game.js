@@ -123,13 +123,6 @@ export class Game {
     });
   }
 
-  addInitialFaceUpCards(cards) {
-    cards.forEach((card, index) => {
-      card.faceUp = true;
-      this.tableauPiles[index].addCard(card);
-    });
-  }
-
   moveCards(fromPileIndex, cardIndex, toPileIndex) {
     const fromPile = this.tableauPiles[fromPileIndex];
     const toPile = this.tableauPiles[toPileIndex];
@@ -335,5 +328,12 @@ export class Game {
     game.history = [];
 
     return game;
+  }
+
+  addDealtCardsToTableau(cards) {
+    cards.forEach((card, index) => {
+      card.faceUp = true;
+      this.tableauPiles[index].addCard(card);
+    });
   }
 }

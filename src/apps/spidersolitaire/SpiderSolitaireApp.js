@@ -132,16 +132,19 @@ export class SpiderSolitaireApp extends Application {
     try {
       this.game = new Game(difficulty);
       const faceUpCards = this.game.initializeGame();
+      this.game.saveInitialState();
 
+      // Render the board with only the face-down cards.
       this.render();
       this._updateMenuBar(this.win);
       this._updateStatusBar();
 
-      await this.animateDealing(faceUpCards);
-      this.game.addInitialFaceUpCards(faceUpCards);
-      this.game.saveInitialState();
-      this.renderTableau();
+      // Now, animate the face-up cards being dealt.
+      await this.animateInitialDeal(faceUpCards);
 
+      // Add the cards back to the game state and re-render the tableau.
+      this.game.addDealtCardsToTableau(faceUpCards);
+      this.renderTableau();
       this._updateMenuBar(this.win);
     } finally {
       this.container.style.pointerEvents = "auto";
@@ -493,6 +496,74 @@ export class SpiderSolitaireApp extends Application {
     });
     this.render();
     this._updateMenuBar(this.win);
+  }
+
+  async animateInitialDeal(cards) {
+    return new Promise((resolve) => {
+      const stockPileEl = this.container.querySelector(".stock-pile");
+      const stockPileRect = stockPileEl.getBoundingClientRect();
+      const containerRect = this.container.getBoundingClientRect();
+
+      const animationLayer = document.createElement("div");
+      animationLayer.className = "animation-layer";
+      this.container.appendChild(animationLayer);
+
+      // Create and stack the cards visually over the stock pile first.
+      const cardElements = cards.map((card, index) => {
+        card.faceUp = true;
+        const cardDiv = card.element;
+        cardDiv.style.position = "absolute";
+        // Stagger them slightly to look like a pile
+        cardDiv.style.left = `${stockPileRect.left - containerRect.left + 5}px`;
+        cardDiv.style.top = `${stockPileRect.top - containerRect.top + 5}px`;
+        cardDiv.style.zIndex = 10 + index; // Ensure they are on top
+        animationLayer.appendChild(cardDiv);
+        return cardDiv;
+      });
+
+      // Allow the browser to render the stacked cards before starting the animation.
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const tableauPileRects = Array.from(
+            this.container.querySelectorAll(".tableau-pile"),
+          ).map((pile) => pile.getBoundingClientRect());
+
+          let animationsCompleted = 0;
+
+          cardElements.forEach((cardDiv, index) => {
+            // Give each card its transition property just before moving it.
+            cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+
+            setTimeout(() => {
+              const targetRect = tableauPileRects[index];
+              const pileEl = this.container.querySelectorAll(".tableau-pile")[index];
+              const lastCardEl = pileEl.querySelector(".card:last-child");
+
+              let topOffset = 0;
+              if (lastCardEl) {
+                topOffset = lastCardEl.offsetTop;
+              }
+
+              cardDiv.style.left = `${targetRect.left - containerRect.left + 5}px`;
+              cardDiv.style.top = `${targetRect.top - containerRect.top + 5 + topOffset}px`;
+              cardDiv.style.zIndex = 100 + index;
+
+              cardDiv.addEventListener(
+                "transitionend",
+                () => {
+                  animationsCompleted++;
+                  if (animationsCompleted === cards.length) {
+                    animationLayer.remove();
+                    resolve();
+                  }
+                },
+                { once: true },
+              );
+            }, index * 100); // Stagger the start of each card's animation
+          });
+        }, 50); // Small delay to ensure the stack is visible
+      });
+    });
   }
 
   _updateStatusBar() {
