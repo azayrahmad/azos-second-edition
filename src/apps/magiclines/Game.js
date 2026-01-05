@@ -21,8 +21,8 @@ export class Game {
     this.turnHistory = [];
     this.nextBalls = [];
     const initialBalls = this._placeRandomBalls(5);
-    this._generateNextBalls();
-    return initialBalls;
+    const nextBalls = this._generateNextBalls();
+    return { initialBalls, nextBalls };
   }
 
   _generateNextBalls() {
@@ -36,6 +36,7 @@ export class Game {
       const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
       this.nextBalls.push({ r: cell.r, c: cell.c, color: randomColor });
     }
+    return this.nextBalls;
   }
 
   _placeRandomBalls(count) {
@@ -75,7 +76,7 @@ export class Game {
 
   moveBall(start, end) {
     if (!this.board.getBall(start.r, start.c) || this.board.getBall(end.r, end.c)) {
-      return { path: null, newBalls: [] }; // Invalid move
+      return { path: null, promotedBalls: [], nextBalls: [] }; // Invalid move
     }
 
     const path = this.board.findPath(start, end);
@@ -87,23 +88,24 @@ export class Game {
 
       this.board.moveBall(start, end);
       const clearedCount = this.board.findAndClearLines(end);
-      let newBalls = [];
+      let promotedBalls = [];
+      let nextBalls = [];
 
       if (clearedCount > 0) {
         this.updateScore(clearedCount);
       } else {
-        newBalls = this.placeNewBalls();
-        for (const ball of newBalls) {
+        promotedBalls = this.placeNewBalls();
+        for (const ball of promotedBalls) {
           const clearedCountAfterNew = this.board.findAndClearLines(ball);
           if (clearedCountAfterNew > 0) {
             this.updateScore(clearedCountAfterNew);
           }
         }
-        this._generateNextBalls();
+        nextBalls = this._generateNextBalls();
       }
-      return { path, newBalls }; // Move successful
+      return { path, promotedBalls, nextBalls }; // Move successful
     }
-    return { path: null, newBalls: [] }; // No path
+    return { path: null, promotedBalls: [], nextBalls: [] }; // No path
   }
 
   updateScore(clearedCount) {

@@ -61,6 +61,10 @@
     animation: scale-up 250ms ease-out forwards;
 }
 
+.magic-lines-app .preview-ball-enter {
+    animation: scale-in 250ms ease-out forwards;
+}
+
 @keyframes scale-in {
     from {
         transform: scale(0);

@@ -20,16 +20,20 @@ export class MagicLinesApp extends Application {
   async _onLaunch() {
     this.game = new Game();
     this.selectedBallCoords = null;
-    const initialBalls = this.game.newGame();
-    this.renderBoard();
-    this.animateBallEntrance(initialBalls);
+    const { initialBalls, nextBalls } = this.game.newGame();
+    this.animateTransitions({
+      newBalls: initialBalls,
+      newPreviews: nextBalls,
+    });
   }
 
   newGame() {
-    const initialBalls = this.game.newGame();
+    const { initialBalls, nextBalls } = this.game.newGame();
     this.selectedBallCoords = null;
-    this.renderBoard();
-    this.animateBallEntrance(initialBalls);
+    this.animateTransitions({
+      newBalls: initialBalls,
+      newPreviews: nextBalls,
+    });
   }
 
   renderBoard() {
@@ -153,41 +157,48 @@ export class MagicLinesApp extends Application {
     boardElement.css("pointer-events", "auto");
   }
 
-  async animateBallEntrance(newBallCoords) {
+  async animateTransitions({ newBalls = [], newPreviews = [], promotedBalls = [] }) {
     const boardElement = this.win.$content.find(".game-board");
     boardElement.css("pointer-events", "none");
 
-    const animations = newBallCoords.map(coord => {
-        return new Promise(resolve => {
-            const cell = boardElement.find(`.cell[data-r='${coord.r}'][data-c='${coord.c}']`);
-            let ballElement = cell.find('.ball, .preview-ball');
-            const isPreview = ballElement.hasClass('preview-ball');
+    const animationPromises = [];
 
-            // If it's a preview, we transform it. If it's a new ball, we create it.
-            if (isPreview) {
-                ballElement.removeClass('preview-ball').addClass('ball ball-promoting');
-            } else if (!ballElement.length) {
-                const ballInfo = this.game.board.getBall(coord.r, coord.c);
-                if (ballInfo) {
-                    ballElement = $("<div>")
-                        .addClass("ball ball-enter")
-                        .css("background-color", ballInfo.color);
-                    cell.append(ballElement);
-                }
-            }
-
-            if (ballElement.length) {
-                setTimeout(() => {
-                    ballElement.removeClass('ball-enter ball-promoting');
-                    resolve();
-                }, 250); // Animation duration
-            } else {
-                resolve(); // No ball to animate
-            }
-        });
+    // Animate new full-sized balls appearing
+    newBalls.forEach(coord => {
+      const cell = boardElement.find(`.cell[data-r='${coord.r}'][data-c='${coord.c}']`);
+      const ballInfo = this.game.board.getBall(coord.r, coord.c);
+      if (ballInfo && !cell.find('.ball').length) {
+        const ballElement = $("<div>")
+          .addClass("ball ball-enter")
+          .css("background-color", ballInfo.color);
+        cell.append(ballElement);
+        animationPromises.push(new Promise(r => setTimeout(r, 250)));
+      }
     });
 
-    await Promise.all(animations);
+    // Animate new preview balls appearing
+    newPreviews.forEach(coord => {
+      const cell = boardElement.find(`.cell[data-r='${coord.r}'][data-c='${coord.c}']`);
+      if (!cell.find('.preview-ball').length) {
+        const ballElement = $("<div>")
+          .addClass("preview-ball preview-ball-enter")
+          .css("background-color", coord.color);
+        cell.append(ballElement);
+        animationPromises.push(new Promise(r => setTimeout(r, 250)));
+      }
+    });
+
+    // Animate preview balls being promoted
+    promotedBalls.forEach(coord => {
+      const cell = boardElement.find(`.cell[data-r='${coord.r}'][data-c='${coord.c}']`);
+      const ballElement = cell.find('.preview-ball');
+      if (ballElement.length) {
+        ballElement.removeClass('preview-ball').addClass('ball ball-promoting');
+        animationPromises.push(new Promise(r => setTimeout(r, 250)));
+      }
+    });
+
+    await Promise.all(animationPromises);
 
     this.renderBoard();
     this.checkGameOver();
@@ -216,9 +227,10 @@ export class MagicLinesApp extends Application {
         if (moveResult.path) {
           this.selectedBallCoords = null;
           this.animateBallMove(moveResult.path, startCoords).then(() => {
-            if (moveResult.newBalls.length > 0) {
-              this.animateBallEntrance(moveResult.newBalls);
-            }
+            this.animateTransitions({
+              promotedBalls: moveResult.promotedBalls,
+              newPreviews: moveResult.nextBalls
+            });
           });
         }
       }
