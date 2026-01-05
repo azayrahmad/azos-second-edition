@@ -65,6 +65,14 @@ export class MagicLinesApp extends Application {
           }
           ball.isNew = false;
 
+          if (
+            this.selectedBallCoords &&
+            this.selectedBallCoords.r === r &&
+            this.selectedBallCoords.c === c
+          ) {
+            ballElement.addClass("selected-ball");
+          }
+
           cell.append(ballElement);
         } else {
           const nextBall = this.game.nextBalls.find(
@@ -82,14 +90,6 @@ export class MagicLinesApp extends Application {
 
             cell.append(ballElement);
           }
-        }
-
-        if (
-          this.selectedBallCoords &&
-          this.selectedBallCoords.r === r &&
-          this.selectedBallCoords.c === c
-        ) {
-          cell.addClass("selected");
         }
 
         boardElement.append(cell);
@@ -112,8 +112,6 @@ export class MagicLinesApp extends Application {
       boardElement.css("pointer-events", "auto");
       return;
     }
-
-    startCell.removeClass("selected");
 
     const startOffset = ballElement.position();
 
