@@ -33,7 +33,7 @@ export class Game {
       const randomIndex = Math.floor(Math.random() * emptyCells.length);
       const cell = emptyCells.splice(randomIndex, 1)[0];
       const randomColor = this.colors[Math.floor(Math.random() * this.colors.length)];
-      this.nextBalls.push({ r: cell.r, c: cell.c, color: randomColor });
+      this.nextBalls.push({ r: cell.r, c: cell.c, color: randomColor, isNew: true });
     }
   }
 

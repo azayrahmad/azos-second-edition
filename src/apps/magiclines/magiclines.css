@@ -53,6 +53,36 @@
     border: 1px solid #000;
 }
 
+@keyframes expand-from-zero {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes expand-from-preview {
+    from {
+        transform: scale(0.28); /* 10px / 36px */
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.animate-ball-enter {
+    animation: expand-from-zero 200ms;
+}
+
+.animate-preview-enter {
+    animation: expand-from-zero 200ms;
+}
+
+.animate-ball-grow {
+    animation: expand-from-preview 200ms;
+}
+
 .magic-lines-app .preview-ball {
     width: 10px;
     height: 10px;
