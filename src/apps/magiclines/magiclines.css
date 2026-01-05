@@ -48,14 +48,16 @@
 }
 
 .magic-lines-app .selected-ball {
-    animation: squeeze 200ms infinite;
+    animation: squeeze 1000ms infinite;
 }
 
 @keyframes squeeze {
-    0%, 100% {
+    0%,
+    50%,
+    100% {
         transform: scale(1);
     }
-    50% {
+    25% {
         transform: scale(0.7, 1);
     }
     75% {

@@ -114,6 +114,7 @@ export class MagicLinesApp extends Application {
     }
 
     const startOffset = ballElement.position();
+    ballElement.removeClass("selected-ball");
 
     ballElement.css({
       position: "absolute",
