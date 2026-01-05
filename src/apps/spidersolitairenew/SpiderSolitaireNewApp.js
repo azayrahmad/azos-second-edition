@@ -156,11 +156,13 @@ export class SpiderSolitaireNewApp extends Application {
         {
           label: "New Game",
           action: () => this._showNewGameDialog(),
+          shortcut: "F2",
         },
         {
           label: "Restart this game",
           action: () => this.restartCurrentGame(),
         },
+        MENU_DIVIDER,
         {
           label: "Undo",
           action: () => this.undoMove(),
@@ -171,12 +173,20 @@ export class SpiderSolitaireNewApp extends Application {
           label: "Deal New Row",
           action: () => this.onStockClick(),
           enabled: () => canDeal,
+          shortcut: "D",
         },
         {
-          label: "Show Available Moves",
+          label: "Show An Available Move",
           action: () => this.showNextAvailableMove(),
+          shortcut: "M",
         },
         "MENU_DIVIDER",
+        {
+          label: "Statistics...",
+        },
+        {
+          label: "Options...",
+        },
         {
           label: "98 Style",
           checkbox: {
@@ -188,6 +198,19 @@ export class SpiderSolitaireNewApp extends Application {
               this.render();
             },
           },
+        },
+        MENU_DIVIDER,
+        {
+          label: "Save This Game",
+          shortcut: "Ctrl+S",
+        },
+        {
+          label: "Open Last Saved Game",
+          shortcut: "Ctrl+O",
+        },
+        MENU_DIVIDER,
+        {
+          label: "Exit",
         },
       ],
     });
@@ -236,9 +259,9 @@ export class SpiderSolitaireNewApp extends Application {
       } else {
         pile.cards.forEach((card, cardIndex) => {
           const cardDiv = card.element;
-        cardDiv.dataset.pileIndex = pileIndex;
-        cardDiv.dataset.cardIndex = cardIndex;
-        pileDiv.appendChild(cardDiv);
+          cardDiv.dataset.pileIndex = pileIndex;
+          cardDiv.dataset.cardIndex = cardIndex;
+          pileDiv.appendChild(cardDiv);
         });
       }
       tableauContainer.appendChild(pileDiv);
@@ -451,13 +474,15 @@ export class SpiderSolitaireNewApp extends Application {
   }
 
   _updateSuitsRemovedStatus() {
-    const suitsRemovedDisplay = this.container.querySelector("#suits-removed-display");
+    const suitsRemovedDisplay = this.container.querySelector(
+      "#suits-removed-display",
+    );
     if (suitsRemovedDisplay && this.game) {
       const suitSymbols = {
-        spades: '♠',
-        hearts: '♥',
-        diamonds: '♦',
-        clubs: '♣',
+        spades: "♠",
+        hearts: "♥",
+        diamonds: "♦",
+        clubs: "♣",
       };
 
       const completedSets = this.game.completedSetsBySuit;
@@ -465,11 +490,11 @@ export class SpiderSolitaireNewApp extends Application {
 
       let suitsToDisplay;
       if (numberOfSuits === 1) {
-        suitsToDisplay = ['spades'];
+        suitsToDisplay = ["spades"];
       } else if (numberOfSuits === 2) {
-        suitsToDisplay = ['spades', 'hearts'];
+        suitsToDisplay = ["spades", "hearts"];
       } else {
-        suitsToDisplay = ['spades', 'hearts', 'diamonds', 'clubs'];
+        suitsToDisplay = ["spades", "hearts", "diamonds", "clubs"];
       }
 
       let html = "Suits removed: ";
@@ -494,7 +519,7 @@ export class SpiderSolitaireNewApp extends Application {
   showNextAvailableMove() {
     const moves = this.game.findAllAvailableMoves();
     if (moves.length === 0) {
-      window.playSound('Warning');
+      window.playSound("Warning");
       return;
     }
 
@@ -508,29 +533,35 @@ export class SpiderSolitaireNewApp extends Application {
     const fromPile = this.game.tableauPiles[fromPileIndex];
     const cardsToHighlight = fromPile.cards.slice(cardIndex);
 
-    const sourceElements = cardsToHighlight.map(card => {
+    const sourceElements = cardsToHighlight
+      .map((card) => {
         return this.container.querySelector(`.card[data-uid='${card.uid}']`);
-    }).filter(el => el);
-    sourceElements.forEach(el => el.classList.add('card-highlight'));
+      })
+      .filter((el) => el);
+    sourceElements.forEach((el) => el.classList.add("card-highlight"));
 
-    const toPileDiv = this.container.querySelector(`.tableau-pile[data-pile-index='${toPileIndex}']`);
+    const toPileDiv = this.container.querySelector(
+      `.tableau-pile[data-pile-index='${toPileIndex}']`,
+    );
     let targetElement;
     if (this.game.tableauPiles[toPileIndex].cards.length === 0) {
-      targetElement = toPileDiv.querySelector('.tableau-placeholder');
+      targetElement = toPileDiv.querySelector(".tableau-placeholder");
     } else {
       const topCard = this.game.tableauPiles[toPileIndex].topCard;
-      targetElement = this.container.querySelector(`.card[data-uid='${topCard.uid}']`);
+      targetElement = this.container.querySelector(
+        `.card[data-uid='${topCard.uid}']`,
+      );
     }
 
     setTimeout(() => {
-      sourceElements.forEach(el => el.classList.remove('card-highlight'));
+      sourceElements.forEach((el) => el.classList.remove("card-highlight"));
       if (targetElement) {
-        targetElement.classList.add('card-highlight');
+        targetElement.classList.add("card-highlight");
       }
 
       setTimeout(() => {
         if (targetElement) {
-          targetElement.classList.remove('card-highlight');
+          targetElement.classList.remove("card-highlight");
         }
       }, 500);
     }, 500);
