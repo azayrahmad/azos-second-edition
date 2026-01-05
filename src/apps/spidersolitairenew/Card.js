@@ -23,4 +23,13 @@ export class Card {
 
     return cardDiv;
   }
+
+  toJSON() {
+    return {
+      suit: this.suit,
+      rank: this.rank,
+      faceUp: this.faceUp,
+      uid: this.uid,
+    };
+  }
 }
