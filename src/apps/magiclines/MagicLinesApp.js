@@ -241,10 +241,12 @@ export class MagicLinesApp extends Application {
         <label for="magic-lines-3d-view">3D View</label>
       </div>
     `;
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = content;
 
     ShowDialogWindow({
       title: "Options",
-      content,
+      content: contentElement,
       buttons: [
         {
           label: "OK",

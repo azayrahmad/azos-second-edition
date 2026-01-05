@@ -53,11 +53,12 @@
 .magic-lines-app .preview-ball.three-d {
     background-image: radial-gradient(
         circle at var(--light-x) var(--light-y),
-        rgba(255, 255, 255, 0.8),
-        rgba(255, 255, 255, 0.2) 40%,
-        var(--ball-color) 80%,
+        rgba(255, 255, 255, 0.3),
+        rgba(255, 255, 255, 0.2) 30%,
+        var(--ball-color) 50%,
         rgba(0, 0, 0, 0.5) 100%
     );
+    border: none;
 }
 
 .magic-lines-app .selected-ball {
