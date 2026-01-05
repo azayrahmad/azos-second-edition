@@ -145,27 +145,27 @@ export class MagicLinesApp extends Application {
       let transform = "scale(1)";
       if (end.r !== start.r) {
         // Vertical move
-        transform = "scale(0.8, 1.2)";
+        transform = "scale(0.7, 1)";
       } else {
         // Horizontal move
-        transform = "scale(1.2, 0.8)";
+        transform = "scale(1, 0.7)";
       }
 
-      await new Promise((r) => setTimeout(r, 10));
+      await new Promise((r) => setTimeout(r, 50));
 
       ballElement.css({
         top: midTop,
         left: midLeft,
         transform: transform,
       });
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 100));
 
       ballElement.css({
         top: endPos.top,
         left: endPos.left,
         transform: "scale(1)",
       });
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 100));
     }
 
     ballElement.remove();
