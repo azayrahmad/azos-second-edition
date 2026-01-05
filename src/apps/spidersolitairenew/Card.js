@@ -7,15 +7,31 @@ export class Card {
   }
 
   get element() {
+    const suitMap = {
+      "♠️": "spade",
+      "♥️": "heart",
+      "♦️": "diamond",
+      "♣️": "club",
+    };
+    const suitName = suitMap[this.suit] || this.suit;
+
     const cardDiv = document.createElement("div");
     cardDiv.className = "card";
-    cardDiv.dataset.rank = this.rank;
-    cardDiv.dataset.suit = this.suit;
+    cardDiv.setAttribute("data-rank", this.rank);
+    cardDiv.setAttribute("data-suit", suitName);
     cardDiv.dataset.uid = this.uid;
 
     if (this.faceUp) {
       cardDiv.classList.add("face-up");
-      cardDiv.textContent = `${this.rank}${this.suit}`;
+      const rankMap = {
+        A: "Ace",
+        K: "King",
+        Q: "Queen",
+        J: "Jack",
+      };
+      const rankName = rankMap[this.rank] || this.rank;
+      const suitLabel = suitName.charAt(0).toUpperCase() + suitName.slice(1);
+      cardDiv.setAttribute("aria-label", `${rankName} of ${suitLabel}s`);
       cardDiv.draggable = true;
     } else {
       cardDiv.classList.add("face-down");

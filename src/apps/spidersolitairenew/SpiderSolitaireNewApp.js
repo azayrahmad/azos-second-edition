@@ -4,6 +4,7 @@ import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getItem, setItem } from "../../utils/localStorage.js";
 import "./spidersolitairenew.css";
+import "../../styles/solitaire.css";
 
 const STYLE_KEY = "spidersolitairenew.use98style";
 const SAVE_KEY = "spidersolitairenew-saved-game";
