@@ -29,7 +29,6 @@ const directory = [
             children: generatePlusFiles(),
           },
           { id: "app-spidersolitaire", type: "app", appId: "spidersolitaire" },
-          { id: "app-spidersolitairenew", type: "app", appId: "spidersolitairenew" },
         ],
       },
       {
@@ -214,22 +213,16 @@ const directory = [
                 name: "Prince of Persia",
               },
               {
-                id: "shortcut-to-spidersolitaire",
-                type: "shortcut",
-                targetId: "app-spidersolitaire",
-                name: "Spider Solitaire",
-              },
-              {
                 id: "shortcut-to-solitaire",
                 type: "shortcut",
                 targetId: "app-solitaire",
                 name: "Solitaire",
               },
               {
-                id: "shortcut-to-spidersolitairenew",
+                id: "shortcut-to-spidersolitaire",
                 type: "shortcut",
-                targetId: "app-spidersolitairenew",
-                name: "Spider Solitaire New",
+                targetId: "app-spidersolitaire",
+                name: "Spider Solitaire",
               },
             ],
           },

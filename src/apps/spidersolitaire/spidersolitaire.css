@@ -5,7 +5,7 @@
     height: 100%;
     background-color: #008000;
     box-sizing: border-box;
-    background-image: url("/src/apps/spidersolitairenew/assets/FELT.bmp");
+    background-image: url("/src/apps/spidersolitaire/assets/FELT.bmp");
 }
 
 .spider-solitaire-container .game-board {
@@ -74,7 +74,7 @@
     cursor: pointer;
     user-select: none;
     background-color: #8b0000;
-    background-image: url("/src/apps/spidersolitairenew/assets/CARDBACK.bmp");
+    background-image: url("/src/apps/spidersolitaire/assets/CARDBACK.bmp");
 }
 
 .spider-solitaire-container .foundation-pile {
@@ -106,7 +106,7 @@
 .spider-solitaire-container .card.face-down {
     background-color: #8b0000;
     margin-bottom: -89px;
-    background-image: url("/src/apps/spidersolitairenew/assets/CARDBACK.bmp");
+    background-image: url("/src/apps/spidersolitaire/assets/CARDBACK.bmp");
 }
 
 /* 98 Style Layout */
@@ -121,7 +121,7 @@
     border-radius: 5px;
     box-sizing: border-box;
     background-color: #008000;
-    background-image: url("/src/apps/spidersolitairenew/assets/FELT.bmp");
+    background-image: url("/src/apps/spidersolitaire/assets/FELT.bmp");
 }
 
 .spider-solitaire-container .card.card-highlight,

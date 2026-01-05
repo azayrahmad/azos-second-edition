@@ -1,5 +1,4 @@
 // src/config/apps.js
-import { SpiderSolitaireApp } from "../apps/spidersolitaire/SpiderSolitaireApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -204,11 +203,3 @@ const systemApps = [
 
 export const apps = [...systemApps, ...staticConfigs];
 
-appClasses.spidersolitaire = SpiderSolitaireApp;
-
-apps.push({
-    id: "spidersolitaire",
-    title: "Spider Solitaire",
-    icon: getIcon("spidersolitaire"),
-    appClass: SpiderSolitaireApp,
-});
