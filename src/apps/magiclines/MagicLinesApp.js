@@ -314,12 +314,6 @@ export class MagicLinesApp extends Application {
       boardElement[0].style.setProperty("--light-y", `${lightY}%`);
     });
 
-    boardElement.on("mouseleave", () => {
-      if (!this.is3dView) return;
-      boardElement[0].style.setProperty("--light-x", "50%");
-      boardElement[0].style.setProperty("--light-y", "50%");
-    });
-
     return win;
   }
 }
