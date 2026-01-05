@@ -45,6 +45,18 @@
     height: 36px;
     border-radius: 50%;
     border: 1px solid #000;
+    --light-x: 50%;
+    --light-y: 50%;
+}
+
+.magic-lines-app .ball.three-d {
+    background-image: radial-gradient(
+        circle at var(--light-x) var(--light-y),
+        #fff,
+        rgba(255, 255, 255, 0.5) 20%,
+        var(--ball-color) 50%,
+        #000 100%
+    );
 }
 
 .magic-lines-app .selected-ball {
