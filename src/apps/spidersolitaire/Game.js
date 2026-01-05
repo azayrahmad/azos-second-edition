@@ -14,8 +14,6 @@ export class Game {
       () => new FoundationPile(),
     );
     this.history = [];
-    this.initializeGame();
-    this.saveInitialState();
   }
 
   _deepCloneCards(cards) {
@@ -75,21 +73,34 @@ export class Game {
       diamonds: 0,
       clubs: 0,
     };
-    this.dealInitialCards();
+    const faceUpCards = this.dealInitialCards();
     // The rest of the deck becomes the stock
     this.stockPile = new StockPile(this.deck.cards);
+    return faceUpCards;
   }
 
   dealInitialCards() {
     // 54 cards are dealt to the tableau
+    const cardsToDeal = this.deck.cards.splice(this.deck.cards.length - 54);
+    const faceUpCards = [];
+
     for (let i = 0; i < 54; i++) {
-      const card = this.deck.cards.pop();
+      const card = cardsToDeal.pop();
       const pileIndex = i % 10;
       this.tableauPiles[pileIndex].addCard(card);
     }
 
     // Flip the top card of each tableau pile
-    this.tableauPiles.forEach((pile) => pile.flipTopCard());
+    this.tableauPiles.forEach((pile) => {
+      const topCard = pile.flipTopCard();
+      if (topCard) {
+        // Temporarily remove the card from the pile.
+        // It will be added back after the animation.
+        pile.cards.pop();
+        faceUpCards.push(topCard);
+      }
+    });
+    return faceUpCards;
   }
 
   dealFromStock() {
@@ -106,6 +117,13 @@ export class Game {
   }
 
   addDealtCardsToTableau(cards) {
+    cards.forEach((card, index) => {
+      card.faceUp = true;
+      this.tableauPiles[index].addCard(card);
+    });
+  }
+
+  addInitialFaceUpCards(cards) {
     cards.forEach((card, index) => {
       card.faceUp = true;
       this.tableauPiles[index].addCard(card);

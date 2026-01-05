@@ -127,11 +127,25 @@ export class SpiderSolitaireApp extends Application {
     });
   }
 
-  startNewGame(difficulty = 1) {
-    this.game = new Game(difficulty);
-    this.render();
-    this._updateMenuBar(this.win);
-    this._updateStatusBar();
+  async startNewGame(difficulty = 1) {
+    this.container.style.pointerEvents = "none";
+    try {
+      this.game = new Game(difficulty);
+      const faceUpCards = this.game.initializeGame();
+
+      this.render();
+      this._updateMenuBar(this.win);
+      this._updateStatusBar();
+
+      await this.animateDealing(faceUpCards);
+      this.game.addInitialFaceUpCards(faceUpCards);
+      this.game.saveInitialState();
+      this.renderTableau();
+
+      this._updateMenuBar(this.win);
+    } finally {
+      this.container.style.pointerEvents = "auto";
+    }
   }
 
   restartCurrentGame() {
