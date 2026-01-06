@@ -61,6 +61,16 @@ export class SpiderSolitaireApp extends Application {
       this.container.classList.add("style-98");
     }
     this.availableMovesIndex = 0;
+
+    this.isDragging = false;
+    this.draggedElement = null;
+    this.draggedCardsInfo = null;
+    this.dragOffsetX = 0;
+    this.dragOffsetY = 0;
+
+    this.boundOnMouseMove = this.onMouseMove.bind(this);
+    this.boundOnMouseUp = this.onMouseUp.bind(this);
+
     this.addEventListeners();
 
     if (options.autoOpenOnStartup) {
@@ -465,9 +475,7 @@ export class SpiderSolitaireApp extends Application {
   }
 
   addEventListeners() {
-    this.container.addEventListener("dragstart", this.onDragStart.bind(this));
-    this.container.addEventListener("dragover", this.onDragOver.bind(this));
-    this.container.addEventListener("drop", this.onDrop.bind(this));
+    this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
     this.container
       .querySelector(".stock-pile")
       .addEventListener("click", this.onStockClick.bind(this));
@@ -494,34 +502,85 @@ export class SpiderSolitaireApp extends Application {
     });
   }
 
-  onDragStart(event) {
-    const cardDiv = event.target;
+  onMouseDown(event) {
+    if (event.button !== 0) return; // Only main button
+    const cardDiv = event.target.closest(".card");
+    if (!cardDiv) return;
+
     const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
     const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
 
     if (this.game.isValidMoveStack(pileIndex, cardIndex)) {
-      event.dataTransfer.setData(
-        "text/plain",
-        JSON.stringify({ pileIndex, cardIndex }),
-      );
-      event.dataTransfer.effectAllowed = "move";
-    } else {
       event.preventDefault();
+
+      this.isDragging = true;
+      this.draggedCardsInfo = { pileIndex, cardIndex };
+
+      const fromPile = this.game.tableauPiles[pileIndex];
+      const cardsToDrag = fromPile.cards.slice(cardIndex);
+
+      const containerRect = this.container.getBoundingClientRect();
+      const cardRect = cardDiv.getBoundingClientRect();
+      this.dragOffsetX = event.clientX - cardRect.left;
+      this.dragOffsetY = event.clientY - cardRect.top;
+
+      this.draggedElement = document.createElement("div");
+      this.draggedElement.className = "dragged-stack";
+      this.draggedElement.style.position = "absolute";
+      this.draggedElement.style.zIndex = "1000";
+
+      cardsToDrag.forEach((card) => {
+        const originalElement = this.container.querySelector(
+          `.card[data-uid='${card.uid}']`,
+        );
+        if (originalElement) {
+          const clone = originalElement.cloneNode(true);
+          this.draggedElement.appendChild(clone);
+          originalElement.classList.add("dragging");
+        }
+      });
+
+      this.container.appendChild(this.draggedElement);
+      this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
+      this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
+
+      window.addEventListener("mousemove", this.boundOnMouseMove);
+      window.addEventListener("mouseup", this.boundOnMouseUp);
     }
   }
 
-  onDragOver(event) {
-    event.preventDefault();
+  onMouseMove(event) {
+    if (!this.isDragging) return;
+    const containerRect = this.container.getBoundingClientRect();
+    this.draggedElement.style.left = `${event.clientX - containerRect.left - this.dragOffsetX}px`;
+    this.draggedElement.style.top = `${event.clientY - containerRect.top - this.dragOffsetY}px`;
   }
 
-  onDrop(event) {
-    event.preventDefault();
-    const data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    const toPileDiv = event.target.closest(".tableau-pile");
+  onMouseUp(event) {
+    if (!this.isDragging) return;
+
+    // Cleanup dragging state
+    this.isDragging = false;
+    window.removeEventListener("mousemove", this.boundOnMouseMove);
+    window.removeEventListener("mouseup", this.boundOnMouseUp);
+
+    // Un-hide the original cards
+    this.container
+      .querySelectorAll(".dragging")
+      .forEach((el) => el.classList.remove("dragging"));
+
+    // Hide the clone to find the underlying element
+    this.draggedElement.style.display = "none";
+    const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+
+    // Remove the clone
+    this.container.removeChild(this.draggedElement);
+    this.draggedElement = null;
+
+    const toPileDiv = dropTarget?.closest(".tableau-pile");
 
     if (toPileDiv) {
-      const fromPileIndex = parseInt(data.pileIndex, 10);
-      const cardIndex = parseInt(data.cardIndex, 10);
+      const { pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
       const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
 
       if (this.game.moveCards(fromPileIndex, cardIndex, toPileIndex)) {
@@ -529,11 +588,14 @@ export class SpiderSolitaireApp extends Application {
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }
+        // Re-render the board to reflect the new state
+        this.render();
+        this._updateMenuBar(this.win);
+        this._updateStatusBar();
       }
-      this.render();
-      this._updateMenuBar(this.win);
-      this._updateStatusBar();
     }
+
+    this.draggedCardsInfo = null;
   }
 
   async onStockClick() {

@@ -129,6 +129,14 @@
     filter: invert(1);
 }
 
+.spider-solitaire-container .card.dragging {
+    visibility: hidden;
+}
+
+.dragged-stack {
+    width: 71px;
+}
+
 #spidersolitaire .menu-bar {
     display: flex;
     background: silver;

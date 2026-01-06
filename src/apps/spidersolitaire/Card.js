@@ -32,7 +32,6 @@ export class Card {
       const rankName = rankMap[this.rank] || this.rank;
       const suitLabel = suitName.charAt(0).toUpperCase() + suitName.slice(1);
       cardDiv.setAttribute("aria-label", `${rankName} of ${suitLabel}s`);
-      cardDiv.draggable = true;
     } else {
       cardDiv.classList.add("face-down");
     }
