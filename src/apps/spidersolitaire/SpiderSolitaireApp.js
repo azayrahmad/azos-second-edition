@@ -456,7 +456,7 @@ export class SpiderSolitaireApp extends Application {
 
           // Create a temporary clone of the card to measure its final position
           const tempCardDiv = card.element.cloneNode(true);
-          tempCardDiv.style.visibility = 'hidden'; // Keep it invisible
+          tempCardDiv.style.visibility = "hidden"; // Keep it invisible
           pileEl.appendChild(tempCardDiv);
 
           // Force reflow and get the exact final offsetTop
@@ -466,7 +466,7 @@ export class SpiderSolitaireApp extends Application {
           pileEl.removeChild(tempCardDiv);
 
           cardDiv.style.left = `${targetRect.left - containerRect.left + 5}px`;
-          cardDiv.style.top = `${targetRect.top - containerRect.top + 5 + finalTopOffset}px`;
+          cardDiv.style.top = `${targetRect.top - containerRect.top - 12 + finalTopOffset}px`;
 
           cardDiv.addEventListener(
             "transitionend",

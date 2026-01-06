@@ -86,7 +86,7 @@
     height: 96px;
     border: 1px solid #000;
     border-radius: 5px;
-    margin-bottom: -80px;
+    margin-bottom: -70px;
     box-sizing: border-box;
     font-size: 16px;
     text-align: left;
@@ -105,7 +105,7 @@
 
 .spider-solitaire-container .card.face-down {
     background-color: #8b0000;
-    margin-bottom: -89px;
+    margin-bottom: -85px;
     background-image: url("/src/apps/spidersolitaire/assets/CARDBACK.bmp");
 }
 
