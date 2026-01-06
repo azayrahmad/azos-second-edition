@@ -451,18 +451,22 @@ export class SpiderSolitaireApp extends Application {
           const pile = this.game.tableauPiles[index];
           const targetRect = tableauPileRects[index];
 
-          // Calculate final top offset based on CSS margins
           const pileEl =
             this.container.querySelectorAll(".tableau-pile")[index];
-          const lastCardEl = pileEl.querySelector(".card:last-child");
 
-          let topOffset = 0;
-          if (lastCardEl) {
-            topOffset = lastCardEl.offsetTop;
-          }
+          // Create a temporary clone of the card to measure its final position
+          const tempCardDiv = card.element.cloneNode(true);
+          tempCardDiv.style.visibility = 'hidden'; // Keep it invisible
+          pileEl.appendChild(tempCardDiv);
+
+          // Force reflow and get the exact final offsetTop
+          const finalTopOffset = tempCardDiv.offsetTop;
+
+          // Clean up by removing the temporary card
+          pileEl.removeChild(tempCardDiv);
 
           cardDiv.style.left = `${targetRect.left - containerRect.left + 5}px`;
-          cardDiv.style.top = `${targetRect.top - containerRect.top + 5 + topOffset}px`;
+          cardDiv.style.top = `${targetRect.top - containerRect.top + 5 + finalTopOffset}px`;
 
           cardDiv.addEventListener(
             "transitionend",
