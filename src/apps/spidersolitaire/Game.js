@@ -176,8 +176,17 @@ export class Game {
         (p) => p.cards.length === 0,
       );
       if (emptyFoundation) {
-        const suit = completedSet[0].suit;
-        this.completedSetsBySuit[suit]++;
+        const suitSymbol = completedSet[0].suit;
+        const suitName = {
+          "♠️": "spades",
+          "♥️": "hearts",
+          "♦️": "diamonds",
+          "♣️": "clubs",
+        }[suitSymbol];
+
+        if (suitName) {
+          this.completedSetsBySuit[suitName]++;
+        }
         emptyFoundation.addSet(completedSet);
 
         const lastMove = this.history[this.history.length - 1];

@@ -675,10 +675,10 @@ export class SpiderSolitaireApp extends Application {
     );
     if (suitsRemovedDisplay && this.game) {
       const suitSymbols = {
-        spades: "♠",
-        hearts: "♥",
-        diamonds: "♦",
-        clubs: "♣",
+        spades: "♠️",
+        hearts: "♥️",
+        diamonds: "♦️",
+        clubs: "♣️",
       };
 
       const completedSets = this.game.completedSetsBySuit;
