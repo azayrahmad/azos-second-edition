@@ -149,6 +149,7 @@ export class SpiderSolitaireApp extends Application {
       ],
       width: 250,
       height: 320,
+      parentWindow: this.win,
     });
   }
 
@@ -214,13 +215,8 @@ export class SpiderSolitaireApp extends Application {
       ],
       width: 350,
       height: 250,
+      parentWindow: this.win,
     });
-
-    // Disable the question mark button as it's just for decoration
-    const helpButton = dialog.win.element.querySelector(".window-help-button");
-    if (helpButton) {
-      helpButton.style.display = "none";
-    }
   }
 
   _showNewGameDialog() {
@@ -238,6 +234,7 @@ export class SpiderSolitaireApp extends Application {
             action: () => {},
           },
         ],
+        parentWindow: this.win,
       });
     } else {
       this._showDifficultyDialog();
@@ -283,6 +280,7 @@ export class SpiderSolitaireApp extends Application {
           action: () => {},
         },
       ],
+      parentWindow: this.win,
     });
   }
 
@@ -565,6 +563,7 @@ export class SpiderSolitaireApp extends Application {
         title: "Invalid Move",
         text: "You cannot deal from the stock while a tableau pile is empty.",
         buttons: [{ label: "OK" }],
+        parentWindow: this.win,
       });
     }
   }
@@ -707,9 +706,16 @@ export class SpiderSolitaireApp extends Application {
     const { ShowDialogWindow } =
       await import("../../components/DialogWindow.js");
     ShowDialogWindow({
-      title: "Congratulations!",
-      text: "You Win!",
-      buttons: [{ label: "OK" }],
+      title: "Game Over",
+      text: "Congratulations, you won!\nDo you want to start another game?",
+      buttons: [
+        {
+          label: "Yes",
+          action: () => this.startNewGame(),
+        },
+        { label: "No" },
+      ],
+      parentWindow: this.win,
     });
     this._updateMenuBar(this.win);
   }
@@ -780,6 +786,7 @@ export class SpiderSolitaireApp extends Application {
           },
           { label: "No" },
         ],
+        parentWindow: this.win,
       });
     } else {
       this._performSave();
@@ -798,6 +805,7 @@ export class SpiderSolitaireApp extends Application {
           title: "Error",
           text: "Unable to save game.",
           buttons: [{ label: "OK" }],
+          parentWindow: this.win,
         });
       }
     }
@@ -815,6 +823,7 @@ export class SpiderSolitaireApp extends Application {
           },
           { label: "No" },
         ],
+        parentWindow: this.win,
       });
     } else {
       this._performOpen();
@@ -827,11 +836,12 @@ export class SpiderSolitaireApp extends Application {
       const savedGame = getItem(SAVE_KEY);
       if (!savedGame) {
         if (!isSilent) {
-          window.playSound("Warning");
           ShowDialogWindow({
             title: "Error",
             text: "Unable to load game. No saved game found.",
             buttons: [{ label: "OK" }],
+            parentWindow: this.win,
+            soundEvent: "Warning",
           });
         }
         return;
@@ -842,11 +852,12 @@ export class SpiderSolitaireApp extends Application {
     } catch (error) {
       console.error("Failed to load game:", error);
       if (!isSilent) {
-        window.playSound("Warning");
         ShowDialogWindow({
           title: "Error",
           text: "Unable to load game.",
           buttons: [{ label: "OK" }],
+          parentWindow: this.win,
+          soundEvent: "Warning",
         });
       }
     }

@@ -130,26 +130,27 @@
 }
 
 #spidersolitaire .menu-bar {
-  display: flex;
-  background: silver;
-  border-bottom: 1px solid white;
+    display: flex;
+    background: silver;
+    border-bottom: 1px solid white;
 }
 
 #spidersolitaire .menu-button {
-  padding: 2px 6px;
-  position: relative;
+    padding: 2px 6px;
+    position: relative;
 }
 
 .spider-statistics-content {
-  padding: 10px;
+    padding: 10px;
+    width: 100%;
 }
 
 .spider-statistics-content .stat-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
 }
 
 .spider-statistics-content fieldset {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
