@@ -2,6 +2,10 @@ import { Application } from "../Application.js";
 import { cursors } from "../../config/cursors.js";
 import { convertAniBinaryToCSS } from "ani-cursor";
 import { ICONS } from "../../config/icons.js";
+import {
+  getCursorSchemeId,
+  setCursorScheme,
+} from "../../utils/themeManager.js";
 
 export class CursorExplorerApp extends Application {
   static config = {
@@ -14,6 +18,11 @@ export class CursorExplorerApp extends Application {
     resizable: true,
     isSingleton: true,
   };
+
+  constructor(options) {
+    super(options);
+    this.initialSchemeId = getCursorSchemeId();
+  }
 
   _createWindow() {
     const win = new window.$Window({
@@ -28,6 +37,12 @@ export class CursorExplorerApp extends Application {
     win.$content[0].style.flexDirection = "column";
 
     this._createUI(win.$content[0]);
+
+    win.on("close", () => {
+      setCursorScheme(this.initialSchemeId);
+    });
+
+    this.win = win;
     return win;
   }
 
@@ -50,6 +65,8 @@ export class CursorExplorerApp extends Application {
       select.appendChild(option);
     });
 
+    select.value = this.initialSchemeId;
+
     selectorContainer.appendChild(select);
     container.appendChild(selectorContainer);
 
@@ -60,11 +77,46 @@ export class CursorExplorerApp extends Application {
     container.appendChild(listContainer);
 
     select.addEventListener("change", (event) => {
-      this._populateCursorList(listContainer, event.target.value);
+      const newScheme = event.target.value;
+      setCursorScheme(newScheme);
+      this._populateCursorList(listContainer, newScheme);
     });
 
     // Initial population
     this._populateCursorList(listContainer, select.value);
+
+    // Add buttons
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "flex-end";
+    buttonContainer.style.padding = "10px";
+    buttonContainer.style.borderTop = "1px solid var(--border-color)";
+
+    const okButton = document.createElement("button");
+    okButton.textContent = "OK";
+    okButton.style.marginRight = "5px";
+    okButton.addEventListener("click", () => {
+      this.initialSchemeId = select.value;
+      this.win.close();
+    });
+
+    const applyButton = document.createElement("button");
+    applyButton.textContent = "Apply";
+    applyButton.style.marginRight = "5px";
+    applyButton.addEventListener("click", () => {
+      this.initialSchemeId = select.value;
+    });
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", () => {
+      this.win.close();
+    });
+
+    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(applyButton);
+    buttonContainer.appendChild(cancelButton);
+    container.appendChild(buttonContainer);
   }
 
   _populateCursorList(container, scheme) {

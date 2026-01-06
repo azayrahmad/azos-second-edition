@@ -1,8 +1,9 @@
 import { Application } from "../Application.js";
 import { soundSchemes } from "../../config/sound-schemes.js";
-import { themes } from "../../config/themes.js";
-import { getCurrentTheme } from "../../utils/themeManager.js";
-import { playSound } from "../../utils/soundManager.js";
+import {
+  getSoundSchemeName,
+  setSoundScheme,
+} from "../../utils/themeManager.js";
 import { ICONS } from "../../config/icons.js";
 
 export class SoundSchemeExplorerApp extends Application {
@@ -19,7 +20,7 @@ export class SoundSchemeExplorerApp extends Application {
 
   constructor(options) {
     super(options);
-    this.currentSchemeName = "";
+    this.initialSchemeName = getSoundSchemeName();
   }
 
   _createWindow() {
@@ -33,6 +34,11 @@ export class SoundSchemeExplorerApp extends Application {
 
     this._onOpen(win);
 
+    win.on("close", () => {
+      setSoundScheme(this.initialSchemeName);
+    });
+
+    this.win = win;
     return win;
   }
 
@@ -43,21 +49,62 @@ export class SoundSchemeExplorerApp extends Application {
           <label for="sound-scheme-select">Sound Scheme:</label>
           <select id="sound-scheme-select"></select>
         </div>
-        <div class="sound-list"></div>
+        <div class="sound-list" style="flex: 1; overflow-y: auto;"></div>
       </div>
     `;
     win.$content.append(content);
     win.$content.addClass("sound-scheme-explorer-content");
+    win.$content.find(".sound-scheme-explorer").css({
+      display: "flex",
+      flexDirection: "column",
+      height: "100%",
+    });
 
     this.select = win.$content.find("#sound-scheme-select")[0];
     this.soundList = win.$content.find(".sound-list")[0];
 
     this._populateSchemes();
-    this._setDefaultScheme();
+    this.select.value = this.initialSchemeName;
+    this._updateSoundList(this.initialSchemeName);
 
-    this.select.addEventListener("change", () =>
-      this._updateSoundList(this.select.value),
-    );
+    this.select.addEventListener("change", () => {
+      const newScheme = this.select.value;
+      setSoundScheme(newScheme);
+      this._updateSoundList(newScheme);
+    });
+
+    // Add buttons
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "flex-end";
+    buttonContainer.style.padding = "10px";
+    buttonContainer.style.borderTop = "1px solid var(--border-color)";
+
+    const okButton = document.createElement("button");
+    okButton.textContent = "OK";
+    okButton.style.marginRight = "5px";
+    okButton.addEventListener("click", () => {
+      this.initialSchemeName = this.select.value;
+      this.win.close();
+    });
+
+    const applyButton = document.createElement("button");
+    applyButton.textContent = "Apply";
+    applyButton.style.marginRight = "5px";
+    applyButton.addEventListener("click", () => {
+      this.initialSchemeName = this.select.value;
+    });
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+    cancelButton.addEventListener("click", () => {
+      this.win.close();
+    });
+
+    buttonContainer.appendChild(okButton);
+    buttonContainer.appendChild(applyButton);
+    buttonContainer.appendChild(cancelButton);
+    win.$content.find(".sound-scheme-explorer").append(buttonContainer);
   }
 
   _populateSchemes() {
@@ -68,14 +115,6 @@ export class SoundSchemeExplorerApp extends Application {
       option.textContent = name;
       this.select.appendChild(option);
     });
-  }
-
-  _setDefaultScheme() {
-    const currentThemeKey = getCurrentTheme();
-    const currentTheme = themes[currentThemeKey];
-    this.currentSchemeName = currentTheme?.soundScheme || "Default";
-    this.select.value = this.currentSchemeName;
-    this._updateSoundList(this.currentSchemeName);
   }
 
   _updateSoundList(schemeName) {
