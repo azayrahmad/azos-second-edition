@@ -519,6 +519,7 @@ export class SpiderSolitaireApp extends Application {
       const fromPile = this.game.tableauPiles[pileIndex];
       const cardsToDrag = fromPile.cards.slice(cardIndex);
 
+      const containerRect = this.container.getBoundingClientRect();
       const cardRect = cardDiv.getBoundingClientRect();
       this.dragOffsetX = event.clientX - cardRect.left;
       this.dragOffsetY = event.clientY - cardRect.top;
@@ -535,21 +536,13 @@ export class SpiderSolitaireApp extends Application {
         if (originalElement) {
           const clone = originalElement.cloneNode(true);
           this.draggedElement.appendChild(clone);
+          originalElement.classList.add("dragging");
         }
       });
 
       this.container.appendChild(this.draggedElement);
-      this.draggedElement.style.left = `${event.clientX - this.dragOffsetX}px`;
-      this.draggedElement.style.top = `${event.clientY - this.dragOffsetY}px`;
-
-      cardsToDrag.forEach((card) => {
-        const originalElement = this.container.querySelector(
-          `.card[data-uid='${card.uid}']`,
-        );
-        if (originalElement) {
-          originalElement.classList.add("dragging");
-        }
-      });
+      this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
+      this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
 
       window.addEventListener("mousemove", this.boundOnMouseMove);
       window.addEventListener("mouseup", this.boundOnMouseUp);
@@ -558,8 +551,9 @@ export class SpiderSolitaireApp extends Application {
 
   onMouseMove(event) {
     if (!this.isDragging) return;
-    this.draggedElement.style.left = `${event.clientX - this.dragOffsetX}px`;
-    this.draggedElement.style.top = `${event.clientY - this.dragOffsetY}px`;
+    const containerRect = this.container.getBoundingClientRect();
+    this.draggedElement.style.left = `${event.clientX - containerRect.left - this.dragOffsetX}px`;
+    this.draggedElement.style.top = `${event.clientY - containerRect.top - this.dragOffsetY}px`;
   }
 
   onMouseUp(event) {
