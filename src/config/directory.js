@@ -110,11 +110,17 @@ const directory = [
                 targetId: "app-paint",
                 name: "Paint",
               },
+              // {
+              //   id: "file-resume",
+              //   type: "file",
+              //   name: "Resume.pdf",
+              //   contentUrl: "public/files/Resume.pdf",
+              // },
               {
-                id: "file-resume",
+                id: "file-resume-txt",
                 type: "file",
-                name: "Resume.pdf",
-                contentUrl: "public/files/Resume.pdf",
+                name: "AzizRahmad_Resume_2026.txt",
+                contentUrl: "public/files/AzizRahmad_Resume_2026.txt",
               },
               {
                 id: "file-readme",
