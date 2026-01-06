@@ -57,11 +57,72 @@ export class SpiderSolitaireApp extends Application {
     if (this.use98Style) {
       this.container.classList.add("style-98");
     }
+
+    this.gameBoard = this.win.element.querySelector(".game-board");
+    this.gameBoard.style.minHeight = "300px";
+    this.layoutStyleElement = document.createElement("style");
+    this.win.element.appendChild(this.layoutStyleElement);
+
     this.availableMovesIndex = 0;
     this.addEventListeners();
     this.startNewGame(4); // Default to hard
 
     return win;
+  }
+
+  _updateLayout() {
+    if (!this.game || !this.gameBoard) {
+      return;
+    }
+
+    const tableauPiles = this.container.querySelector('.tableau-piles');
+    if (!tableauPiles) return;
+
+    const availableHeight = this.gameBoard.clientHeight;
+    const cardHeight = 96;
+    const minVisibleHeight = 2;
+    const faceDownVisibleHeight = 11; // From -85px margin
+
+    let longestPile = this.game.tableauPiles.reduce((prev, current) => (prev.cards.length > current.cards.length) ? prev : current, { cards: [] });
+
+    if (longestPile.cards.length <= 1) {
+      this.layoutStyleElement.innerHTML = '';
+      return;
+    }
+
+    const numFaceDown = longestPile.cards.filter(c => !c.faceUp).length;
+    const numFaceUp = longestPile.cards.length - numFaceDown;
+
+    if (numFaceUp <= 1) {
+        // Not enough face-up cards to adjust, or only face down cards
+        this.layoutStyleElement.innerHTML = '';
+        return;
+    }
+
+    const faceDownHeight = numFaceDown * faceDownVisibleHeight;
+
+    // Calculate the height available for the overlapping parts of the face-up cards
+    const spaceForFaceUp = availableHeight - faceDownHeight - cardHeight;
+
+    let newFaceUpVisibleHeight = spaceForFaceUp / (numFaceUp - 1);
+
+    const defaultFaceUpVisibleHeight = 26; // From -70px margin
+    if (newFaceUpVisibleHeight >= defaultFaceUpVisibleHeight) {
+        // Enough space, use default styles
+        this.layoutStyleElement.innerHTML = '';
+        return;
+    }
+
+    newFaceUpVisibleHeight = Math.max(minVisibleHeight, newFaceUpVisibleHeight);
+
+    const newMarginBottom = -(cardHeight - newFaceUpVisibleHeight);
+
+    const css = `
+      .spider-solitaire-container .card.face-up {
+        margin-bottom: ${newMarginBottom}px;
+      }
+    `;
+    this.layoutStyleElement.innerHTML = css;
   }
 
   _showNewGameDialog() {
@@ -247,6 +308,7 @@ export class SpiderSolitaireApp extends Application {
     this.renderStock();
     this.renderFoundations();
     this._updateStatusBar();
+    this._updateLayout();
   }
 
   renderTableau() {
@@ -303,6 +365,9 @@ export class SpiderSolitaireApp extends Application {
   }
 
   addEventListeners() {
+    this.resizeObserver = new ResizeObserver(() => this._updateLayout());
+    this.resizeObserver.observe(this.gameBoard);
+
     this.container.addEventListener("dragstart", this.onDragStart.bind(this));
     this.container.addEventListener("dragover", this.onDragOver.bind(this));
     this.container.addEventListener("drop", this.onDrop.bind(this));
@@ -665,6 +730,12 @@ export class SpiderSolitaireApp extends Application {
         text: "Unable to load game.",
         buttons: [{ label: "OK" }],
       });
+    }
+  }
+
+  _onClose() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
     }
   }
 }
