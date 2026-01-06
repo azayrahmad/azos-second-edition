@@ -1002,6 +1002,13 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       return;
     }
 
+    // Check if the file item itself has a custom action
+    const item = findItemByPath(filePath);
+    if (item && typeof item.action === "function") {
+      item.action();
+      return; // Custom action takes precedence
+    }
+
     // If filePath is an object, it's a dropped file. Otherwise, it's a path string.
     const launchData =
       typeof filePath === "object" && filePath !== null ? filePath : filePath;
