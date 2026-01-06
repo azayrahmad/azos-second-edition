@@ -7,9 +7,20 @@
 
         <!-- OS-GUI Styles -->
         <link href="../../os-gui/layout.css" rel="stylesheet" type="text/css" />
-        <link href="../../os-gui/windows-98.css" rel="stylesheet" type="text/css" />
-        <link href="../../os-gui/dialog-window.css" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+        <link
+            href="../../os-gui/windows-98.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="../../os-gui/dialog-window.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css"
+        />
 
         <!-- Minesweeper-specific Styles -->
         <link rel="stylesheet" href="minesweeper.css" />
@@ -40,7 +51,6 @@
         <script src="../../os-gui/$Window.js"></script>
         <script src="../../os-gui/MenuBar.js"></script>
         <script src="../../os-gui/MenuPopup.js"></script>
-        <script src="soundManager.js"></script>
         <script src="DialogWindow.js"></script>
 
         <!-- Minesweeper App Scripts -->
@@ -49,14 +59,14 @@
         <script src="MinesweeperApp.js"></script>
 
         <script>
-            $(document).ready(function() {
+            $(document).ready(function () {
                 // Initialize the Minesweeper application
                 const minesweeperApp = new MinesweeperApp();
                 const win = minesweeperApp._createWindow();
 
                 // Center the window
-                const desktopWidth = $('#screen').width();
-                const desktopHeight = $('#screen').height();
+                const desktopWidth = $("#screen").width();
+                const desktopHeight = $("#screen").height();
                 const winWidth = win.width();
                 const winHeight = win.height();
 
