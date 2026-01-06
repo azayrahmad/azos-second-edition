@@ -196,6 +196,17 @@ export async function setColorScheme(schemeId) {
   }
 }
 
+export async function setCursorScheme(schemeId) {
+  setItem(LOCAL_STORAGE_KEYS.CURSOR_SCHEME, schemeId);
+  await applyTheme();
+  document.dispatchEvent(new CustomEvent("theme-changed"));
+}
+
+export function setSoundScheme(schemeName) {
+  setItem(LOCAL_STORAGE_KEYS.SOUND_SCHEME, schemeName);
+  document.dispatchEvent(new CustomEvent("theme-changed"));
+}
+
 export async function applyCustomColorScheme(colorObject) {
   if (!colorObject) {
     console.error("applyCustomColorScheme received an invalid color object.");
