@@ -128,3 +128,28 @@
 .spider-solitaire-container .tableau-placeholder.card-highlight {
     filter: invert(1);
 }
+
+#spidersolitaire .menu-bar {
+  display: flex;
+  background: silver;
+  border-bottom: 1px solid white;
+}
+
+#spidersolitaire .menu-button {
+  padding: 2px 6px;
+  position: relative;
+}
+
+.spider-statistics-content {
+  padding: 10px;
+}
+
+.spider-statistics-content .stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.spider-statistics-content fieldset {
+  margin-bottom: 10px;
+}

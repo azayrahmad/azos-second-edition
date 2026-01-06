@@ -3,6 +3,7 @@ import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getItem, setItem } from "../../utils/localStorage.js";
+import { Statistics } from "./Statistics.js";
 import "./spidersolitaire.css";
 import "../../styles/solitaire.css";
 
@@ -20,6 +21,7 @@ export class SpiderSolitaireApp extends Application {
   };
 
   async _createWindow() {
+    this.statistics = new Statistics();
     this.use98Style = getItem(STYLE_KEY);
     if (this.use98Style === null) {
       this.use98Style = true;
@@ -61,7 +63,91 @@ export class SpiderSolitaireApp extends Application {
     this.addEventListeners();
     this.startNewGame(4); // Default to hard
 
+    win.on("close", () => {
+      this._handlePotentialLoss();
+    });
+
     return win;
+  }
+
+  _showStatisticsDialog() {
+    const stats = this.statistics.getStats();
+    const content = document.createElement("div");
+    content.className = "spider-statistics-content";
+
+    let currentStreakText = "None";
+    if (stats.currentStreak.type === "wins") {
+      currentStreakText = `${stats.currentStreak.count} Wins`;
+    } else if (stats.currentStreak.type === "losses") {
+      currentStreakText = `${stats.currentStreak.count} Losses`;
+    }
+
+    content.innerHTML = `
+      <div class="stat-row">
+        <span>High Score:</span>
+        <span>${stats.highScore}</span>
+      </div>
+      <fieldset>
+        <legend>Percentage</legend>
+        <div class="stat-row">
+          <span>Wins:</span>
+          <span>${stats.wins}</span>
+        </div>
+        <div class="stat-row">
+          <span>Losses:</span>
+          <span>${stats.losses}</span>
+        </div>
+        <div class="stat-row">
+          <span>Win Rate:</span>
+          <span>${stats.winRate}%</span>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Streaks</legend>
+        <div class="stat-row">
+          <span>Most Wins:</span>
+          <span>${stats.mostWins}</span>
+        </div>
+        <div class="stat-row">
+          <span>Most Losses:</span>
+          <span>${stats.mostLosses}</span>
+        </div>
+        <div class="stat-row">
+          <span>Current:</span>
+          <span>${currentStreakText}</span>
+        </div>
+      </fieldset>
+    `;
+
+    const dialog = ShowDialogWindow({
+      title: "Spider Statistics",
+      content: content,
+      buttons: [
+        {
+          label: "OK",
+          action: () => dialog.close(),
+        },
+        {
+          label: "Reset",
+          action: () => {
+            this.statistics.resetStats();
+            dialog.close();
+            this._showStatisticsDialog();
+          },
+        },
+      ],
+      width: 250,
+      height: 320,
+    });
+  }
+
+  _handlePotentialLoss() {
+    if (this.game && this.game.moves > 0) {
+      this.statistics.recordLoss();
+      // We set moves to 0 after recording the loss to prevent it from being counted again
+      // if the user performs another action that triggers a loss check for the same abandoned game.
+      this.game.moves = 0;
+    }
   }
 
   _showNewGameDialog() {
@@ -128,6 +214,7 @@ export class SpiderSolitaireApp extends Application {
   }
 
   async startNewGame(difficulty = 1) {
+    this._handlePotentialLoss();
     this.game = new Game(difficulty);
     this.render();
     this._updateMenuBar(this.win);
@@ -136,6 +223,7 @@ export class SpiderSolitaireApp extends Application {
   }
 
   restartCurrentGame() {
+    this._handlePotentialLoss();
     this.game.restartGame();
     this.render();
     this._updateMenuBar(this.win);
@@ -186,6 +274,7 @@ export class SpiderSolitaireApp extends Application {
         "MENU_DIVIDER",
         {
           label: "Statistics...",
+          action: () => this._showStatisticsDialog(),
         },
         {
           label: "Options...",
@@ -495,6 +584,9 @@ export class SpiderSolitaireApp extends Application {
     if (movesDisplay) {
       movesDisplay.textContent = `Moves: ${this.game.moves}`;
     }
+    if (this.game) {
+      this.statistics.updateHighScore(this.game.score);
+    }
     this._updateSuitsRemovedStatus();
   }
 
@@ -531,6 +623,7 @@ export class SpiderSolitaireApp extends Application {
   }
 
   async showWinDialog() {
+    this.statistics.recordWin();
     const { ShowDialogWindow } =
       await import("../../components/DialogWindow.js");
     ShowDialogWindow({
@@ -643,6 +736,7 @@ export class SpiderSolitaireApp extends Application {
   }
 
   _performOpen() {
+    this._handlePotentialLoss();
     try {
       const savedGame = getItem(SAVE_KEY);
       if (!savedGame) {
