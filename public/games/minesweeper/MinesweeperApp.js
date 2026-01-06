@@ -17,12 +17,6 @@ function setItem(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
 }
 
-// A dummy ShowDialogWindow to avoid errors if called
-function ShowDialogWindow(options) {
-    alert(options.title + "\n\n" + (options.text || "This feature is not available in the standalone version."));
-}
-
-
 class MinesweeperApp {
   // Config properties moved to constructor
   constructor() {
@@ -182,23 +176,106 @@ class MinesweeperApp {
   }
 
   showCustomDialog() {
-    // This relied on a complex, app-specific dialog.
-    alert("Custom difficulty is not available in this version.");
+    const dialogContent = `
+      <div class="field-row-stacked">
+        <label for="ms-width">Width:</label>
+        <input type="number" id="ms-width" value="${this.game.width}" />
+      </div>
+      <div class="field-row-stacked">
+        <label for="ms-height">Height:</label>
+        <input type="number" id="ms-height" value="${this.game.height}" />
+      </div>
+      <div class="field-row-stacked">
+        <label for="ms-mines">Mines:</label>
+        <input type="number" id="ms-mines" value="${this.game.mines}" />
+      </div>
+    `;
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = dialogContent;
+
+    ShowDialogWindow({
+      title: "Custom Field",
+      content: contentElement,
+      buttons: [
+        {
+          label: "OK",
+          action: (win) => {
+            const width = parseInt(document.getElementById("ms-width").value);
+            const height = parseInt(document.getElementById("ms-height").value);
+            const mines = parseInt(document.getElementById("ms-mines").value);
+            this.setDifficulty(width, height, mines, "custom");
+          },
+          isDefault: true,
+        },
+        {
+          label: "Cancel",
+          action: (win) => {
+            win.close();
+          },
+        },
+      ],
+    });
   }
 
   showHighScores() {
-    // This relied on a complex, app-specific dialog.
-    const scores = this.highScores;
-    alert(
-      `Fastest Mine Sweepers:\n\n` +
-      `Beginner: ${scores.beginner.time} seconds by ${scores.beginner.name}\n` +
-      `Intermediate: ${scores.intermediate.time} seconds by ${scores.intermediate.name}\n` +
-      `Expert: ${scores.expert.time} seconds by ${scores.expert.name}\n`
-    );
+    const createScoresContent = (scores) => `
+      <fieldset>
+        <legend>Fastest Mine Sweepers</legend>
+        <table style="width: 300px; border-spacing: 5px; background: transparent;">
+          <tbody>
+            <tr>
+              <td>Beginner:</td>
+              <td>${scores.beginner.time} seconds</td>
+              <td>${scores.beginner.name}</td>
+            </tr>
+            <tr>
+              <td>Intermediate:</td>
+              <td>${scores.intermediate.time} seconds</td>
+              <td>${scores.intermediate.name}</td>
+            </tr>
+            <tr>
+              <td>Expert:</td>
+              <td>${scores.expert.time} seconds</td>
+              <td>${scores.expert.name}</td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+    `;
+
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = createScoresContent(this.highScores);
+
+    ShowDialogWindow({
+      title: "Best Times",
+      content: contentElement,
+      buttons: [
+        {
+          label: "Reset Scores",
+          action: () => {
+            this.highScores = {
+              beginner: { time: 999, name: "Anonymous" },
+              intermediate: { time: 999, name: "Anonymous" },
+              expert: { time: 999, name: "Anonymous" },
+            };
+            setItem(HIGH_SCORES_KEY, this.highScores);
+            contentElement.innerHTML = createScoresContent(this.highScores);
+          },
+        },
+        {
+          label: "OK",
+          isDefault: true,
+          action: (win) => win.close(),
+        },
+      ],
+    });
   }
 
   showAboutDialog() {
-    alert("About Minesweeper\n\nMinesweeper clone for azOS.");
+    ShowDialogWindow({
+      title: "About Minesweeper",
+      text: "Minesweeper clone for azOS.",
+    });
   }
 
   resetGame() {
@@ -347,13 +424,39 @@ class MinesweeperApp {
         this.difficulty !== "custom" &&
         this.timer < this.highScores[this.difficulty].time
       ) {
-        const name = prompt(`You have the fastest time for the ${this.difficulty} level: ${this.timer} seconds!\nPlease enter your name.`, "Anonymous");
-        this.highScores[this.difficulty] = {
-            time: this.timer,
-            name: name || "Anonymous",
-        };
-        setItem(HIGH_SCORES_KEY, this.highScores);
-        this.showHighScores();
+        const content = document.createElement("div");
+        content.innerHTML = `
+          <p>You have the fastest time for the ${this.difficulty} level: ${this.timer} seconds!</p>
+          <p>Please enter your name.</p>
+          <input type="text" id="highscore-name" value="Anonymous" style="margin-top: 5px; width: 95%"/>
+        `;
+
+        ShowDialogWindow({
+          title: "Congratulations",
+          content: content,
+          modal: true,
+          buttons: [
+            {
+              label: "OK",
+              isDefault: true,
+              action: (win) => {
+                const nameInput = content.querySelector("#highscore-name");
+                this.highScores[this.difficulty] = {
+                  time: this.timer,
+                  name: nameInput.value || "Anonymous",
+                };
+                setItem(HIGH_SCORES_KEY, this.highScores);
+                win.close();
+                this.showHighScores();
+              },
+            },
+          ],
+          onOpen: () => {
+            const nameInput = content.querySelector("#highscore-name");
+            nameInput.focus();
+            nameInput.select();
+          },
+        });
       }
       this.renderBoard();
     } else {
