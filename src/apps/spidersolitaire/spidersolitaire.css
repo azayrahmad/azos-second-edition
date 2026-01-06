@@ -129,6 +129,10 @@
     filter: invert(1);
 }
 
+.spider-solitaire-container .card.dragging {
+    visibility: hidden;
+}
+
 #spidersolitaire .menu-bar {
     display: flex;
     background: silver;
