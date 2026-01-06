@@ -2,8 +2,9 @@ import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { getItem, setItem } from "../../utils/localStorage.js";
+import { getItem, setItem, removeItem } from "../../utils/localStorage.js";
 import { Statistics } from "./Statistics.js";
+import { options, getAllOptions, setAllOptions } from "./OptionsManager.js";
 import "./spidersolitaire.css";
 import "../../styles/solitaire.css";
 
@@ -61,10 +62,20 @@ export class SpiderSolitaireApp extends Application {
     }
     this.availableMovesIndex = 0;
     this.addEventListeners();
-    this.startNewGame(4); // Default to hard
+
+    if (options.autoOpenOnStartup) {
+      this._performOpen(true); // Suppress "not found" dialog on startup
+    }
+
+    if (!this.game) {
+      this.startNewGame(4); // Default to hard if no game was loaded
+    }
 
     win.on("close", () => {
       this._handlePotentialLoss();
+      if (options.autoSaveOnExit) {
+        this._performSave(true); // Suppress any UI/sound
+      }
     });
 
     return win;
@@ -138,6 +149,7 @@ export class SpiderSolitaireApp extends Application {
       ],
       width: 250,
       height: 320,
+      parentWindow: this.win,
     });
   }
 
@@ -148,6 +160,63 @@ export class SpiderSolitaireApp extends Application {
       // if the user performs another action that triggers a loss check for the same abandoned game.
       this.game.moves = 0;
     }
+  }
+
+  _showOptionsDialog() {
+    const currentOptions = getAllOptions();
+    const content = document.createElement("div");
+    content.className = "spider-options-content";
+
+    content.innerHTML = `
+      <div class="field-row">
+        <input type="checkbox" id="animate-dealing" ${currentOptions.animateDealing ? "checked" : ""}>
+        <label for="animate-dealing">Animate when dealing cards</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="auto-save" ${currentOptions.autoSaveOnExit ? "checked" : ""}>
+        <label for="auto-save">Automatically save game on exit</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="auto-open" ${currentOptions.autoOpenOnStartup ? "checked" : ""}>
+        <label for="auto-open">Automatically open previous game at startup</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="prompt-save" ${currentOptions.promptOnSave ? "checked" : ""}>
+        <label for="prompt-save">Prompt before saving a game</label>
+      </div>
+      <div class="field-row">
+        <input type="checkbox" id="prompt-open" ${currentOptions.promptOnOpen ? "checked" : ""}>
+        <label for="prompt-open">Prompt before opening a saved game</label>
+      </div>
+    `;
+
+    const dialog = ShowDialogWindow({
+      title: "Spider Options",
+      content: content,
+      buttons: [
+        {
+          label: "OK",
+          action: () => {
+            const newOptions = {
+              animateDealing: content.querySelector("#animate-dealing").checked,
+              autoSaveOnExit: content.querySelector("#auto-save").checked,
+              autoOpenOnStartup: content.querySelector("#auto-open").checked,
+              promptOnSave: content.querySelector("#prompt-save").checked,
+              promptOnOpen: content.querySelector("#prompt-open").checked,
+            };
+            setAllOptions(newOptions);
+            dialog.close();
+          },
+        },
+        {
+          label: "Cancel",
+          action: () => dialog.close(),
+        },
+      ],
+      width: 350,
+      height: 250,
+      parentWindow: this.win,
+    });
   }
 
   _showNewGameDialog() {
@@ -165,6 +234,7 @@ export class SpiderSolitaireApp extends Application {
             action: () => {},
           },
         ],
+        parentWindow: this.win,
       });
     } else {
       this._showDifficultyDialog();
@@ -210,6 +280,7 @@ export class SpiderSolitaireApp extends Application {
           action: () => {},
         },
       ],
+      parentWindow: this.win,
     });
   }
 
@@ -278,6 +349,7 @@ export class SpiderSolitaireApp extends Application {
         },
         {
           label: "Options...",
+          action: () => this._showOptionsDialog(),
         },
         {
           label: "98 Style",
@@ -305,6 +377,7 @@ export class SpiderSolitaireApp extends Application {
         MENU_DIVIDER,
         {
           label: "Exit",
+          action: () => this.win.close(),
         },
       ],
     });
@@ -467,7 +540,9 @@ export class SpiderSolitaireApp extends Application {
       this.container.style.pointerEvents = "none";
       try {
         this.renderStock();
-        await this.animateDealing(result.cards);
+        if (options.animateDealing) {
+          await this.animateDealing(result.cards);
+        }
         this.game.addDealtCardsToTableau(result.cards);
         this.renderTableau();
         this.game.tableauPiles.forEach((pile, index) => {
@@ -488,11 +563,15 @@ export class SpiderSolitaireApp extends Application {
         title: "Invalid Move",
         text: "You cannot deal from the stock while a tableau pile is empty.",
         buttons: [{ label: "OK" }],
+        parentWindow: this.win,
       });
     }
   }
 
   animateDealing(cards) {
+    if (!options.animateDealing) {
+      return Promise.resolve();
+    }
     return new Promise((resolve) => {
       let startRect;
       if (this.use98Style) {
@@ -627,9 +706,16 @@ export class SpiderSolitaireApp extends Application {
     const { ShowDialogWindow } =
       await import("../../components/DialogWindow.js");
     ShowDialogWindow({
-      title: "Congratulations!",
-      text: "You Win!",
-      buttons: [{ label: "OK" }],
+      title: "Game Over",
+      text: "Congratulations, you won!\nDo you want to start another game?",
+      buttons: [
+        {
+          label: "Yes",
+          action: () => this.startNewGame(),
+        },
+        { label: "No" },
+      ],
+      parentWindow: this.win,
     });
     this._updateMenuBar(this.win);
   }
@@ -689,7 +775,7 @@ export class SpiderSolitaireApp extends Application {
 
   _saveGame() {
     const savedGame = getItem(SAVE_KEY);
-    if (savedGame) {
+    if (savedGame && options.promptOnSave) {
       ShowDialogWindow({
         title: "Save Game",
         text: "A saved game already exists. Are you sure you want to replace your previously saved game with your current game?",
@@ -700,52 +786,64 @@ export class SpiderSolitaireApp extends Application {
           },
           { label: "No" },
         ],
+        parentWindow: this.win,
       });
     } else {
       this._performSave();
     }
   }
 
-  _performSave() {
+  _performSave(isSilent = false) {
     try {
       const gameState = this.game.toJSON();
       setItem(SAVE_KEY, gameState);
     } catch (error) {
       console.error("Failed to save game:", error);
-      window.playSound("Warning");
-      ShowDialogWindow({
-        title: "Error",
-        text: "Unable to save game.",
-        buttons: [{ label: "OK" }],
-      });
+      if (!isSilent) {
+        window.playSound("Warning");
+        ShowDialogWindow({
+          title: "Error",
+          text: "Unable to save game.",
+          buttons: [{ label: "OK" }],
+          parentWindow: this.win,
+        });
+      }
     }
   }
 
   _openGame() {
-    ShowDialogWindow({
-      title: "Open Game",
-      text: "Are you sure you want to discard the game you are currently playing, and load your previously saved game?",
-      buttons: [
-        {
-          label: "Yes",
-          action: () => this._performOpen(),
-        },
-        { label: "No" },
-      ],
-    });
+    if (options.promptOnOpen) {
+      ShowDialogWindow({
+        title: "Open Game",
+        text: "Are you sure you want to discard the game you are currently playing, and load your previously saved game?",
+        buttons: [
+          {
+            label: "Yes",
+            action: () => this._performOpen(),
+          },
+          { label: "No" },
+        ],
+        parentWindow: this.win,
+      });
+    } else {
+      this._performOpen();
+    }
   }
 
-  _performOpen() {
+  _performOpen(isSilent = false) {
     this._handlePotentialLoss();
     try {
       const savedGame = getItem(SAVE_KEY);
       if (!savedGame) {
-        window.playSound("Warning");
-        ShowDialogWindow({
-          title: "Error",
-          text: "Unable to load game. No saved game found.",
-          buttons: [{ label: "OK" }],
-        });
+        if (!isSilent) {
+          ShowDialogWindow({
+            title: "Error",
+            text: "Unable to load game. No saved game found.",
+            buttons: [{ label: "OK" }],
+            parentWindow: this.win,
+            soundEvent: "Warning",
+          });
+        }
         return;
       }
       this.game = Game.fromJSON(savedGame);
@@ -753,12 +851,15 @@ export class SpiderSolitaireApp extends Application {
       this._updateMenuBar(this.win);
     } catch (error) {
       console.error("Failed to load game:", error);
-      window.playSound("Warning");
-      ShowDialogWindow({
-        title: "Error",
-        text: "Unable to load game.",
-        buttons: [{ label: "OK" }],
-      });
+      if (!isSilent) {
+        ShowDialogWindow({
+          title: "Error",
+          text: "Unable to load game.",
+          buttons: [{ label: "OK" }],
+          parentWindow: this.win,
+          soundEvent: "Warning",
+        });
+      }
     }
   }
 }

@@ -32,6 +32,7 @@ function ShowDialogWindow(options) {
     buttons = [{ label: "OK", action: () => {}, isDefault: true }],
     soundEvent,
     modal = false,
+    parentWindow,
   } = options;
 
   const winOptions = {
@@ -42,6 +43,7 @@ function ShowDialogWindow(options) {
     maximizeButton: false,
     width: 400,
     height: "auto",
+    parentWindow: parentWindow || null,
   };
 
   if (titleIconUrl) {
