@@ -487,6 +487,9 @@ export class SpiderSolitaireApp extends Application {
       } else if (event.key === "m") {
         event.preventDefault();
         this.showNextAvailableMove();
+      } else if (event.key === "F2") {
+        event.preventDefault();
+        this._showNewGameDialog();
       }
     });
   }
