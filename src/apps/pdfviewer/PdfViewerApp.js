@@ -111,6 +111,27 @@ export class PdfViewerApp extends Application {
         const placeholder = this.win.$content.find(".pdf-viewer-placeholder");
         placeholder.text(`Failed to load PDF from ${correctedPath}.`);
       }
+    } else if (data && typeof data === "object" && data.filePath) {
+        // Handle file path from router
+        const correctedPath = data.filePath.startsWith("public/")
+            ? data.filePath.substring("public/".length)
+            : data.filePath;
+        try {
+            const fileName = correctedPath.split("/").pop();
+            this.win.title(`${fileName} - ${this.title}`);
+
+            const response = await fetch(correctedPath);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const arrayBuffer = await response.arrayBuffer();
+            const pdfData = new Uint8Array(arrayBuffer);
+            await this._loadPdf(pdfData);
+        } catch (error) {
+            console.error(`Failed to load PDF from path: ${correctedPath}`, error);
+            const placeholder = this.win.$content.find(".pdf-viewer-placeholder");
+            placeholder.text(`Failed to load PDF from ${correctedPath}.`);
+        }
     } else if (data && typeof data === "object") {
       this.win.title(`${data.name} - ${this.title}`);
       const byteString = atob(data.content.split(",")[1]);

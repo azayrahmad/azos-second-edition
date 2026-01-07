@@ -78,13 +78,16 @@ export class Application {
   }
 
   _getWindowId(filePath) {
-    const fileName = filePath?.name || filePath?.filename;
-    if (filePath && typeof filePath === "object" && fileName) {
-      return `${this.id}-${fileName}`;
+    if (typeof filePath === 'object' && filePath !== null) {
+      const path = filePath.filePath || filePath.name || filePath.filename;
+      if (path) {
+        return `${this.id}-${path}`;
+      }
     }
-    return filePath && typeof filePath === "string"
-      ? `${this.id}-${filePath}`
-      : this.id;
+    if (typeof filePath === 'string') {
+      return `${this.id}-${filePath}`;
+    }
+    return this.id;
   }
 
   _createWindow(filePath) {

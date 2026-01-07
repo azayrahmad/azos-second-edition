@@ -32,6 +32,7 @@ import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
+import { initRouter } from "./router.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -311,6 +312,7 @@ async function initializeOS() {
 
     resetInactivityTimer();
     initScreenManager(); // Initialize the screen manager
+    initRouter(); // Initialize the router
   } catch (error) {
     if (error.message !== "Setup interrupted") {
       console.error("An error occurred during boot:", error);
