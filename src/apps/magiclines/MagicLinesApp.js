@@ -20,17 +20,47 @@ export class MagicLinesApp extends Application {
     maximizeButton: false,
   };
 
+  visualScore = 0;
+  targetScore = 0;
+  scoreAnimationTimer = null;
+
   async _onLaunch() {
     this.is3dView = getItem(MAGIC_LINES_3D_VIEW_KEY) ?? false;
     this.game = new Game();
     this.selectedBallCoords = null;
+
+    this.visualScore = this.game.score;
+    this.targetScore = this.game.score;
+
     this.renderBoard();
   }
 
   newGame() {
     this.game.newGame();
     this.selectedBallCoords = null;
+    this.animateScore(this.game.score);
     this.renderBoard();
+  }
+
+  animateScore(newScore) {
+    this.targetScore = newScore;
+
+    if (this.scoreAnimationTimer) {
+      return;
+    }
+
+    this.scoreAnimationTimer = setInterval(() => {
+      if (this.visualScore < this.targetScore) {
+        this.visualScore++;
+      } else if (this.visualScore > this.targetScore) {
+        this.visualScore--;
+      } else {
+        clearInterval(this.scoreAnimationTimer);
+        this.scoreAnimationTimer = null;
+      }
+      const scoreElement = this.win.$content.find("#score");
+      scoreElement.text(this.visualScore);
+    }, 50);
   }
 
   renderBoard() {
@@ -109,7 +139,7 @@ export class MagicLinesApp extends Application {
         boardElement.append(cell);
       }
     }
-    scoreElement.text(this.game.score);
+    scoreElement.text(this.visualScore);
   }
 
   async animateBallMove(path, startCoords) {
@@ -209,6 +239,7 @@ export class MagicLinesApp extends Application {
         if (path) {
           this.selectedBallCoords = null;
           this.animateBallMove(path, startCoords);
+          this.animateScore(this.game.score);
         }
       }
     }
@@ -231,6 +262,7 @@ export class MagicLinesApp extends Application {
 
   undoMove() {
     this.game.undoMove();
+    this.animateScore(this.game.score);
     this.renderBoard();
   }
 
