@@ -1,0 +1,48 @@
+@import url('/src/styles/solitaire.css');
+
+.klondike-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #008000;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.klondike-board {
+    flex-grow: 1;
+    padding: 10px;
+    display: grid;
+    grid-template-areas:
+        "stock waste . foundation foundation foundation foundation"
+        "tableau1 tableau2 tableau3 tableau4 tableau5 tableau6 tableau7";
+    grid-template-rows: auto 1fr;
+    grid-gap: 10px;
+}
+
+.stock-pile { grid-area: stock; }
+.waste-pile { grid-area: waste; }
+.foundation-piles { grid-area: foundation; display: flex; gap: 10px; }
+.tableau-piles { grid-area: tableau; display: flex; gap: 10px; }
+
+.stock-pile, .waste-pile, .foundation-pile, .tableau-pile {
+    width: 71px;
+    height: 96px;
+    border: 1px dashed #FFF;
+    border-radius: 5px;
+    position: relative;
+}
+
+.card {
+    width: 71px;
+    height: 96px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.tableau-pile .card {
+    position: relative;
+    margin-bottom: -75px;
+}

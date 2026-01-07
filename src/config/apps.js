@@ -7,13 +7,16 @@ import {
   emptyRecycleBin,
 } from "../utils/recycleBinManager.js";
 import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
+import { KlondikeApp } from "../apps/klondike/KlondikeApp.js";
 
 // --- Dynamic App Loading ---
 
 // Use Vite's glob import to get all App modules
 const appModules = import.meta.glob('../apps/*/*App.js', { eager: true });
 
-export const appClasses = {};
+export const appClasses = {
+    klondike: KlondikeApp,
+};
 const staticConfigs = [];
 
 for (const path in appModules) {
@@ -199,7 +202,12 @@ const systemApps = [
 
 // --- Combine and Export ---
 
-// --- Combine and Export ---
-
-export const apps = [...systemApps, ...staticConfigs];
-
+export const apps = [...systemApps, ...staticConfigs, {
+    id: "klondike",
+    title: "Klondike",
+    description: "The classic solitaire card game.",
+    get icon() {
+        return getIcon("klondike");
+    },
+    appClass: KlondikeApp,
+}];
