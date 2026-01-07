@@ -162,3 +162,21 @@
 .spider-statistics-content fieldset {
     margin-bottom: 10px;
 }
+
+.status-bar {
+    height: 22px;
+    background-color: var(--ButtonFace);
+    border-top: 1px solid var(--ButtonShadow);
+    display: flex;
+    align-items: center;
+    padding: 0 2px;
+    font-size: 11px;
+}
+
+.status-bar-field {
+    flex: 1;
+    padding: 2px 4px;
+    border: 1px inset;
+    margin-block-start: 0;
+    margin-block-end: 0;
+}

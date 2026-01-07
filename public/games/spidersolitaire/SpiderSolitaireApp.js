@@ -6,16 +6,16 @@ const MENU_DIVIDER = "MENU_DIVIDER";
 
 // Helper functions to replace the app's localStorage utility
 function getItem(key) {
-    const value = localStorage.getItem(key);
-    try {
-        return JSON.parse(value);
-    } catch (e) {
-        return value;
-    }
+  const value = localStorage.getItem(key);
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
 }
 
 function setItem(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
 class SpiderSolitaireApp {
@@ -25,8 +25,8 @@ class SpiderSolitaireApp {
     this.height = 550;
     this.resizable = true;
     this.icon = {
-        16: "assets/spidersolitaire-icon-small.png",
-        32: "assets/spidersolitaire-icon-large.png",
+      16: "assets/spider-16.png",
+      32: "assets/spider-32.png",
     };
   }
 
@@ -43,6 +43,8 @@ class SpiderSolitaireApp {
       outerHeight: this.height,
       resizable: this.resizable,
       icons: this.icon,
+      maximizeButton: false,
+      minimizeButton: false,
     });
 
     this._updateMenuBar(win);
@@ -629,20 +631,20 @@ class SpiderSolitaireApp {
             this.container.style.pointerEvents = "auto";
           });
         } else {
-            this.game.addDealtCardsToTableau(result.cards);
-            this.renderTableau();
-            this.game.tableauPiles.forEach((pile, index) => {
-                this.game.checkForCompletedSets(index);
-            });
-            if (this.game.checkForWin()) {
-                this.showWinDialog();
-            }
-            this._updateMenuBar(this.win);
-            this._updateStatusBar();
-            this.container.style.pointerEvents = "auto";
+          this.game.addDealtCardsToTableau(result.cards);
+          this.renderTableau();
+          this.game.tableauPiles.forEach((pile, index) => {
+            this.game.checkForCompletedSets(index);
+          });
+          if (this.game.checkForWin()) {
+            this.showWinDialog();
+          }
+          this._updateMenuBar(this.win);
+          this._updateStatusBar();
+          this.container.style.pointerEvents = "auto";
         }
       } catch (e) {
-          this.container.style.pointerEvents = "auto";
+        this.container.style.pointerEvents = "auto";
       }
     } else if (result.reason === "EMPTY_PILE") {
       ShowDialogWindow({
