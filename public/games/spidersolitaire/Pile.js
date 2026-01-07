@@ -1,4 +1,4 @@
-export class Pile {
+class Pile {
   constructor() {
     this.cards = [];
   }

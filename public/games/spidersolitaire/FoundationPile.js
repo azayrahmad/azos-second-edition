@@ -1,6 +1,4 @@
-import { Pile } from "./Pile.js";
-
-export class FoundationPile extends Pile {
+class FoundationPile extends Pile {
   constructor() {
     super();
   }

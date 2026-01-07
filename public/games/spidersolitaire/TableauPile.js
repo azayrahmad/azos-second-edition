@@ -1,7 +1,4 @@
-import { Pile } from "./Pile.js";
-import { RANKS } from "./Deck.js";
-
-export class TableauPile extends Pile {
+class TableauPile extends Pile {
   constructor() {
     super();
   }

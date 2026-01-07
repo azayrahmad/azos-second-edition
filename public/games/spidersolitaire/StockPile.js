@@ -1,6 +1,4 @@
-import { Pile } from "./Pile.js";
-
-export class StockPile extends Pile {
+class StockPile extends Pile {
   constructor(cards) {
     super();
     this.cards = cards;
