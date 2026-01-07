@@ -120,7 +120,7 @@ const directory = [
                 id: "file-resume-txt",
                 type: "file",
                 name: "AzizRahmad_Resume_2026.txt",
-                contentUrl: "public/files/AzizRahmad_Resume_2026.txt",
+                contentUrl: "files/AzizRahmad_Resume_2026.txt",
               },
               {
                 id: "file-readme",
