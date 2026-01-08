@@ -1,5 +1,7 @@
 import { Application } from "../Application.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { convertHtmlToRtf } from "../../utils/htmlToRtf.js";
+import { convertRtfToHtml } from "../../utils/rtfToHtml.js";
 import "./wordpad.css";
 
 export class WordPadApp extends Application {
@@ -813,7 +815,7 @@ export class WordPadApp extends Application {
     if ((await this.checkForUnsavedChanges()) === "cancel") return;
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".html";
+    input.accept = ".rtf";
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -825,7 +827,9 @@ export class WordPadApp extends Application {
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        this.editor.innerHTML = event.target.result;
+        const rtfContent = event.target.result;
+        const html = convertRtfToHtml(rtfContent);
+        this.editor.innerHTML = html;
         this.isDirty = false;
         this.updateTitle();
       };
@@ -850,14 +854,17 @@ export class WordPadApp extends Application {
 
   async saveAs() {
     const fileTypes = [
-      { description: "HTML Document", accept: { "text/html": [".html"] } },
+      {
+        description: "Rich Text Format",
+        accept: { "application/rtf": [".rtf"] },
+      },
     ];
 
     if (window.showSaveFilePicker) {
       try {
         const handle = await window.showSaveFilePicker({
           types: fileTypes,
-          suggestedName: "Untitled.html",
+          suggestedName: "Untitled.rtf",
         });
         this.fileHandle = handle;
         this.fileName = handle.name;
@@ -869,13 +876,13 @@ export class WordPadApp extends Application {
       }
     } else {
       // Fallback for older browsers
-      const content = this.editor.innerHTML;
-      const blob = new Blob([content], { type: "text/html" });
+      const content = convertHtmlToRtf(this.editor.innerHTML);
+      const blob = new Blob([content], { type: "application/rtf" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = this.fileName.endsWith(".html")
+      a.download = this.fileName.endsWith(".rtf")
         ? this.fileName
-        : "Untitled.html";
+        : "Untitled.rtf";
       a.click();
       URL.revokeObjectURL(a.href);
       this.isDirty = false;
@@ -886,7 +893,7 @@ export class WordPadApp extends Application {
 
   async writeFile(fileHandle) {
     const writable = await fileHandle.createWritable();
-    const content = this.editor.innerHTML;
+    const content = convertHtmlToRtf(this.editor.innerHTML);
     await writable.write(content);
     await writable.close();
   }
