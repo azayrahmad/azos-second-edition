@@ -209,7 +209,21 @@ export class MagicLinesApp extends Application {
       await new Promise((r) => setTimeout(r, 100));
     }
 
-    ballElement.remove();
+    const endCoords = path[path.length - 1];
+    const endCell = boardElement.find(
+        `.cell[data-r='${endCoords.r}'][data-c='${endCoords.c}']`,
+    );
+
+    ballElement.css({
+      position: "",
+      top: "",
+      left: "",
+      transition: "",
+      "z-index": "",
+      transform: "",
+    });
+
+    endCell.append(ballElement);
   }
 
   async animateBallRemoval(coords) {
