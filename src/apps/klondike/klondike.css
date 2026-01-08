@@ -61,9 +61,9 @@
 }
 
 .klondike-solitaire-container .stock-card-placeholder {
-    cursor: pointer;
     background-image: url("/src/assets/img/solitaire.png");
     background-position: 0 -384px; /* cardback1 */
+    cursor: pointer;
 }
 
 .klondike-solitaire-container .card {
@@ -88,8 +88,9 @@
 }
 
 .klondike-solitaire-container .card.face-down {
+    background-color: #8b0000;
     background-image: url("/src/assets/img/solitaire.png");
-    background-position: 0 -384px; /* cardback1 */
+    background-position: 0 -384px !important; /* cardback1 */
 }
 
 .klondike-solitaire-container .card.dragging {
