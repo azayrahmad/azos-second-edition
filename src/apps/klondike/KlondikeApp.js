@@ -2,6 +2,7 @@ import { Application } from "../Application.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getIcon } from "../../utils/iconManager.js";
+import "./klondike.css";
 
 export class KlondikeApp extends Application {
     _createWindow() {
@@ -14,10 +15,12 @@ export class KlondikeApp extends Application {
             onReady: () => {
                 this._initApp(win);
             },
-            onClosed: () => {
-                this.cleanup();
-            }
         });
+
+        win.on("close", () => {
+            this.cleanup();
+        });
+
         return win;
     }
 
@@ -34,9 +37,8 @@ export class KlondikeApp extends Application {
                 <div class="top-piles">
                     <div class="stock-pile"></div>
                     <div class="waste-pile"></div>
-                    <div class="foundation-piles">
-                        ${this.game.foundationPiles.map(() => `<div class="foundation-pile"></div>`).join('')}
-                    </div>
+                    <div class="empty-pile"></div>
+                    ${this.game.foundationPiles.map(() => `<div class="foundation-pile"></div>`).join('')}
                 </div>
                 <div class="tableau-piles">
                     ${this.game.tableauPiles.map(() => `<div class="tableau-pile"></div>`).join('')}
@@ -125,9 +127,12 @@ export class KlondikeApp extends Application {
                 const dropTarget = $(e.target).closest(".tableau-pile, .foundation-pile");
                 let toPile = null;
                 if (dropTarget.length) {
-                    const pileIndex = dropTarget.index();
-                    if (dropTarget.hasClass("tableau-pile")) toPile = this.game.tableauPiles[pileIndex];
-                    else if (dropTarget.hasClass("foundation-pile")) toPile = this.game.foundationPiles[pileIndex];
+                    const pileIndex = dropTarget.parents().children().index(dropTarget);
+                    if (dropTarget.hasClass("tableau-pile")) {
+                        toPile = this.game.tableauPiles[pileIndex];
+                    } else if (dropTarget.hasClass("foundation-pile")) {
+                        toPile = this.game.foundationPiles[pileIndex];
+                    }
                 }
 
                 if (toPile) {
@@ -159,8 +164,8 @@ export class KlondikeApp extends Application {
             const pileEl = cardEl.closest(".tableau-pile, .waste-pile, .foundation-pile");
             if (!pileEl.length) return;
 
-            const pileIndex = pileEl.index();
-            const cardIndex = cardEl.index();
+            const pileIndex = pileEl.parents().children().index(pileEl);
+            const cardIndex = pileEl.children().index(cardEl);
 
             if (pileEl.hasClass("tableau-pile")) {
                 fromPile = this.game.tableauPiles[pileIndex];

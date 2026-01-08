@@ -14,19 +14,26 @@
     flex-grow: 1;
     padding: 10px;
     display: grid;
-    grid-template-areas:
-        "stock waste . foundation foundation foundation foundation"
-        "tableau1 tableau2 tableau3 tableau4 tableau5 tableau6 tableau7";
-    grid-template-rows: auto 1fr;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: 96px 1fr;
     grid-gap: 10px;
 }
 
-.stock-pile { grid-area: stock; }
-.waste-pile { grid-area: waste; }
-.foundation-piles { grid-area: foundation; display: flex; gap: 10px; }
-.tableau-piles { grid-area: tableau; display: flex; gap: 10px; }
+.top-piles {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 10px;
+}
 
-.stock-pile, .waste-pile, .foundation-pile, .tableau-pile {
+.tableau-piles {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 10px;
+}
+
+.stock-pile, .waste-pile, .foundation-pile, .tableau-pile, .empty-pile {
     width: 71px;
     height: 96px;
     border: 1px dashed #FFF;
