@@ -85,21 +85,34 @@ export class Game {
       });
 
       this.board.moveBall(start, end);
-      const clearedCount = this.board.findAndClearLines(end);
+      const clearedBalls = this.board.findAndClearLines(end);
 
-      if (clearedCount > 0) {
-        this.updateScore(clearedCount);
-      } else {
-        const newBalls = this.placeNewBalls();
-        for (const ball of newBalls) {
-          const clearedCountAfterNew = this.board.findAndClearLines(ball);
-          if (clearedCountAfterNew > 0) {
-            this.updateScore(clearedCountAfterNew);
-          }
-        }
-        this._generateNextBalls();
+      if (clearedBalls.length > 0) {
+        this.updateScore(clearedBalls.length);
+        return { path, clearedBalls };
       }
-      return path; // Move successful
+
+      const newBalls = this.placeNewBalls();
+      let allClearedAfterNew = new Set();
+      for (const ball of newBalls) {
+        const clearedAfterNew = this.board.findAndClearLines(ball);
+        if (clearedAfterNew.length > 0) {
+          clearedAfterNew.forEach(b => allClearedAfterNew.add(`${b.r},${b.c}`));
+        }
+      }
+
+      if (allClearedAfterNew.size > 0) {
+        this.updateScore(allClearedAfterNew.size);
+      }
+
+      this._generateNextBalls();
+      return {
+        path,
+        clearedBalls: Array.from(allClearedAfterNew).map(key => {
+          const [r, c] = key.split(",").map(Number);
+          return { r, c };
+        })
+      };
     }
     return null; // No path
   }
@@ -110,6 +123,10 @@ export class Game {
         scoreForLine += i - 4;
     }
     this.score += scoreForLine;
+  }
+
+  clearBalls(coords) {
+    this.board.clearBalls(coords);
   }
 
   isGameOver() {

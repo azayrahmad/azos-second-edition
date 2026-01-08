@@ -31,6 +31,12 @@ export class Board {
     this.grid[r][c] = null;
   }
 
+  clearBalls(coords) {
+    for (const { r, c } of coords) {
+      this.clearBall(r, c);
+    }
+  }
+
   findPath(start, end) {
     const queue = [[start]];
     const visited = new Set([`${start.r},${start.c}`]);
@@ -73,7 +79,7 @@ export class Board {
 
   findAndClearLines(coords) {
     const ball = this.getBall(coords.r, coords.c);
-    if (!ball) return 0;
+    if (!ball) return [];
     const color = ball.color;
 
     const directions = [
@@ -117,14 +123,13 @@ export class Board {
     }
 
     if (ballsToRemove.size >= 5) {
-      ballsToRemove.forEach((key) => {
+      return Array.from(ballsToRemove).map((key) => {
         const [r, c] = key.split(",").map(Number);
-        this.clearBall(r, c);
+        return { r, c };
       });
-      return ballsToRemove.size;
     }
 
-    return 0;
+    return [];
   }
 
   getEmptyCells() {
