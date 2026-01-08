@@ -170,6 +170,8 @@ export class KlondikeSolitaireApp extends Application {
         const topCard = this.game.wastePile.topCard;
         const cardDiv = topCard.element;
         cardDiv.dataset.pileType = "waste";
+        cardDiv.dataset.cardIndex = this.game.wastePile.cards.length - 1;
+        cardDiv.dataset.pileIndex = 0;
         wasteContainer.appendChild(cardDiv);
     }
   }
@@ -186,6 +188,7 @@ export class KlondikeSolitaireApp extends Application {
       if (pile.topCard) {
         const cardDiv = pile.topCard.element;
         cardDiv.dataset.pileIndex = pileIndex;
+        cardDiv.dataset.cardIndex = pile.cards.length - 1;
         cardDiv.dataset.pileType = "foundation";
         pileDiv.appendChild(cardDiv);
       } else {
