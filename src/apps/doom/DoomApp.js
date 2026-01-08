@@ -169,14 +169,14 @@ export class DoomApp extends Application {
             response.arrayBuffer(),
           ),
         ]).then(([wad, cfg]) => {
-          this.Module.FS_createDataFile(
+          window.Module.FS_createDataFile(
             "/",
             "doom1.wad",
             new Uint8Array(wad),
             true,
             true,
           );
-          this.Module.FS_createDataFile(
+          window.Module.FS_createDataFile(
             "/",
             "default.cfg",
             new Uint8Array(cfg),
@@ -204,7 +204,7 @@ export class DoomApp extends Application {
                     filename.lastIndexOf("/") + 1,
                   );
 
-                  this.Module.FS_createDataFile(
+                  window.Module.FS_createDataFile(
                     parentDir,
                     baseFilename,
                     bytes,
@@ -221,7 +221,7 @@ export class DoomApp extends Application {
               }
             }
           }
-          this.Module.callMain(commonArgs);
+          window.Module.callMain(commonArgs);
         });
       },
       print: (text) => console.log(text),
