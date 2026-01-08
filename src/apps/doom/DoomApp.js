@@ -86,13 +86,10 @@ export class DoomApp extends Application {
       return [];
     }
 
-    filesInDir = filesInDir.filter(
-      (entry) => entry !== "." && entry !== "..",
-    );
+    filesInDir = filesInDir.filter((entry) => entry !== "." && entry !== "..");
 
     filesInDir.forEach((entry) => {
-      const fullPath =
-        path === "/" ? `/${entry}` : `${path}/${entry}`;
+      const fullPath = path === "/" ? `/${entry}` : `${path}/${entry}`;
       try {
         const stat = Module.FS.stat(fullPath);
         if (Module.FS.isDir(stat.mode)) {
@@ -114,9 +111,7 @@ export class DoomApp extends Application {
     try {
       const files = this._readAllFiles("/");
       files.forEach((file) => {
-        const filenameOnly = file.substring(
-          file.lastIndexOf("/") + 1,
-        );
+        const filenameOnly = file.substring(file.lastIndexOf("/") + 1);
         if (
           filenameOnly.startsWith("doomsav") &&
           filenameOnly.endsWith(".dsg")
@@ -221,7 +216,8 @@ export class DoomApp extends Application {
               }
             }
           }
-          window.Module.callMain(commonArgs);
+          console.log(Module);
+          window.callMain(commonArgs);
         });
       },
       print: (text) => console.log(text),
