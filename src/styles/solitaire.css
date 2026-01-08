@@ -62,16 +62,17 @@
 
 .cardback1 { background-position: 0 -384px; }
 .cardback2 { background-position: -71px -384px; }
-.cardback3 { background-position: -142px -384px; }
-.cardback-fish1 { background-position: -213px -384px; }
-.cardback-fish2 { background-position: -284px -384px; }
-.cardback-robot1 { background-position: -355px -384px; }
-.cardback-robot2 { background-position: -426px -384px; }
-.cardback-robot3 { background-position: -497px -384px; }
-.cardback-rose { background-position: -568px -384px; }
-.stockpile-draw { background-position: -639px -384px; }
-.stockpile-empty { background-position: -710px -384px; }
-.foundation-placeholder { background-position: -781px -384px; }
+.cardback-fish1 { background-position: -142px -384px; }
+.cardback-fish2 { background-position: -213px -384px; }
+.cardback3 { background-position: -284px -384px; }
+.cardback4 { background-position: -355px -384px; }
+.cardback-robot1 { background-position: -426px -384px; }
+.cardback-robot2 { background-position: -497px -384px; }
+.cardback-robot3 { background-position: -568px -384px; }
+.cardback-rose { background-position: -639px -384px; }
+.stockpile-draw { background-position: -710px -384px; }
+.stockpile-empty { background-position: -781px -384px; }
+.foundation-background { background-position: -852px -384px; }
 
 .cardback-shell { background-position: 0 -480px; }
 .cardback-castle1 { background-position: -71px -480px; }
