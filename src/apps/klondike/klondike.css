@@ -16,13 +16,10 @@
 }
 
 .klondike-solitaire-container .top-piles {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
     margin-bottom: 10px;
-}
-
-.klondike-solitaire-container .stock-waste-piles {
-    display: flex;
 }
 
 .klondike-solitaire-container .stock-pile,
@@ -30,16 +27,19 @@
 .klondike-solitaire-container .foundation-pile {
     width: 71px;
     height: 96px;
-    margin-right: 10px;
 }
 
 .klondike-solitaire-container .foundation-piles {
-    display: flex;
+    grid-column: 4 / -1; /* Span from column 4 to the end */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
 .klondike-solitaire-container .tableau-piles {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
     flex-grow: 1;
 }
 

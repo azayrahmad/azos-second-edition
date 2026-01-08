@@ -30,10 +30,9 @@ export class KlondikeSolitaireApp extends Application {
       <div class="klondike-solitaire-container">
         <div class="game-board">
           <div class="top-piles">
-            <div class="stock-waste-piles">
-              <div class="stock-pile"></div>
-              <div class="waste-pile"></div>
-            </div>
+            <div class="stock-pile"></div>
+            <div class="waste-pile"></div>
+            <div class="spacer"></div>
             <div class="foundation-piles"></div>
           </div>
           <div class="tableau-piles"></div>
