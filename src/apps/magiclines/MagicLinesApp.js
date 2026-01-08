@@ -217,7 +217,7 @@ export class MagicLinesApp extends Application {
     boardElement.css("pointer-events", "auto");
   }
 
-  handleCellClick(event) {
+  async handleCellClick(event) {
     if (
       this.win.$content.find(".game-board").css("pointer-events") === "none"
     ) {
@@ -238,7 +238,7 @@ export class MagicLinesApp extends Application {
         const path = this.game.moveBall(startCoords, { r, c });
         if (path) {
           this.selectedBallCoords = null;
-          this.animateBallMove(path, startCoords);
+          await this.animateBallMove(path, startCoords);
           this.animateScore(this.game.score);
         }
       }
