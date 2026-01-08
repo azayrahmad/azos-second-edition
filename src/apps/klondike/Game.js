@@ -3,19 +3,29 @@ import { TableauPile } from "./TableauPile.js";
 import { StockPile } from "./StockPile.js";
 import { FoundationPile } from "./FoundationPile.js";
 import { WastePile } from "./WastePile.js";
+import { getItem, setItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 
 export class Game {
   constructor() {
     this.initializeGame();
   }
 
+  destroy() {
+    this.allCards.forEach(card => card.destroy());
+  }
+
   initializeGame() {
+    this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
+
     const suits = ["♥", "♦", "♠", "♣"];
     const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    this.allCards = [];
     let fullDeck = [];
     for (const suit of suits) {
         for (const rank of ranks) {
-            fullDeck.push(new Card(suit, rank));
+            const card = new Card(suit, rank, this.cardBack);
+            fullDeck.push(card);
+            this.allCards.push(card);
         }
     }
 
@@ -106,5 +116,11 @@ export class Game {
 
   checkForWin() {
     return this.foundationPiles.every((pile) => pile.cards.length === 13);
+  }
+
+  setCardBack(cardBack) {
+    this.cardBack = cardBack;
+    setItem(LOCAL_STORAGE_KEYS.klondikeCardBack, cardBack);
+    this.allCards.forEach(card => card.setCardBack(cardBack));
   }
 }

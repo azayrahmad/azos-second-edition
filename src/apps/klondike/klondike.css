@@ -60,10 +60,22 @@
     box-sizing: border-box;
 }
 
-.klondike-solitaire-container .stock-card-placeholder {
-    background-image: url("/src/assets/img/solitaire.png");
-    background-position: 0 -384px; /* cardback1 */
+.deck-selection-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 10px;
+}
+
+.card-back-preview {
+    width: 71px;
+    height: 96px;
     cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.card-back-preview.selected {
+    border: 1px solid black;
 }
 
 .klondike-solitaire-container .card {

@@ -23,6 +23,7 @@ export const LOCAL_STORAGE_KEYS = {
   COLOR_MODE: 'colorMode',
   SCREEN_RESOLUTION: 'screenResolution',
   DROPPED_FILES: 'droppedFiles',
+  KLONDIKE_CARD_BACK: 'klondikeCardBack',
 };
 
 export function getItem(key) {
