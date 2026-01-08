@@ -5,7 +5,8 @@
     height: 100%;
     background-color: #008000;
     box-sizing: border-box;
-    background-image: url("./assets/FELT.bmp");
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .klondike-solitaire-container .game-board {
@@ -55,15 +56,23 @@
 .klondike-solitaire-container .tableau-placeholder {
     width: 71px;
     height: 96px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 5px;
     box-sizing: border-box;
 }
 
+.klondike-solitaire-container .tableau-placeholder {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
 .klondike-solitaire-container .stock-card-placeholder {
     background-image: url("/src/assets/img/solitaire.png");
-    background-position: 0 -384px; /* cardback1 */
+    background-position: -710px -384px; /* stockpile-draw */
     cursor: pointer;
+}
+
+.klondike-solitaire-container .foundation-placeholder {
+    background-image: url("/src/assets/img/solitaire.png");
+    background-position: -852px -384px; /* foundation-background */
 }
 
 .klondike-solitaire-container .card {
