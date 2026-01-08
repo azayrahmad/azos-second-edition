@@ -202,12 +202,31 @@ export class KlondikeSolitaireApp extends Application {
   addEventListeners() {
     this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
     this.container.addEventListener("click", this.onClick.bind(this));
+    this.container.addEventListener("dblclick", this.onDoubleClick.bind(this));
     this.win.element.addEventListener("keydown", (event) => {
        if (event.key === "F2") {
         event.preventDefault();
         this._showNewGameDialog();
       }
     });
+  }
+
+  onDoubleClick(event) {
+    if (this.wasDragged) return;
+
+    const cardDiv = event.target.closest(".card");
+    if (cardDiv) {
+      const pileType = cardDiv.dataset.pileType;
+      const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+      const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+
+      if (this.game.autoMoveToFoundation(pileType, pileIndex, cardIndex)) {
+        if (this.game.checkForWin()) {
+          this.showWinDialog();
+        }
+        this.render();
+      }
+    }
   }
 
   onClick(event) {

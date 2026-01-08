@@ -107,4 +107,32 @@ export class Game {
   checkForWin() {
     return this.foundationPiles.every((pile) => pile.cards.length === 13);
   }
+
+  autoMoveToFoundation(fromPileType, fromPileIndex, cardIndex) {
+    let fromPile;
+    if (fromPileType === 'tableau') fromPile = this.tableauPiles[fromPileIndex];
+    else if (fromPileType === 'waste') fromPile = this.wastePile;
+    else return false;
+
+    if (!fromPile || fromPile.cards.length === 0) return false;
+
+    if (fromPileType === 'tableau' && cardIndex !== fromPile.cards.length - 1) {
+      return false;
+    }
+
+    if (fromPileType === 'waste') {
+      cardIndex = fromPile.cards.length - 1;
+    }
+
+    const cardToMove = fromPile.cards[cardIndex];
+    if (!cardToMove) return false;
+
+    for (let i = 0; i < this.foundationPiles.length; i++) {
+      if (this.foundationPiles[i].canAccept(cardToMove)) {
+        return this.moveCards(fromPileType, fromPileIndex, cardIndex, 'foundation', i);
+      }
+    }
+
+    return false;
+  }
 }
