@@ -186,3 +186,42 @@
     background-color: var(--ButtonShadow);
     margin: 0 4px;
 }
+
+.ruler-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    cursor: ew-resize;
+    z-index: 10;
+}
+
+.first-line-indent {
+    background-image: url('assets/firstlineindent.png');
+    top: 0px;
+}
+
+.hanging-indent {
+    background-image: url('assets/hangingindent.png');
+    top: 6px;
+}
+
+.left-indent {
+    background-image: url('assets/leftindent.png');
+    top: 10px;
+    width: 12px;
+    height: 12px;
+}
+
+.ruler-tab-stop {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-image: url('assets/leftab.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    bottom: 0px;
+    cursor: pointer;
+    z-index: 9;
+}
