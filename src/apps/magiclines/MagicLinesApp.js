@@ -144,7 +144,6 @@ export class MagicLinesApp extends Application {
 
   async animateBallMove(path, startCoords) {
     const boardElement = this.win.$content.find(".game-board");
-    boardElement.css("pointer-events", "none");
 
     const startCell = boardElement.find(
       `.cell[data-r='${startCoords.r}'][data-c='${startCoords.c}']`,
@@ -152,8 +151,6 @@ export class MagicLinesApp extends Application {
     const ballElement = startCell.find(".ball").first();
 
     if (!ballElement.length) {
-      this.renderBoard();
-      boardElement.css("pointer-events", "auto");
       return;
     }
 
@@ -167,6 +164,7 @@ export class MagicLinesApp extends Application {
       transition: "all 100ms linear",
       "z-index": 10,
     });
+    startCell.empty();
     boardElement.append(ballElement);
 
     for (let i = 0; i < path.length - 1; i++) {
@@ -212,15 +210,36 @@ export class MagicLinesApp extends Application {
     }
 
     ballElement.remove();
+  }
+
+  async animateBallRemoval(coords) {
+    const boardElement = this.win.$content.find(".game-board");
+    const ballElements = [];
+    for (const { r, c } of coords) {
+      const cell = boardElement.find(`.cell[data-r='${r}'][data-c='${c}']`);
+      const ball = cell.find(".ball");
+      if (ball.length) {
+        ballElements.push(ball);
+      }
+    }
+
+    if (ballElements.length === 0) {
+      return;
+    }
+
+    for (const ball of ballElements) {
+      ball.addClass("animate-ball-exit");
+    }
+
+    await new Promise((r) => setTimeout(r, 300));
+
+    this.game.clearBalls(coords);
     this.renderBoard();
-    this.checkGameOver();
-    boardElement.css("pointer-events", "auto");
   }
 
   async handleCellClick(event) {
-    if (
-      this.win.$content.find(".game-board").css("pointer-events") === "none"
-    ) {
+    const boardElement = this.win.$content.find(".game-board");
+    if (boardElement.css("pointer-events") === "none") {
       return;
     }
 
@@ -235,11 +254,23 @@ export class MagicLinesApp extends Application {
     } else {
       if (this.selectedBallCoords) {
         const startCoords = this.selectedBallCoords;
-        const path = this.game.moveBall(startCoords, { r, c });
-        if (path) {
+        const moveResult = this.game.moveBall(startCoords, { r, c });
+
+        if (moveResult) {
           this.selectedBallCoords = null;
-          await this.animateBallMove(path, startCoords);
+          boardElement.css("pointer-events", "none");
+
+          await this.animateBallMove(moveResult.path, startCoords);
+
+          if (moveResult.clearedBalls && moveResult.clearedBalls.length > 0) {
+            await this.animateBallRemoval(moveResult.clearedBalls);
+          } else {
+            this.renderBoard();
+          }
+
           this.animateScore(this.game.score);
+          this.checkGameOver();
+          boardElement.css("pointer-events", "auto");
         }
       }
     }
