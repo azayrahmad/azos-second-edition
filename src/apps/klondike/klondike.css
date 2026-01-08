@@ -72,6 +72,7 @@
     height: 96px;
     cursor: pointer;
     border: 1px solid transparent;
+    background-image: url("/src/assets/img/solitaire.png");
 }
 
 .card-back-preview.selected {
@@ -102,7 +103,6 @@
 .klondike-solitaire-container .card.face-down {
     background-color: #8b0000;
     background-image: url("/src/assets/img/solitaire.png");
-    background-position: 0 -384px !important; /* cardback1 */
 }
 
 .klondike-solitaire-container .card.dragging {
