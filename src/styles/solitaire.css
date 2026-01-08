@@ -59,3 +59,30 @@
 .card[data-suit="diamond"][data-rank="J"] { background-position: -710px -288px; }
 .card[data-suit="diamond"][data-rank="Q"] { background-position: -781px -288px; }
 .card[data-suit="diamond"][data-rank="K"] { background-position: -852px -288px; }
+
+.cardback1 { background-position: 0 -384px; }
+.cardback2 { background-position: -71px -384px; }
+.cardback3 { background-position: -142px -384px; }
+.cardback-fish1 { background-position: -213px -384px; }
+.cardback-fish2 { background-position: -284px -384px; }
+.cardback-robot1 { background-position: -355px -384px; }
+.cardback-robot2 { background-position: -426px -384px; }
+.cardback-robot3 { background-position: -497px -384px; }
+.cardback-rose { background-position: -568px -384px; }
+.stockpile-draw { background-position: -639px -384px; }
+.stockpile-empty { background-position: -710px -384px; }
+.foundation-placeholder { background-position: -781px -384px; }
+
+.cardback-shell { background-position: 0 -480px; }
+.cardback-castle1 { background-position: -71px -480px; }
+.cardback-castle2 { background-position: -142px -480px; }
+.cardback-beach1 { background-position: -213px -480px; }
+.cardback-beach2 { background-position: -284px -480px; }
+.cardback-beach3 { background-position: -355px -480px; }
+.cardback-hand1 { background-position: -426px -480px; }
+.cardback-hand2 { background-position: -497px -480px; }
+.cardback-hand3 { background-position: -568px -480px; }
+.background1 { background-position: -639px -480px; }
+.background2 { background-position: -710px -480px; }
+.background3 { background-position: -781px -480px; }
+.background4 { background-position: -852px -480px; }
