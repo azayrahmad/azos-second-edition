@@ -7,7 +7,7 @@ def verify_restart_game(page):
     time.sleep(30)
 
     # Navigate to the app
-    page.goto("http://localhost:5173/azos-second-edition/")
+    page.goto("http://localhost:5173/win98-web/")
 
     # Launch Spider Solitaire
     page.dblclick(".desktop-icon[data-app-id='spidersolitairenew']")

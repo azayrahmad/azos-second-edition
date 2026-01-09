@@ -7,7 +7,7 @@ def run_verification(page):
     time.sleep(20)
 
     print("Navigating to page...")
-    page.goto("http://localhost:5173/azos-second-edition/")
+    page.goto("http://localhost:5173/win98-web/")
     print("Page loaded.")
 
     # Close the "Tip of the Day" window if it appears

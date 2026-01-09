@@ -104,8 +104,8 @@ window.System = new WindowManagerSystem();
 
 async function initializeOS() {
   const path = window.location.pathname;
-  const profileName = path.startsWith('/azos-second-edition/')
-    ? path.substring('/azos-second-edition/'.length).split('/')[0]
+  const profileName = path.startsWith('/win98-web/')
+    ? path.substring('/win98-web/'.length).split('/')[0]
     : '';
 
   window.activeProfile = null;

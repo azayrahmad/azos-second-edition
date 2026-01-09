@@ -4,7 +4,7 @@ A pixel-perfect recreation attempt of Windows 98 desktop GUI using just HTML, CS
 
 ## Live Demo
 
-Experience Windows 98 Web Edition live: **[Windows 98 Web Edition](https://azayrahmad.github.io/azos-second-edition/)**
+Experience Windows 98 Web Edition live: **[Windows 98 Web Edition](https://azayrahmad.github.io/win98-web/)**
 
 ## Screenshots
 

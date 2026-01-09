@@ -4,7 +4,7 @@ A web-based JavaScript remake of Windows 98 desktop experience, focusing on desk
 
 ## Live Demo
 
-Experience Windows 98 Web Edition live: **[Windows 98 Web Edition](https://azayrahmad.github.io/azos-second-edition/)**
+Experience Windows 98 Web Edition live: **[Windows 98 Web Edition](https://azayrahmad.github.io/win98-web/)**
 
 ## Screenshots
 
