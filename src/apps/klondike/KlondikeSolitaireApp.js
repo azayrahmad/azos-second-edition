@@ -50,6 +50,9 @@ export class KlondikeSolitaireApp extends Application {
     this.dragOffsetX = 0;
     this.dragOffsetY = 0;
 
+    this.lastClickTime = 0;
+    this.lastClickTarget = null;
+
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
 
@@ -262,7 +265,6 @@ export class KlondikeSolitaireApp extends Application {
 
   addEventListeners() {
     this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
-    this.container.addEventListener("click", this.onClick.bind(this));
     this.win.element.addEventListener("keydown", (event) => {
        if (event.key === "F2") {
         event.preventDefault();
@@ -271,93 +273,79 @@ export class KlondikeSolitaireApp extends Application {
     });
   }
 
-  onClick(event) {
-    if (this.wasDragged) return;
-
-    const stockPileDiv = event.target.closest(".stock-pile");
-    if (stockPileDiv) {
-        this.game.dealFromStock();
-        this.render();
-        return;
-    }
-
-    const cardDiv = event.target.closest(".card");
-    if (cardDiv) {
-        const pileType = cardDiv.dataset.pileType;
-        if (pileType === 'tableau') {
-            const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
-            const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
-            this.game.flipTableauCard(pileIndex, cardIndex);
-            this.render();
-        }
-    }
-  }
 
   onMouseDown(event) {
     if (event.button !== 0) return; // Only main button
     this.wasDragged = false;
 
     const cardDiv = event.target.closest(".card");
-    if (!cardDiv) return;
+    const stockPileDiv = event.target.closest(".stock-pile");
 
-    const pileType = cardDiv.dataset.pileType;
-    const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
-    const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+    // We only care about clicks on cards or the stock pile
+    if (!cardDiv && !stockPileDiv) return;
 
-    if (!this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) return;
-
-    event.preventDefault();
-
+    // An interaction has started. Set the flag that onMouseUp will check.
     this.isDragging = true;
-    this.draggedCardsInfo = { pileType, pileIndex, cardIndex };
-
-    let fromPile;
-    if (pileType === 'tableau') fromPile = this.game.tableauPiles[pileIndex];
-    else if (pileType === 'waste') fromPile = this.game.wastePile;
-    else if (pileType === 'foundation') fromPile = this.game.foundationPiles[pileIndex];
-    else return;
-
-    const cardsToDrag = fromPile.cards.slice(cardIndex);
-
-    const containerRect = this.container.getBoundingClientRect();
-    const cardRect = cardDiv.getBoundingClientRect();
-    this.dragOffsetX = event.clientX - cardRect.left;
-    this.dragOffsetY = event.clientY - cardRect.top;
-
-    this.draggedElement = document.createElement("div");
-    this.draggedElement.className = "dragged-stack";
-    this.draggedElement.style.position = "absolute";
-    this.draggedElement.style.zIndex = "1000";
-    this.draggedElement.style.width = `${cardDiv.offsetWidth}px`;
-    this.draggedElement.style.height = `${cardDiv.offsetHeight * (1 + (cardsToDrag.length - 1) * 0.2)}px`;
-
-    let topOffset = 0;
-    const overlap = 15;
-
-    cardsToDrag.forEach((card) => {
-      const originalElement = this.container.querySelector(`.card[data-uid='${card.uid}']`);
-      if (originalElement) {
-        const clone = originalElement.cloneNode(true);
-        clone.style.position = 'absolute';
-        clone.style.top = `${topOffset}px`;
-        this.draggedElement.appendChild(clone);
-        originalElement.classList.add("dragging");
-
-        if (card.faceUp) {
-            topOffset += overlap;
-        } else {
-            topOffset += 5; // faceDownOverlap
-        }
-      }
-    });
-
-    this.container.appendChild(this.draggedElement);
-
-    this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
-    this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
+    event.preventDefault();
 
     window.addEventListener("mousemove", this.boundOnMouseMove);
     window.addEventListener("mouseup", this.boundOnMouseUp);
+
+    // If the click was on a draggable card, prepare the drag operation
+    if (cardDiv) {
+      const pileType = cardDiv.dataset.pileType;
+      const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+      const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+
+      if (this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) {
+        this.draggedCardsInfo = { pileType, pileIndex, cardIndex };
+
+        let fromPile;
+        if (pileType === "tableau") fromPile = this.game.tableauPiles[pileIndex];
+        else if (pileType === "waste") fromPile = this.game.wastePile;
+        else if (pileType === "foundation") fromPile = this.game.foundationPiles[pileIndex];
+        else return;
+
+        const cardsToDrag = fromPile.cards.slice(cardIndex);
+        const containerRect = this.container.getBoundingClientRect();
+        const cardRect = cardDiv.getBoundingClientRect();
+        this.dragOffsetX = event.clientX - cardRect.left;
+        this.dragOffsetY = event.clientY - cardRect.top;
+
+        this.draggedElement = document.createElement("div");
+        this.draggedElement.className = "dragged-stack";
+        this.draggedElement.style.position = "absolute";
+        this.draggedElement.style.zIndex = "1000";
+        this.draggedElement.style.width = `${cardDiv.offsetWidth}px`;
+        this.draggedElement.style.height = `${cardDiv.offsetHeight * (1 + (cardsToDrag.length - 1) * 0.2)}px`;
+
+        let topOffset = 0;
+        const overlap = 15;
+
+        cardsToDrag.forEach((card) => {
+          const originalElement = this.container.querySelector(
+            `.card[data-uid='${card.uid}']`
+          );
+          if (originalElement) {
+            const clone = originalElement.cloneNode(true);
+            clone.style.position = "absolute";
+            clone.style.top = `${topOffset}px`;
+            this.draggedElement.appendChild(clone);
+            originalElement.classList.add("dragging");
+
+            if (card.faceUp) {
+              topOffset += overlap;
+            } else {
+              topOffset += 5; // faceDownOverlap
+            }
+          }
+        });
+
+        this.container.appendChild(this.draggedElement);
+        this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
+        this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
+      }
+    }
   }
 
   onMouseMove(event) {
@@ -371,37 +359,99 @@ export class KlondikeSolitaireApp extends Application {
   onMouseUp(event) {
     if (!this.isDragging) return;
 
-    // Cleanup dragging state
+    const wasDragged = this.wasDragged;
+
+    // Cleanup dragging state first
     this.isDragging = false;
     window.removeEventListener("mousemove", this.boundOnMouseMove);
     window.removeEventListener("mouseup", this.boundOnMouseUp);
 
-    // Un-hide the original cards
+    // Always un-hide the original cards and remove the clone
     this.container
       .querySelectorAll(".dragging")
       .forEach((el) => el.classList.remove("dragging"));
+    if (this.draggedElement) {
+      // Hide the clone to find the underlying element before removing it
+      this.draggedElement.style.display = "none";
+    }
 
-    // Hide the clone to find the underlying element
-    this.draggedElement.style.display = "none";
-    const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+    if (wasDragged) {
+      // This was a drag-and-drop operation
+      const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
 
-    // Remove the clone
-    this.container.removeChild(this.draggedElement);
-    this.draggedElement = null;
+      // Now remove the clone
+      if (this.draggedElement) {
+        this.container.removeChild(this.draggedElement);
+        this.draggedElement = null;
+      }
 
-    const toPileDiv = dropTarget?.closest(".tableau-pile, .foundation-pile");
+      const toPileDiv = dropTarget?.closest(".tableau-pile, .foundation-pile");
 
-    if (toPileDiv) {
-      const { pileType: fromPileType, pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
-      const toPileType = toPileDiv.dataset.pileType;
-      const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
+      if (toPileDiv) {
+        const { pileType: fromPileType, pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
+        const toPileType = toPileDiv.dataset.pileType;
+        const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
 
-      if (this.game.moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex)) {
-        if (this.game.checkForWin()) {
-          this.showWinDialog();
+        if (this.game.moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex)) {
+          if (this.game.checkForWin()) {
+            this.showWinDialog();
+          }
+          this.render();
+          this._updateMenuBar(this.win);
         }
+      }
+    } else {
+       // It was a click, so just remove the clone
+      if (this.draggedElement) {
+        this.container.removeChild(this.draggedElement);
+        this.draggedElement = null;
+      }
+
+      // This was a click operation
+      const stockPileDiv = event.target.closest(".stock-pile");
+      if (stockPileDiv) {
+        this.game.dealFromStock();
         this.render();
-        this._updateMenuBar(this.win);
+        this.draggedCardsInfo = null;
+        return;
+      }
+
+      const cardDiv = event.target.closest(".card");
+      if (!cardDiv) {
+        this.draggedCardsInfo = null;
+        return;
+      };
+
+      const currentTime = new Date().getTime();
+      const isDoubleClick =
+        currentTime - this.lastClickTime < 300 && this.lastClickTarget === cardDiv;
+
+      if (isDoubleClick) {
+        this.lastClickTime = 0;
+        this.lastClickTarget = null;
+
+        const pileType = cardDiv.dataset.pileType;
+        const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+
+        if (pileType === "tableau" || pileType === "waste") {
+          if (this.game.autoMoveToFoundation(pileType, pileIndex)) {
+            if (this.game.checkForWin()) {
+              this.showWinDialog();
+            }
+            this.render();
+          }
+        }
+      } else {
+        this.lastClickTime = currentTime;
+        this.lastClickTarget = cardDiv;
+
+        const pileType = cardDiv.dataset.pileType;
+        if (pileType === "tableau") {
+          const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+          const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+          this.game.flipTableauCard(pileIndex, cardIndex);
+          this.render();
+        }
       }
     }
 
