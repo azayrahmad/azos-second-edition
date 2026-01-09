@@ -644,76 +644,161 @@ export class WordPadApp extends Application {
     const ppi = 96; // Standard pixels per inch
 
     const drawRuler = () => {
-      this.ruler.innerHTML = ""; // Clear existing ticks
-      const widthInPixels = this.ruler.offsetWidth;
-      const widthInInches = widthInPixels / ppi;
+        const oldTicks = this.ruler.querySelectorAll(".ruler-tick, .ruler-number");
+        oldTicks.forEach(tick => tick.remove());
 
-      for (let i = 0; i < widthInInches; i++) {
-        const inchMarkPos = i * ppi;
+        const widthInPixels = this.ruler.offsetWidth;
+        const widthInInches = widthInPixels / ppi;
 
-        const inchNumber = document.createElement("span");
-        inchNumber.className = "ruler-number";
-        inchNumber.textContent = i + 1;
-        inchNumber.style.left = `${inchMarkPos + ppi}px`;
-        this.ruler.appendChild(inchNumber);
+        for (let i = 0; i < widthInInches; i++) {
+            const inchMarkPos = i * ppi;
+            const inchNumber = document.createElement("span");
+            inchNumber.className = "ruler-number";
+            inchNumber.textContent = i + 1;
+            inchNumber.style.left = `${inchMarkPos + ppi}px`;
+            this.ruler.appendChild(inchNumber);
 
-        // Half-inch mark
-        if (i + 0.5 < widthInInches) {
-          const halfTick = document.createElement("span");
-          halfTick.className = "ruler-tick half";
-          halfTick.style.left = `${inchMarkPos + ppi / 2}px`;
-          this.ruler.appendChild(halfTick);
+            // Tick marks
+            for (let j = 1; j < 8; j++) {
+                const tick = document.createElement("span");
+                tick.className = "ruler-tick";
+                if (j % 4 === 0) tick.classList.add("half");
+                else if (j % 2 === 0) tick.classList.add("quarter");
+                tick.style.left = `${inchMarkPos + (j * ppi) / 8}px`;
+                this.ruler.appendChild(tick);
+            }
         }
-
-        // Quarter-inch marks
-        if (i + 0.25 < widthInInches) {
-          const quarterTick1 = document.createElement("span");
-          quarterTick1.className = "ruler-tick quarter";
-          quarterTick1.style.left = `${inchMarkPos + ppi / 4}px`;
-          this.ruler.appendChild(quarterTick1);
-        }
-        if (i + 0.75 < widthInInches) {
-          const quarterTick2 = document.createElement("span");
-          quarterTick2.className = "ruler-tick quarter";
-          quarterTick2.style.left = `${inchMarkPos + (ppi * 3) / 4}px`;
-          this.ruler.appendChild(quarterTick2);
-        }
-
-        // Half-quarter
-        if (i + 0.125 < widthInInches) {
-          const halfQuarterTick1 = document.createElement("span");
-          halfQuarterTick1.className = "ruler-tick quarter";
-          halfQuarterTick1.style.left = `${inchMarkPos + ppi / 8}px`;
-          this.ruler.appendChild(halfQuarterTick1);
-        }
-
-        if (i + 0.375 < widthInInches) {
-          const halfQuarterTick2 = document.createElement("span");
-          halfQuarterTick2.className = "ruler-tick quarter";
-          halfQuarterTick2.style.left = `${inchMarkPos + (ppi * 7) / 8}px`;
-          this.ruler.appendChild(halfQuarterTick2);
-        }
-
-        if (i + 0.625 < widthInInches) {
-          const halfQuarterTick3 = document.createElement("span");
-          halfQuarterTick3.className = "ruler-tick quarter";
-          halfQuarterTick3.style.left = `${inchMarkPos + (ppi * 5) / 8}px`;
-          this.ruler.appendChild(halfQuarterTick3);
-        }
-
-        if (i + 0.875 < widthInInches) {
-          const halfQuarterTick4 = document.createElement("span");
-          halfQuarterTick4.className = "ruler-tick quarter";
-          halfQuarterTick4.style.left = `${inchMarkPos + (ppi * 3) / 8}px`;
-          this.ruler.appendChild(halfQuarterTick4);
-        }
-      }
     };
 
-    drawRuler();
+    this.firstLineIndentMarker = document.createElement("div");
+    this.firstLineIndentMarker.className = "ruler-marker first-line-indent";
+    this.ruler.appendChild(this.firstLineIndentMarker);
 
+    this.hangingIndentMarker = document.createElement("div");
+    this.hangingIndentMarker.className = "ruler-marker hanging-indent";
+    this.ruler.appendChild(this.hangingIndentMarker);
+
+    this.leftIndentMarker = document.createElement("div");
+    this.leftIndentMarker.className = "ruler-marker left-indent";
+    this.ruler.appendChild(this.leftIndentMarker);
+
+    const dragMarker = (marker, onStart, onDrag, onEnd) => {
+        marker.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                this.savedSelectionRange = selection.getRangeAt(0).cloneRange();
+            }
+
+            if(onStart) onStart();
+
+            const startX = e.clientX;
+            const startLeft = marker.offsetLeft;
+            const rulerRect = this.ruler.getBoundingClientRect();
+
+            const onMouseMove = (moveEvent) => {
+                const deltaX = moveEvent.clientX - startX;
+                let newLeft = startLeft + deltaX;
+                newLeft = Math.max(0, newLeft);
+                newLeft = Math.min(rulerRect.width - marker.offsetWidth, newLeft);
+                onDrag(newLeft, marker);
+            };
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                onEnd();
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    };
+
+    const applyIndentation = () => this._applyIndentationToSelection();
+
+    let firstLineStartOffset = 0;
+    dragMarker(this.leftIndentMarker,
+    () => {
+        firstLineStartOffset = this.firstLineIndentMarker.offsetLeft - this.leftIndentMarker.offsetLeft;
+    },
+    (newLeft) => {
+        this.leftIndentMarker.style.left = `${newLeft}px`;
+        this.hangingIndentMarker.style.left = `${newLeft}px`;
+        this.firstLineIndentMarker.style.left = `${newLeft + firstLineStartOffset}px`;
+    }, applyIndentation);
+
+    dragMarker(this.hangingIndentMarker, null, (newLeft) => {
+        this.hangingIndentMarker.style.left = `${newLeft}px`;
+    }, applyIndentation);
+
+    dragMarker(this.firstLineIndentMarker, null, (newLeft) => {
+        this.firstLineIndentMarker.style.left = `${newLeft}px`;
+    }, applyIndentation);
+
+    this.ruler.addEventListener('click', (e) => {
+        if (e.target === this.ruler) {
+            const tabStop = document.createElement('div');
+            tabStop.className = 'ruler-tab-stop';
+            tabStop.style.left = `${e.offsetX}px`;
+            this.ruler.appendChild(tabStop);
+        } else if (e.target.classList.contains('ruler-tab-stop')) {
+            e.target.remove();
+        }
+    });
+
+    drawRuler();
     const resizeObserver = new ResizeObserver(drawRuler);
     resizeObserver.observe(this.ruler);
+  }
+
+  _applyIndentationToSelection() {
+    this.editor.focus();
+    if (this.savedSelectionRange) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(this.savedSelectionRange);
+    }
+
+    const leftIndent = this.hangingIndentMarker.offsetLeft;
+    const textIndent = this.firstLineIndentMarker.offsetLeft - leftIndent;
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
+    let node = selection.focusNode;
+    let elementToStyle = null;
+
+    // Traverse up to find a block-level element or the editor itself
+    while (node && node !== this.editor) {
+        if (node.nodeType === 1 && (node.tagName === 'DIV' || node.tagName === 'P')) {
+            elementToStyle = node;
+            break;
+        }
+        node = node.parentNode;
+    }
+
+    if (elementToStyle) {
+        elementToStyle.style.paddingLeft = `${leftIndent}px`;
+        elementToStyle.style.textIndent = `${textIndent}px`;
+    } else {
+        // Fallback: If no block element is found, wrap with formatBlock
+        document.execCommand('formatBlock', false, 'div');
+        // After formatBlock, the selection is usually inside the new block.
+        const newSelection = window.getSelection();
+        if (newSelection.rangeCount > 0) {
+            let newBlock = newSelection.getRangeAt(0).commonAncestorContainer;
+            if (newBlock.nodeType !== 1) {
+                newBlock = newBlock.parentNode;
+            }
+            if (newBlock && newBlock !== this.editor && window.getComputedStyle(newBlock).getPropertyValue('display') === 'block') {
+                newBlock.style.paddingLeft = `${leftIndent}px`;
+                newBlock.style.textIndent = `${textIndent}px`;
+            }
+        }
+    }
   }
 
   _populateColorPalette() {
