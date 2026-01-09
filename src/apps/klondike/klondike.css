@@ -67,12 +67,11 @@
     padding: 10px;
 }
 
-
 .klondike-solitaire-container .tableau-placeholder {
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.klondike-solitaire-container .stock-card-placeholder {
+.klondike-solitaire-container .stock-pile {
     background-image: url("/src/assets/img/solitaire.png");
     background-position: -710px -384px; /* stockpile-draw */
 }
@@ -95,7 +94,7 @@
     border: 3px solid black;
 }
 
-.klondike-solitaire-container .foundation-placeholder {
+.klondike-solitaire-container .foundation-pile {
     background-image: url("/src/assets/img/solitaire.png");
     background-position: -852px -384px; /* foundation-background */
 }
