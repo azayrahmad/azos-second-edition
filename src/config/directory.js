@@ -51,24 +51,6 @@ const directory = [
               },
               { id: "app-my-briefcase", type: "app", appId: "my-briefcase" },
               {
-                id: "shortcut-to-tipOfTheDay",
-                type: "shortcut",
-                targetId: "app-tipOfTheDay",
-                name: "Tip of the Day",
-              },
-              {
-                id: "shortcut-to-notepad",
-                type: "shortcut",
-                targetId: "app-notepad",
-                name: "Notepad",
-              },
-              {
-                id: "shortcut-to-image-viewer",
-                type: "shortcut",
-                targetId: "app-image-viewer",
-                name: "Image Viewer",
-              },
-              {
                 id: "shortcut-to-clippy",
                 type: "shortcut",
                 targetId: "app-clippy",
@@ -79,18 +61,6 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-webamp",
                 name: "Winamp",
-              },
-              {
-                id: "shortcut-to-appmaker",
-                type: "shortcut",
-                targetId: "app-appmaker",
-                name: "App Maker",
-              },
-              {
-                id: "shortcut-to-alertTest",
-                type: "shortcut",
-                targetId: "app-alertTest",
-                name: "Alert Test",
               },
               {
                 id: "shortcut-to-internet-explorer",
@@ -162,7 +132,7 @@ const directory = [
                 id: "shortcut-to-esheep",
                 type: "shortcut",
                 targetId: "app-esheep",
-                name: "eSheep",
+                name: "sheep.exe",
               },
               {
                 id: "shortcut-to-diablo",
@@ -205,12 +175,6 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-wordpad",
                 name: "WordPad",
-              },
-              {
-                id: "shortcut-to-help",
-                type: "shortcut",
-                targetId: "app-help",
-                name: "Help",
               },
               {
                 id: "shortcut-to-princeofpersia",
