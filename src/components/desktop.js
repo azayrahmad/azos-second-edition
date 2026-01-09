@@ -377,7 +377,7 @@ function removeWallpaper() {
 }
 
 function getMonitorType() {
-  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || "CRT";
+  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || "TFT";
 }
 
 function setMonitorType(type) {
@@ -1096,9 +1096,9 @@ export async function initDesktop(profile = null) {
     if (profile) {
       // Launch apps from profile
       if (profile.startup && profile.startup.length > 0) {
-        profile.startup.forEach(app => {
-          const appId = typeof app === 'string' ? app : app.appId;
-          const data = typeof app === 'object' ? app.data : null;
+        profile.startup.forEach((app) => {
+          const appId = typeof app === "string" ? app : app.appId;
+          const data = typeof app === "object" ? app.data : null;
           launchApp(appId, data);
         });
       }
@@ -1113,7 +1113,9 @@ export async function initDesktop(profile = null) {
     }
   };
 
-  document.addEventListener("desktop-ready-to-launch-apps", launchStartupApps, { once: true });
+  document.addEventListener("desktop-ready-to-launch-apps", launchStartupApps, {
+    once: true,
+  });
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
 
