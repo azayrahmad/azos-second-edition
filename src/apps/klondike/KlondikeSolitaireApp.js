@@ -107,6 +107,17 @@ export class KlondikeSolitaireApp extends Application {
 
   _updateCardBackAnimation() {
     clearInterval(this.animationTimer);
+    const stockCard = this.container.querySelector(".stock-pile .card");
+
+    if (stockCard) {
+      // Remove all possible animation classes
+      for (const key in animatedCardBacks) {
+        const info = animatedCardBacks[key];
+        for (let i = 1; i <= info.frames; i++) {
+          stockCard.classList.remove(`${info.prefix}${i}`);
+        }
+      }
+    }
 
     const animationInfo = animatedCardBacks[this.game.cardBack];
     if (!animationInfo) return;
@@ -115,10 +126,10 @@ export class KlondikeSolitaireApp extends Application {
     this.animationTimer = setInterval(() => {
       const stockCard = this.container.querySelector(".stock-pile .card");
       if (stockCard) {
-        // Remove previous frame's class
-        stockCard.classList.remove(`${animationInfo.prefix}${currentFrame === 1 ? animationInfo.frames : currentFrame - 1}`);
-
-        // Add current frame's class
+        // Remove all frames for the current animation before adding the new one
+        for (let i = 1; i <= animationInfo.frames; i++) {
+          stockCard.classList.remove(`${animationInfo.prefix}${i}`);
+        }
         stockCard.classList.add(`${animationInfo.prefix}${currentFrame}`);
 
         currentFrame++;
@@ -166,6 +177,7 @@ export class KlondikeSolitaireApp extends Application {
           action: () => {
             this.game.setCardBack(selectedCardBack);
             this.render();
+            this._updateCardBackAnimation();
           }
         },
         {
