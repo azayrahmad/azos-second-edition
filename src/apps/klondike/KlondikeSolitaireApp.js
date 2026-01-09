@@ -305,6 +305,7 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   initializeDrag(event) {
+      event.preventDefault();
       const { cardDiv, pileType, pileIndex, cardIndex } = this.potentialDragInfo;
 
       this.isDragging = true;
