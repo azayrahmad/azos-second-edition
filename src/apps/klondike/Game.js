@@ -118,6 +118,37 @@ export class Game {
     return this.foundationPiles.every((pile) => pile.cards.length === 13);
   }
 
+  autoMoveToFoundation(fromPileType, fromPileIndex) {
+    let fromPile;
+    let cardIndex;
+
+    if (fromPileType === 'tableau') {
+      fromPile = this.tableauPiles[fromPileIndex];
+      if (!fromPile || fromPile.cards.length === 0) return false;
+      cardIndex = fromPile.cards.length - 1;
+    } else if (fromPileType === 'waste') {
+      fromPile = this.wastePile;
+      if (!fromPile || fromPile.cards.length === 0) return false;
+      cardIndex = fromPile.cards.length - 1;
+    } else {
+      return false;
+    }
+
+    const cardToMove = fromPile.cards[cardIndex];
+
+    if (!cardToMove.faceUp) return false;
+
+    for (const foundationPile of this.foundationPiles) {
+      if (foundationPile.canAccept(cardToMove)) {
+        fromPile.cards.pop();
+        foundationPile.addCard(cardToMove);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   setCardBack(cardBack) {
     this.cardBack = cardBack;
     setItem(LOCAL_STORAGE_KEYS.klondikeCardBack, cardBack);
