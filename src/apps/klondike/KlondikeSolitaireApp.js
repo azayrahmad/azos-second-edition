@@ -66,7 +66,7 @@ export class KlondikeSolitaireApp extends Application {
 
     this.startNewGame();
 
-    win.on('close', () => {
+    win.on("close", () => {
       clearInterval(this.animationTimer);
     });
 
@@ -142,8 +142,18 @@ export class KlondikeSolitaireApp extends Application {
 
   _showDeckSelectionDialog() {
     const cardBacks = [
-      "cardback1", "cardback2", "cardback-fish1", "cardback-fish2", "cardback3", "cardback4",
-      "cardback-robot1", "cardback-rose", "cardback-shell", "cardback-castle1", "cardback-beach1", "cardback-hand1"
+      "cardback1",
+      "cardback2",
+      "cardback-fish1",
+      "cardback-fish2",
+      "cardback3",
+      "cardback4",
+      "cardback-robot1",
+      "cardback-rose",
+      "cardback-shell",
+      "cardback-castle1",
+      "cardback-beach1",
+      "cardback-hand1",
     ];
 
     let selectedCardBack = this.game.cardBack;
@@ -151,7 +161,7 @@ export class KlondikeSolitaireApp extends Application {
     const dialogContent = document.createElement("div");
     dialogContent.className = "deck-selection-container";
 
-    cardBacks.forEach(cardBack => {
+    cardBacks.forEach((cardBack) => {
       const cardDiv = document.createElement("div");
       cardDiv.className = `card-back-preview card ${cardBack}`;
       if (cardBack === selectedCardBack) {
@@ -160,7 +170,7 @@ export class KlondikeSolitaireApp extends Application {
       cardDiv.dataset.cardBack = cardBack;
       cardDiv.addEventListener("click", () => {
         selectedCardBack = cardBack;
-        dialogContent.querySelectorAll(".card-back-preview").forEach(div => {
+        dialogContent.querySelectorAll(".card-back-preview").forEach((div) => {
           div.classList.remove("selected");
         });
         cardDiv.classList.add("selected");
@@ -178,11 +188,11 @@ export class KlondikeSolitaireApp extends Application {
             this.game.setCardBack(selectedCardBack);
             this.render();
             this._updateCardBackAnimation();
-          }
+          },
         },
         {
-          label: "Cancel"
-        }
+          label: "Cancel",
+        },
       ],
       parentWindow: this.win,
       modal: true,
@@ -265,8 +275,8 @@ export class KlondikeSolitaireApp extends Application {
     if (this.game.stockPile.cards.length > 0) {
       this.game.stockPile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
-        cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${Math.floor(cardIndex / 3) * 1}px`;
+        // cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 5}px`;
         cardDiv.style.top = "0px";
         cardDiv.dataset.pileType = "stock";
         cardDiv.dataset.pileIndex = 0;
@@ -296,8 +306,8 @@ export class KlondikeSolitaireApp extends Application {
     if (this.game.wastePile.cards.length > 0) {
       this.game.wastePile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
-        cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${Math.floor(cardIndex / 3) * 1}px`;
+        // cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 5}px`;
         cardDiv.style.top = "0px";
         cardDiv.dataset.pileType = "waste";
         cardDiv.dataset.cardIndex = cardIndex;
@@ -308,7 +318,8 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   renderFoundations() {
-    const foundationContainer = this.container.querySelector(".foundation-piles");
+    const foundationContainer =
+      this.container.querySelector(".foundation-piles");
     foundationContainer.innerHTML = "";
     this.game.foundationPiles.forEach((pile, pileIndex) => {
       const pileDiv = document.createElement("div");
@@ -335,7 +346,7 @@ export class KlondikeSolitaireApp extends Application {
     this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
     this.container.addEventListener("click", this.onClick.bind(this));
     this.win.element.addEventListener("keydown", (event) => {
-       if (event.key === "F2") {
+      if (event.key === "F2") {
         event.preventDefault();
         this._showNewGameDialog();
       }
@@ -347,20 +358,20 @@ export class KlondikeSolitaireApp extends Application {
 
     const stockPileDiv = event.target.closest(".stock-pile");
     if (stockPileDiv) {
-        this.game.dealFromStock();
-        this.render();
-        return;
+      this.game.dealFromStock();
+      this.render();
+      return;
     }
 
     const cardDiv = event.target.closest(".card");
     if (cardDiv) {
-        const pileType = cardDiv.dataset.pileType;
-        if (pileType === 'tableau') {
-            const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
-            const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
-            this.game.flipTableauCard(pileIndex, cardIndex);
-            this.render();
-        }
+      const pileType = cardDiv.dataset.pileType;
+      if (pileType === "tableau") {
+        const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+        const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+        this.game.flipTableauCard(pileIndex, cardIndex);
+        this.render();
+      }
     }
   }
 
@@ -383,9 +394,10 @@ export class KlondikeSolitaireApp extends Application {
     this.draggedCardsInfo = { pileType, pileIndex, cardIndex };
 
     let fromPile;
-    if (pileType === 'tableau') fromPile = this.game.tableauPiles[pileIndex];
-    else if (pileType === 'waste') fromPile = this.game.wastePile;
-    else if (pileType === 'foundation') fromPile = this.game.foundationPiles[pileIndex];
+    if (pileType === "tableau") fromPile = this.game.tableauPiles[pileIndex];
+    else if (pileType === "waste") fromPile = this.game.wastePile;
+    else if (pileType === "foundation")
+      fromPile = this.game.foundationPiles[pileIndex];
     else return;
 
     const cardsToDrag = fromPile.cards.slice(cardIndex);
@@ -406,18 +418,20 @@ export class KlondikeSolitaireApp extends Application {
     const overlap = 15;
 
     cardsToDrag.forEach((card) => {
-      const originalElement = this.container.querySelector(`.card[data-uid='${card.uid}']`);
+      const originalElement = this.container.querySelector(
+        `.card[data-uid='${card.uid}']`,
+      );
       if (originalElement) {
         const clone = originalElement.cloneNode(true);
-        clone.style.position = 'absolute';
+        clone.style.position = "absolute";
         clone.style.top = `${topOffset}px`;
         this.draggedElement.appendChild(clone);
         originalElement.classList.add("dragging");
 
         if (card.faceUp) {
-            topOffset += overlap;
+          topOffset += overlap;
         } else {
-            topOffset += 5; // faceDownOverlap
+          topOffset += 5; // faceDownOverlap
         }
       }
     });
@@ -463,11 +477,23 @@ export class KlondikeSolitaireApp extends Application {
     const toPileDiv = dropTarget?.closest(".tableau-pile, .foundation-pile");
 
     if (toPileDiv) {
-      const { pileType: fromPileType, pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
+      const {
+        pileType: fromPileType,
+        pileIndex: fromPileIndex,
+        cardIndex,
+      } = this.draggedCardsInfo;
       const toPileType = toPileDiv.dataset.pileType;
       const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
 
-      if (this.game.moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex)) {
+      if (
+        this.game.moveCards(
+          fromPileType,
+          fromPileIndex,
+          cardIndex,
+          toPileType,
+          toPileIndex,
+        )
+      ) {
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }

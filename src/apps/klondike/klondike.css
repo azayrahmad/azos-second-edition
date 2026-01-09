@@ -77,7 +77,8 @@
 }
 
 .klondike-solitaire-container .stock-placeholder {
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-image: url("/src/assets/img/solitaire.png");
+    background-position: -710px -384px; /* stockpile-draw */
 }
 
 .card-back-preview {
@@ -103,6 +104,11 @@
     background-position: -852px -384px; /* foundation-background */
 }
 
+.klondike-solitaire-container .stock-pile .card,
+.klondike-solitaire-container .waste-pile .card {
+    position: absolute !important;
+}
+
 .klondike-solitaire-container .card {
     width: 71px;
     height: 96px;
@@ -117,6 +123,7 @@
 
 .klondike-solitaire-container .tableau-pile .card {
     position: absolute;
+    left: 0 !important;
 }
 
 .klondike-solitaire-container .card.face-up {
