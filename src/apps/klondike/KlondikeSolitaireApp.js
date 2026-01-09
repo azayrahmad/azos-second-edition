@@ -283,8 +283,8 @@ export class KlondikeSolitaireApp extends Application {
       this.game.stockPile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
         // cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 5}px`;
-        cardDiv.style.top = "0px";
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
+        cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
         cardDiv.dataset.pileType = "stock";
         cardDiv.dataset.pileIndex = 0;
         cardDiv.dataset.cardIndex = cardIndex;
@@ -314,8 +314,8 @@ export class KlondikeSolitaireApp extends Application {
       this.game.wastePile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
         // cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 5}px`;
-        cardDiv.style.top = "0px";
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
+        cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
         cardDiv.dataset.pileType = "waste";
         cardDiv.dataset.cardIndex = cardIndex;
         cardDiv.dataset.pileIndex = 0;
