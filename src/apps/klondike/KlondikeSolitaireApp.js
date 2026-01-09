@@ -4,6 +4,7 @@ import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./klondike.css";
 import "../../styles/solitaire.css";
+import { apps as desktopApps } from "../../config/apps.js";
 
 export class KlondikeSolitaireApp extends Application {
   static config = {
@@ -202,6 +203,7 @@ export class KlondikeSolitaireApp extends Application {
   addEventListeners() {
     this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
     this.container.addEventListener("click", this.onClick.bind(this));
+    this.container.addEventListener("dblclick", this.onDoubleClick.bind(this));
     this.win.element.addEventListener("keydown", (event) => {
        if (event.key === "F2") {
         event.preventDefault();
@@ -229,6 +231,24 @@ export class KlondikeSolitaireApp extends Application {
             this.game.flipTableauCard(pileIndex, cardIndex);
             this.render();
         }
+    }
+  }
+
+  onDoubleClick(event) {
+    const cardDiv = event.target.closest(".card");
+    if (!cardDiv) return;
+
+    const pileType = cardDiv.dataset.pileType;
+    const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+    const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+
+    console.log(`Double-clicked on: ${pileType}, pile ${pileIndex}, card ${cardIndex}`);
+
+    if (this.game.autoMoveToFoundation(pileType, pileIndex, cardIndex)) {
+      this.render();
+      if (this.game.checkForWin()) {
+        this.showWinDialog();
+      }
     }
   }
 
