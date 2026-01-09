@@ -83,9 +83,62 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   async startNewGame() {
+    if (this.game) {
+      this.game.destroy();
+    }
     this.game = new Game();
     this.render();
     this._updateMenuBar(this.win);
+  }
+
+  _showDeckSelectionDialog() {
+    const cardBacks = [
+      "cardback1", "cardback2", "cardback-fish1", "cardback-fish2", "cardback3", "cardback4",
+      "cardback-robot1", "cardback-rose", "cardback-shell", "cardback-castle1", "cardback-beach1", "cardback-hand1"
+    ];
+
+    let selectedCardBack = this.game.cardBack;
+
+    const dialogContent = document.createElement("div");
+    dialogContent.className = "deck-selection-container";
+
+    cardBacks.forEach(cardBack => {
+      const cardDiv = document.createElement("div");
+      cardDiv.className = `card-back-preview card ${cardBack}`;
+      if (cardBack === selectedCardBack) {
+        cardDiv.classList.add("selected");
+      }
+      cardDiv.dataset.cardBack = cardBack;
+      cardDiv.addEventListener("click", () => {
+        selectedCardBack = cardBack;
+        dialogContent.querySelectorAll(".card-back-preview").forEach(div => {
+          div.classList.remove("selected");
+        });
+        cardDiv.classList.add("selected");
+      });
+      dialogContent.appendChild(cardDiv);
+    });
+
+    ShowDialogWindow({
+      title: "Select Card Back",
+      content: dialogContent,
+      buttons: [
+        {
+          label: "OK",
+          action: () => {
+            this.game.setCardBack(selectedCardBack);
+            this.render();
+          }
+        },
+        {
+          label: "Cancel"
+        }
+      ],
+      parentWindow: this.win,
+      modal: true,
+      width: 550,
+      height: 300,
+    });
   }
 
   _updateMenuBar(win) {
@@ -95,6 +148,11 @@ export class KlondikeSolitaireApp extends Application {
           label: "New Game",
           action: () => this._showNewGameDialog(),
           shortcut: "F2",
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Deck...",
+          action: () => this._showDeckSelectionDialog(),
         },
         "MENU_DIVIDER",
         {
@@ -155,9 +213,12 @@ export class KlondikeSolitaireApp extends Application {
     stockContainer.innerHTML = "";
     stockContainer.dataset.pileType = "stock";
     if (this.game.stockPile.cards.length > 0) {
-        const placeholder = document.createElement("div");
-        placeholder.className = "stock-card-placeholder";
-        stockContainer.appendChild(placeholder);
+      const topCard = this.game.stockPile.cards[this.game.stockPile.cards.length - 1];
+      const cardDiv = topCard.element;
+      cardDiv.dataset.pileType = "stock";
+      cardDiv.dataset.pileIndex = 0;
+      cardDiv.dataset.cardIndex = this.game.stockPile.cards.length - 1;
+      stockContainer.appendChild(cardDiv);
     }
   }
 

@@ -1,12 +1,19 @@
 export const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
 export class Card {
-  constructor(suit, rank) {
+  constructor(suit, rank, cardBack) {
     this.suit = suit;
     this.rank = rank;
     this._faceUp = false;
+    this.cardBack = cardBack;
     this.uid = 'card-' + Math.random().toString(36).substr(2, 9);
     this._createElement();
+  }
+
+  destroy() {
+    if (this.element && this.element.parentElement) {
+      this.element.parentElement.removeChild(this.element);
+    }
   }
 
   _createElement() {
@@ -38,6 +45,7 @@ export class Card {
       } else {
           this.element.classList.add("face-down");
           this.element.classList.remove("face-up");
+          this.element.classList.add(this.cardBack);
           this.element.removeAttribute("aria-label");
       }
   }
@@ -51,6 +59,16 @@ export class Card {
           this._faceUp = value;
           this._updateElementFace();
       }
+  }
+
+  setCardBack(newCardBack) {
+    if (this.cardBack) {
+      this.element.classList.remove(this.cardBack);
+    }
+    this.cardBack = newCardBack;
+    if (!this.faceUp) {
+      this.element.classList.add(this.cardBack);
+    }
   }
 
   toJSON() {
