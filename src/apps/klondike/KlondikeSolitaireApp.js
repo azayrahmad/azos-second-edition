@@ -5,6 +5,13 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./klondike.css";
 import "../../styles/solitaire.css";
 
+const animatedCardBacks = {
+  "cardback-robot1": { frames: 3, prefix: "cardback-robot" },
+  "cardback-hand1": { frames: 3, prefix: "cardback-hand" },
+  "cardback-castle1": { frames: 2, prefix: "cardback-castle" },
+  "cardback-beach1": { frames: 3, prefix: "cardback-beach" },
+};
+
 export class KlondikeSolitaireApp extends Application {
   static config = {
     id: "klondike",
@@ -53,9 +60,15 @@ export class KlondikeSolitaireApp extends Application {
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
 
+    this.animationTimer = null;
+
     this.addEventListeners();
 
     this.startNewGame();
+
+    win.on('close', () => {
+      clearInterval(this.animationTimer);
+    });
 
     return win;
   }
@@ -89,6 +102,42 @@ export class KlondikeSolitaireApp extends Application {
     this.game = new Game();
     this.render();
     this._updateMenuBar(this.win);
+    this._updateCardBackAnimation();
+  }
+
+  _updateCardBackAnimation() {
+    clearInterval(this.animationTimer);
+    const stockCard = this.container.querySelector(".stock-pile .card");
+
+    if (stockCard) {
+      // Remove all possible animation classes
+      for (const key in animatedCardBacks) {
+        const info = animatedCardBacks[key];
+        for (let i = 1; i <= info.frames; i++) {
+          stockCard.classList.remove(`${info.prefix}${i}`);
+        }
+      }
+    }
+
+    const animationInfo = animatedCardBacks[this.game.cardBack];
+    if (!animationInfo) return;
+
+    let currentFrame = 1;
+    this.animationTimer = setInterval(() => {
+      const stockCard = this.container.querySelector(".stock-pile .card");
+      if (stockCard) {
+        // Remove all frames for the current animation before adding the new one
+        for (let i = 1; i <= animationInfo.frames; i++) {
+          stockCard.classList.remove(`${animationInfo.prefix}${i}`);
+        }
+        stockCard.classList.add(`${animationInfo.prefix}${currentFrame}`);
+
+        currentFrame++;
+        if (currentFrame > animationInfo.frames) {
+          currentFrame = 1;
+        }
+      }
+    }, 100);
   }
 
   _showDeckSelectionDialog() {
@@ -128,6 +177,7 @@ export class KlondikeSolitaireApp extends Application {
           action: () => {
             this.game.setCardBack(selectedCardBack);
             this.render();
+            this._updateCardBackAnimation();
           }
         },
         {
