@@ -403,7 +403,7 @@ function startTutorial(agent) {
   // 1. Welcome
   sequence.push((done) =>
     agent.speakAndAnimate(
-      "Hi! I'm Clippy, your azOS assistant. Let me give you a quick tour of azOS.",
+      "Hi! I'm Clippy, your Windows 98 assistant. Let me give you a quick tour of Windows 98.",
       "Explain",
       { useTTS: ttsEnabled, callback: done },
     ),
@@ -596,7 +596,7 @@ function startTutorial(agent) {
     });
     sequence.push((done) =>
       agent.speakAndAnimate(
-        "Drag files from your device to an open My Briefcase window to use it in azOS.",
+        "Drag files from your device to an open My Briefcase window to use it in Windows 98.",
         "Explain",
         { useTTS: ttsEnabled, callback: done },
       ),
@@ -627,7 +627,7 @@ function startTutorial(agent) {
     });
     sequence.push((done) =>
       agent.speakAndAnimate(
-        "If you have some to spare, consider supporting azOS to keep it alive and well.",
+        "If you have some to spare, consider supporting this project to keep it alive and well.",
         "Explain",
         { useTTS: ttsEnabled, callback: done },
       ),
@@ -679,7 +679,7 @@ function startTutorial(agent) {
   );
   sequence.push((done) =>
     agent.speakAndAnimate(
-      "That's the tour! Feel free to play around with azOS. If you have any questions or need assistance, feel free to ask. Just click me!",
+      "That's the tour! Feel free to play around with Windows 98. If you have any questions or need assistance, feel free to ask. Just click me!",
       "Wave",
       { useTTS: ttsEnabled, callback: done },
     ),
