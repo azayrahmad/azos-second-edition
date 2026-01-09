@@ -73,10 +73,15 @@
     cursor: pointer;
     border: 1px solid transparent;
     background-image: url("/src/assets/img/solitaire.png");
+    padding: 0;
+    border: 3px solid white;
+}
+.card-back-preview:active {
+    filter: invert(100%);
 }
 
 .card-back-preview.selected {
-    border: 1px solid black;
+    border: 3px solid black;
 }
 
 .klondike-solitaire-container .card {
