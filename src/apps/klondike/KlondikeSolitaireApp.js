@@ -123,6 +123,8 @@ export class KlondikeSolitaireApp extends Application {
     if (!animationInfo) return;
 
     let currentFrame = 1;
+    let animationDirection = 1; // 1 for increasing, -1 for decreasing
+
     this.animationTimer = setInterval(() => {
       const stockCard = this.container.querySelector(".stock-top-card");
       if (stockCard) {
@@ -132,12 +134,17 @@ export class KlondikeSolitaireApp extends Application {
         }
         stockCard.classList.add(`${animationInfo.prefix}${currentFrame}`);
 
-        currentFrame++;
+        currentFrame += animationDirection;
+
         if (currentFrame > animationInfo.frames) {
-          currentFrame = 1;
+          currentFrame = animationInfo.frames - 1; // Go back from the last frame
+          animationDirection = -1;
+        } else if (currentFrame < 1) {
+          currentFrame = 2; // Go forward from the second frame
+          animationDirection = 1;
         }
       }
-    }, 100);
+    }, 500);
   }
 
   _showDeckSelectionDialog() {
