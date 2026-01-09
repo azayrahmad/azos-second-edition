@@ -263,12 +263,19 @@ export class KlondikeSolitaireApp extends Application {
     stockContainer.innerHTML = "";
     stockContainer.dataset.pileType = "stock";
     if (this.game.stockPile.cards.length > 0) {
-      const topCard = this.game.stockPile.cards[this.game.stockPile.cards.length - 1];
-      const cardDiv = topCard.element;
-      cardDiv.dataset.pileType = "stock";
-      cardDiv.dataset.pileIndex = 0;
-      cardDiv.dataset.cardIndex = this.game.stockPile.cards.length - 1;
-      stockContainer.appendChild(cardDiv);
+      this.game.stockPile.cards.forEach((card, cardIndex) => {
+        const cardDiv = card.element;
+        cardDiv.style.position = "absolute";
+        cardDiv.style.top = `${cardIndex * 1}px`;
+        cardDiv.dataset.pileType = "stock";
+        cardDiv.dataset.pileIndex = 0;
+        cardDiv.dataset.cardIndex = cardIndex;
+        stockContainer.appendChild(cardDiv);
+      });
+    } else {
+      const placeholderDiv = document.createElement("div");
+      placeholderDiv.className = "stock-placeholder";
+      stockContainer.appendChild(placeholderDiv);
     }
   }
 
@@ -277,12 +284,15 @@ export class KlondikeSolitaireApp extends Application {
     wasteContainer.innerHTML = "";
     wasteContainer.dataset.pileType = "waste";
     if (this.game.wastePile.cards.length > 0) {
-        const topCard = this.game.wastePile.topCard;
-        const cardDiv = topCard.element;
+      this.game.wastePile.cards.forEach((card, cardIndex) => {
+        const cardDiv = card.element;
+        cardDiv.style.position = "absolute";
+        cardDiv.style.top = `${cardIndex * 1}px`;
         cardDiv.dataset.pileType = "waste";
-        cardDiv.dataset.cardIndex = this.game.wastePile.cards.length - 1;
+        cardDiv.dataset.cardIndex = cardIndex;
         cardDiv.dataset.pileIndex = 0;
         wasteContainer.appendChild(cardDiv);
+      });
     }
   }
 
