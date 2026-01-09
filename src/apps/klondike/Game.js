@@ -15,6 +15,7 @@ export class Game {
   }
 
   initializeGame() {
+    this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
 
     const suits = ["♥", "♦", "♠", "♣"];
@@ -58,6 +59,7 @@ export class Game {
   }
 
   dealFromStock() {
+    this._saveState();
     if (this.stockPile.canDeal()) {
       const card = this.stockPile.deal();
       this.wastePile.addCard(card);
@@ -92,6 +94,7 @@ export class Game {
   }
 
   moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex) {
+    this._saveState();
     let fromPile;
     if (fromPileType === 'tableau') fromPile = this.tableauPiles[fromPileIndex];
     if (fromPileType === 'waste') fromPile = this.wastePile;
@@ -122,5 +125,36 @@ export class Game {
     this.cardBack = cardBack;
     setItem(LOCAL_STORAGE_KEYS.klondikeCardBack, cardBack);
     this.allCards.forEach(card => card.setCardBack(cardBack));
+  }
+
+  _saveState() {
+    this.previousState = {
+      stockPileCards: [...this.stockPile.cards],
+      wastePileCards: [...this.wastePile.cards],
+      tableauPilesCards: this.tableauPiles.map(p => [...p.cards]),
+      foundationPilesCards: this.foundationPiles.map(p => [...p.cards]),
+      allCardsFaceUp: this.allCards.map(c => c.faceUp)
+    };
+  }
+
+  undo() {
+    if (!this.previousState) {
+      return;
+    }
+
+    this.stockPile.cards = this.previousState.stockPileCards;
+    this.wastePile.cards = this.previousState.wastePileCards;
+    this.tableauPiles.forEach((pile, index) => {
+      pile.cards = this.previousState.tableauPilesCards[index];
+    });
+    this.foundationPiles.forEach((pile, index) => {
+      pile.cards = this.previousState.foundationPilesCards[index];
+    });
+
+    this.allCards.forEach((card, index) => {
+        card.faceUp = this.previousState.allCardsFaceUp[index];
+    });
+
+    this.previousState = null;
   }
 }
