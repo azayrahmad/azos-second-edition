@@ -57,6 +57,11 @@ export class KlondikeSolitaireApp extends Application {
 
     this.startNewGame();
 
+    win.onClosed = () => {
+      window.removeEventListener("mousemove", this.boundOnMouseMove);
+      window.removeEventListener("mouseup", this.boundOnMouseUp);
+    };
+
     return win;
   }
 
@@ -203,6 +208,11 @@ export class KlondikeSolitaireApp extends Application {
     this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
     this.container.addEventListener("click", this.onClick.bind(this));
     this.container.addEventListener("dblclick", this.onDoubleClick.bind(this));
+
+    // Listen for mouse move and up events on the window to handle dragging
+    window.addEventListener("mousemove", this.boundOnMouseMove);
+    window.addEventListener("mouseup", this.boundOnMouseUp);
+
     this.win.element.addEventListener("keydown", (event) => {
        if (event.key === "F2") {
         event.preventDefault();
