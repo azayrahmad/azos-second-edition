@@ -107,7 +107,7 @@ export class KlondikeSolitaireApp extends Application {
 
   _updateCardBackAnimation() {
     clearInterval(this.animationTimer);
-    const stockCard = this.container.querySelector(".stock-pile .card");
+    const stockCard = this.container.querySelector(".stock-top-card");
 
     if (stockCard) {
       // Remove all possible animation classes
@@ -124,7 +124,7 @@ export class KlondikeSolitaireApp extends Application {
 
     let currentFrame = 1;
     this.animationTimer = setInterval(() => {
-      const stockCard = this.container.querySelector(".stock-pile .card");
+      const stockCard = this.container.querySelector(".stock-top-card");
       if (stockCard) {
         // Remove all frames for the current animation before adding the new one
         for (let i = 1; i <= animationInfo.frames; i++) {
@@ -266,10 +266,20 @@ export class KlondikeSolitaireApp extends Application {
       this.game.stockPile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
         cardDiv.style.position = "absolute";
-        cardDiv.style.top = `${cardIndex * 1}px`;
+        cardDiv.style.left = `${Math.floor(cardIndex / 3) * 1}px`;
+        cardDiv.style.top = "0px";
         cardDiv.dataset.pileType = "stock";
         cardDiv.dataset.pileIndex = 0;
         cardDiv.dataset.cardIndex = cardIndex;
+
+        // Reset class for all cards
+        cardDiv.classList.remove("stock-top-card");
+
+        // Add class only to the top card
+        if (cardIndex === this.game.stockPile.cards.length - 1) {
+          cardDiv.classList.add("stock-top-card");
+        }
+
         stockContainer.appendChild(cardDiv);
       });
     } else {
@@ -287,7 +297,8 @@ export class KlondikeSolitaireApp extends Application {
       this.game.wastePile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
         cardDiv.style.position = "absolute";
-        cardDiv.style.top = `${cardIndex * 1}px`;
+        cardDiv.style.left = `${Math.floor(cardIndex / 3) * 1}px`;
+        cardDiv.style.top = "0px";
         cardDiv.dataset.pileType = "waste";
         cardDiv.dataset.cardIndex = cardIndex;
         cardDiv.dataset.pileIndex = 0;
