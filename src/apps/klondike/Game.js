@@ -107,4 +107,28 @@ export class Game {
   checkForWin() {
     return this.foundationPiles.every((pile) => pile.cards.length === 13);
   }
+
+  autoMoveToFoundation(fromPileType, fromPileIndex, cardIndex) {
+    let fromPile;
+    if (fromPileType === 'tableau') fromPile = this.tableauPiles[fromPileIndex];
+    if (fromPileType === 'waste') fromPile = this.wastePile;
+
+    if (!fromPile) return false;
+
+    // Only the top card can be moved
+    if (cardIndex !== fromPile.cards.length - 1) return false;
+
+    const cardToMove = fromPile.cards[cardIndex];
+
+    for (let i = 0; i < this.foundationPiles.length; i++) {
+      const foundationPile = this.foundationPiles[i];
+      if (foundationPile.canAccept(cardToMove)) {
+        if (this.moveCards(fromPileType, fromPileIndex, cardIndex, 'foundation', i)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }

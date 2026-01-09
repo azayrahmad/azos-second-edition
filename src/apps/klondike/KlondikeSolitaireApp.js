@@ -4,7 +4,6 @@ import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./klondike.css";
 import "../../styles/solitaire.css";
-import { apps as desktopApps } from "../../config/apps.js";
 
 export class KlondikeSolitaireApp extends Application {
   static config = {
@@ -235,14 +234,14 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   onDoubleClick(event) {
+    if (this.wasDragged) return;
+
     const cardDiv = event.target.closest(".card");
     if (!cardDiv) return;
 
     const pileType = cardDiv.dataset.pileType;
     const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
     const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
-
-    console.log(`Double-clicked on: ${pileType}, pile ${pileIndex}, card ${cardIndex}`);
 
     if (this.game.autoMoveToFoundation(pileType, pileIndex, cardIndex)) {
       this.render();
@@ -255,6 +254,8 @@ export class KlondikeSolitaireApp extends Application {
   onMouseDown(event) {
     if (event.button !== 0) return; // Only main button
     this.wasDragged = false;
+    this.isMouseDown = true;
+    this.mouseDownTime = Date.now();
 
     const cardDiv = event.target.closest(".card");
     if (!cardDiv) return;
@@ -265,61 +266,27 @@ export class KlondikeSolitaireApp extends Application {
 
     if (!this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) return;
 
-    event.preventDefault();
-
-    this.isDragging = true;
-    this.draggedCardsInfo = { pileType, pileIndex, cardIndex };
-
-    let fromPile;
-    if (pileType === 'tableau') fromPile = this.game.tableauPiles[pileIndex];
-    else if (pileType === 'waste') fromPile = this.game.wastePile;
-    else if (pileType === 'foundation') fromPile = this.game.foundationPiles[pileIndex];
-    else return;
-
-    const cardsToDrag = fromPile.cards.slice(cardIndex);
-
-    const containerRect = this.container.getBoundingClientRect();
-    const cardRect = cardDiv.getBoundingClientRect();
-    this.dragOffsetX = event.clientX - cardRect.left;
-    this.dragOffsetY = event.clientY - cardRect.top;
-
-    this.draggedElement = document.createElement("div");
-    this.draggedElement.className = "dragged-stack";
-    this.draggedElement.style.position = "absolute";
-    this.draggedElement.style.zIndex = "1000";
-    this.draggedElement.style.width = `${cardDiv.offsetWidth}px`;
-    this.draggedElement.style.height = `${cardDiv.offsetHeight * (1 + (cardsToDrag.length - 1) * 0.2)}px`;
-
-    let topOffset = 0;
-    const overlap = 15;
-
-    cardsToDrag.forEach((card) => {
-      const originalElement = this.container.querySelector(`.card[data-uid='${card.uid}']`);
-      if (originalElement) {
-        const clone = originalElement.cloneNode(true);
-        clone.style.position = 'absolute';
-        clone.style.top = `${topOffset}px`;
-        this.draggedElement.appendChild(clone);
-        originalElement.classList.add("dragging");
-
-        if (card.faceUp) {
-            topOffset += overlap;
-        } else {
-            topOffset += 5; // faceDownOverlap
-        }
-      }
-    });
-
-    this.container.appendChild(this.draggedElement);
-
-    this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
-    this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
-
-    window.addEventListener("mousemove", this.boundOnMouseMove);
-    window.addEventListener("mouseup", this.boundOnMouseUp);
+    this.potentialDragInfo = {
+        cardDiv,
+        pileType,
+        pileIndex,
+        cardIndex,
+        startX: event.clientX,
+        startY: event.clientY,
+    };
   }
 
   onMouseMove(event) {
+    if (this.isMouseDown && this.potentialDragInfo) {
+      const { startX, startY } = this.potentialDragInfo;
+      const dx = Math.abs(event.clientX - startX);
+      const dy = Math.abs(event.clientY - startY);
+      if (dx > 5 || dy > 5) {
+          this.initializeDrag(event);
+          this.potentialDragInfo = null;
+      }
+    }
+
     if (!this.isDragging) return;
     this.wasDragged = true;
     const containerRect = this.container.getBoundingClientRect();
@@ -327,13 +294,66 @@ export class KlondikeSolitaireApp extends Application {
     this.draggedElement.style.top = `${event.clientY - containerRect.top - this.dragOffsetY}px`;
   }
 
+  initializeDrag(event) {
+      const { cardDiv, pileType, pileIndex, cardIndex } = this.potentialDragInfo;
+
+      this.isDragging = true;
+      this.draggedCardsInfo = { pileType, pileIndex, cardIndex };
+
+      let fromPile;
+      if (pileType === 'tableau') fromPile = this.game.tableauPiles[pileIndex];
+      else if (pileType === 'waste') fromPile = this.game.wastePile;
+      else if (pileType === 'foundation') fromPile = this.game.foundationPiles[pileIndex];
+      else return;
+
+      const cardsToDrag = fromPile.cards.slice(cardIndex);
+
+      const containerRect = this.container.getBoundingClientRect();
+      const cardRect = cardDiv.getBoundingClientRect();
+      this.dragOffsetX = event.clientX - cardRect.left;
+      this.dragOffsetY = event.clientY - cardRect.top;
+
+      this.draggedElement = document.createElement("div");
+      this.draggedElement.className = "dragged-stack";
+      this.draggedElement.style.position = "absolute";
+      this.draggedElement.style.zIndex = "1000";
+      this.draggedElement.style.width = `${cardDiv.offsetWidth}px`;
+      this.draggedElement.style.height = `${cardDiv.offsetHeight * (1 + (cardsToDrag.length - 1) * 0.2)}px`;
+
+      let topOffset = 0;
+      const overlap = 15;
+
+      cardsToDrag.forEach((card) => {
+        const originalElement = this.container.querySelector(`.card[data-uid='${card.uid}']`);
+        if (originalElement) {
+          const clone = originalElement.cloneNode(true);
+          clone.style.position = 'absolute';
+          clone.style.top = `${topOffset}px`;
+          this.draggedElement.appendChild(clone);
+          originalElement.classList.add("dragging");
+
+          if (card.faceUp) {
+              topOffset += overlap;
+          } else {
+              topOffset += 5; // faceDownOverlap
+          }
+        }
+      });
+
+      this.container.appendChild(this.draggedElement);
+
+      this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
+      this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
+  }
+
   onMouseUp(event) {
+    this.isMouseDown = false;
+    this.potentialDragInfo = null;
+
     if (!this.isDragging) return;
 
     // Cleanup dragging state
     this.isDragging = false;
-    window.removeEventListener("mousemove", this.boundOnMouseMove);
-    window.removeEventListener("mouseup", this.boundOnMouseUp);
 
     // Un-hide the original cards
     this.container
