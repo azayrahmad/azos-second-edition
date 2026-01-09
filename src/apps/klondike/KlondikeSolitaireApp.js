@@ -107,7 +107,7 @@ export class KlondikeSolitaireApp extends Application {
 
   _updateCardBackAnimation() {
     clearInterval(this.animationTimer);
-    const stockCard = this.container.querySelector(".stock-pile .card");
+    const stockCard = this.container.querySelector(".stock-top-card");
 
     if (stockCard) {
       // Remove all possible animation classes
@@ -126,7 +126,7 @@ export class KlondikeSolitaireApp extends Application {
     let animationDirection = 1; // 1 for increasing, -1 for decreasing
 
     this.animationTimer = setInterval(() => {
-      const stockCard = this.container.querySelector(".stock-pile .card");
+      const stockCard = this.container.querySelector(".stock-top-card");
       if (stockCard) {
         // Remove all frames for the current animation before adding the new one
         for (let i = 1; i <= animationInfo.frames; i++) {
@@ -280,13 +280,29 @@ export class KlondikeSolitaireApp extends Application {
     stockContainer.innerHTML = "";
     stockContainer.dataset.pileType = "stock";
     if (this.game.stockPile.cards.length > 0) {
-      const topCard =
-        this.game.stockPile.cards[this.game.stockPile.cards.length - 1];
-      const cardDiv = topCard.element;
-      cardDiv.dataset.pileType = "stock";
-      cardDiv.dataset.pileIndex = 0;
-      cardDiv.dataset.cardIndex = this.game.stockPile.cards.length - 1;
-      stockContainer.appendChild(cardDiv);
+      this.game.stockPile.cards.forEach((card, cardIndex) => {
+        const cardDiv = card.element;
+        // cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 5}px`;
+        cardDiv.style.top = "0px";
+        cardDiv.dataset.pileType = "stock";
+        cardDiv.dataset.pileIndex = 0;
+        cardDiv.dataset.cardIndex = cardIndex;
+
+        // Reset class for all cards
+        cardDiv.classList.remove("stock-top-card");
+
+        // Add class only to the top card
+        if (cardIndex === this.game.stockPile.cards.length - 1) {
+          cardDiv.classList.add("stock-top-card");
+        }
+
+        stockContainer.appendChild(cardDiv);
+      });
+    } else {
+      const placeholderDiv = document.createElement("div");
+      placeholderDiv.className = "stock-placeholder";
+      stockContainer.appendChild(placeholderDiv);
     }
   }
 
@@ -295,12 +311,16 @@ export class KlondikeSolitaireApp extends Application {
     wasteContainer.innerHTML = "";
     wasteContainer.dataset.pileType = "waste";
     if (this.game.wastePile.cards.length > 0) {
-      const topCard = this.game.wastePile.topCard;
-      const cardDiv = topCard.element;
-      cardDiv.dataset.pileType = "waste";
-      cardDiv.dataset.cardIndex = this.game.wastePile.cards.length - 1;
-      cardDiv.dataset.pileIndex = 0;
-      wasteContainer.appendChild(cardDiv);
+      this.game.wastePile.cards.forEach((card, cardIndex) => {
+        const cardDiv = card.element;
+        // cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 5}px`;
+        cardDiv.style.top = "0px";
+        cardDiv.dataset.pileType = "waste";
+        cardDiv.dataset.cardIndex = cardIndex;
+        cardDiv.dataset.pileIndex = 0;
+        wasteContainer.appendChild(cardDiv);
+      });
     }
   }
 
