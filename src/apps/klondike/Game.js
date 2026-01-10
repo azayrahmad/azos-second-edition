@@ -59,11 +59,12 @@ export class Game {
   }
 
   dealFromStock() {
-    this._saveState();
     if (this.stockPile.canDeal()) {
+      this._saveState();
       const card = this.stockPile.deal();
       this.wastePile.addCard(card);
     } else if (this.wastePile.cards.length > 0) {
+      this._saveState();
       const recycledCards = this.wastePile.reset();
       this.stockPile.cards.push(...recycledCards);
     }
@@ -73,6 +74,7 @@ export class Game {
       const pile = this.tableauPiles[pileIndex];
       if (pile && cardIndex === pile.cards.length - 1) {
           pile.flipTopCard();
+          this.previousState = null;
       }
   }
 
@@ -94,7 +96,6 @@ export class Game {
   }
 
   moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex) {
-    this._saveState();
     let fromPile;
     if (fromPileType === 'tableau') fromPile = this.tableauPiles[fromPileIndex];
     if (fromPileType === 'waste') fromPile = this.wastePile;
@@ -109,6 +110,7 @@ export class Game {
     const cardsToMove = fromPile.cards.slice(cardIndex);
 
     if (cardsToMove.length > 0 && toPile.canAccept(cardsToMove[0])) {
+      this._saveState();
       fromPile.cards.splice(cardIndex);
       toPile.cards.push(...cardsToMove);
 

@@ -388,6 +388,7 @@ export class KlondikeSolitaireApp extends Application {
         const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
         this.game.flipTableauCard(pileIndex, cardIndex);
         this.render();
+        this._updateMenuBar(this.win);
       }
     }
   }
@@ -515,8 +516,6 @@ export class KlondikeSolitaireApp extends Application {
           this.showWinDialog();
         }
         this.render();
-        this._updateMenuBar(this.win);
-      } else {
         this._updateMenuBar(this.win);
       }
     }
