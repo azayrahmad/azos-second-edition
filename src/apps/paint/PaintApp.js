@@ -33,11 +33,32 @@ export class PaintApp extends Application {
         iframe.style.border = 'none';
 
         win.$content.append(iframe);
+        this.iframe = iframe; // Store a reference to the iframe
 
         return win;
     }
 
-    _onLaunch() {
+    _onLaunch(data) {
+        let imageUrl = 'https://jspaint.app'; // Default URL
+
+        if (typeof data === 'string') {
+            // It's a file path
+            const absoluteUrl = new URL(data, window.location.href).href;
+            imageUrl = `https://jspaint.app#load:${absoluteUrl}`;
+        } else if (data && typeof data === 'object') {
+            // It's a file-like object
+            let fileUrl = data.contentUrl || (data.path ? new URL(data.path, window.location.href).href : null);
+
+            if (fileUrl) {
+                 // Ensure the URL is absolute
+                if (!fileUrl.startsWith('http')) {
+                    fileUrl = new URL(fileUrl, window.location.href).href;
+                }
+                imageUrl = `https://jspaint.app#load:${fileUrl}`;
+            }
+        }
+
+        this.iframe.src = imageUrl;
         this.win.focus();
     }
 }
