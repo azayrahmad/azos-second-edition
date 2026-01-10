@@ -40,7 +40,6 @@ import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
-import { playInWebamp } from "../webamp/webamp.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -1053,7 +1052,7 @@ export class ExplorerApp extends Application {
       if (association.appId === 'media-player') {
         menuItems.push({
           label: 'Play in Winamp',
-          action: () => playInWebamp(clickedItem),
+          action: () => launchApp('webamp', clickedItem),
         });
       }
 

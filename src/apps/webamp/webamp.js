@@ -1,23 +1,6 @@
 // Webamp integration for the desktop environment
 import { launchApp } from '../../utils/appManager.js';
 import { openApps } from '../Application.js';
-import { webampInstance } from './WebampApp.js';
-
-export async function playInWebamp(file) {
-  await launchApp('webamp');
-
-  const track = {
-    metaData: {
-      artist: file.artist || 'Unknown Artist',
-      title: file.title || file.name,
-    },
-    url: file.contentUrl || file.content,
-  };
-
-  if (webampInstance) {
-    webampInstance.setTracksToPlay([track]);
-  }
-}
 
 export function getWebampMenuItems(app) {
   const webampApp = openApps.get('webamp');

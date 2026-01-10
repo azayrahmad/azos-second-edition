@@ -41,13 +41,25 @@ export class WebampApp extends Application {
     return null; // Return null to prevent default window creation.
   }
 
-  async _onLaunch() {
-    return new Promise((resolve, reject) => {
-      if (webampInstance) {
-        this.showWebamp();
-        return resolve();
-      }
+  async _onLaunch(file) {
+    const createTrackFromFile = (f) => ({
+      metaData: {
+        artist: f.artist || "Unknown Artist",
+        title: f.title || f.name,
+      },
+      url: f.contentUrl || f.content,
+    });
 
+    if (webampInstance) {
+      this.showWebamp();
+      if (file) {
+        const track = createTrackFromFile(file);
+        webampInstance.setTracksToPlay([track]);
+      }
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
       webampContainer = document.createElement("div");
       webampContainer.id = "webamp-container";
       webampContainer.style.position = "absolute";
@@ -61,11 +73,20 @@ export class WebampApp extends Application {
         () => {
           webampContainer.style.zIndex = $Window.Z_INDEX++;
         },
-        true,
+        true
       );
 
-      const positionLeft = 200;
-      const positionTop = 200;
+      const initialTracks = file
+        ? [createTrackFromFile(file)]
+        : [
+            {
+              metaData: {
+                artist: "DJ Mike Llama",
+                title: "Llama Whippin' Intro",
+              },
+              url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3",
+            },
+          ];
 
       import("https://unpkg.com/webamp@^2")
         .then((Webamp) => {
@@ -86,15 +107,7 @@ export class WebampApp extends Application {
                 name: "Mac OSX v1.5 (Aqua)",
               },
             ],
-            initialTracks: [
-              {
-                metaData: {
-                  artist: "DJ Mike Llama",
-                  title: "Llama Whippin' Intro",
-                },
-                url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3",
-              },
-            ],
+            initialTracks,
           });
 
           webampInstance.onMinimize(() => this.minimizeWebamp());
