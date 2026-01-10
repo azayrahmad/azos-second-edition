@@ -40,6 +40,7 @@ import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
+import { truncateName } from "../../utils/stringUtils.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -802,7 +803,7 @@ export class ExplorerApp extends Application {
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";
-    iconLabel.textContent = displayName;
+    iconLabel.textContent = truncateName(displayName);
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(iconLabel);
