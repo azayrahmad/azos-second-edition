@@ -73,20 +73,18 @@ export class WebampApp extends Application {
         () => {
           webampContainer.style.zIndex = $Window.Z_INDEX++;
         },
-        true
+        true,
       );
 
-      const initialTracks = file
-        ? [createTrackFromFile(file)]
-        : [
-            {
-              metaData: {
-                artist: "DJ Mike Llama",
-                title: "Llama Whippin' Intro",
-              },
-              url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3",
-            },
-          ];
+      const initialTracks = [
+        {
+          metaData: {
+            artist: "DJ Mike Llama",
+            title: "Llama Whippin' Intro",
+          },
+          url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3",
+        },
+      ];
 
       import("https://unpkg.com/webamp@^2")
         .then((Webamp) => {
@@ -118,6 +116,10 @@ export class WebampApp extends Application {
             .then(() => {
               this.setupTaskbarButton();
               this.showWebamp();
+              if (file) {
+                const track = createTrackFromFile(file);
+                webampInstance.setTracksToPlay([track]);
+              }
               resolve(); // Resolve the promise once Webamp is ready
             })
             .catch(reject);

@@ -256,10 +256,10 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
 
     if (file) {
       const association = getAssociation(file.name);
-      if (association.appId === 'media-player') {
+      if (association.appId === "media-player") {
         menuItems.push({
-          label: 'Play in Winamp',
-          action: () => launchApp('webamp', file),
+          label: "Play in Winamp",
+          action: () => launchApp("webamp", file),
         });
       }
     }
@@ -277,7 +277,7 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
         label: "&Properties",
         action: () => showProperties(app),
       },
-    ];
+    );
   } else if (contextMenu) {
     const openItemIndex = contextMenu.findIndex(
       (item) =>
