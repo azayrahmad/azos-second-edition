@@ -51,6 +51,7 @@ import {
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
 import { downloadFile } from "../utils/fileDownloader.js";
 import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
+import { isImageFile } from "../utils/imageUtils.js";
 
 function getIconId(app, item = null) {
   if (typeof item === "string") {
@@ -165,7 +166,7 @@ function handlePaste(destinationPath) {
   clipboardManager.clear();
 }
 
-function showIconContextMenu(event, app, fileId = null, iconManager) {
+function showIconContextMenu(event, app, itemIdentifier = null, iconManager) {
   let menuItems;
   const appConfig = apps.find((a) => a.id === app.id);
   const contextMenu = appConfig.contextMenu;
@@ -238,42 +239,61 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
     cutItem.enabled = false;
   }
 
-  if (fileId) {
-    menuItems = [
-      {
-        label: "&Open",
-        default: true,
-        action: () => {
-          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-          const file = droppedFiles.find((f) => f.id === fileId);
-          if (file) {
-            launchApp(app.id, file);
-          }
+  if (itemIdentifier) {
+    let file;
+    let isDroppedFile = false;
+
+    // It could be a dropped file ID or a virtual file path
+    const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    file = droppedFiles.find((f) => f.id === itemIdentifier);
+
+    if (file) {
+      isDroppedFile = true;
+    } else {
+      file = findItemByPath(itemIdentifier);
+    }
+
+    if (file) {
+      menuItems = [
+        {
+          label: "&Open",
+          default: true,
+          action: () => launchApp(app.id, file),
         },
-      },
-      copyItem,
-      cutItem,
-      downloadItem,
-      {
-        label: "&Delete",
-        action: () => deleteDroppedFile(fileId),
-      },
-      "MENU_DIVIDER",
-      {
-        label: "&Properties",
-        action: () => showProperties(app),
-      },
-    ];
+      ];
+
+      if (isImageFile(file.name || file.filename)) {
+        menuItems.push({
+          label: "&Edit",
+          action: () => launchApp("paint", file),
+        });
+      }
+
+      menuItems.push(
+        copyItem,
+        cutItem,
+        downloadItem,
+        {
+          label: "&Delete",
+          action: () => isDroppedFile && deleteDroppedFile(file.id),
+          enabled: isDroppedFile,
+        },
+        "MENU_DIVIDER",
+        {
+          label: "&Properties",
+          action: () => showProperties(app), // Simplified for now
+        },
+      );
+    }
   } else if (contextMenu) {
+    // App with a custom context menu (e.g., Recycle Bin)
     const openItemIndex = contextMenu.findIndex(
       (item) =>
         item.action === "open" || (item.label && item.label.includes("Open")),
     );
 
     menuItems = contextMenu.map((item) => {
-      if (typeof item === "string") {
-        return item;
-      }
+      if (typeof item === "string") return item;
       const newItem = { ...item };
       if (typeof newItem.action === "string") {
         switch (newItem.action) {
@@ -296,6 +316,7 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
       menuItems.splice(openItemIndex + 1, 0, copyItem, cutItem);
     }
   } else {
+    // Default app context menu
     menuItems = [
       {
         label: "&Open",
@@ -1022,9 +1043,10 @@ export async function initDesktop(profile = null) {
     onItemContext: (e, icon) => {
       const appId = icon.getAttribute("data-app-id");
       const fileId = icon.getAttribute("data-file-id");
+      const filePath = icon.getAttribute("data-file-path");
       const app = apps.find((a) => a.id === appId);
       if (app) {
-        showIconContextMenu(e, app, fileId, iconManager);
+        showIconContextMenu(e, app, fileId || filePath, iconManager);
       }
     },
     onBackgroundContext: (e) => {

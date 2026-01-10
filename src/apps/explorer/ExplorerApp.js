@@ -40,6 +40,7 @@ import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
+import { isImageFile } from "../../utils/imageUtils.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -1047,6 +1048,13 @@ export class ExplorerApp extends Application {
         default: true,
         action: () => this._launchItem(clickedItem),
       });
+
+      if (isImageFile(clickedItem.name || clickedItem.filename)) {
+        menuItems.push({
+          label: "Edit",
+          action: () => launchApp("paint", clickedItem),
+        });
+      }
 
       const copyItem = {
         label: "Copy",

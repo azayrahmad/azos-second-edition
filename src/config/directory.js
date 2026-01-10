@@ -99,6 +99,13 @@ const directory = [
                 contentUrl: "files/README.md",
               },
               {
+                id: "file-test-image",
+                type: "file",
+                app: "image-viewer",
+                name: "test-image.png",
+                contentUrl: "files/test-image.png",
+              },
+              {
                 id: "shortcut-to-doom",
                 type: "shortcut",
                 targetId: "app-doom",
