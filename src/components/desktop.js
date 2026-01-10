@@ -240,18 +240,32 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
   }
 
   if (fileId) {
+    const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    const file = droppedFiles.find((f) => f.id === fileId);
+
     menuItems = [
       {
         label: "&Open",
         default: true,
         action: () => {
-          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-          const file = droppedFiles.find((f) => f.id === fileId);
           if (file) {
             launchApp(app.id, file);
           }
         },
       },
+    ];
+
+    if (file) {
+      const association = getAssociation(file.name);
+      if (association.appId === "media-player") {
+        menuItems.push({
+          label: "Play in Winamp",
+          action: () => launchApp("webamp", file),
+        });
+      }
+    }
+
+    menuItems.push(
       copyItem,
       cutItem,
       downloadItem,
@@ -264,7 +278,7 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
         label: "&Properties",
         action: () => showProperties(app),
       },
-    ];
+    );
   } else if (contextMenu) {
     const openItemIndex = contextMenu.findIndex(
       (item) =>

@@ -1053,6 +1053,14 @@ export class ExplorerApp extends Application {
         action: () => this._launchItem(clickedItem),
       });
 
+      const association = getAssociation(clickedItem.name || clickedItem.filename);
+      if (association.appId === 'media-player') {
+        menuItems.push({
+          label: 'Play in Winamp',
+          action: () => launchApp('webamp', clickedItem),
+        });
+      }
+
       const copyItem = {
         label: "Copy",
         action: () => clipboardManager.set(itemsToOperateOn, "copy"),
