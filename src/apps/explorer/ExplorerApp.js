@@ -704,12 +704,14 @@ export class ExplorerApp extends Application {
         children = [...staticChildren, ...droppedFilesInThisFolder];
       }
 
-      // Sort children alphabetically by name
-      children.sort((a, b) => {
-        const nameA = a.name || a.title || a.filename || "";
-        const nameB = b.name || b.title || b.filename || "";
-        return nameA.localeCompare(nameB);
-      });
+      // Sort children alphabetically by name, but only for subfolders
+      if (path !== "/") {
+        children.sort((a, b) => {
+          const nameA = a.name || a.title || a.filename || "";
+          const nameB = b.name || b.title || b.filename || "";
+          return nameA.localeCompare(nameB);
+        });
+      }
 
       this.currentFolderItems = children;
     }
@@ -772,6 +774,8 @@ export class ExplorerApp extends Application {
     const iconImg = document.createElement("img");
     if (item.icon) {
       iconImg.src = item.icon[32];
+    } else if (item.id === "folder-control-panel") {
+      iconImg.src = ICONS.controlPanel[32];
     } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
