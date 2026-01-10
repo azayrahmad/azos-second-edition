@@ -194,6 +194,12 @@ const directory = [
                 targetId: "app-spidersolitaire",
                 name: "Spider Solitaire",
               },
+              {
+                id: "shortcut-to-buggyprogram",
+                type: "shortcut",
+                targetId: "app-buggyprogram",
+                name: "buggyprogram.exe",
+              },
             ],
           },
           {
