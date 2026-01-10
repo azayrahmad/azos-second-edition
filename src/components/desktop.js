@@ -50,6 +50,7 @@ import {
 } from "../utils/screenManager.js";
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
 import { downloadFile } from "../utils/fileDownloader.js";
+import { truncateName } from "../utils/stringUtils.js";
 import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
 
 function getIconId(app, item = null) {
@@ -119,7 +120,7 @@ function createDesktopIcon(item, isFile = false) {
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = isFile ? item.filename : app.title;
+  iconLabel.textContent = truncateName(isFile ? item.filename : app.title);
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
@@ -151,7 +152,7 @@ function createDesktopIconForDroppedFile(file) {
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = file.name;
+  iconLabel.textContent = truncateName(file.name);
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
