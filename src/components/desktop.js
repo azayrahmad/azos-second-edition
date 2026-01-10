@@ -51,6 +51,7 @@ import {
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
 import { downloadFile } from "../utils/fileDownloader.js";
 import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
+import { playInWebamp } from "../apps/webamp/webamp.js";
 
 function getIconId(app, item = null) {
   if (typeof item === "string") {
@@ -239,18 +240,30 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
   }
 
   if (fileId) {
+    const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    const file = droppedFiles.find((f) => f.id === fileId);
+
     menuItems = [
       {
         label: "&Open",
         default: true,
         action: () => {
-          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-          const file = droppedFiles.find((f) => f.id === fileId);
           if (file) {
             launchApp(app.id, file);
           }
         },
       },
+    ];
+
+    const association = getAssociation(file.name);
+    if (association.appId === 'media-player') {
+      menuItems.push({
+        label: 'Play in Winamp',
+        action: () => playInWebamp(file),
+      });
+    }
+
+    menuItems.push(
       copyItem,
       cutItem,
       downloadItem,
@@ -262,8 +275,8 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
       {
         label: "&Properties",
         action: () => showProperties(app),
-      },
-    ];
+      }
+    );
   } else if (contextMenu) {
     const openItemIndex = contextMenu.findIndex(
       (item) =>
