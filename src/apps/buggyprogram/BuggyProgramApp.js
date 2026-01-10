@@ -1,5 +1,7 @@
 import { Application } from '../Application.js';
 import { launchApp } from '../../utils/appManager.js';
+import { playSound } from '../../utils/soundManager.js';
+import warningIconUrl from '../../assets/icons/msg_warning-0.png';
 
 export class BuggyProgramApp extends Application {
   static config = {
@@ -7,9 +9,10 @@ export class BuggyProgramApp extends Application {
     title: 'buggyprogram.exe',
     description: 'An intentionally buggy program that leaves trails when moved.',
     icon: 'buggyprogram',
-    width: 400,
+    width: 450,
     height: 200,
     resizable: true,
+    closeButton: false,
   };
 
   _createWindow() {
@@ -18,19 +21,39 @@ export class BuggyProgramApp extends Application {
       width: this.config.width,
       height: this.config.height,
       resizable: this.config.resizable,
+      closeButton: false,
     });
 
     const content = `
-      <div style="padding: 20px; text-align: center;">
-        <p>An error has occurred in your application.</p>
-        <p>To continue:</p>
-        <p>Press CTRL+ALT+DEL again to restart your computer. You will lose any unsaved information in all applications.</p>
+      <div style="display: flex; align-items: flex-start; padding: 20px; gap: 15px;">
+        <img src="${warningIconUrl}" alt="Warning" width="32" height="32" />
+        <div style="text-align: left; flex-grow: 1;">
+          <p>This program has performed an illegal operation and will be shut down.</p>
+          <p>If the problem persists, contact the program vendor.</p>
+          <div class="button-group" style="text-align: center; margin-top: 20px;">
+             <button class="ok-button" style="min-width: 80px;">OK</button>
+          </div>
+        </div>
       </div>
     `;
     win.$content.html(content);
 
+    const okButton = win.$content.find('.ok-button')[0];
+    okButton.addEventListener('click', () => {
+        launchApp('buggyprogram');
+    });
+
+    setTimeout(() => {
+        okButton.focus();
+        okButton.classList.add('default');
+    }, 0);
+
+    playSound('SystemExclamation');
+
     setTimeout(() => {
       const desktop = document.querySelector('.desktop');
+      if (!desktop) return;
+
       const trailsParent = document.createElement('div');
       trailsParent.className = 'buggy-window-trails';
       desktop.appendChild(trailsParent);
@@ -38,15 +61,17 @@ export class BuggyProgramApp extends Application {
       const observer = new MutationObserver(() => {
         const trail = win.element.cloneNode(true);
         trail.style.pointerEvents = 'none';
-        trail.style.zIndex = parseInt(win.element.style.zIndex) - 1;
+        trail.style.zIndex = parseInt(win.element.style.zIndex || '0') - 1;
         trailsParent.appendChild(trail);
       });
       observer.observe(win.element, { attributes: true, attributeFilter: ['style'] });
 
-      win.on('closed', () => {
+      const dispose = win.onClosed(() => {
         observer.disconnect();
-        desktop.removeChild(trailsParent);
-        launchApp('buggyprogram');
+        if (trailsParent.parentNode) {
+            desktop.removeChild(trailsParent);
+        }
+        dispose(); // self-disposing listener
       });
     }, 100);
 
