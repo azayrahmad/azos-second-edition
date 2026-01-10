@@ -210,7 +210,141 @@ const directory = [
     id: "drive-d",
     name: "D:",
     type: "drive",
-    children: [],
+    children: [
+      {
+        id: "folder-songs",
+        name: "songs",
+        type: "folder",
+        children: [
+          {
+            id: "folder-anosci",
+            name: "anosci - Blank VHS Tape Jingle Collection",
+            type: "folder",
+            children: [
+              {
+                id: "file-anosci-01",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 01 spun telecom tape.ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 01 spun telecom tape.ogg",
+              },
+              {
+                id: "file-anosci-02",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 02 golden springs tape.ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 02 golden springs tape.ogg",
+              },
+              {
+                id: "file-anosci-03",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 03 gentle envelopment.ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 03 gentle envelopment.ogg",
+              },
+              {
+                id: "file-anosci-04",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 04 waiting room disco tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 04 waiting room disco tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-05",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 05 checker field tape (stinger).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 05 checker field tape (stinger).ogg",
+              },
+              {
+                id: "file-anosci-06",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 06 gridsquare tape (fade).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 06 gridsquare tape (fade).ogg",
+              },
+              {
+                id: "file-anosci-07",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 07 augs and 6ths study (15).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 07 augs and 6ths study (15).ogg",
+              },
+              {
+                id: "file-anosci-08",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 08 augs and 6th study (30).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 08 augs and 6th study (30).ogg",
+              },
+              {
+                id: "file-anosci-09",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 09 beach tape (cut).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 09 beach tape (cut).ogg",
+              },
+              {
+                id: "file-anosci-10",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 10 synth tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 10 synth tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-11",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 11 kinda western tape (15).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 11 kinda western tape (15).ogg",
+              },
+              {
+                id: "file-anosci-12",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 12 kinda western tape (15 + intro).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 12 kinda western tape (15 + intro).ogg",
+              },
+              {
+                id: "file-anosci-13",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 13 three hit tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 13 three hit tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-14",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 14 2 bright tape (15).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 14 2 bright tape (15).ogg",
+              },
+              {
+                id: "file-anosci-15",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 15 2 bright tape (30).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 15 2 bright tape (30).ogg",
+              },
+              {
+                id: "file-anosci-16",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 16 water basin tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 16 water basin tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-cover",
+                type: "file",
+                name: "cover.png",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/cover.png",
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     id: "folder-briefcase",
