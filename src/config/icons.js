@@ -361,6 +361,10 @@ export const ICONS = {
     16: new URL("../assets/icons/spider-16.png", import.meta.url).href,
     32: new URL("../assets/icons/spider-32.png", import.meta.url).href,
   },
+  buggyprogram: {
+    16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
+    32: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {
