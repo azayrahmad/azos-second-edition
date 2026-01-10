@@ -15,6 +15,7 @@ export class Game {
   }
 
   initializeGame() {
+    this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
 
     const suits = ["♥", "♦", "♠", "♣"];
@@ -59,9 +60,11 @@ export class Game {
 
   dealFromStock() {
     if (this.stockPile.canDeal()) {
+      this._saveState();
       const card = this.stockPile.deal();
       this.wastePile.addCard(card);
     } else if (this.wastePile.cards.length > 0) {
+      this._saveState();
       const recycledCards = this.wastePile.reset();
       this.stockPile.cards.push(...recycledCards);
     }
@@ -71,6 +74,7 @@ export class Game {
       const pile = this.tableauPiles[pileIndex];
       if (pile && cardIndex === pile.cards.length - 1) {
           pile.flipTopCard();
+          this.previousState = null;
       }
   }
 
@@ -106,6 +110,7 @@ export class Game {
     const cardsToMove = fromPile.cards.slice(cardIndex);
 
     if (cardsToMove.length > 0 && toPile.canAccept(cardsToMove[0])) {
+      this._saveState();
       fromPile.cards.splice(cardIndex);
       toPile.cards.push(...cardsToMove);
 
@@ -122,5 +127,36 @@ export class Game {
     this.cardBack = cardBack;
     setItem(LOCAL_STORAGE_KEYS.klondikeCardBack, cardBack);
     this.allCards.forEach(card => card.setCardBack(cardBack));
+  }
+
+  _saveState() {
+    this.previousState = {
+      stockPileCards: [...this.stockPile.cards],
+      wastePileCards: [...this.wastePile.cards],
+      tableauPilesCards: this.tableauPiles.map(p => [...p.cards]),
+      foundationPilesCards: this.foundationPiles.map(p => [...p.cards]),
+      allCardsFaceUp: this.allCards.map(c => c.faceUp)
+    };
+  }
+
+  undo() {
+    if (!this.previousState) {
+      return;
+    }
+
+    this.stockPile.cards = this.previousState.stockPileCards;
+    this.wastePile.cards = this.previousState.wastePileCards;
+    this.tableauPiles.forEach((pile, index) => {
+      pile.cards = this.previousState.tableauPilesCards[index];
+    });
+    this.foundationPiles.forEach((pile, index) => {
+      pile.cards = this.previousState.foundationPilesCards[index];
+    });
+
+    this.allCards.forEach((card, index) => {
+        card.faceUp = this.previousState.allCardsFaceUp[index];
+    });
+
+    this.previousState = null;
   }
 }

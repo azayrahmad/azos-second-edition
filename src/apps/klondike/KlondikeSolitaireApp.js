@@ -216,6 +216,15 @@ export class KlondikeSolitaireApp extends Application {
           action: () => this._showNewGameDialog(),
           shortcut: "F2",
         },
+        {
+            label: "Undo",
+            enabled: () => !!this.game.previousState,
+            action: () => {
+                this.game.undo();
+                this.render();
+                this._updateMenuBar(this.win);
+            },
+        },
         "MENU_DIVIDER",
         {
           label: "Deck...",
@@ -367,6 +376,7 @@ export class KlondikeSolitaireApp extends Application {
     if (stockPileDiv) {
       this.game.dealFromStock();
       this.render();
+      this._updateMenuBar(this.win);
       return;
     }
 
@@ -378,6 +388,7 @@ export class KlondikeSolitaireApp extends Application {
         const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
         this.game.flipTableauCard(pileIndex, cardIndex);
         this.render();
+        this._updateMenuBar(this.win);
       }
     }
   }
