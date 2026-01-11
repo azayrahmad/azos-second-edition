@@ -44,6 +44,9 @@ export class KlondikeSolitaireApp extends Application {
           </div>
           <div class="tableau-piles"></div>
         </div>
+        <div class="status-bar">
+          <span id="klondike-score">Score: 0</span>
+        </div>
       </div>
     `;
 
@@ -100,6 +103,13 @@ export class KlondikeSolitaireApp extends Application {
       this.game.destroy();
     }
     this.game = new Game();
+    this.game.onScoreUpdate = (score) => {
+      const scoreElement = this.win.element.querySelector("#klondike-score");
+      if (scoreElement) {
+        scoreElement.textContent = `Score: ${score}`;
+      }
+    };
+    this.game.onScoreUpdate(this.game.score); // Initial score display
     this.render();
     this._updateMenuBar(this.win);
     this._updateCardBackAnimation();

@@ -17,6 +17,8 @@ export class Game {
   initializeGame() {
     this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
+    this.score = 0;
+    this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
 
     const suits = ["♥", "♦", "♠", "♣"];
     const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -73,7 +75,9 @@ export class Game {
   flipTableauCard(pileIndex, cardIndex) {
       const pile = this.tableauPiles[pileIndex];
       if (pile && cardIndex === pile.cards.length - 1) {
-          pile.flipTopCard();
+          if (pile.flipTopCard()) {
+            this.updateScore(5);
+          }
           this.previousState = null;
       }
   }
@@ -114,6 +118,20 @@ export class Game {
       fromPile.cards.splice(cardIndex);
       toPile.cards.push(...cardsToMove);
 
+      // Scoring logic
+      if (toPileType === "foundation") {
+        this.updateScore(10);
+      }
+      if (fromPileType === "foundation" && toPileType === "tableau") {
+        this.updateScore(-15);
+      }
+      if (fromPileType === "waste" && toPileType === "tableau") {
+        this.updateScore(5);
+      }
+      if (fromPileType === "tableau" && toPileType === "tableau") {
+        this.updateScore(3);
+      }
+
       return true;
     }
     return false;
@@ -121,6 +139,11 @@ export class Game {
 
   checkForWin() {
     return this.foundationPiles.every((pile) => pile.cards.length === 13);
+  }
+
+  updateScore(points) {
+    this.score += points;
+    this.onScoreUpdate(this.score);
   }
 
   setCardBack(cardBack) {
