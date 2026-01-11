@@ -58,11 +58,8 @@ export class Application {
           existingApp.win.restore();
           setTimeout(() => existingApp.win.focus(), 0);
         }
-      } else {
-        // It's a non-windowed app, delegate to its own launch logic
-        existingApp._onLaunch(filePath);
       }
-      return existingApp;
+      return;
     }
 
     this.win = await this._createWindow(filePath);
