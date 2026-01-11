@@ -3,6 +3,7 @@ import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./klondike.css";
+import "./options.css";
 import "../../styles/solitaire.css";
 
 const animatedCardBacks = {
@@ -229,6 +230,10 @@ export class KlondikeSolitaireApp extends Application {
         {
           label: "Deck...",
           action: () => this._showDeckSelectionDialog(),
+        },
+        {
+          label: "Options...",
+          action: () => this._showOptionsDialog(),
         },
         "MENU_DIVIDER",
         {
@@ -537,5 +542,83 @@ export class KlondikeSolitaireApp extends Application {
       parentWindow: this.win,
     });
     this._updateMenuBar(this.win);
+  }
+
+  _showOptionsDialog() {
+    const dialogContent = document.createElement("div");
+    dialogContent.className = "klondike-options-container";
+
+    dialogContent.innerHTML = `
+      <div class="options-row">
+        <fieldset>
+          <legend>Draw</legend>
+          <div class="options-column">
+            <div class="field-row">
+              <input type="radio" id="drawOne" name="draw" value="one">
+              <label for="drawOne">Draw one</label>
+            </div>
+            <div class="field-row">
+              <input type="radio" id="drawThree" name="draw" value="three" checked>
+              <label for="drawThree">Draw three</label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Scoring</legend>
+          <div class="options-column">
+            <div class="field-row">
+              <input type="radio" id="standard" name="scoring" value="standard">
+              <label for="standard">Standard</label>
+            </div>
+            <div class="field-row">
+              <input type="radio" id="vegas" name="scoring" value="vegas" checked>
+              <label for="vegas">Vegas</label>
+            </div>
+            <div class="field-row">
+              <input type="radio" id="none" name="scoring" value="none">
+              <label for="none">None</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="options-row">
+          <div class="options-column">
+            <div class="field-row">
+                <input type="checkbox" id="timedGame" checked>
+                <label for="timedGame">Timed game</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="statusBar" checked>
+                <label for="statusBar">Status bar</label>
+            </div>
+          </div>
+          <div class="options-column">
+            <div class="field-row">
+                <input type="checkbox" id="outlineDragging">
+                <label for="outlineDragging">Outline dragging</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="keepScore">
+                <label for="keepScore">Keep score</label>
+            </div>
+          </div>
+      </div>
+    `;
+
+    ShowDialogWindow({
+      title: "Options",
+      content: dialogContent,
+      buttons: [
+        {
+          label: "OK",
+          action: () => {},
+        },
+        {
+          label: "Cancel",
+        },
+      ],
+      parentWindow: this.win,
+      modal: true,
+    });
   }
 }
