@@ -1,7 +1,8 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
+const { resolveConfig } = require('vite');
 
-function createWindow() {
+async function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
@@ -13,7 +14,11 @@ function createWindow() {
   });
 
   if (!app.isPackaged) {
-    win.loadURL('http://localhost:5173/win98-web/');
+    const viteConfig = await resolveConfig({}, 'serve');
+    const port = viteConfig.server.port || 5173;
+    const base = viteConfig.base || '/';
+    const url = `http://localhost:${port}${base}`;
+    win.loadURL(url);
   } else {
     win.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
@@ -44,12 +49,12 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(() => {
-  createWindow();
+app.whenReady().then(async () => {
+  await createWindow();
 
-  app.on('activate', () => {
+  app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      await createWindow();
     }
   });
 });
