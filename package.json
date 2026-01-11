@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173/azos-second-edition/ && electron .\""
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173/win98-web/ && electron .\""
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

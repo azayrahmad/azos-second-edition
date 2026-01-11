@@ -13,7 +13,7 @@ function createWindow() {
   });
 
   if (!app.isPackaged) {
-    win.loadURL('http://localhost:5173/azos-second-edition/');
+    win.loadURL('http://localhost:5173/win98-web/');
   } else {
     win.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
