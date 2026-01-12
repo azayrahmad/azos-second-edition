@@ -24,10 +24,19 @@
 }
 
 .klondike-solitaire-container .stock-pile,
-.klondike-solitaire-container .waste-pile {
+.klondike-solitaire-container .waste-pile-container {
     width: 71px;
     height: 96px;
     position: relative;
+}
+
+.klondike-solitaire-container .waste-pile,
+.klondike-solitaire-container .drawn-card-pile {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .klondike-solitaire-container .foundation-pile {
@@ -105,7 +114,8 @@
 }
 
 .klondike-solitaire-container .stock-pile .card,
-.klondike-solitaire-container .waste-pile .card {
+.klondike-solitaire-container .waste-pile .card,
+.klondike-solitaire-container .drawn-card-pile .card {
     position: absolute !important;
 }
 

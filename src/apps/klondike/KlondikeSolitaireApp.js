@@ -44,7 +44,10 @@ export class KlondikeSolitaireApp extends Application {
         <div class="game-board">
           <div class="top-piles">
             <div class="stock-pile"></div>
-            <div class="waste-pile"></div>
+            <div class="waste-pile-container">
+              <div class="waste-pile"></div>
+              <div class="drawn-card-pile"></div>
+            </div>
             <div class="spacer"></div>
             <div class="foundation-piles"></div>
           </div>
@@ -264,6 +267,7 @@ export class KlondikeSolitaireApp extends Application {
     this.renderTableau();
     this.renderStock();
     this.renderWaste();
+    this.renderDrawnCards();
     this.renderFoundations();
   }
 
@@ -340,41 +344,47 @@ export class KlondikeSolitaireApp extends Application {
     wasteContainer.innerHTML = "";
     wasteContainer.dataset.pileType = "waste";
 
-    // Render the main waste pile (cards that have been cycled through)
     if (this.game.wastePile.cards.length > 0) {
-      const topCard = this.game.wastePile.cards[this.game.wastePile.cards.length - 1];
-      const cardDiv = topCard.element;
-      cardDiv.style.left = `0px`;
-      cardDiv.style.top = `0px`;
-      cardDiv.dataset.pileType = "waste";
-      cardDiv.dataset.cardIndex = this.game.wastePile.cards.length - 1;
-      cardDiv.dataset.pileIndex = 0;
-      wasteContainer.appendChild(cardDiv);
+      this.game.wastePile.cards.forEach((card, cardIndex) => {
+        const cardDiv = card.element;
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 2}px`;
+        cardDiv.style.top = '0px';
+        cardDiv.dataset.pileType = "waste"; // Purely visual, not for interaction
+        cardDiv.dataset.cardIndex = cardIndex;
+        cardDiv.dataset.pileIndex = 0;
+        wasteContainer.appendChild(cardDiv);
+      });
     }
+  }
 
-    // Render the drawn cards on top of the waste pile
+  renderDrawnCards() {
+    const drawnContainer = this.container.querySelector(".drawn-card-pile");
+    drawnContainer.innerHTML = "";
+    drawnContainer.dataset.pileType = "drawn";
+
     if (this.game.drawnCards.length > 0) {
       if (this.game.drawOption === "three") {
         let leftOffset = 0;
         this.game.drawnCards.forEach((card, cardIndex) => {
           const cardDiv = card.element;
           cardDiv.style.left = `${leftOffset}px`;
-          cardDiv.style.top = `0px`;
+          cardDiv.style.top = "0px";
           cardDiv.dataset.pileType = "drawn";
           cardDiv.dataset.cardIndex = cardIndex;
           cardDiv.dataset.pileIndex = 0;
-          wasteContainer.appendChild(cardDiv);
+          drawnContainer.appendChild(cardDiv);
           leftOffset += 15;
         });
-      } else { // "Draw one" logic
+      } else {
+        // "Draw one" logic
         const card = this.game.drawnCards[0];
         const cardDiv = card.element;
-        cardDiv.style.left = `0px`;
-        cardDiv.style.top = `0px`;
+        cardDiv.style.left = "0px";
+        cardDiv.style.top = "0px";
         cardDiv.dataset.pileType = "drawn";
         cardDiv.dataset.cardIndex = 0;
         cardDiv.dataset.pileIndex = 0;
-        wasteContainer.appendChild(cardDiv);
+        drawnContainer.appendChild(cardDiv);
       }
     }
   }
@@ -489,6 +499,7 @@ export class KlondikeSolitaireApp extends Application {
       if (originalElement) {
         const clone = originalElement.cloneNode(true);
         clone.style.position = "absolute";
+        clone.style.left = '0px'; // Reset fanning offset from original element
         clone.style.top = `${topOffset}px`;
         this.draggedElement.appendChild(clone);
         originalElement.classList.add("dragging");
@@ -562,9 +573,10 @@ export class KlondikeSolitaireApp extends Application {
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }
-        this.render();
-        this._updateMenuBar(this.win);
       }
+      // Always re-render to reflect any state changes (like refilling drawn cards)
+      this.render();
+      this._updateMenuBar(this.win);
     }
 
     this.draggedCardsInfo = null;
