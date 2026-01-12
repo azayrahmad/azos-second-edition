@@ -50,12 +50,53 @@ export class WebampApp extends Application {
       url: f.contentUrl || f.content,
     });
 
-    if (webampInstance) {
-      this.showWebamp();
-      if (file) {
-        const track = createTrackFromFile(file);
+    const handleFile = (fileToHandle) => {
+      if (!fileToHandle) return;
+
+      if (fileToHandle.name.toLowerCase().endsWith(".m3u")) {
+        fetch(fileToHandle.contentUrl)
+          .then((response) => response.text())
+          .then((playlistText) => {
+            const trackFilenames = playlistText
+              .split("\n")
+              .filter(
+                (line) => line.trim() !== "" && !line.startsWith("#"),
+              );
+            if (trackFilenames.length === 0) return;
+
+            const baseUrl = fileToHandle.contentUrl.substring(
+              0,
+              fileToHandle.contentUrl.lastIndexOf("/") + 1,
+            );
+
+            const tracks = trackFilenames.map((filename) => {
+              const trackUrl = baseUrl + filename;
+              const title = filename
+                .replace(/\.ogg$/, "")
+                .replace(/.* - \d{2} /, "");
+
+              return {
+                metaData: {
+                  artist: "anosci",
+                  title: title,
+                },
+                url: trackUrl,
+              };
+            });
+            webampInstance.setTracksToPlay(tracks);
+          })
+          .catch((error) =>
+            console.error("Error loading M3U playlist:", error),
+          );
+      } else {
+        const track = createTrackFromFile(fileToHandle);
         webampInstance.setTracksToPlay([track]);
       }
+    };
+
+    if (webampInstance) {
+      this.showWebamp();
+      handleFile(file);
       return;
     }
 
@@ -116,10 +157,7 @@ export class WebampApp extends Application {
             .then(() => {
               this.setupTaskbarButton();
               this.showWebamp();
-              if (file) {
-                const track = createTrackFromFile(file);
-                webampInstance.setTracksToPlay([track]);
-              }
+              handleFile(file);
               resolve(); // Resolve the promise once Webamp is ready
             })
             .catch(reject);
