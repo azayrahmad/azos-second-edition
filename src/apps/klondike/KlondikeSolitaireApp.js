@@ -2,7 +2,11 @@ import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { getItem, setItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
+import {
+  getItem,
+  setItem,
+  LOCAL_STORAGE_KEYS,
+} from "../../utils/localStorage.js";
 import "./klondike.css";
 import "./options.css";
 import "../../styles/solitaire.css";
@@ -219,13 +223,13 @@ export class KlondikeSolitaireApp extends Application {
           shortcut: "F2",
         },
         {
-            label: "Undo",
-            enabled: () => !!this.game.previousState,
-            action: () => {
-                this.game.undo();
-                this.render();
-                this._updateMenuBar(this.win);
-            },
+          label: "Undo",
+          enabled: () => !!this.game?.previousState,
+          action: () => {
+            this.game.undo();
+            this.render();
+            this._updateMenuBar(this.win);
+          },
         },
         "MENU_DIVIDER",
         {
@@ -645,9 +649,16 @@ export class KlondikeSolitaireApp extends Application {
         {
           label: "OK",
           action: () => {
-            const selectedDrawOption = dialogContent.querySelector('input[name="draw"]:checked').value;
-            setItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION, selectedDrawOption);
-            this.game.setDrawOption(selectedDrawOption);
+            const selectedDrawOption = dialogContent.querySelector(
+              'input[name="draw"]:checked',
+            ).value;
+            if (this.game.drawOption !== selectedDrawOption) {
+              setItem(
+                LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION,
+                selectedDrawOption,
+              );
+              this.startNewGame();
+            }
           },
         },
         {
