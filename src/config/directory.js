@@ -59,6 +59,7 @@ const directory = [
             appId: "spidersolitaire",
             name: "Spider Solitaire",
           },
+          { id: "app-songs", type: "app", appId: "songs", name: "songs" },
         ].sort((a, b) =>
           (a.name || "").localeCompare(b.name || "", undefined, {
             sensitivity: "base",
@@ -233,6 +234,12 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-buggyprogram",
                 name: "buggyprogram.exe",
+              },
+              {
+                id: "shortcut-to-songs",
+                type: "shortcut",
+                targetId: "app-songs",
+                name: "songs",
               },
             ],
           },
