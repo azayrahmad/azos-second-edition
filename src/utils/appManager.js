@@ -44,12 +44,9 @@ export async function launchApp(appId, data = null) {
         return;
     }
 
-    // Handle singleton apps that are already running
-    const runningApp = appManager.runningApps[appId];
-    if (runningApp && appConfig.isSingleton) {
-        runningApp.launch(data); // This will handle focus or file loading
-        clearWaitCursor();
-        return runningApp;
+    // Prevent duplicate launches of non-windowed apps that are already running
+    if (appManager.runningApps[appId] && !appManager.getAppConfig(appId).width) {
+        return;
     }
 
     try {
