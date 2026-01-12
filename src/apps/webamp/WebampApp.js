@@ -42,11 +42,16 @@ export class WebampApp extends Application {
   }
 
   async _onLaunch(filePath) {
+    const createTrackFromFile = (f) => ({
+      metaData: {
+        artist: f.artist || "Unknown Artist",
+        title: f.title || f.name,
+      },
+      url: f.contentUrl || f.content,
+    });
     const createTrackFromUrl = (url) => {
       const filename = url.substring(url.lastIndexOf("/") + 1);
-      const title = filename
-        .replace(/\.ogg$/, "")
-        .replace(/.* - \d{2} /, "");
+      const title = filename.replace(/\.ogg$/, "").replace(/.* - \d{2} /, "");
       return {
         metaData: {
           artist: "Unknown Artist",
@@ -57,17 +62,15 @@ export class WebampApp extends Application {
     };
 
     const handleFile = (path) => {
-      if (!path || typeof path !== "string") return;
+      if (!path) return;
 
-      if (path.toLowerCase().endsWith(".m3u")) {
+      if (typeof path === "string" && path.toLowerCase().endsWith(".m3u")) {
         fetch(path)
           .then((response) => response.text())
           .then((playlistText) => {
             const trackFilenames = playlistText
               .split("\n")
-              .filter(
-                (line) => line.trim() !== "" && !line.startsWith("#"),
-              );
+              .filter((line) => line.trim() !== "" && !line.startsWith("#"));
             if (trackFilenames.length === 0) return;
 
             const baseUrl = path.substring(0, path.lastIndexOf("/") + 1);
@@ -92,7 +95,7 @@ export class WebampApp extends Application {
             console.error("Error loading M3U playlist:", error),
           );
       } else {
-        const track = createTrackFromUrl(path);
+        const track = createTrackFromFile(path);
         webampInstance.setTracksToPlay([track]);
       }
     };
