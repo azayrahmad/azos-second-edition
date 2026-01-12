@@ -160,10 +160,7 @@ export class WebampApp extends Application {
             .then(() => {
               this.setupTaskbarButton();
               this.showWebamp();
-              if (file) {
-                const track = createTrackFromFile(file);
-                webampInstance.setTracksToPlay([track]);
-              }
+              handleFile(filePath);
               resolve(); // Resolve the promise once Webamp is ready
             })
             .catch(reject);
