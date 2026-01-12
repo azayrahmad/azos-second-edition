@@ -1,9 +1,9 @@
-const { resolveConfig } = require('vite');
 const waitOn = require('wait-on');
 const { spawn } = require('child_process');
 
 (async () => {
   try {
+    const { resolveConfig } = await import('vite');
     const viteConfig = await resolveConfig({}, 'serve');
     const port = viteConfig.server.port || 5173;
     const base = viteConfig.base || '/';

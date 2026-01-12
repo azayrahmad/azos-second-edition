@@ -1,6 +1,5 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
-const { resolveConfig } = require('vite');
 
 async function createWindow() {
   const win = new BrowserWindow({
@@ -14,6 +13,7 @@ async function createWindow() {
   });
 
   if (!app.isPackaged) {
+    const { resolveConfig } = await import('vite');
     const viteConfig = await resolveConfig({}, 'serve');
     const port = viteConfig.server.port || 5173;
     const base = viteConfig.base || '/';
