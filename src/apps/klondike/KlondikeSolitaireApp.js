@@ -2,7 +2,13 @@ import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import {
+  getItem,
+  setItem,
+  LOCAL_STORAGE_KEYS,
+} from "../../utils/localStorage.js";
 import "./klondike.css";
+import "./options.css";
 import "../../styles/solitaire.css";
 
 const animatedCardBacks = {
@@ -217,18 +223,22 @@ export class KlondikeSolitaireApp extends Application {
           shortcut: "F2",
         },
         {
-            label: "Undo",
-            enabled: () => !!this.game.previousState,
-            action: () => {
-                this.game.undo();
-                this.render();
-                this._updateMenuBar(this.win);
-            },
+          label: "Undo",
+          enabled: () => !!this.game?.previousState,
+          action: () => {
+            this.game.undo();
+            this.render();
+            this._updateMenuBar(this.win);
+          },
         },
         "MENU_DIVIDER",
         {
           label: "Deck...",
           action: () => this._showDeckSelectionDialog(),
+        },
+        {
+          label: "Options...",
+          action: () => this._showOptionsDialog(),
         },
         "MENU_DIVIDER",
         {
@@ -319,17 +329,48 @@ export class KlondikeSolitaireApp extends Application {
     const wasteContainer = this.container.querySelector(".waste-pile");
     wasteContainer.innerHTML = "";
     wasteContainer.dataset.pileType = "waste";
+
     if (this.game.wastePile.cards.length > 0) {
-      this.game.wastePile.cards.forEach((card, cardIndex) => {
-        const cardDiv = card.element;
-        // cardDiv.style.position = "absolute";
-        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
-        cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
-        cardDiv.dataset.pileType = "waste";
-        cardDiv.dataset.cardIndex = cardIndex;
-        cardDiv.dataset.pileIndex = 0;
-        wasteContainer.appendChild(cardDiv);
-      });
+      if (this.game.drawOption === "three") {
+        const topCards = this.game.wastePile.cards.slice(-3);
+        const bottomCards = this.game.wastePile.cards.slice(0, -3);
+
+        // Render bottom cards stacked
+        bottomCards.forEach((card, cardIndex) => {
+          const cardDiv = card.element;
+          cardDiv.style.left = `0px`;
+          cardDiv.style.top = `0px`;
+          cardDiv.dataset.pileType = "waste";
+          cardDiv.dataset.cardIndex = cardIndex;
+          cardDiv.dataset.pileIndex = 0;
+          wasteContainer.appendChild(cardDiv);
+        });
+
+        // Render top cards fanned out
+        let leftOffset = 0;
+        topCards.forEach((card, cardIndex) => {
+          const cardDiv = card.element;
+          cardDiv.style.left = `${leftOffset}px`;
+          cardDiv.style.top = `0px`;
+          cardDiv.dataset.pileType = "waste";
+          cardDiv.dataset.cardIndex = bottomCards.length + cardIndex;
+          cardDiv.dataset.pileIndex = 0;
+          wasteContainer.appendChild(cardDiv);
+          leftOffset += 15;
+        });
+      } else {
+        // "Draw one" logic
+        this.game.wastePile.cards.forEach((card, cardIndex) => {
+          const cardDiv = card.element;
+          // cardDiv.style.position = "absolute";
+          cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
+          cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
+          cardDiv.dataset.pileType = "waste";
+          cardDiv.dataset.cardIndex = cardIndex;
+          cardDiv.dataset.pileIndex = 0;
+          wasteContainer.appendChild(cardDiv);
+        });
+      }
     }
   }
 
@@ -537,5 +578,96 @@ export class KlondikeSolitaireApp extends Application {
       parentWindow: this.win,
     });
     this._updateMenuBar(this.win);
+  }
+
+  _showOptionsDialog() {
+    const dialogContent = document.createElement("div");
+    dialogContent.className = "klondike-options-container";
+
+    const drawOption = this.game.drawOption || "one";
+
+    dialogContent.innerHTML = `
+      <div class="options-row">
+        <fieldset>
+          <legend>Draw</legend>
+          <div class="options-column">
+            <div class="field-row">
+              <input type="radio" id="drawOne" name="draw" value="one" ${drawOption === "one" ? "checked" : ""}>
+              <label for="drawOne">Draw one</label>
+            </div>
+            <div class="field-row">
+              <input type="radio" id="drawThree" name="draw" value="three" ${drawOption === "three" ? "checked" : ""}>
+              <label for="drawThree">Draw three</label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Scoring</legend>
+          <div class="options-column">
+            <div class="field-row">
+              <input type="radio" id="standard" name="scoring" value="standard">
+              <label for="standard">Standard</label>
+            </div>
+            <div class="field-row">
+              <input type="radio" id="vegas" name="scoring" value="vegas" checked>
+              <label for="vegas">Vegas</label>
+            </div>
+            <div class="field-row">
+              <input type="radio" id="none" name="scoring" value="none">
+              <label for="none">None</label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="options-row">
+          <div class="options-column">
+            <div class="field-row">
+                <input type="checkbox" id="timedGame" checked>
+                <label for="timedGame">Timed game</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="statusBar" checked>
+                <label for="statusBar">Status bar</label>
+            </div>
+          </div>
+          <div class="options-column">
+            <div class="field-row">
+                <input type="checkbox" id="outlineDragging">
+                <label for="outlineDragging">Outline dragging</label>
+            </div>
+            <div class="field-row">
+                <input type="checkbox" id="keepScore">
+                <label for="keepScore">Keep score</label>
+            </div>
+          </div>
+      </div>
+    `;
+
+    ShowDialogWindow({
+      title: "Options",
+      content: dialogContent,
+      buttons: [
+        {
+          label: "OK",
+          action: () => {
+            const selectedDrawOption = dialogContent.querySelector(
+              'input[name="draw"]:checked',
+            ).value;
+            if (this.game.drawOption !== selectedDrawOption) {
+              setItem(
+                LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION,
+                selectedDrawOption,
+              );
+              this.startNewGame();
+            }
+          },
+        },
+        {
+          label: "Cancel",
+        },
+      ],
+      parentWindow: this.win,
+      modal: true,
+    });
   }
 }
