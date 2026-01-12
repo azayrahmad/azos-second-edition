@@ -362,24 +362,32 @@ export class KlondikeSolitaireApp extends Application {
     drawnContainer.innerHTML = "";
     drawnContainer.dataset.pileType = "drawn";
 
+    // Calculate the starting offset from the waste pile for seamless fanning
+    const wasteCardCount = this.game.wastePile.cards.length;
+    let baseOffset = 0;
+    if (wasteCardCount > 0) {
+      const lastWasteCardIndex = wasteCardCount - 1;
+      baseOffset = Math.floor(lastWasteCardIndex / 8) * 2;
+    }
+
     if (this.game.drawnCards.length > 0) {
       if (this.game.drawOption === "three") {
-        let leftOffset = 0;
+        let additionalOffset = 0;
         this.game.drawnCards.forEach((card, cardIndex) => {
           const cardDiv = card.element;
-          cardDiv.style.left = `${leftOffset}px`;
+          cardDiv.style.left = `${baseOffset + additionalOffset}px`;
           cardDiv.style.top = "0px";
           cardDiv.dataset.pileType = "drawn";
           cardDiv.dataset.cardIndex = cardIndex;
           cardDiv.dataset.pileIndex = 0;
           drawnContainer.appendChild(cardDiv);
-          leftOffset += 15;
+          additionalOffset += 15;
         });
       } else {
         // "Draw one" logic
         const card = this.game.drawnCards[0];
         const cardDiv = card.element;
-        cardDiv.style.left = "0px";
+        cardDiv.style.left = `${baseOffset}px`;
         cardDiv.style.top = "0px";
         cardDiv.dataset.pileType = "drawn";
         cardDiv.dataset.cardIndex = 0;
