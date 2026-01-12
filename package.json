@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"npm run dev\" \"node scripts/start-electron.js\""
+    "electron:dev": "concurrently \"npm run dev\" \"node scripts/start-electron.cjs\""
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
