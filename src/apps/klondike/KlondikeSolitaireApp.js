@@ -460,6 +460,7 @@ export class KlondikeSolitaireApp extends Application {
     let fromPile;
     if (pileType === "tableau") fromPile = this.game.tableauPiles[pileIndex];
     else if (pileType === "waste") fromPile = this.game.wastePile;
+    else if (pileType === "drawn") fromPile = { cards: this.game.drawnCards };
     else if (pileType === "foundation")
       fromPile = this.game.foundationPiles[pileIndex];
     else return;
