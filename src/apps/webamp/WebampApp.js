@@ -41,7 +41,7 @@ export class WebampApp extends Application {
     return null; // Return null to prevent default window creation.
   }
 
-  async _onLaunch(file) {
+  async _onLaunch(filePath) {
     const createTrackFromFile = (f) => ({
       metaData: {
         artist: f.artist || "Unknown Artist",
@@ -49,13 +49,60 @@ export class WebampApp extends Application {
       },
       url: f.contentUrl || f.content,
     });
+    const createTrackFromUrl = (url) => {
+      const filename = url.substring(url.lastIndexOf("/") + 1);
+      const title = filename.replace(/\.ogg$/, "").replace(/.* - \d{2} /, "");
+      return {
+        metaData: {
+          artist: "Unknown Artist",
+          title: title,
+        },
+        url: url,
+      };
+    };
+
+    const handleFile = (path) => {
+      if (!path) return;
+
+      if (typeof path === "string" && path.toLowerCase().endsWith(".m3u")) {
+        fetch(path)
+          .then((response) => response.text())
+          .then((playlistText) => {
+            const trackFilenames = playlistText
+              .split("\n")
+              .filter((line) => line.trim() !== "" && !line.startsWith("#"));
+            if (trackFilenames.length === 0) return;
+
+            const baseUrl = path.substring(0, path.lastIndexOf("/") + 1);
+
+            const tracks = trackFilenames.map((filename) => {
+              const trackUrl = baseUrl + filename;
+              const title = filename
+                .replace(/\.ogg$/, "")
+                .replace(/.* - \d{2} /, "");
+
+              return {
+                metaData: {
+                  artist: "anosci",
+                  title: title,
+                },
+                url: trackUrl,
+              };
+            });
+            webampInstance.setTracksToPlay(tracks);
+          })
+          .catch((error) =>
+            console.error("Error loading M3U playlist:", error),
+          );
+      } else {
+        const track = createTrackFromFile(path);
+        webampInstance.setTracksToPlay([track]);
+      }
+    };
 
     if (webampInstance) {
       this.showWebamp();
-      if (file) {
-        const track = createTrackFromFile(file);
-        webampInstance.setTracksToPlay([track]);
-      }
+      handleFile(filePath);
       return;
     }
 
@@ -116,10 +163,7 @@ export class WebampApp extends Application {
             .then(() => {
               this.setupTaskbarButton();
               this.showWebamp();
-              if (file) {
-                const track = createTrackFromFile(file);
-                webampInstance.setTracksToPlay([track]);
-              }
+              handleFile(filePath);
               resolve(); // Resolve the promise once Webamp is ready
             })
             .catch(reject);

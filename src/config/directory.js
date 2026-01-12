@@ -380,6 +380,13 @@ const directory = [
                 contentUrl:
                   "songs/anosci - Blank VHS Tape Jingle Collection/cover.png",
               },
+              {
+                id: "file-anosci-playlist",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection.m3u",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection.m3u",
+              },
             ],
           },
         ],
