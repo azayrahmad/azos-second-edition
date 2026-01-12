@@ -340,46 +340,41 @@ export class KlondikeSolitaireApp extends Application {
     wasteContainer.innerHTML = "";
     wasteContainer.dataset.pileType = "waste";
 
+    // Render the main waste pile (cards that have been cycled through)
     if (this.game.wastePile.cards.length > 0) {
+      const topCard = this.game.wastePile.cards[this.game.wastePile.cards.length - 1];
+      const cardDiv = topCard.element;
+      cardDiv.style.left = `0px`;
+      cardDiv.style.top = `0px`;
+      cardDiv.dataset.pileType = "waste";
+      cardDiv.dataset.cardIndex = this.game.wastePile.cards.length - 1;
+      cardDiv.dataset.pileIndex = 0;
+      wasteContainer.appendChild(cardDiv);
+    }
+
+    // Render the drawn cards on top of the waste pile
+    if (this.game.drawnCards.length > 0) {
       if (this.game.drawOption === "three") {
-        const topCards = this.game.wastePile.cards.slice(-3);
-        const bottomCards = this.game.wastePile.cards.slice(0, -3);
-
-        // Render bottom cards stacked
-        bottomCards.forEach((card, cardIndex) => {
-          const cardDiv = card.element;
-          cardDiv.style.left = `0px`;
-          cardDiv.style.top = `0px`;
-          cardDiv.dataset.pileType = "waste";
-          cardDiv.dataset.cardIndex = cardIndex;
-          cardDiv.dataset.pileIndex = 0;
-          wasteContainer.appendChild(cardDiv);
-        });
-
-        // Render top cards fanned out
         let leftOffset = 0;
-        topCards.forEach((card, cardIndex) => {
+        this.game.drawnCards.forEach((card, cardIndex) => {
           const cardDiv = card.element;
           cardDiv.style.left = `${leftOffset}px`;
           cardDiv.style.top = `0px`;
-          cardDiv.dataset.pileType = "waste";
-          cardDiv.dataset.cardIndex = bottomCards.length + cardIndex;
+          cardDiv.dataset.pileType = "drawn";
+          cardDiv.dataset.cardIndex = cardIndex;
           cardDiv.dataset.pileIndex = 0;
           wasteContainer.appendChild(cardDiv);
           leftOffset += 15;
         });
-      } else {
-        // "Draw one" logic
-        this.game.wastePile.cards.forEach((card, cardIndex) => {
-          const cardDiv = card.element;
-          // cardDiv.style.position = "absolute";
-          cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
-          cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
-          cardDiv.dataset.pileType = "waste";
-          cardDiv.dataset.cardIndex = cardIndex;
-          cardDiv.dataset.pileIndex = 0;
-          wasteContainer.appendChild(cardDiv);
-        });
+      } else { // "Draw one" logic
+        const card = this.game.drawnCards[0];
+        const cardDiv = card.element;
+        cardDiv.style.left = `0px`;
+        cardDiv.style.top = `0px`;
+        cardDiv.dataset.pileType = "drawn";
+        cardDiv.dataset.cardIndex = 0;
+        cardDiv.dataset.pileIndex = 0;
+        wasteContainer.appendChild(cardDiv);
       }
     }
   }
@@ -465,6 +460,7 @@ export class KlondikeSolitaireApp extends Application {
     let fromPile;
     if (pileType === "tableau") fromPile = this.game.tableauPiles[pileIndex];
     else if (pileType === "waste") fromPile = this.game.wastePile;
+    else if (pileType === "drawn") fromPile = { cards: this.game.drawnCards };
     else if (pileType === "foundation")
       fromPile = this.game.foundationPiles[pileIndex];
     else return;

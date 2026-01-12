@@ -43,6 +43,7 @@ export class Game {
     this.tableauPiles = Array.from({ length: 7 }, () => new TableauPile());
     this.foundationPiles = Array.from({ length: 4 }, () => new FoundationPile());
     this.wastePile = new WastePile();
+    this.drawnCards = [];
 
     this.dealInitialCards();
 
@@ -62,19 +63,30 @@ export class Game {
   }
 
   dealFromStock() {
+    this._saveState();
+
+    // Move any remaining drawn cards to the waste pile.
+    this.wastePile.cards.push(...this.drawnCards);
+    this.drawnCards = [];
+
     if (this.stockPile.canDeal()) {
-      this._saveState();
+      // Deal new cards
       if (this.drawOption === 'three') {
         const cardsToDeal = this.stockPile.deal(3);
-        cardsToDeal.forEach(card => this.wastePile.addCard(card));
+        cardsToDeal.forEach(card => (card.faceUp = true));
+        this.drawnCards = cardsToDeal;
       } else {
         const card = this.stockPile.deal();
-        this.wastePile.addCard(card);
+        if (card) {
+          card.faceUp = true;
+          this.drawnCards = [card];
+        }
       }
-    } else if (this.wastePile.cards.length > 0) {
-      this._saveState();
+    } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
+      // Recycle all cards back to stock
       const recycledCards = this.wastePile.reset();
-      this.stockPile.cards.push(...recycledCards);
+      this.stockPile.cards.push(...this.drawnCards, ...recycledCards);
+      this.drawnCards = [];
     }
   }
 
@@ -94,9 +106,11 @@ export class Game {
           if (!pile || cardIndex < 0 || cardIndex >= pile.cards.length) return false;
           return pile.cards[cardIndex].faceUp;
       }
+      if (pileType === 'drawn') {
+        return this.drawnCards.length > 0 && cardIndex === this.drawnCards.length - 1;
+      }
       if (pileType === 'waste') {
-          const pile = this.wastePile;
-          return cardIndex === pile.cards.length - 1;
+        return this.drawnCards.length === 0 && this.wastePile.cards.length > 0 && cardIndex === this.wastePile.cards.length - 1;
       }
       if (pileType === 'foundation') {
           const pile = this.foundationPiles[pileIndex];
@@ -108,6 +122,7 @@ export class Game {
   moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex) {
     let fromPile;
     if (fromPileType === 'tableau') fromPile = this.tableauPiles[fromPileIndex];
+    if (fromPileType === 'drawn') fromPile = { cards: this.drawnCards };
     if (fromPileType === 'waste') fromPile = this.wastePile;
     if (fromPileType === 'foundation') fromPile = this.foundationPiles[fromPileIndex];
 
@@ -166,6 +181,7 @@ export class Game {
     this.previousState = {
       stockPileCards: [...this.stockPile.cards],
       wastePileCards: [...this.wastePile.cards],
+      drawnCards: [...this.drawnCards],
       tableauPilesCards: this.tableauPiles.map(p => [...p.cards]),
       foundationPilesCards: this.foundationPiles.map(p => [...p.cards]),
       allCardsFaceUp: this.allCards.map(c => c.faceUp)
@@ -179,6 +195,7 @@ export class Game {
 
     this.stockPile.cards = this.previousState.stockPileCards;
     this.wastePile.cards = this.previousState.wastePileCards;
+    this.drawnCards = this.previousState.drawnCards;
     this.tableauPiles.forEach((pile, index) => {
       pile.cards = this.previousState.tableauPilesCards[index];
     });
