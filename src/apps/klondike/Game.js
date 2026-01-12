@@ -17,6 +17,7 @@ export class Game {
   initializeGame() {
     this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
+    this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
     this.score = 0;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
 
@@ -63,8 +64,13 @@ export class Game {
   dealFromStock() {
     if (this.stockPile.canDeal()) {
       this._saveState();
-      const card = this.stockPile.deal();
-      this.wastePile.addCard(card);
+      if (this.drawOption === 'three') {
+        const cardsToDeal = this.stockPile.deal(3);
+        cardsToDeal.forEach(card => this.wastePile.addCard(card));
+      } else {
+        const card = this.stockPile.deal();
+        this.wastePile.addCard(card);
+      }
     } else if (this.wastePile.cards.length > 0) {
       this._saveState();
       const recycledCards = this.wastePile.reset();
@@ -150,6 +156,10 @@ export class Game {
     this.cardBack = cardBack;
     setItem(LOCAL_STORAGE_KEYS.klondikeCardBack, cardBack);
     this.allCards.forEach(card => card.setCardBack(cardBack));
+  }
+
+  setDrawOption(option) {
+    this.drawOption = option;
   }
 
   _saveState() {
