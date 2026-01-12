@@ -181,6 +181,7 @@ export class Game {
     this.previousState = {
       stockPileCards: [...this.stockPile.cards],
       wastePileCards: [...this.wastePile.cards],
+      drawnCards: [...this.drawnCards],
       tableauPilesCards: this.tableauPiles.map(p => [...p.cards]),
       foundationPilesCards: this.foundationPiles.map(p => [...p.cards]),
       allCardsFaceUp: this.allCards.map(c => c.faceUp)
@@ -194,6 +195,7 @@ export class Game {
 
     this.stockPile.cards = this.previousState.stockPileCards;
     this.wastePile.cards = this.previousState.wastePileCards;
+    this.drawnCards = this.previousState.drawnCards;
     this.tableauPiles.forEach((pile, index) => {
       pile.cards = this.previousState.tableauPilesCards[index];
     });
