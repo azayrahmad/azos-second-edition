@@ -362,8 +362,9 @@ export class KlondikeSolitaireApp extends Application {
         // "Draw one" logic
         this.game.wastePile.cards.forEach((card, cardIndex) => {
           const cardDiv = card.element;
-          cardDiv.style.left = `0px`;
-          cardDiv.style.top = `0px`;
+          // cardDiv.style.position = "absolute";
+          cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
+          cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
           cardDiv.dataset.pileType = "waste";
           cardDiv.dataset.cardIndex = cardIndex;
           cardDiv.dataset.pileIndex = 0;
