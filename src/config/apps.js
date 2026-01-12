@@ -178,6 +178,23 @@ const systemApps = [
     },
   },
   {
+    id: "songs",
+    title: "songs",
+    description: "A shortcut to the songs folder.",
+    get icon() {
+      return getIcon("folder");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", {
+          filePath: "/drive-d/folder-songs",
+          windowId: "songs",
+        });
+      },
+    },
+  },
+  {
     id: "alertTest",
     title: "Alert Test",
     description: "A test for the alert dialog.",
