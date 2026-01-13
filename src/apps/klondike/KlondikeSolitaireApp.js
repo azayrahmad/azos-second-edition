@@ -71,6 +71,7 @@ export class KlondikeSolitaireApp extends Application {
 
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
+    this.boundOnCancelDrag = this.onCancelDrag.bind(this);
 
     this.animationTimer = null;
 
@@ -527,6 +528,7 @@ export class KlondikeSolitaireApp extends Application {
 
     window.addEventListener("mousemove", this.boundOnMouseMove);
     window.addEventListener("mouseup", this.boundOnMouseUp);
+    window.addEventListener("blur", this.boundOnCancelDrag);
   }
 
   onMouseMove(event) {
@@ -540,23 +542,13 @@ export class KlondikeSolitaireApp extends Application {
   onMouseUp(event) {
     if (!this.isDragging) return;
 
-    // Cleanup dragging state
-    this.isDragging = false;
-    window.removeEventListener("mousemove", this.boundOnMouseMove);
-    window.removeEventListener("mouseup", this.boundOnMouseUp);
+    const draggedElementBeforeCancel = this.draggedElement;
 
-    // Un-hide the original cards
-    this.container
-      .querySelectorAll(".dragging")
-      .forEach((el) => el.classList.remove("dragging"));
+    this.onCancelDrag();
 
-    // Hide the clone to find the underlying element
-    this.draggedElement.style.display = "none";
+    draggedElementBeforeCancel.style.display = "none";
     const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
 
-    // Remove the clone
-    this.container.removeChild(this.draggedElement);
-    this.draggedElement = null;
 
     const toPileDiv = dropTarget?.closest(".tableau-pile, .foundation-pile");
 
@@ -587,6 +579,25 @@ export class KlondikeSolitaireApp extends Application {
       this._updateMenuBar(this.win);
     }
 
+    this.draggedCardsInfo = null;
+  }
+
+  onCancelDrag() {
+    if (!this.isDragging) return;
+
+    this.isDragging = false;
+    window.removeEventListener("mousemove", this.boundOnMouseMove);
+    window.removeEventListener("mouseup", this.boundOnMouseUp);
+    window.removeEventListener("blur", this.boundOnCancelDrag);
+
+    this.container
+      .querySelectorAll(".dragging")
+      .forEach((el) => el.classList.remove("dragging"));
+
+    if (this.draggedElement && this.draggedElement.parentElement) {
+      this.container.removeChild(this.draggedElement);
+    }
+    this.draggedElement = null;
     this.draggedCardsInfo = null;
   }
 
