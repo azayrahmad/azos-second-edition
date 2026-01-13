@@ -119,15 +119,24 @@ export class Game {
           this.drawnCards = [card];
         }
       }
-    } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
-      if (this.scoring === "vegas") {
-        if (this.drawOption === "one" && this.recycleCount >= 0) {
+
+      // Proactively check if the stock is now depleted under Vegas rules
+      if (!this.stockPile.canDeal() && this.scoring === "vegas") {
+        if (this.drawOption === "one") { // First and only pass is complete
           this.stockRecyclingDepleted = true;
-          return;
+        }
+        if (this.drawOption === "three" && this.recycleCount >= 2) { // Final (3rd) pass is complete
+          this.stockRecyclingDepleted = true;
+        }
+      }
+    } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
+      // This block handles the attempt to recycle the waste pile.
+      if (this.scoring === "vegas") {
+        if (this.drawOption === "one") {
+          return; // No recycles allowed
         }
         if (this.drawOption === "three" && this.recycleCount >= 2) {
-          this.stockRecyclingDepleted = true;
-          return;
+          return; // Max recycles reached
         }
       }
 
@@ -147,6 +156,9 @@ export class Game {
       const allRecycledCards = [...recycledFromDrawn, ...recycledFromWaste];
       this.stockPile.cards = allRecycledCards;
       this.stockPile.cards.forEach((card) => (card.faceUp = false));
+
+      // On a successful recycle, the stock is no longer considered depleted
+      this.stockRecyclingDepleted = false;
     }
   }
 
