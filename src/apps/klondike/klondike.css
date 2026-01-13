@@ -158,6 +158,29 @@
     width: 71px;
 }
 
+.dragged-outline {
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.dragged-outline-card {
+    position: absolute;
+    width: 71px;
+    height: 96px;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.card.ghosting {
+    opacity: 0.5;
+}
+
+.card.invert-colors {
+    filter: invert(1);
+}
+
 .status-bar {
   height: 20px;
   background-color: var(--ButtonFace);

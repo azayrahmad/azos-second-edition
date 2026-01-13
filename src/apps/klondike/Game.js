@@ -207,6 +207,35 @@ export class Game {
     return false;
   }
 
+  isMoveValid(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex) {
+    let fromPile;
+    if (fromPileType === "tableau") fromPile = this.tableauPiles[fromPileIndex];
+    else if (fromPileType === "drawn") fromPile = { cards: this.drawnCards };
+    else if (fromPileType === "waste") fromPile = this.wastePile;
+    else if (fromPileType === "foundation")
+      fromPile = this.foundationPiles[fromPileIndex];
+    else return false;
+
+    let toPile;
+    if (toPileType === "tableau") toPile = this.tableauPiles[toPileIndex];
+    else if (toPileType === "foundation")
+      toPile = this.foundationPiles[toPileIndex];
+    else return false;
+
+    if (!fromPile || !toPile) return false;
+
+    // Check if there are cards to move from the specified index
+    if (cardIndex >= fromPile.cards.length) return false;
+
+    const cardsToMove = fromPile.cards.slice(cardIndex);
+
+    if (cardsToMove.length > 0 && toPile.canAccept(cardsToMove[0])) {
+      return true;
+    }
+
+    return false;
+  }
+
   moveCards(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex) {
     let fromPile;
     if (fromPileType === "tableau") fromPile = this.tableauPiles[fromPileIndex];
