@@ -106,7 +106,7 @@ export class Game {
       }
     } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
       this.recycleCount++;
-      if (this.drawOption === "one" && this.recycleCount > 1) {
+      if (this.drawOption === "one" && this.recycleCount > 0) {
         this.updateScore(-100);
       } else if (this.drawOption === "three" && this.recycleCount % 4 === 0) {
         this.updateScore(-20);
@@ -201,7 +201,7 @@ export class Game {
       if (fromPileType === "foundation" && toPileType === "tableau") {
         this.updateScore(-15);
       }
-      if (fromPileType === "waste" && toPileType === "tableau") {
+      if (fromPileType === "drawn" && toPileType === "tableau") {
         this.updateScore(5);
       }
       return true;
@@ -215,6 +215,9 @@ export class Game {
 
   updateScore(points) {
     this.score += points;
+    if (this.score < 0) {
+      this.score = 0;
+    }
     this.onScoreUpdate(this.score);
   }
 
