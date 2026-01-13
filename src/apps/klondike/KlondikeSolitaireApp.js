@@ -563,13 +563,6 @@ export class KlondikeSolitaireApp extends Application {
         outlineCard.style.top = `${topOffset}px`;
         this.draggedElement.appendChild(outlineCard);
         topOffset += overlap;
-
-        const originalElement = this.container.querySelector(
-          `.card[data-uid='${card.uid}']`,
-        );
-        if (originalElement) {
-          originalElement.classList.add("ghosting");
-        }
       });
 
       this.container.appendChild(this.draggedElement);
@@ -664,8 +657,14 @@ export class KlondikeSolitaireApp extends Application {
           if (targetCard && targetCard !== this.hoveredTarget) {
             targetCard.classList.add("invert-colors");
             this.hoveredTarget = targetCard;
-          } else if (!targetCard && toPileDiv.children.length === 0) {
-            // Handle empty tableau piles
+          } else if (!targetCard) {
+            const placeholder = toPileDiv.querySelector(
+              ".tableau-placeholder, .foundation-placeholder",
+            );
+            if (placeholder && placeholder !== this.hoveredTarget) {
+              placeholder.classList.add("invert-colors");
+              this.hoveredTarget = placeholder;
+            }
           }
         }
       }
@@ -684,9 +683,6 @@ export class KlondikeSolitaireApp extends Application {
       this.hoveredTarget = null;
     }
 
-    this.container
-      .querySelectorAll(".ghosting")
-      .forEach((el) => el.classList.remove("ghosting"));
     this.container
       .querySelectorAll(".dragging")
       .forEach((el) => el.classList.remove("dragging"));
@@ -752,7 +748,8 @@ export class KlondikeSolitaireApp extends Application {
     dialogContent.className = "klondike-options-container";
 
     const drawOption = this.game.drawOption || "one";
-    const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
+    const isTimedGame =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     const scoringOption =
       getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
 
@@ -840,8 +837,7 @@ export class KlondikeSolitaireApp extends Application {
             const selectedScoringOption = dialogContent.querySelector(
               'input[name="scoring"]:checked',
             ).value;
-            const timedGameCheckbox =
-              dialogContent.querySelector("#timedGame");
+            const timedGameCheckbox = dialogContent.querySelector("#timedGame");
             const newTimedGameState = timedGameCheckbox.checked;
 
             const outlineDraggingCheckbox =
