@@ -69,6 +69,9 @@ export class KlondikeSolitaireApp extends Application {
     this.draggedCardsInfo = null;
     this.dragOffsetX = 0;
     this.dragOffsetY = 0;
+    this.outlineDraggingEnabled =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_OUTLINE_DRAGGING) === true;
+    this.hoveredTarget = null;
 
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
@@ -542,46 +545,62 @@ export class KlondikeSolitaireApp extends Application {
     else return;
 
     const cardsToDrag = fromPile.cards.slice(cardIndex);
-
     const containerRect = this.container.getBoundingClientRect();
     const cardRect = cardDiv.getBoundingClientRect();
     this.dragOffsetX = event.clientX - cardRect.left;
     this.dragOffsetY = event.clientY - cardRect.top;
 
-    this.draggedElement = document.createElement("div");
-    this.draggedElement.className = "dragged-stack";
-    this.draggedElement.style.position = "absolute";
-    this.draggedElement.style.zIndex = "1000";
-    this.draggedElement.style.width = `${cardDiv.offsetWidth}px`;
-    this.draggedElement.style.height = `${cardDiv.offsetHeight * (1 + (cardsToDrag.length - 1) * 0.2)}px`;
+    if (this.outlineDraggingEnabled) {
+      this.draggedElement = document.createElement("div");
+      this.draggedElement.className = "dragged-outline";
+      this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
+      this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
 
-    let topOffset = 0;
-    const overlap = 15;
+      let topOffset = 0;
+      const overlap = 15;
+      cardsToDrag.forEach((card) => {
+        const outlineCard = document.createElement("div");
+        outlineCard.className = "dragged-outline-card";
+        outlineCard.style.top = `${topOffset}px`;
+        this.draggedElement.appendChild(outlineCard);
+        topOffset += overlap;
+      });
 
-    cardsToDrag.forEach((card) => {
-      const originalElement = this.container.querySelector(
-        `.card[data-uid='${card.uid}']`,
-      );
-      if (originalElement) {
-        const clone = originalElement.cloneNode(true);
-        clone.style.position = "absolute";
-        clone.style.left = "0px"; // Reset fanning offset from original element
-        clone.style.top = `${topOffset}px`;
-        this.draggedElement.appendChild(clone);
-        originalElement.classList.add("dragging");
+      this.container.appendChild(this.draggedElement);
+    } else {
+      this.draggedElement = document.createElement("div");
+      this.draggedElement.className = "dragged-stack";
+      this.draggedElement.style.position = "absolute";
+      this.draggedElement.style.zIndex = "1000";
+      this.draggedElement.style.width = `${cardDiv.offsetWidth}px`;
+      this.draggedElement.style.height = `${cardDiv.offsetHeight * (1 + (cardsToDrag.length - 1) * 0.2)}px`;
 
-        if (card.faceUp) {
-          topOffset += overlap;
-        } else {
-          topOffset += 5; // faceDownOverlap
+      let topOffset = 0;
+      const overlap = 15;
+
+      cardsToDrag.forEach((card) => {
+        const originalElement = this.container.querySelector(
+          `.card[data-uid='${card.uid}']`,
+        );
+        if (originalElement) {
+          const clone = originalElement.cloneNode(true);
+          clone.style.position = "absolute";
+          clone.style.left = "0px";
+          clone.style.top = `${topOffset}px`;
+          this.draggedElement.appendChild(clone);
+          originalElement.classList.add("dragging");
+
+          if (card.faceUp) {
+            topOffset += overlap;
+          } else {
+            topOffset += 5;
+          }
         }
-      }
-    });
-
-    this.container.appendChild(this.draggedElement);
-
-    this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
-    this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
+      });
+      this.container.appendChild(this.draggedElement);
+      this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
+      this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
+    }
 
     window.addEventListener("mousemove", this.boundOnMouseMove);
     window.addEventListener("mouseup", this.boundOnMouseUp);
@@ -590,34 +609,91 @@ export class KlondikeSolitaireApp extends Application {
   onMouseMove(event) {
     if (!this.isDragging) return;
     this.wasDragged = true;
+
     const containerRect = this.container.getBoundingClientRect();
-    this.draggedElement.style.left = `${event.clientX - containerRect.left - this.dragOffsetX}px`;
-    this.draggedElement.style.top = `${event.clientY - containerRect.top - this.dragOffsetY}px`;
+    const x = event.clientX - containerRect.left - this.dragOffsetX;
+    const y = event.clientY - containerRect.top - this.dragOffsetY;
+    this.draggedElement.style.left = `${x}px`;
+    this.draggedElement.style.top = `${y}px`;
+
+    if (this.outlineDraggingEnabled) {
+      // Temporarily hide the outline to find the element underneath
+      this.draggedElement.style.display = "none";
+      const dropTargetEl = document.elementFromPoint(
+        event.clientX,
+        event.clientY,
+      );
+      this.draggedElement.style.display = "";
+
+      if (this.hoveredTarget && this.hoveredTarget !== dropTargetEl) {
+        this.hoveredTarget.classList.remove("invert-colors");
+        this.hoveredTarget = null;
+      }
+
+      const toPileDiv = dropTargetEl?.closest(
+        ".tableau-pile, .foundation-pile",
+      );
+      const toCardDiv = dropTargetEl?.closest(".card");
+
+      if (toPileDiv) {
+        const {
+          pileType: fromPileType,
+          pileIndex: fromPileIndex,
+          cardIndex,
+        } = this.draggedCardsInfo;
+        const toPileType = toPileDiv.dataset.pileType;
+        const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
+
+        if (
+          this.game.isMoveValid(
+            fromPileType,
+            fromPileIndex,
+            cardIndex,
+            toPileType,
+            toPileIndex,
+          )
+        ) {
+          const targetCard =
+            toCardDiv || toPileDiv.querySelector(".card:last-child");
+          if (targetCard && targetCard !== this.hoveredTarget) {
+            targetCard.classList.add("invert-colors");
+            this.hoveredTarget = targetCard;
+          } else if (!targetCard) {
+            const placeholder = toPileDiv.querySelector(
+              ".tableau-placeholder, .foundation-placeholder",
+            );
+            if (placeholder && placeholder !== this.hoveredTarget) {
+              placeholder.classList.add("invert-colors");
+              this.hoveredTarget = placeholder;
+            }
+          }
+        }
+      }
+    }
   }
 
   onMouseUp(event) {
     if (!this.isDragging) return;
 
-    // Cleanup dragging state
     this.isDragging = false;
     window.removeEventListener("mousemove", this.boundOnMouseMove);
     window.removeEventListener("mouseup", this.boundOnMouseUp);
 
-    // Un-hide the original cards
+    if (this.hoveredTarget) {
+      this.hoveredTarget.classList.remove("invert-colors");
+      this.hoveredTarget = null;
+    }
+
     this.container
       .querySelectorAll(".dragging")
       .forEach((el) => el.classList.remove("dragging"));
 
-    // Hide the clone to find the underlying element
     this.draggedElement.style.display = "none";
     const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
-
-    // Remove the clone
     this.container.removeChild(this.draggedElement);
     this.draggedElement = null;
 
     const toPileDiv = dropTarget?.closest(".tableau-pile, .foundation-pile");
-
     if (toPileDiv) {
       const {
         pileType: fromPileType,
@@ -640,11 +716,9 @@ export class KlondikeSolitaireApp extends Application {
           this.showWinDialog();
         }
       }
-      // Always re-render to reflect any state changes (like refilling drawn cards)
-      this.render();
-      this._updateMenuBar(this.win);
     }
-
+    this.render();
+    this._updateMenuBar(this.win);
     this.draggedCardsInfo = null;
   }
 
@@ -675,7 +749,8 @@ export class KlondikeSolitaireApp extends Application {
     dialogContent.className = "klondike-options-container";
 
     const drawOption = this.game.drawOption || "one";
-    const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
+    const isTimedGame =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     const scoringOption =
       getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
     const showStatusBar =
@@ -741,7 +816,9 @@ export class KlondikeSolitaireApp extends Application {
           </div>
           <div class="options-column">
             <div class="field-row">
-                <input type="checkbox" id="outlineDragging">
+                <input type="checkbox" id="outlineDragging" ${
+                  this.outlineDraggingEnabled ? "checked" : ""
+                }>
                 <label for="outlineDragging">Outline dragging</label>
             </div>
             <div class="field-row">
@@ -786,12 +863,19 @@ export class KlondikeSolitaireApp extends Application {
             const selectedScoringOption = dialogContent.querySelector(
               'input[name="scoring"]:checked',
             ).value;
-            const timedGameCheckbox =
-              dialogContent.querySelector("#timedGame");
+            const timedGameCheckbox = dialogContent.querySelector("#timedGame");
             const statusBarCheckbox =
               dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
             const newShowStatusBarState = statusBarCheckbox.checked;
+
+            const outlineDraggingCheckbox =
+              dialogContent.querySelector("#outlineDragging");
+            this.outlineDraggingEnabled = outlineDraggingCheckbox.checked;
+            setItem(
+              LOCAL_STORAGE_KEYS.KLONDIKE_OUTLINE_DRAGGING,
+              this.outlineDraggingEnabled,
+            );
 
             let gameNeedsRestart = false;
 

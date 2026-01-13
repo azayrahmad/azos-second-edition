@@ -27,6 +27,7 @@ export const LOCAL_STORAGE_KEYS = {
   KLONDIKE_DRAW_OPTION: 'klondikeDrawOption',
   KLONDIKE_TIMED_GAME: "klondikeTimedGame",
   KLONDIKE_SCORING: 'klondikeScoring',
+  KLONDIKE_OUTLINE_DRAGGING: "klondikeOutlineDragging",
 };
 
 export function getItem(key) {
