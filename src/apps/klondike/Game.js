@@ -88,7 +88,9 @@ export class Game {
       const recycledFromDrawn = this.drawnCards;
       this.drawnCards = [];
 
-      this.stockPile.cards.push(...recycledFromWaste, ...recycledFromDrawn);
+      // Combine recycled cards to form the new stock pile
+      const allRecycledCards = [...recycledFromWaste, ...recycledFromDrawn];
+      this.stockPile.cards = allRecycledCards;
       this.stockPile.cards.forEach(card => card.faceUp = false);
     }
   }

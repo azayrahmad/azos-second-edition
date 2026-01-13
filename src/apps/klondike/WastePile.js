@@ -13,7 +13,7 @@ export class WastePile extends Pile {
   }
 
   reset() {
-    const cards = this.cards.reverse().map(card => {
+    const cards = this.cards.map(card => {
         card.faceUp = false;
         return card;
     });
