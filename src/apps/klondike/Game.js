@@ -25,6 +25,7 @@ export class Game {
     this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
     this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     this.score = 0;
+    this.vegasScore = -52;
     this.recycleCount = 0;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
     this.onTimerUpdate = () => {};
@@ -148,10 +149,10 @@ export class Game {
   flipTableauCard(pileIndex, cardIndex) {
     const pile = this.tableauPiles[pileIndex];
     if (pile && cardIndex === pile.cards.length - 1) {
+      this._saveState();
       if (pile.flipTopCard()) {
         this.updateScore(5);
       }
-      this.previousState = null;
     }
   }
 
@@ -212,12 +213,11 @@ export class Game {
 
       // Scoring logic
       if (toPileType === "foundation") {
+        this.vegasScore += 5;
         this.updateScore(10);
-      }
-      if (fromPileType === "foundation" && toPileType === "tableau") {
+      } else if (fromPileType === "foundation" && toPileType === "tableau") {
         this.updateScore(-15);
-      }
-      if (fromPileType === "drawn" && toPileType === "tableau") {
+      } else if (fromPileType === "drawn" && toPileType === "tableau") {
         this.updateScore(5);
       }
       return true;
@@ -234,7 +234,10 @@ export class Game {
     if (this.score < 0) {
       this.score = 0;
     }
-    this.onScoreUpdate(this.score);
+    this.onScoreUpdate({
+      standard: this.score,
+      vegas: this.vegasScore,
+    });
   }
 
   startTimer() {
@@ -288,6 +291,7 @@ export class Game {
       foundationPilesCards: this.foundationPiles.map((p) => [...p.cards]),
       allCardsFaceUp: this.allCards.map((c) => c.faceUp),
       score: this.score,
+      vegasScore: this.vegasScore,
       recycleCount: this.recycleCount,
     };
   }
@@ -312,8 +316,12 @@ export class Game {
     });
 
     this.score = this.previousState.score;
+    this.vegasScore = this.previousState.vegasScore;
     this.recycleCount = this.previousState.recycleCount;
-    this.onScoreUpdate(this.score);
+    this.onScoreUpdate({
+      standard: this.score,
+      vegas: this.vegasScore,
+    });
 
     this.previousState = null;
   }
