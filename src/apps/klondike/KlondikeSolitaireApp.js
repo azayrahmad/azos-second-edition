@@ -54,6 +54,7 @@ export class KlondikeSolitaireApp extends Application {
           <div class="tableau-piles"></div>
         </div>
         <div class="status-bar">
+          <span id="klondike-timer">Time: 0</span>
           <span id="klondike-score">Score: 0</span>
         </div>
       </div>
@@ -80,6 +81,21 @@ export class KlondikeSolitaireApp extends Application {
 
     win.on("close", () => {
       clearInterval(this.animationTimer);
+      if (this.game) {
+        this.game.stopTimer();
+      }
+    });
+
+    win.on("minimize", () => {
+      if (this.game) {
+        this.game.pauseTimer();
+      }
+    });
+
+    win.on("restore", () => {
+      if (this.game) {
+        this.game.resumeTimer();
+      }
     });
 
     return win;
@@ -118,6 +134,18 @@ export class KlondikeSolitaireApp extends Application {
         scoreElement.textContent = `Score: ${score}`;
       }
     };
+
+    const timerElement = this.win.element.querySelector("#klondike-timer");
+    if (this.game.isTimedGame) {
+      timerElement.style.display = "inline";
+      timerElement.textContent = "Time: 0";
+      this.game.onTimerUpdate = (time) => {
+        timerElement.textContent = `Time: ${time}`;
+      };
+    } else {
+      timerElement.style.display = "none";
+    }
+
     this.game.onScoreUpdate(this.game.score); // Initial score display
     this.render();
     this._updateMenuBar(this.win);
@@ -595,6 +623,12 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   async showWinDialog() {
+    if (this.game.isTimedGame && this.game.elapsedTime > 30) {
+      this.game.stopTimer();
+      const bonus = Math.round(700000 / this.game.elapsedTime);
+      this.game.updateScore(bonus);
+    }
+
     ShowDialogWindow({
       title: "Game Over",
       text: "Congratulations, you won!\nDo you want to start another game?",
@@ -615,6 +649,7 @@ export class KlondikeSolitaireApp extends Application {
     dialogContent.className = "klondike-options-container";
 
     const drawOption = this.game.drawOption || "one";
+    const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
 
     dialogContent.innerHTML = `
       <div class="options-row">
@@ -652,7 +687,7 @@ export class KlondikeSolitaireApp extends Application {
       <div class="options-row">
           <div class="options-column">
             <div class="field-row">
-                <input type="checkbox" id="timedGame" checked>
+                <input type="checkbox" id="timedGame" ${isTimedGame ? "checked" : ""}>
                 <label for="timedGame">Timed game</label>
             </div>
             <div class="field-row">
@@ -683,11 +718,28 @@ export class KlondikeSolitaireApp extends Application {
             const selectedDrawOption = dialogContent.querySelector(
               'input[name="draw"]:checked',
             ).value;
+            const timedGameCheckbox = dialogContent.querySelector('#timedGame');
+            const newTimedGameState = timedGameCheckbox.checked;
+
+            let gameNeedsRestart = false;
+
             if (this.game.drawOption !== selectedDrawOption) {
               setItem(
                 LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION,
                 selectedDrawOption,
               );
+              gameNeedsRestart = true;
+            }
+
+            if (isTimedGame !== newTimedGameState) {
+              setItem(
+                LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME,
+                newTimedGameState,
+              );
+              gameNeedsRestart = true;
+            }
+
+            if (gameNeedsRestart) {
               this.startNewGame();
             }
           },
