@@ -22,8 +22,15 @@ export class Game {
     this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
     this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
+    this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) || false;
     this.score = 0;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
+    this.onTimerUpdate = () => {};
+
+    this.timerInterval = null;
+    this.elapsedTime = 0;
+    this.isTimerRunning = false;
+    this.firstMoveMade = false;
 
     const suits = ["♥", "♦", "♠", "♣"];
     const ranks = [
@@ -84,6 +91,10 @@ export class Game {
   }
 
   dealFromStock() {
+    if (this.isTimedGame && !this.firstMoveMade) {
+      this.firstMoveMade = true;
+      this.startTimer();
+    }
     this._saveState();
 
     if (this.stockPile.canDeal()) {
@@ -178,6 +189,10 @@ export class Game {
     const cardsToMove = fromPile.cards.slice(cardIndex);
 
     if (cardsToMove.length > 0 && toPile.canAccept(cardsToMove[0])) {
+      if (this.isTimedGame && !this.firstMoveMade) {
+        this.firstMoveMade = true;
+        this.startTimer();
+      }
       this._saveState();
       fromPile.cards.splice(cardIndex);
       toPile.cards.push(...cardsToMove);
@@ -211,7 +226,42 @@ export class Game {
 
   updateScore(points) {
     this.score += points;
+    if (this.score < 0) {
+      this.score = 0;
+    }
     this.onScoreUpdate(this.score);
+  }
+
+  startTimer() {
+    if (this.isTimerRunning) return;
+    this.isTimerRunning = true;
+    this.timerInterval = setInterval(() => {
+      this.elapsedTime++;
+      this.onTimerUpdate(this.elapsedTime);
+      if (this.elapsedTime % 10 === 0) {
+        if (this.score > 1) {
+          this.updateScore(-2);
+        }
+      }
+    }, 1000);
+  }
+
+  stopTimer() {
+    clearInterval(this.timerInterval);
+    this.isTimerRunning = false;
+  }
+
+  pauseTimer() {
+    if (this.isTimerRunning) {
+      clearInterval(this.timerInterval);
+      this.isTimerRunning = false;
+    }
+  }
+
+  resumeTimer() {
+    if (!this.isTimerRunning && this.firstMoveMade) {
+      this.startTimer();
+    }
   }
 
   setCardBack(cardBack) {
