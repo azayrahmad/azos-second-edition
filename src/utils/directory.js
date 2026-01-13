@@ -4,6 +4,7 @@ import { fileAssociations } from "../config/fileAssociations.js";
 import { getRecycleBinItems } from "./recycleBinManager.js";
 import { networkNeighborhood } from "../config/networkNeighborhood.js";
 import { ICONS } from "../config/icons.js";
+import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
 
 export function getAssociation(filename) {
   const extension = filename.split(".").pop().toLowerCase();
@@ -53,6 +54,7 @@ export function getDesktopContents() {
   const desktopApps = [];
   const desktopFiles = [];
   desktopFolder.children.forEach((item) => {
+    const fullPath = `${SPECIAL_FOLDER_PATHS.desktop}/${item.id}`;
     if (item.type === "app") {
       const appConfig = apps.find((a) => a.id === item.appId);
       if (appConfig) {
@@ -66,7 +68,7 @@ export function getDesktopContents() {
           desktopFiles.push({
             filename: item.name,
             app: appConfig.id,
-            path: `/${item.id}`,
+            path: fullPath,
             type: "shortcut",
             icon: appConfig.icon,
           });
@@ -76,7 +78,7 @@ export function getDesktopContents() {
       desktopFiles.push({
         filename: item.name,
         app: "explorer",
-        path: `/${item.id}`,
+        path: fullPath,
         type: "folder",
         icon: ICONS.folderClosed,
         children: item.children || [],
