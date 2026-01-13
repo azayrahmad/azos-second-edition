@@ -347,8 +347,8 @@ export class KlondikeSolitaireApp extends Application {
     if (this.game.wastePile.cards.length > 0) {
       this.game.wastePile.cards.forEach((card, cardIndex) => {
         const cardDiv = card.element;
-        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 2}px`;
-        cardDiv.style.top = '0px';
+        cardDiv.style.left = `${Math.floor(cardIndex / 8) * 3}px`;
+        cardDiv.style.top = `${Math.floor(cardIndex / 8) * 1}px`;
         cardDiv.dataset.pileType = "waste"; // Purely visual, not for interaction
         cardDiv.dataset.cardIndex = cardIndex;
         cardDiv.dataset.pileIndex = 0;
@@ -364,31 +364,35 @@ export class KlondikeSolitaireApp extends Application {
 
     // Calculate the starting offset from the waste pile for seamless fanning
     const wasteCardCount = this.game.wastePile.cards.length;
-    let baseOffset = 0;
+    let baseOffsetLeft = 0;
+    let baseOffsetTop = 0;
     if (wasteCardCount > 0) {
       const lastWasteCardIndex = wasteCardCount - 1;
-      baseOffset = Math.floor(lastWasteCardIndex / 8) * 2;
+      baseOffsetLeft = Math.floor(lastWasteCardIndex / 8) * 3;
+      baseOffsetTop = Math.floor(lastWasteCardIndex / 8) * 1;
     }
 
     if (this.game.drawnCards.length > 0) {
       if (this.game.drawOption === "three") {
-        let additionalOffset = 0;
+        let additionalOffsetLeft = 0;
+        let additionalOffsetTop = 0;
         this.game.drawnCards.forEach((card, cardIndex) => {
           const cardDiv = card.element;
-          cardDiv.style.left = `${baseOffset + additionalOffset}px`;
-          cardDiv.style.top = "0px";
+          cardDiv.style.left = `${baseOffsetLeft + additionalOffsetLeft}px`;
+          cardDiv.style.top = `${baseOffsetTop + additionalOffsetTop}px`;
           cardDiv.dataset.pileType = "drawn";
           cardDiv.dataset.cardIndex = cardIndex;
           cardDiv.dataset.pileIndex = 0;
           drawnContainer.appendChild(cardDiv);
-          additionalOffset += 15;
+          additionalOffsetLeft += 15;
+          additionalOffsetTop += 1;
         });
       } else {
         // "Draw one" logic
         const card = this.game.drawnCards[0];
         const cardDiv = card.element;
-        cardDiv.style.left = `${baseOffset}px`;
-        cardDiv.style.top = "0px";
+        cardDiv.style.left = `${baseOffsetLeft}px`;
+        cardDiv.style.top = `${baseOffsetTop}px`;
         cardDiv.dataset.pileType = "drawn";
         cardDiv.dataset.cardIndex = 0;
         cardDiv.dataset.pileIndex = 0;
@@ -507,7 +511,7 @@ export class KlondikeSolitaireApp extends Application {
       if (originalElement) {
         const clone = originalElement.cloneNode(true);
         clone.style.position = "absolute";
-        clone.style.left = '0px'; // Reset fanning offset from original element
+        clone.style.left = "0px"; // Reset fanning offset from original element
         clone.style.top = `${topOffset}px`;
         this.draggedElement.appendChild(clone);
         originalElement.classList.add("dragging");
