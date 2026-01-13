@@ -3,6 +3,7 @@ import { apps } from "../config/apps.js";
 import { fileAssociations } from "../config/fileAssociations.js";
 import { getRecycleBinItems } from "./recycleBinManager.js";
 import { networkNeighborhood } from "../config/networkNeighborhood.js";
+import { ICONS } from "../config/icons.js";
 
 export function getAssociation(filename) {
   const extension = filename.split(".").pop().toLowerCase();
@@ -71,6 +72,15 @@ export function getDesktopContents() {
           });
         }
       }
+    } else if (item.type === "folder") {
+      desktopFiles.push({
+        filename: item.name,
+        app: "explorer",
+        path: `/${item.id}`,
+        type: "folder",
+        icon: ICONS.folderClosed,
+        children: item.children || [],
+      });
     } else if (item.type === "file") {
       const association = getAssociation(item.name);
       desktopFiles.push({
