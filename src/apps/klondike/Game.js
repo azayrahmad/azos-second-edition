@@ -65,12 +65,12 @@ export class Game {
   dealFromStock() {
     this._saveState();
 
-    // Move any remaining drawn cards to the waste pile.
-    this.wastePile.cards.push(...this.drawnCards);
-    this.drawnCards = [];
-
     if (this.stockPile.canDeal()) {
-      // Deal new cards
+      // First, move existing drawn cards to the waste pile.
+      this.wastePile.cards.push(...this.drawnCards);
+      this.drawnCards = [];
+
+      // Then, deal new cards.
       if (this.drawOption === 'three') {
         const cardsToDeal = this.stockPile.deal(3);
         cardsToDeal.forEach(card => (card.faceUp = true));
@@ -83,10 +83,22 @@ export class Game {
         }
       }
     } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
-      // Recycle all cards back to stock
-      const recycledCards = this.wastePile.reset();
-      this.stockPile.cards.push(...this.drawnCards, ...recycledCards);
+      // Recycle: take cards from both waste and drawn piles
+      const recycledFromWaste = this.wastePile.reset();
+      const recycledFromDrawn = this.drawnCards;
       this.drawnCards = [];
+
+      this.stockPile.cards.push(...recycledFromWaste, ...recycledFromDrawn);
+      this.stockPile.cards.forEach(card => card.faceUp = false);
+    }
+  }
+
+  refillDrawnCardsFromWaste() {
+    if (this.drawnCards.length === 0 && this.wastePile.cards.length > 0) {
+      const cardToMove = this.wastePile.cards.pop();
+      if (cardToMove) {
+        this.drawnCards.push(cardToMove);
+      }
     }
   }
 
@@ -138,6 +150,10 @@ export class Game {
       this._saveState();
       fromPile.cards.splice(cardIndex);
       toPile.cards.push(...cardsToMove);
+
+      if (fromPileType === 'drawn') {
+        this.refillDrawnCardsFromWaste();
+      }
 
       // Scoring logic
       if (toPileType === "foundation") {
