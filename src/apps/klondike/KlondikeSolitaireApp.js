@@ -75,6 +75,9 @@ export class KlondikeSolitaireApp extends Application {
 
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
+    this.boundOnMouseDown = this.onMouseDown.bind(this);
+    this.boundOnClick = this.onClick.bind(this);
+    this.boundOnContextMenu = this.onContextMenu.bind(this);
 
     this.animationTimer = null;
 
@@ -88,6 +91,7 @@ export class KlondikeSolitaireApp extends Application {
       if (this.game) {
         this.game.stopTimer();
       }
+      this.removeEventListeners();
     });
 
     win.on("minimize", () => {
@@ -484,14 +488,21 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   addEventListeners() {
-    this.container.addEventListener("mousedown", this.onMouseDown.bind(this));
-    this.container.addEventListener("click", this.onClick.bind(this));
+    this.container.addEventListener("mousedown", this.boundOnMouseDown);
+    this.container.addEventListener("click", this.boundOnClick);
+    this.container.addEventListener("contextmenu", this.boundOnContextMenu);
     this.win.element.addEventListener("keydown", (event) => {
       if (event.key === "F2") {
         event.preventDefault();
         this._showNewGameDialog();
       }
     });
+  }
+
+  removeEventListeners() {
+    this.container.removeEventListener("mousedown", this.boundOnMouseDown);
+    this.container.removeEventListener("click", this.boundOnClick);
+    this.container.removeEventListener("contextmenu", this.boundOnContextMenu);
   }
 
   onClick(event) {
@@ -512,6 +523,24 @@ export class KlondikeSolitaireApp extends Application {
         const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
         const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
         this.game.flipTableauCard(pileIndex, cardIndex);
+        this.render();
+        this._updateMenuBar(this.win);
+      }
+    }
+  }
+
+  onContextMenu(event) {
+    event.preventDefault();
+
+    const cardDiv = event.target.closest(".card");
+    if (!cardDiv) return;
+
+    const pileType = cardDiv.dataset.pileType;
+    const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
+    const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+
+    if (this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) {
+      if (this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)) {
         this.render();
         this._updateMenuBar(this.win);
       }

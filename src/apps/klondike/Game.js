@@ -208,6 +208,38 @@ export class Game {
     return false;
   }
 
+  autoMoveCardToFoundation(fromPileType, fromPileIndex, cardIndex) {
+    let fromPile;
+    if (fromPileType === "tableau") {
+      fromPile = this.tableauPiles[fromPileIndex];
+    } else if (fromPileType === "drawn") {
+      fromPile = { cards: this.drawnCards };
+    } else if (fromPileType === "waste") {
+      // This is a bit of a hack, drawnCards should be empty
+      // for this to be valid.
+      fromPile = this.wastePile;
+    } else {
+      return false;
+    }
+
+    if (!fromPile || cardIndex >= fromPile.cards.length) {
+      return false;
+    }
+
+    // A move to the foundation is only valid if it's a single card from the top of a pile.
+    if (cardIndex !== fromPile.cards.length - 1) {
+      return false;
+    }
+
+    for (let i = 0; i < this.foundationPiles.length; i++) {
+      if (this.isMoveValid(fromPileType, fromPileIndex, cardIndex, "foundation", i)) {
+        return this.moveCards(fromPileType, fromPileIndex, cardIndex, "foundation", i);
+      }
+    }
+
+    return false;
+  }
+
   isMoveValid(fromPileType, fromPileIndex, cardIndex, toPileType, toPileIndex) {
     let fromPile;
     if (fromPileType === "tableau") fromPile = this.tableauPiles[fromPileIndex];
