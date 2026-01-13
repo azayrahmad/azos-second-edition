@@ -23,6 +23,7 @@ export class Game {
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
     this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
     this.score = 0;
+    this.recycleCount = 0;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
 
     const suits = ["♥", "♦", "♠", "♣"];
@@ -104,6 +105,13 @@ export class Game {
         }
       }
     } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
+      this.recycleCount++;
+      if (this.drawOption === "one" && this.recycleCount > 1) {
+        this.updateScore(-100);
+      } else if (this.drawOption === "three" && this.recycleCount % 4 === 0) {
+        this.updateScore(-20);
+      }
+
       // Recycle: take cards from both waste and drawn piles
       const recycledFromWaste = this.wastePile.reset();
       const recycledFromDrawn = this.drawnCards.reverse();
@@ -196,10 +204,6 @@ export class Game {
       if (fromPileType === "waste" && toPileType === "tableau") {
         this.updateScore(5);
       }
-      if (fromPileType === "tableau" && toPileType === "tableau") {
-        this.updateScore(3);
-      }
-
       return true;
     }
     return false;
@@ -232,6 +236,8 @@ export class Game {
       tableauPilesCards: this.tableauPiles.map((p) => [...p.cards]),
       foundationPilesCards: this.foundationPiles.map((p) => [...p.cards]),
       allCardsFaceUp: this.allCards.map((c) => c.faceUp),
+      score: this.score,
+      recycleCount: this.recycleCount,
     };
   }
 
@@ -253,6 +259,10 @@ export class Game {
     this.allCards.forEach((card, index) => {
       card.faceUp = this.previousState.allCardsFaceUp[index];
     });
+
+    this.score = this.previousState.score;
+    this.recycleCount = this.previousState.recycleCount;
+    this.onScoreUpdate(this.score);
 
     this.previousState = null;
   }
