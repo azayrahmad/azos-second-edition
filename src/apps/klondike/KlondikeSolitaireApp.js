@@ -385,6 +385,9 @@ export class KlondikeSolitaireApp extends Application {
     } else {
       const placeholderDiv = document.createElement("div");
       placeholderDiv.className = "stock-placeholder";
+      if (this.game.stockRecyclingDepleted) {
+        placeholderDiv.classList.add("recycling-depleted");
+      }
       stockContainer.appendChild(placeholderDiv);
     }
   }

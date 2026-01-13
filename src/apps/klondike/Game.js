@@ -23,10 +23,12 @@ export class Game {
     this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
     this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
+    this.scoring = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
     this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     this.score = 0;
     this.vegasScore = -52;
     this.recycleCount = 0;
+    this.stockRecyclingDepleted = false;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
     this.onTimerUpdate = () => {};
 
@@ -118,6 +120,17 @@ export class Game {
         }
       }
     } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
+      if (this.scoring === "vegas") {
+        if (this.drawOption === "one" && this.recycleCount >= 0) {
+          this.stockRecyclingDepleted = true;
+          return;
+        }
+        if (this.drawOption === "three" && this.recycleCount >= 2) {
+          this.stockRecyclingDepleted = true;
+          return;
+        }
+      }
+
       this.recycleCount++;
       if (this.drawOption === "one" && this.recycleCount > 0) {
         this.updateScore(-100);
