@@ -259,9 +259,11 @@ export class KlondikeSolitaireApp extends Application {
         {
           label: "OK",
           action: () => {
-            this.game.setCardBack(selectedCardBack);
-            this.render();
-            this._updateCardBackAnimation();
+            if (this.game.cardBack !== selectedCardBack) {
+              this.game.setCardBack(selectedCardBack);
+              this.render();
+              this._updateCardBackAnimation();
+            }
           },
         },
         {
