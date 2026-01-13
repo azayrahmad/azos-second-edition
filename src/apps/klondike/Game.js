@@ -15,6 +15,7 @@ export class Game {
   }
 
   destroy() {
+    this.stopTimer();
     this.allCards.forEach((card) => card.destroy());
   }
 
@@ -22,7 +23,7 @@ export class Game {
     this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
     this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
-    this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) || false;
+    this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     this.score = 0;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
     this.onTimerUpdate = () => {};

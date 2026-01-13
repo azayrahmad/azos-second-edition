@@ -138,6 +138,7 @@ export class KlondikeSolitaireApp extends Application {
     const timerElement = this.win.element.querySelector("#klondike-timer");
     if (this.game.isTimedGame) {
       timerElement.style.display = "inline";
+      timerElement.textContent = "Time: 0";
       this.game.onTimerUpdate = (time) => {
         timerElement.textContent = `Time: ${time}`;
       };
@@ -648,7 +649,7 @@ export class KlondikeSolitaireApp extends Application {
     dialogContent.className = "klondike-options-container";
 
     const drawOption = this.game.drawOption || "one";
-    const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) || false;
+    const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
 
     dialogContent.innerHTML = `
       <div class="options-row">
