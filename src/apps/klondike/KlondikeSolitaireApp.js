@@ -128,12 +128,7 @@ export class KlondikeSolitaireApp extends Application {
       this.game.destroy();
     }
     this.game = new Game();
-    this.game.onScoreUpdate = (score) => {
-      const scoreElement = this.win.element.querySelector("#klondike-score");
-      if (scoreElement) {
-        scoreElement.textContent = `Score: ${score}`;
-      }
-    };
+    this.game.onScoreUpdate = (scores) => this.updateScoreDisplay(scores);
 
     const timerElement = this.win.element.querySelector("#klondike-timer");
     if (this.game.isTimedGame) {
@@ -146,10 +141,35 @@ export class KlondikeSolitaireApp extends Application {
       timerElement.style.display = "none";
     }
 
-    this.game.onScoreUpdate(this.game.score); // Initial score display
+    this.updateScoreDisplay({
+      standard: this.game.score,
+      vegas: this.game.vegasScore,
+    });
     this.render();
     this._updateMenuBar(this.win);
     this._updateCardBackAnimation();
+  }
+
+  updateScoreDisplay(scores) {
+    const scoreElement = this.win.element.querySelector("#klondike-score");
+    if (!scoreElement) return;
+
+    const scoringOption =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
+
+    switch (scoringOption) {
+      case "standard":
+        scoreElement.textContent = `Score: ${scores.standard}`;
+        scoreElement.style.display = "inline";
+        break;
+      case "vegas":
+        scoreElement.textContent = `Score: $${scores.vegas}`;
+        scoreElement.style.display = "inline";
+        break;
+      case "none":
+        scoreElement.style.display = "none";
+        break;
+    }
   }
 
   _updateCardBackAnimation() {
@@ -239,9 +259,11 @@ export class KlondikeSolitaireApp extends Application {
         {
           label: "OK",
           action: () => {
-            this.game.setCardBack(selectedCardBack);
-            this.render();
-            this._updateCardBackAnimation();
+            if (this.game.cardBack !== selectedCardBack) {
+              this.game.setCardBack(selectedCardBack);
+              this.render();
+              this._updateCardBackAnimation();
+            }
           },
         },
         {
@@ -650,6 +672,8 @@ export class KlondikeSolitaireApp extends Application {
 
     const drawOption = this.game.drawOption || "one";
     const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
+    const scoringOption =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
 
     dialogContent.innerHTML = `
       <div class="options-row">
@@ -657,11 +681,15 @@ export class KlondikeSolitaireApp extends Application {
           <legend>Draw</legend>
           <div class="options-column">
             <div class="field-row">
-              <input type="radio" id="drawOne" name="draw" value="one" ${drawOption === "one" ? "checked" : ""}>
+              <input type="radio" id="drawOne" name="draw" value="one" ${
+                drawOption === "one" ? "checked" : ""
+              }>
               <label for="drawOne">Draw one</label>
             </div>
             <div class="field-row">
-              <input type="radio" id="drawThree" name="draw" value="three" ${drawOption === "three" ? "checked" : ""}>
+              <input type="radio" id="drawThree" name="draw" value="three" ${
+                drawOption === "three" ? "checked" : ""
+              }>
               <label for="drawThree">Draw three</label>
             </div>
           </div>
@@ -670,15 +698,21 @@ export class KlondikeSolitaireApp extends Application {
           <legend>Scoring</legend>
           <div class="options-column">
             <div class="field-row">
-              <input type="radio" id="standard" name="scoring" value="standard">
+              <input type="radio" id="standard" name="scoring" value="standard" ${
+                scoringOption === "standard" ? "checked" : ""
+              }>
               <label for="standard">Standard</label>
             </div>
             <div class="field-row">
-              <input type="radio" id="vegas" name="scoring" value="vegas" checked>
+              <input type="radio" id="vegas" name="scoring" value="vegas" ${
+                scoringOption === "vegas" ? "checked" : ""
+              }>
               <label for="vegas">Vegas</label>
             </div>
             <div class="field-row">
-              <input type="radio" id="none" name="scoring" value="none">
+              <input type="radio" id="none" name="scoring" value="none" ${
+                scoringOption === "none" ? "checked" : ""
+              }>
               <label for="none">None</label>
             </div>
           </div>
@@ -687,7 +721,9 @@ export class KlondikeSolitaireApp extends Application {
       <div class="options-row">
           <div class="options-column">
             <div class="field-row">
-                <input type="checkbox" id="timedGame" ${isTimedGame ? "checked" : ""}>
+                <input type="checkbox" id="timedGame" ${
+                  isTimedGame ? "checked" : ""
+                }>
                 <label for="timedGame">Timed game</label>
             </div>
             <div class="field-row">
@@ -718,7 +754,11 @@ export class KlondikeSolitaireApp extends Application {
             const selectedDrawOption = dialogContent.querySelector(
               'input[name="draw"]:checked',
             ).value;
-            const timedGameCheckbox = dialogContent.querySelector('#timedGame');
+            const selectedScoringOption = dialogContent.querySelector(
+              'input[name="scoring"]:checked',
+            ).value;
+            const timedGameCheckbox =
+              dialogContent.querySelector("#timedGame");
             const newTimedGameState = timedGameCheckbox.checked;
 
             let gameNeedsRestart = false;
@@ -727,6 +767,14 @@ export class KlondikeSolitaireApp extends Application {
               setItem(
                 LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION,
                 selectedDrawOption,
+              );
+              gameNeedsRestart = true;
+            }
+
+            if (scoringOption !== selectedScoringOption) {
+              setItem(
+                LOCAL_STORAGE_KEYS.KLONDIKE_SCORING,
+                selectedScoringOption,
               );
               gameNeedsRestart = true;
             }
