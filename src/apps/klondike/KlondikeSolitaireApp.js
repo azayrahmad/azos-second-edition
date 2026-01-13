@@ -77,6 +77,7 @@ export class KlondikeSolitaireApp extends Application {
 
     this.addEventListeners();
 
+    this._updateStatusBarVisibility();
     this.startNewGame();
 
     win.on("close", () => {
@@ -677,6 +678,8 @@ export class KlondikeSolitaireApp extends Application {
     const isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     const scoringOption =
       getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
+    const showStatusBar =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SHOW_STATUS_BAR) !== false;
 
     dialogContent.innerHTML = `
       <div class="options-row">
@@ -730,7 +733,9 @@ export class KlondikeSolitaireApp extends Application {
                 <label for="timedGame">Timed game</label>
             </div>
             <div class="field-row">
-                <input type="checkbox" id="statusBar" checked>
+                <input type="checkbox" id="statusBar" ${
+                  showStatusBar ? "checked" : ""
+                }>
                 <label for="statusBar">Status bar</label>
             </div>
           </div>
@@ -740,12 +745,33 @@ export class KlondikeSolitaireApp extends Application {
                 <label for="outlineDragging">Outline dragging</label>
             </div>
             <div class="field-row">
-                <input type="checkbox" id="keepScore">
+                <input type="checkbox" id="keepScore" disabled>
                 <label for="keepScore">Keep score</label>
             </div>
           </div>
       </div>
     `;
+
+    const scoringRadios = dialogContent.querySelectorAll('input[name="scoring"]');
+    const keepScoreCheckbox = dialogContent.querySelector("#keepScore");
+
+    const updateKeepScoreState = () => {
+      const selectedScoring = dialogContent.querySelector(
+        'input[name="scoring"]:checked',
+      ).value;
+      if (selectedScoring === "vegas") {
+        keepScoreCheckbox.disabled = false;
+      } else {
+        keepScoreCheckbox.disabled = true;
+        keepScoreCheckbox.checked = false;
+      }
+    };
+
+    scoringRadios.forEach((radio) => {
+      radio.addEventListener("change", updateKeepScoreState);
+    });
+
+    updateKeepScoreState(); // Initial state
 
     ShowDialogWindow({
       title: "Options",
@@ -762,7 +788,10 @@ export class KlondikeSolitaireApp extends Application {
             ).value;
             const timedGameCheckbox =
               dialogContent.querySelector("#timedGame");
+            const statusBarCheckbox =
+              dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
+            const newShowStatusBarState = statusBarCheckbox.checked;
 
             let gameNeedsRestart = false;
 
@@ -790,6 +819,14 @@ export class KlondikeSolitaireApp extends Application {
               gameNeedsRestart = true;
             }
 
+            if (showStatusBar !== newShowStatusBarState) {
+              setItem(
+                LOCAL_STORAGE_KEYS.KLONDIKE_SHOW_STATUS_BAR,
+                newShowStatusBarState,
+              );
+              this._updateStatusBarVisibility();
+            }
+
             if (gameNeedsRestart) {
               this.startNewGame();
             }
@@ -802,5 +839,14 @@ export class KlondikeSolitaireApp extends Application {
       parentWindow: this.win,
       modal: true,
     });
+  }
+
+  _updateStatusBarVisibility() {
+    const showStatusBar =
+      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SHOW_STATUS_BAR) !== false;
+    const statusBar = this.win.element.querySelector(".status-bar");
+    if (statusBar) {
+      statusBar.style.display = showStatusBar ? "flex" : "none";
+    }
   }
 }
