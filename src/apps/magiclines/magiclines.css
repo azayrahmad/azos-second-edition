@@ -1,0 +1,139 @@
+.magic-lines-app {
+    display: flex;
+    height: 100%;
+}
+
+.magic-lines-app .sidebar {
+    width: 150px;
+    padding: 10px;
+    border-right: 2px solid var(--border-light);
+    background-color: var(--button-face);
+    text-align: center;
+}
+
+.magic-lines-app .sidebar h2 {
+    margin-top: 0;
+}
+
+.magic-lines-app #score {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.magic-lines-app .game-board {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(9, 40px);
+    grid-template-rows: repeat(9, 40px);
+    padding: 10px;
+    background-color: #808080;
+    --light-x: 50%;
+    --light-y: 50%;
+}
+
+.magic-lines-app .cell {
+    width: 40px;
+    height: 40px;
+    background-color: #c0c0c0;
+    border: 1px solid;
+    border-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.magic-lines-app .ball {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #000;
+}
+
+.magic-lines-app .ball.three-d,
+.magic-lines-app .preview-ball.three-d {
+    background-image: radial-gradient(
+        circle at var(--light-x) var(--light-y),
+        rgba(255, 255, 255, 0.3),
+        rgba(255, 255, 255, 0.2) 30%,
+        var(--ball-color) 50%,
+        rgba(0, 0, 0, 0.5) 100%
+    );
+    border: none;
+}
+
+.magic-lines-app .selected-ball {
+    animation: squeeze 1000ms infinite;
+}
+
+@keyframes squeeze {
+    0%,
+    50%,
+    100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(0.7, 1);
+    }
+    75% {
+        transform: scale(1, 0.7);
+    }
+}
+
+@keyframes expand-from-zero {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes expand-from-preview {
+    from {
+        transform: scale(0.28); /* 10px / 36px */
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.animate-ball-enter {
+    animation: expand-from-zero 200ms;
+}
+
+.animate-preview-enter {
+    animation: expand-from-zero 200ms;
+}
+
+.animate-ball-grow {
+    animation: expand-from-preview 200ms;
+}
+
+.magic-lines-app .preview-ball {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #000;
+}
+
+.ball.animate-ball-exit {
+  animation: ball-exit-scale-up 0.15s ease-out forwards, ball-exit-scale-down 0.15s ease-in 0.15s forwards;
+}
+
+@keyframes ball-exit-scale-up {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes ball-exit-scale-down {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(0);
+  }
+}

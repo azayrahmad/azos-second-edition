@@ -241,6 +241,12 @@ const directory = [
                 targetId: "app-songs",
                 name: "songs",
               },
+              {
+                id: "shortcut-to-magiclines",
+                type: "shortcut",
+                targetId: "app-magiclines",
+                name: "Magic Lines",
+              },
             ],
           },
           {
