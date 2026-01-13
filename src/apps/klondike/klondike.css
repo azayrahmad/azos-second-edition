@@ -90,6 +90,10 @@
     background-position: -710px -384px; /* stockpile-draw */
 }
 
+.klondike-solitaire-container .stock-placeholder.recycling-depleted {
+  background-position: -781px -384px; /* stockpile-empty */
+}
+
 .card-back-preview {
     width: 71px;
     height: 96px;

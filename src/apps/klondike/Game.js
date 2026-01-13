@@ -23,10 +23,12 @@ export class Game {
     this.previousState = null;
     this.cardBack = getItem(LOCAL_STORAGE_KEYS.klondikeCardBack) || "cardback1";
     this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
+    this.scoring = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
     this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
     this.score = 0;
     this.vegasScore = -52;
     this.recycleCount = 0;
+    this.stockRecyclingDepleted = false;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
     this.onTimerUpdate = () => {};
 
@@ -117,7 +119,27 @@ export class Game {
           this.drawnCards = [card];
         }
       }
+
+      // Proactively check if the stock is now depleted under Vegas rules
+      if (!this.stockPile.canDeal() && this.scoring === "vegas") {
+        if (this.drawOption === "one") { // First and only pass is complete
+          this.stockRecyclingDepleted = true;
+        }
+        if (this.drawOption === "three" && this.recycleCount >= 2) { // Final (3rd) pass is complete
+          this.stockRecyclingDepleted = true;
+        }
+      }
     } else if (this.wastePile.cards.length > 0 || this.drawnCards.length > 0) {
+      // This block handles the attempt to recycle the waste pile.
+      if (this.scoring === "vegas") {
+        if (this.drawOption === "one") {
+          return; // No recycles allowed
+        }
+        if (this.drawOption === "three" && this.recycleCount >= 2) {
+          return; // Max recycles reached
+        }
+      }
+
       this.recycleCount++;
       if (this.drawOption === "one" && this.recycleCount > 0) {
         this.updateScore(-100);
@@ -134,6 +156,9 @@ export class Game {
       const allRecycledCards = [...recycledFromDrawn, ...recycledFromWaste];
       this.stockPile.cards = allRecycledCards;
       this.stockPile.cards.forEach((card) => (card.faceUp = false));
+
+      // On a successful recycle, the stock is no longer considered depleted
+      this.stockRecyclingDepleted = false;
     }
   }
 
