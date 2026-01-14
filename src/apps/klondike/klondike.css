@@ -151,7 +151,6 @@
 
 .klondike-solitaire-container .card.face-down {
   background-color: #8b0000;
-  background-image: url("/src/assets/img/solitaire.png");
 }
 
 .klondike-solitaire-container .card.dragging {
@@ -193,4 +192,8 @@
   color: var(--ButtonText);
   line-height: 16px;
   flex-shrink: 0;
+}
+
+.klondike-solitaire-container .card.face-down[class*=cardback] {
+  background-image: url(/src/assets/img/solitaire.png);
 }
