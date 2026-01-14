@@ -1022,6 +1022,40 @@ function configureIcon(icon, app, filePath = null, { iconManager }) {
       typeof filePath === "object" && filePath !== null ? filePath : filePath;
     launchApp(app.id, launchData);
   });
+
+  // Add drag-over feedback
+  let dragEnterCounter = 0;
+  icon.addEventListener("dragenter", (e) => {
+    if (app.accepts) {
+      if (dragEnterCounter === 0) {
+        iconManager.toggleHighlight(icon, true);
+      }
+      dragEnterCounter++;
+    }
+  });
+
+  icon.addEventListener("dragover", (e) => {
+    if (app.accepts) {
+      e.preventDefault();
+    }
+  });
+
+  icon.addEventListener("dragleave", (e) => {
+    if (app.accepts) {
+      dragEnterCounter--;
+      if (dragEnterCounter === 0) {
+        iconManager.toggleHighlight(icon, false);
+      }
+    }
+  });
+
+  icon.addEventListener("drop", (e) => {
+    if (app.accepts) {
+      e.preventDefault();
+      dragEnterCounter = 0;
+      iconManager.toggleHighlight(icon, false);
+    }
+  });
 }
 
 // Initialize desktop behavior

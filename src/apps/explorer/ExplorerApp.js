@@ -123,6 +123,7 @@ export class ExplorerApp extends Application {
   _createWindow() {
     const win = new window.$Window({
       title: this.title,
+      accepts: isFileDropEnabled(this.initialPath),
       outerWidth: this.width,
       outerHeight: this.height,
       resizable: this.resizable,
