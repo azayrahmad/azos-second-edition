@@ -308,6 +308,11 @@ export class KlondikeSolitaireApp extends Application {
         },
         "MENU_DIVIDER",
         {
+          label: "Winning Demo",
+          action: () => this._startWinningDemo(),
+        },
+        "MENU_DIVIDER",
+        {
           label: "Deck...",
           action: () => this._showDeckSelectionDialog(),
         },
@@ -797,6 +802,33 @@ export class KlondikeSolitaireApp extends Application {
       parentWindow: this.win,
     });
     this._updateMenuBar(this.win);
+  }
+
+  _startWinningDemo() {
+    // Clear all piles
+    this.game.stockPile.cards = [];
+    this.game.wastePile.cards = [];
+    this.game.drawnCards = [];
+    this.game.tableauPiles.forEach(pile => pile.cards = []);
+
+    // Get all cards and sort them
+    const allCards = this.game.allCards;
+    const suitOrder = ['♠', '♥', '♣', '♦'];
+    const rankOrder = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+    allCards.sort((a, b) => {
+      const suitComparison = suitOrder.indexOf(a.suit) - suitOrder.indexOf(b.suit);
+      if (suitComparison !== 0) return suitComparison;
+      return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+    });
+
+    // Distribute sorted cards to foundation piles
+    for (let i = 0; i < 4; i++) {
+      this.game.foundationPiles[i].cards = allCards.slice(i * 13, (i + 1) * 13);
+    }
+
+    this.render();
+    this.startWinAnimation();
   }
 
   _showOptionsDialog() {
