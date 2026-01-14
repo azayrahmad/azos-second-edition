@@ -42,6 +42,7 @@
 .klondike-solitaire-container .foundation-pile {
   width: 71px;
   height: 96px;
+  position: relative;
 }
 
 .klondike-solitaire-container .foundation-piles {
@@ -121,7 +122,8 @@
 
 .klondike-solitaire-container .stock-pile .card,
 .klondike-solitaire-container .waste-pile .card,
-.klondike-solitaire-container .drawn-card-pile .card {
+.klondike-solitaire-container .drawn-card-pile .card,
+.klondike-solitaire-container .foundation-pile .card {
   position: absolute !important;
 }
 

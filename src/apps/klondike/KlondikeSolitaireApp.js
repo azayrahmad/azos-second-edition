@@ -475,12 +475,16 @@ export class KlondikeSolitaireApp extends Application {
       pileDiv.dataset.pileIndex = pileIndex;
       pileDiv.dataset.pileType = "foundation";
 
-      if (pile.topCard) {
-        const cardDiv = pile.topCard.element;
-        cardDiv.dataset.pileIndex = pileIndex;
-        cardDiv.dataset.cardIndex = pile.cards.length - 1;
-        cardDiv.dataset.pileType = "foundation";
-        pileDiv.appendChild(cardDiv);
+      if (pile.cards.length > 0) {
+        pile.cards.forEach((card, cardIndex) => {
+          const cardDiv = card.element;
+          cardDiv.style.left = `${Math.floor(cardIndex / 5) * 3}px`;
+          cardDiv.style.top = `${Math.floor(cardIndex / 5) * 1}px`;
+          cardDiv.dataset.pileIndex = pileIndex;
+          cardDiv.dataset.cardIndex = cardIndex;
+          cardDiv.dataset.pileType = "foundation";
+          pileDiv.appendChild(cardDiv);
+        });
       } else {
         const placeholderDiv = document.createElement("div");
         placeholderDiv.className = "foundation-placeholder";
@@ -864,7 +868,9 @@ export class KlondikeSolitaireApp extends Application {
       </div>
     `;
 
-    const scoringRadios = dialogContent.querySelectorAll('input[name="scoring"]');
+    const scoringRadios = dialogContent.querySelectorAll(
+      'input[name="scoring"]',
+    );
     const keepScoreCheckbox = dialogContent.querySelector("#keepScore");
 
     const updateKeepScoreState = () => {
@@ -899,8 +905,7 @@ export class KlondikeSolitaireApp extends Application {
               'input[name="scoring"]:checked',
             ).value;
             const timedGameCheckbox = dialogContent.querySelector("#timedGame");
-            const statusBarCheckbox =
-              dialogContent.querySelector("#statusBar");
+            const statusBarCheckbox = dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
             const newShowStatusBarState = statusBarCheckbox.checked;
 
