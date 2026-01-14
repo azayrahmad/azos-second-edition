@@ -771,6 +771,7 @@ export class KlondikeSolitaireApp extends Application {
     // Prevent interaction with the game board during animation
     this.removeEventListeners();
     const animation = new WinAnimation(this.win.element, this.game.foundationPiles, () => {
+      this.addEventListeners(); // Re-attach listeners
       this.showWinDialog();
     });
     animation.start();

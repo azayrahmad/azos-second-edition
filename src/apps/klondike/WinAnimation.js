@@ -69,10 +69,10 @@ export class WinAnimation {
     this.boundHandleKeyDown = this._handleKeyDown.bind(this);
   }
 
-  start() {
+  async start() {
     this._createCanvas();
     if (!this.canvas) return;
-    this._preRenderCards();
+    await this._preRenderCards();
     this._prepareAnimationSequence();
     document.addEventListener('keydown', this.boundHandleKeyDown);
     this.animationFrameId = requestAnimationFrame(this.boundAnimationLoop);
@@ -90,41 +90,30 @@ export class WinAnimation {
     }
   }
 
-  _preRenderCards() {
+  async _preRenderCards() {
     const allCards = this.foundationPiles.flatMap((pile) => pile.cards);
     if (allCards.length === 0) return;
 
-    const cardElement = allCards[0].element;
-    const cardWidth = cardElement.offsetWidth;
-    const cardHeight = cardElement.offsetHeight;
-
+    const promises = [];
     for (const card of allCards) {
       const key = `${card.suit}-${card.rank}`;
       if (this.cardRenderCache.has(key)) continue;
 
-      const offscreenCanvas = document.createElement('canvas');
-      offscreenCanvas.width = cardWidth;
-      offscreenCanvas.height = cardHeight;
-      const offscreenCtx = offscreenCanvas.getContext('2d');
+      // Ensure the card element is ready for rendering
+      card.faceUp = true;
+      const cardElement = card.element;
 
-      // Draw card background and border
-      offscreenCtx.fillStyle = 'white';
-      offscreenCtx.strokeStyle = '#000';
-      offscreenCtx.lineWidth = 1;
-      offscreenCtx.fillRect(0, 0, cardWidth, cardHeight);
-      offscreenCtx.strokeRect(0, 0, cardWidth, cardHeight);
-
-      // Draw card text (rank and suit)
-      offscreenCtx.fillStyle = card.color;
-      const font = `16px 'MS Sans Serif', sans-serif`;
-      offscreenCtx.font = font;
-      offscreenCtx.textAlign = 'left';
-      offscreenCtx.textBaseline = 'top';
-      offscreenCtx.fillText(card.rank, 4, 2);
-      offscreenCtx.fillText(card.suit, 4, 20);
-
-      this.cardRenderCache.set(key, offscreenCanvas);
+      const promise = html2canvas(cardElement, {
+        backgroundColor: null, // Use transparent background
+        width: cardElement.offsetWidth,
+        height: cardElement.offsetHeight,
+      }).then((canvas) => {
+        this.cardRenderCache.set(key, canvas);
+      });
+      promises.push(promise);
     }
+
+    await Promise.all(promises);
   }
 
   _createCanvas() {
