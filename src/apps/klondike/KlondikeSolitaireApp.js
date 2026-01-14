@@ -1,4 +1,5 @@
 import { Application } from "../Application.js";
+import { CardAnimator } from "./CardAnimator.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
@@ -81,6 +82,7 @@ export class KlondikeSolitaireApp extends Application {
     this.boundOnMouseUp = this.onMouseUp.bind(this);
     this.boundOnMouseDown = this.onMouseDown.bind(this);
     this.boundOnClick = this.onClick.bind(this);
+    this.boundHandleAnimationEscape = this._handleAnimationEscape.bind(this);
 
     this.animationTimer = null;
 
@@ -557,7 +559,7 @@ export class KlondikeSolitaireApp extends Application {
           this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)
         ) {
           if (this.game.checkForWin()) {
-            this.showWinDialog();
+            this._startWinAnimation();
           }
           this.render();
           this._updateMenuBar(this.win);
@@ -755,7 +757,7 @@ export class KlondikeSolitaireApp extends Application {
         )
       ) {
         if (this.game.checkForWin()) {
-          this.showWinDialog();
+          this._startWinAnimation();
         }
       }
     }
@@ -764,7 +766,25 @@ export class KlondikeSolitaireApp extends Application {
     this.draggedCardsInfo = null;
   }
 
-  async showWinDialog() {
+  _startWinAnimation() {
+    this.win.element.addEventListener("keydown", this.boundHandleAnimationEscape);
+    this.winAnimator = new CardAnimator(this.container, this.game.foundationPiles);
+    this.winAnimator.start(() => {
+      this.win.element.removeEventListener("keydown", this.boundHandleAnimationEscape);
+      this._showFinalWinDialog();
+      this.winAnimator = null;
+    });
+  }
+
+  _handleAnimationEscape(event) {
+    if (event.key === "Escape") {
+      if (this.winAnimator) {
+        this.winAnimator.stop();
+      }
+    }
+  }
+
+  async _showFinalWinDialog() {
     if (this.game.isTimedGame && this.game.elapsedTime > 30) {
       this.game.stopTimer();
       const bonus = Math.round(700000 / this.game.elapsedTime);
