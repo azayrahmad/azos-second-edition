@@ -87,7 +87,17 @@
       if (focus_parent_menu_popup) {
         this.parentMenuPopup?.element.focus({ preventScroll: true });
       }
-      (this.wrapperElement || menu_popup_el).style.display = "none";
+      if (this.wrapperElement) {
+        try {
+          if (this.wrapperElement.parentElement) {
+            this.wrapperElement.remove();
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+      } else {
+        menu_popup_el.style.display = "none";
+      }
       this.highlight(-1);
       options.setActiveMenuPopup(this.parentMenuPopup);
     };
@@ -222,7 +232,7 @@
             if (typeof window.playSound === "function") {
               window.playSound("MenuPopup");
             }
-            if (submenu_popup_el.style.display !== "none") {
+            if (item_el.getAttribute("aria-expanded") === "true") {
               return;
             }
             if (item_el.getAttribute("aria-disabled") === "true") {
@@ -366,7 +376,6 @@
               item_el,
             } of submenus) {
               submenu_popup.close(false);
-              submenu_popup_el.style.display = "none"; // Explicitly hide the wrapper
               item_el.setAttribute("aria-expanded", "false");
             }
             menu_popup_el.focus({ preventScroll: true });
