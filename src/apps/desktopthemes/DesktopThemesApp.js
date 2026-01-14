@@ -307,7 +307,7 @@ export class DesktopThemesApp extends Application {
 
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".theme";
+    input.accept = ".theme,.zip,.themepack";
     input.onchange = (event) => {
       const file = event.target.files[0];
       if (!file) {
@@ -323,11 +323,53 @@ export class DesktopThemesApp extends Application {
     this.originalFilename = file.name.replace(/\.[^/.]+$/, "");
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const themeContent = e.target.result;
+      const fileContent = e.target.result;
       try {
+        let themeContent;
+        let wallpaperUrl = null;
+
+        if (file.name.endsWith(".zip") || file.name.endsWith(".themepack")) {
+          const zip = await JSZip.loadAsync(fileContent);
+          const themeFile = Object.values(zip.files).find((f) =>
+            f.name.endsWith(".theme"),
+          );
+
+          if (!themeFile) {
+            throw new Error("No .theme file found in the archive.");
+          }
+
+          themeContent = await themeFile.async("string");
+          await loadThemeParser();
+          const wallpaperName = window.getWallpaperFromThemeFile(themeContent);
+
+          if (wallpaperName) {
+            const wallpaperFile = Object.values(zip.files).find((f) =>
+              f.name.toLowerCase().endsWith(wallpaperName.toLowerCase()),
+            );
+
+            if (wallpaperFile) {
+              const wallpaperBlob = await wallpaperFile.async("blob");
+              wallpaperUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(wallpaperBlob);
+              });
+            } else {
+              throw new Error(
+                `Wallpaper file "${wallpaperName}" not found in the archive.`,
+              );
+            }
+          }
+        } else {
+          themeContent = new TextDecoder().decode(fileContent);
+        }
+
         await loadThemeParser();
         const colors = window.getColorsFromThemeFile(themeContent);
-        const wallpaper = window.getWallpaperFromThemeFile(themeContent);
+        const wallpaper =
+          wallpaperUrl || window.getWallpaperFromThemeFile(themeContent);
+
         if (colors) {
           this._showThemeWizard(colors, wallpaper, (updatedTheme) => {
             const cssProperties = window.generateThemePropertiesFromColors(
@@ -358,7 +400,7 @@ export class DesktopThemesApp extends Application {
         });
       }
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   }
 
   _promptForThemeName() {
