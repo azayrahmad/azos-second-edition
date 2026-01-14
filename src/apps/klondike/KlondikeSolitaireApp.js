@@ -556,6 +556,9 @@ export class KlondikeSolitaireApp extends Application {
         if (
           this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)
         ) {
+          if (this.game.checkForWin()) {
+            this.showWinDialog();
+          }
           this.render();
           this._updateMenuBar(this.win);
         }

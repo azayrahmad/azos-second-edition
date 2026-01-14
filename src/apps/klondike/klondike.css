@@ -130,7 +130,7 @@
 .klondike-solitaire-container .card {
   width: 71px;
   height: 96px;
-  border: 1px solid #000;
+  border: none;
   border-radius: 5px;
   box-sizing: border-box;
   /* position: absolute; */
