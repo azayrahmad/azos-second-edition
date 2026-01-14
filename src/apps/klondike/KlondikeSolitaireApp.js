@@ -73,11 +73,14 @@ export class KlondikeSolitaireApp extends Application {
       getItem(LOCAL_STORAGE_KEYS.KLONDIKE_OUTLINE_DRAGGING) === true;
     this.hoveredTarget = null;
 
+    this.lastClickTime = 0;
+    this.lastClickedCardUid = null;
+    this.doubleClickThreshold = 400;
+
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
     this.boundOnMouseDown = this.onMouseDown.bind(this);
     this.boundOnClick = this.onClick.bind(this);
-    this.boundOnDoubleClick = this.onDoubleClick.bind(this);
 
     this.animationTimer = null;
 
@@ -490,7 +493,6 @@ export class KlondikeSolitaireApp extends Application {
   addEventListeners() {
     this.container.addEventListener("mousedown", this.boundOnMouseDown);
     this.container.addEventListener("click", this.boundOnClick);
-    this.container.addEventListener("dblclick", this.boundOnDoubleClick);
     this.win.element.addEventListener("keydown", (event) => {
       if (event.key === "F2") {
         event.preventDefault();
@@ -502,7 +504,6 @@ export class KlondikeSolitaireApp extends Application {
   removeEventListeners() {
     this.container.removeEventListener("mousedown", this.boundOnMouseDown);
     this.container.removeEventListener("click", this.boundOnClick);
-    this.container.removeEventListener("dblclick", this.boundOnDoubleClick);
   }
 
   onClick(event) {
@@ -529,24 +530,6 @@ export class KlondikeSolitaireApp extends Application {
     }
   }
 
-  onDoubleClick(event) {
-    event.preventDefault();
-
-    const cardDiv = event.target.closest(".card");
-    if (!cardDiv) return;
-
-    const pileType = cardDiv.dataset.pileType;
-    const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
-    const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
-
-    if (this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) {
-      if (this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)) {
-        this.render();
-        this._updateMenuBar(this.win);
-      }
-    }
-  }
-
   onMouseDown(event) {
     if (event.button !== 0) return; // Only main button
     this.wasDragged = false;
@@ -557,6 +540,29 @@ export class KlondikeSolitaireApp extends Application {
     const pileType = cardDiv.dataset.pileType;
     const pileIndex = parseInt(cardDiv.dataset.pileIndex, 10);
     const cardIndex = parseInt(cardDiv.dataset.cardIndex, 10);
+    const cardUid = cardDiv.dataset.uid;
+
+    const currentTime = new Date().getTime();
+    if (
+      currentTime - this.lastClickTime < this.doubleClickThreshold &&
+      this.lastClickedCardUid === cardUid
+    ) {
+      // Double click detected
+      if (this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) {
+        if (
+          this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)
+        ) {
+          this.render();
+          this._updateMenuBar(this.win);
+        }
+      }
+      this.lastClickTime = 0;
+      this.lastClickedCardUid = null;
+      return;
+    }
+
+    this.lastClickTime = currentTime;
+    this.lastClickedCardUid = cardUid;
 
     if (!this.game.isValidMoveStack(pileType, pileIndex, cardIndex)) return;
 
