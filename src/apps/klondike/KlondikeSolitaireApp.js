@@ -77,7 +77,7 @@ export class KlondikeSolitaireApp extends Application {
     this.boundOnMouseUp = this.onMouseUp.bind(this);
     this.boundOnMouseDown = this.onMouseDown.bind(this);
     this.boundOnClick = this.onClick.bind(this);
-    this.boundOnContextMenu = this.onContextMenu.bind(this);
+    this.boundOnDoubleClick = this.onDoubleClick.bind(this);
 
     this.animationTimer = null;
 
@@ -490,7 +490,7 @@ export class KlondikeSolitaireApp extends Application {
   addEventListeners() {
     this.container.addEventListener("mousedown", this.boundOnMouseDown);
     this.container.addEventListener("click", this.boundOnClick);
-    this.container.addEventListener("contextmenu", this.boundOnContextMenu);
+    this.container.addEventListener("dblclick", this.boundOnDoubleClick);
     this.win.element.addEventListener("keydown", (event) => {
       if (event.key === "F2") {
         event.preventDefault();
@@ -502,7 +502,7 @@ export class KlondikeSolitaireApp extends Application {
   removeEventListeners() {
     this.container.removeEventListener("mousedown", this.boundOnMouseDown);
     this.container.removeEventListener("click", this.boundOnClick);
-    this.container.removeEventListener("contextmenu", this.boundOnContextMenu);
+    this.container.removeEventListener("dblclick", this.boundOnDoubleClick);
   }
 
   onClick(event) {
@@ -529,7 +529,7 @@ export class KlondikeSolitaireApp extends Application {
     }
   }
 
-  onContextMenu(event) {
+  onDoubleClick(event) {
     event.preventDefault();
 
     const cardDiv = event.target.closest(".card");
