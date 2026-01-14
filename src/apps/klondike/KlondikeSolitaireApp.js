@@ -540,7 +540,7 @@ export class KlondikeSolitaireApp extends Application {
     }
   }
 
-  onMouseDown(event) {
+  async onMouseDown(event) {
     if (event.button !== 0) return; // Only main button
     this.wasDragged = false;
 
@@ -563,7 +563,7 @@ export class KlondikeSolitaireApp extends Application {
           this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)
         ) {
           if (this.game.checkForWin()) {
-            this.startWinAnimation();
+            await this.startWinAnimation();
           } else {
             this.render();
             this._updateMenuBar(this.win);
@@ -721,7 +721,7 @@ export class KlondikeSolitaireApp extends Application {
     }
   }
 
-  onMouseUp(event) {
+  async onMouseUp(event) {
     if (!this.isDragging) return;
 
     this.isDragging = false;
@@ -762,7 +762,7 @@ export class KlondikeSolitaireApp extends Application {
         )
       ) {
         if (this.game.checkForWin()) {
-          this.startWinAnimation();
+          await this.startWinAnimation();
           return; // Don't re-render
         }
       }
@@ -772,14 +772,14 @@ export class KlondikeSolitaireApp extends Application {
     this.draggedCardsInfo = null;
   }
 
-  startWinAnimation() {
+  async startWinAnimation() {
     // Prevent interaction with the game board during animation
     this.removeEventListeners();
     const animation = new WinAnimation(this.win.element, this.game.foundationPiles, () => {
       this.addEventListeners(); // Re-attach listeners
       this.showWinDialog();
     });
-    animation.start();
+    await animation.start();
   }
 
   async showWinDialog() {
@@ -804,7 +804,7 @@ export class KlondikeSolitaireApp extends Application {
     this._updateMenuBar(this.win);
   }
 
-  _startWinningDemo() {
+  async _startWinningDemo() {
     // Clear all piles
     this.game.stockPile.cards = [];
     this.game.wastePile.cards = [];
@@ -828,7 +828,7 @@ export class KlondikeSolitaireApp extends Application {
     }
 
     this.render();
-    this.startWinAnimation();
+    await this.startWinAnimation();
   }
 
   _showOptionsDialog() {
