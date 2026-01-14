@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
+import { WinAnimation } from "./WinAnimation.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import {
   getItem,
@@ -557,10 +558,11 @@ export class KlondikeSolitaireApp extends Application {
           this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)
         ) {
           if (this.game.checkForWin()) {
-            this.showWinDialog();
+            this.startWinAnimation();
+          } else {
+            this.render();
+            this._updateMenuBar(this.win);
           }
-          this.render();
-          this._updateMenuBar(this.win);
         }
       }
       this.lastClickTime = 0;
@@ -755,13 +757,23 @@ export class KlondikeSolitaireApp extends Application {
         )
       ) {
         if (this.game.checkForWin()) {
-          this.showWinDialog();
+          this.startWinAnimation();
+          return; // Don't re-render
         }
       }
     }
     this.render();
     this._updateMenuBar(this.win);
     this.draggedCardsInfo = null;
+  }
+
+  startWinAnimation() {
+    // Prevent interaction with the game board during animation
+    this.removeEventListeners();
+    const animation = new WinAnimation(this.win.element, this.game.foundationPiles, () => {
+      this.showWinDialog();
+    });
+    animation.start();
   }
 
   async showWinDialog() {
