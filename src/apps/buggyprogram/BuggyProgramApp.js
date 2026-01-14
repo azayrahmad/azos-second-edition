@@ -66,6 +66,7 @@ export class BuggyProgramApp extends Application {
       canvas.style.top = "0";
       canvas.style.left = "0";
       canvas.style.zIndex = "9998"; // Just below the active window
+      canvas.style.pointerEvents = "none"; // Initially, let clicks pass through
       desktop.appendChild(canvas);
 
       const ctx = canvas.getContext("2d");
@@ -97,6 +98,7 @@ export class BuggyProgramApp extends Application {
 
       const onMouseUp = () => {
         isDragging = false;
+        canvas.style.pointerEvents = "none"; // Let clicks pass through again
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
       };
@@ -108,6 +110,7 @@ export class BuggyProgramApp extends Application {
         e.stopImmediatePropagation();
 
         isDragging = true;
+        canvas.style.pointerEvents = "auto"; // Start capturing events
         win.element.style.zIndex = "9999";
 
         dragOffsetX = e.clientX - win.element.offsetLeft;
