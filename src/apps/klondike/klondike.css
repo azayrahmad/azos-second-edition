@@ -197,3 +197,13 @@
 .klondike-solitaire-container .card.face-down[class*=cardback] {
   background-image: url(/src/assets/img/solitaire.png);
 }
+
+.win-animation-canvas {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+}
