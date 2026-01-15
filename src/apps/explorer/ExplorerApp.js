@@ -25,6 +25,7 @@ import {
   getItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
+import { floppyManager } from "../../utils/floppyManager.js";
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
@@ -517,6 +518,14 @@ export class ExplorerApp extends Application {
     };
     document.addEventListener("explorer-refresh", this.refreshHandler);
 
+    this.floppyChangeHandler = () => {
+      if (this.currentPath === "/" || this.currentPath === "/drive-a") {
+        this.render(this.currentPath);
+      }
+    };
+    document.addEventListener("floppy-inserted", this.floppyChangeHandler);
+    document.addEventListener("floppy-ejected", this.floppyChangeHandler);
+
     this.clipboardHandler = () => {
       this.updateCutIcons();
       this.updateMenuState();
@@ -526,6 +535,8 @@ export class ExplorerApp extends Application {
     this.win.onClosed(() => {
       document.removeEventListener("explorer-refresh", this.refreshHandler);
       document.removeEventListener("clipboard-change", this.clipboardHandler);
+      document.removeEventListener("floppy-inserted", this.floppyChangeHandler);
+      document.removeEventListener("floppy-ejected", this.floppyChangeHandler);
     });
 
     // Drag and drop functionality
@@ -625,6 +636,8 @@ export class ExplorerApp extends Application {
     document.removeEventListener("explorer-refresh", this.refreshHandler);
     document.removeEventListener("clipboard-change", this.clipboardHandler);
     document.removeEventListener("mouseup", this.handleMouseUp);
+    document.removeEventListener("floppy-inserted", this.floppyChangeHandler);
+    document.removeEventListener("floppy-ejected", this.floppyChangeHandler);
   }
 
   async _onLaunch(filePath) {
@@ -705,6 +718,13 @@ export class ExplorerApp extends Application {
         children = [...staticChildren, ...droppedFilesInThisFolder];
       }
 
+      if (item.type === "floppy") {
+        const floppyContents = floppyManager.getContents();
+        if (floppyContents) {
+          children = [...children, ...floppyContents];
+        }
+      }
+
       // Sort children alphabetically by name, but only for subfolders
       if (path !== "/") {
         children.sort((a, b) => {
@@ -777,6 +797,10 @@ export class ExplorerApp extends Application {
       iconImg.src = item.icon[32];
     } else if (item.id === "folder-control-panel") {
       iconImg.src = ICONS.controlPanel[32];
+    } else if (item.type === "floppy") {
+      iconImg.src = floppyManager.isInserted()
+        ? ICONS.disketteDrive[32]
+        : ICONS.floppyDrive[32];
     } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
@@ -895,6 +919,23 @@ export class ExplorerApp extends Application {
 
   _launchItem(item) {
     // 1. Handle navigation for folders/drives
+    if (item.type === "floppy") {
+      if (floppyManager.isInserted()) {
+        const newPath =
+          this.currentPath === "/"
+            ? `/${item.id}`
+            : `${this.currentPath}/${item.id}`;
+        this.navigateTo(newPath);
+      } else {
+        ShowDialogWindow({
+          title: "No disk",
+          text: "There is no disk in the drive.",
+          buttons: [{ label: "OK", isDefault: true }],
+        });
+      }
+      return;
+    }
+
     if (item.type === "folder" || item.type === "drive") {
       const newPath =
         this.currentPath === "/"
@@ -1141,6 +1182,20 @@ export class ExplorerApp extends Application {
         label: "Properties",
         action: () => this.showProperties(clickedItem),
       });
+    }
+
+    if (clickedItem.type === "floppy") {
+      if (floppyManager.isInserted()) {
+        menuItems.unshift({
+          label: "Eject",
+          action: () => floppyManager.eject(),
+        });
+      } else {
+        menuItems.unshift({
+          label: "Insert",
+          action: () => floppyManager.insert(),
+        });
+      }
     }
 
     new window.ContextMenu(menuItems, event);

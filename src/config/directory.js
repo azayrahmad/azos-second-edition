@@ -254,6 +254,12 @@ const directory = [
     ],
   },
   {
+    id: "drive-a",
+    name: "A:",
+    type: "floppy",
+    children: [],
+  },
+  {
     id: "drive-d",
     name: "D:",
     type: "drive",
