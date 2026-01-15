@@ -142,17 +142,7 @@ export function findItemByPath(path) {
   }
 
   if (!path || path === "/") {
-    const children = directory
-      .filter((item) => item.type !== "briefcase")
-      .sort((a, b) => {
-        if (a.type === "drive" && b.type !== "drive") {
-          return -1;
-        }
-        if (a.type !== "drive" && b.type === "drive") {
-          return 1;
-        }
-        return (a.name || "").localeCompare(b.name || "");
-      });
+    const children = directory.filter((item) => item.type !== "briefcase");
 
     return {
       id: "root",
