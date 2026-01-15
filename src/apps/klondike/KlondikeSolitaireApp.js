@@ -42,8 +42,8 @@ export class KlondikeSolitaireApp extends Application {
 
     win.element.querySelector(".window-content").innerHTML = `
       <div class="klondike-solitaire-container">
-        <canvas class="win-animation-canvas"></canvas>
         <div class="game-board">
+        <canvas class="win-animation-canvas"></canvas>
           <div class="top-piles">
             <div class="stock-pile"></div>
             <div class="waste-pile-container">

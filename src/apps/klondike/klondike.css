@@ -1,209 +1,207 @@
 .klondike-solitaire-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  background-color: #008000;
-  box-sizing: border-box;
-  background-repeat: no-repeat;
-  background-size: cover;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: #008000;
+    box-sizing: border-box;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .klondike-solitaire-container .game-board {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
 }
 
 .klondike-solitaire-container .top-piles {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .klondike-solitaire-container .stock-pile,
 .klondike-solitaire-container .waste-pile-container {
-  width: 71px;
-  height: 96px;
-  position: relative;
+    width: 71px;
+    height: 96px;
+    position: relative;
 }
 
 .klondike-solitaire-container .waste-pile,
 .klondike-solitaire-container .drawn-card-pile {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .klondike-solitaire-container .foundation-pile {
-  width: 71px;
-  height: 96px;
-  position: relative;
+    width: 71px;
+    height: 96px;
+    position: relative;
 }
 
 .klondike-solitaire-container .foundation-piles {
-  grid-column: 4 / -1; /* Span from column 4 to the end */
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+    grid-column: 4 / -1; /* Span from column 4 to the end */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
 }
 
 .klondike-solitaire-container .tableau-piles {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    flex-grow: 1;
 }
 
 .klondike-solitaire-container .tableau-pile {
-  width: 71px;
-  min-height: 96px;
-  position: relative;
-  height: 100%;
+    width: 71px;
+    min-height: 96px;
+    position: relative;
+    height: 100%;
 }
 
 .klondike-solitaire-container .stock-placeholder,
 .klondike-solitaire-container .foundation-placeholder,
 .klondike-solitaire-container .tableau-placeholder {
-  width: 71px;
-  height: 96px;
-  border-radius: 5px;
-  box-sizing: border-box;
+    width: 71px;
+    height: 96px;
+    border-radius: 5px;
+    box-sizing: border-box;
 
-  background-color: #008000;
+    background-color: #008000;
 }
 
 .deck-selection-container {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 10px;
 }
 
 .klondike-solitaire-container .tableau-placeholder {
-  border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .klondike-solitaire-container .stock-placeholder {
-  background-image: url("/src/assets/img/solitaire.png");
-  background-position: -710px -384px; /* stockpile-draw */
+    background-image: url("/src/assets/img/solitaire.png");
+    background-position: -710px -384px; /* stockpile-draw */
 }
 
 .klondike-solitaire-container .stock-placeholder.recycling-depleted {
-  background-position: -781px -384px; /* stockpile-empty */
+    background-position: -781px -384px; /* stockpile-empty */
 }
 
 .card-back-preview {
-  width: 71px;
-  height: 96px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  background-image: url("/src/assets/img/solitaire.png");
-  padding: 0;
-  border: 3px solid white;
+    width: 71px;
+    height: 96px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background-image: url("/src/assets/img/solitaire.png");
+    padding: 0;
+    border: 3px solid white;
 }
 
 .card-back-preview:active {
-  filter: invert(100%);
+    filter: invert(100%);
 }
 
 .card-back-preview.selected {
-  border: 3px solid black;
+    border: 3px solid black;
 }
 
 .klondike-solitaire-container .foundation-placeholder {
-  background-image: url("/src/assets/img/solitaire.png");
-  background-position: -852px -384px; /* foundation-background */
+    background-image: url("/src/assets/img/solitaire.png");
+    background-position: -852px -384px; /* foundation-background */
 }
 
 .klondike-solitaire-container .stock-pile .card,
 .klondike-solitaire-container .waste-pile .card,
 .klondike-solitaire-container .drawn-card-pile .card,
 .klondike-solitaire-container .foundation-pile .card {
-  position: absolute !important;
+    position: absolute !important;
 }
 
 .klondike-solitaire-container .card {
-  width: 71px;
-  height: 96px;
-  border: none;
-  border-radius: 5px;
-  box-sizing: border-box;
-  /* position: absolute; */
-  cursor: pointer;
-  user-select: none;
-  background-color: #ffffff;
+    width: 71px;
+    height: 96px;
+    border: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    /* position: absolute; */
+    cursor: pointer;
+    user-select: none;
+    background-color: #ffffff;
 }
 
 .klondike-solitaire-container .tableau-pile .card {
-  position: absolute;
-  left: 0 !important;
+    position: absolute;
+    left: 0 !important;
 }
 
 .klondike-solitaire-container .card.face-up {
-  color: transparent;
-  font-size: 0;
+    color: transparent;
+    font-size: 0;
 }
 
 .klondike-solitaire-container .card.face-down {
-  background-color: #8b0000;
+    background-color: #8b0000;
 }
 
 .klondike-solitaire-container .card.dragging {
-  visibility: hidden;
+    visibility: hidden;
 }
 
 .dragged-stack {
-  width: 71px;
+    width: 71px;
 }
 
 .dragged-outline {
-  position: absolute;
-  z-index: 1000;
-  pointer-events: none;
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .dragged-outline-card {
-  position: absolute;
-  width: 71px;
-  height: 96px;
-  border: 2px solid black;
-  border-radius: 5px;
-  box-sizing: border-box;
+    position: absolute;
+    width: 71px;
+    height: 96px;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
 
 .card.invert-colors,
 .tableau-placeholder.invert-colors,
 .foundation-placeholder.invert-colors {
-  filter: invert(1);
+    filter: invert(1);
 }
 
 .status-bar {
-  height: 20px;
-  background-color: var(--ButtonFace);
-  border-top: 1px solid var(--ButtonShadow);
-  padding: 2px 5px;
-  box-sizing: border-box;
-  font-size: 12px;
-  color: var(--ButtonText);
-  line-height: 16px;
-  flex-shrink: 0;
+    height: 20px;
+    background-color: var(--ButtonFace);
+    border-top: 1px solid var(--ButtonShadow);
+    padding: 2px 5px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: var(--ButtonText);
+    line-height: 16px;
+    flex-shrink: 0;
 }
 
-.klondike-solitaire-container .card.face-down[class*=cardback] {
-  background-image: url(/src/assets/img/solitaire.png);
+.klondike-solitaire-container .card.face-down[class*="cardback"] {
+    background-image: url(/src/assets/img/solitaire.png);
 }
 
 .win-animation-canvas {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 100;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
 }
