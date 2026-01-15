@@ -112,6 +112,9 @@ export class WinAnimation {
         height: cardElement.offsetHeight,
       });
       this.cardRenderCache.set(key, canvas);
+
+      // Yield to the main thread to prevent UI from freezing
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
   }
 

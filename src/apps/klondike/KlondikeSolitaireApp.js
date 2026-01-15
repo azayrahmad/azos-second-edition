@@ -563,6 +563,7 @@ export class KlondikeSolitaireApp extends Application {
           this.game.autoMoveCardToFoundation(pileType, pileIndex, cardIndex)
         ) {
           if (this.game.checkForWin()) {
+            this.render();
             await this.startWinAnimation();
           } else {
             this.render();
@@ -762,6 +763,7 @@ export class KlondikeSolitaireApp extends Application {
         )
       ) {
         if (this.game.checkForWin()) {
+          this.render();
           await this.startWinAnimation();
           return; // Don't re-render
         }
