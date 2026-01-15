@@ -24,6 +24,10 @@ export class InternetExplorerApp extends IFrameApplication {
     this.historyIndex = -1;
   }
 
+  _isLocalFile(path) {
+    return /^[a-zA-Z]:\//.test(path);
+  }
+
   async _onLaunch(data) {
     let url = "microsoft.com";
 
@@ -35,6 +39,11 @@ export class InternetExplorerApp extends IFrameApplication {
         this.retroMode = false;
       }
     }
+
+    if (this._isLocalFile(url)) {
+      this.retroMode = false;
+    }
+
     this._updateTitle(); // Always call this to set the correct initial title
     this.navigateTo(url);
   }
@@ -118,15 +127,26 @@ export class InternetExplorerApp extends IFrameApplication {
         this.historyIndex = this.history.length - 1;
       }
 
-      let finalUrl = url.trim();
-      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
-        finalUrl = `https://${finalUrl}`;
-      }
-      this.addressBar.setValue(finalUrl);
+      this.addressBar.setValue(url);
 
-      const targetUrl = this.retroMode
-        ? `https://web.archive.org/web/1998/${finalUrl}`
-        : finalUrl;
+      let targetUrl;
+      if (this._isLocalFile(url)) {
+        const relativePath = url.replace(/^[a-zA-Z]:\//, "");
+        targetUrl = `/azos-second-edition/${relativePath}`;
+        this.retroMode = false;
+      } else {
+        let finalUrl = url.trim();
+        if (
+          !finalUrl.startsWith("http://") &&
+          !finalUrl.startsWith("https://")
+        ) {
+          finalUrl = `https://${finalUrl}`;
+        }
+
+        targetUrl = this.retroMode
+          ? `https://web.archive.org/web/1998/${finalUrl}`
+          : finalUrl;
+      }
 
       this.statusText.textContent = "Connecting to site...";
       this.iframe.src = "about:blank";
