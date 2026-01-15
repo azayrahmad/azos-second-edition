@@ -64,7 +64,7 @@ export class WinAnimation {
   _loadSpriteSheet() {
     return new Promise((resolve) => {
       this.spriteSheet = new Image();
-      this.spriteSheet.src = "/src/assets/img/solitaire.png";
+      this.spriteSheet.src = "./src/assets/img/solitaire.png";
       this.spriteSheet.onload = () => resolve();
     });
   }
@@ -75,7 +75,8 @@ export class WinAnimation {
     const rankOrder = [...RANKS].reverse();
 
     this.cardQueue = allCards.sort((a, b) => {
-      const rankComparison = rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+      const rankComparison =
+        rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
       if (rankComparison !== 0) {
         return rankComparison;
       }
@@ -89,7 +90,7 @@ export class WinAnimation {
     if (!this.activeCard && this.cardQueue.length > 0) {
       const nextCard = this.cardQueue.shift();
       const foundationPileElement = document.querySelector(
-        `.foundation-pile .card[data-uid="${nextCard.uid}"]`
+        `.foundation-pile .card[data-uid="${nextCard.uid}"]`,
       ).parentElement;
       const rect = foundationPileElement.getBoundingClientRect();
       const canvasRect = this.canvas.getBoundingClientRect();
@@ -99,7 +100,7 @@ export class WinAnimation {
         nextCard,
         this.spriteSheet,
         startX,
-        startY
+        startY,
       );
     }
 
@@ -122,7 +123,7 @@ export class WinAnimation {
         this.activeCard.x,
         this.activeCard.y,
         CARD_WIDTH,
-        CARD_HEIGHT
+        CARD_HEIGHT,
       );
 
       const isOffScreen =
