@@ -827,6 +827,9 @@ export class KlondikeSolitaireApp extends Application {
       this.game.foundationPiles[i].cards = allCards.slice(i * 13, (i + 1) * 13);
     }
 
+    // Ensure all cards are face up before rendering for the animation
+    this.game.allCards.forEach(card => card.faceUp = true);
+
     this.render();
     await this.startWinAnimation();
   }

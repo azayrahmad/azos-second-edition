@@ -94,19 +94,27 @@ export class WinAnimation {
     const allCards = this.foundationPiles.flatMap((pile) => pile.cards);
     if (allCards.length === 0) return;
 
-    for (const card of allCards) {
+    const renderingPromises = [];
+
+    allCards.forEach(card => {
       const key = `${card.suit}-${card.rank}`;
-      if (this.cardRenderCache.has(key)) continue;
+      if (this.cardRenderCache.has(key)) return;
 
       // Ensure the card element is ready for rendering
       card.faceUp = true;
       const cardElement = card.element;
 
-      const canvas = await html2canvas(cardElement, {
+      const promise = html2canvas(cardElement, {
         backgroundColor: null, // Use transparent background
         width: cardElement.offsetWidth,
         height: cardElement.offsetHeight,
-      });
+      }).then(canvas => ({ key, canvas }));
+
+      renderingPromises.push(promise);
+    });
+
+    const renderedCanvases = await Promise.all(renderingPromises);
+    for (const { key, canvas } of renderedCanvases) {
       this.cardRenderCache.set(key, canvas);
     }
   }
