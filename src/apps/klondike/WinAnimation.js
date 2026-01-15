@@ -12,7 +12,6 @@ class AnimatedCard {
     this.y = y;
     this.vx = Math.random() * 10 - 5;
     this.vy = Math.random() * -10 - 10;
-    this.trail = [];
 
     const rankIndex = RANKS.indexOf(card.rank);
     const suitIndex = SUIT_MAP[card.suit];
@@ -104,53 +103,16 @@ export class WinAnimation {
       );
     }
 
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
     if (this.activeCard) {
-      this.activeCard.trail.push({
-        x: this.activeCard.x,
-        y: this.activeCard.y,
-      });
-      if (this.activeCard.trail.length > 5) {
-        this.activeCard.trail.shift();
-      }
-
       this.activeCard.vy += 0.5; // Gravity
       this.activeCard.x += this.activeCard.vx;
       this.activeCard.y += this.activeCard.vy;
-
-      if (
-        this.activeCard.x < 0 ||
-        this.activeCard.x + CARD_WIDTH > this.canvas.width
-      ) {
-        this.activeCard.vx *= -0.9;
-        this.activeCard.x = Math.max(
-          0,
-          Math.min(this.activeCard.x, this.canvas.width - CARD_WIDTH)
-        );
-      }
 
       if (this.activeCard.y + CARD_HEIGHT > this.canvas.height) {
         this.activeCard.vy *= -0.9;
         this.activeCard.y = this.canvas.height - CARD_HEIGHT;
       }
 
-      this.activeCard.trail.forEach((pos, index) => {
-        this.ctx.globalAlpha = 0.2 + (index / this.activeCard.trail.length) * 0.3;
-        this.ctx.drawImage(
-          this.spriteSheet,
-          this.activeCard.spriteX,
-          this.activeCard.spriteY,
-          CARD_WIDTH,
-          CARD_HEIGHT,
-          pos.x,
-          pos.y,
-          CARD_WIDTH,
-          CARD_HEIGHT
-        );
-      });
-
-      this.ctx.globalAlpha = 1;
       this.ctx.drawImage(
         this.spriteSheet,
         this.activeCard.spriteX,
@@ -162,13 +124,15 @@ export class WinAnimation {
         CARD_WIDTH,
         CARD_HEIGHT
       );
-    }
 
-    if (
-      this.activeCard &&
-      this.activeCard.y > this.canvas.height + CARD_HEIGHT * 2
-    ) {
-      this.activeCard = null;
+      const isOffScreen =
+        this.activeCard.x < -CARD_WIDTH ||
+        this.activeCard.x > this.canvas.width ||
+        this.activeCard.y < -CARD_HEIGHT;
+
+      if (isOffScreen) {
+        this.activeCard = null;
+      }
     }
 
     if (!this.activeCard && this.cardQueue.length === 0) {

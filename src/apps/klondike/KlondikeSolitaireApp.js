@@ -794,8 +794,14 @@ export class KlondikeSolitaireApp extends Application {
     };
 
     const canvas = this.win.element.querySelector(".win-animation-canvas");
-    canvas.width = this.win.element.clientWidth;
-    canvas.height = this.win.element.clientHeight;
+    const gameBoard = this.win.element.querySelector(".game-board");
+    const boardRect = gameBoard.getBoundingClientRect();
+    const containerRect = this.container.getBoundingClientRect();
+
+    canvas.width = boardRect.width;
+    canvas.height = boardRect.height;
+    canvas.style.top = `${boardRect.top - containerRect.top}px`;
+    canvas.style.left = `${boardRect.left - containerRect.left}px`;
 
     const animation = new WinAnimation(
       canvas,
