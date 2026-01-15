@@ -917,7 +917,7 @@ export class ExplorerApp extends Application {
 
   async _launchItem(item) {
     // Handle floppy files
-    if (typeof item.getHandle === "function") {
+    if (typeof item.getHandle === "function" && item.type === "file") {
       const handle = item.getHandle();
       const file = await handle.getFile();
       const reader = new FileReader();
