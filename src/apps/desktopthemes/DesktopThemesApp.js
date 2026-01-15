@@ -299,7 +299,7 @@ export class DesktopThemesApp extends Application {
       wallpaper: wallpaper,
     };
 
-    setTheme("custom", customTheme);
+    setTheme(customTheme);
   }
 
   handleCustomThemeLoad() {
