@@ -114,7 +114,7 @@ export class WinAnimation {
       this.cardRenderCache.set(key, canvas);
 
       // Yield to the main thread to prevent UI from freezing
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise(resolve => requestAnimationFrame(resolve));
     }
   }
 
@@ -138,7 +138,7 @@ export class WinAnimation {
     this.canvas.style.pointerEvents = 'none';
 
     windowContent.appendChild(this.canvas);
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
   }
 
   _animationLoop() {

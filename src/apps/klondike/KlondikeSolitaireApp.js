@@ -781,7 +781,14 @@ export class KlondikeSolitaireApp extends Application {
       this.addEventListeners(); // Re-attach listeners
       this.showWinDialog();
     });
-    await animation.start();
+
+    try {
+      await animation.start();
+    } catch (error) {
+      console.error("Klondike win animation failed:", error);
+      // Ensure interactivity is restored even if animation fails
+      this.addEventListeners();
+    }
   }
 
   async showWinDialog() {
