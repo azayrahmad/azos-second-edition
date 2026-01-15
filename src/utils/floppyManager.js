@@ -1,4 +1,5 @@
 let floppyContent = null;
+let folderName = null;
 
 async function buildFileTree(directoryHandle) {
   const children = [];
@@ -32,6 +33,7 @@ export const floppyManager = {
   async insert() {
     try {
       const directoryHandle = await window.showDirectoryPicker();
+      folderName = directoryHandle.name;
       floppyContent = await buildFileTree(directoryHandle);
       document.dispatchEvent(new CustomEvent("floppy-inserted"));
       return true;
@@ -43,6 +45,7 @@ export const floppyManager = {
 
   eject() {
     floppyContent = null;
+    folderName = null;
     document.dispatchEvent(new CustomEvent("floppy-ejected"));
   },
 
@@ -52,5 +55,9 @@ export const floppyManager = {
 
   getContents() {
     return floppyContent;
+  },
+
+  getFolderName() {
+    return folderName;
   },
 };

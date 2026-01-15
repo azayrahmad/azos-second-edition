@@ -778,8 +778,15 @@ export class ExplorerApp extends Application {
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
     const originalName = item.name || item.filename || item.title || app.title;
-    const displayName =
+    let displayName =
       item.type === "drive" ? `(${originalName})` : originalName;
+
+    if (item.type === "floppy") {
+      const folderName = floppyManager.getFolderName();
+      displayName = folderName
+        ? `(${originalName}) ${folderName}`
+        : `(${originalName})`;
+    }
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
@@ -798,9 +805,7 @@ export class ExplorerApp extends Application {
     } else if (item.id === "folder-control-panel") {
       iconImg.src = ICONS.controlPanel[32];
     } else if (item.type === "floppy") {
-      iconImg.src = floppyManager.isInserted()
-        ? ICONS.disketteDrive[32]
-        : ICONS.floppyDrive[32];
+      iconImg.src = ICONS.disketteDrive[32];
     } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
