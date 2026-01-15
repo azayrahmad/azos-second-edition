@@ -72,6 +72,10 @@ export class WinAnimation {
   async start() {
     this._createCanvas();
     if (!this.canvas) return;
+
+    // Wait for the next frame to ensure the UI is fully rendered before capturing cards
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
     await this._preRenderCards();
     this._prepareAnimationSequence();
     document.addEventListener('keydown', this.boundHandleKeyDown);
@@ -94,27 +98,19 @@ export class WinAnimation {
     const allCards = this.foundationPiles.flatMap((pile) => pile.cards);
     if (allCards.length === 0) return;
 
-    const renderingPromises = [];
-
-    allCards.forEach(card => {
+    for (const card of allCards) {
       const key = `${card.suit}-${card.rank}`;
-      if (this.cardRenderCache.has(key)) return;
+      if (this.cardRenderCache.has(key)) continue;
 
       // Ensure the card element is ready for rendering
       card.faceUp = true;
       const cardElement = card.element;
 
-      const promise = html2canvas(cardElement, {
+      const canvas = await html2canvas(cardElement, {
         backgroundColor: null, // Use transparent background
         width: cardElement.offsetWidth,
         height: cardElement.offsetHeight,
-      }).then(canvas => ({ key, canvas }));
-
-      renderingPromises.push(promise);
-    });
-
-    const renderedCanvases = await Promise.all(renderingPromises);
-    for (const { key, canvas } of renderedCanvases) {
+      });
       this.cardRenderCache.set(key, canvas);
     }
   }
