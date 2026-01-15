@@ -24,11 +24,12 @@ export const LOCAL_STORAGE_KEYS = {
   COLOR_MODE: 'colorMode',
   SCREEN_RESOLUTION: 'screenResolution',
   DROPPED_FILES: 'droppedFiles',
-  KLONDIKE_CARD_BACK: 'klondike:cardBack',
-  KLONDIKE_DRAW_OPTION: 'klondikeDrawOption',
-  KLONDIKE_TIMED_GAME: "klondikeTimedGame",
-  KLONDIKE_SCORING: 'klondikeScoring',
-  KLONDIKE_OUTLINE_DRAGGING: "klondikeOutlineDragging",
+  SOLITAIRE_CARD_BACK: 'solitaire:cardBack',
+  SOLITAIRE_DRAW_OPTION: 'solitaireDrawOption',
+  SOLITAIRE_TIMED_GAME: "solitaireTimedGame",
+  SOLITAIRE_SCORING: 'solitaireScoring',
+  SOLITAIRE_OUTLINE_DRAGGING: "solitaireOutlineDragging",
+  SOLITAIRE_SHOW_STATUS_BAR: "solitaireShowStatusBar",
 };
 
 export function getItem(key) {

@@ -1,4 +1,4 @@
-.klondike-solitaire-container {
+.solitaire-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -9,29 +9,29 @@
     background-size: cover;
 }
 
-.klondike-solitaire-container .game-board {
+.solitaire-container .game-board {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     padding: 10px;
 }
 
-.klondike-solitaire-container .top-piles {
+.solitaire-container .top-piles {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
     margin-bottom: 10px;
 }
 
-.klondike-solitaire-container .stock-pile,
-.klondike-solitaire-container .waste-pile-container {
+.solitaire-container .stock-pile,
+.solitaire-container .waste-pile-container {
     width: 71px;
     height: 96px;
     position: relative;
 }
 
-.klondike-solitaire-container .waste-pile,
-.klondike-solitaire-container .drawn-card-pile {
+.solitaire-container .waste-pile,
+.solitaire-container .drawn-card-pile {
     position: absolute;
     top: 0;
     left: 0;
@@ -39,36 +39,36 @@
     height: 100%;
 }
 
-.klondike-solitaire-container .foundation-pile {
+.solitaire-container .foundation-pile {
     width: 71px;
     height: 96px;
     position: relative;
 }
 
-.klondike-solitaire-container .foundation-piles {
+.solitaire-container .foundation-piles {
     grid-column: 4 / -1; /* Span from column 4 to the end */
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
-.klondike-solitaire-container .tableau-piles {
+.solitaire-container .tableau-piles {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
     flex-grow: 1;
 }
 
-.klondike-solitaire-container .tableau-pile {
+.solitaire-container .tableau-pile {
     width: 71px;
     min-height: 96px;
     position: relative;
     height: 100%;
 }
 
-.klondike-solitaire-container .stock-placeholder,
-.klondike-solitaire-container .foundation-placeholder,
-.klondike-solitaire-container .tableau-placeholder {
+.solitaire-container .stock-placeholder,
+.solitaire-container .foundation-placeholder,
+.solitaire-container .tableau-placeholder {
     width: 71px;
     height: 96px;
     border-radius: 5px;
@@ -84,16 +84,16 @@
     padding: 10px;
 }
 
-.klondike-solitaire-container .tableau-placeholder {
+.solitaire-container .tableau-placeholder {
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.klondike-solitaire-container .stock-placeholder {
+.solitaire-container .stock-placeholder {
     background-image: url("/src/assets/img/solitaire.png");
     background-position: -710px -384px; /* stockpile-draw */
 }
 
-.klondike-solitaire-container .stock-placeholder.recycling-depleted {
+.solitaire-container .stock-placeholder.recycling-depleted {
     background-position: -781px -384px; /* stockpile-empty */
 }
 
@@ -115,19 +115,19 @@
     border: 3px solid black;
 }
 
-.klondike-solitaire-container .foundation-placeholder {
+.solitaire-container .foundation-placeholder {
     background-image: url("/src/assets/img/solitaire.png");
     background-position: -852px -384px; /* foundation-background */
 }
 
-.klondike-solitaire-container .stock-pile .card,
-.klondike-solitaire-container .waste-pile .card,
-.klondike-solitaire-container .drawn-card-pile .card,
-.klondike-solitaire-container .foundation-pile .card {
+.solitaire-container .stock-pile .card,
+.solitaire-container .waste-pile .card,
+.solitaire-container .drawn-card-pile .card,
+.solitaire-container .foundation-pile .card {
     position: absolute !important;
 }
 
-.klondike-solitaire-container .card {
+.solitaire-container .card {
     width: 71px;
     height: 96px;
     border: none;
@@ -139,21 +139,21 @@
     background-color: #ffffff;
 }
 
-.klondike-solitaire-container .tableau-pile .card {
+.solitaire-container .tableau-pile .card {
     position: absolute;
     left: 0 !important;
 }
 
-.klondike-solitaire-container .card.face-up {
+.solitaire-container .card.face-up {
     color: transparent;
     font-size: 0;
 }
 
-.klondike-solitaire-container .card.face-down {
+.solitaire-container .card.face-down {
     background-color: #8b0000;
 }
 
-.klondike-solitaire-container .card.dragging {
+.solitaire-container .card.dragging {
     visibility: hidden;
 }
 
@@ -194,7 +194,7 @@
     flex-shrink: 0;
 }
 
-.klondike-solitaire-container .card.face-down[class*="cardback"] {
+.solitaire-container .card.face-down[class*="cardback"] {
     background-image: url(/src/assets/img/solitaire.png);
 }
 
