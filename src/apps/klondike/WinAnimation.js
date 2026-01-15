@@ -128,8 +128,7 @@ export class WinAnimation {
 
       const isOffScreen =
         this.activeCard.x < -CARD_WIDTH ||
-        this.activeCard.x > this.canvas.width ||
-        this.activeCard.y < -CARD_HEIGHT;
+        this.activeCard.x > this.canvas.width;
 
       if (isOffScreen) {
         this.activeCard = null;
