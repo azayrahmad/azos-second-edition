@@ -156,9 +156,15 @@ export class KlondikeSolitaireApp extends Application {
       standard: this.game.score,
       vegas: this.game.vegasScore,
     });
+
+    this.container.classList.add("initializing");
     this.render();
     this._updateMenuBar(this.win);
     this._updateCardBackAnimation();
+
+    requestAnimationFrame(() => {
+      this.container.classList.remove("initializing");
+    });
   }
 
   updateScoreDisplay(scores) {
