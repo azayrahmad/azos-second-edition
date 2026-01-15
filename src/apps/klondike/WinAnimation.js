@@ -10,8 +10,19 @@ class AnimatedCard {
     this.spriteSheet = spriteSheet;
     this.x = x;
     this.y = y;
-    this.vx = Math.random() * 10 - 5;
-    this.vy = Math.random() * -10 - 10;
+    // Choose left or right
+    const direction = Math.random() < 0.5 ? -1 : 1;
+
+    // Angle: 0–30 degrees from horizontal
+    const angleDeg = Math.random() * 30;
+    const angleRad = (angleDeg * Math.PI) / 180;
+
+    // Speed
+    const speed = 1 + Math.random() * 6;
+
+    // Velocity
+    this.vx = Math.cos(angleRad) * speed * direction;
+    this.vy = -Math.sin(angleRad) * speed;
 
     const rankIndex = RANKS.indexOf(card.rank);
     const suitIndex = SUIT_MAP[card.suit];

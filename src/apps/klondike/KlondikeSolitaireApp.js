@@ -298,10 +298,10 @@ export class KlondikeSolitaireApp extends Application {
           action: () => this._showNewGameDialog(),
           shortcut: "F2",
         },
-        {
-          label: "Winning Demo",
-          action: () => this._startWinningDemo(),
-        },
+        // {
+        //   label: "Winning Demo",
+        //   action: () => this._startWinningDemo(),
+        // },
         {
           label: "Undo",
           enabled: () => !!this.game?.previousState,
@@ -806,7 +806,7 @@ export class KlondikeSolitaireApp extends Application {
     const animation = new WinAnimation(
       canvas,
       this.game.foundationPiles,
-      showFinalDialog
+      showFinalDialog,
     );
     animation.start();
   }
