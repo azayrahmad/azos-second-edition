@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
+import { WinAnimation } from "./WinAnimation.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import {
   getItem,
@@ -42,6 +43,7 @@ export class KlondikeSolitaireApp extends Application {
     win.element.querySelector(".window-content").innerHTML = `
       <div class="klondike-solitaire-container">
         <div class="game-board">
+        <canvas class="win-animation-canvas"></canvas>
           <div class="top-piles">
             <div class="stock-pile"></div>
             <div class="waste-pile-container">
@@ -296,6 +298,10 @@ export class KlondikeSolitaireApp extends Application {
           action: () => this._showNewGameDialog(),
           shortcut: "F2",
         },
+        // {
+        //   label: "Winning Demo",
+        //   action: () => this._startWinningDemo(),
+        // },
         {
           label: "Undo",
           enabled: () => !!this.game?.previousState,
@@ -765,25 +771,44 @@ export class KlondikeSolitaireApp extends Application {
   }
 
   async showWinDialog() {
-    if (this.game.isTimedGame && this.game.elapsedTime > 30) {
-      this.game.stopTimer();
-      const bonus = Math.round(700000 / this.game.elapsedTime);
-      this.game.updateScore(bonus);
-    }
+    this.game.stopTimer();
+    const showFinalDialog = () => {
+      if (this.game.isTimedGame && this.game.elapsedTime > 30) {
+        const bonus = Math.round(700000 / this.game.elapsedTime);
+        this.game.updateScore(bonus);
+      }
 
-    ShowDialogWindow({
-      title: "Game Over",
-      text: "Congratulations, you won!\nDo you want to start another game?",
-      buttons: [
-        {
-          label: "Yes",
-          action: () => this.startNewGame(),
-        },
-        { label: "No" },
-      ],
-      parentWindow: this.win,
-    });
-    this._updateMenuBar(this.win);
+      ShowDialogWindow({
+        title: "Game Over",
+        text: "Congratulations, you won!\nDo you want to start another game?",
+        buttons: [
+          {
+            label: "Yes",
+            action: () => this.startNewGame(),
+          },
+          { label: "No" },
+        ],
+        parentWindow: this.win,
+      });
+      this._updateMenuBar(this.win);
+    };
+
+    const canvas = this.win.element.querySelector(".win-animation-canvas");
+    const gameBoard = this.win.element.querySelector(".game-board");
+    const boardRect = gameBoard.getBoundingClientRect();
+    const containerRect = this.container.getBoundingClientRect();
+
+    canvas.width = boardRect.width;
+    canvas.height = boardRect.height;
+    canvas.style.top = `${boardRect.top - containerRect.top}px`;
+    canvas.style.left = `${boardRect.left - containerRect.left}px`;
+
+    const animation = new WinAnimation(
+      canvas,
+      this.game.foundationPiles,
+      showFinalDialog,
+    );
+    animation.start();
   }
 
   _showOptionsDialog() {
@@ -975,5 +1000,31 @@ export class KlondikeSolitaireApp extends Application {
     if (statusBar) {
       statusBar.style.display = showStatusBar ? "flex" : "none";
     }
+  }
+
+  _startWinningDemo() {
+    this.game.stockPile.cards = [];
+    this.game.wastePile.cards = [];
+    this.game.drawnCards = [];
+    this.game.tableauPiles.forEach((pile) => (pile.cards = []));
+    this.game.foundationPiles.forEach((pile) => (pile.cards = []));
+
+    const sortedCards = [...this.game.allCards].sort((a, b) => {
+      if (a.suit !== b.suit) {
+        return a.suit.localeCompare(b.suit);
+      }
+      return a.rank.localeCompare(b.rank);
+    });
+
+    const suits = ["♥", "♦", "♠", "♣"];
+    suits.forEach((suit, i) => {
+      const foundationPile = this.game.foundationPiles[i];
+      foundationPile.suit = suit;
+      foundationPile.cards = sortedCards.filter((card) => card.suit === suit);
+      foundationPile.cards.forEach((card) => (card.faceUp = true));
+    });
+
+    this.render();
+    this.showWinDialog();
   }
 }
