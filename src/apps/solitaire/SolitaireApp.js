@@ -75,6 +75,7 @@ export class SolitaireApp extends Application {
       getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_OUTLINE_DRAGGING) === true;
     this.hoveredTarget = null;
 
+    this.cumulativeVegasScore = 0;
     this.lastClickTime = 0;
     this.lastClickedCardUid = null;
     this.doubleClickThreshold = 400;
@@ -122,7 +123,16 @@ export class SolitaireApp extends Application {
         buttons: [
           {
             label: "Yes",
-            action: () => this.startNewGame(),
+            action: () => {
+              const keepScore =
+                getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE) === true;
+              const scoringOption =
+                getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
+              if (scoringOption === "vegas" && keepScore) {
+                this.cumulativeVegasScore = this.game.vegasScore;
+              }
+              this.startNewGame();
+            },
           },
           {
             label: "No",
@@ -140,7 +150,15 @@ export class SolitaireApp extends Application {
     if (this.game) {
       this.game.destroy();
     }
-    this.game = new Game();
+
+    const keepScore =
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE) === true;
+    const scoringOption =
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
+    const initialVegasScore =
+      scoringOption === "vegas" && keepScore ? this.cumulativeVegasScore : 0;
+
+    this.game = new Game(initialVegasScore);
     this.game.onScoreUpdate = (scores) => this.updateScoreDisplay(scores);
 
     const timerElement = this.win.element.querySelector("#solitaire-timer");
@@ -777,6 +795,7 @@ export class SolitaireApp extends Application {
         const bonus = Math.round(700000 / this.game.elapsedTime);
         this.game.updateScore(bonus);
       }
+      this.cumulativeVegasScore = this.game.vegasScore;
 
       ShowDialogWindow({
         title: "Game Over",
@@ -822,6 +841,8 @@ export class SolitaireApp extends Application {
       getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
     const showStatusBar =
       getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SHOW_STATUS_BAR) !== false;
+    const keepScore =
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE) === true;
 
     dialogContent.innerHTML = `
       <div class="options-row">
@@ -889,7 +910,9 @@ export class SolitaireApp extends Application {
                 <label for="outlineDragging">Outline dragging</label>
             </div>
             <div class="field-row">
-                <input type="checkbox" id="keepScore" disabled>
+                <input type="checkbox" id="keepScore" ${
+                  keepScore ? "checked" : ""
+                }>
                 <label for="keepScore">Keep score</label>
             </div>
           </div>
@@ -936,6 +959,8 @@ export class SolitaireApp extends Application {
             const statusBarCheckbox = dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
             const newShowStatusBarState = statusBarCheckbox.checked;
+            const keepScoreCheckbox = dialogContent.querySelector("#keepScore");
+            const newKeepScoreState = keepScoreCheckbox.checked;
 
             const outlineDraggingCheckbox =
               dialogContent.querySelector("#outlineDragging");
@@ -979,7 +1004,16 @@ export class SolitaireApp extends Application {
               this._updateStatusBarVisibility();
             }
 
+            if (keepScore !== newKeepScoreState) {
+              setItem(
+                LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE,
+                newKeepScoreState,
+              );
+              gameNeedsRestart = true;
+            }
+
             if (gameNeedsRestart) {
+              this.cumulativeVegasScore = 0;
               this.startNewGame();
             }
           },
