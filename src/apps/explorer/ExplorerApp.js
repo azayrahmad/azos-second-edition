@@ -40,6 +40,7 @@ import { pasteItems } from "../../utils/fileOperations.js";
 import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js";
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
+import { truncateName } from "../../utils/stringUtils.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -704,12 +705,14 @@ export class ExplorerApp extends Application {
         children = [...staticChildren, ...droppedFilesInThisFolder];
       }
 
-      // Sort children alphabetically by name
-      children.sort((a, b) => {
-        const nameA = a.name || a.title || a.filename || "";
-        const nameB = b.name || b.title || b.filename || "";
-        return nameA.localeCompare(nameB);
-      });
+      // Sort children alphabetically by name, but only for subfolders
+      if (path !== "/") {
+        children.sort((a, b) => {
+          const nameA = a.name || a.title || a.filename || "";
+          const nameB = b.name || b.title || b.filename || "";
+          return nameA.localeCompare(nameB);
+        });
+      }
 
       this.currentFolderItems = children;
     }
@@ -772,6 +775,8 @@ export class ExplorerApp extends Application {
     const iconImg = document.createElement("img");
     if (item.icon) {
       iconImg.src = item.icon[32];
+    } else if (item.id === "folder-control-panel") {
+      iconImg.src = ICONS.controlPanel[32];
     } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
@@ -798,7 +803,7 @@ export class ExplorerApp extends Application {
 
     const iconLabel = document.createElement("div");
     iconLabel.className = "icon-label";
-    iconLabel.textContent = displayName;
+    iconLabel.textContent = truncateName(displayName);
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(iconLabel);
@@ -1047,6 +1052,14 @@ export class ExplorerApp extends Application {
         default: true,
         action: () => this._launchItem(clickedItem),
       });
+
+      const association = getAssociation(clickedItem.name || clickedItem.filename);
+      if (association.appId === 'media-player') {
+        menuItems.push({
+          label: 'Play in Winamp',
+          action: () => launchApp('webamp', clickedItem),
+        });
+      }
 
       const copyItem = {
         label: "Copy",

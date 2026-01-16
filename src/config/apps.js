@@ -11,34 +11,38 @@ import { SPECIAL_FOLDER_PATHS } from "./special-folders.js";
 // --- Dynamic App Loading ---
 
 // Use Vite's glob import to get all App modules
-const appModules = import.meta.glob('../apps/*/*App.js', { eager: true });
+const appModules = import.meta.glob("../apps/*/*App.js", { eager: true });
 
 export const appClasses = {};
 const staticConfigs = [];
 
 for (const path in appModules) {
-    const appModule = appModules[path];
-    let AppClass = null;
+  const appModule = appModules[path];
+  let AppClass = null;
 
-    // Check for a named export ending in 'App'
-    const appClassName = Object.keys(appModule).find(key => key.endsWith('App'));
-    if (appClassName) {
-        AppClass = appModule[appClassName];
-    }
-    // If not found, check for a default export
-    else if (appModule.default) {
-        AppClass = appModule.default;
-    }
+  // Check for a named export ending in 'App'
+  const appClassName = Object.keys(appModule).find((key) =>
+    key.endsWith("App"),
+  );
+  if (appClassName) {
+    AppClass = appModule[appClassName];
+  }
+  // If not found, check for a default export
+  else if (appModule.default) {
+    AppClass = appModule.default;
+  }
 
-    if (AppClass && AppClass.config) {
-        const configs = Array.isArray(AppClass.config) ? AppClass.config : [AppClass.config];
-        configs.forEach(config => {
-            if (config.id) {
-                appClasses[config.id] = AppClass;
-                staticConfigs.push({ ...config, appClass: AppClass });
-            }
-        });
-    }
+  if (AppClass && AppClass.config) {
+    const configs = Array.isArray(AppClass.config)
+      ? AppClass.config
+      : [AppClass.config];
+    configs.forEach((config) => {
+      if (config.id) {
+        appClasses[config.id] = AppClass;
+        staticConfigs.push({ ...config, appClass: AppClass });
+      }
+    });
+  }
 }
 
 // --- Static & System App Definitions ---
@@ -65,7 +69,9 @@ const systemApps = [
     id: "my-briefcase",
     title: "My Briefcase",
     description: "Stores your uploaded files.",
-    get icon() { return getIcon("briefcase"); },
+    get icon() {
+      return getIcon("briefcase");
+    },
     action: {
       type: "function",
       handler: () => {
@@ -151,7 +157,9 @@ const systemApps = [
     id: "my-documents",
     title: "My Documents",
     description: "A common repository for documents.",
-    get icon() { return getIcon("folder"); },
+    get icon() {
+      return getIcon("folder");
+    },
     action: {
       type: "function",
       handler: () => {
@@ -166,7 +174,9 @@ const systemApps = [
     id: "control-panel",
     title: "Control Panel",
     description: "Access system settings and utilities.",
-    get icon() { return getIcon("controlPanel"); },
+    get icon() {
+      return getIcon("controlPanel");
+    },
     action: {
       type: "function",
       handler: () => {
@@ -178,10 +188,29 @@ const systemApps = [
     },
   },
   {
+    id: "songs",
+    title: "songs",
+    description: "A shortcut to the songs folder.",
+    get icon() {
+      return getIcon("folderClosed");
+    },
+    action: {
+      type: "function",
+      handler: () => {
+        window.System.launchApp("explorer", {
+          filePath: "/drive-d/folder-songs",
+          windowId: "songs",
+        });
+      },
+    },
+  },
+  {
     id: "alertTest",
     title: "Alert Test",
     description: "A test for the alert dialog.",
-    get icon() { return getIcon("about"); },
+    get icon() {
+      return getIcon("about");
+    },
     action: {
       type: "function",
       handler: () => {
@@ -189,7 +218,9 @@ const systemApps = [
           title: "Alert",
           text: "The alert works.",
           soundEvent: "SystemHand",
-          get contentIconUrl() { return getIcon("about", 32); },
+          get contentIconUrl() {
+            return getIcon("about", 32);
+          },
           buttons: [{ label: "OK", isDefault: true }],
         });
       },
@@ -202,4 +233,3 @@ const systemApps = [
 // --- Combine and Export ---
 
 export const apps = [...systemApps, ...staticConfigs];
-

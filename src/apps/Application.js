@@ -58,6 +58,9 @@ export class Application {
           existingApp.win.restore();
           setTimeout(() => existingApp.win.focus(), 0);
         }
+      } else if (!existingApp.win && existingApp.isSingleton) {
+        // It's a non-windowed singleton app, delegate to its own launch logic
+        existingApp._onLaunch(filePath);
       }
       return;
     }

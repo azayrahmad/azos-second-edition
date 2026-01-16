@@ -155,6 +155,10 @@ export const fileAssociations = {
     appId: "media-player",
     icon: ICONS.mediaPlayer,
   },
+  m3u: {
+    appId: "webamp",
+    icon: ICONS.webamp,
+  },
   // Default
   default: {
     appId: "notepad",

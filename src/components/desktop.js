@@ -50,6 +50,7 @@ import {
 } from "../utils/screenManager.js";
 import { handleDroppedFiles } from "../utils/dragDropManager.js";
 import { downloadFile } from "../utils/fileDownloader.js";
+import { truncateName } from "../utils/stringUtils.js";
 import { SPECIAL_FOLDER_PATHS } from "../config/special-folders.js";
 
 function getIconId(app, item = null) {
@@ -119,7 +120,7 @@ function createDesktopIcon(item, isFile = false) {
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = isFile ? item.filename : app.title;
+  iconLabel.textContent = truncateName(isFile ? item.filename : app.title);
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
@@ -151,7 +152,7 @@ function createDesktopIconForDroppedFile(file) {
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = file.name;
+  iconLabel.textContent = truncateName(file.name);
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
@@ -239,18 +240,32 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
   }
 
   if (fileId) {
+    const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+    const file = droppedFiles.find((f) => f.id === fileId);
+
     menuItems = [
       {
         label: "&Open",
         default: true,
         action: () => {
-          const droppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-          const file = droppedFiles.find((f) => f.id === fileId);
           if (file) {
             launchApp(app.id, file);
           }
         },
       },
+    ];
+
+    if (file) {
+      const association = getAssociation(file.name);
+      if (association.appId === "media-player") {
+        menuItems.push({
+          label: "Play in Winamp",
+          action: () => launchApp("webamp", file),
+        });
+      }
+    }
+
+    menuItems.push(
       copyItem,
       cutItem,
       downloadItem,
@@ -263,7 +278,7 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
         label: "&Properties",
         action: () => showProperties(app),
       },
-    ];
+    );
   } else if (contextMenu) {
     const openItemIndex = contextMenu.findIndex(
       (item) =>
@@ -377,7 +392,7 @@ function removeWallpaper() {
 }
 
 function getMonitorType() {
-  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || "CRT";
+  return getItem(LOCAL_STORAGE_KEYS.MONITOR_TYPE) || "TFT";
 }
 
 function setMonitorType(type) {
@@ -1096,9 +1111,9 @@ export async function initDesktop(profile = null) {
     if (profile) {
       // Launch apps from profile
       if (profile.startup && profile.startup.length > 0) {
-        profile.startup.forEach(app => {
-          const appId = typeof app === 'string' ? app : app.appId;
-          const data = typeof app === 'object' ? app.data : null;
+        profile.startup.forEach((app) => {
+          const appId = typeof app === "string" ? app : app.appId;
+          const data = typeof app === "object" ? app.data : null;
           launchApp(appId, data);
         });
       }
@@ -1113,7 +1128,9 @@ export async function initDesktop(profile = null) {
     }
   };
 
-  document.addEventListener("desktop-ready-to-launch-apps", launchStartupApps, { once: true });
+  document.addEventListener("desktop-ready-to-launch-apps", launchStartupApps, {
+    once: true,
+  });
 
   document.addEventListener("wallpaper-changed", applyWallpaper);
 

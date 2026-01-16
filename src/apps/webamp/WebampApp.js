@@ -41,13 +41,72 @@ export class WebampApp extends Application {
     return null; // Return null to prevent default window creation.
   }
 
-  async _onLaunch() {
-    return new Promise((resolve, reject) => {
-      if (webampInstance) {
-        this.showWebamp();
-        return resolve();
-      }
+  async _onLaunch(filePath) {
+    const createTrackFromFile = (f) => ({
+      metaData: {
+        artist: f.artist || "Unknown Artist",
+        title: f.title || f.name,
+      },
+      url: f.contentUrl || f.content,
+    });
+    const createTrackFromUrl = (url) => {
+      const filename = url.substring(url.lastIndexOf("/") + 1);
+      const title = filename.replace(/\.ogg$/, "").replace(/.* - \d{2} /, "");
+      return {
+        metaData: {
+          artist: "Unknown Artist",
+          title: title,
+        },
+        url: url,
+      };
+    };
 
+    const handleFile = (path) => {
+      if (!path) return;
+
+      if (typeof path === "string" && path.toLowerCase().endsWith(".m3u")) {
+        fetch(path)
+          .then((response) => response.text())
+          .then((playlistText) => {
+            const trackFilenames = playlistText
+              .split("\n")
+              .filter((line) => line.trim() !== "" && !line.startsWith("#"));
+            if (trackFilenames.length === 0) return;
+
+            const baseUrl = path.substring(0, path.lastIndexOf("/") + 1);
+
+            const tracks = trackFilenames.map((filename) => {
+              const trackUrl = baseUrl + filename;
+              const title = filename
+                .replace(/\.ogg$/, "")
+                .replace(/.* - \d{2} /, "");
+
+              return {
+                metaData: {
+                  artist: "anosci",
+                  title: title,
+                },
+                url: trackUrl,
+              };
+            });
+            webampInstance.setTracksToPlay(tracks);
+          })
+          .catch((error) =>
+            console.error("Error loading M3U playlist:", error),
+          );
+      } else {
+        const track = createTrackFromFile(path);
+        webampInstance.setTracksToPlay([track]);
+      }
+    };
+
+    if (webampInstance) {
+      this.showWebamp();
+      handleFile(filePath);
+      return;
+    }
+
+    return new Promise((resolve, reject) => {
       webampContainer = document.createElement("div");
       webampContainer.id = "webamp-container";
       webampContainer.style.position = "absolute";
@@ -64,8 +123,15 @@ export class WebampApp extends Application {
         true,
       );
 
-      const positionLeft = 200;
-      const positionTop = 200;
+      const initialTracks = [
+        {
+          metaData: {
+            artist: "DJ Mike Llama",
+            title: "Llama Whippin' Intro",
+          },
+          url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3",
+        },
+      ];
 
       import("https://unpkg.com/webamp@^2")
         .then((Webamp) => {
@@ -86,15 +152,7 @@ export class WebampApp extends Application {
                 name: "Mac OSX v1.5 (Aqua)",
               },
             ],
-            initialTracks: [
-              {
-                metaData: {
-                  artist: "DJ Mike Llama",
-                  title: "Llama Whippin' Intro",
-                },
-                url: "https://dn721609.ca.archive.org/0/items/llamawhippinintrobydjmikellama/demo.mp3",
-              },
-            ],
+            initialTracks,
           });
 
           webampInstance.onMinimize(() => this.minimizeWebamp());
@@ -105,6 +163,7 @@ export class WebampApp extends Application {
             .then(() => {
               this.setupTaskbarButton();
               this.showWebamp();
+              handleFile(filePath);
               resolve(); // Resolve the promise once Webamp is ready
             })
             .catch(reject);

@@ -13,24 +13,59 @@ const directory = [
         type: "folder",
         children: [
           ...generateProgramFiles(),
-          { id: "app-doom", type: "app", appId: "doom" },
-          { id: "app-quake", type: "app", appId: "quake" },
-          { id: "app-esheep", type: "app", appId: "esheep" },
-          { id: "app-simcity2000", type: "app", appId: "simcity2000" },
-          { id: "app-minesweeper", type: "app", appId: "minesweeper" },
-          { id: "app-wordpad", type: "app", appId: "wordpad" },
-          { id: "app-calculator", type: "app", appId: "calculator" },
-          { id: "app-help", type: "app", appId: "help" },
-          { id: "app-princeofpersia", type: "app", appId: "princeofpersia" },
+          { id: "app-doom", type: "app", appId: "doom", name: "Doom" },
+          { id: "app-quake", type: "app", appId: "quake", name: "Quake" },
+          { id: "app-esheep", type: "app", appId: "esheep", name: "eSheep" },
+          {
+            id: "app-simcity2000",
+            type: "app",
+            appId: "simcity2000",
+            name: "SimCity 2000 Demo",
+          },
+          {
+            id: "app-minesweeper",
+            type: "app",
+            appId: "minesweeper",
+            name: "Minesweeper",
+          },
+          {
+            id: "app-wordpad",
+            type: "app",
+            appId: "wordpad",
+            name: "WordPad",
+          },
+          {
+            id: "app-calculator",
+            type: "app",
+            appId: "calculator",
+            name: "Calculator",
+          },
+          { id: "app-help", type: "app", appId: "help", name: "Help" },
+          {
+            id: "app-princeofpersia",
+            type: "app",
+            appId: "princeofpersia",
+            name: "Prince of Persia",
+          },
           {
             id: "folder-plus",
             name: "Plus!",
             type: "folder",
             children: generatePlusFiles(),
           },
-          { id: "app-spidersolitaire", type: "app", appId: "spidersolitaire" },
           { id: "app-solitaire", type: "app", appId: "solitaire" },
-        ],
+          {
+            id: "app-spidersolitaire",
+            type: "app",
+            appId: "spidersolitaire",
+            name: "Spider Solitaire",
+          },
+          { id: "app-songs", type: "app", appId: "songs", name: "songs" },
+        ].sort((a, b) =>
+          (a.name || "").localeCompare(b.name || "", undefined, {
+            sensitivity: "base",
+          }),
+        ),
       },
       {
         id: "folder-user",
@@ -52,24 +87,6 @@ const directory = [
               },
               { id: "app-my-briefcase", type: "app", appId: "my-briefcase" },
               {
-                id: "shortcut-to-tipOfTheDay",
-                type: "shortcut",
-                targetId: "app-tipOfTheDay",
-                name: "Tip of the Day",
-              },
-              {
-                id: "shortcut-to-notepad",
-                type: "shortcut",
-                targetId: "app-notepad",
-                name: "Notepad",
-              },
-              {
-                id: "shortcut-to-image-viewer",
-                type: "shortcut",
-                targetId: "app-image-viewer",
-                name: "Image Viewer",
-              },
-              {
                 id: "shortcut-to-clippy",
                 type: "shortcut",
                 targetId: "app-clippy",
@@ -80,18 +97,6 @@ const directory = [
                 type: "shortcut",
                 targetId: "app-webamp",
                 name: "Winamp",
-              },
-              {
-                id: "shortcut-to-appmaker",
-                type: "shortcut",
-                targetId: "app-appmaker",
-                name: "App Maker",
-              },
-              {
-                id: "shortcut-to-alertTest",
-                type: "shortcut",
-                targetId: "app-alertTest",
-                name: "Alert Test",
               },
               {
                 id: "shortcut-to-internet-explorer",
@@ -163,7 +168,7 @@ const directory = [
                 id: "shortcut-to-esheep",
                 type: "shortcut",
                 targetId: "app-esheep",
-                name: "eSheep",
+                name: "sheep.exe",
               },
               {
                 id: "shortcut-to-diablo",
@@ -208,12 +213,6 @@ const directory = [
                 name: "WordPad",
               },
               {
-                id: "shortcut-to-help",
-                type: "shortcut",
-                targetId: "app-help",
-                name: "Help",
-              },
-              {
                 id: "shortcut-to-princeofpersia",
                 type: "shortcut",
                 targetId: "app-princeofpersia",
@@ -231,6 +230,18 @@ const directory = [
                 targetId: "app-spidersolitaire",
                 name: "Spider Solitaire",
               },
+              {
+                id: "shortcut-to-buggyprogram",
+                type: "shortcut",
+                targetId: "app-buggyprogram",
+                name: "buggyprogram.exe",
+              },
+              {
+                id: "shortcut-to-songs",
+                type: "shortcut",
+                targetId: "app-songs",
+                name: "songs",
+              },
             ],
           },
           {
@@ -247,7 +258,148 @@ const directory = [
     id: "drive-d",
     name: "D:",
     type: "drive",
-    children: [],
+    children: [
+      {
+        id: "folder-songs",
+        name: "songs",
+        type: "folder",
+        children: [
+          {
+            id: "folder-anosci",
+            name: "anosci - Blank VHS Tape Jingle Collection",
+            type: "folder",
+            children: [
+              {
+                id: "file-anosci-01",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 01 spun telecom tape.ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 01 spun telecom tape.ogg",
+              },
+              {
+                id: "file-anosci-02",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 02 golden springs tape.ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 02 golden springs tape.ogg",
+              },
+              {
+                id: "file-anosci-03",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 03 gentle envelopment.ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 03 gentle envelopment.ogg",
+              },
+              {
+                id: "file-anosci-04",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 04 waiting room disco tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 04 waiting room disco tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-05",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 05 checker field tape (stinger).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 05 checker field tape (stinger).ogg",
+              },
+              {
+                id: "file-anosci-06",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 06 gridsquare tape (fade).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 06 gridsquare tape (fade).ogg",
+              },
+              {
+                id: "file-anosci-07",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 07 augs and 6ths study (15).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 07 augs and 6ths study (15).ogg",
+              },
+              {
+                id: "file-anosci-08",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 08 augs and 6th study (30).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 08 augs and 6th study (30).ogg",
+              },
+              {
+                id: "file-anosci-09",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 09 beach tape (cut).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 09 beach tape (cut).ogg",
+              },
+              {
+                id: "file-anosci-10",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 10 synth tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 10 synth tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-11",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 11 kinda western tape (15).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 11 kinda western tape (15).ogg",
+              },
+              {
+                id: "file-anosci-12",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 12 kinda western tape (15 + intro).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 12 kinda western tape (15 + intro).ogg",
+              },
+              {
+                id: "file-anosci-13",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 13 three hit tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 13 three hit tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-14",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 14 2 bright tape (15).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 14 2 bright tape (15).ogg",
+              },
+              {
+                id: "file-anosci-15",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 15 2 bright tape (30).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 15 2 bright tape (30).ogg",
+              },
+              {
+                id: "file-anosci-16",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection - 16 water basin tape (loop).ogg",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection - 16 water basin tape (loop).ogg",
+              },
+              {
+                id: "file-anosci-cover",
+                type: "file",
+                name: "cover.png",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/cover.png",
+              },
+              {
+                id: "file-anosci-playlist",
+                type: "file",
+                name: "anosci - Blank VHS Tape Jingle Collection.m3u",
+                contentUrl:
+                  "songs/anosci - Blank VHS Tape Jingle Collection/anosci - Blank VHS Tape Jingle Collection.m3u",
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     id: "folder-briefcase",

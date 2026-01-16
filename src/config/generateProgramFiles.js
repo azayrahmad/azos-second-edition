@@ -70,9 +70,11 @@ export function generateProgramFiles() {
 
   // Helper function to recursively convert the nested 'root' object into the final array structure.
   const buildDirectory = (directory, pathPrefix = "") => {
-    return Object.keys(directory).map((name) => {
-      const item = directory[name];
-      const currentPath = pathPrefix ? `${pathPrefix}/${name}` : name;
+    return Object.keys(directory)
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => {
+        const item = directory[name];
+        const currentPath = pathPrefix ? `${pathPrefix}/${name}` : name;
 
       if (item.type === "file") {
         return item;
