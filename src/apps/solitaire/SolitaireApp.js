@@ -926,12 +926,12 @@ export class SolitaireApp extends Application {
         {
           label: "OK",
           action: () => {
-            const selectedDrawOption = dialogContent.querySelector(
-              'input[name="draw"]:checked',
-            ).value;
-            const selectedScoringOption = dialogContent.querySelector(
-              'input[name="scoring"]:checked',
-            ).value;
+            const selectedDrawOption =
+              dialogContent.querySelector('input[name="draw"]:checked')?.value ??
+              "one";
+            const selectedScoringOption =
+              dialogContent.querySelector('input[name="scoring"]:checked')
+                ?.value ?? "standard";
             const timedGameCheckbox = dialogContent.querySelector("#timedGame");
             const statusBarCheckbox = dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
