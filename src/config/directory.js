@@ -29,7 +29,7 @@ const directory = [
             children: generatePlusFiles(),
           },
           { id: "app-spidersolitaire", type: "app", appId: "spidersolitaire" },
-          { id: "app-klondike", type: "app", appId: "klondike" },
+          { id: "app-solitaire", type: "app", appId: "solitaire" },
         ],
       },
       {
@@ -222,7 +222,7 @@ const directory = [
               {
                 id: "shortcut-to-solitaire",
                 type: "shortcut",
-                targetId: "app-klondike",
+                targetId: "app-solitaire",
                 name: "Solitaire",
               },
               {
