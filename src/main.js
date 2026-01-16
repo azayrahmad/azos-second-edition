@@ -214,21 +214,63 @@ async function initializeOS() {
       finalizeBootProcessStep(logElement, navigator.onLine ? "OK" : "FAILED");
     });
 
+    const createAssetLogCallbacks = (logElement, baseMessage) => {
+      const onAssetLogStart = (name) => {
+        // Update the existing log element's text. 
+        // We assume logElement has a text node and a cursor span.
+        // We want to preserve the cursor if possible, or just reset content.
+        // Simplest is to just set textContent, but we lose the blinking cursor if we aren't careful.
+        // startBootProcessStep creates [div] -> [text][span.cursor].
+        if (logElement && logElement.firstChild) {
+          logElement.firstChild.nodeValue = `${baseMessage} ${name}...`;
+        }
+        return logElement;
+      };
+
+      const onAssetLogFinish = (logEl, status) => {
+        // We don't append "OK" after every file, just let them finish.
+        // But if we want to show failure?
+        if (status === "FAILED") {
+          if (logElement && logElement.firstChild) {
+            logElement.firstChild.nodeValue += " (FAILED)";
+          }
+        }
+      };
+
+      return { onAssetStart: onAssetLogStart, onAssetFinish: onAssetLogFinish };
+    };
+
     await executeBootStep(async () => {
-      let logElement = startBootProcessStep(
-        "Preloading default theme assets...",
-      );
-      await preloadThemeAssets("default");
+      const baseMsg = "Preloading default theme assets...";
+      let logElement = startBootProcessStep(baseMsg);
+      const { onAssetStart, onAssetFinish } = createAssetLogCallbacks(logElement, baseMsg);
+
+      await preloadThemeAssets("default", onAssetStart, onAssetFinish);
+
+      // Reset text to clean state before final OK
+      if (logElement && logElement.firstChild) {
+        logElement.firstChild.nodeValue = baseMsg;
+      }
       finalizeBootProcessStep(logElement, "OK");
     });
 
     await executeBootStep(async () => {
       const currentTheme = getCurrentTheme();
       if (currentTheme !== "default") {
-        let logElement = startBootProcessStep(
-          `Preloading ${currentTheme} theme assets...`,
+        const baseMsg = `Preloading ${currentTheme} theme assets...`;
+        let logElement = startBootProcessStep(baseMsg);
+        const { onAssetStart, onAssetFinish } = createAssetLogCallbacks(logElement, baseMsg);
+
+        await preloadThemeAssets(
+          currentTheme,
+          onAssetStart,
+          onAssetFinish,
         );
-        await preloadThemeAssets(currentTheme);
+
+        // Reset text
+        if (logElement && logElement.firstChild) {
+          logElement.firstChild.nodeValue = baseMsg;
+        }
         finalizeBootProcessStep(logElement, "OK");
       }
     });
