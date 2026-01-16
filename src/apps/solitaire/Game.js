@@ -22,10 +22,10 @@ export class Game {
   initializeGame() {
     this.previousState = null;
     this.cardBack =
-      getItem(LOCAL_STORAGE_KEYS.KLONDIKE_CARD_BACK) || "cardback1";
-    this.drawOption = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_DRAW_OPTION) || "one";
-    this.scoring = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_SCORING) || "standard";
-    this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.KLONDIKE_TIMED_GAME) === true;
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_CARD_BACK) || "cardback1";
+    this.drawOption = getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_DRAW_OPTION) || "one";
+    this.scoring = getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
+    this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_TIMED_GAME) === true;
     this.score = 0;
     this.vegasScore = -52;
     this.recycleCount = 0;
@@ -361,7 +361,7 @@ export class Game {
 
   setCardBack(cardBack) {
     this.cardBack = cardBack;
-    setItem(LOCAL_STORAGE_KEYS.KLONDIKE_CARD_BACK, cardBack);
+    setItem(LOCAL_STORAGE_KEYS.SOLITAIRE_CARD_BACK, cardBack);
     this.allCards.forEach((card) => card.setCardBack(cardBack));
   }
 

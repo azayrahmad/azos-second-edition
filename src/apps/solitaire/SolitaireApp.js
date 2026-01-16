@@ -902,9 +902,9 @@ export class SolitaireApp extends Application {
     const keepScoreCheckbox = dialogContent.querySelector("#keepScore");
 
     const updateKeepScoreState = () => {
-      const selectedScoring = dialogContent.querySelector(
-        'input[name="scoring"]:checked',
-      ).value;
+      const selectedScoring =
+        dialogContent.querySelector('input[name="scoring"]:checked')?.value ??
+        "standard";
       if (selectedScoring === "vegas") {
         keepScoreCheckbox.disabled = false;
       } else {
@@ -926,12 +926,12 @@ export class SolitaireApp extends Application {
         {
           label: "OK",
           action: () => {
-            const selectedDrawOption = dialogContent.querySelector(
-              'input[name="draw"]:checked',
-            ).value;
-            const selectedScoringOption = dialogContent.querySelector(
-              'input[name="scoring"]:checked',
-            ).value;
+            const selectedDrawOption =
+              dialogContent.querySelector('input[name="draw"]:checked')?.value ??
+              "one";
+            const selectedScoringOption =
+              dialogContent.querySelector('input[name="scoring"]:checked')
+                ?.value ?? "standard";
             const timedGameCheckbox = dialogContent.querySelector("#timedGame");
             const statusBarCheckbox = dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
