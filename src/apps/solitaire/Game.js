@@ -10,8 +10,8 @@ import {
 } from "../../utils/localStorage.js";
 
 export class Game {
-  constructor() {
-    this.initializeGame();
+  constructor(initialVegasScore = 0) {
+    this.initializeGame(initialVegasScore);
   }
 
   destroy() {
@@ -19,7 +19,7 @@ export class Game {
     this.allCards.forEach((card) => card.destroy());
   }
 
-  initializeGame() {
+  initializeGame(initialVegasScore = 0) {
     this.previousState = null;
     this.cardBack =
       getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_CARD_BACK) || "cardback1";
@@ -27,7 +27,7 @@ export class Game {
     this.scoring = getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
     this.isTimedGame = getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_TIMED_GAME) === true;
     this.score = 0;
-    this.vegasScore = -52;
+    this.vegasScore = -52 + initialVegasScore;
     this.recycleCount = 0;
     this.stockRecyclingDepleted = false;
     this.onScoreUpdate = () => {}; // Callback to notify UI of score changes
