@@ -53,6 +53,7 @@ const directory = [
             type: "folder",
             children: generatePlusFiles(),
           },
+          { id: "app-solitaire", type: "app", appId: "solitaire" },
           {
             id: "app-spidersolitaire",
             type: "app",

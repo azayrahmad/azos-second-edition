@@ -789,6 +789,7 @@
         return;
       }
       if ($w.is(":visible")) {
+        $w.trigger("minimize");
         if (minimize_target_el && !$w.hasClass("minimized-without-taskbar")) {
           window.playSound?.("Minimize");
           const before_rect = $w.$titlebar[0].getBoundingClientRect();
@@ -924,6 +925,7 @@
         return;
       }
       if ($w.is(":hidden")) {
+        $w.trigger("restore");
         window.playSound?.("RestoreUp");
         const before_rect = minimize_target_el.getBoundingClientRect();
         $w.show();
