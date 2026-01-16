@@ -902,9 +902,9 @@ export class SolitaireApp extends Application {
     const keepScoreCheckbox = dialogContent.querySelector("#keepScore");
 
     const updateKeepScoreState = () => {
-      const selectedScoring = dialogContent.querySelector(
-        'input[name="scoring"]:checked',
-      ).value;
+      const selectedScoring =
+        dialogContent.querySelector('input[name="scoring"]:checked')?.value ??
+        "standard";
       if (selectedScoring === "vegas") {
         keepScoreCheckbox.disabled = false;
       } else {
