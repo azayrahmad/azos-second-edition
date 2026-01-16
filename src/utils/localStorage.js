@@ -30,6 +30,7 @@ export const LOCAL_STORAGE_KEYS = {
   SOLITAIRE_SCORING: 'solitaireScoring',
   SOLITAIRE_OUTLINE_DRAGGING: "solitaireOutlineDragging",
   SOLITAIRE_SHOW_STATUS_BAR: "solitaireShowStatusBar",
+  SOLITAIRE_KEEP_SCORE: "solitaireKeepScore",
 };
 
 export function getItem(key) {

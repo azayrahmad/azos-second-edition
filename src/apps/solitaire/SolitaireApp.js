@@ -66,6 +66,7 @@ export class SolitaireApp extends Application {
     this.container = win.element.querySelector(".solitaire-container");
     this.container.classList.add("style-98");
 
+    this.cumulativeVegasScore = 0;
     this.isDragging = false;
     this.draggedElement = null;
     this.draggedCardsInfo = null;
@@ -137,10 +138,21 @@ export class SolitaireApp extends Application {
   }
 
   async startNewGame() {
+    const keepScore =
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE) === true;
+    const scoringOption =
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
+
     if (this.game) {
+      if (keepScore && scoringOption === "vegas") {
+        this.cumulativeVegasScore = this.game.vegasScore;
+      }
       this.game.destroy();
     }
-    this.game = new Game();
+
+    const initialScore =
+      keepScore && scoringOption === "vegas" ? this.cumulativeVegasScore : 0;
+    this.game = new Game(initialScore);
     this.game.onScoreUpdate = (scores) => this.updateScoreDisplay(scores);
 
     const timerElement = this.win.element.querySelector("#solitaire-timer");
@@ -822,6 +834,8 @@ export class SolitaireApp extends Application {
       getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SCORING) || "standard";
     const showStatusBar =
       getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_SHOW_STATUS_BAR) !== false;
+    const keepScore =
+      getItem(LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE) === true;
 
     dialogContent.innerHTML = `
       <div class="options-row">
@@ -889,7 +903,9 @@ export class SolitaireApp extends Application {
                 <label for="outlineDragging">Outline dragging</label>
             </div>
             <div class="field-row">
-                <input type="checkbox" id="keepScore" disabled>
+                <input type="checkbox" id="keepScore" ${
+                  keepScore ? "checked" : ""
+                } disabled>
                 <label for="keepScore">Keep score</label>
             </div>
           </div>
@@ -936,6 +952,8 @@ export class SolitaireApp extends Application {
             const statusBarCheckbox = dialogContent.querySelector("#statusBar");
             const newTimedGameState = timedGameCheckbox.checked;
             const newShowStatusBarState = statusBarCheckbox.checked;
+            const keepScoreCheckbox = dialogContent.querySelector("#keepScore");
+            const newKeepScoreState = keepScoreCheckbox.checked;
 
             const outlineDraggingCheckbox =
               dialogContent.querySelector("#outlineDragging");
@@ -979,7 +997,16 @@ export class SolitaireApp extends Application {
               this._updateStatusBarVisibility();
             }
 
+            if (keepScore !== newKeepScoreState) {
+              setItem(
+                LOCAL_STORAGE_KEYS.SOLITAIRE_KEEP_SCORE,
+                newKeepScoreState,
+              );
+              gameNeedsRestart = true;
+            }
+
             if (gameNeedsRestart) {
+              this.cumulativeVegasScore = 0;
               this.startNewGame();
             }
           },
