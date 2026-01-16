@@ -75,8 +75,8 @@ export class WinAnimation {
   _loadSpriteSheet() {
     return new Promise((resolve) => {
       this.spriteSheet = new Image();
-      this.spriteSheet.src = "./src/assets/img/solitaire.png";
       this.spriteSheet.onload = () => resolve();
+      this.spriteSheet.src = new URL("../../assets/img/solitaire.png", import.meta.url).href;
     });
   }
 
