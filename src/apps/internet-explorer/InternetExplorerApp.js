@@ -25,7 +25,7 @@ export class InternetExplorerApp extends IFrameApplication {
   }
 
   async _onLaunch(data) {
-    let url = "microsoft.com";
+    let url = "azay.rahmad";
 
     if (typeof data === "string") {
       url = data;
@@ -110,6 +110,25 @@ export class InternetExplorerApp extends IFrameApplication {
     };
 
     this._loadUrl = (url, isHistoryNav = false) => {
+      if (url.includes("azay.rahmad")) {
+        let page = "home.html";
+        if (url.endsWith("/about")) {
+          page = "about.html";
+        } else if (url !== "azay.rahmad" && url !== "http://azay.rahmad/" && url !== "http://azay.rahmad") {
+          page = "404.html";
+        }
+        this.iframe.src = `./apps/internet-explorer/assets/${page}`;
+        this.addressBar.setValue(url);
+        if (!isHistoryNav) {
+          if (this.historyIndex < this.history.length - 1) {
+            this.history.splice(this.historyIndex + 1);
+          }
+          this.history.push(url);
+          this.historyIndex = this.history.length - 1;
+        }
+        return;
+      }
+
       if (!isHistoryNav) {
         if (this.historyIndex < this.history.length - 1) {
           this.history.splice(this.historyIndex + 1);
@@ -144,24 +163,34 @@ export class InternetExplorerApp extends IFrameApplication {
     };
 
     this.iframe.onload = () => {
-      if (this.iframe.src.includes("/src/apps/internet-explorer/404.html")) {
+      if (this.iframe.src.includes("/apps/internet-explorer/assets/404.html")) {
         this.statusText.textContent = "Page not found.";
         this._updateNavButtons();
         return;
       }
 
       try {
+        const iframeDoc = this.iframe.contentDocument;
         if (
-          this.iframe.contentWindow.document.title.includes("Not Found") ||
-          this.iframe.contentDocument.body.innerHTML.includes(
-            "Wayback Machine doesn",
-          )
+          iframeDoc.title.includes("Not Found") ||
+          iframeDoc.body.innerHTML.includes("Wayback Machine doesn")
         ) {
-          this.iframe.src = "/src/apps/internet-explorer/404.html";
+          this.iframe.src = "./apps/internet-explorer/assets/404.html";
           this.statusText.textContent = "Page not found.";
         } else {
           this.statusText.textContent = "Done";
         }
+
+        // Add a click listener to the iframe content
+        iframeDoc.body.addEventListener("click", (e) => {
+          if (e.target.tagName === "A" && e.target.href) {
+            const url = e.target.getAttribute("href");
+            if (url.includes("azay.rahmad")) {
+              e.preventDefault();
+              this._loadUrl(url);
+            }
+          }
+        });
       } catch (e) {
         this.statusText.textContent = "Done";
       }
@@ -281,7 +310,7 @@ export class InternetExplorerApp extends IFrameApplication {
       {
         label: "Home",
         iconName: "home",
-        action: () => this.navigateTo("microsoft.com"),
+        action: () => this.navigateTo("azay.rahmad"),
       },
       "divider",
       {
