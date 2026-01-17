@@ -117,7 +117,7 @@ export class InternetExplorerApp extends IFrameApplication {
         } else if (url !== "azay.rahmad" && url !== "http://azay.rahmad/" && url !== "http://azay.rahmad") {
           page = "404.html";
         }
-        this.iframe.src = `./apps/internet-explorer/assets/${page}`;
+        this.iframe.src = `./azay.rahmad/${page}`;
         this.addressBar.setValue(url);
         if (!isHistoryNav) {
           if (this.historyIndex < this.history.length - 1) {
@@ -163,7 +163,7 @@ export class InternetExplorerApp extends IFrameApplication {
     };
 
     this.iframe.onload = () => {
-      if (this.iframe.src.includes("/apps/internet-explorer/assets/404.html")) {
+      if (this.iframe.src.includes("/azay.rahmad/404.html")) {
         this.statusText.textContent = "Page not found.";
         this._updateNavButtons();
         return;
@@ -175,7 +175,7 @@ export class InternetExplorerApp extends IFrameApplication {
           iframeDoc.title.includes("Not Found") ||
           iframeDoc.body.innerHTML.includes("Wayback Machine doesn")
         ) {
-          this.iframe.src = "./apps/internet-explorer/assets/404.html";
+          this.iframe.src = "./azay.rahmad/404.html";
           this.statusText.textContent = "Page not found.";
         } else {
           this.statusText.textContent = "Done";
