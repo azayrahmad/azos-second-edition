@@ -17,6 +17,22 @@ import {
     removeFromRecycleBin,
     addToRecycleBin,
 } from "../utils/recycleBinManager.js";
+import {
+    getThemes,
+    getCurrentTheme,
+    setTheme,
+} from "../utils/themeManager.js";
+import {
+    setColorMode,
+    getCurrentColorMode,
+    getColorModes,
+} from "../utils/colorModeManager.js";
+import screensaver from "../utils/screensaverUtils.js";
+import {
+    getAvailableResolutions,
+    setResolution,
+    getCurrentResolutionId,
+} from "../utils/screenManager.js";
 
 function getIconPositions(isDesktop) {
     const key = isDesktop ? LOCAL_STORAGE_KEYS.ICON_POSITIONS : LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS;
@@ -37,7 +53,7 @@ export class FolderView {
         this.onPathChange = options.onPathChange || (() => {});
         this.onSelectionChange = options.onSelectionChange || (() => {});
 
-        this.container.className = this.isDesktop ? "desktop" : "explorer-icon-view";
+        this.container.classList.add(this.isDesktop ? "desktop" : "explorer-icon-view");
         this.currentFolderItems = [];
 
         this.iconManager = new IconManager(this.container, {
@@ -527,13 +543,13 @@ export class FolderView {
     }
 
     _getDesktopBackgroundContextMenu() {
-        // Simplified version of desktop context menu from original desktop.js
-        return [
+        const themes = getThemes();
+        const menuItems = [
             {
                 label: "Arrange Icons",
                 submenu: [
-                    { label: "by Name", enabled: false },
-                    { label: "Auto Arrange", enabled: false },
+                    { label: "by Name", action: () => this.sortIcons("name") },
+                    { label: "by Type", action: () => this.sortIcons("type") },
                 ],
             },
             "MENU_DIVIDER",
@@ -549,10 +565,89 @@ export class FolderView {
             },
             "MENU_DIVIDER",
             {
+                label: "Color Mode",
+                submenu: [
+                    {
+                        radioItems: Object.entries(getColorModes()).map(([id, mode]) => ({
+                            label: mode.name,
+                            value: id,
+                        })),
+                        getValue: () => getCurrentColorMode(),
+                        setValue: (value) => setColorMode(value),
+                        ariaLabel: "Color Mode",
+                    },
+                ],
+            },
+            "MENU_DIVIDER",
+            {
+                label: "Theme",
+                submenu: [
+                    {
+                        radioItems: Object.values(themes).map((theme) => ({
+                            label: theme.name,
+                            value: theme.id,
+                        })),
+                        getValue: () => getCurrentTheme(),
+                        setValue: (value) => setTheme(value),
+                        ariaLabel: "Desktop Theme",
+                    },
+                ],
+            },
+            "MENU_DIVIDER",
+            {
+                label: "Screen Resolution",
+                submenu: [
+                    {
+                        radioItems: getAvailableResolutions().map((res) => ({
+                            label: res === "fit" ? "Fit Screen" : res,
+                            value: res,
+                        })),
+                        getValue: () => getCurrentResolutionId(),
+                        setValue: (value) => setResolution(value),
+                        ariaLabel: "Screen Resolution",
+                    },
+                ],
+            },
+            "MENU_DIVIDER",
+            {
+                label: "Screen Saver",
+                submenu: [
+                    {
+                        radioItems: [
+                            { label: "None", value: "none" },
+                            { label: "FlowerBox", value: "flowerbox" },
+                            { label: "3D Maze", value: "maze" },
+                        ],
+                        getValue: () => screensaver.getCurrentScreensaver(),
+                        setValue: (value) => screensaver.setCurrentScreensaver(value),
+                        ariaLabel: "Select Screensaver",
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Wait Time",
+                        submenu: [
+                            {
+                                radioItems: [
+                                    { label: "1 minute", value: 60000 },
+                                    { label: "5 minutes", value: 300000 },
+                                    { label: "30 minutes", value: 1800000 },
+                                    { label: "1 hour", value: 3600000 },
+                                ],
+                                getValue: () => getItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT) || 300000,
+                                setValue: (value) => setItem(LOCAL_STORAGE_KEYS.SCREENSAVER_TIMEOUT, value),
+                                ariaLabel: "Screen Saver Wait Time",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "MENU_DIVIDER",
+            {
                 label: "Properties",
                 action: () => launchApp("displayproperties"),
             },
         ];
+        return menuItems;
     }
 
     _getExplorerBackgroundContextMenu() {
