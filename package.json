@@ -16,6 +16,7 @@
   "dependencies": {
     "@xterm/xterm": "^5.5.0",
     "ani-cursor": "^0.0.5",
-    "os-gui": "^0.7.3"
+    "os-gui": "^0.7.3",
+    "playwright": "^1.57.0"
   }
 }

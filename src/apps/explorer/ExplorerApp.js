@@ -14,7 +14,7 @@ import {
   convertWindowsPathToInternal,
 } from "../../utils/path.js";
 import { AddressBar } from "../../components/AddressBar.js";
-import { IconManager } from "../../components/IconManager.js";
+import { FolderView } from "../../shell/FolderView.js";
 import {
   getRecycleBinItems,
   removeFromRecycleBin,
@@ -43,14 +43,6 @@ import { downloadFile } from "../../utils/fileDownloader.js";
 import { truncateName } from "../../utils/stringUtils.js";
 import "./explorer.css";
 
-function isAutoArrangeEnabled() {
-  const autoArrange = getItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE);
-  return autoArrange === null ? false : !!autoArrange;
-}
-
-function setAutoArrange(enabled) {
-  setItem(LOCAL_STORAGE_KEYS.EXPLORER_AUTO_ARRANGE, enabled);
-}
 
 const specialFolderIcons = {
   "/": "my-computer",
@@ -180,17 +172,17 @@ export class ExplorerApp extends Application {
     this.sidebarElement = sidebar;
 
     const iconContainer = document.createElement("div");
-    iconContainer.className = "explorer-icon-view has-absolute-icons";
+    iconContainer.className = "explorer-icon-view"; // Let FolderView manage layout class
     content.appendChild(iconContainer);
     this.iconContainer = iconContainer;
 
-    this.iconManager = new IconManager(this.iconContainer, {
-      iconSelector: ".explorer-icon",
-      onItemContext: (e, icon) => this.showItemContextMenu(e, icon),
-      onBackgroundContext: (e) => this.showBackgroundContextMenu(e),
-      onSelectionChange: () => {
+    this.folderView = new FolderView(iconContainer, {
+      isDesktop: false,
+      onPathChange: (newPath) => this.navigateTo(newPath),
+      onItemLaunch: (item) => this._launchItem(item),
+      onSelectionChange: (selection) => {
         this.updateMenuState();
-        const selectionCount = this.iconManager.selectedIcons.size;
+        const selectionCount = selection.size;
         if (selectionCount > 0) {
           this.statusBar.setText(`${selectionCount} object(s) selected`);
         } else {
@@ -253,17 +245,17 @@ export class ExplorerApp extends Application {
         label: "Cut",
         iconName: "cut",
         action: () => {
-          const itemsToOperateOn = [...this.iconManager.selectedIcons]
-            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+          const itemsToOperateOn = [...this.folderView.iconManager.selectedIcons]
+            .map((selectedIcon) => this.folderView.getItemFromIcon(selectedIcon))
             .filter(Boolean);
           clipboardManager.set(itemsToOperateOn, "cut");
         },
         enabled: () => {
-          const selectedIcons = this.iconManager.selectedIcons;
+          const selectedIcons = this.folderView.iconManager.selectedIcons;
           if (selectedIcons.size === 0) return false;
 
           const itemsToOperateOn = [...selectedIcons]
-            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+            .map((selectedIcon) => this.folderView.getItemFromIcon(selectedIcon))
             .filter(Boolean);
 
           return !itemsToOperateOn.some((item) => item.isStatic);
@@ -273,12 +265,12 @@ export class ExplorerApp extends Application {
         label: "Copy",
         iconName: "copy",
         action: () => {
-          const itemsToOperateOn = [...this.iconManager.selectedIcons]
-            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+          const itemsToOperateOn = [...this.folderView.iconManager.selectedIcons]
+            .map((selectedIcon) => this.folderView.getItemFromIcon(selectedIcon))
             .filter(Boolean);
           clipboardManager.set(itemsToOperateOn, "copy");
         },
-        enabled: () => this.iconManager.selectedIcons.size > 0,
+        enabled: () => this.folderView.iconManager.selectedIcons.size > 0,
       },
       {
         label: "Paste",
@@ -307,8 +299,8 @@ export class ExplorerApp extends Application {
         label: "Delete",
         iconName: "delete",
         action: () => {
-          const itemsToOperateOn = [...this.iconManager.selectedIcons]
-            .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
+          const itemsToOperateOn = [...this.folderView.iconManager.selectedIcons]
+            .map((selectedIcon) => this.folderView.getItemFromIcon(selectedIcon))
             .filter((item) => item && !item.isStatic);
 
           if (itemsToOperateOn.length === 0) return;
@@ -332,21 +324,21 @@ export class ExplorerApp extends Application {
             ],
           });
         },
-        enabled: () => this.iconManager.selectedIcons.size > 0,
+        enabled: () => this.folderView.iconManager.selectedIcons.size > 0,
       },
       {
         label: "Properties",
         iconName: "properties",
         action: () => {
-          const selectedIcon = this.iconManager.selectedIcons
+          const selectedIcon = this.folderView.iconManager.selectedIcons
             .values()
             .next().value;
-          const item = this.getItemFromIcon(selectedIcon);
+          const item = this.folderView.getItemFromIcon(selectedIcon);
           if (item) {
             this.showProperties(item);
           }
         },
-        enabled: () => this.iconManager.selectedIcons.size === 1,
+        enabled: () => this.folderView.iconManager.selectedIcons.size === 1,
       },
     ];
 
@@ -424,91 +416,6 @@ export class ExplorerApp extends Application {
 
     this.navigateTo(this.initialPath);
 
-    this.sortIcons = (sortBy) => {
-      const allPositions = getExplorerIconPositions();
-      if (allPositions[this.currentPath]) {
-        delete allPositions[this.currentPath];
-        setExplorerIconPositions(allPositions);
-      }
-
-      if (sortBy === "name") {
-        this.currentFolderItems.sort((a, b) => {
-          const nameA = a.name || a.title || a.filename || "";
-          const nameB = b.name || b.title || b.filename || "";
-          return nameA.localeCompare(nameB);
-        });
-      } else if (sortBy === "type") {
-        this.currentFolderItems.sort((a, b) => {
-          const typeA = a.type || "file";
-          const typeB = b.type || "file";
-          if (typeA < typeB) return -1;
-          if (typeA > typeB) return 1;
-          const nameA = a.name || a.title || a.filename || "";
-          const nameB = b.name || b.title || b.filename || "";
-          return nameA.localeCompare(nameB);
-        });
-      }
-
-      this.render(this.currentPath, false);
-    };
-
-    this.captureIconPositions = () => {
-      const iconContainerRect = this.iconContainer.getBoundingClientRect();
-      const allIcons = Array.from(
-        this.iconContainer.querySelectorAll(".explorer-icon"),
-      );
-      const allPositions = getExplorerIconPositions();
-      if (!allPositions[this.currentPath]) {
-        allPositions[this.currentPath] = {};
-      }
-
-      this.iconContainer.offsetHeight;
-
-      allIcons.forEach((icon) => {
-        const id = icon.getAttribute("data-id");
-        const rect = icon.getBoundingClientRect();
-        const x = `${rect.left - iconContainerRect.left}px`;
-        const y = `${rect.top - iconContainerRect.top}px`;
-        allPositions[this.currentPath][id] = { x, y };
-      });
-
-      setExplorerIconPositions(allPositions);
-    };
-
-    this.lineUpIcons = () => {
-      if (isAutoArrangeEnabled()) {
-        return;
-      }
-
-      const iconWidth = 75;
-      const iconHeight = 75;
-      const paddingTop = 5;
-      const paddingLeft = 5;
-
-      const allPositions = getExplorerIconPositions();
-      const pathPositions = allPositions[this.currentPath] || {};
-      const allIcons = Array.from(
-        this.iconContainer.querySelectorAll(".explorer-icon"),
-      );
-
-      allIcons.forEach((icon) => {
-        const id = icon.getAttribute("data-id");
-        const currentX = parseInt(icon.style.left, 10);
-        const currentY = parseInt(icon.style.top, 10);
-
-        const newX =
-          Math.round((currentX - paddingLeft) / iconWidth) * iconWidth +
-          paddingLeft;
-        const newY =
-          Math.round((currentY - paddingTop) / iconHeight) * iconHeight +
-          paddingTop;
-
-        pathPositions[id] = { x: `${newX}px`, y: `${newY}px` };
-      });
-
-      setExplorerIconPositions(allPositions);
-      this.render(this.currentPath, false);
-    };
 
     this.refreshHandler = () => {
       if (this.win.element.style.display !== "none") {
@@ -518,7 +425,7 @@ export class ExplorerApp extends Application {
     document.addEventListener("explorer-refresh", this.refreshHandler);
 
     this.clipboardHandler = () => {
-      this.updateCutIcons();
+      this.folderView.updateCutIcons();
       this.updateMenuState();
     };
     document.addEventListener("clipboard-change", this.clipboardHandler);
@@ -533,82 +440,6 @@ export class ExplorerApp extends Application {
       e.preventDefault(); // Allow drop
     });
 
-    this.iconContainer.addEventListener("drop", (e) => {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent drop event from bubbling up to the content div
-
-      // Handle files dragged from within the app
-      const jsonData = e.dataTransfer.getData("application/json");
-      if (jsonData) {
-        const data = JSON.parse(jsonData);
-        if (data.sourcePath === this.currentPath) {
-          const { cursorOffsetX, cursorOffsetY, dragOffsets } = data;
-          const iconContainerRect = this.iconContainer.getBoundingClientRect();
-          let primaryIconX = e.clientX - iconContainerRect.left - cursorOffsetX;
-          let primaryIconY = e.clientY - iconContainerRect.top - cursorOffsetY;
-
-          const iconWidth = 75;
-          const iconHeight = 75;
-          const margin = 5;
-
-          primaryIconX = Math.max(
-            margin,
-            Math.min(
-              primaryIconX,
-              iconContainerRect.width - iconWidth - margin,
-            ),
-          );
-          primaryIconY = Math.max(
-            margin,
-            Math.min(
-              primaryIconY,
-              iconContainerRect.height - iconHeight - margin,
-            ),
-          );
-
-          const allPositions = getExplorerIconPositions();
-          if (!allPositions[this.currentPath]) {
-            allPositions[this.currentPath] = {};
-          }
-
-          dragOffsets.forEach((offset) => {
-            allPositions[this.currentPath][offset.id] = {
-              x: `${primaryIconX + offset.offsetX}px`,
-              y: `${primaryIconY + offset.offsetY}px`,
-            };
-          });
-
-          setExplorerIconPositions(allPositions);
-          this.render(this.currentPath);
-          return;
-        }
-        pasteItems(this.currentPath, data.items, "cut");
-        return; // Stop processing
-      }
-
-      // Handle files dragged from the user's OS
-      if (isFileDropEnabled(this.currentPath)) {
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          handleDroppedFiles(files, this.currentPath, () => {
-            this.render(this.currentPath);
-            if (this.currentPath === SPECIAL_FOLDER_PATHS.desktop) {
-              document.dispatchEvent(new CustomEvent("desktop-refresh"));
-            }
-          });
-        }
-      }
-    });
-
-    this.iconContainer.addEventListener("click", (e) => {
-      if (this.iconManager.wasLassoing || e.target.closest(".explorer-icon")) {
-        return;
-      }
-      // this.iconManager.clearSelection(); // Keeping this commented for now as per previous instruction. If the user wants to revert, they can.
-      // if (clipboardManager.operation === "cut") {
-      //   clipboardManager.clear();
-      // }
-    });
 
     this.handleMouseUp = () => {
       this.statusBar.setText("");
@@ -667,220 +498,9 @@ export class ExplorerApp extends Application {
       this.sidebarIcon.src = icon[32];
     }
     this.sidebarTitle.textContent = name;
-    this.iconContainer.innerHTML = ""; // Clear previous content
-    this.iconManager.clearSelection();
-
-    if (isAutoArrangeEnabled()) {
-      this.iconContainer.classList.remove("has-absolute-icons");
-    } else {
-      this.iconContainer.classList.add("has-absolute-icons");
-    }
-
-    let children = [];
-    if (isNewNavigation) {
-      if (path === SPECIAL_FOLDER_PATHS.desktop) {
-        const desktopContents = getDesktopContents();
-        const desktopApps = desktopContents.apps.map((appId) => {
-          const app = apps.find((a) => a.id === appId);
-          return { ...app, appId: app.id, isStatic: true };
-        });
-        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-        const desktopFiles = allDroppedFiles.filter(
-          (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
-        );
-        const staticFiles = desktopContents.files.map((file) => ({
-          ...file,
-          isStatic: true,
-        }));
-        children = [...desktopApps, ...staticFiles, ...desktopFiles];
-      } else {
-        const staticChildren = (item.children || []).map((child) => ({
-          ...child,
-          isStatic: true,
-        }));
-        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-        const droppedFilesInThisFolder = allDroppedFiles.filter(
-          (file) => file.path === path,
-        );
-        children = [...staticChildren, ...droppedFilesInThisFolder];
-      }
-
-      // Sort children alphabetically by name, but only for subfolders
-      if (path !== "/") {
-        children.sort((a, b) => {
-          const nameA = a.name || a.title || a.filename || "";
-          const nameB = b.name || b.title || b.filename || "";
-          return nameA.localeCompare(nameB);
-        });
-      }
-
-      this.currentFolderItems = children;
-    }
-
-    this.currentFolderItems.forEach((child) => {
-      let iconData = { ...child };
-
-      // Resolve shortcuts
-      if (child.type === "shortcut") {
-        const target = this.findItemInDirectory(child.targetId);
-        if (target) {
-          iconData = { ...target, name: child.name };
-        }
-      }
-
-      const app = apps.find((a) => a.id === iconData.appId);
-      if (app) {
-        iconData.icon = app.icon;
-        iconData.title = app.title;
-      }
-
-      const icon = this.createExplorerIcon(iconData);
-      this._configureDraggableIcon(icon, child);
-
-      const allPositions = getExplorerIconPositions();
-      const pathPositions = allPositions[this.currentPath] || {};
-      const uniqueId = this._getUniqueItemId(child);
-
-      if (pathPositions[uniqueId]) {
-        icon.style.position = "absolute";
-        icon.style.left = pathPositions[uniqueId].x;
-        icon.style.top = pathPositions[uniqueId].y;
-      }
-
-      this.iconContainer.appendChild(icon);
-    });
+    this.folderView.render(path, isNewNavigation);
   }
 
-  _getUniqueItemId(item) {
-    return item.id;
-  }
-
-  createExplorerIcon(item) {
-    const app = apps.find((a) => a.id === item.appId) || {};
-    const originalName = item.name || item.filename || item.title || app.title;
-    const displayName =
-      item.type === "drive" ? `(${originalName})` : originalName;
-
-    const iconDiv = document.createElement("div");
-    iconDiv.className = "explorer-icon";
-    iconDiv.setAttribute("title", displayName);
-    iconDiv.setAttribute("data-id", item.id);
-
-    const iconInner = document.createElement("div");
-    iconInner.className = "icon";
-
-    const iconWrapper = document.createElement("div");
-    iconWrapper.className = "icon-wrapper";
-
-    const iconImg = document.createElement("img");
-    if (item.icon) {
-      iconImg.src = item.icon[32];
-    } else if (item.id === "folder-control-panel") {
-      iconImg.src = ICONS.controlPanel[32];
-    } else if (item.type === "drive") {
-      iconImg.src = ICONS.drive[32];
-    } else if (item.type === "folder") {
-      iconImg.src = ICONS.folderClosed[32];
-    } else if (item.type === "network") {
-      iconImg.src = ICONS.networkComputer[32];
-    } else if (item.type === "briefcase") {
-      iconImg.src = ICONS.briefcase[32];
-    } else {
-      // Default to file association for any other type
-      const association = getAssociation(displayName);
-      iconImg.src = association.icon[32];
-    }
-    iconImg.draggable = false;
-    iconWrapper.appendChild(iconImg);
-
-    if (item.type === "shortcut") {
-      const overlayImg = document.createElement("img");
-      overlayImg.className = "shortcut-overlay shortcut-overlay-32";
-      overlayImg.src = SHORTCUT_OVERLAY[32];
-      iconWrapper.appendChild(overlayImg);
-    }
-    iconInner.appendChild(iconWrapper);
-
-    const iconLabel = document.createElement("div");
-    iconLabel.className = "icon-label";
-    iconLabel.textContent = truncateName(displayName);
-
-    iconDiv.appendChild(iconInner);
-    iconDiv.appendChild(iconLabel);
-
-    if (this.currentPath !== "//recycle-bin") {
-      iconDiv.addEventListener("dblclick", () => {
-        this._launchItem(item);
-      });
-    }
-
-    return iconDiv;
-  }
-
-  _configureDraggableIcon(icon, item) {
-    let dragGhost = null;
-    // Standard icon manager setup for selection
-    this.iconManager.configureIcon(icon);
-
-    // Only allow non-static files to be dragged
-    if (!item.isStatic) {
-      icon.draggable = true;
-    }
-
-    icon.addEventListener("dragstart", (e) => {
-      e.stopPropagation();
-
-      // If the dragged icon is not selected, select it exclusively
-      if (!this.iconManager.selectedIcons.has(icon)) {
-        this.iconManager.clearSelection();
-        this.iconManager.selectIcon(icon);
-      }
-
-      const selectedItems = [...this.iconManager.selectedIcons]
-        .map((selectedIcon) => {
-          const itemId = selectedIcon.getAttribute("data-id");
-          // Find the full item object from the current folder's items
-          return this.currentFolderItems.find((it) => it.id === itemId);
-        })
-        .filter(Boolean); // Filter out any nulls
-
-      // Store the data
-      const primaryIconRect = icon.getBoundingClientRect();
-      const cursorOffsetX = e.clientX - primaryIconRect.left;
-      const cursorOffsetY = e.clientY - primaryIconRect.top;
-
-      const dragOffsets = [...this.iconManager.selectedIcons].map(
-        (selectedIcon) => {
-          const rect = selectedIcon.getBoundingClientRect();
-          return {
-            id: selectedIcon.getAttribute("data-id"),
-            offsetX: rect.left - primaryIconRect.left,
-            offsetY: rect.top - primaryIconRect.top,
-          };
-        },
-      );
-
-      e.dataTransfer.setData(
-        "application/json",
-        JSON.stringify({
-          items: selectedItems,
-          sourcePath: this.currentPath,
-          cursorOffsetX,
-          cursorOffsetY,
-          dragOffsets,
-        }),
-      );
-      e.dataTransfer.effectAllowed = "move";
-      dragGhost = createDragGhost(icon, e);
-    });
-
-    icon.addEventListener("dragend", () => {
-      if (dragGhost && dragGhost.parentElement) {
-        dragGhost.parentElement.removeChild(dragGhost);
-      }
-      dragGhost = null;
-    });
-  }
 
   findItemInDirectory(id, dir = directory) {
     for (const item of dir) {
@@ -957,271 +577,6 @@ export class ExplorerApp extends Application {
     }
   }
 
-  updateCutIcons() {
-    const { items, operation } = clipboardManager.get();
-    const cutIds =
-      operation === "cut" ? new Set(items.map((item) => item.id)) : new Set();
-
-    this.iconContainer.querySelectorAll(".explorer-icon").forEach((icon) => {
-      const itemId = icon.getAttribute("data-id");
-      if (cutIds.has(itemId)) {
-        icon.classList.add("cut");
-      } else {
-        icon.classList.remove("cut");
-      }
-    });
-  }
-
-  getItemFromIcon(icon) {
-    const itemId = icon.getAttribute("data-id");
-    const item = this.currentFolderItems.find((child) => child.id === itemId);
-    if (item) {
-      return { ...item, source: "explorer", path: this.currentPath };
-    }
-    // Fallback for desktop items, which have a different structure
-    return getItemFromIconUtil(icon);
-  }
-
-  showItemContextMenu(event, icon) {
-    if (icon && !this.iconManager.selectedIcons.has(icon)) {
-      this.iconManager.clearSelection();
-      this.iconManager.selectIcon(icon);
-    }
-
-    const clickedItem = this.getItemFromIcon(icon);
-
-    if (!clickedItem) {
-      console.warn("Clicked item not found for icon:", icon);
-      return;
-    }
-
-    const itemsToOperateOn = [...this.iconManager.selectedIcons]
-      .map((selectedIcon) => this.getItemFromIcon(selectedIcon))
-      .filter(Boolean);
-
-    let menuItems = [];
-
-    if (this.currentPath === "//recycle-bin") {
-      menuItems = [
-        {
-          label: "Restore",
-          default: true,
-          action: () => {
-            const itemToRestore = getRecycleBinItems().find(
-              (i) => i.id === clickedItem.id,
-            );
-            if (itemToRestore) {
-              const restoredItemWithName = {
-                ...itemToRestore,
-                name: itemToRestore.name || itemToRestore.title,
-              };
-              const droppedFiles =
-                getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-              droppedFiles.push(restoredItemWithName);
-              setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, droppedFiles);
-              removeFromRecycleBin(clickedItem.id);
-              this.render(this.currentPath);
-              document.dispatchEvent(new CustomEvent("desktop-refresh"));
-            }
-          },
-        },
-        "MENU_DIVIDER",
-        {
-          label: "Delete",
-          action: () => {
-            ShowDialogWindow({
-              title: "Delete Item",
-              text: `Are you sure you want to permanently delete "${clickedItem.name}"?`,
-              buttons: [
-                {
-                  label: "Yes",
-                  action: () => {
-                    removeFromRecycleBin(clickedItem.id);
-                    this.render(this.currentPath);
-                  },
-                },
-                { label: "No", isDefault: true },
-              ],
-            });
-          },
-        },
-      ];
-    } else {
-      menuItems.push({
-        label: "Open",
-        default: true,
-        action: () => this._launchItem(clickedItem),
-      });
-
-      const association = getAssociation(clickedItem.name || clickedItem.filename);
-      if (association.appId === 'media-player') {
-        menuItems.push({
-          label: 'Play in Winamp',
-          action: () => launchApp('webamp', clickedItem),
-        });
-      }
-
-      const copyItem = {
-        label: "Copy",
-        action: () => clipboardManager.set(itemsToOperateOn, "copy"),
-      };
-      const cutItem = {
-        label: "Cut",
-        action: () => clipboardManager.set(itemsToOperateOn, "cut"),
-        enabled: !itemsToOperateOn.some((item) => item.isStatic),
-      };
-
-      const downloadItem = {
-        label: "Download",
-        action: () => {
-          itemsToOperateOn.forEach((item) => {
-            if (item.isStatic || item.type === "folder" || item.type === "drive")
-              return;
-
-            const filename = item.name || item.filename;
-            const content = item.contentUrl || item.content;
-
-            if (content) {
-              downloadFile(filename, content);
-            }
-          });
-        },
-        enabled:
-          itemsToOperateOn.length > 0 &&
-          itemsToOperateOn.every(
-            (item) =>
-              !item.isStatic &&
-              item.type !== "folder" &&
-              item.type !== "drive" &&
-              item.type !== "app",
-          ),
-      };
-
-      if (
-        this.currentPath === "/" ||
-        this.currentPath === "//network-neighborhood" ||
-        clickedItem.isRoot
-      ) {
-        copyItem.enabled = false;
-        cutItem.enabled = false;
-      }
-
-      if (clickedItem.type === "folder") {
-        const isPasteDisabled =
-          clipboardManager.isEmpty() ||
-          this.currentPath === "/" ||
-          this.currentPath === "//network-neighborhood";
-
-        menuItems.push({
-          label: "Paste",
-          action: () => {
-            const { items, operation } = clipboardManager.get();
-            const destinationPath = `${this.currentPath}/${clickedItem.id}`;
-            pasteItems(destinationPath, items, operation);
-            this.navigateTo(destinationPath);
-            clipboardManager.clear();
-          },
-          enabled: !isPasteDisabled,
-        });
-      }
-
-      menuItems.push(copyItem, cutItem, "MENU_DIVIDER", downloadItem);
-
-      if (clickedItem.type === "drive") {
-        menuItems.push({ label: "Format...", enabled: false });
-      } else if (clickedItem.type !== "network") {
-        menuItems.push({
-          label: "Delete",
-          action: () => this.deleteFile(clickedItem),
-        });
-        menuItems.push({ label: "Rename", enabled: false });
-      }
-
-      menuItems.push("MENU_DIVIDER", {
-        label: "Properties",
-        action: () => this.showProperties(clickedItem),
-      });
-    }
-
-    new window.ContextMenu(menuItems, event);
-  }
-
-  showBackgroundContextMenu(event) {
-    const isPasteDisabled =
-      clipboardManager.isEmpty() ||
-      this.currentPath === "/" ||
-      this.currentPath === "//network-neighborhood";
-
-    const toggleAutoArrange = () => {
-      const newSetting = !isAutoArrangeEnabled();
-      setAutoArrange(newSetting);
-
-      if (!newSetting) {
-        this.captureIconPositions();
-      }
-      this.render(this.currentPath, false);
-    };
-
-    const menuItems = [
-      {
-        label: "Arrange Icons",
-        submenu: [
-          {
-            label: "by Name",
-            action: () => this.sortIcons("name"),
-          },
-          {
-            label: "by Type",
-            action: () => this.sortIcons("type"),
-          },
-          "MENU_DIVIDER",
-          {
-            label: "Auto Arrange",
-            checkbox: {
-              check: isAutoArrangeEnabled,
-              toggle: toggleAutoArrange,
-            },
-          },
-        ],
-      },
-      {
-        label: "Line up Icons",
-        action: () => this.lineUpIcons(),
-        enabled: !isAutoArrangeEnabled(),
-      },
-      "MENU_DIVIDER",
-      {
-        label: "View",
-        submenu: [
-          { label: "Large Icons", enabled: false },
-          { label: "Small Icons", enabled: false },
-          { label: "List", enabled: false },
-          { label: "Details", enabled: false },
-        ],
-      },
-      "MENU_DIVIDER",
-      {
-        label: "New",
-        submenu: [
-          { label: "Folder", enabled: false },
-          { label: "Text Document", enabled: false },
-        ],
-      },
-      "MENU_DIVIDER",
-      {
-        label: "Paste",
-        action: () => {
-          const { items, operation } = clipboardManager.get();
-          pasteItems(this.currentPath, items, operation);
-          this.render(this.currentPath);
-          clipboardManager.clear();
-        },
-        enabled: !isPasteDisabled,
-      },
-      { label: "Properties", enabled: false },
-    ];
-    new window.ContextMenu(menuItems, event);
-  }
 
   deleteFile(item) {
     const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
@@ -1270,10 +625,3 @@ export class ExplorerApp extends Application {
   }
 }
 
-function getExplorerIconPositions() {
-  return getItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS) || {};
-}
-
-function setExplorerIconPositions(positions) {
-  setItem(LOCAL_STORAGE_KEYS.EXPLORER_ICON_POSITIONS, positions);
-}
