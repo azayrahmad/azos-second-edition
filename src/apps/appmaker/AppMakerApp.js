@@ -2,7 +2,6 @@ import { Application } from '../Application.js';
 import { ShowDialogWindow } from '../../components/DialogWindow.js';
 import './appmaker.css';
 import '../../components/notepad-editor.css';
-import { setupIcons } from '../../components/desktop.js';
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from '../../utils/localStorage.js';
 import { registerCustomApp } from '../../utils/customAppManager.js';
 import { NotepadEditor } from '../../components/NotepadEditor.js';
@@ -262,10 +261,7 @@ export class AppMakerApp extends Application {
                         }
                         setItem(LOCAL_STORAGE_KEYS.CUSTOM_APPS, savedApps);
 
-                        const desktop = document.querySelector('.desktop');
-                        if (desktop && typeof desktop.refreshIcons === 'function') {
-                            desktop.refreshIcons();
-                        }
+                        document.dispatchEvent(new CustomEvent('desktop-refresh'));
                     },
                     isDefault: true,
                 },
