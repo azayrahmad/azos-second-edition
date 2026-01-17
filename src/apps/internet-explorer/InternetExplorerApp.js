@@ -112,9 +112,15 @@ export class InternetExplorerApp extends IFrameApplication {
     this._loadUrl = (url, isHistoryNav = false) => {
       if (url.includes("azay.rahmad")) {
         let page = "home.html";
-        if (url.endsWith("/about")) {
+        if (url.includes("about.html") || url.endsWith("/about")) {
           page = "about.html";
-        } else if (url !== "azay.rahmad" && url !== "http://azay.rahmad/" && url !== "http://azay.rahmad") {
+        } else if (url.includes("home.html")) {
+          page = "home.html";
+        } else if (
+          url !== "azay.rahmad" &&
+          url !== "http://azay.rahmad/" &&
+          url !== "http://azay.rahmad"
+        ) {
           page = "404.html";
         }
         this.iframe.src = `./azay.rahmad/${page}`;
@@ -183,11 +189,22 @@ export class InternetExplorerApp extends IFrameApplication {
 
         // Add a click listener to the iframe content
         iframeDoc.body.addEventListener("click", (e) => {
-          if (e.target.tagName === "A" && e.target.href) {
-            const url = e.target.getAttribute("href");
-            if (url.includes("azay.rahmad")) {
-              e.preventDefault();
-              this._loadUrl(url);
+          const anchor = e.target.closest("a");
+          if (anchor && anchor.getAttribute("href")) {
+            const href = anchor.getAttribute("href");
+            e.preventDefault();
+
+            // Handle relative links for azay.rahmad
+            if (
+              this.iframe.src.includes("azay.rahmad") &&
+              !href.startsWith("http") &&
+              !href.startsWith("https") &&
+              !href.startsWith("//")
+            ) {
+              const cleanHref = href.replace("./", "");
+              this._loadUrl(`azay.rahmad/${cleanHref}`);
+            } else {
+              this._loadUrl(href);
             }
           }
         });
