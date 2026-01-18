@@ -42,7 +42,10 @@ import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
 import { truncateName } from "../../utils/stringUtils.js";
-import { requestWaitState, releaseWaitState } from "../../utils/busyStateManager.js";
+import {
+  requestWaitState,
+  releaseWaitState,
+} from "../../utils/busyStateManager.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -378,6 +381,7 @@ export class ExplorerApp extends Application {
     mainContainer.style.display = "flex";
     mainContainer.style.flexDirection = "column";
     mainContainer.style.height = "100%";
+    mainContainer.style.overflow = "auto";
 
     mainContainer.append(content);
 
@@ -956,7 +960,7 @@ export class ExplorerApp extends Application {
       try {
         const handle = item.getHandle(); // This returns the FileSystemHandle (File or Directory)
 
-        if (handle.kind === 'file') {
+        if (handle.kind === "file") {
           const file = await handle.getFile();
           const fileName = file.name;
           const association = getAssociation(fileName);
@@ -1160,11 +1164,13 @@ export class ExplorerApp extends Application {
         action: () => this._launchItem(clickedItem),
       });
 
-      const association = getAssociation(clickedItem.name || clickedItem.filename);
-      if (association.appId === 'media-player') {
+      const association = getAssociation(
+        clickedItem.name || clickedItem.filename,
+      );
+      if (association.appId === "media-player") {
         menuItems.push({
-          label: 'Play in Winamp',
-          action: () => launchApp('webamp', clickedItem),
+          label: "Play in Winamp",
+          action: () => launchApp("webamp", clickedItem),
         });
       }
 
@@ -1182,7 +1188,11 @@ export class ExplorerApp extends Application {
         label: "Download",
         action: () => {
           itemsToOperateOn.forEach((item) => {
-            if (item.isStatic || item.type === "folder" || item.type === "drive")
+            if (
+              item.isStatic ||
+              item.type === "folder" ||
+              item.type === "drive"
+            )
               return;
 
             const filename = item.name || item.filename;
