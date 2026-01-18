@@ -1,7 +1,10 @@
 import { SCREENSAVERS } from "../../../config/screensavers.js";
 import screensaverManager from "../../../utils/screensaverUtils.js";
 import { setItem, LOCAL_STORAGE_KEYS } from "../../../utils/localStorage.js";
-import { applyBusyCursor, clearBusyCursor } from "../../../utils/cursorManager.js";
+import {
+  requestBusyState,
+  releaseBusyState,
+} from "../../../utils/busyStateManager.js";
 
 function updateScreensaverPreview(win, app) {
   const $preview = win.$content.find(".display-screensaver-preview");
@@ -9,7 +12,8 @@ function updateScreensaverPreview(win, app) {
 
   const screensaver = SCREENSAVERS[app.selectedScreensaver];
   if (screensaver && screensaver.path) {
-    applyBusyCursor(win.$content[0]);
+    const previewId = `screensaver-preview-${Date.now()}`;
+    requestBusyState(previewId, win.$content[0]);
     const $iframe = $("<iframe>")
       .attr("src", `${import.meta.env.BASE_URL}${screensaver.path}`)
       .css({
@@ -19,7 +23,7 @@ function updateScreensaverPreview(win, app) {
         "pointer-events": "none",
       })
       .on("load", () => {
-        clearBusyCursor(win.$content[0]);
+        releaseBusyState(previewId, win.$content[0]);
       });
     $preview.append($iframe);
   }
