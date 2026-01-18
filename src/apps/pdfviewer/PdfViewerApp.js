@@ -31,7 +31,14 @@ export class PdfViewerApp extends Application {
   }
 
   _createWindow(filePath) {
-    const fileName = filePath ? filePath.split("/").pop() : null;
+    let fileName = null;
+    if (typeof filePath === "string") {
+      fileName = filePath.split("/").pop();
+    } else if (filePath instanceof File) {
+      fileName = filePath.name;
+    } else if (filePath && filePath.name) {
+      fileName = filePath.name;
+    }
     const title = fileName ? `${fileName} - ${this.title}` : this.title;
 
     this.win = new $Window({
@@ -111,6 +118,14 @@ export class PdfViewerApp extends Application {
         const placeholder = this.win.$content.find(".pdf-viewer-placeholder");
         placeholder.text(`Failed to load PDF from ${correctedPath}.`);
       }
+    } else if (data instanceof File) {
+      this.win.title(`${data.name} - ${this.title}`);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const pdfData = new Uint8Array(event.target.result);
+        this._loadPdf(pdfData);
+      };
+      reader.readAsArrayBuffer(data);
     } else if (data && typeof data === "object") {
       this.win.title(`${data.name} - ${this.title}`);
       const byteString = atob(data.content.split(",")[1]);

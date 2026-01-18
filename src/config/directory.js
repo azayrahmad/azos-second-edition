@@ -3,6 +3,12 @@ import { generatePlusFiles } from "./generatePlusFiles.js";
 
 const directory = [
   {
+    id: "drive-a",
+    name: "A:",
+    type: "floppy",
+    children: [],
+  },
+  {
     id: "drive-c",
     name: "C:",
     type: "drive",

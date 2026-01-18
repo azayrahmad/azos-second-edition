@@ -127,7 +127,7 @@ export class MediaPlayerApp extends Application {
         },
         {
           label: "Cancel",
-          action: () => {},
+          action: () => { },
         },
       ],
     });
@@ -325,6 +325,13 @@ export class MediaPlayerApp extends Application {
         this.win.title(`${data.split("/").pop()} - Media Player`);
         this._setControlsDisabled(false);
         this.mediaElement.play();
+        this.win.title(`${data.split("/").pop()} - Media Player`);
+        this._setControlsDisabled(false);
+        this.mediaElement.play();
+      } else if (data instanceof File) {
+        const url = URL.createObjectURL(data);
+        this._loadUrl(url);
+        this.win.title(`${data.name} - Media Player`);
       } else if (data && typeof data === "object") {
         // It's a file object
         this._loadFile(data);
