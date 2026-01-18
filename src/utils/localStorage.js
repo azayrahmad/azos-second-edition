@@ -7,6 +7,7 @@ export const LOCAL_STORAGE_KEYS = {
   CLIPPY_TTS_ENABLED: 'clippyTTSEnabled',
   NOTEPAD_THEME: 'notepad-theme',
   NOTEPAD_WORD_WRAP: 'notepad-word-wrap',
+  WALLPAPER: 'wallpaper',
   WALLPAPER_MODE: 'wallpaperMode',
   ICON_POSITIONS: 'iconPositions',
   EXPLORER_ICON_POSITIONS: 'explorerIconPositions',
@@ -23,6 +24,13 @@ export const LOCAL_STORAGE_KEYS = {
   COLOR_MODE: 'colorMode',
   SCREEN_RESOLUTION: 'screenResolution',
   DROPPED_FILES: 'droppedFiles',
+  SOLITAIRE_CARD_BACK: 'solitaire:cardBack',
+  SOLITAIRE_DRAW_OPTION: 'solitaireDrawOption',
+  SOLITAIRE_TIMED_GAME: "solitaireTimedGame",
+  SOLITAIRE_SCORING: 'solitaireScoring',
+  SOLITAIRE_OUTLINE_DRAGGING: "solitaireOutlineDragging",
+  SOLITAIRE_SHOW_STATUS_BAR: "solitaireShowStatusBar",
+  SOLITAIRE_KEEP_SCORE: "solitaireKeepScore",
 };
 
 export function getItem(key) {

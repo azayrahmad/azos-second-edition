@@ -21,7 +21,10 @@ import {
 } from "../../utils/themePreview.js";
 import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { applyBusyCursor, clearBusyCursor } from "../../utils/cursorManager.js";
+import {
+  requestBusyState,
+  releaseBusyState,
+} from "../../utils/busyStateManager.js";
 import screensaverManager from "../../utils/screensaverUtils.js";
 import previewHtml from "./DesktopThemesPreview.html?raw";
 import "./desktopthemes.css";
@@ -498,7 +501,8 @@ export class DesktopThemesApp extends Application {
   }
 
   async handleThemeSelection() {
-    applyBusyCursor(this.win.$content[0]);
+    const selectionId = `theme-selection-${Date.now()}`;
+    requestBusyState(selectionId, this.win.$content[0]);
     try {
       const selectedValue = this.themeSelector.value;
       const selectedTheme = getThemes()[selectedValue];
@@ -524,7 +528,7 @@ export class DesktopThemesApp extends Application {
         this.previewLabel.textContent = `Preview of '${selectedTheme.name}'`;
       }
     } finally {
-      clearBusyCursor(this.win.$content[0]);
+      releaseBusyState(selectionId, this.win.$content[0]);
     }
   }
 
