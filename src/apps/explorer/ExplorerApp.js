@@ -42,6 +42,7 @@ import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
 import { truncateName } from "../../utils/stringUtils.js";
+import { requestWaitState, releaseWaitState } from "../../utils/busyStateManager.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -661,82 +662,7 @@ export class ExplorerApp extends Application {
     this.addressBar.setValue(convertInternalPathToWindows(path));
   }
 
-  render(path, isNewNavigation = true) {
-    this.currentPath = path;
-    const item = findItemByPath(path);
-
-    if (!item) {
-      this.content.innerHTML = "Folder not found.";
-      this.win.title("Error");
-      return;
-    }
-
-    const name = item.type === "drive" ? `(${item.name})` : item.name;
-    this.win.title(name);
-    this.titleElement.text(name);
-    const icon = getIconForPath(path);
-    if (icon) {
-      this.win.setIcons(icon);
-      this.sidebarIcon.src = icon[32];
-    }
-    this.sidebarTitle.textContent = name;
-    this.iconContainer.innerHTML = ""; // Clear previous content
-    this.iconManager.clearSelection();
-
-    if (isAutoArrangeEnabled()) {
-      this.iconContainer.classList.remove("has-absolute-icons");
-    } else {
-      this.iconContainer.classList.add("has-absolute-icons");
-    }
-
-    let children = [];
-    if (isNewNavigation) {
-      if (path === SPECIAL_FOLDER_PATHS.desktop) {
-        const desktopContents = getDesktopContents();
-        const desktopApps = desktopContents.apps.map((appId) => {
-          const app = apps.find((a) => a.id === appId);
-          return { ...app, appId: app.id, isStatic: true };
-        });
-        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-        const desktopFiles = allDroppedFiles.filter(
-          (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
-        );
-        const staticFiles = desktopContents.files.map((file) => ({
-          ...file,
-          isStatic: true,
-        }));
-        children = [...desktopApps, ...staticFiles, ...desktopFiles];
-      } else {
-        const staticChildren = (item.children || []).map((child) => ({
-          ...child,
-          isStatic: true,
-        }));
-        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-        const droppedFilesInThisFolder = allDroppedFiles.filter(
-          (file) => file.path === path,
-        );
-        children = [...staticChildren, ...droppedFilesInThisFolder];
-      }
-
-      if (item.type === "floppy") {
-        const floppyContents = floppyManager.getContents();
-        if (floppyContents) {
-          children = [...children, ...floppyContents];
-        }
-      }
-
-      // Sort children alphabetically by name, but only for subfolders
-      if (path !== "/") {
-        children.sort((a, b) => {
-          const nameA = a.name || a.title || a.filename || "";
-          const nameB = b.name || b.title || b.filename || "";
-          return nameA.localeCompare(nameB);
-        });
-      }
-
-      this.currentFolderItems = children;
-    }
-
+  _renderIcons() {
     this.currentFolderItems.forEach((child) => {
       let iconData = { ...child };
 
@@ -769,6 +695,108 @@ export class ExplorerApp extends Application {
 
       this.iconContainer.appendChild(icon);
     });
+  }
+
+  render(path, isNewNavigation = true) {
+    this.currentPath = path;
+    const item = findItemByPath(path);
+
+    if (!item) {
+      this.content.innerHTML = "Folder not found.";
+      this.win.title("Error");
+      return;
+    }
+
+    const name = item.type === "drive" ? `(${item.name})` : item.name;
+    this.win.title(name);
+    this.titleElement.text(name);
+    const icon = getIconForPath(path);
+    if (icon) {
+      this.win.setIcons(icon);
+      this.sidebarIcon.src = icon[32];
+    }
+    this.sidebarTitle.textContent = name;
+    this.iconContainer.innerHTML = ""; // Clear previous content
+    this.iconManager.clearSelection();
+
+    if (isAutoArrangeEnabled()) {
+      this.iconContainer.classList.remove("has-absolute-icons");
+    } else {
+      this.iconContainer.classList.add("has-absolute-icons");
+    }
+
+    let children = [];
+    if (isNewNavigation) {
+      if (item.type === "floppy") {
+        requestWaitState("explorer-floppy", this.win.element);
+
+        // Clear current items while loading
+        this.currentFolderItems = [];
+
+        setTimeout(() => {
+          // If the user navigated away, don't update
+          if (this.currentPath !== path) return;
+
+          const floppyContents = floppyManager.getContents();
+          if (floppyContents) {
+            children = [...floppyContents];
+          }
+
+          // Sort children alphabetically by name
+          children.sort((a, b) => {
+            const nameA = a.name || a.title || a.filename || "";
+            const nameB = b.name || b.title || b.filename || "";
+            return nameA.localeCompare(nameB);
+          });
+
+          this.currentFolderItems = children;
+          this._renderIcons();
+          releaseWaitState("explorer-floppy", this.win.element);
+        }, 1500); // Simulate floppy read speed
+
+        return;
+      }
+
+      if (path === SPECIAL_FOLDER_PATHS.desktop) {
+        const desktopContents = getDesktopContents();
+        const desktopApps = desktopContents.apps.map((appId) => {
+          const app = apps.find((a) => a.id === appId);
+          return { ...app, appId: app.id, isStatic: true };
+        });
+        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+        const desktopFiles = allDroppedFiles.filter(
+          (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
+        );
+        const staticFiles = desktopContents.files.map((file) => ({
+          ...file,
+          isStatic: true,
+        }));
+        children = [...desktopApps, ...staticFiles, ...desktopFiles];
+      } else {
+        const staticChildren = (item.children || []).map((child) => ({
+          ...child,
+          isStatic: true,
+        }));
+        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
+        const droppedFilesInThisFolder = allDroppedFiles.filter(
+          (file) => file.path === path,
+        );
+        children = [...staticChildren, ...droppedFilesInThisFolder];
+      }
+
+      // Sort children alphabetically by name, but only for subfolders
+      if (path !== "/") {
+        children.sort((a, b) => {
+          const nameA = a.name || a.title || a.filename || "";
+          const nameB = b.name || b.title || b.filename || "";
+          return nameA.localeCompare(nameB);
+        });
+      }
+
+      this.currentFolderItems = children;
+    }
+
+    this._renderIcons();
   }
 
   _getUniqueItemId(item) {
