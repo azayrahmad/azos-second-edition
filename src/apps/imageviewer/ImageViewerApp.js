@@ -31,7 +31,13 @@ export class ImageViewerApp extends Application {
   }
 
   _createWindow(file) {
-    const title = file ? `${file.name} - Image Viewer` : "Image Viewer";
+    let fileName = null;
+    if (typeof file === "string") {
+      fileName = file.split("/").pop();
+    } else if (file && file.name) {
+      fileName = file.name;
+    }
+    const title = fileName ? `${fileName} - Image Viewer` : "Image Viewer";
     this.file = file;
 
     const win = new $Window({
@@ -117,92 +123,94 @@ export class ImageViewerApp extends Application {
 
   async _onLaunch(data) {
     try {
-    this.img = this.win.$content.find("img")[0];
-    const imageContainer = this.win.$content.find(".image-viewer-container")[0];
+      this.img = this.win.$content.find("img")[0];
+      const imageContainer = this.win.$content.find(".image-viewer-container")[0];
 
-    if (typeof data === "string") {
-      // It's a file path
-      fetch(data)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.blob();
-        })
-        .then((blob) => {
-          const fileName = decodeURIComponent(data.split("/").pop());
-          const file = new File([blob], fileName);
-          this.loadFile(file);
-        })
-        .catch((e) => {
-          console.error("Error loading image:", e);
-          this.win.close(); // Close the window if the image fails to load
-        });
-    } else if (data && typeof data === "object") {
-      // It's a file object from drag-and-drop
-      this.win.title(`${data.name} - Image Viewer`);
-      this.img.src = data.content;
-      this.img.onload = () => {
-        this.resetZoom();
-        setTimeout(() => this._adjustWindowSize(this.img), 0);
-        this._updatePannableState();
-      };
-    } else {
-      console.log("Image Viewer launched without a file.");
-    }
-
-    imageContainer.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      if (e.deltaY < 0) {
-        this.zoomIn();
+      if (typeof data === "string") {
+        // It's a file path
+        fetch(data)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.blob();
+          })
+          .then((blob) => {
+            const fileName = decodeURIComponent(data.split("/").pop());
+            const file = new File([blob], fileName);
+            this.loadFile(file);
+          })
+          .catch((e) => {
+            console.error("Error loading image:", e);
+            this.win.close(); // Close the window if the image fails to load
+          });
+      } else if (data instanceof File) {
+        this.loadFile(data);
+      } else if (data && typeof data === "object") {
+        // It's a file object from drag-and-drop
+        this.win.title(`${data.name} - Image Viewer`);
+        this.img.src = data.content;
+        this.img.onload = () => {
+          this.resetZoom();
+          setTimeout(() => this._adjustWindowSize(this.img), 0);
+          this._updatePannableState();
+        };
       } else {
-        this.zoomOut();
+        console.log("Image Viewer launched without a file.");
       }
-    });
 
-    const startPanning = (e) => {
-      if (this._isPannable()) {
+      imageContainer.addEventListener("wheel", (e) => {
         e.preventDefault();
-        this.isPanning = true;
+        if (e.deltaY < 0) {
+          this.zoomIn();
+        } else {
+          this.zoomOut();
+        }
+      });
+
+      const startPanning = (e) => {
+        if (this._isPannable()) {
+          e.preventDefault();
+          this.isPanning = true;
+          const point = e.touches ? e.touches[0] : e;
+          this.startX = point.pageX - imageContainer.offsetLeft;
+          this.startY = point.pageY - imageContainer.offsetTop;
+          this.scrollLeft = imageContainer.scrollLeft;
+          this.scrollTop = imageContainer.scrollTop;
+          imageContainer.style.cursor = "var(--cursor-grabbing, grabbing)";
+        }
+      };
+
+      const stopPanning = () => {
+        this.isPanning = false;
+        if (this._isPannable()) {
+          imageContainer.style.cursor = "var(--cursor-grab, grab)";
+        }
+      };
+
+      const doPan = (e) => {
+        if (!this.isPanning) return;
+        e.preventDefault();
         const point = e.touches ? e.touches[0] : e;
-        this.startX = point.pageX - imageContainer.offsetLeft;
-        this.startY = point.pageY - imageContainer.offsetTop;
-        this.scrollLeft = imageContainer.scrollLeft;
-        this.scrollTop = imageContainer.scrollTop;
-        imageContainer.style.cursor = "var(--cursor-grabbing, grabbing)";
-      }
-    };
+        const x = point.pageX - imageContainer.offsetLeft;
+        const y = point.pageY - imageContainer.offsetTop;
+        const walkX = (x - this.startX) * 2;
+        const walkY = (y - this.startY) * 2;
+        imageContainer.scrollLeft = this.scrollLeft - walkX;
+        imageContainer.scrollTop = this.scrollTop - walkY;
+      };
 
-    const stopPanning = () => {
-      this.isPanning = false;
-      if (this._isPannable()) {
-        imageContainer.style.cursor = "var(--cursor-grab, grab)";
-      }
-    };
-
-    const doPan = (e) => {
-      if (!this.isPanning) return;
-      e.preventDefault();
-      const point = e.touches ? e.touches[0] : e;
-      const x = point.pageX - imageContainer.offsetLeft;
-      const y = point.pageY - imageContainer.offsetTop;
-      const walkX = (x - this.startX) * 2;
-      const walkY = (y - this.startY) * 2;
-      imageContainer.scrollLeft = this.scrollLeft - walkX;
-      imageContainer.scrollTop = this.scrollTop - walkY;
-    };
-
-    // Panning Listeners
-    imageContainer.addEventListener("mousedown", startPanning);
-    imageContainer.addEventListener("mouseup", stopPanning);
-    imageContainer.addEventListener("mouseleave", stopPanning);
-    imageContainer.addEventListener("mousemove", doPan);
-    imageContainer.addEventListener("touchstart", startPanning, {
-      passive: false,
-    });
-    imageContainer.addEventListener("touchend", stopPanning);
-    imageContainer.addEventListener("touchcancel", stopPanning);
-    imageContainer.addEventListener("touchmove", doPan, { passive: false });
+      // Panning Listeners
+      imageContainer.addEventListener("mousedown", startPanning);
+      imageContainer.addEventListener("mouseup", stopPanning);
+      imageContainer.addEventListener("mouseleave", stopPanning);
+      imageContainer.addEventListener("mousemove", doPan);
+      imageContainer.addEventListener("touchstart", startPanning, {
+        passive: false,
+      });
+      imageContainer.addEventListener("touchend", stopPanning);
+      imageContainer.addEventListener("touchcancel", stopPanning);
+      imageContainer.addEventListener("touchmove", doPan, { passive: false });
     } catch (e) {
       console.error("Error in ImageViewerApp._onLaunch:", e);
       this.win.close();
@@ -467,7 +475,7 @@ export class ImageViewerApp extends Application {
         },
         {
           label: "Cancel",
-          action: () => {},
+          action: () => { },
         },
       ],
     });
@@ -614,7 +622,7 @@ export class ImageViewerApp extends Application {
             },
             {
               label: "Cancel",
-              action: () => {},
+              action: () => { },
             },
           ],
         });

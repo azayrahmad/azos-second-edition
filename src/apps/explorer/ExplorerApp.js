@@ -922,7 +922,40 @@ export class ExplorerApp extends Application {
     return null;
   }
 
-  _launchItem(item) {
+  async _launchItem(item) {
+    // 0. Handle floppy files (dynamic content)
+    if (item.getHandle) {
+      try {
+        const handle = item.getHandle(); // This returns the FileSystemHandle (File or Directory)
+
+        if (handle.kind === 'file') {
+          const file = await handle.getFile();
+          const fileName = file.name;
+          const association = getAssociation(fileName);
+          if (association.appId) {
+            await launchApp(association.appId, file);
+            return; // Successfully launched file, stop here.
+          } else {
+            ShowDialogWindow({
+              title: "Unknown File Type",
+              text: `No application associated with "${fileName}".`,
+              buttons: [{ label: "OK", isDefault: true }],
+            });
+            return; // Stop here if unknown file type
+          }
+        }
+        // If it is a directory, allow fall-through to normal folder navigation logic.
+      } catch (err) {
+        console.error("Error launching floppy file:", err);
+        ShowDialogWindow({
+          title: "Error",
+          text: "Could not open file from disk.",
+          buttons: [{ label: "OK", isDefault: true }],
+        });
+        return;
+      }
+    }
+
     // 1. Handle navigation for folders/drives
     if (item.type === "floppy") {
       if (floppyManager.isInserted()) {

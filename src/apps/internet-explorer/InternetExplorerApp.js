@@ -29,6 +29,8 @@ export class InternetExplorerApp extends IFrameApplication {
 
     if (typeof data === "string") {
       url = data;
+    } else if (data instanceof File) {
+      url = URL.createObjectURL(data);
     } else if (typeof data === "object" && data !== null) {
       url = data.url || url;
       if (data.retroMode === false) {
@@ -119,12 +121,15 @@ export class InternetExplorerApp extends IFrameApplication {
       }
 
       let finalUrl = url.trim();
-      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
+
+      const isLocal = finalUrl.startsWith("blob:") || finalUrl.startsWith("file:") || finalUrl.includes("localhost") || finalUrl.includes("127.0.0.1");
+
+      if (!isLocal && !finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
         finalUrl = `https://${finalUrl}`;
       }
       this.addressBar.setValue(finalUrl);
 
-      const targetUrl = this.retroMode
+      const targetUrl = (this.retroMode && !isLocal)
         ? `https://web.archive.org/web/1998/${finalUrl}`
         : finalUrl;
 
