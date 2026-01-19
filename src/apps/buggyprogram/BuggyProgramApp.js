@@ -77,9 +77,14 @@ export class BuggyProgramApp extends Application {
 
       const buggyWindowImage = new Image();
 
+      // We wait for two animation frames to ensure the browser has fully
+      // painted the window, including any CSS pseudo-elements like the
+      // close button's "X" icon, before we capture it with html2canvas.
       requestAnimationFrame(() => {
-        html2canvas(win.element).then((canvas) => {
-          buggyWindowImage.src = canvas.toDataURL();
+        requestAnimationFrame(() => {
+          html2canvas(win.element).then((canvas) => {
+            buggyWindowImage.src = canvas.toDataURL();
+          });
         });
       });
 
