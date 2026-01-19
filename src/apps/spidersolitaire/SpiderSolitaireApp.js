@@ -5,6 +5,7 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getItem, setItem, removeItem } from "../../utils/localStorage.js";
 import { Statistics } from "./Statistics.js";
 import { options, getAllOptions, setAllOptions } from "./OptionsManager.js";
+import { TouchHandler } from "../TouchHandler.js";
 import "./spidersolitaire.css";
 import "../../styles/solitaire.css";
 
@@ -67,10 +68,12 @@ export class SpiderSolitaireApp extends Application {
     this.draggedCardsInfo = null;
     this.dragOffsetX = 0;
     this.dragOffsetY = 0;
+    this.wasDragged = false;
 
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
 
+    this.touchHandler = new TouchHandler(this);
     this.addEventListeners();
 
     if (options.autoOpenOnStartup) {
@@ -479,6 +482,8 @@ export class SpiderSolitaireApp extends Application {
     this.container
       .querySelector(".stock-pile")
       .addEventListener("click", this.onStockClick.bind(this));
+    this.touchHandler.addEventListeners(this.container);
+
     this.win.element.addEventListener("keydown", (event) => {
       if (event.ctrlKey && event.key === "z") {
         event.preventDefault();
@@ -504,6 +509,7 @@ export class SpiderSolitaireApp extends Application {
 
   onMouseDown(event) {
     if (event.button !== 0) return; // Only main button
+    this.wasDragged = false;
     const cardDiv = event.target.closest(".card");
     if (!cardDiv) return;
 
@@ -551,6 +557,7 @@ export class SpiderSolitaireApp extends Application {
 
   onMouseMove(event) {
     if (!this.isDragging) return;
+    this.wasDragged = true;
     const containerRect = this.container.getBoundingClientRect();
     this.draggedElement.style.left = `${event.clientX - containerRect.left - this.dragOffsetX}px`;
     this.draggedElement.style.top = `${event.clientY - containerRect.top - this.dragOffsetY}px`;
