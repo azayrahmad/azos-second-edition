@@ -15,7 +15,7 @@ export class BuggyProgramApp extends Application {
     width: 450,
     height: 200,
     resizable: false,
-    closeButton: false,
+    isSingleton: false,
   };
 
   _createWindow() {
@@ -68,7 +68,6 @@ export class BuggyProgramApp extends Application {
       canvas.style.position = "fixed";
       canvas.style.top = "0";
       canvas.style.left = "0";
-      canvas.style.pointerEvents = "none";
       canvas.style.zIndex = "1";
       desktop.appendChild(canvas);
 
