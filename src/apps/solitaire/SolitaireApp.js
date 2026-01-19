@@ -13,6 +13,7 @@ import "./options.css";
 import "../../styles/solitaire.css";
 import { preloadImage } from "../../utils/assetPreloader.js";
 import solitaireSprite from "../../assets/img/solitaire.png";
+import { TouchHandler } from "../TouchHandler.js";
 
 const animatedCardBacks = {
   "cardback-robot1": { frames: 3, prefix: "cardback-robot" },
@@ -83,12 +84,14 @@ export class SolitaireApp extends Application {
     this.lastClickTime = 0;
     this.lastClickedCardUid = null;
     this.doubleClickThreshold = 400;
+    this.wasDragged = false;
 
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
     this.boundOnMouseDown = this.onMouseDown.bind(this);
     this.boundOnClick = this.onClick.bind(this);
 
+    this.touchHandler = new TouchHandler(this);
     this.animationTimer = null;
 
     this.addEventListeners();
@@ -530,6 +533,8 @@ export class SolitaireApp extends Application {
   addEventListeners() {
     this.container.addEventListener("mousedown", this.boundOnMouseDown);
     this.container.addEventListener("click", this.boundOnClick);
+    this.touchHandler.addEventListeners(this.container);
+
     this.win.element.addEventListener("keydown", (event) => {
       if (event.key === "F2") {
         event.preventDefault();
@@ -541,6 +546,7 @@ export class SolitaireApp extends Application {
   removeEventListeners() {
     this.container.removeEventListener("mousedown", this.boundOnMouseDown);
     this.container.removeEventListener("click", this.boundOnClick);
+    this.touchHandler.removeEventListeners(this.container);
   }
 
   onClick(event) {
@@ -566,6 +572,7 @@ export class SolitaireApp extends Application {
       }
     }
   }
+
 
   onMouseDown(event) {
     if (event.button !== 0) return; // Only main button
@@ -680,6 +687,7 @@ export class SolitaireApp extends Application {
     window.addEventListener("mousemove", this.boundOnMouseMove);
     window.addEventListener("mouseup", this.boundOnMouseUp);
   }
+
 
   onMouseMove(event) {
     if (!this.isDragging) return;
