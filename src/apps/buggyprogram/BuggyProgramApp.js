@@ -3,6 +3,7 @@ import { launchApp } from "../../utils/appManager.js";
 import { playSound } from "../../utils/soundManager.js";
 import { ICONS } from "../../config/icons.js";
 import warningIconUrl from "../../assets/icons/msg_warning-0.png";
+import html2canvas from "html2canvas";
 
 export class BuggyProgramApp extends Application {
   static config = {
@@ -13,7 +14,7 @@ export class BuggyProgramApp extends Application {
     icon: ICONS.shell,
     width: 450,
     height: 200,
-    resizable: true,
+    resizable: false,
     closeButton: false,
   };
 
@@ -60,15 +61,31 @@ export class BuggyProgramApp extends Application {
       const desktop = document.querySelector(".desktop");
       if (!desktop) return;
 
-      const trailsParent = document.createElement("div");
-      trailsParent.className = "buggy-window-trails";
-      desktop.appendChild(trailsParent);
+      const canvas = document.createElement("canvas");
+      canvas.className = "buggy-canvas-trails";
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.position = "fixed";
+      canvas.style.top = "0";
+      canvas.style.left = "0";
+      canvas.style.pointerEvents = "none";
+      canvas.style.zIndex = "1";
+      desktop.appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+      let lastX, lastY;
 
       const observer = new MutationObserver(() => {
-        const trail = win.element.cloneNode(true);
-        trail.style.pointerEvents = "none";
-        trail.style.zIndex = parseInt(win.element.style.zIndex || "0") - 1;
-        trailsParent.appendChild(trail);
+        const rect = win.element.getBoundingClientRect();
+
+        if (rect.left === lastX && rect.top === lastY) return;
+
+        lastX = rect.left;
+        lastY = rect.top;
+
+        html2canvas(win.element).then((canvas) => {
+          ctx.drawImage(canvas, rect.left, rect.top);
+        });
       });
       observer.observe(win.element, {
         attributes: true,
@@ -77,8 +94,8 @@ export class BuggyProgramApp extends Application {
 
       const dispose = win.onClosed(() => {
         observer.disconnect();
-        if (trailsParent.parentNode) {
-          desktop.removeChild(trailsParent);
+        if (canvas.parentNode) {
+          desktop.removeChild(canvas);
         }
         dispose(); // self-disposing listener
       });
