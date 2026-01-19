@@ -303,6 +303,7 @@ export class Game {
         this.vegasScore += 5;
         this.updateScore(10);
       } else if (fromPileType === "foundation" && toPileType === "tableau") {
+        this.vegasScore -= 5;
         this.updateScore(-15);
       } else if (fromPileType === "drawn" && toPileType === "tableau") {
         this.updateScore(5);
