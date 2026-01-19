@@ -724,7 +724,7 @@ export class ExplorerApp extends Application {
       if (child.type === "shortcut") {
         const target = this.findItemInDirectory(child.targetId);
         if (target) {
-          iconData = { ...target, name: child.name };
+          iconData = { ...target, name: child.name, type: child.type };
         }
       }
 
