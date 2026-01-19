@@ -77,11 +77,11 @@ export class BuggyProgramApp extends Application {
 
       const buggyWindowImage = new Image();
 
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         html2canvas(win.element).then((canvas) => {
           buggyWindowImage.src = canvas.toDataURL();
         });
-      }, 500);
+      });
 
       const observer = new MutationObserver(() => {
         const rect = win.element.getBoundingClientRect();
