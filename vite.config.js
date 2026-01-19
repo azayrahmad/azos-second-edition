@@ -13,7 +13,6 @@ export default defineConfig({
     "import.meta.env.APP_VERSION": JSON.stringify(appVersion),
   },
   assetsInclude: ["**/*.ani"],
-  base: "/win98-web/",
   plugins: [
     VitePWA({
       registerType: "autoUpdate",

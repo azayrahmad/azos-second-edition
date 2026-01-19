@@ -54,7 +54,7 @@ function ShowDialogWindow(options) {
     winOptions.icons = { any: icon };
   }
 
-  const win = new $Window(winOptions);
+  const win = new $Window(winOptions, { playSound });
 
   // Create dialog content
   const contentContainer = document.createElement("div");
