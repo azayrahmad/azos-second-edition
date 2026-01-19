@@ -4,7 +4,7 @@ import { generatePlusFiles } from "./generatePlusFiles.js";
 const directory = [
   {
     id: "drive-a",
-    name: "A:",
+    name: "3½ Floppy (A:)",
     type: "floppy",
     children: [],
   },

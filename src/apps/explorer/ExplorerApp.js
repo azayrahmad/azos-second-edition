@@ -847,8 +847,8 @@ export class ExplorerApp extends Application {
     if (item.type === "floppy") {
       const folderName = floppyManager.getFolderName();
       displayName = folderName
-        ? `(${originalName}) ${folderName}`
-        : `(${originalName})`;
+        ? `${originalName} ${folderName}`
+        : `${originalName}`;
     }
 
     const iconDiv = document.createElement("div");
