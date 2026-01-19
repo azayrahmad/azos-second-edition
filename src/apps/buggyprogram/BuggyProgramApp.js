@@ -3,7 +3,7 @@ import { launchApp } from "../../utils/appManager.js";
 import { playSound } from "../../utils/soundManager.js";
 import { ICONS } from "../../config/icons.js";
 import warningIconUrl from "../../assets/icons/msg_warning-0.png";
-import buggyWindowImageUrl from "./buggy-window.png";
+import html2canvas from "html2canvas";
 
 export class BuggyProgramApp extends Application {
   static config = {
@@ -76,7 +76,12 @@ export class BuggyProgramApp extends Application {
       let lastX, lastY;
 
       const buggyWindowImage = new Image();
-      buggyWindowImage.src = buggyWindowImageUrl;
+
+      setTimeout(() => {
+        html2canvas(win.element).then((canvas) => {
+          buggyWindowImage.src = canvas.toDataURL();
+        });
+      }, 500);
 
       const observer = new MutationObserver(() => {
         const rect = win.element.getBoundingClientRect();
