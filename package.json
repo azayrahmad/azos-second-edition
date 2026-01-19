@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:os-gui": "node scripts/build-os-gui.cjs",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "uglify-js": "^3.19.3",
     "vite": "^7.0.4",
     "vite-plugin-pwa": "^1.1.0"
   },
