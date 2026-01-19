@@ -30,7 +30,8 @@ async function buildFileTree(directoryHandle) {
 }
 
 export const floppyManager = {
-  async insert() {
+  async insert({ onBeforeInsert, onAfterInsert } = {}) {
+    onBeforeInsert?.();
     try {
       const directoryHandle = await window.showDirectoryPicker();
       folderName = directoryHandle.name;
@@ -40,6 +41,8 @@ export const floppyManager = {
     } catch (error) {
       console.error("Error inserting floppy:", error);
       return false;
+    } finally {
+      onAfterInsert?.();
     }
   },
 

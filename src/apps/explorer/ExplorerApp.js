@@ -1259,7 +1259,15 @@ export class ExplorerApp extends Application {
       } else {
         menuItems.unshift({
           label: "Insert",
-          action: () => floppyManager.insert(),
+          action: () => {
+            const floppyRequesterId = "explorer-floppy-insert";
+            floppyManager.insert({
+              onBeforeInsert: () =>
+                requestWaitState(floppyRequesterId, this.win.element),
+              onAfterInsert: () =>
+                releaseWaitState(floppyRequesterId, this.win.element),
+            });
+          },
         });
       }
     }
