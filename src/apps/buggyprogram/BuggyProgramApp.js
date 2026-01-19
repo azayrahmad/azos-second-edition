@@ -26,6 +26,7 @@ export class BuggyProgramApp extends Application {
       resizable: this.config.resizable,
       minimizeButton: false,
       maximizeButton: false,
+      closable: false,
       icons: this.config.icon,
     });
 

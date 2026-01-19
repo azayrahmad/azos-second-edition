@@ -118,6 +118,15 @@
   function $Window(options = {}) {
     // @TODO: handle all option defaults here
     // and validate options.
+    if (options.closable === undefined) {
+      options.closable = true;
+    }
+    if (options.minimizable === undefined) {
+      options.minimizable = true;
+    }
+    if (options.maximizable === undefined) {
+      options.maximizable = true;
+    }
 
     // WOW, this is ugly. It's kind of impressive, almost.
     var $w = /** @type {OSGUI$Window} */ (
@@ -150,13 +159,16 @@
         .appendTo($w.$titlebar);
       $w.$minimize.attr("aria-label", "Minimize window"); // @TODO: for taskbarless minimized windows, "restore"
       $w.$minimize.append("<span class='window-button-icon'></span>");
+      if (!options.minimizable) {
+        $w.$minimize.prop("disabled", true);
+      }
     }
     if (options.maximizeButton !== false) {
       $w.$maximize = $(E("button"))
         .addClass("window-maximize-button window-action-maximize window-button")
         .appendTo($w.$titlebar);
       $w.$maximize.attr("aria-label", "Maximize or restore window"); // @TODO: specific text for the state
-      if (!options.resizable) {
+      if (!options.resizable || !options.maximizable) {
         $w.$maximize.prop("disabled", true);
       }
       $w.$maximize.append("<span class='window-button-icon'></span>");
@@ -167,6 +179,9 @@
         .appendTo($w.$titlebar);
       $w.$x.attr("aria-label", "Close window");
       $w.$x.append("<span class='window-button-icon'></span>");
+      if (!options.closable) {
+        $w.$x.prop("disabled", true);
+      }
     }
     $w.$content = $(E("div")).addClass("window-content").appendTo($w);
     $w.$content.attr("tabIndex", "-1");
@@ -783,6 +798,9 @@
     /** @type {{ position: string; left: string; top: string; width: string; height: string; }} */
     let before_minimize;
     $w.minimize = () => {
+      if (!options.minimizable) {
+        return;
+      }
       minimize_target_el = minimize_target_el || task?.$task[0];
       if (animating_titlebar) {
         when_done_animating_titlebar.push($w.minimize);
@@ -942,7 +960,7 @@
     /** @type {{ position: string; left: string; top: string; width: string; height: string; }} */
     let before_maximize;
     $w.maximize = () => {
-      if (!options.resizable) {
+      if (!options.resizable || !options.maximizable) {
         return;
       }
       if (animating_titlebar) {
@@ -2016,6 +2034,9 @@ You can also disable this warning by passing {iframes: {ignoreCrossOrigin: true}
         );
       }
       if (!force) {
+        if (!options.closable) {
+          return;
+        }
         var e = $.Event("close");
         $w.trigger(e);
         if (e.isDefaultPrevented()) {
