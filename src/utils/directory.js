@@ -47,11 +47,12 @@ function findProgramFilesFolder() {
 export function getDesktopContents() {
   const desktopFolder = findDesktopFolder();
   if (!desktopFolder || !desktopFolder.children) {
-    return { apps: [], files: [] };
+    return { apps: [], files: [], folders: [] };
   }
 
   const desktopApps = [];
   const desktopFiles = [];
+  const desktopFolders = [];
   desktopFolder.children.forEach((item) => {
     if (item.type === "app") {
       const appConfig = apps.find((a) => a.id === item.appId);
@@ -79,10 +80,18 @@ export function getDesktopContents() {
         app: association.appId,
         path: item.contentUrl,
       });
+    } else if (item.type === "folder") {
+      desktopFolders.push({
+        id: item.id,
+        filename: item.name,
+        app: "explorer",
+        path: `/drive-c/folder-user/folder-desktop/${item.id}`,
+        type: "folder",
+      });
     }
   });
 
-  return { apps: desktopApps, files: desktopFiles };
+  return { apps: desktopApps, files: desktopFiles, folders: desktopFolders };
 }
 
 export function addAppDefinition(appId) {

@@ -800,7 +800,38 @@ export class ExplorerApp extends Application {
       this.currentFolderItems = children;
     }
 
-    this._renderIcons();
+    this.currentFolderItems.forEach((child) => {
+      let iconData = { ...child };
+
+      // Resolve shortcuts
+      if (child.type === "shortcut") {
+        const target = this.findItemInDirectory(child.targetId);
+        if (target) {
+          iconData = { ...target, name: child.name, type: child.type };
+        }
+      }
+
+      const app = apps.find((a) => a.id === iconData.appId);
+      if (app) {
+        iconData.icon = app.icon;
+        iconData.title = app.title;
+      }
+
+      const icon = this.createExplorerIcon(iconData);
+      this._configureDraggableIcon(icon, child);
+
+      const allPositions = getExplorerIconPositions();
+      const pathPositions = allPositions[this.currentPath] || {};
+      const uniqueId = this._getUniqueItemId(child);
+
+      if (pathPositions[uniqueId]) {
+        icon.style.position = "absolute";
+        icon.style.left = pathPositions[uniqueId].x;
+        icon.style.top = pathPositions[uniqueId].y;
+      }
+
+      this.iconContainer.appendChild(icon);
+    });
   }
 
   _getUniqueItemId(item) {

@@ -72,22 +72,22 @@ function isAutoArrangeEnabled() {
   return autoArrange === null ? true : !!autoArrange;
 }
 
-function createDesktopIcon(item, isFile = false) {
-  const app = isFile ? apps.find((a) => a.id === item.app) : item;
+function createDesktopIcon(item, isFile = false, isFolder = false) {
+  const app = isFile || isFolder ? apps.find((a) => a.id === item.app) : item;
   if (!app) return null;
 
   const iconDiv = document.createElement("div");
   iconDiv.className = "desktop-icon";
   iconDiv.setAttribute(
     "title",
-    isFile ? item.filename : app.description || app.title,
+    isFile || isFolder ? item.filename : app.description || app.title,
   );
 
-  const iconId = getIconId(app, isFile ? item.path : null);
+  const iconId = getIconId(app, isFile || isFolder ? item.path : null);
   iconDiv.setAttribute("data-icon-id", iconId);
 
   iconDiv.setAttribute("data-app-id", app.id);
-  if (isFile) {
+  if (isFile || isFolder) {
     iconDiv.setAttribute("data-file-path", item.path);
     if (item.type) {
       iconDiv.setAttribute("data-item-type", item.type);
@@ -102,7 +102,9 @@ function createDesktopIcon(item, isFile = false) {
 
   const iconImg = document.createElement("img");
   iconImg.draggable = false;
-  if (isFile) {
+  if (isFolder) {
+    iconImg.src = ICONS.folder[32];
+  } else if (isFile) {
     const association = getAssociation(item.filename);
     iconImg.src = item.icon?.[32] || association.icon[32];
   } else {
@@ -120,7 +122,9 @@ function createDesktopIcon(item, isFile = false) {
 
   const iconLabel = document.createElement("div");
   iconLabel.className = "icon-label";
-  iconLabel.textContent = truncateName(isFile ? item.filename : app.title);
+  iconLabel.textContent = truncateName(
+    isFile || isFolder ? item.filename : app.title,
+  );
 
   iconDiv.appendChild(iconInner);
   iconDiv.appendChild(iconLabel);
@@ -803,11 +807,22 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
 
   // Load files
   desktopApps.files.forEach((file) => {
-    const icon = createDesktopIcon(file, true);
+    const icon = createDesktopIcon(file, true, false);
     if (icon) {
       const app = apps.find((a) => a.id === file.app);
       const iconId = getIconId(app, file.path);
       configureIcon(icon, app, file.path, { iconManager });
+      placeIcon(icon, iconId);
+    }
+  });
+
+  // Load folders
+  desktopApps.folders.forEach((folder) => {
+    const icon = createDesktopIcon(folder, false, true);
+    if (icon) {
+      const app = apps.find((a) => a.id === folder.app);
+      const iconId = getIconId(app, folder.path);
+      configureIcon(icon, app, folder.path, { iconManager });
       placeIcon(icon, iconId);
     }
   });
