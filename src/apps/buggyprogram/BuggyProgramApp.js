@@ -3,7 +3,7 @@ import { launchApp } from "../../utils/appManager.js";
 import { playSound } from "../../utils/soundManager.js";
 import { ICONS } from "../../config/icons.js";
 import warningIconUrl from "../../assets/icons/msg_warning-0.png";
-import html2canvas from "html2canvas";
+import buggyWindowImageUrl from "./buggy-window.png";
 
 export class BuggyProgramApp extends Application {
   static config = {
@@ -75,6 +75,9 @@ export class BuggyProgramApp extends Application {
       const ctx = canvas.getContext("2d");
       let lastX, lastY;
 
+      const buggyWindowImage = new Image();
+      buggyWindowImage.src = buggyWindowImageUrl;
+
       const observer = new MutationObserver(() => {
         const rect = win.element.getBoundingClientRect();
 
@@ -83,17 +86,31 @@ export class BuggyProgramApp extends Application {
         lastX = rect.left;
         lastY = rect.top;
 
-        html2canvas(win.element).then((canvas) => {
-          ctx.drawImage(canvas, rect.left, rect.top);
-        });
+        ctx.drawImage(buggyWindowImage, rect.left, rect.top);
       });
       observer.observe(win.element, {
         attributes: true,
         attributeFilter: ["style"],
       });
 
+      const handleResize = () => {
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext("2d");
+        tempCtx.drawImage(canvas, 0, 0);
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        ctx.drawImage(tempCanvas, 0, 0);
+      };
+
+      window.addEventListener("resize", handleResize);
+
       const dispose = win.onClosed(() => {
         observer.disconnect();
+        window.removeEventListener("resize", handleResize);
         if (canvas.parentNode) {
           desktop.removeChild(canvas);
         }
