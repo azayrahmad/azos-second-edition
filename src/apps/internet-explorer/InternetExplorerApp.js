@@ -25,10 +25,12 @@ export class InternetExplorerApp extends IFrameApplication {
   }
 
   async _onLaunch(data) {
-    let url = "microsoft.com";
+    let url = "azay.rahmad";
 
     if (typeof data === "string") {
       url = data;
+    } else if (data instanceof File) {
+      url = URL.createObjectURL(data);
     } else if (typeof data === "object" && data !== null) {
       url = data.url || url;
       if (data.retroMode === false) {
@@ -110,6 +112,31 @@ export class InternetExplorerApp extends IFrameApplication {
     };
 
     this._loadUrl = (url, isHistoryNav = false) => {
+      if (url.includes("azay.rahmad")) {
+        let page = "home.html";
+        if (url.includes("about.html") || url.endsWith("/about")) {
+          page = "about.html";
+        } else if (url.includes("home.html")) {
+          page = "home.html";
+        } else if (
+          url !== "azay.rahmad" &&
+          url !== "http://azay.rahmad/" &&
+          url !== "http://azay.rahmad"
+        ) {
+          page = "404.html";
+        }
+        this.iframe.src = `./azay.rahmad/${page}`;
+        this.addressBar.setValue(url);
+        if (!isHistoryNav) {
+          if (this.historyIndex < this.history.length - 1) {
+            this.history.splice(this.historyIndex + 1);
+          }
+          this.history.push(url);
+          this.historyIndex = this.history.length - 1;
+        }
+        return;
+      }
+
       if (!isHistoryNav) {
         if (this.historyIndex < this.history.length - 1) {
           this.history.splice(this.historyIndex + 1);
@@ -119,12 +146,15 @@ export class InternetExplorerApp extends IFrameApplication {
       }
 
       let finalUrl = url.trim();
-      if (!finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
+
+      const isLocal = finalUrl.startsWith("blob:") || finalUrl.startsWith("file:") || finalUrl.includes("localhost") || finalUrl.includes("127.0.0.1");
+
+      if (!isLocal && !finalUrl.startsWith("http://") && !finalUrl.startsWith("https://")) {
         finalUrl = `https://${finalUrl}`;
       }
       this.addressBar.setValue(finalUrl);
 
-      const targetUrl = this.retroMode
+      const targetUrl = (this.retroMode && !isLocal)
         ? `https://web.archive.org/web/1998/${finalUrl}`
         : finalUrl;
 
@@ -144,24 +174,45 @@ export class InternetExplorerApp extends IFrameApplication {
     };
 
     this.iframe.onload = () => {
-      if (this.iframe.src.includes("/src/apps/internet-explorer/404.html")) {
+      if (this.iframe.src.includes("/azay.rahmad/404.html")) {
         this.statusText.textContent = "Page not found.";
         this._updateNavButtons();
         return;
       }
 
       try {
+        const iframeDoc = this.iframe.contentDocument;
         if (
-          this.iframe.contentWindow.document.title.includes("Not Found") ||
-          this.iframe.contentDocument.body.innerHTML.includes(
-            "Wayback Machine doesn",
-          )
+          iframeDoc.title.includes("Not Found") ||
+          iframeDoc.body.innerHTML.includes("Wayback Machine doesn")
         ) {
-          this.iframe.src = "/src/apps/internet-explorer/404.html";
+          this.iframe.src = "./azay.rahmad/404.html";
           this.statusText.textContent = "Page not found.";
         } else {
           this.statusText.textContent = "Done";
         }
+
+        // Add a click listener to the iframe content
+        iframeDoc.body.addEventListener("click", (e) => {
+          const anchor = e.target.closest("a");
+          if (anchor && anchor.getAttribute("href")) {
+            const href = anchor.getAttribute("href");
+            e.preventDefault();
+
+            // Handle relative links for azay.rahmad
+            if (
+              this.iframe.src.includes("azay.rahmad") &&
+              !href.startsWith("http") &&
+              !href.startsWith("https") &&
+              !href.startsWith("//")
+            ) {
+              const cleanHref = href.replace("./", "");
+              this._loadUrl(`azay.rahmad/${cleanHref}`);
+            } else {
+              this._loadUrl(href);
+            }
+          }
+        });
       } catch (e) {
         this.statusText.textContent = "Done";
       }
@@ -281,7 +332,7 @@ export class InternetExplorerApp extends IFrameApplication {
       {
         label: "Home",
         iconName: "home",
-        action: () => this.navigateTo("microsoft.com"),
+        action: () => this.navigateTo("azay.rahmad"),
       },
       "divider",
       {

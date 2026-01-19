@@ -6,11 +6,11 @@ import {
 } from "./localStorage.js";
 import { themes } from "../config/themes.js";
 import { colorSchemes } from "../config/colorSchemes.js";
+import { applyCursorTheme } from "./cursorManager.js";
 import {
-  applyCursorTheme,
-  applyBusyCursor,
-  clearBusyCursor,
-} from "./cursorManager.js";
+  requestBusyState,
+  releaseBusyState,
+} from "./busyStateManager.js";
 import { preloadThemeAssets } from "./assetPreloader.js";
 import screensaverManager from "./screensaverUtils.js";
 
@@ -179,20 +179,21 @@ export async function applyTheme() {
 }
 
 export async function setColorScheme(schemeId) {
-  applyBusyCursor(document.body);
+  const setColorSchemeId = `set-color-scheme-${Date.now()}`;
+  requestBusyState(setColorSchemeId, document.body);
   try {
     const allSchemes = getColorSchemes();
     const allThemes = getThemes(); // For custom themes
     if (!allSchemes[schemeId] && !allThemes[schemeId]?.colors) {
       console.error(`Color scheme with key "${schemeId}" not found.`);
-      clearBusyCursor(document.body);
+      releaseBusyState(setColorSchemeId, document.body);
       return;
     }
     setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, schemeId);
     await applyTheme();
     document.dispatchEvent(new CustomEvent("theme-changed"));
   } finally {
-    clearBusyCursor(document.body);
+    releaseBusyState(setColorSchemeId, document.body);
   }
 }
 
@@ -213,7 +214,8 @@ export async function applyCustomColorScheme(colorObject) {
     return;
   }
 
-  applyBusyCursor(document.body);
+  const applyCustomId = `apply-custom-color-scheme-${Date.now()}`;
+  requestBusyState(applyCustomId, document.body);
   try {
     await loadThemeParser();
     if (window.makeThemeCSSFile) {
@@ -225,12 +227,13 @@ export async function applyCustomColorScheme(colorObject) {
     setItem(LOCAL_STORAGE_KEYS.COLOR_SCHEME, "custom");
     document.dispatchEvent(new CustomEvent("theme-changed"));
   } finally {
-    clearBusyCursor(document.body);
+    releaseBusyState(applyCustomId, document.body);
   }
 }
 
 export async function setTheme(themeKey) {
-  applyBusyCursor(document.body);
+  const setThemeId = `set-theme-${Date.now()}`;
+  requestBusyState(setThemeId, document.body);
   try {
     const allThemes = getThemes();
     const newTheme = allThemes[themeKey];
@@ -266,6 +269,6 @@ export async function setTheme(themeKey) {
     document.dispatchEvent(new CustomEvent("wallpaper-changed"));
     document.dispatchEvent(new CustomEvent("theme-changed"));
   } finally {
-    clearBusyCursor(document.body);
+    releaseBusyState(setThemeId, document.body);
   }
 }

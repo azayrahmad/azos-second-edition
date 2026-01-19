@@ -64,6 +64,18 @@ export class WebampApp extends Application {
     const handleFile = (path) => {
       if (!path) return;
 
+      if (path instanceof File) {
+        const track = {
+          metaData: {
+            artist: "Unknown Artist",
+            title: path.name.replace(/\.[^/.]+$/, ""),
+          },
+          url: URL.createObjectURL(path),
+        };
+        webampInstance.setTracksToPlay([track]);
+        return;
+      }
+
       if (typeof path === "string" && path.toLowerCase().endsWith(".m3u")) {
         fetch(path)
           .then((response) => response.text())

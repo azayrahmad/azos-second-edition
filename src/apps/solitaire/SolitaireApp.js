@@ -11,6 +11,8 @@ import {
 import "./solitaire.css";
 import "./options.css";
 import "../../styles/solitaire.css";
+import { preloadImage } from "../../utils/assetPreloader.js";
+import solitaireSprite from "../../assets/img/solitaire.png";
 
 const animatedCardBacks = {
   "cardback-robot1": { frames: 3, prefix: "cardback-robot" },
@@ -30,6 +32,8 @@ export class SolitaireApp extends Application {
   };
 
   async _createWindow() {
+    await preloadImage(solitaireSprite);
+
     const win = new window.$Window({
       title: this.config.title,
       outerWidth: this.config.width,
@@ -136,7 +140,7 @@ export class SolitaireApp extends Application {
           },
           {
             label: "No",
-            action: () => {},
+            action: () => { },
           },
         ],
         parentWindow: this.win,
@@ -223,7 +227,7 @@ export class SolitaireApp extends Application {
     let currentFrame = 1;
     let animationDirection = 1; // 1 for increasing, -1 for decreasing
 
-    this.animationTimer = setInterval(() => {
+    const applyFrame = () => {
       const stockCard = this.container.querySelector(".stock-top-card");
       if (stockCard) {
         // Remove all frames for the current animation before adding the new one
@@ -242,7 +246,12 @@ export class SolitaireApp extends Application {
           animationDirection = 1;
         }
       }
-    }, 500);
+    };
+
+    // Apply the first frame immediately to avoid flickering
+    applyFrame();
+
+    this.animationTimer = setInterval(applyFrame, 500);
   }
 
   _showDeckSelectionDialog() {
@@ -850,15 +859,13 @@ export class SolitaireApp extends Application {
           <legend>Draw</legend>
           <div class="options-column">
             <div class="field-row">
-              <input type="radio" id="drawOne" name="draw" value="one" ${
-                drawOption === "one" ? "checked" : ""
-              }>
+              <input type="radio" id="drawOne" name="draw" value="one" ${drawOption === "one" ? "checked" : ""
+      }>
               <label for="drawOne">Draw one</label>
             </div>
             <div class="field-row">
-              <input type="radio" id="drawThree" name="draw" value="three" ${
-                drawOption === "three" ? "checked" : ""
-              }>
+              <input type="radio" id="drawThree" name="draw" value="three" ${drawOption === "three" ? "checked" : ""
+      }>
               <label for="drawThree">Draw three</label>
             </div>
           </div>
@@ -867,21 +874,18 @@ export class SolitaireApp extends Application {
           <legend>Scoring</legend>
           <div class="options-column">
             <div class="field-row">
-              <input type="radio" id="standard" name="scoring" value="standard" ${
-                scoringOption === "standard" ? "checked" : ""
-              }>
+              <input type="radio" id="standard" name="scoring" value="standard" ${scoringOption === "standard" ? "checked" : ""
+      }>
               <label for="standard">Standard</label>
             </div>
             <div class="field-row">
-              <input type="radio" id="vegas" name="scoring" value="vegas" ${
-                scoringOption === "vegas" ? "checked" : ""
-              }>
+              <input type="radio" id="vegas" name="scoring" value="vegas" ${scoringOption === "vegas" ? "checked" : ""
+      }>
               <label for="vegas">Vegas</label>
             </div>
             <div class="field-row">
-              <input type="radio" id="none" name="scoring" value="none" ${
-                scoringOption === "none" ? "checked" : ""
-              }>
+              <input type="radio" id="none" name="scoring" value="none" ${scoringOption === "none" ? "checked" : ""
+      }>
               <label for="none">None</label>
             </div>
           </div>
@@ -890,29 +894,25 @@ export class SolitaireApp extends Application {
       <div class="options-row">
           <div class="options-column">
             <div class="field-row">
-                <input type="checkbox" id="timedGame" ${
-                  isTimedGame ? "checked" : ""
-                }>
+                <input type="checkbox" id="timedGame" ${isTimedGame ? "checked" : ""
+      }>
                 <label for="timedGame">Timed game</label>
             </div>
             <div class="field-row">
-                <input type="checkbox" id="statusBar" ${
-                  showStatusBar ? "checked" : ""
-                }>
+                <input type="checkbox" id="statusBar" ${showStatusBar ? "checked" : ""
+      }>
                 <label for="statusBar">Status bar</label>
             </div>
           </div>
           <div class="options-column">
             <div class="field-row">
-                <input type="checkbox" id="outlineDragging" ${
-                  this.outlineDraggingEnabled ? "checked" : ""
-                }>
+                <input type="checkbox" id="outlineDragging" ${this.outlineDraggingEnabled ? "checked" : ""
+      }>
                 <label for="outlineDragging">Outline dragging</label>
             </div>
             <div class="field-row">
-                <input type="checkbox" id="keepScore" ${
-                  keepScore ? "checked" : ""
-                }>
+                <input type="checkbox" id="keepScore" ${keepScore ? "checked" : ""
+      }>
                 <label for="keepScore">Keep score</label>
             </div>
           </div>

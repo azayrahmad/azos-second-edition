@@ -25,6 +25,7 @@ import {
   getItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
+import { floppyManager } from "../../utils/floppyManager.js";
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
@@ -41,6 +42,10 @@ import { getItemFromIcon as getItemFromIconUtil } from "../../utils/iconUtils.js
 import { StatusBar } from "../../components/StatusBar.js";
 import { downloadFile } from "../../utils/fileDownloader.js";
 import { truncateName } from "../../utils/stringUtils.js";
+import {
+  requestWaitState,
+  releaseWaitState,
+} from "../../utils/busyStateManager.js";
 import "./explorer.css";
 
 function isAutoArrangeEnabled() {
@@ -376,6 +381,7 @@ export class ExplorerApp extends Application {
     mainContainer.style.display = "flex";
     mainContainer.style.flexDirection = "column";
     mainContainer.style.height = "100%";
+    mainContainer.style.overflow = "auto";
 
     mainContainer.append(content);
 
@@ -517,6 +523,14 @@ export class ExplorerApp extends Application {
     };
     document.addEventListener("explorer-refresh", this.refreshHandler);
 
+    this.floppyChangeHandler = () => {
+      if (this.currentPath === "/" || this.currentPath === "/drive-a") {
+        this.render(this.currentPath);
+      }
+    };
+    document.addEventListener("floppy-inserted", this.floppyChangeHandler);
+    document.addEventListener("floppy-ejected", this.floppyChangeHandler);
+
     this.clipboardHandler = () => {
       this.updateCutIcons();
       this.updateMenuState();
@@ -526,6 +540,8 @@ export class ExplorerApp extends Application {
     this.win.onClosed(() => {
       document.removeEventListener("explorer-refresh", this.refreshHandler);
       document.removeEventListener("clipboard-change", this.clipboardHandler);
+      document.removeEventListener("floppy-inserted", this.floppyChangeHandler);
+      document.removeEventListener("floppy-ejected", this.floppyChangeHandler);
     });
 
     // Drag and drop functionality
@@ -625,6 +641,8 @@ export class ExplorerApp extends Application {
     document.removeEventListener("explorer-refresh", this.refreshHandler);
     document.removeEventListener("clipboard-change", this.clipboardHandler);
     document.removeEventListener("mouseup", this.handleMouseUp);
+    document.removeEventListener("floppy-inserted", this.floppyChangeHandler);
+    document.removeEventListener("floppy-ejected", this.floppyChangeHandler);
   }
 
   async _onLaunch(filePath) {
@@ -646,6 +664,41 @@ export class ExplorerApp extends Application {
     this.render(path, true);
     this.updateMenuState();
     this.addressBar.setValue(convertInternalPathToWindows(path));
+  }
+
+  _renderIcons() {
+    this.currentFolderItems.forEach((child) => {
+      let iconData = { ...child };
+
+      // Resolve shortcuts
+      if (child.type === "shortcut") {
+        const target = this.findItemInDirectory(child.targetId);
+        if (target) {
+          iconData = { ...target, name: child.name };
+        }
+      }
+
+      const app = apps.find((a) => a.id === iconData.appId);
+      if (app) {
+        iconData.icon = app.icon;
+        iconData.title = app.title;
+      }
+
+      const icon = this.createExplorerIcon(iconData);
+      this._configureDraggableIcon(icon, child);
+
+      const allPositions = getExplorerIconPositions();
+      const pathPositions = allPositions[this.currentPath] || {};
+      const uniqueId = this._getUniqueItemId(child);
+
+      if (pathPositions[uniqueId]) {
+        icon.style.position = "absolute";
+        icon.style.left = pathPositions[uniqueId].x;
+        icon.style.top = pathPositions[uniqueId].y;
+      }
+
+      this.iconContainer.appendChild(icon);
+    });
   }
 
   render(path, isNewNavigation = true) {
@@ -678,6 +731,36 @@ export class ExplorerApp extends Application {
 
     let children = [];
     if (isNewNavigation) {
+      if (item.type === "floppy") {
+        requestWaitState("explorer-floppy", this.win.element);
+
+        // Clear current items while loading
+        this.currentFolderItems = [];
+
+        setTimeout(() => {
+          // If the user navigated away, don't update
+          if (this.currentPath !== path) return;
+
+          const floppyContents = floppyManager.getContents();
+          if (floppyContents) {
+            children = [...floppyContents];
+          }
+
+          // Sort children alphabetically by name
+          children.sort((a, b) => {
+            const nameA = a.name || a.title || a.filename || "";
+            const nameB = b.name || b.title || b.filename || "";
+            return nameA.localeCompare(nameB);
+          });
+
+          this.currentFolderItems = children;
+          this._renderIcons();
+          releaseWaitState("explorer-floppy", this.win.element);
+        }, 1500); // Simulate floppy read speed
+
+        return;
+      }
+
       if (path === SPECIAL_FOLDER_PATHS.desktop) {
         const desktopContents = getDesktopContents();
         const desktopApps = desktopContents.apps.map((appId) => {
@@ -758,8 +841,15 @@ export class ExplorerApp extends Application {
   createExplorerIcon(item) {
     const app = apps.find((a) => a.id === item.appId) || {};
     const originalName = item.name || item.filename || item.title || app.title;
-    const displayName =
+    let displayName =
       item.type === "drive" ? `(${originalName})` : originalName;
+
+    if (item.type === "floppy") {
+      const folderName = floppyManager.getFolderName();
+      displayName = folderName
+        ? `(${originalName}) ${folderName}`
+        : `(${originalName})`;
+    }
 
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
@@ -777,6 +867,8 @@ export class ExplorerApp extends Application {
       iconImg.src = item.icon[32];
     } else if (item.id === "folder-control-panel") {
       iconImg.src = ICONS.controlPanel[32];
+    } else if (item.type === "floppy") {
+      iconImg.src = ICONS.disketteDrive[32];
     } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
@@ -893,8 +985,58 @@ export class ExplorerApp extends Application {
     return null;
   }
 
-  _launchItem(item) {
+  async _launchItem(item) {
+    // 0. Handle floppy files (dynamic content)
+    if (item.getHandle) {
+      try {
+        const handle = item.getHandle(); // This returns the FileSystemHandle (File or Directory)
+
+        if (handle.kind === "file") {
+          const file = await handle.getFile();
+          const fileName = file.name;
+          const association = getAssociation(fileName);
+          if (association.appId) {
+            await launchApp(association.appId, file);
+            return; // Successfully launched file, stop here.
+          } else {
+            ShowDialogWindow({
+              title: "Unknown File Type",
+              text: `No application associated with "${fileName}".`,
+              buttons: [{ label: "OK", isDefault: true }],
+            });
+            return; // Stop here if unknown file type
+          }
+        }
+        // If it is a directory, allow fall-through to normal folder navigation logic.
+      } catch (err) {
+        console.error("Error launching floppy file:", err);
+        ShowDialogWindow({
+          title: "Error",
+          text: "Could not open file from disk.",
+          buttons: [{ label: "OK", isDefault: true }],
+        });
+        return;
+      }
+    }
+
     // 1. Handle navigation for folders/drives
+    if (item.type === "floppy") {
+      if (floppyManager.isInserted()) {
+        const newPath =
+          this.currentPath === "/"
+            ? `/${item.id}`
+            : `${this.currentPath}/${item.id}`;
+        this.navigateTo(newPath);
+      } else {
+        ShowDialogWindow({
+          title: "No disk",
+          text: "There is no disk in the drive.",
+          buttons: [{ label: "OK", isDefault: true }],
+        });
+      }
+      return;
+    }
+
     if (item.type === "folder" || item.type === "drive") {
       const newPath =
         this.currentPath === "/"
@@ -1053,11 +1195,13 @@ export class ExplorerApp extends Application {
         action: () => this._launchItem(clickedItem),
       });
 
-      const association = getAssociation(clickedItem.name || clickedItem.filename);
-      if (association.appId === 'media-player') {
+      const association = getAssociation(
+        clickedItem.name || clickedItem.filename,
+      );
+      if (association.appId === "media-player") {
         menuItems.push({
-          label: 'Play in Winamp',
-          action: () => launchApp('webamp', clickedItem),
+          label: "Play in Winamp",
+          action: () => launchApp("webamp", clickedItem),
         });
       }
 
@@ -1075,7 +1219,11 @@ export class ExplorerApp extends Application {
         label: "Download",
         action: () => {
           itemsToOperateOn.forEach((item) => {
-            if (item.isStatic || item.type === "folder" || item.type === "drive")
+            if (
+              item.isStatic ||
+              item.type === "folder" ||
+              item.type === "drive"
+            )
               return;
 
             const filename = item.name || item.filename;
@@ -1141,6 +1289,28 @@ export class ExplorerApp extends Application {
         label: "Properties",
         action: () => this.showProperties(clickedItem),
       });
+    }
+
+    if (clickedItem.type === "floppy") {
+      if (floppyManager.isInserted()) {
+        menuItems.unshift({
+          label: "Eject",
+          action: () => floppyManager.eject(),
+        });
+      } else {
+        menuItems.unshift({
+          label: "Insert",
+          action: () => {
+            const floppyRequesterId = "explorer-floppy-insert";
+            floppyManager.insert({
+              onBeforeInsert: () =>
+                requestWaitState(floppyRequesterId, this.win.element),
+              onAfterInsert: () =>
+                releaseWaitState(floppyRequesterId, this.win.element),
+            });
+          },
+        });
+      }
     }
 
     new window.ContextMenu(menuItems, event);

@@ -1,5 +1,8 @@
 import { apps } from "../config/apps.js";
-import { applyWaitCursor, clearWaitCursor } from "./cursorManager.js";
+import {
+  requestWaitState,
+  releaseWaitState,
+} from "./busyStateManager.js";
 import { openApps } from '../apps/Application.js';
 import { playSound } from "./soundManager.js";
 
@@ -34,23 +37,24 @@ const appManager = {
 };
 
 export async function launchApp(appId, data = null) {
-    applyWaitCursor();
+  const launchId = `launch-${appId}-${Date.now()}`;
+  requestWaitState(launchId);
 
-    const appConfig = appManager.getAppConfig(appId);
-    playSound("Open");
-    if (!appConfig) {
-        console.error(`No application config found for ID: ${appId}`);
-        clearWaitCursor();
-        return;
-    }
+  const appConfig = appManager.getAppConfig(appId);
+  playSound("Open");
+  if (!appConfig) {
+    console.error(`No application config found for ID: ${appId}`);
+    releaseWaitState(launchId);
+    return;
+  }
 
-    // Handle singleton apps that are already running
-    const runningApp = appManager.runningApps[appId];
-    if (runningApp && appConfig.isSingleton) {
-        runningApp.launch(data); // This will handle focus or file loading
-        clearWaitCursor();
-        return runningApp;
-    }
+  // Handle singleton apps that are already running
+  const runningApp = appManager.runningApps[appId];
+  if (runningApp && appConfig.isSingleton) {
+    runningApp.launch(data); // This will handle focus or file loading
+    releaseWaitState(launchId);
+    return runningApp;
+  }
 
     try {
         if (appConfig.appClass) {
@@ -68,7 +72,7 @@ export async function launchApp(appId, data = null) {
         console.error(`Failed to launch app: ${appId}`, error);
         alert(`Could not launch ${appId}. See console for details.`);
     } finally {
-        clearWaitCursor();
+        releaseWaitState(launchId);
     }
 }
 

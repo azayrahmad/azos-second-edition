@@ -2,13 +2,26 @@ import { themes } from '../config/themes.js';
 import { soundSchemes } from '../config/sound-schemes.js';
 import { cursors } from '../config/cursors.js';
 
-async function preloadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = resolve;
-    img.onerror = reject;
-  });
+export async function preloadImage(src) {
+  const img = new Image();
+  img.src = src;
+  if ('decode' in img) {
+    return img.decode().catch((err) => {
+      console.warn(`Failed to decode image: ${src}`, err);
+      // Fallback to standard loading if decode fails
+      return new Promise((resolve, reject) => {
+        if (img.complete) return resolve();
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+    });
+  } else {
+    return new Promise((resolve, reject) => {
+      if (img.complete) return resolve();
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+  }
 }
 
 async function preloadAudio(src) {

@@ -3,6 +3,7 @@ import { apps } from "../config/apps.js";
 import { fileAssociations } from "../config/fileAssociations.js";
 import { getRecycleBinItems } from "./recycleBinManager.js";
 import { networkNeighborhood } from "../config/networkNeighborhood.js";
+import { floppyManager } from "./floppyManager.js";
 
 export function getAssociation(filename) {
   const extension = filename.split(".").pop().toLowerCase();
@@ -151,17 +152,7 @@ export function findItemByPath(path) {
   }
 
   if (!path || path === "/") {
-    const children = directory
-      .filter((item) => item.type !== "briefcase")
-      .sort((a, b) => {
-        if (a.type === "drive" && b.type !== "drive") {
-          return -1;
-        }
-        if (a.type !== "drive" && b.type === "drive") {
-          return 1;
-        }
-        return (a.name || "").localeCompare(b.name || "");
-      });
+    const children = directory.filter((item) => item.type !== "briefcase");
 
     return {
       id: "root",
@@ -176,9 +167,20 @@ export function findItemByPath(path) {
   let currentItem = null;
 
   for (const part of parts) {
-    const found = currentLevel.find(
+    let listToSearch = currentLevel;
+
+    // specific handling for floppy traversal
+    if (currentItem && currentItem.type === "floppy") {
+      const floppyContents = floppyManager.getContents();
+      if (floppyContents) {
+        listToSearch = floppyContents;
+      }
+    }
+
+    const found = listToSearch.find(
       (item) => item.name === part || item.id === part,
     );
+
     if (found) {
       currentItem = found;
       currentLevel = found.children || [];
