@@ -522,6 +522,8 @@ export class SolitaireApp extends Application {
       } else {
         const placeholderDiv = document.createElement("div");
         placeholderDiv.className = "foundation-placeholder";
+        placeholderDiv.dataset.pileIndex = pileIndex;
+        placeholderDiv.dataset.pileType = "foundation";
         pileDiv.appendChild(placeholderDiv);
       }
       foundationContainer.appendChild(pileDiv);
@@ -693,15 +695,16 @@ export class SolitaireApp extends Application {
     this.draggedElement.style.top = `${y}px`;
 
     if (this.outlineDraggingEnabled) {
-      // Temporarily hide the outline to find the element underneath
-      this.draggedElement.style.display = "none";
-      this.draggedElement.style.display = "";
-
       const draggedRect = this.draggedElement.getBoundingClientRect();
       const potentialTargets = this.container.querySelectorAll(
-        ".tableau-pile, .foundation-pile",
+      ".tableau-pile, .foundation-pile, .foundation-placeholder, .tableau-placeholder",
       );
-      const toPileDiv = findBestDropTarget(draggedRect, [...potentialTargets]);
+    let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
+
+    if (bestTarget?.classList.contains('foundation-placeholder') || bestTarget?.classList.contains('tableau-placeholder')) {
+      bestTarget = bestTarget.closest('.tableau-pile, .foundation-pile');
+    }
+    const toPileDiv = bestTarget;
 
       if (this.hoveredTarget && this.hoveredTarget !== toPileDiv) {
         this.hoveredTarget.classList.remove("invert-colors");
@@ -772,9 +775,16 @@ export class SolitaireApp extends Application {
     this.draggedElement = null;
 
     const potentialTargets = this.container.querySelectorAll(
-      ".tableau-pile, .foundation-pile",
+      ".tableau-pile, .foundation-pile, .foundation-placeholder, .tableau-placeholder",
     );
-    const toPileDiv = findBestDropTarget(draggedRect, [...potentialTargets]);
+    let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
+
+    if (bestTarget) {
+      if (bestTarget.classList.contains('foundation-placeholder') || bestTarget.classList.contains('tableau-placeholder')) {
+        bestTarget = bestTarget.closest('.tableau-pile, .foundation-pile');
+      }
+    }
+    const toPileDiv = bestTarget;
 
     if (toPileDiv) {
       const {

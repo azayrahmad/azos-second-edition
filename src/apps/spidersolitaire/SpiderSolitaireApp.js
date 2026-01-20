@@ -68,6 +68,7 @@ export class SpiderSolitaireApp extends Application {
     this.draggedCardsInfo = null;
     this.dragOffsetX = 0;
     this.dragOffsetY = 0;
+    this.hoveredTarget = null;
 
     this.boundOnMouseMove = this.onMouseMove.bind(this);
     this.boundOnMouseUp = this.onMouseUp.bind(this);
@@ -548,6 +549,9 @@ export class SpiderSolitaireApp extends Application {
         }
       });
 
+      this.draggedElement.style.width = `${cardRect.width}px`;
+      this.draggedElement.style.height = `${cardRect.height + (cardsToDrag.length - 1) * overlap}px`;
+
       this.container.appendChild(this.draggedElement);
       this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
       this.draggedElement.style.top = `${cardRect.top - containerRect.top}px`;
@@ -562,10 +566,56 @@ export class SpiderSolitaireApp extends Application {
     const containerRect = this.container.getBoundingClientRect();
     this.draggedElement.style.left = `${event.clientX - containerRect.left - this.dragOffsetX}px`;
     this.draggedElement.style.top = `${event.clientY - containerRect.top - this.dragOffsetY}px`;
+
+    const draggedRect = this.draggedElement.getBoundingClientRect();
+    const potentialTargets = this.container.querySelectorAll(
+      ".tableau-pile, .tableau-placeholder",
+    );
+    let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
+
+    if (bestTarget?.classList.contains("tableau-placeholder")) {
+      bestTarget = bestTarget.closest(".tableau-pile");
+    }
+    const toPileDiv = bestTarget;
+
+    if (this.hoveredTarget && this.hoveredTarget !== toPileDiv) {
+      this.hoveredTarget.classList.remove("invert-colors");
+      this.hoveredTarget = null;
+    }
+
+    if (toPileDiv) {
+      const { pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
+      const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
+
+      if (this.game.isMoveValid(fromPileIndex, cardIndex, toPileIndex)) {
+        const topCard = toPileDiv.querySelector(".card:last-child");
+        const placeholder = toPileDiv.querySelector(".tableau-placeholder");
+        const highlightTarget = topCard || placeholder;
+
+        if (highlightTarget && this.hoveredTarget !== highlightTarget) {
+          if (this.hoveredTarget) {
+            this.hoveredTarget.classList.remove("invert-colors");
+          }
+          highlightTarget.classList.add("invert-colors");
+          this.hoveredTarget = highlightTarget;
+        }
+      } else if (this.hoveredTarget) {
+        this.hoveredTarget.classList.remove("invert-colors");
+        this.hoveredTarget = null;
+      }
+    } else if (this.hoveredTarget) {
+      this.hoveredTarget.classList.remove("invert-colors");
+      this.hoveredTarget = null;
+    }
   }
 
   onMouseUp(event) {
     if (!this.isDragging) return;
+
+    if (this.hoveredTarget) {
+      this.hoveredTarget.classList.remove("invert-colors");
+      this.hoveredTarget = null;
+    }
 
     // Cleanup dragging state
     this.isDragging = false;
@@ -581,8 +631,15 @@ export class SpiderSolitaireApp extends Application {
     this.container.removeChild(this.draggedElement);
     this.draggedElement = null;
 
-    const potentialTargets = this.container.querySelectorAll(".tableau-pile");
-    const toPileDiv = findBestDropTarget(draggedRect, [...potentialTargets]);
+    const potentialTargets = this.container.querySelectorAll(
+      ".tableau-pile, .tableau-placeholder",
+    );
+    let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
+
+    if (bestTarget?.classList.contains("tableau-placeholder")) {
+      bestTarget = bestTarget.closest(".tableau-pile");
+    }
+    const toPileDiv = bestTarget;
 
     if (toPileDiv) {
       const { pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
