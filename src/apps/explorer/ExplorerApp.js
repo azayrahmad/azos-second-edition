@@ -1029,9 +1029,23 @@ export class ExplorerApp extends Application {
         this.navigateTo(newPath);
       } else {
         ShowDialogWindow({
-          title: "No disk",
-          text: "There is no disk in the drive.",
-          buttons: [{ label: "OK", isDefault: true }],
+          title: item.name,
+          text: "Insert floppy disk into drive A:\\",
+          buttons: [
+            {
+              label: "OK",
+              action: () => {
+                const floppyRequesterId = "explorer-floppy-insert";
+                floppyManager.insert({
+                  onBeforeInsert: () =>
+                    requestWaitState(floppyRequesterId, this.win.element),
+                  onAfterInsert: () =>
+                    releaseWaitState(floppyRequesterId, this.win.element),
+                });
+              },
+            },
+            { label: "Cancel" },
+          ],
         });
       }
       return;
