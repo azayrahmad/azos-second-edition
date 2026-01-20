@@ -3,6 +3,7 @@ import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getItem, setItem, removeItem } from "../../utils/localStorage.js";
+import { findBestDropTarget } from "../../utils/solitaireHelper.js";
 import { Statistics } from "./Statistics.js";
 import { options, getAllOptions, setAllOptions } from "./OptionsManager.js";
 import "./spidersolitaire.css";
@@ -569,15 +570,12 @@ export class SpiderSolitaireApp extends Application {
       .querySelectorAll(".dragging")
       .forEach((el) => el.classList.remove("dragging"));
 
-    // Hide the clone to find the underlying element
-    this.draggedElement.style.display = "none";
-    const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
-
-    // Remove the clone
+    const draggedRect = this.draggedElement.getBoundingClientRect();
     this.container.removeChild(this.draggedElement);
     this.draggedElement = null;
 
-    const toPileDiv = dropTarget?.closest(".tableau-pile");
+    const potentialTargets = this.container.querySelectorAll(".tableau-pile");
+    const toPileDiv = findBestDropTarget(draggedRect, [...potentialTargets]);
 
     if (toPileDiv) {
       const { pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
