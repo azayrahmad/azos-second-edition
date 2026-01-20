@@ -535,11 +535,14 @@ class StartMenu {
                 label: 'OK',
                 action: () => {
                     const selectedOption = content.querySelector('input[name="shutdown-option"]:checked').value;
+                    playSound("SystemExit");
+
                     if (selectedOption === 'shutdown') {
-                        playSound("SystemExit");
                         showShutdownScreen();
+                    } else if (selectedOption === 'restart') {
+                        showShutdownScreen();
+                        setTimeout(() => location.reload(), 2000);
                     } else {
-                        playSound("SystemExit");
                         setTimeout(() => location.reload(), 500);
                     }
                 },
