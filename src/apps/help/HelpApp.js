@@ -4,9 +4,6 @@ import helpData from "../../config/help.json";
 import "./help.css";
 import contentHtml from "./help.html?raw";
 
-// Use Vite's glob import to eagerly load all possible help content.
-// This ensures they are included in the production build with correct paths.
-const htmContentModules = import.meta.glob('/src/apps/**/*.htm', { as: 'url', eager: true });
 import { ICONS } from "../../config/icons.js";
 const jsonContentModules = import.meta.glob('/src/apps/**/*.json', { eager: true });
 console.log('[HelpApp] Available JSON modules:', Object.keys(jsonContentModules));
@@ -83,7 +80,7 @@ class HelpApp extends Application {
 
     // Show the default topic by default
     const defaultTopic = {
-      file: "help/content/default.htm",
+      file: "help/default/default.htm",
       title: "Welcome",
     };
     await this._showTopic(defaultTopic, true);
@@ -94,20 +91,28 @@ class HelpApp extends Application {
     contentPanel.html(""); // Clear content first
 
     if (topic.file) {
-      const fullPath = `/src/apps/${topic.file}`;
-      const htmlContent = htmContentModules[fullPath];
+      const helpFileUrl = `${import.meta.env.BASE_URL}${topic.file}`;
 
-      if (htmlContent) {
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        iframe.src = htmlContent;
-        contentPanel.append(iframe);
-      } else {
-        console.error(`Failed to find pre-loaded help content for ${topic.file}`);
-        contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
-      }
+      // Although the glob import is gone, we can do a quick check
+      // to see if the file is likely to exist.
+      fetch(helpFileUrl, { method: 'HEAD' })
+        .then(response => {
+          if (response.ok) {
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.src = helpFileUrl;
+            contentPanel.append(iframe);
+          } else {
+            console.error(`Help file not found: ${helpFileUrl}`);
+            contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Content not found.</div>`);
+          }
+        })
+        .catch(error => {
+          console.error(`Error fetching help file: ${error}`);
+          contentPanel.html(`<h2 class="help-topic-title">Error</h2><div class="help-topic-content">Could not load content.</div>`);
+        });
     } else if (topic.content) {
       // This can be used for topics that define content directly
       contentPanel.html(`

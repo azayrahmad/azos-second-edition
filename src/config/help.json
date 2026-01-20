@@ -4,17 +4,17 @@
     {
       "title": "Troubleshooting",
       "icon": "book",
-      "file": "help/content/troubleshooting.htm",
+      "file": "help/default/troubleshooting.htm",
       "children": [
         {
           "title": "Printing Problems",
           "icon": "page",
-          "file": "help/content/printing_problems.html"
+          "file": "help/default/printing_problems.html"
         },
         {
           "title": "Network Problems",
           "icon": "page",
-          "file": "help/content/network_problems.html"
+          "file": "help/default/network_problems.html"
         }
       ]
     },
@@ -25,7 +25,7 @@
         {
           "title": "Magnifier",
           "icon": "page",
-          "file": "help/content/magnifier.html"
+          "file": "help/default/magnifier.html"
         }
       ]
     }
