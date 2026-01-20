@@ -21,6 +21,7 @@ export class CalculatorLogic {
     this.isHyperbolic = false;
     this.isScientificNotation = false;
     this.inputtingExponent = false;
+    this.wordSize = 32; // 32, 16, 8
   }
 
   // Clears the current entry
@@ -469,6 +470,33 @@ export class CalculatorLogic {
   // Angle unit
   setAngleUnit(unit) {
     this.angleUnit = unit;
+  }
+
+  // Word size for non-decimal bases
+  setWordSize(newSize) {
+    if (this.base === 10 || this.wordSize === newSize) return;
+
+    this.wordSize = newSize;
+    let value = parseInt(this.currentValue, this.base);
+
+    if (isNaN(value)) return;
+
+    if (newSize === 32) {
+      value = value | 0;
+    } else {
+      const bitMask = (1 << newSize) - 1;
+      const signBit = 1 << (newSize - 1);
+
+      value &= bitMask;
+
+      // Check sign bit for proper negative representation
+      if ((value & signBit) !== 0) {
+        // It's a negative number in two's complement, convert back to a standard negative number for display
+        value = value - (1 << newSize);
+      }
+    }
+
+    this.currentValue = value.toString(this.base).toUpperCase();
   }
 
   // Parenthesis

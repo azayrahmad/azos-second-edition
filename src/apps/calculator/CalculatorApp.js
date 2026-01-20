@@ -292,10 +292,15 @@ export class CalculatorApp extends Application {
                         <div class="field-row" data-tooltip-id="oct"><input type="radio" name="number-system" id="oct" value="8"><label for="oct">Oct</label></div>
                         <div class="field-row" data-tooltip-id="bin"><input type="radio" name="number-system" id="bin" value="2"><label for="bin">Bin</label></div>
                     </fieldset>
-                    <fieldset class="group-box">
+                    <fieldset class="group-box angle-measure-group">
                         <div class="field-row" data-tooltip-id="degrees"><input type="radio" name="angle-measure" id="degrees" value="degrees" checked><label for="degrees">Degrees</label></div>
                         <div class="field-row" data-tooltip-id="radians"><input type="radio" name="angle-measure" id="radians" value="radians"><label for="radians">Radians</label></div>
                         <div class="field-row" data-tooltip-id="gradients"><input type="radio" name="angle-measure" id="gradients" value="gradients"><label for="gradients">Gradients</label></div>
+                    </fieldset>
+                    <fieldset class="group-box word-size-group" style="display: none;">
+                        <div class="field-row" data-tooltip-id="dword"><input type="radio" name="word-size" id="dword" value="32" checked><label for="dword">Dword</label></div>
+                        <div class="field-row" data-tooltip-id="word"><input type="radio" name="word-size" id="word" value="16"><label for="word">Word</label></div>
+                        <div class="field-row" data-tooltip-id="byte"><input type="radio" name="word-size" id="byte" value="8"><label for="byte">Byte</label></div>
                     </fieldset>
                 </div>
                 <div class="control-row control-row-bottom">
@@ -325,6 +330,9 @@ export class CalculatorApp extends Application {
       gradients: "Gradians",
       inv: "Sets the inverse function for sin, cos, tan, PI, x^y, x^2, x^3, ln, log, Ave, Sum, and s.\nThe functions automatically turn off the inverse function after a calculation is completed.",
       hyp: "Sets the hyperbolic function for sin, cos, and tan.\nThe functions automatically turn off the hyperbolic function after a calculation is completed.",
+      dword: "Convert the displayed number to full 32-bit representation.",
+      word: "Convert the displayed number to 16-bit representation.",
+      byte: "Convert the displayed number to 8-bit representation.",
     };
 
     Object.entries(tooltips).forEach(([id, text]) => {
@@ -362,6 +370,16 @@ export class CalculatorApp extends Application {
       },
     );
 
+    $.each(
+      this.win.$content.find('input[name="word-size"]'),
+      (index, radio) => {
+        radio.addEventListener("change", (e) => {
+          this.logic.setWordSize(parseInt(e.target.value));
+          this._updateDisplay();
+        });
+      },
+    );
+
     const invCheckbox = this.win.$content.find("#inv")[0];
     if (invCheckbox) {
       invCheckbox.addEventListener("change", () => {
@@ -382,6 +400,20 @@ export class CalculatorApp extends Application {
     this.logic.setBase(newBase);
     this._updateDisplay();
     this._updateHexButtonState();
+    this._updateScientificControlsVisibility(newBase);
+  }
+
+  _updateScientificControlsVisibility(base) {
+    const angleMeasureGroup = this.win.$content.find(".angle-measure-group")[0];
+    const wordSizeGroup = this.win.$content.find(".word-size-group")[0];
+
+    if (base === 10) {
+      angleMeasureGroup.style.display = "";
+      wordSizeGroup.style.display = "none";
+    } else {
+      angleMeasureGroup.style.display = "none";
+      wordSizeGroup.style.display = "";
+    }
   }
 
   _updateHexButtonState() {
