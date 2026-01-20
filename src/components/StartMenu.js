@@ -540,7 +540,7 @@ class StartMenu {
                     if (selectedOption === 'shutdown') {
                         showShutdownScreen();
                     } else if (selectedOption === 'restart') {
-                        showShutdownScreen();
+                        showShutdownScreen(true);
                         setTimeout(() => location.reload(), 2000);
                     } else {
                         setTimeout(() => location.reload(), 500);
