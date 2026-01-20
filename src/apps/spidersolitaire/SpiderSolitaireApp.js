@@ -530,14 +530,21 @@ export class SpiderSolitaireApp extends Application {
       this.draggedElement.style.position = "absolute";
       this.draggedElement.style.zIndex = "1000";
 
+      let topOffset = 0;
+      const overlap = 20;
+
       cardsToDrag.forEach((card) => {
         const originalElement = this.container.querySelector(
           `.card[data-uid='${card.uid}']`,
         );
         if (originalElement) {
           const clone = originalElement.cloneNode(true);
+          clone.style.position = "absolute";
+          clone.style.left = "0px";
+          clone.style.top = `${topOffset}px`;
           this.draggedElement.appendChild(clone);
           originalElement.classList.add("dragging");
+          topOffset += overlap;
         }
       });
 
