@@ -1,7 +1,7 @@
 import shuttingdown from '../assets/img/shuttingdown.png';
 import shutdown from '../assets/img/shutdown.png';
 
-function showShutdownScreen() {
+function showShutdownScreen(isRestart = false) {
     const screen = document.getElementById('screen');
     if (screen) {
         screen.style.display = 'none';
@@ -16,9 +16,11 @@ function showShutdownScreen() {
 
     document.body.appendChild(overlay);
 
-    setTimeout(() => {
-        image.src = shutdown;
-    }, 1000);
+    if (!isRestart) {
+        setTimeout(() => {
+            image.src = shutdown;
+        }, 1000);
+    }
 }
 
 export { showShutdownScreen };

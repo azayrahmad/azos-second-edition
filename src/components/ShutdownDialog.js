@@ -84,10 +84,10 @@ function createShutdownDialogContent() {
     textAndOptions.appendChild(text);
 
     const options = [
-        { id: 'standby', label: 'Stand &by', checked: true },
-        { id: 'shutdown', label: 'Shut &down', checked: false },
+        { id: 'standby', label: 'Stand &by', checked: false, disabled: true },
+        { id: 'shutdown', label: 'Shut &down', checked: true },
         { id: 'restart', label: '&Restart', checked: false },
-        { id: 'restart-msdos', label: 'Restart in MS-&DOS mode', checked: false }
+        { id: 'restart-msdos', label: 'Restart in MS-&DOS mode', checked: false, disabled: true }
     ];
 
     const optionsContainer = document.createElement('div');
@@ -103,6 +103,9 @@ function createShutdownDialogContent() {
         input.name = 'shutdown-option';
         input.value = opt.id;
         input.checked = opt.checked;
+        if (opt.disabled) {
+            input.disabled = true;
+        }
 
         const label = document.createElement('label');
         label.htmlFor = opt.id;
