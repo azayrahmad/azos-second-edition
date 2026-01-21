@@ -177,6 +177,12 @@ const directory = [
                 name: "WordPad",
               },
               {
+                id: "shortcut-to-reportabug",
+                type: "shortcut",
+                targetId: "reportabug",
+                name: "Report a Bug",
+              },
+              {
                 id: "shortcut-to-buggyprogram",
                 type: "shortcut",
                 targetId: "app-buggyprogram",
