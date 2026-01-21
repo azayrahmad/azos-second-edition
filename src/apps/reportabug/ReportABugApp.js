@@ -6,7 +6,7 @@ export default class ReportABugApp extends Application {
   static config = {
     id: "reportabug",
     title: "Report a Bug",
-    icon: ICONS.shell,
+    icon: ICONS.error,
     width: 400,
     height: 320,
     resizable: false,
@@ -16,9 +16,11 @@ export default class ReportABugApp extends Application {
     const win = new $Window({
       title: this.title,
       icons: this.icon,
-      width: this.width,
-      height: this.height,
+      outerWidth: this.width,
+      outerHeight: this.height,
       resizable: this.resizable,
+      maximizeButton: false,
+      minimizeButton: false,
     });
 
     const container = document.createElement("div");
@@ -41,6 +43,7 @@ export default class ReportABugApp extends Application {
     container.appendChild(buttonContainer);
 
     this.sendButton = document.createElement("button");
+    this.sendButton.className = "button-default-size";
     this.sendButton.textContent = "Send";
     this.sendButton.onclick = () => this.handleSend();
     buttonContainer.appendChild(this.sendButton);
@@ -81,7 +84,6 @@ export default class ReportABugApp extends Application {
       title: "Sending Report",
       content: progressDialogContent,
       buttons: [],
-      width: 300,
     });
 
     try {
@@ -107,6 +109,7 @@ export default class ReportABugApp extends Application {
           title: "Report Sent",
           text: `The bug report has been sent with the title '${result.title}'.`,
           buttons: [{ label: "OK", isDefault: true }],
+          soundEvent: "Default",
           parentWindow: this.win,
         }).onClosed(() => {
           this.textarea.value = "";
@@ -119,6 +122,7 @@ export default class ReportABugApp extends Application {
             result.error ||
             "Failed to send the bug report. Please try again in a couple of seconds.",
           buttons: [{ label: "OK", isDefault: true }],
+          soundEvent: "SystemHand",
           parentWindow: this.win,
         }).onClosed(() => {
           this.sendButton.disabled = false;
@@ -131,6 +135,7 @@ export default class ReportABugApp extends Application {
         text: "An unexpected error occurred. Please check your internet connection and try again.",
         buttons: [{ label: "OK", isDefault: true }],
         parentWindow: this.win,
+        soundEvent: "SystemHand",
       }).onClosed(() => {
         this.sendButton.disabled = false;
       });

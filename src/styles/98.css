@@ -210,6 +210,8 @@ textarea {
         inset 2px 2px var(--ButtonDkShadow);
     box-sizing: border-box;
     padding: 3px 4px;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
 }
 input[type="email"],
 input[type="password"],
@@ -671,4 +673,10 @@ menu[role="tablist"] > li > a:focus {
 menu[role="tablist"].multirows > li {
     flex-grow: 1;
     text-align: center;
+}
+
+.button-default-size {
+    width: 75px !important;
+    height: 23px !important;
+    padding: 0 12px !important;
 }
