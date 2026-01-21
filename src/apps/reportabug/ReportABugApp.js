@@ -86,7 +86,7 @@ export default class ReportABugApp extends Application {
 
     try {
       const response = await fetch(
-        "https://resume-chat-54r1vxkcy-azizs-projects-1d8e1af2.vercel.app/api/jules-proxy",
+        "https://resume-chat-api-nine.vercel.app/api/jules-proxy",
         {
           method: "POST",
           headers: {
