@@ -532,7 +532,7 @@ export class SpiderSolitaireApp extends Application {
       this.draggedElement.style.zIndex = "1000";
 
       let topOffset = 0;
-      const overlap = 20;
+      const overlap = 26;
 
       cardsToDrag.forEach((card) => {
         const originalElement = this.container.querySelector(
@@ -577,45 +577,10 @@ export class SpiderSolitaireApp extends Application {
       bestTarget = bestTarget.closest(".tableau-pile");
     }
     const toPileDiv = bestTarget;
-
-    if (this.hoveredTarget && this.hoveredTarget !== toPileDiv) {
-      this.hoveredTarget.classList.remove("invert-colors");
-      this.hoveredTarget = null;
-    }
-
-    if (toPileDiv) {
-      const { pileIndex: fromPileIndex, cardIndex } = this.draggedCardsInfo;
-      const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
-
-      if (this.game.isMoveValid(fromPileIndex, cardIndex, toPileIndex)) {
-        const topCard = toPileDiv.querySelector(".card:last-child");
-        const placeholder = toPileDiv.querySelector(".tableau-placeholder");
-        const highlightTarget = topCard || placeholder;
-
-        if (highlightTarget && this.hoveredTarget !== highlightTarget) {
-          if (this.hoveredTarget) {
-            this.hoveredTarget.classList.remove("invert-colors");
-          }
-          highlightTarget.classList.add("invert-colors");
-          this.hoveredTarget = highlightTarget;
-        }
-      } else if (this.hoveredTarget) {
-        this.hoveredTarget.classList.remove("invert-colors");
-        this.hoveredTarget = null;
-      }
-    } else if (this.hoveredTarget) {
-      this.hoveredTarget.classList.remove("invert-colors");
-      this.hoveredTarget = null;
-    }
   }
 
   onMouseUp(event) {
     if (!this.isDragging) return;
-
-    if (this.hoveredTarget) {
-      this.hoveredTarget.classList.remove("invert-colors");
-      this.hoveredTarget = null;
-    }
 
     // Cleanup dragging state
     this.isDragging = false;
