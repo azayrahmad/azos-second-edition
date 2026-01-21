@@ -32,7 +32,6 @@ import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
-import { initErrorHandler } from "./utils/errorHandler.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -104,7 +103,6 @@ class WindowManagerSystem {
 window.System = new WindowManagerSystem();
 
 async function initializeOS() {
-  initErrorHandler();
   const path = window.location.pathname;
   const profileName = path.startsWith('/win98-web/')
     ? path.substring('/win98-web/'.length).split('/')[0]

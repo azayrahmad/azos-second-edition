@@ -1,8 +1,19 @@
 import { showErrorDialog } from '../components/ErrorDialog.js';
+import { logBootError } from '../components/bootScreen.js';
 import '../styles/error-dialog.css';
+
+let isBooting = true;
 
 export function initErrorHandler() {
   const originalConsoleError = console.error;
+
+  const handleError = (error) => {
+    if (isBooting) {
+      logBootError(error);
+    } else {
+      showErrorDialog(error);
+    }
+  };
 
   console.error = function(...args) {
     originalConsoleError.apply(console, args);
@@ -18,14 +29,14 @@ export function initErrorHandler() {
       }
     }).join(' ');
 
-    showErrorDialog({
+    handleError({
       message: 'console.error: ' + message,
       stack: (args.find(arg => arg instanceof Error))?.stack
     });
   };
 
   window.onerror = function(message, source, lineno, colno, error) {
-    showErrorDialog({
+    handleError({
       message: `[uncaught] ${message}`,
       stack: error ? error.stack : `at ${source}:${lineno}:${colno}`
     });
@@ -34,9 +45,13 @@ export function initErrorHandler() {
 
   window.onunhandledrejection = function(event) {
     const error = event.reason || {};
-    showErrorDialog({
+    handleError({
       message: `[unhandledrejection] ${error.message || 'Unhandled promise rejection'}`,
       stack: error.stack
     });
   };
+}
+
+export function signalBootComplete() {
+  isBooting = false;
 }

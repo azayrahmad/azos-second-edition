@@ -217,6 +217,17 @@ button {
     height: 16px;
 }
 
+.boot-error {
+  color: red;
+  font-weight: bold;
+}
+
+.boot-error pre {
+  font-weight: normal;
+  margin-left: 20px;
+  white-space: pre-wrap;
+}
+
 .shortcut-overlay-32 {
     width: 16px;
     height: 16px;

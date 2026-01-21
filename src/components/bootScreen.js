@@ -118,6 +118,23 @@ function showSetupScreen() {
     }
 }
 
+export function logBootError(error) {
+    const bootLogEl = document.getElementById("boot-log");
+    if (bootLogEl) {
+        const errorEntry = document.createElement("div");
+        errorEntry.className = "boot-error";
+        errorEntry.textContent = `ERROR: ${error.message}`;
+
+        if (error.stack) {
+            const stackTrace = document.createElement("pre");
+            stackTrace.textContent = error.stack;
+            errorEntry.appendChild(stackTrace);
+        }
+
+        bootLogEl.appendChild(errorEntry);
+    }
+}
+
 export {
     hideBootScreen,
     startBootProcessStep,
