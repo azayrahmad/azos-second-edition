@@ -24,7 +24,7 @@ export class TableauPile extends Pile {
     return false;
   }
 
-  checkForCompletedSet() {
+  hasCompletedSet() {
     if (this.cards.length < 13) {
       return null;
     }
@@ -43,8 +43,16 @@ export class TableauPile extends Pile {
       }
     }
 
-    this.cards.splice(-13);
-    this.flipTopCard();
     return top13;
+  }
+
+  removeCompletedSet() {
+    const completedSet = this.hasCompletedSet();
+    if (completedSet) {
+      this.cards.splice(-13);
+      this.flipTopCard();
+      return completedSet;
+    }
+    return null;
   }
 }

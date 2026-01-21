@@ -167,43 +167,55 @@ export class Game {
     return true;
   }
 
-  checkForCompletedSets(pileIndex) {
+  findCompletedSet(pileIndex) {
     const pile = this.tableauPiles[pileIndex];
-    const completedSet = pile.checkForCompletedSet();
+    const completedSet = pile.hasCompletedSet();
 
     if (completedSet) {
       const emptyFoundation = this.foundationPiles.find(
         (p) => p.cards.length === 0,
       );
       if (emptyFoundation) {
-        const suitSymbol = completedSet[0].suit;
-        const suitName = {
-          "♠️": "spades",
-          "♥️": "hearts",
-          "♦️": "diamonds",
-          "♣️": "clubs",
-        }[suitSymbol];
-
-        if (suitName) {
-          this.completedSetsBySuit[suitName]++;
-        }
-        emptyFoundation.addSet(completedSet);
-
-        const lastMove = this.history[this.history.length - 1];
-        if (lastMove) {
-          lastMove.completedSet = {
-            cards: completedSet,
-            fromPileIndex: pileIndex,
-            foundationPileIndex: this.foundationPiles.indexOf(emptyFoundation),
-          };
-        }
-
-        this.score += 100;
-        this.clearHistory();
-        return true;
+        return {
+          completedSet,
+          pileIndex,
+          foundationPile: emptyFoundation,
+        };
       }
     }
-    return false;
+    return null;
+  }
+
+  finalizeCompletedSet(completedSetInfo) {
+    const { completedSet, pileIndex, foundationPile } = completedSetInfo;
+    const pile = this.tableauPiles[pileIndex];
+    pile.removeCompletedSet(); // This also flips the top card
+
+    const suitSymbol = completedSet[0].suit;
+    const suitName = {
+      "♠️": "spades",
+      "♥️": "hearts",
+      "♦️": "diamonds",
+      "♣️": "clubs",
+    }[suitSymbol];
+
+    if (suitName) {
+      this.completedSetsBySuit[suitName]++;
+    }
+    foundationPile.addSet(completedSet);
+
+    const lastMove = this.history[this.history.length - 1];
+    if (lastMove) {
+      lastMove.completedSet = {
+        cards: completedSet,
+        fromPileIndex: pileIndex,
+        foundationPileIndex: this.foundationPiles.indexOf(foundationPile),
+      };
+    }
+
+    this.score += 100;
+    this.clearHistory();
+    return true;
   }
 
   checkForWin() {
