@@ -64,6 +64,7 @@ export default class ReportABugApp extends Application {
         title: "Error",
         text: "Please enter a bug description.",
         buttons: [{ label: "OK", isDefault: true }],
+        soundEvent: "SystemHand",
         parentWindow: this.win,
       });
       return;
@@ -95,6 +96,7 @@ export default class ReportABugApp extends Application {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            title: "Bug Report",
             prompt: this.textarea.value,
             source: "win98-web",
           }),
@@ -107,7 +109,7 @@ export default class ReportABugApp extends Application {
       if (response.ok) {
         ShowDialogWindow({
           title: "Report Sent",
-          text: `The bug report has been sent with the title '${result.title}'.`,
+          text: `The bug report has been sent with ID #${result.id}. We're on it!`,
           buttons: [{ label: "OK", isDefault: true }],
           soundEvent: "Default",
           parentWindow: this.win,
