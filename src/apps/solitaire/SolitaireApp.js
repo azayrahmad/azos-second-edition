@@ -8,6 +8,7 @@ import {
   setItem,
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
+import { findBestDropTarget } from "../../utils/solitaireHelper.js";
 import "./solitaire.css";
 import "./options.css";
 import "../../styles/solitaire.css";
@@ -521,6 +522,8 @@ export class SolitaireApp extends Application {
       } else {
         const placeholderDiv = document.createElement("div");
         placeholderDiv.className = "foundation-placeholder";
+        placeholderDiv.dataset.pileIndex = pileIndex;
+        placeholderDiv.dataset.pileType = "foundation";
         pileDiv.appendChild(placeholderDiv);
       }
       foundationContainer.appendChild(pileDiv);
@@ -692,23 +695,21 @@ export class SolitaireApp extends Application {
     this.draggedElement.style.top = `${y}px`;
 
     if (this.outlineDraggingEnabled) {
-      // Temporarily hide the outline to find the element underneath
-      this.draggedElement.style.display = "none";
-      const dropTargetEl = document.elementFromPoint(
-        event.clientX,
-        event.clientY,
+      const draggedRect = this.draggedElement.getBoundingClientRect();
+      const potentialTargets = this.container.querySelectorAll(
+      ".tableau-pile, .foundation-pile, .foundation-placeholder, .tableau-placeholder",
       );
-      this.draggedElement.style.display = "";
+    let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
 
-      if (this.hoveredTarget && this.hoveredTarget !== dropTargetEl) {
+    if (bestTarget?.classList.contains('foundation-placeholder') || bestTarget?.classList.contains('tableau-placeholder')) {
+      bestTarget = bestTarget.closest('.tableau-pile, .foundation-pile');
+    }
+    const toPileDiv = bestTarget;
+
+      if (this.hoveredTarget && this.hoveredTarget !== toPileDiv) {
         this.hoveredTarget.classList.remove("invert-colors");
         this.hoveredTarget = null;
       }
-
-      const toPileDiv = dropTargetEl?.closest(
-        ".tableau-pile, .foundation-pile",
-      );
-      const toCardDiv = dropTargetEl?.closest(".card");
 
       if (toPileDiv) {
         const {
@@ -728,21 +729,27 @@ export class SolitaireApp extends Application {
             toPileIndex,
           )
         ) {
-          const targetCard =
-            toCardDiv || toPileDiv.querySelector(".card:last-child");
-          if (targetCard && targetCard !== this.hoveredTarget) {
-            targetCard.classList.add("invert-colors");
-            this.hoveredTarget = targetCard;
-          } else if (!targetCard) {
-            const placeholder = toPileDiv.querySelector(
-              ".tableau-placeholder, .foundation-placeholder",
-            );
-            if (placeholder && placeholder !== this.hoveredTarget) {
-              placeholder.classList.add("invert-colors");
-              this.hoveredTarget = placeholder;
+          // Highlight the top card or the placeholder of the target pile
+          const topCard = toPileDiv.querySelector(".card:last-child");
+          const placeholder = toPileDiv.querySelector(
+            ".tableau-placeholder, .foundation-placeholder",
+          );
+          const highlightTarget = topCard || placeholder;
+
+          if (highlightTarget && this.hoveredTarget !== highlightTarget) {
+            if (this.hoveredTarget) {
+              this.hoveredTarget.classList.remove("invert-colors");
             }
+            highlightTarget.classList.add("invert-colors");
+            this.hoveredTarget = highlightTarget;
           }
+        } else if (this.hoveredTarget) {
+          this.hoveredTarget.classList.remove("invert-colors");
+          this.hoveredTarget = null;
         }
+      } else if (this.hoveredTarget) {
+        this.hoveredTarget.classList.remove("invert-colors");
+        this.hoveredTarget = null;
       }
     }
   }
@@ -763,12 +770,22 @@ export class SolitaireApp extends Application {
       .querySelectorAll(".dragging")
       .forEach((el) => el.classList.remove("dragging"));
 
-    this.draggedElement.style.display = "none";
-    const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+    const draggedRect = this.draggedElement.getBoundingClientRect();
     this.container.removeChild(this.draggedElement);
     this.draggedElement = null;
 
-    const toPileDiv = dropTarget?.closest(".tableau-pile, .foundation-pile");
+    const potentialTargets = this.container.querySelectorAll(
+      ".tableau-pile, .foundation-pile, .foundation-placeholder, .tableau-placeholder",
+    );
+    let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
+
+    if (bestTarget) {
+      if (bestTarget.classList.contains('foundation-placeholder') || bestTarget.classList.contains('tableau-placeholder')) {
+        bestTarget = bestTarget.closest('.tableau-pile, .foundation-pile');
+      }
+    }
+    const toPileDiv = bestTarget;
+
     if (toPileDiv) {
       const {
         pileType: fromPileType,
