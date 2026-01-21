@@ -550,7 +550,8 @@ export class SpiderSolitaireApp extends Application {
       });
 
       this.draggedElement.style.width = `${cardRect.width}px`;
-      this.draggedElement.style.height = `${cardRect.height + (cardsToDrag.length - 1) * overlap}px`;
+      const newHeight = cardRect.height + (cardsToDrag.length - 1) * overlap;
+      this.draggedElement.style.height = `${newHeight}px`;
 
       this.container.appendChild(this.draggedElement);
       this.draggedElement.style.left = `${cardRect.left - containerRect.left}px`;
