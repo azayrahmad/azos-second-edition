@@ -47,51 +47,65 @@ function findProgramFilesFolder() {
 export function getDesktopContents() {
   const desktopFolder = findDesktopFolder();
   if (!desktopFolder || !desktopFolder.children) {
-    return { apps: [], files: [], folders: [] };
+    return [];
   }
 
-  const desktopApps = [];
-  const desktopFiles = [];
-  const desktopFolders = [];
-  desktopFolder.children.forEach((item) => {
+  const systemIcons = new Set([
+    "my-computer",
+    "my-documents",
+    "recycle-bin",
+    "network-neighborhood",
+    "my-briefcase",
+  ]);
+
+  const desktopItems = desktopFolder.children.map((item) => {
     if (item.type === "app") {
       const appConfig = apps.find((a) => a.id === item.appId);
       if (appConfig) {
-        desktopApps.push(appConfig.id);
+        return {
+          id: appConfig.id,
+          name: appConfig.title,
+          type: "app",
+          isSystemIcon: systemIcons.has(appConfig.id),
+          appId: appConfig.id, // Keep appId for setupIcons
+        };
       }
     } else if (item.type === "shortcut") {
       const targetNode = findNodeById(directory, item.targetId);
       if (targetNode && targetNode.type === "app") {
         const appConfig = apps.find((a) => a.id === targetNode.appId);
         if (appConfig) {
-          desktopFiles.push({
-            filename: item.name,
+          return {
+            id: item.id,
+            name: item.name,
+            type: "shortcut",
             app: appConfig.id,
             path: `/${item.id}`,
-            type: "shortcut",
-            icon: appConfig.icon,
-          });
+          };
         }
       }
     } else if (item.type === "file") {
       const association = getAssociation(item.name);
-      desktopFiles.push({
-        filename: item.name,
+      return {
+        id: item.id,
+        name: item.name,
+        type: "file",
         app: association.appId,
         path: item.contentUrl,
-      });
+      };
     } else if (item.type === "folder") {
-      desktopFolders.push({
+      return {
         id: item.id,
-        filename: item.name,
+        name: item.name,
+        type: "folder",
         app: "explorer",
         path: `/drive-c/folder-user/folder-desktop/${item.id}`,
-        type: "folder",
-      });
+      };
     }
+    return null;
   });
 
-  return { apps: desktopApps, files: desktopFiles, folders: desktopFolders };
+  return desktopItems.filter(Boolean);
 }
 
 export function addAppDefinition(appId) {
