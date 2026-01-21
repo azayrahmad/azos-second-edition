@@ -51,8 +51,10 @@ export default class ReportABugApp extends Application {
     return win;
   }
 
-  async _onLaunch() {
-    // No additional logic needed on launch for this app
+  async _onLaunch(data) {
+    if (data && data.report) {
+      this.textarea.value = data.report;
+    }
   }
 
   async handleSend() {
