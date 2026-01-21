@@ -1,4 +1,4 @@
-import Application from "../Application.js";
+import { Application } from "../Application.js";
 import { getIcon } from "../../utils/iconManager.js";
 import "./reportabug.css";
 
@@ -14,12 +14,18 @@ export default class ReportABugApp extends Application {
     resizable: false,
   };
 
-  async init(options) {
-    super.init(options);
+  _createWindow() {
+    const win = new $Window({
+      title: this.title,
+      icon: this.icon,
+      width: this.width,
+      height: this.height,
+      resizable: this.resizable,
+    });
 
     const container = document.createElement("div");
     container.className = "reportabug-container";
-    this.win.$content.appendChild(container);
+    win.$content.appendChild(container);
 
     const preface = document.createElement("p");
     preface.className = "reportabug-preface";
@@ -40,6 +46,12 @@ export default class ReportABugApp extends Application {
     this.sendButton.textContent = "Send";
     this.sendButton.onclick = () => this.handleSend();
     buttonContainer.appendChild(this.sendButton);
+
+    return win;
+  }
+
+  async _onLaunch() {
+    // No additional logic needed on launch for this app
   }
 
   async handleSend() {
