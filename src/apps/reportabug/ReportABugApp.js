@@ -1,14 +1,12 @@
 import { Application } from "../Application.js";
-import { getIcon } from "../../utils/iconManager.js";
+import { ICONS } from "../../config/icons.js";
 import "./reportabug.css";
 
 export default class ReportABugApp extends Application {
   static config = {
     id: "reportabug",
     title: "Report a Bug",
-    get icon() {
-      return getIcon("SHELL32_24");
-    },
+    icon: ICONS.shell,
     width: 400,
     height: 320,
     resizable: false,
@@ -17,7 +15,7 @@ export default class ReportABugApp extends Application {
   _createWindow() {
     const win = new $Window({
       title: this.title,
-      icon: this.icon,
+      icons: this.icon,
       width: this.width,
       height: this.height,
       resizable: this.resizable,
@@ -25,7 +23,7 @@ export default class ReportABugApp extends Application {
 
     const container = document.createElement("div");
     container.className = "reportabug-container";
-    win.$content.appendChild(container);
+    win.$content.html(container);
 
     const preface = document.createElement("p");
     preface.className = "reportabug-preface";
@@ -55,9 +53,8 @@ export default class ReportABugApp extends Application {
   }
 
   async handleSend() {
-    const { ShowDialogWindow } = await import(
-      "../../components/DialogWindow.js"
-    );
+    const { ShowDialogWindow } =
+      await import("../../components/DialogWindow.js");
 
     if (!this.textarea.value.trim()) {
       ShowDialogWindow({
@@ -88,16 +85,19 @@ export default class ReportABugApp extends Application {
     });
 
     try {
-      const response = await fetch("https://resume-chat-api-nine.vercel.app/api/jules-proxy", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://resume-chat-54r1vxkcy-azizs-projects-1d8e1af2.vercel.app/api/jules-proxy",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: this.textarea.value,
+            source: "win98-web",
+          }),
         },
-        body: JSON.stringify({
-          prompt: this.textarea.value,
-          source: "win98-web",
-        }),
-      });
+      );
 
       const result = await response.json();
       progressDialog.close();
@@ -115,7 +115,9 @@ export default class ReportABugApp extends Application {
       } else {
         ShowDialogWindow({
           title: "Error",
-          text: result.error || "Failed to send the bug report. Please try again in a couple of seconds.",
+          text:
+            result.error ||
+            "Failed to send the bug report. Please try again in a couple of seconds.",
           buttons: [{ label: "OK", isDefault: true }],
           parentWindow: this.win,
         }).onClosed(() => {

@@ -41,6 +41,12 @@ const directory = [
             name: "WordPad",
           },
           {
+            id: "app-reportabug",
+            type: "app",
+            appId: "reportabug",
+            name: "Report a Bug",
+          },
+          {
             id: "app-calculator",
             type: "app",
             appId: "calculator",
@@ -179,7 +185,7 @@ const directory = [
               {
                 id: "shortcut-to-reportabug",
                 type: "shortcut",
-                targetId: "reportabug",
+                targetId: "app-reportabug",
                 name: "Report a Bug",
               },
               {
