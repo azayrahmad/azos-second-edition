@@ -23,4 +23,8 @@ export const networkNeighborhood = [
     title: "Modern Active Desktop",
     url: "https://madesktop.ingan121.com/",
   },
+  {
+    title: "Windows 98 Icon Viewer",
+    url: "https://win98icons.alexmeub.com/",
+  },
 ];
