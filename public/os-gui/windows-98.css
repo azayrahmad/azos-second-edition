@@ -615,6 +615,15 @@ so I think I'll imitate that. (I might change it later) */
     left: 1px;
 }
 
+.menu-popup-wrapper {
+	transition: 0.1s;
+	overflow: hidden;
+}
+.menu-popup-wrapper.closing {
+	width: 0px !important;
+	height: 0px !important;
+}
+
 .menu-popup {
     display: block;
     padding: 2px;
