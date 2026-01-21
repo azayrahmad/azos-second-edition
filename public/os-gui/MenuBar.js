@@ -349,7 +349,6 @@
       menus_el.appendChild(menu_button_el);
 
       const menu_popup_el = E("div", { class: "menu-popup-wrapper to-down" });
-      document.body?.appendChild(menu_popup_el);
       const menu_popup = new MenuPopup(menu_items, {
         handleKeyDown,
         closeMenus: close_menus,
@@ -384,7 +383,6 @@
           menu_popup_el.style.left = "0px";
         }
       };
-      window.addEventListener("resize", update_position);
       menu_popup_el.addEventListener("update", update_position);
 
       menu_popup_el.style.display = "none";
@@ -420,14 +418,19 @@
         if (typeof window.playSound === "function") {
           window.playSound("MenuPopup");
         }
+        menu_popup_el.classList.remove("closing");
         close_menus();
         menu_button_el.classList.add("active");
         menu_button_el.setAttribute("aria-expanded", "true");
         menu_popup_el.style.display = "";
         menu_popup_el.style.zIndex = `${get_new_menu_z_index()}`;
         // Make visible off-screen to measure
+        // Make visible off-screen to measure
         menu_popup_el.style.left = "-9999px";
         menu_popup_el.style.top = "-9999px";
+        if (!menu_popup_el.parentElement) {
+          document.body.appendChild(menu_popup_el);
+        }
         const rect = menu_popup_el
           .querySelector(".menu-popup")
           .getBoundingClientRect();
@@ -445,10 +448,9 @@
         }, 0);
         menu_popup_el.setAttribute("dir", get_direction());
         if (window.inheritTheme) window.inheritTheme(menu_popup_el, menus_el);
-        if (!menu_popup_el.parentElement)
-          document.body.appendChild(menu_popup_el);
         top_level_highlight(menus_key);
         menu_popup_el.dispatchEvent(new CustomEvent("update", {}));
+        window.addEventListener("resize", update_position);
         selecting_menus = true;
         menu_popup_el.focus({ preventScroll: true });
         setActiveMenuPopup(menu_popup);
@@ -466,8 +468,8 @@
         if (!window.debugKeepMenusOpen) {
           menu_popup.close(true);
           menu_button_el.setAttribute("aria-expanded", "false");
-          menu_popup_el.style.display = "none"; // Explicitly hide the wrapper
         }
+        window.removeEventListener("resize", update_position);
         menus_el.dispatchEvent(new CustomEvent("default-info", {}));
       });
 
