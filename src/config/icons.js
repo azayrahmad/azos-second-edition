@@ -365,6 +365,10 @@ export const ICONS = {
     16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
     32: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
   },
+  error: {
+    16: new URL("../assets/icons/msg_error-2.png", import.meta.url).href,
+    32: new URL("../assets/icons/msg_error-0.png", import.meta.url).href,
+  },
 };
 
 export const SHORTCUT_OVERLAY = {

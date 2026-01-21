@@ -156,7 +156,8 @@ button {
     background-color: var(--ButtonFace);
     color: rgb(0, 0, 0);
     color: var(--ButtonText);
-    font-family: "MSW98UI", sans-serif;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
 }
 button:not(.lightweight) {
     outline: none; /* replaced with inner dotted focus ring (which is admittedly not so prominent...) */
