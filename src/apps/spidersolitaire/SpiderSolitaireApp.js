@@ -579,15 +579,13 @@ export class SpiderSolitaireApp extends Application {
     const toPileDiv = bestTarget;
   }
 
-  onMouseUp(event) {
+  async onMouseUp(event) {
     if (!this.isDragging) return;
 
-    // Cleanup dragging state
     this.isDragging = false;
     window.removeEventListener("mousemove", this.boundOnMouseMove);
     window.removeEventListener("mouseup", this.boundOnMouseUp);
 
-    // Un-hide the original cards
     this.container
       .querySelectorAll(".dragging")
       .forEach((el) => el.classList.remove("dragging"));
@@ -600,7 +598,6 @@ export class SpiderSolitaireApp extends Application {
       ".tableau-pile, .tableau-placeholder",
     );
     let bestTarget = findBestDropTarget(draggedRect, [...potentialTargets]);
-
     if (bestTarget?.classList.contains("tableau-placeholder")) {
       bestTarget = bestTarget.closest(".tableau-pile");
     }
@@ -611,12 +608,23 @@ export class SpiderSolitaireApp extends Application {
       const toPileIndex = parseInt(toPileDiv.dataset.pileIndex, 10);
 
       if (this.game.moveCards(fromPileIndex, cardIndex, toPileIndex)) {
-        this.game.checkForCompletedSets(toPileIndex);
+        this.render(); // Render immediately after the move
+
+        const completedSetInfo = this.game.findCompletedSet(toPileIndex);
+        if (completedSetInfo) {
+          this.container.style.pointerEvents = "none";
+          try {
+            await this.animateCompletedSet(completedSetInfo);
+            this.game.finalizeCompletedSet(completedSetInfo);
+          } finally {
+            this.container.style.pointerEvents = "auto";
+          }
+        }
+
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }
-        // Re-render the board to reflect the new state
-        this.render();
+        this.render(); // Re-render to show the final state
         this._updateMenuBar(this.win);
         this._updateStatusBar();
       }
@@ -637,9 +645,16 @@ export class SpiderSolitaireApp extends Application {
         }
         this.game.addDealtCardsToTableau(result.cards);
         this.renderTableau();
-        this.game.tableauPiles.forEach((pile, index) => {
-          this.game.checkForCompletedSets(index);
-        });
+
+        for (let i = 0; i < this.game.tableauPiles.length; i++) {
+          const completedSetInfo = this.game.findCompletedSet(i);
+          if (completedSetInfo) {
+            await this.animateCompletedSet(completedSetInfo);
+            this.game.finalizeCompletedSet(completedSetInfo);
+            this.render();
+          }
+        }
+
         if (this.game.checkForWin()) {
           this.showWinDialog();
         }
@@ -744,6 +759,74 @@ export class SpiderSolitaireApp extends Application {
     });
     this.render();
     this._updateMenuBar(this.win);
+  }
+
+  animateCompletedSet(completedSetInfo) {
+    const { completedSet, pileIndex } = completedSetInfo;
+    const cardsToAnimate = completedSet.slice().reverse(); // Animate from Ace to King
+
+    return new Promise((resolve) => {
+      const foundationPileIndex = this.game.foundationPiles.findIndex(
+        (p) => p.cards.length === 0,
+      );
+      const foundationPileEl =
+        this.container.querySelectorAll(".foundation-pile")[
+          foundationPileIndex
+        ];
+      const targetRect = foundationPileEl.getBoundingClientRect();
+
+      const containerRect = this.container.getBoundingClientRect();
+      const animationLayer = document.createElement("div");
+      animationLayer.className = "animation-layer";
+      this.container.appendChild(animationLayer);
+
+      let animationsCompleted = 0;
+
+      const originalElements = [];
+      completedSet.forEach((card) => {
+        const originalEl = this.container.querySelector(
+          `.card[data-uid='${card.uid}']`,
+        );
+        if (originalEl) {
+          originalEl.style.opacity = "0";
+          originalElements.push(originalEl);
+        }
+      });
+
+      cardsToAnimate.forEach((card, index) => {
+        const originalCardEl = originalElements.find(
+          (el) => el.dataset.uid === card.uid,
+        );
+        if (!originalCardEl) return;
+
+        const startRect = originalCardEl.getBoundingClientRect();
+
+        const cardDiv = card.element.cloneNode(true);
+        cardDiv.style.position = "absolute";
+        cardDiv.style.left = `${startRect.left - containerRect.left}px`;
+        cardDiv.style.top = `${startRect.top - containerRect.top}px`;
+        cardDiv.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+        cardDiv.style.zIndex = 100 + index;
+        animationLayer.appendChild(cardDiv);
+
+        setTimeout(() => {
+          cardDiv.style.left = `${targetRect.left - containerRect.left}px`;
+          cardDiv.style.top = `${targetRect.top - containerRect.top}px`;
+
+          cardDiv.addEventListener(
+            "transitionend",
+            () => {
+              animationsCompleted++;
+              if (animationsCompleted === cardsToAnimate.length) {
+                animationLayer.remove();
+                resolve();
+              }
+            },
+            { once: true },
+          );
+        }, index * 50); // Stagger the animation start
+      });
+    });
   }
 
   _updateStatusBar() {
