@@ -443,7 +443,7 @@ function captureGridIconPositions() {
 
 function sortDesktopIcons(sortBy) {
   const desktopContents = getDesktopContents();
-  const { apps: appIds, files } = desktopContents;
+  const { apps: appIds, files, folders } = desktopContents;
 
   // The sorting logic only applies to files. Apps should remain in their order.
   if (sortBy === "name") {
@@ -457,7 +457,7 @@ function sortDesktopIcons(sortBy) {
     });
   }
 
-  const sortedContents = { apps: appIds, files };
+  const sortedContents = { apps: appIds, files, folders };
 
   // When sorting, we clear any manual positioning and revert to a grid layout.
   removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
