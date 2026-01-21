@@ -766,16 +766,26 @@ export class SpiderSolitaireApp extends Application {
     const cardsToAnimate = completedSet.slice().reverse(); // Animate from Ace to King
 
     return new Promise((resolve) => {
-      const foundationPileIndex = this.game.foundationPiles.findIndex(
-        (p) => p.cards.length === 0,
-      );
-      const foundationPileEl =
-        this.container.querySelectorAll(".foundation-pile")[
-          foundationPileIndex
-        ];
-      const targetRect = foundationPileEl.getBoundingClientRect();
-
+      let targetRect;
       const containerRect = this.container.getBoundingClientRect();
+
+      if (this.use98Style) {
+        targetRect = {
+          left: containerRect.left,
+          top: containerRect.bottom,
+          width: 0,
+          height: 0,
+        };
+      } else {
+        const foundationPileIndex = this.game.foundationPiles.findIndex(
+          (p) => p.cards.length === 0,
+        );
+        const foundationPileEl =
+          this.container.querySelectorAll(".foundation-pile")[
+            foundationPileIndex
+          ];
+        targetRect = foundationPileEl.getBoundingClientRect();
+      }
       const animationLayer = document.createElement("div");
       animationLayer.className = "animation-layer";
       this.container.appendChild(animationLayer);
