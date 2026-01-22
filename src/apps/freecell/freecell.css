@@ -21,8 +21,8 @@
     justify-content: space-between;
 }
 
-.free-cells,
-.foundations {
+.freecell-container .free-cells,
+.freecell-container .foundations {
     display: flex;
 }
 
@@ -34,26 +34,26 @@
     width: 100%;
 }
 
-.free-cell-pile,
-.foundation-pile,
-.tableau-pile {
+.freecell-container .free-cell-pile,
+.freecell-container .foundation-pile,
+.freecell-container .tableau-pile {
     width: 71px; /* Card width */
     height: 96px; /* Card height */
     position: relative;
 }
 
-.tableau-pile {
+.freecell-container .tableau-pile {
     height: 400px; /* Allow space for cards to stack */
 }
 
-.placeholder {
+.freecell-container .placeholder {
     width: 71px;
     height: 96px;
     box-sizing: border-box;
     position: relative;
 }
 
-.placeholder::before {
+.freecell-container .placeholder::before {
     content: "";
     position: absolute;
     top: 1px;
@@ -62,22 +62,22 @@
     bottom: 1px;
 }
 
-.free-cell-pile .placeholder,
-.foundation-pile .placeholder {
+.freecell-container .free-cell-pile .placeholder,
+.freecell-container .foundation-pile .placeholder {
     height: 96px;
 }
 
-.card {
+.freecell-container .card {
     width: 71px;
     height: 96px;
     position: absolute;
 }
 
-.card.selected {
+.freecell-container .card.selected {
     filter: invert(1);
 }
 
-.animation-layer {
+.freecell-container .animation-layer {
     position: absolute;
     top: 0;
     left: 0;
@@ -87,15 +87,15 @@
     z-index: 1000;
 }
 
-.select-game-dialog {
+.freecell-container .select-game-dialog {
     display: flex;
     align-items: center;
 }
 
-.select-game-dialog label {
+.freecell-container .select-game-dialog label {
     margin-right: 10px;
 }
 
-.select-game-dialog input {
+.freecell-container .select-game-dialog input {
     width: 100px;
 }
