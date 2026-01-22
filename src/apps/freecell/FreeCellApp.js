@@ -269,7 +269,7 @@ export class FreeCellApp extends Application {
             this.selectedCard = card; // The top card of the selection
             this.selectedStack = movableStack;
             this.selectedSource = { type: 'tableau', index: fromPileIndex };
-            this.selectedStack.forEach(c => c.element.classList.add('selected'));
+            this.selectedCard.element.classList.add('selected');
             return;
         }
     }
@@ -297,9 +297,6 @@ export class FreeCellApp extends Application {
 
     // Deselect everything visually
     cardToMove.element.classList.remove('selected');
-    if (stackToMove) {
-        stackToMove.forEach(c => c.element.classList.remove('selected'));
-    }
 
     // Deselect if clicking the same card
     if (cardElement === cardToMove.element) {
