@@ -150,7 +150,12 @@ export class FreeCellApp extends Application {
 
       const card = this.game.freeCells[i];
       if (card) {
-        cellDiv.appendChild(card.element);
+        const cardEl = card.element;
+        // Reset styles from animation
+        cardEl.style.opacity = '1';
+        cardEl.style.top = '0';
+        cardEl.style.left = '0';
+        cellDiv.appendChild(cardEl);
       } else {
         const placeholder = document.createElement("div");
         placeholder.className = "placeholder";
@@ -172,7 +177,12 @@ export class FreeCellApp extends Application {
         const pile = this.game.foundationPiles[i];
         if (pile.length > 0) {
             const topCard = pile[pile.length - 1];
-            pileDiv.appendChild(topCard.element);
+            const cardEl = topCard.element;
+            // Reset styles from animation
+            cardEl.style.opacity = '1';
+            cardEl.style.top = '0';
+            cardEl.style.left = '0';
+            pileDiv.appendChild(cardEl);
         } else {
             const placeholder = document.createElement("div");
             placeholder.className = "placeholder";
@@ -197,9 +207,12 @@ export class FreeCellApp extends Application {
         pileDiv.appendChild(placeholder);
       } else {
         pile.forEach((card, cardIndex) => {
-          const cardDiv = card.element;
-          cardDiv.style.top = `${cardIndex * 25}px`; // Overlap cards
-          pileDiv.appendChild(cardDiv);
+          const cardEl = card.element;
+          // Reset styles from animation
+          cardEl.style.opacity = '1';
+          cardEl.style.left = '0';
+          cardEl.style.top = `${cardIndex * 25}px`; // Overlap cards
+          pileDiv.appendChild(cardEl);
         });
       }
       tableauContainer.appendChild(pileDiv);
