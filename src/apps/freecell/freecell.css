@@ -81,8 +81,7 @@
 }
 
 .card.selected {
-    box-shadow: 0 0 10px 3px yellow;
-    border: 1px solid yellow;
+    filter: invert(1);
 }
 
 .animation-layer {
