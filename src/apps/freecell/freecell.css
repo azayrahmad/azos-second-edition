@@ -93,3 +93,16 @@
     pointer-events: none;
     z-index: 1000;
 }
+
+.select-game-dialog {
+    display: flex;
+    align-items: center;
+}
+
+.select-game-dialog label {
+    margin-right: 10px;
+}
+
+.select-game-dialog input {
+    width: 100px;
+}
