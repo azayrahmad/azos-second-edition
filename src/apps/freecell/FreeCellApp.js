@@ -44,6 +44,7 @@ export class FreeCellApp extends Application {
 
     this.selectedCard = null;
     this.game = null;
+    this.isAnimating = false;
 
     this.boundOnClick = this.onClick.bind(this);
     this.addEventListeners();
@@ -257,6 +258,8 @@ export class FreeCellApp extends Application {
   }
 
   onClick(event) {
+    if (this.isAnimating) return;
+
     const target = event.target;
     const cardElement = target.closest(".card");
     const pileElement = target.closest(
@@ -407,24 +410,27 @@ export class FreeCellApp extends Application {
     }
 
     if (moveDetails) {
-      const animatingCards =
-        moveDetails.type === "stack"
-          ? moveDetails.payload
-          : [moveDetails.payload];
-
-      // Hide original cards
-      animatingCards.forEach((c) => (c.element.style.opacity = "0"));
-
-      await this.animateMove(animatingCards, destinationType, destinationIndex);
-
-      // Update game state after animation
       if (moveDetails.type === "stack") {
+        const plan = this.game.getSupermovePlan(
+          moveDetails.payload,
+          moveDetails.from,
+          moveDetails.to,
+        );
+        moveDetails.payload.forEach((c) => (c.element.style.opacity = "0"));
+        await this.animateSupermove(plan);
         this.game.moveStack(
           moveDetails.payload,
           moveDetails.from,
           moveDetails.to,
         );
       } else {
+        const animatingCards = [moveDetails.payload];
+        animatingCards.forEach((c) => (c.element.style.opacity = "0"));
+        await this.animateMove(
+          animatingCards,
+          moveDetails.toType,
+          moveDetails.toIndex,
+        );
         this.game.moveCard(
           moveDetails.payload,
           moveDetails.from,
@@ -456,8 +462,13 @@ export class FreeCellApp extends Application {
         {
           label: `Move ${stack.length} cards`,
           action: async () => {
+            const plan = this.game.getSupermovePlan(
+              stack,
+              fromLocation.index,
+              toIndex,
+            );
             stack.forEach((c) => (c.element.style.opacity = "0"));
-            await this.animateMove(stack, "tableau", toIndex);
+            await this.animateSupermove(plan);
             this.game.moveStack(stack, fromLocation.index, toIndex);
             this.render();
             if (this.game.checkForWin()) this.showWinDialog();
@@ -478,7 +489,70 @@ export class FreeCellApp extends Application {
     });
   }
 
+  async animateSupermove(plan) {
+    this.isAnimating = true;
+
+    const containerRect = this.container.getBoundingClientRect();
+    const animationLayer = document.createElement("div");
+    animationLayer.className = "animation-layer";
+    this.container.appendChild(animationLayer);
+
+    const cardElements = new Map();
+
+    for (const move of plan) {
+      await new Promise((resolve) => {
+        const card = move.card;
+        const from = move.from;
+        const to = move.to;
+
+        let cardEl = cardElements.get(card);
+        if (!cardEl) {
+            cardEl = card.element.cloneNode(true);
+            const startRect = card.element.getBoundingClientRect();
+            cardEl.style.position = "absolute";
+            cardEl.style.left = `${startRect.left - containerRect.left}px`;
+            cardEl.style.top = `${startRect.top - containerRect.top}px`;
+            cardEl.style.zIndex = 100; // a base z-index
+            animationLayer.appendChild(cardEl);
+            cardElements.set(card, cardEl);
+        }
+
+        const toPileEl = this.container.querySelector(`[data-type="${to.type}"][data-index="${to.index}"]`);
+        const toPileRect = toPileEl.getBoundingClientRect();
+
+        let destTop = toPileRect.top;
+        if (to.type === 'tableau') {
+            // To stack cards correctly during the animation, we need to calculate
+            // the visual offset based on how many cards are already in the target pile *in the animation's context*.
+            // This requires iterating through the plan up to the current move to simulate the pile's state.
+            let cardsInPile = 0;
+            for(const otherMove of plan.slice(0, plan.indexOf(move))) {
+                if(otherMove.to.type === 'tableau' && otherMove.to.index === to.index) {
+                    cardsInPile++;
+                }
+                 if(otherMove.from.type === 'tableau' && otherMove.from.index === to.index) {
+                    cardsInPile--;
+                }
+            }
+            destTop += (this.game.tableauPiles[to.index].length + cardsInPile) * 25;
+        }
+
+        setTimeout(() => {
+          cardEl.style.transition = "left 0.1s linear, top 0.1s linear";
+          cardEl.style.left = `${toPileRect.left - containerRect.left}px`;
+          cardEl.style.top = `${destTop - containerRect.top}px`;
+
+          cardEl.addEventListener("transitionend", resolve, { once: true });
+        }, 10);
+      });
+    }
+
+    animationLayer.remove();
+    this.isAnimating = false;
+  }
+
   animateMove(cardsToAnimate, toType, toIndex) {
+    this.isAnimating = true;
     return new Promise(async (resolve) => {
       const containerRect = this.container.getBoundingClientRect();
       const animationLayer = document.createElement("div");
@@ -509,7 +583,7 @@ export class FreeCellApp extends Application {
           animationLayer.appendChild(cardEl);
 
           setTimeout(() => {
-            cardEl.style.transition = "left 0.15s ease-out, top 0.15s ease-out";
+            cardEl.style.transition = "left 0.1s linear, top 0.1s linear";
             cardEl.style.left = `${toPileRect.left - containerRect.left}px`;
             cardEl.style.top = `${destBaseTop - containerRect.top + i * 25}px`;
 
@@ -522,6 +596,7 @@ export class FreeCellApp extends Application {
 
       await Promise.all(animationPromises);
       animationLayer.remove();
+      this.isAnimating = false;
       resolve();
     });
   }

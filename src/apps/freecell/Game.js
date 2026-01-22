@@ -232,4 +232,58 @@ export class Game {
 
     return true;
   }
+
+  getSupermovePlan(stack, fromTableauIndex, toTableauIndex) {
+    const availableFreeCells = this.freeCells
+      .map((card, index) => (card === null ? index : -1))
+      .filter((index) => index !== -1);
+    const availableTableau = this.tableauPiles
+      .map((pile, index) => (pile.length === 0 ? index : -1))
+      .filter((index) => index !== -1);
+
+    const plan = [];
+    const tempLocations = new Map(); // card -> {type, index}
+
+    // Phase 1: Move all but the last card to temporary locations
+    stack.slice(0, -1).forEach((card) => {
+      let tempTo;
+      if (availableFreeCells.length > 0) {
+        const fcIndex = availableFreeCells.shift();
+        tempTo = { type: "freecell", index: fcIndex };
+      } else if (availableTableau.length > 0) {
+        const tIndex = availableTableau.shift();
+        tempTo = { type: "tableau", index: tIndex };
+      } else {
+        return; // Should not happen if move is valid
+      }
+
+      const fromLocation = { type: "tableau", index: fromTableauIndex };
+      plan.push({ card, from: fromLocation, to: tempTo });
+      tempLocations.set(card, tempTo);
+    });
+
+    // Phase 2: Move the last (top) card of the stack directly to the destination
+    const lastCard = stack[stack.length - 1];
+    plan.push({
+      card: lastCard,
+      from: { type: "tableau", index: fromTableauIndex },
+      to: { type: "tableau", index: toTableauIndex },
+    });
+    tempLocations.set(lastCard, { type: "tableau", index: toTableauIndex });
+
+    // Phase 3: Re-assemble the stack from the second-to-last card upwards
+    for (let i = stack.length - 2; i >= 0; i--) {
+      const card = stack[i];
+      const from = tempLocations.get(card);
+      const toCardLocation = tempLocations.get(stack[i + 1]);
+      const reassemblyTo = { type: "tableau", index: toCardLocation.index };
+
+      plan.push({ card, from, to: reassemblyTo });
+
+      // Update this card's location for the next card to stack on it
+      tempLocations.set(card, reassemblyTo);
+    }
+
+    return plan;
+  }
 }
