@@ -488,7 +488,7 @@ function sortDesktopIcons(sortBy) {
   removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
 
   // This will cause setupIcons to re-render in grid mode.
-  document.querySelector(".desktop").refreshIcons(desktopItems);
+  document.querySelector(".desktop").refreshIcons(desktopItems, true);
 }
 
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
@@ -762,7 +762,11 @@ function showProperties(app) {
   }
 }
 
-export function setupIcons(options, desktopContents = getDesktopContents()) {
+export function setupIcons(
+  options,
+  desktopContents = getDesktopContents(),
+  isFromSort = false,
+) {
   const { iconManager } = options;
   const desktop = document.querySelector(".desktop");
   desktop.innerHTML = ""; // Clear existing icons
@@ -799,7 +803,11 @@ export function setupIcons(options, desktopContents = getDesktopContents()) {
 
   // If auto-arranging and no positions are saved, sort by name.
   // This becomes the default initial layout.
-  if (isAutoArrangeEnabled() && Object.keys(iconPositions).length === 0) {
+  if (
+    isAutoArrangeEnabled() &&
+    Object.keys(iconPositions).length === 0 &&
+    !isFromSort
+  ) {
     sortDesktopIcons("name");
     return;
   }
@@ -1086,8 +1094,8 @@ export async function initDesktop(profile = null) {
   });
 
   // A function to refresh icons, bound to the correct scope
-  desktop.refreshIcons = (sortedContents) =>
-    setupIcons({ iconManager }, sortedContents);
+  desktop.refreshIcons = (sortedContents, isFromSort = false) =>
+    setupIcons({ iconManager }, sortedContents, isFromSort);
 
   desktop.refreshIcons();
 
