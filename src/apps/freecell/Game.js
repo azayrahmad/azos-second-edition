@@ -1,6 +1,6 @@
 import { Card } from './Card.js';
 
-const SUITS = ["♥", "♦", "♠", "♣"];
+const SUITS = ['♣', '♦', '♥', '♠'];
 const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
 // Microsoft's random number generator constants
@@ -21,8 +21,8 @@ export class Game {
 
   _createDeck() {
     this.allCards = [];
-    for (const suit of SUITS) {
-      for (const rank of RANKS) {
+    for (const rank of RANKS) {
+      for (const suit of SUITS) {
         const card = new Card(suit, rank, 'cardback1'); // Card back is irrelevant as they are all face up
         card.faceUp = true;
         this.allCards.push(card);
@@ -35,32 +35,40 @@ export class Game {
    * This uses the same pseudo-random number generator algorithm as the original Microsoft FreeCell.
    */
   deal() {
-    let seed = this.gameNumber;
-    const cards = [...this.allCards];
-    const shuffledDeck = [];
+    // This class is a port of the Microsoft C Runtime random number generator
+    class MSRand {
+        constructor(seed) {
+            this.seed = seed;
+        }
 
-    // Create a deck mapping numbers 0-51 to the cards
-    const cardMap = cards.map((_, i) => i);
+        rand() {
+            this.seed = (this.seed * 214013 + 2531011) & 0x7FFFFFFF;
+            return (this.seed >> 16) & 0x7FFF;
+        }
 
-    // The shuffle algorithm from the original MS FreeCell
-    for (let i = 51; i >= 0; i--) {
-      seed = (seed * 214013 + 2531011) & 0x7fffffff; // LCG
-      const j = (seed >> 16) % (i + 1);
+        maxRand(max) {
+            return this.rand() % max;
+        }
+    }
 
-      const temp = cardMap[i];
-      cardMap[i] = cardMap[j];
-      cardMap[j] = temp;
+    const rng = new MSRand(this.gameNumber);
+    const deck = Array.from({ length: 52 }, (_, i) => i);
+    const shuffledIndices = [];
+    let remaining = 52;
+
+    for (let i = 0; i < 52; i++) {
+        const j = rng.maxRand(remaining);
+        shuffledIndices.push(deck[j]);
+        deck[j] = deck[--remaining];
     }
 
     // Map the shuffled numbers back to cards
-    for(let i = 0; i < 52; i++) {
-        shuffledDeck[i] = this.allCards[cardMap[i]];
-    }
+    const shuffledDeck = shuffledIndices.map(index => this.allCards[index]);
 
     // Deal the cards to the tableau piles
     this.tableauPiles = [[], [], [], [], [], [], [], []];
     for (let i = 0; i < 52; i++) {
-      this.tableauPiles[i % 8].push(shuffledDeck[i]);
+        this.tableauPiles[i % 8].push(shuffledDeck[i]);
     }
   }
 

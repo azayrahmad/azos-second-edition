@@ -48,7 +48,7 @@ export class FreeCellApp extends Application {
 
     this.boundOnClick = this.onClick.bind(this);
     this.addEventListeners();
-    this.startNewGame();
+    this.render();
 
     win.on("close", () => {
       this.removeEventListeners();
@@ -59,6 +59,7 @@ export class FreeCellApp extends Application {
 
   startNewGame(gameNumber) {
     this.game = new Game(gameNumber);
+    this.win.setTitle(`FreeCell Game #${this.game.gameNumber}`);
     this.render();
     this._updateMenuBar(this.win);
   }
@@ -92,37 +93,51 @@ export class FreeCellApp extends Application {
   }
 
   _showNewGameDialog() {
-    this.startNewGame();
+    const gameNumber = Math.floor(Math.random() * 32000) + 1;
+    this.startNewGame(gameNumber);
   }
 
   _showSelectGameDialog() {
     const dialogContent = document.createElement("div");
     dialogContent.innerHTML = `
-        <div class="field-row">
-            <label for="game-number">Game Number:</label>
-            <input type="number" id="game-number-input" min="1" max="1000000" value="1">
+        <div class="select-game-dialog">
+            <label for="game-number-input">Game Number:</label>
+            <input type="number" id="game-number-input" value="1">
         </div>
     `;
 
-    ShowDialogWindow({
+    const input = dialogContent.querySelector("#game-number-input");
+
+    const handleOk = () => {
+        const gameNumber = parseInt(input.value, 10);
+        if (!isNaN(gameNumber) && gameNumber >= 1 && gameNumber <= 32000) {
+            this.startNewGame(gameNumber);
+            dialog.close();
+        } else {
+            input.value = "0";
+        }
+    };
+
+    const dialog = ShowDialogWindow({
         title: "Select Game",
         content: dialogContent,
         buttons: [
             {
                 label: "OK",
-                action: () => {
-                    const input = dialogContent.querySelector("#game-number-input");
-                    const gameNumber = parseInt(input.value, 10);
-                    if (!isNaN(gameNumber) && gameNumber >= 1 && gameNumber <= 1000000) {
-                        this.startNewGame(gameNumber);
-                    }
-                },
+                action: handleOk,
             },
             {
                 label: "Cancel",
+                action: () => dialog.close(),
             },
         ],
         parentWindow: this.win,
+    });
+
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            handleOk();
+        }
     });
   }
 
