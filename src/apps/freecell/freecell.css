@@ -74,6 +74,12 @@
     height: 96px;
 }
 
+.card {
+    width: 71px;
+    height: 96px;
+    position: absolute;
+}
+
 .card.selected {
     box-shadow: 0 0 10px 3px yellow;
     border: 1px solid yellow;
