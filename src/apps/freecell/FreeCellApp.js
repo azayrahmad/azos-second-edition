@@ -10,17 +10,17 @@ export class FreeCellApp extends Application {
   static config = {
     id: "freecell",
     title: "FreeCell",
-    width: 700,
-    height: 600,
-    resizable: true,
+    width: 632,
+    height: 446,
+    resizable: false,
     icon: ICONS.freecell,
   };
 
   async _createWindow() {
     const win = new window.$Window({
       title: this.config.title,
-      outerWidth: this.config.width,
-      outerHeight: this.config.height,
+      innerWidth: this.config.width,
+      innerHeight: this.config.height,
       resizable: this.config.resizable,
       icons: this.icon,
     });
@@ -280,19 +280,19 @@ export class FreeCellApp extends Application {
     );
 
     if (fromPileIndex !== -1) {
-        const fromPile = this.game.tableauPiles[fromPileIndex];
-        const cardIndexInPile = fromPile.indexOf(card);
+      const fromPile = this.game.tableauPiles[fromPileIndex];
+      const cardIndexInPile = fromPile.indexOf(card);
 
-        // Check if the card is part of a valid movable stack
-        const movableStack = this.game.findMovableStack(fromPileIndex);
-        if (movableStack && movableStack.includes(card)) {
-            // Select the whole stack
-            this.selectedCard = card; // The top card of the selection
-            this.selectedStack = movableStack;
-            this.selectedSource = { type: 'tableau', index: fromPileIndex };
-            this.selectedCard.element.classList.add('selected');
-            return;
-        }
+      // Check if the card is part of a valid movable stack
+      const movableStack = this.game.findMovableStack(fromPileIndex);
+      if (movableStack && movableStack.includes(card)) {
+        // Select the whole stack
+        this.selectedCard = card; // The top card of the selection
+        this.selectedStack = movableStack;
+        this.selectedSource = { type: "tableau", index: fromPileIndex };
+        this.selectedCard.element.classList.add("selected");
+        return;
+      }
     }
 
     // Default to single card selection if not in a movable stack or is a single card
@@ -317,7 +317,7 @@ export class FreeCellApp extends Application {
     const stackToMove = this.selectedStack;
 
     // Deselect everything visually
-    cardToMove.element.classList.remove('selected');
+    cardToMove.element.classList.remove("selected");
 
     // Deselect if clicking the same card
     if (cardElement === cardToMove.element) {
