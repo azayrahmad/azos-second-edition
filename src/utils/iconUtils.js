@@ -16,12 +16,18 @@ export function getItemFromIcon(icon) {
   const desktopContents = getDesktopContents();
 
   if (filePath) {
-    const file = desktopContents.files.find((f) => f.path === filePath);
-    return { ...file, itemType: "virtual-file", source: "desktop" };
+    const file = desktopContents.find(
+      (item) => item.path === filePath && item.type !== "app",
+    );
+    if (file) {
+      return { ...file, itemType: "virtual-file", source: "desktop" };
+    }
   }
 
   const appItem = apps.find((a) => a.id === appId);
-  const isDesktopApp = desktopContents.apps.includes(appId);
+  const isDesktopApp = desktopContents.some(
+    (item) => item.id === appId && item.type === "app",
+  );
   if (appItem && isDesktopApp) {
     return { ...appItem, itemType: "app", source: "desktop" };
   }
