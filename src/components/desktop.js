@@ -451,9 +451,25 @@ function sortDesktopIcons(sortBy) {
     file: 4,
   };
 
+  const systemIconOrder = [
+    "my-computer",
+    "my-documents",
+    "internet-explorer",
+    "network",
+    "recycle-bin",
+    "my-briefcase",
+  ];
+
   desktopItems.sort((a, b) => {
-    if (a.isSystemIcon && !b.isSystemIcon) return -1;
-    if (!a.isSystemIcon && b.isSystemIcon) return 1;
+    const aIsSystem = a.isSystemIcon;
+    const bIsSystem = b.isSystemIcon;
+
+    if (aIsSystem && !bIsSystem) return -1;
+    if (!aIsSystem && bIsSystem) return 1;
+
+    if (aIsSystem && bIsSystem) {
+      return systemIconOrder.indexOf(a.id) - systemIconOrder.indexOf(b.id);
+    }
 
     if (sortBy === "name") {
       return a.name.localeCompare(b.name);

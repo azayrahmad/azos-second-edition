@@ -81,6 +81,7 @@ export function getDesktopContents() {
             type: "shortcut",
             app: appConfig.id,
             path: `/${item.id}`,
+            icon: appConfig.icon,
           };
         }
       }
