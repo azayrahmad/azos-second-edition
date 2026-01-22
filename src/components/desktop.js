@@ -455,9 +455,9 @@ function sortDesktopIcons(sortBy) {
     "my-computer",
     "my-documents",
     "internet-explorer",
-    "network",
     "recycle-bin",
     "my-briefcase",
+    "network-neighborhood",
   ];
 
   desktopItems.sort((a, b) => {
