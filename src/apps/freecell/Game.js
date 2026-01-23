@@ -125,25 +125,31 @@ export class Game {
   }
 
   isTableauMoveValid(cardToMove, destinationPile) {
-      if (destinationPile.length === 0) {
-        return true; // Can move any card to an empty tableau pile
-      }
-      const topCard = destinationPile[destinationPile.length - 1];
-      const cardColor = (cardToMove.suit === "♥" || cardToMove.suit === "♦") ? 'red' : 'black';
-      const topCardColor = (topCard.suit === "♥" || topCard.suit === "♦") ? 'red' : 'black';
-      const cardRankIndex = RANKS.indexOf(cardToMove.rank);
-      const topCardRankIndex = RANKS.indexOf(topCard.rank);
+    if (!destinationPile || destinationPile.length === 0) {
+      return true; // Can move any card to an empty tableau pile.
+    }
+    const topCard = destinationPile[destinationPile.length - 1];
+    if (!topCard) {
+      return true; // Should be covered by the previous check, but as a safeguard.
+    }
+    const cardColor = (cardToMove.suit === "♥" || cardToMove.suit === "♦") ? 'red' : 'black';
+    const topCardColor = (topCard.suit === "♥" || topCard.suit === "♦") ? 'red' : 'black';
+    const cardRankIndex = RANKS.indexOf(cardToMove.rank);
+    const topCardRankIndex = RANKS.indexOf(topCard.rank);
 
-      return cardColor !== topCardColor && cardRankIndex === topCardRankIndex - 1;
+    return cardColor !== topCardColor && cardRankIndex === topCardRankIndex - 1;
   }
 
   isFoundationMoveValid(cardToMove, foundationPile) {
-    if (foundationPile.length === 0) {
-        // Any Ace can be moved to an empty foundation pile.
+    if (!foundationPile || foundationPile.length === 0) {
         return cardToMove.rank === "A";
     }
 
     const topCard = foundationPile[foundationPile.length - 1];
+
+    if (!topCard) {
+        return cardToMove.rank === "A";
+    }
 
     // Check if the suits match
     if (cardToMove.suit !== topCard.suit) {
@@ -293,15 +299,22 @@ export class Game {
 
   getValidStackForMove(stack, destinationPile) {
     const maxMoveSize = this.calculateMaxMoveSize();
-    const candidateStack = stack.length > maxMoveSize ? stack.slice(0, maxMoveSize) : stack;
+    // The candidate stack is the top-most portion of the selected stack,
+    // limited by the max move size.
+    const candidateStack = stack.length > maxMoveSize
+        ? stack.slice(stack.length - maxMoveSize)
+        : stack;
 
+    // Starting with the full candidate stack, check for a valid move.
+    // If not valid, reduce the stack by one card from the bottom and check again.
     for (let i = 0; i < candidateStack.length; i++) {
       const subStack = candidateStack.slice(i);
+      // The bottom card of the sub-stack must be valid to place on the destination.
       if (this.isTableauMoveValid(subStack[0], destinationPile)) {
-        return subStack;
+        return subStack; // This is the largest possible valid stack to move.
       }
     }
 
-    return null;
+    return null; // No portion of the candidate stack can be moved.
   }
 }
