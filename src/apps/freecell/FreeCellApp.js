@@ -310,14 +310,14 @@ export class FreeCellApp extends Application {
   }
 
   async handleMove(cardElement, pileElement) {
-    const stackToMove = this.selectedStack;
-    const topCard = stackToMove[0];
+    const originalStack = this.selectedStack;
+    const topCardOfSelection = originalStack[0];
 
     // Deselect visually
-    topCard.element.classList.remove("selected");
+    topCardOfSelection.element.classList.remove("selected");
 
     // Deselect if clicking the same card
-    if (cardElement === topCard.element) {
+    if (cardElement === topCardOfSelection.element) {
       this.selectedStack = null;
       return;
     }
@@ -338,55 +338,95 @@ export class FreeCellApp extends Application {
 
     if (!destinationType) return;
 
-    // --- Validate the move ---
-    let isValid = false;
-    if (destinationType === "tableau") {
-      const toPile = this.game.tableauPiles[destinationIndex];
-      const maxMoveSize = this.game.calculateMaxMoveSize();
-      if (stackToMove.length <= maxMoveSize && this.game.isTableauMoveValid(topCard, toPile)) {
-        isValid = true;
-      }
-    } else if (stackToMove.length === 1) { // Only single cards can move to freecells or foundations
-      if (destinationType === "freecell" && this.game.freeCells[destinationIndex] === null) {
-        isValid = true;
-      } else if (destinationType === "foundation") {
-        const toPile = this.game.foundationPiles[destinationIndex];
-        if (this.game.isFoundationMoveValid(topCard, toPile)) {
+    // --- Smart Move Logic ---
+    // Iterate from the full stack down to a single card to find the largest possible valid move.
+    for (let i = 0; i < originalStack.length; i++) {
+      const subStack = originalStack.slice(i);
+      const topCardOfSubStack = subStack[0];
+      let isValid = false;
+
+      if (destinationType === "tableau") {
+        const toPile = this.game.tableauPiles[destinationIndex];
+        const maxMoveSize = this.game.calculateMaxMoveSize();
+        if (subStack.length <= maxMoveSize && this.game.isTableauMoveValid(topCardOfSubStack, toPile)) {
           isValid = true;
         }
+      } else if (subStack.length === 1) { // Only single cards can move to freecells or foundations
+        if (destinationType === "freecell" && this.game.freeCells[destinationIndex] === null) {
+          isValid = true;
+        } else if (destinationType === "foundation") {
+          const toPile = this.game.foundationPiles[destinationIndex];
+          if (this.game.isFoundationMoveValid(topCardOfSubStack, toPile)) {
+            isValid = true;
+          }
+        }
+      }
+
+      if (isValid) {
+        // Execute the first valid move we find (which will be the largest)
+        if (subStack.length > 1) {
+          const plan = this.game.getSupermovePlan(subStack, fromLocation.index, destinationIndex);
+          subStack.forEach((c) => (c.element.style.opacity = "0"));
+          await this.animateSupermove(plan);
+          this.game.moveStack(subStack, fromLocation.index, destinationIndex);
+        } else {
+          const cardToMove = subStack[0];
+          cardToMove.element.style.opacity = "0";
+          await this.animateMove([cardToMove], destinationType, destinationIndex);
+          this.game.moveCard(cardToMove, fromLocation, destinationType, destinationIndex);
+        }
+
+        this.render();
+        if (this.game.checkForWin()) {
+          this.showWinDialog();
+        }
+        return; // Exit after the first successful move
       }
     }
 
-    // --- Execute the move if valid ---
-    if (isValid) {
-      // Animate and then update the game state
-      if (stackToMove.length > 1) {
-        const plan = this.game.getSupermovePlan(stackToMove, fromLocation.index, destinationIndex);
-        stackToMove.forEach((c) => (c.element.style.opacity = "0"));
-        await this.animateSupermove(plan);
-        this.game.moveStack(stackToMove, fromLocation.index, destinationIndex);
-      } else {
-        const cardToMove = stackToMove[0];
-        cardToMove.element.style.opacity = "0";
-        await this.animateMove([cardToMove], destinationType, destinationIndex);
-        this.game.moveCard(cardToMove, fromLocation, destinationType, destinationIndex);
-      }
-
-      this.render();
-      if (this.game.checkForWin()) {
-        this.showWinDialog();
-      }
-    } else {
-      // If no move was made, it was an invalid move
-      ShowDialogWindow({
-        title: "Invalid Move",
-        text: "That move is not allowed.",
-        buttons: [{ label: "OK" }],
-        parentWindow: this.win,
-      });
-    }
+    // If the loop completes without finding any valid move
+    ShowDialogWindow({
+      title: "Invalid Move",
+      text: "That move is not allowed.",
+      buttons: [{ label: "OK" }],
+      parentWindow: this.win,
+    });
   }
 
+  promptForMoveType(stack, card, fromLocation, toIndex) {
+    ShowDialogWindow({
+      title: "Move Cards",
+      text: "Do you want to move the entire stack or just the single card?",
+      buttons: [
+        {
+          label: `Move ${stack.length} cards`,
+          action: async () => {
+            const plan = this.game.getSupermovePlan(
+              stack,
+              fromLocation.index,
+              toIndex,
+            );
+            stack.forEach((c) => (c.element.style.opacity = "0"));
+            await this.animateSupermove(plan);
+            this.game.moveStack(stack, fromLocation.index, toIndex);
+            this.render();
+            if (this.game.checkForWin()) this.showWinDialog();
+          },
+        },
+        {
+          label: "Move 1 card",
+          action: async () => {
+            card.element.style.opacity = "0";
+            await this.animateMove([card], "tableau", toIndex);
+            this.game.moveCard(card, fromLocation, "tableau", toIndex);
+            this.render();
+            if (this.game.checkForWin()) this.showWinDialog();
+          },
+        },
+      ],
+      parentWindow: this.win,
+    });
+  }
 
   async animateSupermove(plan) {
     this.isAnimating = true;
