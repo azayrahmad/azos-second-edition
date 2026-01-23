@@ -185,38 +185,53 @@ export class Game {
 
   // --- Supermoves (moving a stack of cards) ---
 
-  calculateMaxMoveSize() {
-    const emptyFreeCells = this.freeCells.filter(c => c === null).length;
-    const emptyTableauPiles = this.tableauPiles.filter(p => p.length === 0).length;
+  calculateMaxMoveSize(isDestinationEmptyTableau = false) {
+    const emptyFreeCells = this.freeCells.filter((c) => c === null).length;
+    let emptyTableauPiles = this.tableauPiles.filter(
+      (p) => p.length === 0,
+    ).length;
+
+    // If the destination is an empty tableau, it doesn't count as available for intermediate moves.
+    if (isDestinationEmptyTableau) {
+      emptyTableauPiles = Math.max(0, emptyTableauPiles - 1);
+    }
+
     // The formula is (1 + number of empty freecells) * 2 ^ (number of empty tableau columns)
     return (1 + emptyFreeCells) * Math.pow(2, emptyTableauPiles);
   }
 
-  findMovableStack(tableauIndex) {
-      const pile = this.tableauPiles[tableauIndex];
-      if (pile.length === 0) {
-          return null;
+  getStackToMove(selectedCard, fromPile, toPile) {
+    if (!fromPile || fromPile.length === 0 || selectedCard !== fromPile[fromPile.length - 1]) {
+      return null;
+    }
+
+    // 1. Find the largest validly-sequenced stack at the end of the source pile.
+    let fullStack = [];
+    for (let i = fromPile.length - 1; i >= 0; i--) {
+      const card = fromPile[i];
+      if (i === fromPile.length - 1) {
+        fullStack.unshift(card);
+      } else {
+        const nextCard = fromPile[i + 1];
+        if (this.isTableauMoveValid(nextCard, [card])) {
+          fullStack.unshift(card);
+        } else {
+          break; // End of the valid sequence
+        }
       }
+    }
 
-      let lastValidCardIndex = pile.length - 1;
+    // 2. Find the largest valid sub-stack that can move to the destination.
+    const maxMoveSize = this.calculateMaxMoveSize(toPile.length === 0);
 
-      for (let i = pile.length - 2; i >= 0; i--) {
-          const currentCard = pile[i];
-          const previousCard = pile[i + 1];
-
-          const currentColor = (currentCard.suit === "♥" || currentCard.suit === "♦") ? 'red' : 'black';
-          const previousColor = (previousCard.suit === "♥" || previousCard.suit === "♦") ? 'red' : 'black';
-          const currentRankIndex = RANKS.indexOf(currentCard.rank);
-          const previousRankIndex = RANKS.indexOf(previousCard.rank);
-
-          if (currentColor !== previousColor && currentRankIndex === previousRankIndex + 1) {
-              lastValidCardIndex = i;
-          } else {
-              break; // End of valid stack
-          }
+    for (let i = 0; i < fullStack.length; i++) {
+      const subStack = fullStack.slice(i);
+      if (subStack.length <= maxMoveSize && this.isTableauMoveValid(subStack[0], toPile)) {
+        return subStack;
       }
-      const stack = pile.slice(lastValidCardIndex);
-      return stack;
+    }
+
+    return null; // No valid move found
   }
 
   moveStack(stack, fromTableauIndex, toTableauIndex) {
