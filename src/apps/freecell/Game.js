@@ -290,4 +290,18 @@ export class Game {
 
     return plan;
   }
+
+  getValidStackForMove(stack, destinationPile) {
+    const maxMoveSize = this.calculateMaxMoveSize();
+    const candidateStack = stack.length > maxMoveSize ? stack.slice(0, maxMoveSize) : stack;
+
+    for (let i = 0; i < candidateStack.length; i++) {
+      const subStack = candidateStack.slice(i);
+      if (this.isTableauMoveValid(subStack[0], destinationPile)) {
+        return subStack;
+      }
+    }
+
+    return null;
+  }
 }
