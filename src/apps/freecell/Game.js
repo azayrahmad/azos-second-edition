@@ -192,31 +192,35 @@ export class Game {
     return (1 + emptyFreeCells) * Math.pow(2, emptyTableauPiles);
   }
 
-  findMovableStack(tableauIndex) {
-      const pile = this.tableauPiles[tableauIndex];
-      if (pile.length === 0) {
-          return null;
+  findValidSubstack(startCard, pile) {
+    if (!pile || pile.length === 0) {
+      return null;
+    }
+
+    const startIndex = pile.indexOf(startCard);
+    if (startIndex === -1) {
+      return null; // Card not found in pile
+    }
+
+    let endIndex = startIndex;
+    for (let i = startIndex; i < pile.length - 1; i++) {
+      const currentCard = pile[i];
+      const nextCard = pile[i + 1];
+
+      const currentColor = (currentCard.suit === "♥" || currentCard.suit === "♦") ? 'red' : 'black';
+      const nextColor = (nextCard.suit === "♥" || nextCard.suit === "♦") ? 'red' : 'black';
+      const currentRankIndex = RANKS.indexOf(currentCard.rank);
+      const nextRankIndex = RANKS.indexOf(nextCard.rank);
+
+      if (currentColor !== nextColor && currentRankIndex === nextRankIndex + 1) {
+        endIndex = i + 1;
+      } else {
+        break; // End of valid stack
       }
+    }
 
-      let lastValidCardIndex = pile.length - 1;
-
-      for (let i = pile.length - 2; i >= 0; i--) {
-          const currentCard = pile[i];
-          const previousCard = pile[i + 1];
-
-          const currentColor = (currentCard.suit === "♥" || currentCard.suit === "♦") ? 'red' : 'black';
-          const previousColor = (previousCard.suit === "♥" || previousCard.suit === "♦") ? 'red' : 'black';
-          const currentRankIndex = RANKS.indexOf(currentCard.rank);
-          const previousRankIndex = RANKS.indexOf(previousCard.rank);
-
-          if (currentColor !== previousColor && currentRankIndex === previousRankIndex + 1) {
-              lastValidCardIndex = i;
-          } else {
-              break; // End of valid stack
-          }
-      }
-      const stack = pile.slice(lastValidCardIndex);
-      return stack;
+    const stack = pile.slice(startIndex, endIndex + 1);
+    return stack;
   }
 
   moveStack(stack, fromTableauIndex, toTableauIndex) {
