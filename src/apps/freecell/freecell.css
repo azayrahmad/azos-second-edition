@@ -24,6 +24,7 @@
 .freecell-container .free-cells,
 .freecell-container .foundations {
     display: flex;
+    height: 96px;
 }
 
 .freecell-container .tableau-piles {
@@ -101,9 +102,9 @@
 }
 
 .king-image {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
+    position: absolute;
+    top: 19px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
 }
