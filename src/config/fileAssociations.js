@@ -136,24 +136,24 @@ export const fileAssociations = {
   // Audio files
   mp3: {
     appId: "media-player",
-    icon: ICONS.mediaPlayer,
+    icon: ICONS.mediaPlayerFile,
   },
   wav: {
     appId: "media-player",
-    icon: ICONS.mediaPlayer,
+    icon: ICONS.mediaPlayerFile,
   },
   ogg: {
     appId: "media-player",
-    icon: ICONS.mediaPlayer,
+    icon: ICONS.mediaPlayerFile,
   },
   // Video files
   mp4: {
     appId: "media-player",
-    icon: ICONS.mediaPlayer,
+    icon: ICONS.mediaPlayerFile,
   },
   webm: {
     appId: "media-player",
-    icon: ICONS.mediaPlayer,
+    icon: ICONS.mediaPlayerFile,
   },
   m3u: {
     appId: "webamp",
@@ -162,7 +162,7 @@ export const fileAssociations = {
   // Flash files
   swf: {
     appId: "flashplayer",
-    icon: ICONS.mediaPlayer,
+    icon: ICONS.swfFile,
   },
   // Default
   default: {

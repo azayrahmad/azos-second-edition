@@ -267,6 +267,26 @@ export const ICONS = {
     16: new URL("../assets/icons/MPLAYER2_110-16.png", import.meta.url).href,
     32: new URL("../assets/icons/MPLAYER2_110-32.png", import.meta.url).href,
   },
+  mediaPlayerFile: {
+    16: new URL("../assets/icons/media_player_file-1.png", import.meta.url)
+      .href,
+    32: new URL("../assets/icons/media_player_file-0.png", import.meta.url)
+      .href,
+  },
+  flashPlayer: {
+    16: new URL("../assets/icons/Fl-player6.webp", import.meta.url).href,
+    32: new URL("../assets/icons/Fl-player6.webp", import.meta.url).href,
+  },
+  swfFile: {
+    16: new URL(
+      "../assets/icons/Flash_Player_6_file_icon.webp",
+      import.meta.url,
+    ).href,
+    32: new URL(
+      "../assets/icons/Flash_Player_6_file_icon.webp",
+      import.meta.url,
+    ).href,
+  },
   briefcase: {
     16: new URL("../assets/icons/briefcase-5.png", import.meta.url).href,
     32: new URL("../assets/icons/briefcase-3.png", import.meta.url).href,
