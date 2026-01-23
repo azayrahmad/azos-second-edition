@@ -73,7 +73,7 @@ export class FlashPlayerApp extends Application {
         input.click();
     }
 
-    loadSwf(fileOrUrl) {
+    loadSwf(fileData) {
         if (!window.RufflePlayer) {
             ShowDialogWindow({
                 title: 'Error',
@@ -90,14 +90,35 @@ export class FlashPlayerApp extends Application {
         this.player = ruffle.createPlayer();
         container.appendChild(this.player);
 
-        this.player.load(fileOrUrl).catch((e) => {
+        const handleError = (e) => {
             console.error(`Ruffle failed to load the file: ${e}`);
             ShowDialogWindow({
                 title: 'Error',
                 text: 'Could not load the specified SWF file.',
                 buttons: [{ label: 'OK', isDefault: true }],
             });
-        });
+        };
+
+        if (typeof fileData === 'string') {
+            // It's a URL from launch data
+            this.player.load(fileData).catch(handleError);
+        } else if (fileData instanceof File) {
+            // It's a File object from the file input
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.player.load({ data: event.target.result }).catch(handleError);
+            };
+            reader.onerror = (e) => {
+                console.error('FileReader error:', e);
+                handleError(e);
+            };
+            reader.readAsArrayBuffer(fileData);
+        } else if (typeof fileData === 'object' && fileData.contentUrl) {
+            // It's a virtual file object from Explorer
+            this.player.load(fileData.contentUrl).catch(handleError);
+        } else {
+            handleError('Invalid file data provided.');
+        }
     }
 
     waitForRuffle() {
