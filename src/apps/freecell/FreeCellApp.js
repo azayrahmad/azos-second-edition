@@ -479,7 +479,7 @@ export class FreeCellApp extends Application {
   }
 
   animateMove(cardsToAnimate, toType, toIndex) {
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
       const containerRect = this.container.getBoundingClientRect();
       const animationLayer = document.createElement("div");
       animationLayer.className = "animation-layer";
@@ -490,39 +490,51 @@ export class FreeCellApp extends Application {
       );
       const toPileRect = toPileEl.getBoundingClientRect();
 
-      // Determine the base top position for the destination
       let destBaseTop = toPileRect.top;
       if (toType === "tableau") {
         const pile = this.game.tableauPiles[toIndex];
-        destBaseTop += pile.length * 25; // Offset by existing cards
+        destBaseTop += pile.length * 25;
       }
 
-      const animationPromises = cardsToAnimate.map((card, i) => {
-        return new Promise((animResolve) => {
-          const cardEl = card.element.cloneNode(true);
-          const startRect = card.element.getBoundingClientRect();
+      const isStackMove = cardsToAnimate.length > 1;
+      const startRect = cardsToAnimate[0].element.getBoundingClientRect();
+      let elementToAnimate;
 
-          cardEl.style.position = "absolute";
-          cardEl.style.left = `${startRect.left - containerRect.left}px`;
-          cardEl.style.top = `${startRect.top - containerRect.top}px`;
-          cardEl.style.zIndex = 100 + i;
-          animationLayer.appendChild(cardEl);
-
-          setTimeout(() => {
-            cardEl.style.transition = "left 0.15s ease-out, top 0.15s ease-out";
-            cardEl.style.left = `${toPileRect.left - containerRect.left}px`;
-            cardEl.style.top = `${destBaseTop - containerRect.top + i * 25}px`;
-
-            cardEl.addEventListener("transitionend", animResolve, {
-              once: true,
-            });
-          }, 10);
+      if (isStackMove) {
+        elementToAnimate = document.createElement("div");
+        elementToAnimate.style.zIndex = "1000";
+        cardsToAnimate.forEach((card, i) => {
+          const cardElClone = card.element.cloneNode(true);
+          cardElClone.style.position = "absolute";
+          cardElClone.style.left = "0px";
+          cardElClone.style.top = `${i * 25}px`;
+          elementToAnimate.appendChild(cardElClone);
         });
-      });
+      } else {
+        elementToAnimate = cardsToAnimate[0].element.cloneNode(true);
+        elementToAnimate.style.zIndex = "100";
+      }
 
-      await Promise.all(animationPromises);
-      animationLayer.remove();
-      resolve();
+      elementToAnimate.style.position = "absolute";
+      elementToAnimate.style.left = `${startRect.left - containerRect.left}px`;
+      elementToAnimate.style.top = `${startRect.top - containerRect.top}px`;
+      animationLayer.appendChild(elementToAnimate);
+
+      setTimeout(() => {
+        elementToAnimate.style.transition =
+          "left 0.2s linear, top 0.2s linear";
+        elementToAnimate.style.left = `${toPileRect.left - containerRect.left}px`;
+        elementToAnimate.style.top = `${destBaseTop - containerRect.top}px`;
+
+        elementToAnimate.addEventListener(
+          "transitionend",
+          () => {
+            animationLayer.remove();
+            resolve();
+          },
+          { once: true },
+        );
+      }, 10);
     });
   }
 
