@@ -3,6 +3,9 @@ import { Card } from './Card.js';
 const SUITS = ['♣', '♦', '♥', '♠'];
 const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
+// Microsoft's random number generator constants
+const MS_RAND_MAX = 32767;
+
 export class Game {
   constructor(gameNumber = 1) {
     this.gameNumber = gameNumber;
@@ -20,21 +23,32 @@ export class Game {
     this.allCards = [];
     for (const rank of RANKS) {
       for (const suit of SUITS) {
-        const card = new Card(suit, rank, 'cardback1');
+        const card = new Card(suit, rank, 'cardback1'); // Card back is irrelevant as they are all face up
         card.faceUp = true;
         this.allCards.push(card);
       }
     }
   }
 
+  /**
+   * Shuffles and deals the cards based on the game number.
+   * This uses the same pseudo-random number generator algorithm as the original Microsoft FreeCell.
+   */
   deal() {
+    // This class is a port of the Microsoft C Runtime random number generator
     class MSRand {
-        constructor(seed) { this.seed = seed; }
+        constructor(seed) {
+            this.seed = seed;
+        }
+
         rand() {
             this.seed = (this.seed * 214013 + 2531011) & 0x7FFFFFFF;
             return (this.seed >> 16) & 0x7FFF;
         }
-        maxRand(max) { return this.rand() % max; }
+
+        maxRand(max) {
+            return this.rand() % max;
+        }
     }
 
     const rng = new MSRand(this.gameNumber);
@@ -48,14 +62,19 @@ export class Game {
         deck[j] = deck[--remaining];
     }
 
+    // Map the shuffled numbers back to cards
     const shuffledDeck = shuffledIndices.map(index => this.allCards[index]);
 
-    this.tableauPiles = Array.from({ length: 8 }, () => []);
+    // Deal the cards to the tableau piles
+    this.tableauPiles = [[], [], [], [], [], [], [], []];
     for (let i = 0; i < 52; i++) {
         this.tableauPiles[i % 8].push(shuffledDeck[i]);
     }
   }
 
+  /**
+   * Saves the current state of the game for the undo functionality.
+   */
   saveState() {
     this.previousState = {
       freeCells: this.freeCells.map(card => card ? card.uid : null),
@@ -64,14 +83,19 @@ export class Game {
     };
   }
 
+  /**
+   * Restores the game to the last saved state.
+   */
   undo() {
-    if (!this.previousState) return false;
+    if (!this.previousState) {
+      return false;
+    }
 
     const uidToCardMap = new Map(this.allCards.map(card => [card.uid, card]));
 
     this.freeCells = this.previousState.freeCells.map(uid => uid ? uidToCardMap.get(uid) : null);
-    this.foundationPiles = this.previousState.foundationPiles.map(piles => piles.map(uid => uidToCardMap.get(uid)));
-    this.tableauPiles = this.previousState.tableauPiles.map(piles => piles.map(uid => uidToCardMap.get(uid)));
+    this.foundationPiles = this.previousState.foundationPiles.map(pileUids => pileUids.map(uid => uidToCardMap.get(uid)));
+    this.tableauPiles = this.previousState.tableauPiles.map(pileUids => pileUids.map(uid => uidToCardMap.get(uid)));
 
     this.previousState = null;
     return true;
@@ -81,45 +105,73 @@ export class Game {
     return this.foundationPiles.every(pile => pile.length === 13);
   }
 
+  // --- Move Validation ---
+
   getCardLocation(card) {
+    // Check free cells
     for (let i = 0; i < this.freeCells.length; i++) {
-      if (this.freeCells[i] === card) return { type: 'freecell', index: i };
-    }
-    for (let i = 0; i < this.tableauPiles.length; i++) {
-      if (this.tableauPiles[i].includes(card)) {
-        return { type: 'tableau', index: i, position: this.tableauPiles[i].indexOf(card) };
+      if (this.freeCells[i] === card) {
+        return { type: 'freecell', index: i };
       }
     }
-    return null;
+    // Check tableau piles
+    for (let i = 0; i < this.tableauPiles.length; i++) {
+      const pile = this.tableauPiles[i];
+      if (pile.length > 0 && pile[pile.length - 1] === card) {
+        return { type: 'tableau', index: i, position: pile.length - 1 };
+      }
+    }
+    return null; // Card not found or not movable
   }
 
   isTableauMoveValid(cardToMove, destinationPile) {
-      if (destinationPile.length === 0) return true;
+      if (destinationPile.length === 0) {
+        return true; // Can move any card to an empty tableau pile
+      }
       const topCard = destinationPile[destinationPile.length - 1];
       const cardColor = (cardToMove.suit === "♥" || cardToMove.suit === "♦") ? 'red' : 'black';
       const topCardColor = (topCard.suit === "♥" || topCard.suit === "♦") ? 'red' : 'black';
       const cardRankIndex = RANKS.indexOf(cardToMove.rank);
       const topCardRankIndex = RANKS.indexOf(topCard.rank);
+
       return cardColor !== topCardColor && cardRankIndex === topCardRankIndex - 1;
   }
 
   isFoundationMoveValid(cardToMove, foundationPile) {
-    if (foundationPile.length === 0) return cardToMove.rank === "A";
+    if (foundationPile.length === 0) {
+        // Any Ace can be moved to an empty foundation pile.
+        return cardToMove.rank === "A";
+    }
+
     const topCard = foundationPile[foundationPile.length - 1];
-    if (cardToMove.suit !== topCard.suit) return false;
+
+    // Check if the suits match
+    if (cardToMove.suit !== topCard.suit) {
+        return false;
+    }
+
+    // Check if the rank is one higher than the top card
     const cardRankIndex = RANKS.indexOf(cardToMove.rank);
     const topCardRankIndex = RANKS.indexOf(topCard.rank);
+
     return cardRankIndex === topCardRankIndex + 1;
   }
 
+  // --- Move Execution ---
+
   moveCard(card, source, destinationType, destinationIndex) {
     this.saveState();
+
+    if (!source) return false;
+
+    // Remove card from source
     if (source.type === 'freecell') {
       this.freeCells[source.index] = null;
     } else if (source.type === 'tableau') {
       this.tableauPiles[source.index].pop();
     }
 
+    // Add card to destination
     if (destinationType === 'freecell') {
       this.freeCells[destinationIndex] = card;
     } else if (destinationType === 'tableau') {
@@ -127,101 +179,115 @@ export class Game {
     } else if (destinationType === 'foundation') {
       this.foundationPiles[destinationIndex].push(card);
     }
+
     return true;
   }
 
-  _calculateMaxMoveSize(numEmptyFreeCells, numEmptyTableauPiles) {
-    return (1 + numEmptyFreeCells) * Math.pow(2, numEmptyTableauPiles);
-  }
+  // --- Supermoves (moving a stack of cards) ---
 
   calculateMaxMoveSize() {
-    const emptyFreeCells = this.freeCells.filter((c) => c === null).length;
-    const emptyTableauPiles = this.tableauPiles.filter(
-      (p) => p.length === 0,
-    ).length;
-    return this._calculateMaxMoveSize(emptyFreeCells, emptyTableauPiles);
+    const emptyFreeCells = this.freeCells.filter(c => c === null).length;
+    const emptyTableauPiles = this.tableauPiles.filter(p => p.length === 0).length;
+    // The formula is (1 + number of empty freecells) * 2 ^ (number of empty tableau columns)
+    return (1 + emptyFreeCells) * Math.pow(2, emptyTableauPiles);
   }
 
   findMovableStack(tableauIndex) {
       const pile = this.tableauPiles[tableauIndex];
-      if (pile.length === 0) return null;
+      if (pile.length === 0) {
+          return null;
+      }
+
       let lastValidCardIndex = pile.length - 1;
+
       for (let i = pile.length - 2; i >= 0; i--) {
           const currentCard = pile[i];
           const previousCard = pile[i + 1];
+
           const currentColor = (currentCard.suit === "♥" || currentCard.suit === "♦") ? 'red' : 'black';
           const previousColor = (previousCard.suit === "♥" || previousCard.suit === "♦") ? 'red' : 'black';
           const currentRankIndex = RANKS.indexOf(currentCard.rank);
           const previousRankIndex = RANKS.indexOf(previousCard.rank);
+
           if (currentColor !== previousColor && currentRankIndex === previousRankIndex + 1) {
               lastValidCardIndex = i;
           } else {
-              break;
+              break; // End of valid stack
           }
       }
-      return pile.slice(lastValidCardIndex);
+      const stack = pile.slice(lastValidCardIndex);
+      return stack;
   }
 
   moveStack(stack, fromTableauIndex, toTableauIndex) {
     this.saveState();
+
+    // Remove stack from source pile
     const fromPile = this.tableauPiles[fromTableauIndex];
     fromPile.splice(fromPile.length - stack.length);
+
+    // Add stack to destination pile
     const toPile = this.tableauPiles[toTableauIndex];
     this.tableauPiles[toTableauIndex] = toPile.concat(stack);
+
     return true;
   }
 
   getSupermovePlan(stack, fromTableauIndex, toTableauIndex) {
+    const availableFreeCells = this.freeCells
+      .map((card, index) => (card === null ? index : -1))
+      .filter((index) => index !== -1);
+    const availableTableau = this.tableauPiles
+      .map((pile, index) => (pile.length === 0 ? index : -1))
+      .filter((index) => index !== -1);
+
     const plan = [];
-    const freeCells = this.freeCells
-      .map((c, i) => (c === null ? i : -1))
-      .filter((i) => i !== -1);
-    const emptyTableaus = this.tableauPiles
-      .map((p, i) => (p.length === 0 ? i : -1))
-      .filter((i) => i !== -1 && i !== toTableauIndex);
+    const tempLocations = new Map(); // card -> {type, index}
+    const baseCard = stack[0];
+    const cardsToMove = stack.slice(1).reverse(); // Top cards first
 
-    const moveStackRecursively = (
-      cardsToMove,
-      source,
-      dest,
-      spareTableaus,
-      freeCells,
-    ) => {
-      const n = cardsToMove.length;
-      if (n === 0) return;
-
-      const maxSimpleMove = freeCells.length + 1;
-
-      if (n <= maxSimpleMove) {
-        const tempFCs = freeCells.slice(0, n - 1);
-        const cardToFCMap = new Map();
-        const topCards = cardsToMove.slice(1).reverse();
-
-        topCards.forEach((card, i) => {
-          const fcIndex = tempFCs[i];
-          plan.push({ card, from: { type: 'tableau', index: source }, to: { type: 'freecell', index: fcIndex } });
-          cardToFCMap.set(card.uid, fcIndex);
-        });
-
-        plan.push({ card: cardsToMove[0], from: { type: 'tableau', index: source }, to: { type: 'tableau', index: dest } });
-
-        cardsToMove.slice(1).forEach((card) => {
-          plan.push({ card, from: { type: 'freecell', index: cardToFCMap.get(card.uid) }, to: { type: 'tableau', index: dest } });
-        });
+    // Phase 1: Move all but the base card to temporary locations
+    for (const card of cardsToMove) {
+      let tempTo;
+      if (availableFreeCells.length > 0) {
+        const fcIndex = availableFreeCells.shift();
+        tempTo = { type: 'freecell', index: fcIndex };
+      } else if (availableTableau.length > 0) {
+        const tIndex = availableTableau.shift();
+        tempTo = { type: 'tableau', index: tIndex };
       } else {
-        const spareCol = spareTableaus[0];
-        const remainingSpare = spareTableaus.slice(1);
-        const bottomStackSize = this._calculateMaxMoveSize(freeCells.length, spareTableaus.length - 1);
-        const topStack = cardsToMove.slice(bottomStackSize);
-        const bottomStack = cardsToMove.slice(0, bottomStackSize);
-
-        moveStackRecursively(topStack, source, spareCol, remainingSpare, freeCells);
-        moveStackRecursively(bottomStack, source, dest, remainingSpare, freeCells);
-        moveStackRecursively(topStack, spareCol, dest, [source, ...remainingSpare], freeCells);
+        // This should not happen if the move is valid
+        console.error("Not enough space for supermove");
+        return [];
       }
-    };
+      const fromLocation = { type: 'tableau', index: fromTableauIndex };
+      plan.push({ card, from: fromLocation, to: tempTo });
+      tempLocations.set(card, tempTo);
+    }
 
-    moveStackRecursively(stack, fromTableauIndex, toTableauIndex, emptyTableaus, freeCells);
+    // Phase 2: Move the base card of the stack directly to the destination
+    plan.push({
+      card: baseCard,
+      from: { type: 'tableau', index: fromTableauIndex },
+      to: { type: 'tableau', index: toTableauIndex },
+    });
+    tempLocations.set(baseCard, { type: 'tableau', index: toTableauIndex });
+
+    // Phase 3: Re-assemble the stack from the temporary locations
+    const cardsToReassemble = stack.slice(1); // In order from base to top
+    for (let i = 0; i < cardsToReassemble.length; i++) {
+      const card = cardsToReassemble[i];
+      const cardBelow = stack[i];
+      const from = tempLocations.get(card);
+      const toCardLocation = tempLocations.get(cardBelow);
+
+      if (!toCardLocation) continue;
+
+      const reassemblyTo = { type: 'tableau', index: toCardLocation.index };
+      plan.push({ card, from, to: reassemblyTo });
+      tempLocations.set(card, reassemblyTo);
+    }
+
     return plan;
   }
 }
