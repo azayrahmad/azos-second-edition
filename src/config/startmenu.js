@@ -62,7 +62,7 @@ const startMenuConfig = [
           {
             label: "Entertainment",
             icon: ICONS.programs[16],
-            submenu: getAppList(["media-player"]),
+            submenu: getAppList(["media-player", "flashplayer"]),
           },
           {
             label: "System Tools",
