@@ -243,44 +243,48 @@ export class Game {
 
     const plan = [];
     const tempLocations = new Map(); // card -> {type, index}
+    const baseCard = stack[0];
+    const cardsToMove = stack.slice(1).reverse(); // Top cards first
 
-    // Phase 1: Move all but the last card to temporary locations
-    stack.slice(0, -1).forEach((card) => {
+    // Phase 1: Move all but the base card to temporary locations
+    for (const card of cardsToMove) {
       let tempTo;
       if (availableFreeCells.length > 0) {
         const fcIndex = availableFreeCells.shift();
-        tempTo = { type: "freecell", index: fcIndex };
+        tempTo = { type: 'freecell', index: fcIndex };
       } else if (availableTableau.length > 0) {
         const tIndex = availableTableau.shift();
-        tempTo = { type: "tableau", index: tIndex };
+        tempTo = { type: 'tableau', index: tIndex };
       } else {
-        return; // Should not happen if move is valid
+        // This should not happen if the move is valid
+        console.error("Not enough space for supermove");
+        return [];
       }
-
-      const fromLocation = { type: "tableau", index: fromTableauIndex };
+      const fromLocation = { type: 'tableau', index: fromTableauIndex };
       plan.push({ card, from: fromLocation, to: tempTo });
       tempLocations.set(card, tempTo);
-    });
+    }
 
-    // Phase 2: Move the last (top) card of the stack directly to the destination
-    const lastCard = stack[stack.length - 1];
+    // Phase 2: Move the base card of the stack directly to the destination
     plan.push({
-      card: lastCard,
-      from: { type: "tableau", index: fromTableauIndex },
-      to: { type: "tableau", index: toTableauIndex },
+      card: baseCard,
+      from: { type: 'tableau', index: fromTableauIndex },
+      to: { type: 'tableau', index: toTableauIndex },
     });
-    tempLocations.set(lastCard, { type: "tableau", index: toTableauIndex });
+    tempLocations.set(baseCard, { type: 'tableau', index: toTableauIndex });
 
-    // Phase 3: Re-assemble the stack from the second-to-last card upwards
-    for (let i = stack.length - 2; i >= 0; i--) {
-      const card = stack[i];
+    // Phase 3: Re-assemble the stack from the temporary locations
+    const cardsToReassemble = stack.slice(1); // In order from base to top
+    for (let i = 0; i < cardsToReassemble.length; i++) {
+      const card = cardsToReassemble[i];
+      const cardBelow = stack[i];
       const from = tempLocations.get(card);
-      const toCardLocation = tempLocations.get(stack[i + 1]);
-      const reassemblyTo = { type: "tableau", index: toCardLocation.index };
+      const toCardLocation = tempLocations.get(cardBelow);
 
+      if (!toCardLocation) continue;
+
+      const reassemblyTo = { type: 'tableau', index: toCardLocation.index };
       plan.push({ card, from, to: reassemblyTo });
-
-      // Update this card's location for the next card to stack on it
       tempLocations.set(card, reassemblyTo);
     }
 
