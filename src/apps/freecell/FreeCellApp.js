@@ -288,10 +288,15 @@ export class FreeCellApp extends Application {
       const stack = this.game.findValidSubstack(clickedCard, fromPile);
 
       if (stack && stack.length > 0) {
-        this.selectedStack = stack;
-        this.selectedSource = { type: "tableau", index: fromPileIndex };
-        // Visually select the top card of the stack
-        this.selectedStack[0].element.classList.add("selected");
+        // A stack is only selectable if it's at the end of the pile.
+        const lastCardInStack = stack[stack.length - 1];
+        const lastCardInPile = fromPile[fromPile.length - 1];
+        if (lastCardInStack === lastCardInPile) {
+          this.selectedStack = stack;
+          this.selectedSource = { type: "tableau", index: fromPileIndex };
+          // Visually select the top card of the stack
+          this.selectedStack[0].element.classList.add("selected");
+        }
       }
     } else {
       // It's in a free cell or foundation (only free cell is selectable)
