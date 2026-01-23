@@ -159,6 +159,11 @@ export const fileAssociations = {
     appId: "webamp",
     icon: ICONS.webamp,
   },
+  // Flash files
+  swf: {
+    appId: "flashplayer",
+    icon: ICONS.mediaPlayer,
+  },
   // Default
   default: {
     appId: "notepad",

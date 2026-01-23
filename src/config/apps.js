@@ -1,4 +1,5 @@
 // src/config/apps.js
+import { FlashPlayerApp } from "../apps/flashplayer/FlashPlayerApp.js";
 import { ShowDialogWindow } from "../components/DialogWindow.js";
 import { getIcon } from "../utils/iconManager.js";
 import { playSound } from "../utils/soundManager.js";
@@ -231,5 +232,10 @@ const systemApps = [
 // --- Combine and Export ---
 
 // --- Combine and Export ---
+
+if (FlashPlayerApp.config) {
+  appClasses[FlashPlayerApp.config.id] = FlashPlayerApp;
+  staticConfigs.push({ ...FlashPlayerApp.config, appClass: FlashPlayerApp });
+}
 
 export const apps = [...systemApps, ...staticConfigs];
