@@ -507,34 +507,44 @@ export class FreeCellApp extends Application {
 
         let cardEl = cardElements.get(card);
         if (!cardEl) {
-            cardEl = card.element.cloneNode(true);
-            const startRect = card.element.getBoundingClientRect();
-            cardEl.style.position = "absolute";
-            cardEl.style.left = `${startRect.left - containerRect.left}px`;
-            cardEl.style.top = `${startRect.top - containerRect.top}px`;
-            cardEl.style.zIndex = 100; // a base z-index
-            animationLayer.appendChild(cardEl);
-            cardElements.set(card, cardEl);
+          cardEl = card.element.cloneNode(true);
+          cardEl.style.opacity = "1"; // Make the clone visible
+          const startRect = card.element.getBoundingClientRect();
+          cardEl.style.position = "absolute";
+          cardEl.style.left = `${startRect.left - containerRect.left}px`;
+          cardEl.style.top = `${startRect.top - containerRect.top}px`;
+          cardEl.style.zIndex = 100; // a base z-index
+          animationLayer.appendChild(cardEl);
+          cardElements.set(card, cardEl);
         }
 
-        const toPileEl = this.container.querySelector(`[data-type="${to.type}"][data-index="${to.index}"]`);
+        const toPileEl = this.container.querySelector(
+          `[data-type="${to.type}"][data-index="${to.index}"]`,
+        );
         const toPileRect = toPileEl.getBoundingClientRect();
 
         let destTop = toPileRect.top;
-        if (to.type === 'tableau') {
-            // To stack cards correctly during the animation, we need to calculate
-            // the visual offset based on how many cards are already in the target pile *in the animation's context*.
-            // This requires iterating through the plan up to the current move to simulate the pile's state.
-            let cardsInPile = 0;
-            for(const otherMove of plan.slice(0, plan.indexOf(move))) {
-                if(otherMove.to.type === 'tableau' && otherMove.to.index === to.index) {
-                    cardsInPile++;
-                }
-                 if(otherMove.from.type === 'tableau' && otherMove.from.index === to.index) {
-                    cardsInPile--;
-                }
+        if (to.type === "tableau") {
+          // To stack cards correctly during the animation, we need to calculate
+          // the visual offset based on how many cards are already in the target pile *in the animation's context*.
+          // This requires iterating through the plan up to the current move to simulate the pile's state.
+          let cardsInPile = 0;
+          for (const otherMove of plan.slice(0, plan.indexOf(move))) {
+            if (
+              otherMove.to.type === "tableau" &&
+              otherMove.to.index === to.index
+            ) {
+              cardsInPile++;
             }
-            destTop += (this.game.tableauPiles[to.index].length + cardsInPile) * 25;
+            if (
+              otherMove.from.type === "tableau" &&
+              otherMove.from.index === to.index
+            ) {
+              cardsInPile--;
+            }
+          }
+          destTop +=
+            (this.game.tableauPiles[to.index].length + cardsInPile) * 25;
         }
 
         setTimeout(() => {
@@ -576,6 +586,8 @@ export class FreeCellApp extends Application {
           const cardEl = card.element.cloneNode(true);
           const startRect = card.element.getBoundingClientRect();
 
+          // Make sure the clone is visible, as the original is hidden
+          cardEl.style.opacity = "1";
           cardEl.style.position = "absolute";
           cardEl.style.left = `${startRect.left - containerRect.left}px`;
           cardEl.style.top = `${startRect.top - containerRect.top}px`;
