@@ -336,6 +336,16 @@ export class FreeCellApp extends Application {
         );
 
         if (stackToMove) {
+          if (toPile.length === 0 && stackToMove.length > 1) {
+            this.promptForMoveType(
+              stackToMove,
+              selectedCard,
+              fromLocation,
+              destinationIndex,
+            );
+            return; // Stop further execution in handleMove
+          }
+
           if (stackToMove.length > 1) {
             moveDetails = {
               type: "stack",
@@ -434,6 +444,41 @@ export class FreeCellApp extends Application {
     }
   }
 
+
+  promptForMoveType(stack, card, fromLocation, toIndex) {
+    ShowDialogWindow({
+      title: "Move Cards",
+      text: "Do you want to move the entire stack or just the single card?",
+      buttons: [
+        {
+          label: `Move ${stack.length} cards`,
+          action: async () => {
+            const plan = this.game.getSupermovePlan(
+              stack,
+              fromLocation.index,
+              toIndex,
+            );
+            stack.forEach((c) => (c.element.style.opacity = "0"));
+            await this.animateSupermove(plan);
+            this.game.moveStack(stack, fromLocation.index, toIndex);
+            this.render();
+            if (this.game.checkForWin()) this.showWinDialog();
+          },
+        },
+        {
+          label: "Move 1 card",
+          action: async () => {
+            card.element.style.opacity = "0";
+            await this.animateMove([card], "tableau", toIndex);
+            this.game.moveCard(card, fromLocation, "tableau", toIndex);
+            this.render();
+            if (this.game.checkForWin()) this.showWinDialog();
+          },
+        },
+      ],
+      parentWindow: this.win,
+    });
+  }
 
   async animateSupermove(plan) {
     this.isAnimating = true;
