@@ -113,6 +113,19 @@ export class FlashPlayerApp extends Application {
                 handleError(e);
             };
             reader.readAsArrayBuffer(fileData);
+        } else if (typeof fileData === 'object' && fileData.content) {
+            // It's a briefcase file object with base64 content
+            try {
+                const byteString = atob(fileData.content.split(',')[1]);
+                const arrayBuffer = new ArrayBuffer(byteString.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+                for (let i = 0; i < byteString.length; i++) {
+                    uint8Array[i] = byteString.charCodeAt(i);
+                }
+                this.player.load({ data: arrayBuffer }).catch(handleError);
+            } catch (e) {
+                handleError(e);
+            }
         } else if (typeof fileData === 'object' && fileData.contentUrl) {
             // It's a virtual file object from Explorer
             this.player.load(fileData.contentUrl).catch(handleError);
