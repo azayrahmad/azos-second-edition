@@ -520,21 +520,25 @@ export class FreeCellApp extends Application {
       elementToAnimate.style.top = `${startRect.top - containerRect.top}px`;
       animationLayer.appendChild(elementToAnimate);
 
-      setTimeout(() => {
-        elementToAnimate.style.transition =
-          "left 0.2s linear, top 0.2s linear";
-        elementToAnimate.style.left = `${toPileRect.left - containerRect.left}px`;
-        elementToAnimate.style.top = `${destBaseTop - containerRect.top}px`;
+      // Use a nested requestAnimationFrame to ensure the initial position is painted
+      // before the transition to the final position is applied.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          elementToAnimate.style.transition =
+            "left 0.2s linear, top 0.2s linear";
+          elementToAnimate.style.left = `${toPileRect.left - containerRect.left}px`;
+          elementToAnimate.style.top = `${destBaseTop - containerRect.top}px`;
 
-        elementToAnimate.addEventListener(
-          "transitionend",
-          () => {
-            animationLayer.remove();
-            resolve();
-          },
-          { once: true },
-        );
-      }, 10);
+          elementToAnimate.addEventListener(
+            "transitionend",
+            () => {
+              animationLayer.remove();
+              resolve();
+            },
+            { once: true },
+          );
+        });
+      });
     });
   }
 
