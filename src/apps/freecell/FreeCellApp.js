@@ -5,6 +5,8 @@ import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "./freecell.css";
 import "../../styles/solitaire.css";
 import freecellTable from "./assets/freecell-table.png";
+import kingLeft from "./assets/king-left.png";
+import kingRight from "./assets/king-right.png";
 
 export class FreeCellApp extends Application {
   static config = {
@@ -30,6 +32,7 @@ export class FreeCellApp extends Application {
     win.element.querySelector(".window-content").innerHTML = `
       <div class="freecell-container">
         <div class="game-board" style="background-image: url(${freecellTable})">
+          <img class="king-image" src="${kingLeft}" alt="King" />
           <div class="top-area">
             <div class="free-cells"></div>
             <div class="foundations"></div>
@@ -47,6 +50,11 @@ export class FreeCellApp extends Application {
     this.isAnimating = false;
 
     this.boundOnClick = this.onClick.bind(this);
+    this.boundHandleKeyDown = this.handleKeyDown.bind(this);
+    this.boundHandleFreeCellsMouseOver = this.handleFreeCellsMouseOver.bind(this);
+    this.boundHandleFoundationsMouseOver =
+      this.handleFoundationsMouseOver.bind(this);
+
     this.addEventListeners();
     this.render();
 
@@ -236,15 +244,47 @@ export class FreeCellApp extends Application {
 
   addEventListeners() {
     this.container.addEventListener("click", this.boundOnClick);
-    this.win.element.addEventListener("keydown", this.handleKeyDown.bind(this));
+    this.win.element.addEventListener("keydown", this.boundHandleKeyDown);
+
+    const freeCells = this.container.querySelector(".free-cells");
+    const foundations = this.container.querySelector(".foundations");
+
+    freeCells.addEventListener("mouseover", this.boundHandleFreeCellsMouseOver);
+    foundations.addEventListener(
+      "mouseover",
+      this.boundHandleFoundationsMouseOver,
+    );
   }
 
   removeEventListeners() {
     this.container.removeEventListener("click", this.boundOnClick);
-    this.win.element.removeEventListener(
-      "keydown",
-      this.handleKeyDown.bind(this),
-    );
+    this.win.element.removeEventListener("keydown", this.boundHandleKeyDown);
+
+    const freeCells = this.container.querySelector(".free-cells");
+    const foundations = this.container.querySelector(".foundations");
+
+    if (freeCells) {
+      freeCells.removeEventListener(
+        "mouseover",
+        this.boundHandleFreeCellsMouseOver,
+      );
+    }
+    if (foundations) {
+      foundations.removeEventListener(
+        "mouseover",
+        this.boundHandleFoundationsMouseOver,
+      );
+    }
+  }
+
+  handleFreeCellsMouseOver() {
+    const kingImage = this.container.querySelector(".king-image");
+    kingImage.src = kingLeft;
+  }
+
+  handleFoundationsMouseOver() {
+    const kingImage = this.container.querySelector(".king-image");
+    kingImage.src = kingRight;
   }
 
   handleKeyDown(event) {
