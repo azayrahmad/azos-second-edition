@@ -249,59 +249,70 @@ export class Game {
   }
 
   getSupermovePlan(stack, fromTableauIndex, toTableauIndex) {
-    const availableFreeCells = this.freeCells
-      .map((card, index) => (card === null ? index : -1))
-      .filter((index) => index !== -1);
-    const availableTableau = this.tableauPiles
-      .map((pile, index) => (pile.length === 0 ? index : -1))
-      .filter((index) => index !== -1);
-
     const plan = [];
-    const tempLocations = new Map(); // card -> {type, index}
-    const baseCard = stack[0];
-    const cardsToMove = stack.slice(1).reverse(); // Top cards first
+    const fromLocation = { type: 'tableau', index: fromTableauIndex };
+    const toLocation = { type: 'tableau', index: toTableauIndex };
 
-    // Phase 1: Move all but the base card to temporary locations
-    for (const card of cardsToMove) {
-      let tempTo;
-      if (availableFreeCells.length > 0) {
-        const fcIndex = availableFreeCells.shift();
-        tempTo = { type: 'freecell', index: fcIndex };
-      } else if (availableTableau.length > 0) {
-        const tIndex = availableTableau.shift();
-        tempTo = { type: 'tableau', index: tIndex };
-      } else {
-        // This should not happen if the move is valid
-        console.error("Not enough space for supermove");
-        return [];
-      }
-      const fromLocation = { type: 'tableau', index: fromTableauIndex };
-      plan.push({ card, from: fromLocation, to: tempTo });
-      tempLocations.set(card, tempTo);
-    }
+    const generateSimpleMove = (cards, from, to, free) => {
+        if (cards.length === 0) return;
+        const tempLocations = new Map();
+        const baseCard = cards[0];
+        const cardsToMove = cards.slice(1).reverse();
 
-    // Phase 2: Move the base card of the stack directly to the destination
-    plan.push({
-      card: baseCard,
-      from: { type: 'tableau', index: fromTableauIndex },
-      to: { type: 'tableau', index: toTableauIndex },
-    });
-    tempLocations.set(baseCard, { type: 'tableau', index: toTableauIndex });
+        cardsToMove.forEach((card, i) => {
+            const tempDest = free[i];
+            plan.push({ card, from, to: tempDest });
+            tempLocations.set(card, tempDest);
+        });
 
-    // Phase 3: Re-assemble the stack from the temporary locations
-    const cardsToReassemble = stack.slice(1); // In order from base to top
-    for (let i = 0; i < cardsToReassemble.length; i++) {
-      const card = cardsToReassemble[i];
-      const cardBelow = stack[i];
-      const from = tempLocations.get(card);
-      const toCardLocation = tempLocations.get(cardBelow);
+        plan.push({ card: baseCard, from, to });
+        tempLocations.set(baseCard, to);
 
-      if (!toCardLocation) continue;
+        cards.slice(1).forEach(card => {
+            const fromLoc = tempLocations.get(card);
+            plan.push({ card, from: fromLoc, to });
+            tempLocations.set(card, to);
+        });
+    };
 
-      const reassemblyTo = { type: 'tableau', index: toCardLocation.index };
-      plan.push({ card, from, to: reassemblyTo });
-      tempLocations.set(card, reassemblyTo);
-    }
+    const generateRecursiveMove = (cards, from, to, aux, free) => {
+        const n = cards.length;
+        const k = free.length + 1;
+
+        if (n <= k) {
+            generateSimpleMove(cards, from, to, free);
+            return;
+        }
+
+        const tempPile = aux[0];
+        const remainingAux = aux.slice(1);
+
+        const topStackSize = n - k;
+        const topStack = cards.slice(k);
+        const bottomStack = cards.slice(0, k);
+
+        // Step 1: Move top stack from Source to an Auxiliary pile.
+        // The other auxiliary piles can be used. The final destination pile is NOT available.
+        generateRecursiveMove(topStack, from, tempPile, remainingAux, free);
+
+        // Step 2: Move bottom stack from Source to Destination.
+        // This is a simple move that only uses free cells.
+        generateSimpleMove(bottomStack, from, to, free);
+
+        // Step 3: Move top stack from the Auxiliary pile to the Destination.
+        // The original source pile is now empty and can be used as an auxiliary.
+        generateRecursiveMove(topStack, tempPile, to, [from, ...remainingAux], free);
+    };
+
+    const freeCells = this.freeCells
+      .map((card, index) => (card === null ? { type: 'freecell', index } : null))
+      .filter(Boolean);
+
+    const emptyTableau = this.tableauPiles
+      .map((pile, index) => (pile.length === 0 ? { type: 'tableau', index } : null))
+      .filter(p => p && p.index !== toTableauIndex && p.index !== fromTableauIndex);
+
+    generateRecursiveMove(stack, fromLocation, toLocation, emptyTableau, freeCells);
 
     return plan;
   }
