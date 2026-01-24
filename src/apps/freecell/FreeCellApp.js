@@ -88,7 +88,7 @@ export class FreeCellApp extends Application {
           label: "Undo",
           action: () => this._undoMove(),
           shortcut: "F10",
-          enabled: () => this.game && this.game.previousState !== null,
+          enabled: () => this.game && this.game.lastMove !== null && !this.isAnimating,
         },
         "MENU_DIVIDER",
         {
@@ -149,11 +149,43 @@ export class FreeCellApp extends Application {
     });
   }
 
-  _undoMove() {
-    if (this.game.undo()) {
-      this.render();
-      this._updateMenuBar(this.win);
+  async _undoMove() {
+    if (this.isAnimating || !this.game?.lastMove) return;
+
+    const lastMove = this.game.lastMove;
+    const { type, payload } = lastMove;
+
+    this.isAnimating = true;
+    this._updateMenuBar(this.win); // Disable Undo menu item during animation
+
+    if (type === 'card') {
+      const card = payload;
+      // Hide the original card element before starting the animation.
+      card.element.style.opacity = '0';
+      // Animate the card moving back to its original position.
+      await this.animateMove([card], lastMove.from.type, lastMove.from.index);
+    } else if (type === 'stack') {
+      const stack = payload;
+      const fromTableauIndex = lastMove.to; // The source for the undo is the last move's destination
+      const toTableauIndex = lastMove.from;   // The destination for the undo is the last move's source
+
+      // Generate the animation plan for moving the stack back.
+      const reversePlan = this.game.getSupermovePlan(stack, fromTableauIndex, toTableauIndex);
+
+      // Hide the original card elements before starting the animation.
+      stack.forEach(c => c.element.style.opacity = '0');
+
+      // Execute the reverse animation.
+      await this.animateSupermove(reversePlan);
     }
+
+    // After the animation is complete, update the game's data model.
+    this.game.undo();
+    // Re-render the entire board to reflect the final, correct state.
+    this.render();
+
+    this.isAnimating = false;
+    this._updateMenuBar(this.win); // Re-enable relevant menu items.
   }
 
   render() {
