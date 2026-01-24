@@ -7,6 +7,7 @@ import "../../styles/solitaire.css";
 import freecellTable from "./assets/freecell-table.png";
 import kingLeft from "./assets/king-left.png";
 import kingRight from "./assets/king-right.png";
+import kingWin from "./assets/king-win.png";
 
 export class FreeCellApp extends Application {
   static config = {
@@ -33,6 +34,7 @@ export class FreeCellApp extends Application {
       <div class="freecell-container">
         <div class="game-board" style="background-image: url(${freecellTable})">
           <img class="king-image" src="${kingLeft}" alt="King" />
+          <img class="king-win-image" src="${kingWin}" alt="Winning King" />
           <div class="top-area">
             <div class="free-cells"></div>
             <div class="foundations"></div>
@@ -66,6 +68,9 @@ export class FreeCellApp extends Application {
   }
 
   startNewGame(gameNumber) {
+    const kingWinImage = this.container.querySelector(".king-win-image");
+    kingWinImage.classList.remove("visible");
+
     this.game = new Game(gameNumber);
     this.win.title(`FreeCell Game #${this.game.gameNumber}`);
     this.render();
@@ -667,6 +672,9 @@ export class FreeCellApp extends Application {
   }
 
   showWinDialog() {
+    const kingWinImage = this.container.querySelector(".king-win-image");
+    kingWinImage.classList.add("visible");
+
     ShowDialogWindow({
       title: "Congratulations!",
       text: "You've won! Do you want to play another game?",
