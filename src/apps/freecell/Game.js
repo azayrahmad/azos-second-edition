@@ -185,19 +185,9 @@ export class Game {
 
   // --- Supermoves (moving a stack of cards) ---
 
-  calculateMaxMoveSize(isDestinationEmptyTableau = false) {
+  calculateMaxMoveSize() {
     const emptyFreeCells = this.freeCells.filter((c) => c === null).length;
-    let emptyTableauPiles = this.tableauPiles.filter(
-      (p) => p.length === 0,
-    ).length;
-
-    // If the destination is an empty tableau, it doesn't count as available for intermediate moves.
-    if (isDestinationEmptyTableau) {
-      emptyTableauPiles = Math.max(0, emptyTableauPiles - 1);
-    }
-
-    // The formula is (1 + number of empty freecells) * 2 ^ (number of empty tableau columns)
-    return (1 + emptyFreeCells) * Math.pow(2, emptyTableauPiles);
+    return 1 + emptyFreeCells;
   }
 
   getStackToMove(selectedCard, fromPile, toPile) {
@@ -222,7 +212,7 @@ export class Game {
     }
 
     // 2. Find the largest valid sub-stack that can move to the destination.
-    const maxMoveSize = this.calculateMaxMoveSize(toPile.length === 0);
+    const maxMoveSize = this.calculateMaxMoveSize();
 
     for (let i = 0; i < fullStack.length; i++) {
       const subStack = fullStack.slice(i);
