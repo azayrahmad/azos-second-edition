@@ -56,6 +56,8 @@ export class FreeCellApp extends Application {
     this.boundHandleFreeCellsMouseOver = this.handleFreeCellsMouseOver.bind(this);
     this.boundHandleFoundationsMouseOver =
       this.handleFoundationsMouseOver.bind(this);
+    this.boundHandleMouseMove = this.handleMouseMove.bind(this);
+    this.boundHandleMouseOut = this.handleMouseOut.bind(this);
 
     this.addEventListeners();
     this.render();
@@ -259,6 +261,9 @@ export class FreeCellApp extends Application {
       "mouseover",
       this.boundHandleFoundationsMouseOver,
     );
+
+    this.container.addEventListener("mousemove", this.boundHandleMouseMove);
+    this.container.addEventListener("mouseout", this.boundHandleMouseOut);
   }
 
   removeEventListeners() {
@@ -280,6 +285,9 @@ export class FreeCellApp extends Application {
         this.boundHandleFoundationsMouseOver,
       );
     }
+
+    this.container.removeEventListener("mousemove", this.boundHandleMouseMove);
+    this.container.removeEventListener("mouseout", this.boundHandleMouseOut);
   }
 
   handleFreeCellsMouseOver() {
@@ -290,6 +298,85 @@ export class FreeCellApp extends Application {
   handleFoundationsMouseOver() {
     const kingImage = this.container.querySelector(".king-image");
     kingImage.src = kingRight;
+  }
+
+  handleMouseMove(event) {
+    if (!this.selectedCard) return;
+
+    const pileElement = event.target.closest(
+      ".free-cell-pile, .foundation-pile, .tableau-pile",
+    );
+
+    // Remove cursor from any previously targeted element
+    const priorCursorElement = this.container.querySelector(
+      ".legal-top-cursor, .legal-tableau-cursor",
+    );
+    if (priorCursorElement && priorCursorElement !== pileElement) {
+      priorCursorElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
+    }
+
+    if (!pileElement) return;
+
+    const destinationType = pileElement.dataset.type;
+    const destinationIndex = parseInt(pileElement.dataset.index, 10);
+    let isLegal = false;
+    let cursorClass = "";
+
+    if (destinationType === "freecell") {
+      if (this.game.freeCells[destinationIndex] === null) {
+        isLegal = true;
+        cursorClass = "legal-top-cursor";
+      }
+    } else if (destinationType === "foundation") {
+      const toPile = this.game.foundationPiles[destinationIndex];
+      if (this.game.isFoundationMoveValid(this.selectedCard, toPile)) {
+        isLegal = true;
+        cursorClass = "legal-top-cursor";
+      }
+    } else if (destinationType === "tableau") {
+      const fromPile = this.game.tableauPiles[this.selectedSource.index];
+      const toPile = this.game.tableauPiles[destinationIndex];
+      const stackToMove = this.game.getStackToMove(
+        this.selectedCard,
+        fromPile,
+        toPile,
+      );
+
+      if (stackToMove) {
+        isLegal = true;
+        if (toPile.length === 0) {
+          cursorClass = "legal-top-cursor";
+        } else {
+          cursorClass = "legal-tableau-cursor";
+        }
+      }
+    }
+
+    if (isLegal) {
+      pileElement.classList.add(cursorClass);
+    } else {
+      pileElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
+    }
+  }
+
+  handleMouseOut(event) {
+    if (!this.selectedCard) return;
+
+    const pileElement = event.target.closest(
+      ".free-cell-pile, .foundation-pile, .tableau-pile",
+    );
+    if (pileElement) {
+      pileElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
+    }
   }
 
   handleKeyDown(event) {
@@ -337,6 +424,7 @@ export class FreeCellApp extends Application {
     this.selectedStack = null; // Stack is now inferred on move, not on selection.
     this.selectedSource = location;
     card.element.classList.add("selected");
+    this.container.classList.add("card-selected");
   }
 
   async handleMove(cardElement, pileElement) {
@@ -345,6 +433,7 @@ export class FreeCellApp extends Application {
 
     // Deselect visually
     selectedCard.element.classList.remove("selected");
+    this.container.classList.remove("card-selected");
 
     // Deselect if clicking the same card
     if (cardElement === selectedCard.element) {
@@ -478,12 +567,27 @@ export class FreeCellApp extends Application {
       await this.startAutoMove();
     } else {
       // If no move was made, it was an invalid move
+      this.container.classList.add("card-selected"); // Reselect
+      selectedCard.element.classList.add("selected");
+      this.selectedCard = selectedCard; // Put it back
+      this.selectedSource = fromLocation;
       ShowDialogWindow({
         title: "Invalid Move",
         text: "That move is not allowed.",
         buttons: [{ label: "OK" }],
         parentWindow: this.win,
       });
+    }
+
+    // Clean up any lingering cursor classes after a move attempt
+    const priorCursorElement = this.container.querySelector(
+      ".legal-top-cursor, .legal-tableau-cursor",
+    );
+    if (priorCursorElement) {
+      priorCursorElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
     }
   }
 
