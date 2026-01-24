@@ -676,8 +676,8 @@ export class FreeCellApp extends Application {
     kingWinImage.classList.add("visible");
 
     ShowDialogWindow({
-      title: "Congratulations!",
-      text: "You've won! Do you want to play another game?",
+      title: "Game Over",
+      text: "Congratulations, you win! Do you want to play again?",
       buttons: [
         { label: "Yes", action: () => this.startNewGame() },
         { label: "No" },
