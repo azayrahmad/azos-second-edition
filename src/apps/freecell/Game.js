@@ -183,6 +183,43 @@ export class Game {
     return true;
   }
 
+  findAllFoundationMoves() {
+    const moves = [];
+    const candidates = [];
+
+    // Gather candidate cards from free cells
+    this.freeCells.forEach((card, index) => {
+      if (card) {
+        candidates.push({ card, from: { type: 'freecell', index } });
+      }
+    });
+
+    // Gather candidate cards from the top of tableau piles
+    this.tableauPiles.forEach((pile, index) => {
+      if (pile.length > 0) {
+        const card = pile[pile.length - 1];
+        candidates.push({ card, from: { type: 'tableau', index, position: pile.length - 1 } });
+      }
+    });
+
+    // Find a valid foundation for each candidate
+    for (const candidate of candidates) {
+      for (let i = 0; i < this.foundationPiles.length; i++) {
+        if (this.isFoundationMoveValid(candidate.card, this.foundationPiles[i])) {
+          moves.push({
+            card: candidate.card,
+            from: candidate.from,
+            toType: 'foundation',
+            toIndex: i
+          });
+          break; // Move to the next candidate once a valid foundation is found
+        }
+      }
+    }
+
+    return moves;
+  }
+
   // --- Supermoves (moving a stack of cards) ---
 
   calculateMaxMoveSize(isDestinationEmptyTableau = false) {

@@ -470,9 +470,7 @@ export class FreeCellApp extends Application {
       }
 
       this.render(); // Re-render the board in the final state
-      if (this.game.checkForWin()) {
-        this.showWinDialog();
-      }
+      await this.startAutoMove();
     } else {
       // If no move was made, it was an invalid move
       ShowDialogWindow({
@@ -484,6 +482,30 @@ export class FreeCellApp extends Application {
     }
   }
 
+  async startAutoMove() {
+    this.isAnimating = true;
+    let moves;
+    while ((moves = this.game.findAllFoundationMoves()).length > 0) {
+      for (const move of moves) {
+        // Hide the original card
+        move.card.element.style.opacity = "0";
+
+        // Animate the move
+        await this.animateMove([move.card], move.toType, move.toIndex);
+
+        // Update the game state
+        this.game.moveCard(move.card, move.from, move.toType, move.toIndex);
+
+        // Re-render the board to reflect the move
+        this.render();
+      }
+    }
+    this.isAnimating = false;
+
+    if (this.game.checkForWin()) {
+      this.showWinDialog();
+    }
+  }
 
   promptForMoveType(stack, card, fromLocation, toIndex) {
     ShowDialogWindow({
