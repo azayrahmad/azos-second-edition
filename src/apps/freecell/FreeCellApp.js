@@ -608,13 +608,12 @@ export class FreeCellApp extends Application {
       await this.startAutoMove();
     } else {
       // If no move was made, it was an invalid move
-      selectedCard.element.classList.add("selected");
-      this.selectedCard = selectedCard; // Put it back
-      this.selectedSource = fromLocation;
+
       ShowDialogWindow({
         title: "Invalid Move",
         text: "That move is not allowed.",
         buttons: [{ label: "OK" }],
+        soundEvent: "SystemExclamation",
         parentWindow: this.win,
       });
     }
@@ -658,8 +657,8 @@ export class FreeCellApp extends Application {
 
   promptForMoveType(stack, card, fromLocation, toIndex) {
     ShowDialogWindow({
-      title: "Move Cards",
-      text: "Do you want to move the entire stack or just the single card?",
+      title: "Move to Empty Column...",
+      text: "Do you want to move the entire column or just the single card?",
       buttons: [
         {
           label: `Move ${stack.length} cards`,
@@ -677,7 +676,7 @@ export class FreeCellApp extends Application {
           },
         },
         {
-          label: "Move 1 card",
+          label: "Move single card",
           action: async () => {
             card.element.style.opacity = "0";
             await this.animateMove([card], "tableau", toIndex);
