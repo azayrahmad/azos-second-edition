@@ -119,3 +119,11 @@
 .king-win-image.visible {
     display: block;
 }
+
+.legal-top-cursor {
+  cursor: url("assets/freecell-legal-top.png") 16 0, auto !important;
+}
+
+.legal-tableau-cursor {
+  cursor: url("assets/freecell-legal-tableau.png") 16 31, auto !important;
+}

@@ -12,7 +12,7 @@ export class Game {
     this.freeCells = [null, null, null, null];
     this.foundationPiles = [[], [], [], []];
     this.tableauPiles = [[], [], [], [], [], [], [], []];
-    this.previousState = null;
+    this.lastMove = null;
     this.allCards = [];
 
     this._createDeck();
@@ -72,32 +72,41 @@ export class Game {
     }
   }
 
-  /**
-   * Saves the current state of the game for the undo functionality.
-   */
-  saveState() {
-    this.previousState = {
-      freeCells: this.freeCells.map(card => card ? card.uid : null),
-      foundationPiles: this.foundationPiles.map(pile => pile.map(card => card.uid)),
-      tableauPiles: this.tableauPiles.map(pile => pile.map(card => card.uid)),
-    };
-  }
-
-  /**
-   * Restores the game to the last saved state.
-   */
   undo() {
-    if (!this.previousState) {
+    if (!this.lastMove) {
       return false;
     }
 
-    const uidToCardMap = new Map(this.allCards.map(card => [card.uid, card]));
+    const { type, payload, from, toType, toIndex, to } = this.lastMove;
 
-    this.freeCells = this.previousState.freeCells.map(uid => uid ? uidToCardMap.get(uid) : null);
-    this.foundationPiles = this.previousState.foundationPiles.map(pileUids => pileUids.map(uid => uidToCardMap.get(uid)));
-    this.tableauPiles = this.previousState.tableauPiles.map(pileUids => pileUids.map(uid => uidToCardMap.get(uid)));
+    if (type === 'card') {
+      // Remove card from the destination it was moved to
+      if (toType === 'freecell') {
+        this.freeCells[toIndex] = null;
+      } else if (toType === 'tableau') {
+        this.tableauPiles[toIndex].pop();
+      } else if (toType === 'foundation') {
+        this.foundationPiles[toIndex].pop();
+      }
 
-    this.previousState = null;
+      // Add card back to its original source
+      if (from.type === 'freecell') {
+        this.freeCells[from.index] = payload;
+      } else if (from.type === 'tableau') {
+        this.tableauPiles[from.index].push(payload);
+      }
+    } else if (type === 'stack') {
+        // Remove the stack from the destination tableau pile
+        const toPile = this.tableauPiles[to];
+        toPile.splice(toPile.length - payload.length);
+
+        // Add the stack back to the source tableau pile
+        const fromPile = this.tableauPiles[from];
+        this.tableauPiles[from] = fromPile.concat(payload);
+    }
+
+
+    this.lastMove = null;
     return true;
   }
 
@@ -160,9 +169,15 @@ export class Game {
   // --- Move Execution ---
 
   moveCard(card, source, destinationType, destinationIndex) {
-    this.saveState();
-
     if (!source) return false;
+
+    this.lastMove = {
+      type: 'card',
+      payload: card,
+      from: source,
+      toType: destinationType,
+      toIndex: destinationIndex,
+    };
 
     // Remove card from source
     if (source.type === 'freecell') {
@@ -272,7 +287,12 @@ export class Game {
   }
 
   moveStack(stack, fromTableauIndex, toTableauIndex) {
-    this.saveState();
+    this.lastMove = {
+      type: 'stack',
+      payload: stack,
+      from: fromTableauIndex,
+      to: toTableauIndex,
+    };
 
     // Remove stack from source pile
     const fromPile = this.tableauPiles[fromTableauIndex];

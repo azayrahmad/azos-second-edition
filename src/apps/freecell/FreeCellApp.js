@@ -56,6 +56,8 @@ export class FreeCellApp extends Application {
     this.boundHandleFreeCellsMouseOver = this.handleFreeCellsMouseOver.bind(this);
     this.boundHandleFoundationsMouseOver =
       this.handleFoundationsMouseOver.bind(this);
+    this.boundHandleMouseMove = this.handleMouseMove.bind(this);
+    this.boundHandleMouseOut = this.handleMouseOut.bind(this);
 
     this.addEventListeners();
     this.render();
@@ -93,7 +95,7 @@ export class FreeCellApp extends Application {
           label: "Undo",
           action: () => this._undoMove(),
           shortcut: "F10",
-          enabled: () => this.game && this.game.previousState !== null,
+          enabled: () => this.game && this.game.lastMove !== null && !this.isAnimating,
         },
         "MENU_DIVIDER",
         {
@@ -154,11 +156,43 @@ export class FreeCellApp extends Application {
     });
   }
 
-  _undoMove() {
-    if (this.game.undo()) {
-      this.render();
-      this._updateMenuBar(this.win);
+  async _undoMove() {
+    if (this.isAnimating || !this.game?.lastMove) return;
+
+    const lastMove = this.game.lastMove;
+    const { type, payload } = lastMove;
+
+    this.isAnimating = true;
+    this._updateMenuBar(this.win); // Disable Undo menu item during animation
+
+    if (type === 'card') {
+      const card = payload;
+      // Hide the original card element before starting the animation.
+      card.element.style.opacity = '0';
+      // Animate the card moving back to its original position.
+      await this.animateMove([card], lastMove.from.type, lastMove.from.index);
+    } else if (type === 'stack') {
+      const stack = payload;
+      const fromTableauIndex = lastMove.to; // The source for the undo is the last move's destination
+      const toTableauIndex = lastMove.from;   // The destination for the undo is the last move's source
+
+      // Generate the animation plan for moving the stack back.
+      const reversePlan = this.game.getSupermovePlan(stack, fromTableauIndex, toTableauIndex);
+
+      // Hide the original card elements before starting the animation.
+      stack.forEach(c => c.element.style.opacity = '0');
+
+      // Execute the reverse animation.
+      await this.animateSupermove(reversePlan);
     }
+
+    // After the animation is complete, update the game's data model.
+    this.game.undo();
+    // Re-render the entire board to reflect the final, correct state.
+    this.render();
+
+    this.isAnimating = false;
+    this._updateMenuBar(this.win); // Re-enable relevant menu items.
   }
 
   render() {
@@ -259,6 +293,9 @@ export class FreeCellApp extends Application {
       "mouseover",
       this.boundHandleFoundationsMouseOver,
     );
+
+    this.container.addEventListener("mousemove", this.boundHandleMouseMove);
+    this.container.addEventListener("mouseout", this.boundHandleMouseOut);
   }
 
   removeEventListeners() {
@@ -280,6 +317,9 @@ export class FreeCellApp extends Application {
         this.boundHandleFoundationsMouseOver,
       );
     }
+
+    this.container.removeEventListener("mousemove", this.boundHandleMouseMove);
+    this.container.removeEventListener("mouseout", this.boundHandleMouseOut);
   }
 
   handleFreeCellsMouseOver() {
@@ -290,6 +330,96 @@ export class FreeCellApp extends Application {
   handleFoundationsMouseOver() {
     const kingImage = this.container.querySelector(".king-image");
     kingImage.src = kingRight;
+  }
+
+  handleMouseMove(event) {
+    if (!this.selectedCard) return;
+
+    const pileElement = event.target.closest(
+      ".free-cell-pile, .foundation-pile, .tableau-pile",
+    );
+
+    // Remove cursor from any previously targeted element
+    const priorCursorElement = this.container.querySelector(
+      ".legal-top-cursor, .legal-tableau-cursor",
+    );
+    if (priorCursorElement && priorCursorElement !== pileElement) {
+      priorCursorElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
+    }
+
+    if (!pileElement) return;
+
+    const destinationType = pileElement.dataset.type;
+    const destinationIndex = parseInt(pileElement.dataset.index, 10);
+    let isLegal = false;
+    let cursorClass = "";
+
+    if (destinationType === "freecell") {
+      if (this.game.freeCells[destinationIndex] === null) {
+        isLegal = true;
+        cursorClass = "legal-top-cursor";
+      }
+    } else if (destinationType === "foundation") {
+      const toPile = this.game.foundationPiles[destinationIndex];
+      if (this.game.isFoundationMoveValid(this.selectedCard, toPile)) {
+        isLegal = true;
+        cursorClass = "legal-top-cursor";
+      }
+    } else if (destinationType === "tableau") {
+      const toPile = this.game.tableauPiles[destinationIndex];
+      let moveIsValid = false;
+
+      if (this.selectedSource.type === "tableau") {
+        const fromPile = this.game.tableauPiles[this.selectedSource.index];
+        const stackToMove = this.game.getStackToMove(
+          this.selectedCard,
+          fromPile,
+          toPile,
+        );
+        if (stackToMove) {
+          moveIsValid = true;
+        }
+      } else if (this.selectedSource.type === "freecell") {
+        if (this.game.isTableauMoveValid(this.selectedCard, toPile)) {
+          moveIsValid = true;
+        }
+      }
+
+      if (moveIsValid) {
+        isLegal = true;
+        if (toPile.length === 0) {
+          cursorClass = "legal-top-cursor";
+        } else {
+          cursorClass = "legal-tableau-cursor";
+        }
+      }
+    }
+
+    if (isLegal) {
+      pileElement.classList.add(cursorClass);
+    } else {
+      pileElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
+    }
+  }
+
+  handleMouseOut(event) {
+    if (!this.selectedCard) return;
+
+    const pileElement = event.target.closest(
+      ".free-cell-pile, .foundation-pile, .tableau-pile",
+    );
+    if (pileElement) {
+      pileElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
+    }
   }
 
   handleKeyDown(event) {
@@ -478,12 +608,26 @@ export class FreeCellApp extends Application {
       await this.startAutoMove();
     } else {
       // If no move was made, it was an invalid move
+      selectedCard.element.classList.add("selected");
+      this.selectedCard = selectedCard; // Put it back
+      this.selectedSource = fromLocation;
       ShowDialogWindow({
         title: "Invalid Move",
         text: "That move is not allowed.",
         buttons: [{ label: "OK" }],
         parentWindow: this.win,
       });
+    }
+
+    // Clean up any lingering cursor classes after a move attempt
+    const priorCursorElement = this.container.querySelector(
+      ".legal-top-cursor, .legal-tableau-cursor",
+    );
+    if (priorCursorElement) {
+      priorCursorElement.classList.remove(
+        "legal-top-cursor",
+        "legal-tableau-cursor",
+      );
     }
   }
 
