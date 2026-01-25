@@ -337,15 +337,26 @@ export class FreeCellApp extends Application {
         cursorClass = "legal-top-cursor";
       }
     } else if (destinationType === "tableau") {
-      const fromPile = this.game.tableauPiles[this.selectedSource.index];
       const toPile = this.game.tableauPiles[destinationIndex];
-      const stackToMove = this.game.getStackToMove(
-        this.selectedCard,
-        fromPile,
-        toPile,
-      );
+      let moveIsValid = false;
 
-      if (stackToMove) {
+      if (this.selectedSource.type === "tableau") {
+        const fromPile = this.game.tableauPiles[this.selectedSource.index];
+        const stackToMove = this.game.getStackToMove(
+          this.selectedCard,
+          fromPile,
+          toPile,
+        );
+        if (stackToMove) {
+          moveIsValid = true;
+        }
+      } else if (this.selectedSource.type === "freecell") {
+        if (this.game.isTableauMoveValid(this.selectedCard, toPile)) {
+          moveIsValid = true;
+        }
+      }
+
+      if (moveIsValid) {
         isLegal = true;
         if (toPile.length === 0) {
           cursorClass = "legal-top-cursor";
@@ -424,7 +435,6 @@ export class FreeCellApp extends Application {
     this.selectedStack = null; // Stack is now inferred on move, not on selection.
     this.selectedSource = location;
     card.element.classList.add("selected");
-    this.container.classList.add("card-selected");
   }
 
   async handleMove(cardElement, pileElement) {
@@ -433,7 +443,6 @@ export class FreeCellApp extends Application {
 
     // Deselect visually
     selectedCard.element.classList.remove("selected");
-    this.container.classList.remove("card-selected");
 
     // Deselect if clicking the same card
     if (cardElement === selectedCard.element) {
@@ -567,7 +576,6 @@ export class FreeCellApp extends Application {
       await this.startAutoMove();
     } else {
       // If no move was made, it was an invalid move
-      this.container.classList.add("card-selected"); // Reselect
       selectedCard.element.classList.add("selected");
       this.selectedCard = selectedCard; // Put it back
       this.selectedSource = fromLocation;
