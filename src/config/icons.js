@@ -362,8 +362,8 @@ export const ICONS = {
     32: new URL("../assets/icons/spider-32.png", import.meta.url).href,
   },
   freecell: {
-    16: new URL("../assets/icons/SolitaireWin31Icon.png", import.meta.url).href,
-    32: new URL("../assets/icons/SolitaireWin31Icon.png", import.meta.url).href,
+    16: new URL("../assets/icons/game_freecell-2.png", import.meta.url).href,
+    32: new URL("../assets/icons/game_freecell-2.png", import.meta.url).href,
   },
   buggyprogram: {
     16: new URL("../assets/icons/msg_warning-0.png", import.meta.url).href,
