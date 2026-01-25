@@ -653,6 +653,8 @@ export class FreeCellApp extends Application {
 
     if (this.game.checkForWin()) {
       this.showWinDialog();
+    } else if (!this.game.hasLegalMoves()) {
+      this._showGameOverDialog();
     }
   }
 
@@ -685,6 +687,49 @@ export class FreeCellApp extends Application {
             this.render();
             if (this.game.checkForWin()) this.showWinDialog();
           },
+        },
+      ],
+      parentWindow: this.win,
+    });
+  }
+
+  _showGameOverDialog() {
+    const dialogContent = document.createElement("div");
+    dialogContent.innerHTML = `
+      <div class="game-over-dialog">
+        <p>Sorry, you lose.</p>
+        <p>There are no more legal moves.</p>
+        <p>Do you want to play again?</p>
+        <label>
+          <input type="checkbox" id="same-game-checkbox" checked>
+          Same game
+        </label>
+      </div>
+    `;
+
+    const checkbox = dialogContent.querySelector("#same-game-checkbox");
+
+    const handleYes = (dialog) => {
+      const sameGame = checkbox.checked;
+      if (sameGame) {
+        this.startNewGame(this.game.gameNumber);
+      } else {
+        this._showNewGameDialog();
+      }
+      dialog.close();
+    };
+
+    ShowDialogWindow({
+      title: "Game Over",
+      content: dialogContent,
+      buttons: [
+        {
+          label: "Yes",
+          action: (dialog) => handleYes(dialog),
+        },
+        {
+          label: "No",
+          action: (dialog) => dialog.close(),
         },
       ],
       parentWindow: this.win,

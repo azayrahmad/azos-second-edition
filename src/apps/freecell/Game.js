@@ -114,6 +114,51 @@ export class Game {
     return this.foundationPiles.every(pile => pile.length === 13);
   }
 
+  hasLegalMoves() {
+    // 1. Check for moves to the foundation piles
+    if (this.findAllFoundationMoves().length > 0) {
+      return true;
+    }
+
+    // 2. Check for moves from tableau to an empty free cell
+    const hasEmptyFreeCell = this.freeCells.some((cell) => cell === null);
+    if (hasEmptyFreeCell) {
+      for (const pile of this.tableauPiles) {
+        if (pile.length > 0) {
+          return true; // Any top card can be moved to a free cell
+        }
+      }
+    }
+
+    // 3. Check for moves from free cells to tableau piles
+    for (const card of this.freeCells) {
+      if (card) {
+        for (const tableauPile of this.tableauPiles) {
+          if (this.isTableauMoveValid(card, tableauPile)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    // 4. Check for moves between tableau piles (single cards and stacks)
+    for (const sourcePile of this.tableauPiles) {
+      if (sourcePile.length > 0) {
+        const topCard = sourcePile[sourcePile.length - 1];
+        for (const destPile of this.tableauPiles) {
+          if (sourcePile !== destPile) {
+            // Check for a single card move or a full stack move
+            if (this.getStackToMove(topCard, sourcePile, destPile)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false; // No legal moves found
+  }
+
   // --- Move Validation ---
 
   getCardLocation(card) {
