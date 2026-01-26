@@ -53,6 +53,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_7-16.png", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_7-32.png", import.meta.url).href,
   },
+  cdromDrive: {
+    16: new URL("../assets/icons/media_player_file-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/media_player_file-0.png", import.meta.url).href,
+  },
   defrag: {
     16: new URL("../assets/icons/defragment-1.png", import.meta.url).href,
     32: new URL("../assets/icons/defragment-0.png", import.meta.url).href,

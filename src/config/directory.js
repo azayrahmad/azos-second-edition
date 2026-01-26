@@ -9,6 +9,12 @@ const directory = [
     children: [],
   },
   {
+    id: "drive-e",
+    name: "CD-ROM (E:)",
+    type: "cd-rom",
+    children: [],
+  },
+  {
     id: "drive-c",
     name: "C:",
     type: "drive",
