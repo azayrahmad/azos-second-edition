@@ -31,13 +31,17 @@ export class StatusBar {
       style: "width: 16px; height: 16px;",
     });
 
-    const myComputerText = document.createTextNode("My Computer");
-    rightSection.append(myComputerIcon, myComputerText);
+    this.myComputerText = document.createTextNode("My Computer");
+    rightSection.append(myComputerIcon, this.myComputerText);
 
     this.element.append(leftSection, rightSection);
   }
 
   setText(text) {
     this.statusText.textContent = text;
+  }
+
+  setRightText(text) {
+    this.myComputerText.textContent = text;
   }
 }

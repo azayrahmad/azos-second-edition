@@ -229,13 +229,18 @@ const systemApps = [
   },
 ];
 
-// --- Combine and Export ---
+import { FileExplorerApp } from "../apps/file-explorer/FileExplorerApp.js";
 
 // --- Combine and Export ---
 
 if (FlashPlayerApp.config) {
   appClasses[FlashPlayerApp.config.id] = FlashPlayerApp;
   staticConfigs.push({ ...FlashPlayerApp.config, appClass: FlashPlayerApp });
+}
+
+if (FileExplorerApp.config) {
+  appClasses[FileExplorerApp.config.id] = FileExplorerApp;
+  staticConfigs.push({ ...FileExplorerApp.config, appClass: FileExplorerApp });
 }
 
 export const apps = [...systemApps, ...staticConfigs];
