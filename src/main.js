@@ -27,7 +27,7 @@ import {
   showSetupScreen,
 } from "./components/bootScreen.js";
 import { preloadThemeAssets } from "./utils/assetPreloader.js";
-import { launchApp } from "./utils/appManager.js";
+import { launchApp, appManager } from "./utils/appManager.js";
 import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
@@ -350,6 +350,21 @@ async function initializeOS() {
     window.addEventListener("mousemove", resetInactivityTimer);
     window.addEventListener("mousedown", resetInactivityTimer);
     window.addEventListener("keydown", resetInactivityTimer);
+
+    window.addEventListener("fullscreenchange", () => {
+      const isFullscreen = !!document.fullscreenElement;
+      const activeTitleBar = document.querySelector(".title-bar.active");
+
+      if (activeTitleBar) {
+        const appWindow = activeTitleBar.closest(".window");
+        const appId = appWindow.dataset.appId;
+        const appInstance = appManager.runningApps[appId];
+
+        if (appInstance && appInstance.config.fullscreenAware && !appInstance.win.is_minimized) {
+          appInstance.setFullscreen(isFullscreen);
+        }
+      }
+    });
 
     resetInactivityTimer();
     initScreenManager(); // Initialize the screen manager

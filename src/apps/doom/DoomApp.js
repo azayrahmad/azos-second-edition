@@ -12,6 +12,7 @@ export class DoomApp extends IFrameApplication {
     height: 500,
     resizable: true,
     maximizable: true,
+    fullscreenAware: true,
   };
 
   constructor(config) {
