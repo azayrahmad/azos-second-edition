@@ -53,7 +53,8 @@ export class FreeCellApp extends Application {
 
     this.boundOnClick = this.onClick.bind(this);
     this.boundHandleKeyDown = this.handleKeyDown.bind(this);
-    this.boundHandleFreeCellsMouseOver = this.handleFreeCellsMouseOver.bind(this);
+    this.boundHandleFreeCellsMouseOver =
+      this.handleFreeCellsMouseOver.bind(this);
     this.boundHandleFoundationsMouseOver =
       this.handleFoundationsMouseOver.bind(this);
     this.boundHandleMouseMove = this.handleMouseMove.bind(this);
@@ -74,6 +75,7 @@ export class FreeCellApp extends Application {
     kingWinImage.classList.remove("visible");
 
     this.game = new Game(gameNumber);
+    this.selectedCard = null;
     this.win.title(`FreeCell Game #${this.game.gameNumber}`);
     this.render();
     this._updateMenuBar(this.win);
@@ -95,7 +97,8 @@ export class FreeCellApp extends Application {
           label: "Undo",
           action: () => this._undoMove(),
           shortcut: "F10",
-          enabled: () => this.game && this.game.lastMove !== null && !this.isAnimating,
+          enabled: () =>
+            this.game && this.game.lastMove !== null && !this.isAnimating,
         },
         "MENU_DIVIDER",
         {
@@ -165,22 +168,26 @@ export class FreeCellApp extends Application {
     this.isAnimating = true;
     this._updateMenuBar(this.win); // Disable Undo menu item during animation
 
-    if (type === 'card') {
+    if (type === "card") {
       const card = payload;
       // Hide the original card element before starting the animation.
-      card.element.style.opacity = '0';
+      card.element.style.opacity = "0";
       // Animate the card moving back to its original position.
       await this.animateMove([card], lastMove.from.type, lastMove.from.index);
-    } else if (type === 'stack') {
+    } else if (type === "stack") {
       const stack = payload;
       const fromTableauIndex = lastMove.to; // The source for the undo is the last move's destination
-      const toTableauIndex = lastMove.from;   // The destination for the undo is the last move's source
+      const toTableauIndex = lastMove.from; // The destination for the undo is the last move's source
 
       // Generate the animation plan for moving the stack back.
-      const reversePlan = this.game.getSupermovePlan(stack, fromTableauIndex, toTableauIndex);
+      const reversePlan = this.game.getSupermovePlan(
+        stack,
+        fromTableauIndex,
+        toTableauIndex,
+      );
 
       // Hide the original card elements before starting the animation.
-      stack.forEach(c => c.element.style.opacity = '0');
+      stack.forEach((c) => (c.element.style.opacity = "0"));
 
       // Execute the reverse animation.
       await this.animateSupermove(reversePlan);
@@ -401,10 +408,7 @@ export class FreeCellApp extends Application {
     if (isLegal) {
       pileElement.classList.add(cursorClass);
     } else {
-      pileElement.classList.remove(
-        "legal-top-cursor",
-        "legal-tableau-cursor",
-      );
+      pileElement.classList.remove("legal-top-cursor", "legal-tableau-cursor");
     }
   }
 
@@ -415,10 +419,7 @@ export class FreeCellApp extends Application {
       ".free-cell-pile, .foundation-pile, .tableau-pile",
     );
     if (pileElement) {
-      pileElement.classList.remove(
-        "legal-top-cursor",
-        "legal-tableau-cursor",
-      );
+      pileElement.classList.remove("legal-top-cursor", "legal-tableau-cursor");
     }
   }
 
