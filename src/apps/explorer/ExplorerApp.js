@@ -1,14 +1,9 @@
 import { Application } from "../Application.js";
-import directory from "../../config/directory.js";
 import { apps } from "../../config/apps.js";
 import { fileAssociations } from "../../config/fileAssociations.js";
 import { ICONS, SHORTCUT_OVERLAY } from "../../config/icons.js";
 import { launchApp } from "../../utils/appManager.js";
-import {
-  getAssociation,
-  findItemByPath,
-  getDesktopContents,
-} from "../../utils/directory.js";
+import { getAssociation } from "../../utils/directory.js";
 import {
   convertInternalPathToWindows,
   convertWindowsPathToInternal,
@@ -364,15 +359,17 @@ export class ExplorerApp extends Application {
     this.addressBar = new AddressBar({
       onEnter: (path) => {
         const internalPath = convertWindowsPathToInternal(path);
-        if (internalPath && findItemByPath(internalPath)) {
-          this.navigateTo(internalPath);
-        } else {
-          ShowDialogWindow({
-            title: "Path not found",
-            text: "The system cannot find the path specified.",
-            buttons: [{ label: "OK", isDefault: true }],
-          });
-        }
+        window.System.fs.stat(internalPath, (err, stats) => {
+          if (stats) {
+            this.navigateTo(internalPath);
+          } else {
+            ShowDialogWindow({
+              title: "Path not found",
+              text: "The system cannot find the path specified.",
+              buttons: [{ label: "OK", isDefault: true }],
+            });
+          }
+        });
       },
     });
     win.$content.append(this.addressBar.element);
@@ -666,61 +663,13 @@ export class ExplorerApp extends Application {
     this.addressBar.setValue(convertInternalPathToWindows(path));
   }
 
-  _renderIcons() {
-    this.currentFolderItems.forEach((child) => {
-      let iconData = { ...child };
-
-      // Resolve shortcuts
-      if (child.type === "shortcut") {
-        const target = this.findItemInDirectory(child.targetId);
-        if (target) {
-          iconData = { ...target, name: child.name };
-        }
-      }
-
-      const app = apps.find((a) => a.id === iconData.appId);
-      if (app) {
-        iconData.icon = app.icon;
-        iconData.title = app.title;
-      }
-
-      const icon = this.createExplorerIcon(iconData);
-      this._configureDraggableIcon(icon, child);
-
-      const allPositions = getExplorerIconPositions();
-      const pathPositions = allPositions[this.currentPath] || {};
-      const uniqueId = this._getUniqueItemId(child);
-
-      if (pathPositions[uniqueId]) {
-        icon.style.position = "absolute";
-        icon.style.left = pathPositions[uniqueId].x;
-        icon.style.top = pathPositions[uniqueId].y;
-      }
-
-      this.iconContainer.appendChild(icon);
-    });
-  }
-
-  render(path, isNewNavigation = true) {
+  async render(path, isNewNavigation = true) {
     this.currentPath = path;
-    const item = findItemByPath(path);
-
-    if (!item) {
-      this.content.innerHTML = "Folder not found.";
-      this.win.title("Error");
-      return;
-    }
-
-    const name = item.type === "drive" ? `(${item.name})` : item.name;
+    const name = path === '/' ? 'My Computer' : path.split('/').pop();
     this.win.title(name);
     this.titleElement.text(name);
-    const icon = getIconForPath(path);
-    if (icon) {
-      this.win.setIcons(icon);
-      this.sidebarIcon.src = icon[32];
-    }
     this.sidebarTitle.textContent = name;
-    this.iconContainer.innerHTML = ""; // Clear previous content
+    this.iconContainer.innerHTML = "";
     this.iconManager.clearSelection();
 
     if (isAutoArrangeEnabled()) {
@@ -729,107 +678,46 @@ export class ExplorerApp extends Application {
       this.iconContainer.classList.add("has-absolute-icons");
     }
 
-    let children = [];
     if (isNewNavigation) {
-      if (item.type === "floppy") {
-        requestWaitState("explorer-floppy", this.win.element);
-
-        // Clear current items while loading
-        this.currentFolderItems = [];
-
-        setTimeout(() => {
-          // If the user navigated away, don't update
-          if (this.currentPath !== path) return;
-
-          const floppyContents = floppyManager.getContents();
-          if (floppyContents) {
-            children = [...floppyContents];
-          }
-
-          // Sort children alphabetically by name
-          children.sort((a, b) => {
-            const nameA = a.name || a.title || a.filename || "";
-            const nameB = b.name || b.title || b.filename || "";
-            return nameA.localeCompare(nameB);
+      window.System.fs.readdir(path, async (err, files) => {
+        if (err) return;
+        const promises = files.map(file => {
+          const itemPath = `${path === '/' ? '' : path}/${file}`;
+          return new Promise(resolve => {
+            window.System.fs.readFile(itemPath, 'utf8', (err, data) => {
+              if (err) {
+                window.System.fs.stat(itemPath, (statErr, stats) => {
+                  if (statErr || !stats.isDirectory()) return resolve(null);
+                  resolve({ id: file, name: file, path: itemPath, type: 'folder' });
+                });
+              } else {
+                const item = JSON.parse(data);
+                item.path = itemPath;
+                resolve(item);
+              }
+            });
           });
-
-          this.currentFolderItems = children;
-          this._renderIcons();
-          releaseWaitState("explorer-floppy", this.win.element);
-        }, 1500); // Simulate floppy read speed
-
-        return;
-      }
-
-      if (path === SPECIAL_FOLDER_PATHS.desktop) {
-        const desktopContents = getDesktopContents();
-        const desktopApps = desktopContents.apps.map((appId) => {
-          const app = apps.find((a) => a.id === appId);
-          return { ...app, appId: app.id, isStatic: true };
         });
-        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-        const desktopFiles = allDroppedFiles.filter(
-          (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
-        );
-        const staticFiles = desktopContents.files.map((file) => ({
-          ...file,
-          isStatic: true,
-        }));
-        children = [...desktopApps, ...staticFiles, ...desktopFiles];
-      } else {
-        const staticChildren = (item.children || []).map((child) => ({
-          ...child,
-          isStatic: true,
-        }));
-        const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-        const droppedFilesInThisFolder = allDroppedFiles.filter(
-          (file) => file.path === path,
-        );
-        children = [...staticChildren, ...droppedFilesInThisFolder];
-      }
-
-      // Sort children alphabetically by name, but only for subfolders
-      if (path !== "/") {
-        children.sort((a, b) => {
-          const nameA = a.name || a.title || a.filename || "";
-          const nameB = b.name || b.title || b.filename || "";
-          return nameA.localeCompare(nameB);
-        });
-      }
-
-      this.currentFolderItems = children;
+        this.currentFolderItems = (await Promise.all(promises)).filter(Boolean);
+        this.renderIcons();
+      });
+    } else {
+      this.renderIcons();
     }
+  }
 
-    this.currentFolderItems.forEach((child) => {
-      let iconData = { ...child };
-
-      // Resolve shortcuts
-      if (child.type === "shortcut") {
-        const target = this.findItemInDirectory(child.targetId);
-        if (target) {
-          iconData = { ...target, name: child.name, type: child.type };
-        }
-      }
-
-      const app = apps.find((a) => a.id === iconData.appId);
-      if (app) {
-        iconData.icon = app.icon;
-        iconData.title = app.title;
-      }
-
-      const icon = this.createExplorerIcon(iconData);
+  renderIcons() {
+    this.currentFolderItems.forEach(child => {
+      const icon = this.createExplorerIcon(child);
       this._configureDraggableIcon(icon, child);
-
       const allPositions = getExplorerIconPositions();
       const pathPositions = allPositions[this.currentPath] || {};
       const uniqueId = this._getUniqueItemId(child);
-
       if (pathPositions[uniqueId]) {
         icon.style.position = "absolute";
         icon.style.left = pathPositions[uniqueId].x;
         icon.style.top = pathPositions[uniqueId].y;
       }
-
       this.iconContainer.appendChild(icon);
     });
   }
@@ -974,113 +862,22 @@ export class ExplorerApp extends Application {
     });
   }
 
-  findItemInDirectory(id, dir = directory) {
-    for (const item of dir) {
-      if (item.id === id) return item;
-      if (item.children) {
-        const found = this.findItemInDirectory(id, item.children);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
   async _launchItem(item) {
-    // 0. Handle floppy files (dynamic content)
-    if (item.getHandle) {
-      try {
-        const handle = item.getHandle(); // This returns the FileSystemHandle (File or Directory)
-
-        if (handle.kind === "file") {
-          const file = await handle.getFile();
-          const fileName = file.name;
-          const association = getAssociation(fileName);
-          if (association.appId) {
-            await launchApp(association.appId, file);
-            return; // Successfully launched file, stop here.
-          } else {
-            ShowDialogWindow({
-              title: "Unknown File Type",
-              text: `No application associated with "${fileName}".`,
-              buttons: [{ label: "OK", isDefault: true }],
-            });
-            return; // Stop here if unknown file type
-          }
-        }
-        // If it is a directory, allow fall-through to normal folder navigation logic.
-      } catch (err) {
-        console.error("Error launching floppy file:", err);
-        ShowDialogWindow({
-          title: "Error",
-          text: "Could not open file from disk.",
-          buttons: [{ label: "OK", isDefault: true }],
-        });
-        return;
-      }
-    }
-
-    // 1. Handle navigation for folders/drives
-    if (item.type === "floppy") {
-      if (floppyManager.isInserted()) {
-        const newPath =
-          this.currentPath === "/"
-            ? `/${item.id}`
-            : `${this.currentPath}/${item.id}`;
-        this.navigateTo(newPath);
-      } else {
-        ShowDialogWindow({
-          title: item.name,
-          text: "Insert floppy disk into drive A:\\",
-          buttons: [
-            {
-              label: "OK",
-              action: () => {
-                const floppyRequesterId = "explorer-floppy-insert";
-                floppyManager.insert({
-                  onBeforeInsert: () =>
-                    requestWaitState(floppyRequesterId, this.win.element),
-                  onAfterInsert: () =>
-                    releaseWaitState(floppyRequesterId, this.win.element),
-                });
-              },
-            },
-            { label: "Cancel" },
-          ],
-        });
-      }
-      return;
-    }
-
-    if (item.type === "folder" || item.type === "drive") {
-      const newPath =
-        this.currentPath === "/"
-          ? `/${item.id}`
-          : `${this.currentPath}/${item.id}`;
-      this.navigateTo(newPath);
-      return;
-    }
-
-    // 2. Handle external URLs
     if (item.url) {
       window.open(item.url, "_blank", "width=800,height=600");
       return;
     }
 
-    // 3. Handle applications/shortcuts
-    if (item.appId) {
-      launchApp(item.appId);
-      return;
-    }
-
-    // 4. Handle files (static, dropped, desktop)
-    const fileName = item.name || item.filename;
-    if (fileName) {
-      const appId = item.app || getAssociation(fileName).appId;
-      if (appId) {
-        const launchData = item.contentUrl ? item.contentUrl : item;
-        launchApp(appId, launchData);
+    window.System.fs.stat(item.path, (err, stats) => {
+      if (stats && stats.isDirectory()) {
+        this.navigateTo(item.path);
+      } else {
+        const appId = item.appId || getAssociation(item.name).appId;
+        if (appId) {
+          launchApp(appId, item.path);
+        }
       }
-    }
+    });
   }
 
   goUp() {

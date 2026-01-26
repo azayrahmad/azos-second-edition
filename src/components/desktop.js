@@ -10,11 +10,7 @@ import {
   removeItem,
   LOCAL_STORAGE_KEYS,
 } from "../utils/localStorage.js";
-import {
-  getDesktopContents,
-  getAssociation,
-  findItemByPath,
-} from "../utils/directory.js";
+import { getAssociation } from "../utils/directory.js";
 import { launchApp, handleAppAction } from "../utils/appManager.js";
 import {
   getThemes,
@@ -217,10 +213,16 @@ function showIconContextMenu(event, app, fileId = null, iconManager) {
           filename = fileToDownload.name;
           content = fileToDownload.contentUrl || fileToDownload.content;
         } else if (item.itemType === "virtual-file") {
-          fileToDownload = findItemByPath(item.path);
-          if (!fileToDownload || !fileToDownload.content) return;
-          filename = fileToDownload.filename;
-          content = fileToDownload.content;
+          window.System.fs.readFile(item.path, 'utf8', (err, data) => {
+            if (err) return;
+            const fileData = JSON.parse(data);
+            if (!fileData.content) return;
+            filename = fileData.filename;
+            content = fileData.content;
+            if (content) {
+              downloadFile(filename, content);
+            }
+          });
         } else {
           return; // Not a downloadable file
         }
@@ -441,54 +443,29 @@ function captureGridIconPositions() {
   setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
 }
 
-function sortDesktopIcons(sortBy) {
-  const desktopItems = getDesktopContents();
+async function sortDesktopIcons(sortBy) {
+  const desktopPath = SPECIAL_FOLDER_PATHS.desktop;
+  window.System.fs.readdir(desktopPath, async (err, files) => {
+    if (err) return;
+    const promises = files.map(file => {
+      return new Promise(resolve => {
+        window.System.fs.readFile(`${desktopPath}/${file}`, 'utf8', (err, data) => {
+          if (err) return resolve(null);
+          resolve(JSON.parse(data));
+        });
+      });
+    });
+    const desktopItems = (await Promise.all(promises)).filter(Boolean);
 
-  const typeOrder = {
-    app: 1,
-    folder: 2,
-    shortcut: 3,
-    file: 4,
-  };
-
-  const systemIconOrder = [
-    "my-computer",
-    "my-documents",
-    "internet-explorer",
-    "recycle-bin",
-    "my-briefcase",
-    "network-neighborhood",
-  ];
-
-  desktopItems.sort((a, b) => {
-    const aIsSystem = a.isSystemIcon;
-    const bIsSystem = b.isSystemIcon;
-
-    if (aIsSystem && !bIsSystem) return -1;
-    if (!aIsSystem && bIsSystem) return 1;
-
-    if (aIsSystem && bIsSystem) {
-      return systemIconOrder.indexOf(a.id) - systemIconOrder.indexOf(b.id);
-    }
-
-    if (sortBy === "name") {
-      return a.name.localeCompare(b.name);
-    } else if (sortBy === "type") {
-      const typeA = typeOrder[a.type] || 5;
-      const typeB = typeOrder[b.type] || 5;
-      if (typeA !== typeB) {
-        return typeA - typeB;
+    desktopItems.sort((a, b) => {
+      if (sortBy === "name") {
+        return (a.name || a.title).localeCompare(b.name || b.title);
       }
-      return a.name.localeCompare(b.name);
-    }
-    return 0;
+      return 0;
+    });
+    removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
+    document.querySelector(".desktop").refreshIcons(desktopItems, true);
   });
-
-  // When sorting, we clear any manual positioning and revert to a grid layout.
-  removeItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS);
-
-  // This will cause setupIcons to re-render in grid mode.
-  document.querySelector(".desktop").refreshIcons(desktopItems, true);
 }
 
 function showDesktopContextMenu(event, { selectedIcons, clearSelection }) {
@@ -762,21 +739,16 @@ function showProperties(app) {
   }
 }
 
-export function setupIcons(
-  options,
-  desktopContents = getDesktopContents(),
-  isFromSort = false,
-) {
+export function setupIcons(options, sortedContents, isFromSort = false) {
   const { iconManager } = options;
   const desktop = document.querySelector(".desktop");
-  desktop.innerHTML = ""; // Clear existing icons
+  desktop.innerHTML = "";
 
   let iconPositions = {};
   if (!isAutoArrangeEnabled()) {
     iconPositions = getItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS) || {};
   }
 
-  // Set the class based on Auto Arrange
   if (!isAutoArrangeEnabled()) {
     desktop.classList.add("has-absolute-icons");
   } else {
@@ -789,88 +761,58 @@ export function setupIcons(
       icon.style.left = iconPositions[iconId].x;
       icon.style.top = iconPositions[iconId].y;
     } else if (desktop.classList.contains("has-absolute-icons")) {
-      // If we're in manual mode but this icon has no position, find one for it.
       const { x, y } = findNextOpenPosition(desktop, iconPositions);
       icon.style.position = "absolute";
       icon.style.left = `${x}px`;
       icon.style.top = `${y}px`;
-      // And save it for consistency
       iconPositions[iconId] = { x: `${x}px`, y: `${y}px` };
       setItem(LOCAL_STORAGE_KEYS.ICON_POSITIONS, iconPositions);
     }
     desktop.appendChild(icon);
   };
 
-  // If auto-arranging and no positions are saved, sort by name.
-  // This becomes the default initial layout.
-  if (
-    isAutoArrangeEnabled() &&
-    Object.keys(iconPositions).length === 0 &&
-    !isFromSort
-  ) {
-    sortDesktopIcons("name");
-    return;
+  const renderIcons = (desktopContents) => {
+    desktopContents.forEach(item => {
+      const appConfig = item.appId ? apps.find(a => a.id === item.appId) : item;
+      if (!appConfig) return;
+
+      const isFile = item.type === 'file' || item.type === 'shortcut';
+      const isFolder = item.type === 'folder';
+
+      const icon = createDesktopIcon({ ...item, filename: item.name || item.title }, isFile, isFolder);
+      if (icon) {
+        const iconId = getIconId(appConfig, item.path);
+        configureIcon(icon, appConfig, item.path, { iconManager });
+        placeIcon(icon, iconId);
+      }
+    });
+  };
+
+  if (sortedContents) {
+    renderIcons(sortedContents);
+  } else {
+    if (isAutoArrangeEnabled() && Object.keys(iconPositions).length === 0 && !isFromSort) {
+      sortDesktopIcons("name");
+      return;
+    }
+
+    const desktopPath = SPECIAL_FOLDER_PATHS.desktop;
+    window.System.fs.readdir(desktopPath, async (err, files) => {
+      if (err) return;
+      const promises = files.map(file => {
+        return new Promise(resolve => {
+          window.System.fs.readFile(`${desktopPath}/${file}`, 'utf8', (err, data) => {
+            if (err) return resolve(null);
+            const item = JSON.parse(data);
+            item.path = `${desktopPath}/${file}`;
+            resolve(item);
+          });
+        });
+      });
+      const desktopItems = (await Promise.all(promises)).filter(Boolean);
+      renderIcons(desktopItems);
+    });
   }
-
-  desktopContents.forEach((item) => {
-    let icon;
-    let iconId;
-    let appConfig;
-    let filePath = null;
-
-    switch (item.type) {
-      case "app":
-        appConfig = apps.find((a) => a.id === item.appId);
-        if (appConfig) {
-          icon = createDesktopIcon(appConfig);
-          iconId = getIconId(appConfig);
-        }
-        break;
-      case "shortcut":
-      case "file":
-        item.filename = item.name;
-        icon = createDesktopIcon(item, true, false);
-        appConfig = apps.find((a) => a.id === item.app);
-        if (appConfig) {
-          iconId = getIconId(appConfig, item.path);
-          filePath = item.path;
-        }
-        break;
-      case "folder":
-        item.filename = item.name;
-        icon = createDesktopIcon(item, false, true);
-        appConfig = apps.find((a) => a.id === item.app);
-        if (appConfig) {
-          iconId = getIconId(appConfig, item.path);
-          filePath = item.path;
-        }
-        break;
-      default:
-        break;
-    }
-
-    if (icon && iconId && appConfig) {
-      configureIcon(icon, appConfig, filePath, { iconManager });
-      placeIcon(icon, iconId);
-    }
-  });
-
-  // Load dropped files
-  const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-  const desktopFiles = allDroppedFiles.filter(
-    (file) => file.path === SPECIAL_FOLDER_PATHS.desktop,
-  );
-
-  desktopFiles.forEach((file) => {
-    const icon = createDesktopIconForDroppedFile(file);
-    if (icon) {
-      const association = getAssociation(file.name || file.title);
-      const app = apps.find((a) => a.id === association.appId);
-      const iconId = getIconId(app, file);
-      configureIcon(icon, app, file, { iconManager });
-      placeIcon(icon, iconId);
-    }
-  });
 }
 
 function findNextOpenPosition(desktop, iconPositions) {

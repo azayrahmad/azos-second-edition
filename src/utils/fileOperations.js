@@ -1,21 +1,16 @@
 import { getItem, setItem, LOCAL_STORAGE_KEYS } from "./localStorage.js";
 import { findItemByPath } from "./directory.js";
 
-function getUniqueName(destinationPath, originalName) {
-    const destinationFolder = findItemByPath(destinationPath);
-    if (!destinationFolder) return originalName;
+async function getUniqueName(destinationPath, originalName) {
+  return new Promise((resolve) => {
+    window.System.fs.readdir(destinationPath, (err, files) => {
+      if (err) return resolve(originalName);
 
-    const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-    const itemsInDestination = [
-        ...(destinationFolder.children || []),
-        ...allDroppedFiles.filter(f => f.path === destinationPath)
-    ];
+      let newName = originalName;
+      let counter = 1;
+      let nameExists = files.includes(newName);
 
-    let newName = originalName;
-    let counter = 1;
-    let nameExists = itemsInDestination.some(item => (item.name || item.filename) === newName);
-
-    while (nameExists) {
+      while (nameExists) {
         const extensionIndex = originalName.lastIndexOf('.');
         if (extensionIndex > 0) {
             const name = originalName.substring(0, extensionIndex);
@@ -25,36 +20,34 @@ function getUniqueName(destinationPath, originalName) {
             newName = `${originalName} (${counter})`;
         }
         counter++;
-        nameExists = itemsInDestination.some(item => (item.name || item.filename) === newName);
-    }
-
-    return newName;
+        nameExists = files.includes(newName);
+      }
+      resolve(newName);
+    });
+  });
 }
 
-export function pasteItems(destinationPath, items, operation) {
-    const allDroppedFiles = getItem(LOCAL_STORAGE_KEYS.DROPPED_FILES) || [];
-    let updatedFiles = [...allDroppedFiles];
+export async function pasteItems(destinationPath, items, operation) {
+  for (const item of items) {
+    const newName = await getUniqueName(destinationPath, item.name || item.title);
+    const newPath = `${destinationPath}/${newName}`;
 
-    items.forEach(item => {
-        if (operation === 'copy') {
-            const newItem = {
-                ...item,
-                id: `dropped-${Date.now()}-${Math.random()}`,
-                path: destinationPath,
-                name: getUniqueName(destinationPath, item.name || item.filename),
-            };
-            delete newItem.source;
-            updatedFiles.push(newItem);
-        } else if (operation === 'cut') {
-            const itemIndex = updatedFiles.findIndex(f => f.id === item.id);
-            if (itemIndex !== -1) {
-                updatedFiles[itemIndex].path = destinationPath;
-                updatedFiles[itemIndex].name = getUniqueName(destinationPath, updatedFiles[itemIndex].name || updatedFiles[itemIndex].filename);
+    if (operation === 'copy') {
+      window.System.fs.readFile(item.path, (err, data) => {
+        if (!err) {
+          window.System.fs.writeFile(newPath, data, (err) => {
+            if (!err) {
+              document.dispatchEvent(new CustomEvent("explorer-refresh"));
             }
+          });
         }
-    });
-
-    setItem(LOCAL_STORAGE_KEYS.DROPPED_FILES, updatedFiles);
-    document.dispatchEvent(new CustomEvent("desktop-refresh"));
-    document.dispatchEvent(new CustomEvent("explorer-refresh"));
+      });
+    } else if (operation === 'cut') {
+      window.System.fs.rename(item.path, newPath, (err) => {
+        if (!err) {
+          document.dispatchEvent(new CustomEvent("explorer-refresh"));
+        }
+      });
+    }
+  }
 }
