@@ -97,6 +97,7 @@ export class FreeCellApp extends Application {
         {
           label: "Restart Game",
           action: () => this._restartGame(),
+          enabled: () => this.game !== null,
         },
         "MENU_DIVIDER",
         {
