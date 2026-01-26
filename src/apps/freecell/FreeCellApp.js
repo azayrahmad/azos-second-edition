@@ -92,7 +92,24 @@ export class FreeCellApp extends Application {
         {
           label: "Select Game...",
           action: () => this._showSelectGameDialog(),
+          shortcut: "F3",
         },
+        {
+          label: "Restart Game",
+          action: () => this._restartGame(),
+        },
+        "MENU_DIVIDER",
+        {
+          label: "Statistics...",
+          shortcut: "F4",
+          enabled: false,
+        },
+        {
+          label: "Options...",
+          shortcut: "F5",
+          enabled: false,
+        },
+        "MENU_DIVIDER",
         {
           label: "Undo",
           action: () => this._undoMove(),
@@ -108,6 +125,12 @@ export class FreeCellApp extends Application {
       ],
     });
     win.setMenuBar(menuBar);
+  }
+
+  _restartGame() {
+    if (this.game) {
+      this.startNewGame(this.game.gameNumber);
+    }
   }
 
   _showNewGameDialog() {
@@ -427,6 +450,12 @@ export class FreeCellApp extends Application {
     if (event.key === "F2") {
       event.preventDefault();
       this._showNewGameDialog();
+    } else if (event.key === "F3") {
+      event.preventDefault();
+      this._showSelectGameDialog();
+    } else if (event.key === "F4" || event.key === "F5") {
+      // Corresponding menu items are disabled
+      event.preventDefault();
     } else if (event.key === "F10") {
       event.preventDefault();
       this._undoMove();
