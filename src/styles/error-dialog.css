@@ -1,0 +1,29 @@
+.error-dialog-container {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.error-area {
+  flex-grow: 1;
+  border: 1px solid #7f7f7f;
+  background-color: white;
+  padding: 5px;
+  overflow-y: scroll;
+  margin-top: 10px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+.error-entry {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.error-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
