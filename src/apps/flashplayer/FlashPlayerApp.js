@@ -32,6 +32,13 @@ export class FlashPlayerApp extends Application {
 
     const container = document.createElement("div");
     container.className = "flashplayer-container";
+
+    const loadingMessage = document.createElement("div");
+    loadingMessage.className = "flashplayer-loading-message";
+    loadingMessage.textContent = "Please Wait...";
+    loadingMessage.style.display = "none"; // Initially hidden
+    container.appendChild(loadingMessage);
+
     this.win.$content.append(container);
 
     return this.win;
@@ -55,6 +62,10 @@ export class FlashPlayerApp extends Application {
 
   async _onLaunch(data) {
     await this.waitForRuffle();
+    window.RufflePlayer.config = {
+      splashScreen: false,
+      autoplay: "on",
+    };
     if (data) {
       this.loadSwf(data);
     }
@@ -84,11 +95,23 @@ export class FlashPlayerApp extends Application {
     }
 
     const container = this.win.element.querySelector(".flashplayer-container");
-    container.innerHTML = ""; // Clear previous player
+    const loadingMessage = container.querySelector(
+      ".flashplayer-loading-message"
+    );
+    loadingMessage.style.display = "block";
+
+    // Clear previous player if it exists
+    if (this.player) {
+      this.player.remove();
+    }
 
     const ruffle = window.RufflePlayer.newest();
     this.player = ruffle.createPlayer();
     container.appendChild(this.player);
+
+    this.player.addEventListener("loadedmetadata", () => {
+      loadingMessage.style.display = "none";
+    });
 
     const handleError = (e) => {
       console.error(`Ruffle failed to load the file: ${e}`);
