@@ -2,6 +2,7 @@ import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { OptionsManager } from "./OptionsManager.js";
 import "./freecell.css";
 import "../../styles/solitaire.css";
 import freecellTable from "./assets/freecell-table.png";
@@ -48,6 +49,7 @@ export class FreeCellApp extends Application {
     this.selectedCard = null;
     this.game = null;
     this.isAnimating = false;
+    this.options = new OptionsManager();
 
     this.boundOnClick = this.onClick.bind(this);
     this.boundHandleKeyDown = this.handleKeyDown.bind(this);
@@ -57,6 +59,7 @@ export class FreeCellApp extends Application {
       this.handleFoundationsMouseOver.bind(this);
     this.boundHandleMouseMove = this.handleMouseMove.bind(this);
     this.boundHandleMouseOut = this.handleMouseOut.bind(this);
+    this.boundHandleDoubleClick = this.handleDoubleClick.bind(this);
 
     this.addEventListeners();
 
@@ -108,7 +111,7 @@ export class FreeCellApp extends Application {
         {
           label: "Options...",
           shortcut: "F5",
-          enabled: false,
+          action: () => this._showOptionsDialog(),
         },
         "MENU_DIVIDER",
         {
@@ -183,8 +186,78 @@ export class FreeCellApp extends Application {
     });
   }
 
+  _showOptionsDialog() {
+    const currentOptions = this.options.getAll();
+
+    const dialogContent = document.createElement("div");
+    dialogContent.className = "freecell-options-dialog";
+    dialogContent.innerHTML = `
+      <div class="field-row-stacked">
+        <input type="checkbox" id="display-messages" ${
+          currentOptions.displayMessagesOnIllegalMoves ? "checked" : ""
+        }>
+        <label for="display-messages">Display messages on illegal moves</label>
+      </div>
+      <div class="field-row-stacked">
+        <input type="checkbox" id="quick-play" ${
+          currentOptions.quickPlay ? "checked" : ""
+        }>
+        <label for="quick-play">Quick play (no animation)</label>
+      </div>
+      <div class="field-row-stacked">
+        <input type="checkbox" id="double-click" ${
+          currentOptions.doubleClickToFreeCell ? "checked" : ""
+        }>
+        <label for="double-click">Double click moves card to free cell</label>
+      </div>
+    `;
+
+    const displayMessagesCheckbox = dialogContent.querySelector(
+      "#display-messages",
+    );
+    const quickPlayCheckbox = dialogContent.querySelector("#quick-play");
+    const doubleClickCheckbox = dialogContent.querySelector("#double-click");
+
+    const handleOk = () => {
+      this.options.set(
+        "displayMessagesOnIllegalMoves",
+        displayMessagesCheckbox.checked,
+      );
+      this.options.set("quickPlay", quickPlayCheckbox.checked);
+      this.options.set(
+        "doubleClickToFreeCell",
+        doubleClickCheckbox.checked,
+      );
+      this.options.save();
+      dialog.close();
+    };
+
+    const dialog = ShowDialogWindow({
+      title: "FreeCell Options",
+      content: dialogContent,
+      buttons: [
+        {
+          label: "OK",
+          action: handleOk,
+        },
+        {
+          label: "Cancel",
+          action: (d) => d.close(),
+        },
+      ],
+      parentWindow: this.win,
+    });
+  }
+
   async _undoMove() {
     if (this.isAnimating || !this.game?.lastMove) return;
+
+    if (this.options.get("quickPlay")) {
+      this.game.undo();
+      this.render();
+      this._updateMenuBar(this.win);
+      return;
+    }
 
     const lastMove = this.game.lastMove;
     const { type, payload } = lastMove;
@@ -314,6 +387,7 @@ export class FreeCellApp extends Application {
 
   addEventListeners() {
     this.container.addEventListener("click", this.boundOnClick);
+    this.container.addEventListener("dblclick", this.boundHandleDoubleClick);
     this.win.element.addEventListener("keydown", this.boundHandleKeyDown);
 
     const freeCells = this.container.querySelector(".free-cells");
@@ -331,6 +405,7 @@ export class FreeCellApp extends Application {
 
   removeEventListeners() {
     this.container.removeEventListener("click", this.boundOnClick);
+    this.container.removeEventListener("dblclick", this.boundHandleDoubleClick);
     this.win.element.removeEventListener("keydown", this.boundHandleKeyDown);
 
     const freeCells = this.container.querySelector(".free-cells");
@@ -479,6 +554,43 @@ export class FreeCellApp extends Application {
     }
   }
 
+  async handleDoubleClick(event) {
+    if (this.isAnimating || !this.options.get("doubleClickToFreeCell")) return;
+
+    const cardElement = event.target.closest(".card");
+    if (!cardElement) return;
+
+    // Find the first empty free cell
+    const emptyFreeCellIndex = this.game.freeCells.findIndex(
+      (cell) => cell === null,
+    );
+    if (emptyFreeCellIndex === -1) return; // No empty free cells
+
+    // Find the card data
+    const uid = cardElement.dataset.uid;
+    const card = this.game.allCards.find((c) => c.uid === uid);
+    const fromLocation = this.game.getCardLocation(card);
+
+    if (!fromLocation) return;
+
+    // In tableau piles, only allow moving the top-most card.
+    if (fromLocation.type === "tableau") {
+      const pile = this.game.tableauPiles[fromLocation.index];
+      if (pile[pile.length - 1] !== card) {
+        return; // Not the top card, so do nothing.
+      }
+    }
+
+    if (!this.options.get("quickPlay")) {
+      card.element.style.opacity = "0";
+      await this.animateMove([card], "freecell", emptyFreeCellIndex);
+    }
+
+    this.game.moveCard(card, fromLocation, "freecell", emptyFreeCellIndex);
+    this.render();
+    await this.startAutoMove();
+  }
+
   handleSelectCard(cardElement) {
     const uid = cardElement.dataset.uid;
     const card = this.game.allCards.find((c) => c.uid === uid);
@@ -613,7 +725,9 @@ export class FreeCellApp extends Application {
           moveDetails.to,
         );
         moveDetails.payload.forEach((c) => (c.element.style.opacity = "0"));
-        await this.animateSupermove(plan);
+        if (!this.options.get("quickPlay")) {
+          await this.animateSupermove(plan);
+        }
         this.game.moveStack(
           moveDetails.payload,
           moveDetails.from,
@@ -622,11 +736,13 @@ export class FreeCellApp extends Application {
       } else {
         const animatingCards = [moveDetails.payload];
         animatingCards.forEach((c) => (c.element.style.opacity = "0"));
-        await this.animateMove(
-          animatingCards,
-          moveDetails.toType,
-          moveDetails.toIndex,
-        );
+        if (!this.options.get("quickPlay")) {
+          await this.animateMove(
+            animatingCards,
+            moveDetails.toType,
+            moveDetails.toIndex,
+          );
+        }
         this.game.moveCard(
           moveDetails.payload,
           fromLocation,
@@ -639,14 +755,15 @@ export class FreeCellApp extends Application {
       await this.startAutoMove();
     } else {
       // If no move was made, it was an invalid move
-
-      ShowDialogWindow({
-        title: "Invalid Move",
-        text: "That move is not allowed.",
-        buttons: [{ label: "OK" }],
-        soundEvent: "SystemExclamation",
-        parentWindow: this.win,
-      });
+      if (this.options.get("displayMessagesOnIllegalMoves")) {
+        ShowDialogWindow({
+          title: "Invalid Move",
+          text: "That move is not allowed.",
+          buttons: [{ label: "OK" }],
+          soundEvent: "SystemExclamation",
+          parentWindow: this.win,
+        });
+      }
     }
 
     // Clean up any lingering cursor classes after a move attempt
@@ -666,11 +783,13 @@ export class FreeCellApp extends Application {
     let moves;
     while ((moves = this.game.findAllFoundationMoves()).length > 0) {
       for (const move of moves) {
-        // Hide the original card
-        move.card.element.style.opacity = "0";
+        if (!this.options.get("quickPlay")) {
+          // Hide the original card
+          move.card.element.style.opacity = "0";
 
-        // Animate the move
-        await this.animateMove([move.card], move.toType, move.toIndex);
+          // Animate the move
+          await this.animateMove([move.card], move.toType, move.toIndex);
+        }
 
         // Update the game state
         this.game.moveCard(move.card, move.from, move.toType, move.toIndex);
@@ -774,6 +893,9 @@ export class FreeCellApp extends Application {
   }
 
   async animateSupermove(plan) {
+    if (this.options.get("quickPlay")) {
+      return;
+    }
     this.isAnimating = true;
 
     const containerRect = this.container.getBoundingClientRect();
@@ -846,6 +968,9 @@ export class FreeCellApp extends Application {
   }
 
   animateMove(cardsToAnimate, toType, toIndex) {
+    if (this.options.get("quickPlay")) {
+      return Promise.resolve();
+    }
     this.isAnimating = true;
     return new Promise(async (resolve) => {
       const containerRect = this.container.getBoundingClientRect();
