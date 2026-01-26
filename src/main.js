@@ -33,7 +33,7 @@ import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
 import configureFS from "./utils/filesystem.js";
-import { directory } from "./config/directory.js";
+import directory from "./config/directory.js";
 
 // Window Management System
 class WindowManagerSystem {
