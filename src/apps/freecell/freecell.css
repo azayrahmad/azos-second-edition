@@ -131,3 +131,29 @@
 .game-over-dialog p {
   margin: 0 0 10px 0;
 }
+
+.freecell-statistics-dialog {
+  padding: 10px;
+}
+
+.statistics-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.statistics-group fieldset {
+  padding: 5px 10px;
+  width: 150px;
+}
+
+.statistics-group .percentage {
+  margin-left: 10px;
+  width: 40px;
+  text-align: right;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+}
