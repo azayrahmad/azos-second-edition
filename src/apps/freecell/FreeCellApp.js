@@ -658,6 +658,55 @@ export class FreeCellApp extends Application {
     }
   }
 
+  _showGameOverDialog() {
+    const dialog = new window.$Window({
+      title: "Game Over",
+      width: 280,
+      height: 150,
+      resizable: false,
+      minimizeButton: false,
+      maximizeButton: false,
+      parentWindow: this.win,
+    });
+
+    const content = `
+      <div class="game-over-dialog" style="text-align: center; padding: 10px;">
+        <p>Sorry, you lose.</p>
+        <p>There are no more legal moves.</p>
+        <p>Do you want to play again?</p>
+        <div class="field-row" style="justify-content: center; margin-top: 10px;">
+          <input type="checkbox" id="same-game-checkbox" checked>
+          <label for="same-game-checkbox">Same game</label>
+        </div>
+        <div class="field-row" style="justify-content: center; margin-top: 10px;">
+          <button class="button-default-size" id="yes-button">Yes</button>
+          <button class="button-default-size" id="no-button">No</button>
+        </div>
+      </div>
+    `;
+
+    dialog.element.querySelector(".window-content").innerHTML = content;
+    dialog.center();
+
+    const checkbox = dialog.element.querySelector("#same-game-checkbox");
+    const yesButton = dialog.element.querySelector("#yes-button");
+    const noButton = dialog.element.querySelector("#no-button");
+
+    yesButton.addEventListener("click", () => {
+      const sameGame = checkbox.checked;
+      if (sameGame) {
+        this.startNewGame(this.game.gameNumber);
+      } else {
+        this._showNewGameDialog();
+      }
+      dialog.close();
+    });
+
+    noButton.addEventListener("click", () => {
+      dialog.close();
+    });
+  }
+
   promptForMoveType(stack, card, fromLocation, toIndex) {
     ShowDialogWindow({
       title: "Move Cards",
@@ -687,24 +736,6 @@ export class FreeCellApp extends Application {
             this.render();
             if (this.game.checkForWin()) this.showWinDialog();
           },
-        },
-      ],
-      parentWindow: this.win,
-    });
-  }
-
-  _showGameOverDialog() {
-    ShowDialogWindow({
-      title: "Game Over",
-      text: "Sorry, you lose.<br><br>There are no more legal moves.<br>Do you want to play again?",
-      buttons: [
-        {
-          label: "Yes",
-          action: () => this._showNewGameDialog(),
-        },
-        {
-          label: "No",
-          action: (dialog) => dialog.close(),
         },
       ],
       parentWindow: this.win,
