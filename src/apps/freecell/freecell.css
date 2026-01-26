@@ -127,3 +127,7 @@
 .legal-tableau-cursor {
   cursor: url("assets/freecell-legal-tableau.png") 16 31, auto !important;
 }
+
+.game-over-dialog p {
+  margin: 0 0 10px 0;
+}
