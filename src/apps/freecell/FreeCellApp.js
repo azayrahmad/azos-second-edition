@@ -686,6 +686,7 @@ export class FreeCellApp extends Application {
     } else if (!this.game.hasLegalMoves()) {
       this._showGameOverDialog();
     }
+    this._updateMenuBar(this.win);
   }
 
   _showGameOverDialog() {
@@ -754,7 +755,7 @@ export class FreeCellApp extends Application {
             await this.animateSupermove(plan);
             this.game.moveStack(stack, fromLocation.index, toIndex);
             this.render();
-            if (this.game.checkForWin()) this.showWinDialog();
+            await this.startAutoMove();
           },
         },
         {
@@ -764,7 +765,7 @@ export class FreeCellApp extends Application {
             await this.animateMove([card], "tableau", toIndex);
             this.game.moveCard(card, fromLocation, "tableau", toIndex);
             this.render();
-            if (this.game.checkForWin()) this.showWinDialog();
+            await this.startAutoMove();
           },
         },
       ],
