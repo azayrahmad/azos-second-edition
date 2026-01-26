@@ -74,6 +74,12 @@ const directory = [
           },
           { id: "app-freecell", type: "app", appId: "freecell", name: "FreeCell" },
           { id: "app-songs", type: "app", appId: "songs", name: "songs" },
+          {
+            id: "app-file-explorer",
+            type: "app",
+            appId: "file-explorer",
+            name: "File Explorer",
+          },
         ].sort((a, b) =>
           (a.name || "").localeCompare(b.name || "", undefined, {
             sensitivity: "base",
@@ -273,6 +279,12 @@ const directory = [
                     name: "FreeCell",
                   },
                 ],
+              },
+              {
+                id: "shortcut-to-file-explorer",
+                type: "shortcut",
+                targetId: "app-file-explorer",
+                name: "File Explorer",
               },
             ],
           },

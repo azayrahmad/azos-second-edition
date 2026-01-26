@@ -2,6 +2,7 @@ import { Application } from "../Application.js";
 import { ICONS } from "../../config/icons.js";
 import { getItem, setItem } from "../../utils/localStorage.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { MenuBar } from "../../components/MenuBar.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import { IconManager } from "../../components/IconManager.js";
 import { StatusBar } from "../../components/StatusBar.js";
