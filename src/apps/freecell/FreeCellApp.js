@@ -28,8 +28,6 @@ export class FreeCellApp extends Application {
       icons: this.icon,
     });
 
-    this._updateMenuBar(win);
-
     win.element.querySelector(".window-content").innerHTML = `
       <div class="freecell-container">
         <div class="game-board" style="background-image: url(${freecellTable})">
@@ -61,6 +59,8 @@ export class FreeCellApp extends Application {
     this.boundHandleMouseOut = this.handleMouseOut.bind(this);
 
     this.addEventListeners();
+
+    this._updateMenuBar(win);
     this.render();
 
     win.on("close", () => {
