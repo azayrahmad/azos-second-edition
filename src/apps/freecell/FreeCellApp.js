@@ -3,6 +3,7 @@ import { ICONS } from "../../config/icons.js";
 import { Game } from "./Game.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { OptionsManager } from "./OptionsManager.js";
+import { StatisticsManager } from "./StatisticsManager.js";
 import "./freecell.css";
 import "../../styles/solitaire.css";
 import freecellTable from "./assets/freecell-table.png";
@@ -50,6 +51,10 @@ export class FreeCellApp extends Application {
     this.game = null;
     this.isAnimating = false;
     this.options = new OptionsManager();
+    this.statistics = new StatisticsManager();
+    this.sessionWins = 0;
+    this.sessionLosses = 0;
+    this.gameInProgress = false;
 
     this.boundOnClick = this.onClick.bind(this);
     this.boundHandleKeyDown = this.handleKeyDown.bind(this);
@@ -67,6 +72,7 @@ export class FreeCellApp extends Application {
     this.render();
 
     win.on("close", () => {
+      this._recordLossIfGameInProgress();
       this.removeEventListeners();
     });
 
@@ -74,14 +80,25 @@ export class FreeCellApp extends Application {
   }
 
   startNewGame(gameNumber) {
+    this._recordLossIfGameInProgress();
+
     const kingWinImage = this.container.querySelector(".king-win-image");
     kingWinImage.classList.remove("visible");
 
     this.game = new Game(gameNumber);
     this.selectedCard = null;
+    this.gameInProgress = true;
     this.win.title(`FreeCell Game #${this.game.gameNumber}`);
     this.render();
     this._updateMenuBar(this.win);
+  }
+
+  _recordLossIfGameInProgress() {
+    if (this.gameInProgress) {
+      this.statistics.recordLoss();
+      this.sessionLosses++;
+      this.gameInProgress = false;
+    }
   }
 
   _updateMenuBar(win) {
@@ -105,8 +122,8 @@ export class FreeCellApp extends Application {
         "MENU_DIVIDER",
         {
           label: "Statistics...",
+          action: () => this._showStatisticsDialog(),
           shortcut: "F4",
-          enabled: false,
         },
         {
           label: "Options...",
@@ -529,9 +546,12 @@ export class FreeCellApp extends Application {
     } else if (event.key === "F3") {
       event.preventDefault();
       this._showSelectGameDialog();
-    } else if (event.key === "F4" || event.key === "F5") {
-      // Corresponding menu items are disabled
+    } else if (event.key === "F4") {
       event.preventDefault();
+      this._showStatisticsDialog();
+    } else if (event.key === "F5") {
+      event.preventDefault();
+      this._showOptionsDialog();
     } else if (event.key === "F10") {
       event.preventDefault();
       this._undoMove();
@@ -809,6 +829,8 @@ export class FreeCellApp extends Application {
   }
 
   _showGameOverDialog() {
+    this._recordLossIfGameInProgress();
+
     const dialog = new window.$Window({
       title: "Game Over",
       width: 280,
@@ -1023,6 +1045,12 @@ export class FreeCellApp extends Application {
   }
 
   showWinDialog() {
+    if (this.gameInProgress) {
+      this.statistics.recordWin();
+      this.sessionWins++;
+      this.gameInProgress = false;
+    }
+
     const kingWinImage = this.container.querySelector(".king-win-image");
     kingWinImage.classList.add("visible");
 
@@ -1030,10 +1058,83 @@ export class FreeCellApp extends Application {
       title: "Game Over",
       text: "Congratulations, you win! Do you want to play again?",
       buttons: [
-        { label: "Yes", action: () => this.startNewGame() },
+        {
+          label: "Yes",
+          action: () => {
+            const gameNumber = Math.floor(Math.random() * 32000) + 1;
+            this.startNewGame(gameNumber);
+          },
+        },
         { label: "No" },
       ],
       parentWindow: this.win,
+    });
+  }
+
+  _showStatisticsDialog() {
+    const stats = this.statistics.getStats();
+    const { wins, losses, mostWins, mostLosses, currentStreak } = stats;
+
+    const totalGames = wins + losses;
+    const winPercentage = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+
+    const sessionTotal = this.sessionWins + this.sessionLosses;
+    const sessionWinPercentage = sessionTotal > 0 ? Math.round((this.sessionWins / sessionTotal) * 100) : 0;
+
+    const streakType = currentStreak.type === "wins" ? "Winning" : "Losing";
+    const currentStreakText = currentStreak.count > 0 ? `${streakType}: ${currentStreak.count}` : "None";
+
+    const dialogContent = document.createElement("div");
+    dialogContent.className = "freecell-statistics-dialog";
+    dialogContent.innerHTML = `
+      <div class="statistics-group">
+        <fieldset>
+          <legend>This session</legend>
+          <div class="stats-row"><span>won:</span><span>${this.sessionWins}</span></div>
+          <div class="stats-row"><span>lost:</span><span>${this.sessionLosses}</span></div>
+        </fieldset>
+        <div class="percentage">${sessionWinPercentage}%</div>
+      </div>
+      <div class="statistics-group">
+        <fieldset>
+          <legend>Total</legend>
+          <div class="stats-row"><span>won:</span><span>${wins}</span></div>
+          <div class="stats-row"><span>lost:</span><span>${losses}</span></div>
+        </fieldset>
+        <div class="percentage">${winPercentage}%</div>
+      </div>
+      <div class="statistics-group">
+        <fieldset>
+          <legend>Streaks</legend>
+          <div class="stats-row"><span>wins:</span><span>${mostWins}</span></div>
+          <div class="stats-row"><span>losses:</span><span>${mostLosses}</span></div>
+          <div class="stats-row"><span>current:</span><span>${currentStreakText}</span></div>
+        </fieldset>
+      </div>
+    `;
+
+    const dialog = ShowDialogWindow({
+      title: "FreeCell Statistics",
+      content: dialogContent,
+      buttons: [
+        {
+          label: "OK",
+          action: () => dialog.close(),
+        },
+        {
+          label: "Clear",
+          action: () => {
+            this.statistics.resetStats();
+            this.sessionWins = 0;
+            this.sessionLosses = 0;
+            dialog.close();
+            this._showStatisticsDialog();
+          },
+        },
+      ],
+      parentWindow: this.win,
+      width: 250,
+      height: 250,
     });
   }
 }
