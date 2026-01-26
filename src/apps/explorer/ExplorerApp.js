@@ -26,6 +26,7 @@ import {
   LOCAL_STORAGE_KEYS,
 } from "../../utils/localStorage.js";
 import { floppyManager } from "../../utils/floppyManager.js";
+import { cdromManager } from "../../utils/cdromManager.js";
 import { networkNeighborhood } from "../../config/networkNeighborhood.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { AnimatedLogo } from "../../components/AnimatedLogo.js";
@@ -531,6 +532,14 @@ export class ExplorerApp extends Application {
     document.addEventListener("floppy-inserted", this.floppyChangeHandler);
     document.addEventListener("floppy-ejected", this.floppyChangeHandler);
 
+    this.cdromChangeHandler = () => {
+      if (this.currentPath === "/" || this.currentPath === "/drive-e") {
+        this.render(this.currentPath);
+      }
+    };
+    document.addEventListener("cdrom-inserted", this.cdromChangeHandler);
+    document.addEventListener("cdrom-ejected", this.cdromChangeHandler);
+
     this.clipboardHandler = () => {
       this.updateCutIcons();
       this.updateMenuState();
@@ -542,6 +551,8 @@ export class ExplorerApp extends Application {
       document.removeEventListener("clipboard-change", this.clipboardHandler);
       document.removeEventListener("floppy-inserted", this.floppyChangeHandler);
       document.removeEventListener("floppy-ejected", this.floppyChangeHandler);
+      document.removeEventListener("cdrom-inserted", this.cdromChangeHandler);
+      document.removeEventListener("cdrom-ejected", this.cdromChangeHandler);
     });
 
     // Drag and drop functionality
@@ -731,8 +742,11 @@ export class ExplorerApp extends Application {
 
     let children = [];
     if (isNewNavigation) {
-      if (item.type === "floppy") {
-        requestWaitState("explorer-floppy", this.win.element);
+      if (item.type === "floppy" || item.type === "cd-rom") {
+        const manager = item.type === "floppy" ? floppyManager : cdromManager;
+        const requesterId = `explorer-${item.type}`;
+
+        requestWaitState(requesterId, this.win.element);
 
         // Clear current items while loading
         this.currentFolderItems = [];
@@ -741,9 +755,9 @@ export class ExplorerApp extends Application {
           // If the user navigated away, don't update
           if (this.currentPath !== path) return;
 
-          const floppyContents = floppyManager.getContents();
-          if (floppyContents) {
-            children = [...floppyContents];
+          const contents = manager.getContents();
+          if (contents) {
+            children = [...contents];
           }
 
           // Sort children alphabetically by name
@@ -755,8 +769,8 @@ export class ExplorerApp extends Application {
 
           this.currentFolderItems = children;
           this._renderIcons();
-          releaseWaitState("explorer-floppy", this.win.element);
-        }, 1500); // Simulate floppy read speed
+          releaseWaitState(requesterId, this.win.element);
+        }, 500); // Simulate read speed
 
         return;
       }
@@ -849,6 +863,9 @@ export class ExplorerApp extends Application {
       displayName = folderName
         ? `${originalName} ${folderName}`
         : `${originalName}`;
+    } else if (item.type === "cd-rom") {
+      const fileName = cdromManager.getFileName();
+      displayName = fileName ? `${originalName} (${fileName})` : originalName;
     }
 
     const iconDiv = document.createElement("div");
@@ -869,6 +886,8 @@ export class ExplorerApp extends Application {
       iconImg.src = ICONS.controlPanel[32];
     } else if (item.type === "floppy") {
       iconImg.src = ICONS.disketteDrive[32];
+    } else if (item.type === "cd-rom") {
+      iconImg.src = ICONS.cdromDrive[32];
     } else if (item.type === "drive") {
       iconImg.src = ICONS.drive[32];
     } else if (item.type === "folder") {
@@ -1020,8 +1039,15 @@ export class ExplorerApp extends Application {
     }
 
     // 1. Handle navigation for folders/drives
-    if (item.type === "floppy") {
-      if (floppyManager.isInserted()) {
+    if (item.type === "floppy" || item.type === "cd-rom") {
+      const manager = item.type === "floppy" ? floppyManager : cdromManager;
+      const requesterId = `explorer-${item.type}-insert`;
+      const text =
+        item.type === "floppy"
+          ? "Insert floppy disk into drive A:\\"
+          : "Insert a CD-ROM into the drive.";
+
+      if (manager.isInserted()) {
         const newPath =
           this.currentPath === "/"
             ? `/${item.id}`
@@ -1030,17 +1056,16 @@ export class ExplorerApp extends Application {
       } else {
         ShowDialogWindow({
           title: item.name,
-          text: "Insert floppy disk into drive A:\\",
+          text: text,
           buttons: [
             {
               label: "OK",
               action: () => {
-                const floppyRequesterId = "explorer-floppy-insert";
-                floppyManager.insert({
+                manager.insert({
                   onBeforeInsert: () =>
-                    requestWaitState(floppyRequesterId, this.win.element),
+                    requestWaitState(requesterId, this.win.element),
                   onAfterInsert: () =>
-                    releaseWaitState(floppyRequesterId, this.win.element),
+                    releaseWaitState(requesterId, this.win.element),
                 });
               },
             },
@@ -1305,22 +1330,26 @@ export class ExplorerApp extends Application {
       });
     }
 
-    if (clickedItem.type === "floppy") {
-      if (floppyManager.isInserted()) {
+    if (clickedItem.type === "floppy" || clickedItem.type === "cd-rom") {
+      const manager =
+        clickedItem.type === "floppy" ? floppyManager : cdromManager;
+      const requesterId = `explorer-${clickedItem.type}-insert`;
+      const actionLabel = clickedItem.type === "floppy" ? "Insert" : "Mount ISO";
+
+      if (manager.isInserted()) {
         menuItems.unshift({
           label: "Eject",
-          action: () => floppyManager.eject(),
+          action: () => manager.eject(),
         });
       } else {
         menuItems.unshift({
-          label: "Insert",
+          label: actionLabel,
           action: () => {
-            const floppyRequesterId = "explorer-floppy-insert";
-            floppyManager.insert({
+            manager.insert({
               onBeforeInsert: () =>
-                requestWaitState(floppyRequesterId, this.win.element),
+                requestWaitState(requesterId, this.win.element),
               onAfterInsert: () =>
-                releaseWaitState(floppyRequesterId, this.win.element),
+                releaseWaitState(requesterId, this.win.element),
             });
           },
         });
