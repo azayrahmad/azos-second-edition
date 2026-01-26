@@ -32,6 +32,8 @@ import { createMainUI } from "./components/ui.js";
 import { initColorModeManager } from "./utils/colorModeManager.js";
 import screensaver from "./utils/screensaverUtils.js";
 import { initScreenManager } from "./utils/screenManager.js";
+import configureFS from "./utils/filesystem.js";
+import { directory } from "./config/directory.js";
 
 // Window Management System
 class WindowManagerSystem {
@@ -284,6 +286,19 @@ async function initializeOS() {
 
     await executeBootStep(async () => {
       await promptToContinue();
+    });
+
+    await executeBootStep(async () => {
+      let logElement = startBootProcessStep("Initializing filesystem...");
+      try {
+        const { fs, Buffer } = await configureFS(directory);
+        window.System.fs = fs;
+        window.System.Buffer = Buffer;
+        finalizeBootProcessStep(logElement, "OK");
+      } catch (err) {
+        console.error("Filesystem initialization failed:", err);
+        finalizeBootProcessStep(logElement, "FAILED");
+      }
     });
 
     await executeBootStep(async () => {
