@@ -126,12 +126,18 @@ export class ZenExplorerApp extends Application {
                 const path = icon.getAttribute("data-path");
                 const menuItems = [
                     {
-                        label: "Rename",
-                        action: () => this.fileOps.renameItem(path),
+                        label: "Open",
+                        action: () => this.navigateTo(path),
+                        default: true,
                     },
+                    "MENU_DIVIDER",
                     {
                         label: "Delete",
                         action: () => this.fileOps.deleteItems([path]),
+                    },
+                    {
+                        label: "Rename",
+                        action: () => this.fileOps.renameItem(path),
                     },
                 ];
                 new window.ContextMenu(menuItems, e);
@@ -154,7 +160,7 @@ export class ZenExplorerApp extends Application {
                 const count = this.iconManager.selectedIcons.size;
                 this.statusBar.setText(`${count} object(s) selected`);
                 if (this.menuBar) {
-                    this.menuBar.element.dispatchEvent(new Event("update"));
+                    this._updateMenuBar();
                 }
             }
         });
