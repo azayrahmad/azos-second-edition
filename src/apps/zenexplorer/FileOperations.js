@@ -43,7 +43,7 @@ export class FileOperations {
         try {
             for (const itemPath of items) {
                 const itemName = getPathName(itemPath);
-                const targetPath = await this.getUniquePastePath(destinationPath, itemName);
+                const targetPath = await this.getUniquePastePath(destinationPath, itemName, operation);
 
                 if (operation === "cut") {
                     await fs.promises.rename(itemPath, targetPath);
@@ -66,25 +66,64 @@ export class FileOperations {
      * Get a unique path for pasting to avoid collisions
      * @private
      */
-    async getUniquePastePath(destPath, originalName) {
-        let name = originalName;
-        let counter = 1;
-        const extensionIndex = originalName.lastIndexOf('.');
-        const hasExtension = extensionIndex > 0;
-        const baseName = hasExtension ? originalName.substring(0, extensionIndex) : originalName;
-        const ext = hasExtension ? originalName.substring(extensionIndex) : '';
+    async getUniquePastePath(destPath, originalName, operation) {
+        let checkPath = normalizePath(joinPath(destPath, originalName));
+        try {
+            await fs.promises.stat(checkPath);
+            // If it doesn't throw, it exists. We need a new name.
+        } catch (e) {
+            // Doesn't exist, we can use it.
+            return checkPath;
+        }
 
-        while (true) {
-            const checkPath = normalizePath(joinPath(destPath, name));
+        if (operation === "cut") {
+            let name = originalName;
+            let counter = 1;
+            const extensionIndex = originalName.lastIndexOf('.');
+            const hasExtension = extensionIndex > 0;
+            const baseName = hasExtension ? originalName.substring(0, extensionIndex) : originalName;
+            const ext = hasExtension ? originalName.substring(extensionIndex) : '';
+
+            while (true) {
+                name = hasExtension ? `${baseName} (${counter})${ext}` : `${originalName} (${counter})`;
+                checkPath = normalizePath(joinPath(destPath, name));
+                try {
+                    await fs.promises.stat(checkPath);
+                    counter++;
+                } catch (e) {
+                    return checkPath;
+                }
+            }
+        } else {
+            // Windows-style copy naming: "Copy of X", "Copy (2) of X", etc.
+            const copyNOfRegex = /^Copy \((\d+)\) of (.*)$/;
+            const copyOfRegex = /^Copy of (.*)$/;
+
+            let baseName = originalName;
+            let match;
+            if ((match = originalName.match(copyNOfRegex))) {
+                baseName = match[2];
+            } else if ((match = originalName.match(copyOfRegex))) {
+                baseName = match[1];
+            }
+
+            let candidateName = `Copy of ${baseName}`;
+            checkPath = normalizePath(joinPath(destPath, candidateName));
             try {
                 await fs.promises.stat(checkPath);
-                // If it doesn't throw, it exists
-                name = hasExtension
-                    ? `${baseName} (${counter})${ext}`
-                    : `${originalName} (${counter})`;
-                counter++;
+                // "Copy of X" exists, try "Copy (2) of X", "Copy (3) of X", etc.
+                let counter = 2;
+                while (true) {
+                    candidateName = `Copy (${counter}) of ${baseName}`;
+                    checkPath = normalizePath(joinPath(destPath, candidateName));
+                    try {
+                        await fs.promises.stat(checkPath);
+                        counter++;
+                    } catch (e) {
+                        return checkPath;
+                    }
+                }
             } catch (e) {
-                // Doesn't exist, we can use it
                 return checkPath;
             }
         }
