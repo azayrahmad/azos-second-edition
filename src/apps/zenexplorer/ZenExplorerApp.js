@@ -5,8 +5,15 @@ import { ICONS } from "../../config/icons.js";
 import { IconManager } from "../../components/IconManager.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import { StatusBar } from "../../components/StatusBar.js";
-import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import "../explorer/explorer.css"; // Reuse explorer styles
+
+// Extracted modules
+import { ZenSidebar } from "./components/ZenSidebar.js";
+import { renderFileIcon } from "./components/FileIconRenderer.js";
+import { NavigationHistory } from "./NavigationHistory.js";
+import { FileOperations } from "./FileOperations.js";
+import { MenuBarBuilder } from "./MenuBarBuilder.js";
+import { joinPath, getParentPath, getPathName } from "./utils/PathUtils.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -24,8 +31,8 @@ export class ZenExplorerApp extends Application {
     constructor(config) {
         super(config);
         this.currentPath = "/";
-        this.history = [];
-        this.historyIndex = -1;
+        this.navHistory = new NavigationHistory();
+        this.fileOps = new FileOperations(this);
     }
 
     async _createWindow() {
@@ -45,8 +52,7 @@ export class ZenExplorerApp extends Application {
         this.win = win;
 
         // 2a. Setup MenuBar
-        this.menuBar = this._createMenuBar();
-        win.setMenuBar(this.menuBar);
+        this._updateMenuBar();
 
         // 3. Toolbar / Address Bar
         this.addressBar = new AddressBar({
@@ -60,39 +66,41 @@ export class ZenExplorerApp extends Application {
         content.style.height = "calc(100% - 60px)"; // Adjust for bars
         this.content = content;
 
-        // Sidebar
-        const sidebar = document.createElement("div");
-        sidebar.className = "explorer-sidebar";
-        // Reuse the bitmap from explorer
-        sidebar.style.backgroundImage = `url(${new URL("../../assets/img/wvleft.bmp", import.meta.url).href})`;
-        sidebar.style.backgroundRepeat = "no-repeat";
+        // 4a. Sidebar
+        this.sidebar = new ZenSidebar();
+        content.appendChild(this.sidebar.element);
 
-        content.appendChild(sidebar);
-        this.sidebarElement = sidebar;
-
-        const sidebarIcon = document.createElement("img");
-        sidebarIcon.className = "sidebar-icon";
-        sidebar.appendChild(sidebarIcon);
-        this.sidebarIcon = sidebarIcon;
-
-        const sidebarTitle = document.createElement("h1");
-        sidebarTitle.className = "sidebar-title";
-        sidebar.appendChild(sidebarTitle);
-        this.sidebarTitle = sidebarTitle;
-
-        const sidebarLine = document.createElement("img");
-        sidebarLine.src = new URL("../../assets/img/wvline.gif", import.meta.url).href;
-        sidebarLine.style.width = "100%";
-        sidebarLine.style.height = "auto";
-        sidebar.appendChild(sidebarLine);
-
-        // Icon View
+        // 4b. Icon View
         this.iconContainer = document.createElement("div");
         this.iconContainer.className = "explorer-icon-view";
         content.appendChild(this.iconContainer);
 
         win.$content.append(content);
 
+        // 4c. Resize Observer for responsive layout
+        this._setupResizeObserver();
+
+        // 5. Status Bar
+        this.statusBar = new StatusBar();
+        win.$content.append(this.statusBar.element);
+
+        // 6. Icon Manager
+        this._setupIconManager();
+
+        // 7. Event Delegation for Navigation
+        this._setupEventListeners();
+
+        // 8. Initial Navigation
+        this.navigateTo(this.currentPath);
+
+        return win;
+    }
+
+    /**
+     * Setup resize observer for responsive layout
+     * @private
+     */
+    _setupResizeObserver() {
         this.resizeObserver = new ResizeObserver((entries) => {
             for (let entry of entries) {
                 if (entry.contentRect.width <= 400) {
@@ -105,12 +113,13 @@ export class ZenExplorerApp extends Application {
             }
         });
         this.resizeObserver.observe(this.content);
+    }
 
-        // 5. Status Bar
-        this.statusBar = new StatusBar();
-        win.$content.append(this.statusBar.element);
-
-        // 6. Icon Manager
+    /**
+     * Setup icon manager with event handlers
+     * @private
+     */
+    _setupIconManager() {
         this.iconManager = new IconManager(this.iconContainer, {
             iconSelector: ".explorer-icon",
             onItemContext: (e, icon) => {
@@ -118,11 +127,11 @@ export class ZenExplorerApp extends Application {
                 const menuItems = [
                     {
                         label: "Rename",
-                        action: () => this.renameItem(path),
+                        action: () => this.fileOps.renameItem(path),
                     },
                     {
                         label: "Delete",
-                        action: () => this.deleteItems([path]),
+                        action: () => this.fileOps.deleteItems([path]),
                     },
                 ];
                 new window.ContextMenu(menuItems, e);
@@ -134,7 +143,7 @@ export class ZenExplorerApp extends Application {
                         submenu: [
                             {
                                 label: "Folder",
-                                action: () => this.createNewFolder(),
+                                action: () => this.fileOps.createNewFolder(),
                             },
                         ],
                     },
@@ -149,17 +158,20 @@ export class ZenExplorerApp extends Application {
                 }
             }
         });
+    }
 
-        // 7. Event Delegation for Navigation
+    /**
+     * Setup event listeners for navigation
+     * @private
+     */
+    _setupEventListeners() {
         this.iconContainer.addEventListener("dblclick", (e) => {
             const icon = e.target.closest(".explorer-icon");
             if (icon) {
                 const type = icon.getAttribute("data-type");
                 const name = icon.getAttribute("data-name");
                 if (type === "directory") {
-                    const newPath = this.currentPath === "/"
-                        ? `/${name}`
-                        : `${this.currentPath}/${name}`;
+                    const newPath = joinPath(this.currentPath, name);
                     this.navigateTo(newPath);
                 } else {
                     // Open file (placeholder)
@@ -167,290 +179,116 @@ export class ZenExplorerApp extends Application {
                 }
             }
         });
-
-        // 8. Initial Navigation
-        this.navigateTo(this.currentPath);
-
-        return win;
     }
 
-    async navigateTo(path) {
+    async navigateTo(path, isHistoryNav = false, skipMRU = false) {
+        if (!path) return;
+
         try {
-            // Resolve path (very basic)
-            // Note: fs.promises.readdir requires string path
             const stats = await fs.promises.stat(path);
 
             if (!stats.isDirectory()) {
                 throw new Error("Not a directory");
             }
 
+            // Update navigation history
+            if (!isHistoryNav) {
+                this.navHistory.push(path);
+            }
+
             this.currentPath = path;
-            this.addressBar.setValue(path);
 
-            const name = path === "/" ? "ZenFS" : path.split("/").pop() || path;
-            this.win.title(`ZenFS - ${name}`);
-
-            this.sidebarTitle.textContent = name;
-
-            // Icon logic
-            const icon = path === "/" ? ICONS.computer : ICONS.folderOpen;
-            this.sidebarIcon.src = icon[32];
-            this.win.setIcons(icon);
-
-            // Read contents
-            const files = await fs.promises.readdir(path);
-
-            // Clear view
-            this.iconContainer.innerHTML = "";
-            this.iconManager.clearSelection();
-
-            // Render Go Up if not root
-            if (path !== "/") {
-                // We could add a ".." icon or just rely on the toolbar (which I haven't fully built yet)
+            // Only add to MRU if not skipping (i.e., not from manual radio selection)
+            if (!skipMRU) {
+                this.navHistory.addToMRU(path);
             }
 
-            for (const file of files) {
-                const fullPath = path === "/" ? `/${file}` : `${path}/${file}`;
-                let fileStat;
-                try {
-                    fileStat = await fs.promises.stat(fullPath);
-                } catch (e) {
-                    console.warn("Could not stat", fullPath);
-                    continue;
-                }
+            // Refresh menu bar
+            this._updateMenuBar();
 
-                const isDir = fileStat.isDirectory();
+            // Update UI elements
+            this._updateUIForPath(path);
 
-                // Element Creation
-                const iconDiv = document.createElement("div");
-                iconDiv.className = "explorer-icon";
-                iconDiv.setAttribute("data-path", fullPath);
-                iconDiv.setAttribute("data-type", isDir ? "directory" : "file");
-                iconDiv.setAttribute("data-name", file);
-
-                const iconInner = document.createElement("div");
-                iconInner.className = "icon";
-
-                const iconWrapper = document.createElement("div");
-                iconWrapper.className = "icon-wrapper";
-
-                const iconImg = document.createElement("img");
-                iconImg.src = isDir ? ICONS.folderClosed[32] : ICONS.fileGeneric[32]; // Basic icons
-                iconImg.draggable = false;
-                iconWrapper.appendChild(iconImg);
-
-                iconInner.appendChild(iconWrapper);
-
-                const label = document.createElement("div");
-                label.className = "icon-label";
-                label.textContent = file;
-
-                iconDiv.appendChild(iconInner);
-                iconDiv.appendChild(label);
-
-                this.iconManager.configureIcon(iconDiv);
-                this.iconContainer.appendChild(iconDiv);
-            }
-
-            this.statusBar.setText(`${files.length} object(s)`);
+            // Read and render directory contents
+            await this._renderDirectoryContents(path);
 
         } catch (err) {
             console.error("Navigation failed", err);
         }
     }
 
-    async deleteItems(paths) {
-        if (paths.length === 0) return;
+    /**
+     * Update UI elements for current path
+     * @private
+     */
+    _updateUIForPath(path) {
+        const name = getPathName(path);
+        const icon = path === "/" ? ICONS.computer : ICONS.folderOpen;
 
-        const message = paths.length === 1
-            ? `Are you sure you want to permanently delete '${paths[0].split("/").pop()}'?`
-            : `Are you sure you want to permanently delete these ${paths.length} items?`;
-
-        ShowDialogWindow({
-            title: "Confirm File Delete",
-            text: message,
-            parentWindow: this.win,
-            modal: true,
-            buttons: [
-                {
-                    label: "Yes",
-                    isDefault: true,
-                    action: async () => {
-                        try {
-                            for (const path of paths) {
-                                await fs.promises.rm(path, { recursive: true });
-                            }
-                            this.navigateTo(this.currentPath);
-                        } catch (e) {
-                            ShowDialogWindow({
-                                title: "Error Deleting File",
-                                text: `Could not delete items: ${e.message}`,
-                                buttons: [{ label: "OK" }]
-                            });
-                        }
-                    }
-                },
-                { label: "No" }
-            ]
-        });
+        this.addressBar.setValue(path);
+        this.win.title(`ZenFS - ${name}`);
+        this.sidebar.update(name, icon[32]);
+        this.win.setIcons(icon);
     }
 
-    async renameItem(fullPath) {
-        const oldName = fullPath.split("/").pop();
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = oldName;
-        input.style.width = "100%";
-        input.style.boxSizing = "border-box";
-        input.style.marginBottom = "10px";
+    /**
+     * Render directory contents
+     * @private
+     */
+    async _renderDirectoryContents(path) {
+        const files = await fs.promises.readdir(path);
 
-        // Select text on focus
-        setTimeout(() => input.select(), 100);
+        // Clear view
+        this.iconContainer.innerHTML = "";
+        this.iconManager.clearSelection();
 
-        const content = document.createElement("div");
-        content.textContent = "New name:";
-        content.appendChild(input);
+        // Render each file/folder
+        for (const file of files) {
+            const fullPath = joinPath(path, file);
+            let fileStat;
 
-        ShowDialogWindow({
-            title: "Rename",
-            content: content,
-            parentWindow: this.win,
-            modal: true,
-            buttons: [
-                {
-                    label: "OK",
-                    isDefault: true,
-                    action: async () => {
-                        const newName = input.value.trim();
-                        if (!newName || newName === oldName) return;
+            try {
+                fileStat = await fs.promises.stat(fullPath);
+            } catch (e) {
+                console.warn("Could not stat", fullPath);
+                continue;
+            }
 
-                        try {
-                            const parentPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
-                            const newPath = parentPath === "" ? `/${newName}` : `${parentPath}/${newName}`;
-                            await fs.promises.rename(fullPath, newPath);
-                            this.navigateTo(this.currentPath);
-                        } catch (e) {
-                            ShowDialogWindow({
-                                title: "Error Renaming File",
-                                text: `Cannot rename ${oldName}: ${e.message}`,
-                                buttons: [{ label: "OK" }]
-                            });
-                        }
-                    }
-                },
-                { label: "Cancel" }
-            ]
-        });
+            const isDir = fileStat.isDirectory();
+            const iconDiv = renderFileIcon(file, fullPath, isDir);
+
+            this.iconManager.configureIcon(iconDiv);
+            this.iconContainer.appendChild(iconDiv);
+        }
+
+        this.statusBar.setText(`${files.length} object(s)`);
     }
 
-    async createNewFolder() {
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = "New Folder";
-        input.style.width = "100%";
-        input.style.boxSizing = "border-box";
-        input.style.marginBottom = "10px";
-
-        // Select text on focus
-        setTimeout(() => input.select(), 100);
-
-        const content = document.createElement("div");
-        content.textContent = "Folder name:";
-        content.appendChild(input);
-
-        ShowDialogWindow({
-            title: "Create New Folder",
-            content: content,
-            parentWindow: this.win,
-            modal: true,
-            buttons: [
-                {
-                    label: "OK",
-                    isDefault: true,
-                    action: async () => {
-                        const name = input.value.trim();
-                        if (!name) return false; // Prevent closing if empty
-
-                        try {
-                            const newPath = this.currentPath === "/"
-                                ? `/${name}`
-                                : `${this.currentPath}/${name}`;
-                            await fs.promises.mkdir(newPath);
-                            this.navigateTo(this.currentPath); // Refresh
-                        } catch (e) {
-                            // Show error
-                            ShowDialogWindow({
-                                title: "Error",
-                                text: `Could not create folder: ${e.message}`,
-                                buttons: [{ label: "OK" }]
-                            });
-                        }
-                    }
-                },
-                { label: "Cancel" }
-            ]
-        });
+    goUp() {
+        if (this.currentPath === "/") return;
+        const newPath = getParentPath(this.currentPath);
+        this.navigateTo(newPath);
     }
 
+    goBack() {
+        const path = this.navHistory.goBack();
+        if (path) {
+            this.navigateTo(path, true);
+        }
+    }
 
-    _createMenuBar() {
-        return new window.MenuBar({
-            "&File": [
-                {
-                    label: "&New",
-                    submenu: [
-                        {
-                            label: "&Folder",
-                            action: () => this.createNewFolder(),
-                        },
-                    ],
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "&Delete",
-                    action: () => {
-                        const selectedPaths = [...this.iconManager.selectedIcons].map(icon => icon.getAttribute("data-path"));
-                        this.deleteItems(selectedPaths);
-                    },
-                    enabled: () => this.iconManager.selectedIcons.size > 0,
-                },
-                {
-                    label: "&Rename",
-                    action: () => {
-                        const firstSelected = [...this.iconManager.selectedIcons][0];
-                        if (firstSelected) {
-                            this.renameItem(firstSelected.getAttribute("data-path"));
-                        }
-                    },
-                    enabled: () => this.iconManager.selectedIcons.size > 0,
-                },
-                "MENU_DIVIDER",
-                {
-                    label: "&Close",
-                    action: () => this.win.close(),
-                },
-            ],
-            "&View": [
-                {
-                    label: "&Refresh",
-                    shortcutLabel: "F5",
-                    action: () => this.navigateTo(this.currentPath),
-                },
-            ],
-            "&Help": [
-                {
-                    label: "&About",
-                    action: () => {
-                        ShowDialogWindow({
-                            title: "About ZenFS",
-                            text: "ZenExplorer v0.1<br>Powered by ZenFS",
-                            modal: true,
-                            buttons: [{ label: "OK" }],
-                        });
-                    },
-                },
-            ],
-        });
+    goForward() {
+        const path = this.navHistory.goForward();
+        if (path) {
+            this.navigateTo(path, true);
+        }
+    }
+
+    _updateMenuBar() {
+        if (!this.win) return;
+        const menuBuilder = new MenuBarBuilder(this);
+        this.menuBar = menuBuilder.build();
+        this.win.setMenuBar(this.menuBar);
     }
 
     _onClose() {
