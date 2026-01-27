@@ -27,6 +27,8 @@ export class ZenExplorerApp extends Application {
         this.history = [];
         this.historyIndex = -1;
         this.mruFolders = [];
+        this.mruCounter = 0;
+        this.selectedMruId = null;
     }
 
     async _createWindow() {
@@ -174,7 +176,7 @@ export class ZenExplorerApp extends Application {
         return win;
     }
 
-    async navigateTo(path, isHistoryNav = false) {
+    async navigateTo(path, isHistoryNav = false, mruId = null) {
         if (!path) return;
 
         try {
@@ -201,7 +203,9 @@ export class ZenExplorerApp extends Application {
             this.currentPath = path;
 
             // Update MRU (Log of last 10 visits, oldest to latest)
-            this.mruFolders = [...this.mruFolders, path].slice(-10);
+            const newMruId = `mru-${this.mruCounter++}`;
+            this.mruFolders = [...this.mruFolders, { path, id: newMruId }].slice(-10);
+            this.selectedMruId = mruId || newMruId;
 
             // Refresh menu bar
             this._updateMenuBar();
@@ -475,12 +479,15 @@ export class ZenExplorerApp extends Application {
                 },
                 "MENU_DIVIDER",
                 {
-                    radioItems: this.mruFolders.map(path => ({
-                        label: path === "/" ? "ZenFS" : path.split("/").pop() || path,
-                        value: path
+                    radioItems: this.mruFolders.map(item => ({
+                        label: item.path === "/" ? "ZenFS" : item.path.split("/").pop() || item.path,
+                        value: item.id
                     })),
-                    getValue: () => this.currentPath,
-                    setValue: (path) => this.navigateTo(path)
+                    getValue: () => this.selectedMruId,
+                    setValue: (id) => {
+                        const item = this.mruFolders.find(i => i.id === id);
+                        if (item) this.navigateTo(item.path, false, id);
+                    }
                 },
                 "MENU_DIVIDER",
                 {
