@@ -2,7 +2,8 @@ import { fs } from "@zenfs/core";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { showInputDialog } from "./components/InputDialog.js";
 import { handleFileSystemError } from "./utils/ErrorHandler.js";
-import { joinPath } from "./utils/PathUtils.js";
+import { joinPath, normalizePath, getPathName } from "./utils/PathUtils.js";
+import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 /**
  * FileOperations - Handles file system operations with user interaction
@@ -11,6 +12,139 @@ import { joinPath } from "./utils/PathUtils.js";
 export class FileOperations {
     constructor(app) {
         this.app = app;
+    }
+
+    /**
+     * Cut items to clipboard
+     * @param {Array<string>} paths - Paths to cut
+     */
+    cutItems(paths) {
+        if (paths.length === 0) return;
+        ZenClipboardManager.set(paths, "cut");
+    }
+
+    /**
+     * Copy items to clipboard
+     * @param {Array<string>} paths - Paths to copy
+     */
+    copyItems(paths) {
+        if (paths.length === 0) return;
+        ZenClipboardManager.set(paths, "copy");
+    }
+
+    /**
+     * Paste items from clipboard
+     * @param {string} destinationPath - Path to paste into
+     */
+    async pasteItems(destinationPath) {
+        const { items, operation } = ZenClipboardManager.get();
+        if (items.length === 0) return;
+
+        try {
+            for (const itemPath of items) {
+                const itemName = getPathName(itemPath);
+                const targetPath = await this.getUniquePastePath(destinationPath, itemName, operation);
+
+                if (operation === "cut") {
+                    await fs.promises.rename(itemPath, targetPath);
+                } else if (operation === "copy") {
+                    await this.copyRecursive(itemPath, targetPath);
+                }
+            }
+
+            if (operation === "cut") {
+                ZenClipboardManager.clear();
+            }
+
+            this.app.navigateTo(this.app.currentPath);
+        } catch (e) {
+            handleFileSystemError(operation === "cut" ? "move" : "copy", e, "items");
+        }
+    }
+
+    /**
+     * Get a unique path for pasting to avoid collisions
+     * @private
+     */
+    async getUniquePastePath(destPath, originalName, operation) {
+        let checkPath = normalizePath(joinPath(destPath, originalName));
+        try {
+            await fs.promises.stat(checkPath);
+            // If it doesn't throw, it exists. We need a new name.
+        } catch (e) {
+            // Doesn't exist, we can use it.
+            return checkPath;
+        }
+
+        if (operation === "cut") {
+            let name = originalName;
+            let counter = 1;
+            const extensionIndex = originalName.lastIndexOf('.');
+            const hasExtension = extensionIndex > 0;
+            const baseName = hasExtension ? originalName.substring(0, extensionIndex) : originalName;
+            const ext = hasExtension ? originalName.substring(extensionIndex) : '';
+
+            while (true) {
+                name = hasExtension ? `${baseName} (${counter})${ext}` : `${originalName} (${counter})`;
+                checkPath = normalizePath(joinPath(destPath, name));
+                try {
+                    await fs.promises.stat(checkPath);
+                    counter++;
+                } catch (e) {
+                    return checkPath;
+                }
+            }
+        } else {
+            // Windows-style copy naming: "Copy of X", "Copy (2) of X", etc.
+            const copyNOfRegex = /^Copy \((\d+)\) of (.*)$/;
+            const copyOfRegex = /^Copy of (.*)$/;
+
+            let baseName = originalName;
+            let match;
+            if ((match = originalName.match(copyNOfRegex))) {
+                baseName = match[2];
+            } else if ((match = originalName.match(copyOfRegex))) {
+                baseName = match[1];
+            }
+
+            let candidateName = `Copy of ${baseName}`;
+            checkPath = normalizePath(joinPath(destPath, candidateName));
+            try {
+                await fs.promises.stat(checkPath);
+                // "Copy of X" exists, try "Copy (2) of X", "Copy (3) of X", etc.
+                let counter = 2;
+                while (true) {
+                    candidateName = `Copy (${counter}) of ${baseName}`;
+                    checkPath = normalizePath(joinPath(destPath, candidateName));
+                    try {
+                        await fs.promises.stat(checkPath);
+                        counter++;
+                    } catch (e) {
+                        return checkPath;
+                    }
+                }
+            } catch (e) {
+                return checkPath;
+            }
+        }
+    }
+
+    /**
+     * Recursively copy a file or directory
+     * @private
+     */
+    async copyRecursive(src, dest) {
+        const stats = await fs.promises.stat(src);
+        if (stats.isDirectory()) {
+            await fs.promises.mkdir(dest, { recursive: true });
+            const files = await fs.promises.readdir(src);
+            for (const file of files) {
+                await this.copyRecursive(joinPath(src, file), joinPath(dest, file));
+            }
+        } else {
+            const data = await fs.promises.readFile(src);
+            await fs.promises.writeFile(dest, data);
+        }
     }
 
     /**

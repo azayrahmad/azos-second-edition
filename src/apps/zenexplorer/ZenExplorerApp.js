@@ -14,6 +14,7 @@ import { NavigationHistory } from "./NavigationHistory.js";
 import { FileOperations } from "./FileOperations.js";
 import { MenuBarBuilder } from "./MenuBarBuilder.js";
 import { joinPath, getParentPath, getPathName } from "./utils/PathUtils.js";
+import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -90,6 +91,9 @@ export class ZenExplorerApp extends Application {
         // 7. Event Delegation for Navigation
         this._setupEventListeners();
 
+        // 7a. Clipboard listener
+        this._setupClipboardListener();
+
         // 8. Initial Navigation
         this.navigateTo(this.currentPath);
 
@@ -124,6 +128,9 @@ export class ZenExplorerApp extends Application {
             iconSelector: ".explorer-icon",
             onItemContext: (e, icon) => {
                 const path = icon.getAttribute("data-path");
+                const type = icon.getAttribute("data-type");
+                const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
+
                 const menuItems = [
                     {
                         label: "Open",
@@ -132,8 +139,22 @@ export class ZenExplorerApp extends Application {
                     },
                     "MENU_DIVIDER",
                     {
+                        label: "Cut",
+                        action: () => this.fileOps.cutItems(selectedPaths),
+                    },
+                    {
+                        label: "Copy",
+                        action: () => this.fileOps.copyItems(selectedPaths),
+                    },
+                    {
+                        label: "Paste",
+                        action: () => this.fileOps.pasteItems(path),
+                        enabled: () => !ZenClipboardManager.isEmpty() && type === "directory",
+                    },
+                    "MENU_DIVIDER",
+                    {
                         label: "Delete",
-                        action: () => this.fileOps.deleteItems([path]),
+                        action: () => this.fileOps.deleteItems(selectedPaths),
                     },
                     {
                         label: "Rename",
@@ -144,6 +165,12 @@ export class ZenExplorerApp extends Application {
             },
             onBackgroundContext: (e) => {
                 const menuItems = [
+                    {
+                        label: "Paste",
+                        action: () => this.fileOps.pasteItems(this.currentPath),
+                        enabled: () => !ZenClipboardManager.isEmpty(),
+                    },
+                    "MENU_DIVIDER",
                     {
                         label: "New",
                         submenu: [
@@ -185,6 +212,66 @@ export class ZenExplorerApp extends Application {
                 }
             }
         });
+
+        // Keyboard shortcuts
+        this.win.element.addEventListener("keydown", (e) => this.handleKeyDown(e));
+    }
+
+    /**
+     * Handle keyboard shortcuts
+     * @param {KeyboardEvent} e
+     */
+    handleKeyDown(e) {
+        if (e.ctrlKey) {
+            const selectedPaths = [...this.iconManager.selectedIcons].map(icon => icon.getAttribute("data-path"));
+            switch (e.key.toLowerCase()) {
+                case "x":
+                    this.fileOps.cutItems(selectedPaths);
+                    e.preventDefault();
+                    break;
+                case "c":
+                    this.fileOps.copyItems(selectedPaths);
+                    e.preventDefault();
+                    break;
+                case "v":
+                    this.fileOps.pasteItems(this.currentPath);
+                    e.preventDefault();
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Setup clipboard listener
+     * @private
+     */
+    _setupClipboardListener() {
+        this._clipboardHandler = () => {
+            this._updateCutIcons();
+            if (this.menuBar) {
+                this.menuBar.element.dispatchEvent(new Event("update"));
+            }
+        };
+        document.addEventListener("zen-clipboard-change", this._clipboardHandler);
+    }
+
+    /**
+     * Update icon styles based on clipboard state
+     * @private
+     */
+    _updateCutIcons() {
+        const { items, operation } = ZenClipboardManager.get();
+        const cutPaths = operation === "cut" ? new Set(items) : new Set();
+
+        const icons = this.iconContainer.querySelectorAll(".explorer-icon");
+        icons.forEach(icon => {
+            const path = icon.getAttribute("data-path");
+            if (cutPaths.has(path)) {
+                icon.classList.add("cut");
+            } else {
+                icon.classList.remove("cut");
+            }
+        });
     }
 
     async navigateTo(path, isHistoryNav = false, skipMRU = false) {
@@ -220,6 +307,9 @@ export class ZenExplorerApp extends Application {
 
             // Read and render directory contents
             await this._renderDirectoryContents(path);
+
+            // Update cut icons
+            this._updateCutIcons();
 
         } catch (err) {
             console.error("Navigation failed", err);
@@ -303,6 +393,9 @@ export class ZenExplorerApp extends Application {
     _onClose() {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
+        }
+        if (this._clipboardHandler) {
+            document.removeEventListener("zen-clipboard-change", this._clipboardHandler);
         }
     }
 }
