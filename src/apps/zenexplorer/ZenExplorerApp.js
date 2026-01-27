@@ -26,6 +26,7 @@ export class ZenExplorerApp extends Application {
         this.currentPath = "/";
         this.history = [];
         this.historyIndex = -1;
+        this.mruFolders = [];
     }
 
     async _createWindow() {
@@ -45,8 +46,7 @@ export class ZenExplorerApp extends Application {
         this.win = win;
 
         // 2a. Setup MenuBar
-        this.menuBar = this._createMenuBar();
-        win.setMenuBar(this.menuBar);
+        this._updateMenuBar();
 
         // 3. Toolbar / Address Bar
         this.addressBar = new AddressBar({
@@ -174,7 +174,9 @@ export class ZenExplorerApp extends Application {
         return win;
     }
 
-    async navigateTo(path) {
+    async navigateTo(path, isHistoryNav = false) {
+        if (!path) return;
+
         try {
             // Resolve path (very basic)
             // Note: fs.promises.readdir requires string path
@@ -184,7 +186,26 @@ export class ZenExplorerApp extends Application {
                 throw new Error("Not a directory");
             }
 
+            if (!isHistoryNav) {
+                // If we are at some point in history and not at the end, nuke forward history
+                if (this.historyIndex < this.history.length - 1) {
+                    this.history.splice(this.historyIndex + 1);
+                }
+                // Avoid pushing duplicate consecutive paths
+                if (this.history[this.historyIndex] !== path) {
+                    this.history.push(path);
+                    this.historyIndex = this.history.length - 1;
+                }
+            }
+
             this.currentPath = path;
+
+            // Update MRU (Unique, top 10, current at top)
+            this.mruFolders = [path, ...this.mruFolders.filter(p => p !== path)].slice(0, 10);
+
+            // Refresh menu bar
+            this._updateMenuBar();
+
             this.addressBar.setValue(path);
 
             const name = path === "/" ? "ZenFS" : path.split("/").pop() || path;
@@ -393,6 +414,34 @@ export class ZenExplorerApp extends Application {
     }
 
 
+    goUp() {
+        if (this.currentPath === "/") return;
+        const parts = this.currentPath.split("/").filter(Boolean);
+        parts.pop();
+        const newPath = "/" + parts.join("/");
+        this.navigateTo(newPath);
+    }
+
+    goBack() {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            this.navigateTo(this.history[this.historyIndex], true);
+        }
+    }
+
+    goForward() {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            this.navigateTo(this.history[this.historyIndex], true);
+        }
+    }
+
+    _updateMenuBar() {
+        if (!this.win) return;
+        this.menuBar = this._createMenuBar();
+        this.win.setMenuBar(this.menuBar);
+    }
+
     _createMenuBar() {
         return new window.MenuBar({
             "&File": [
@@ -426,6 +475,15 @@ export class ZenExplorerApp extends Application {
                 },
                 "MENU_DIVIDER",
                 {
+                    radioItems: this.mruFolders.map(path => ({
+                        label: path === "/" ? "ZenFS" : path.split("/").pop() || path,
+                        value: path
+                    })),
+                    getValue: () => this.currentPath,
+                    setValue: (path) => this.navigateTo(path)
+                },
+                "MENU_DIVIDER",
+                {
                     label: "&Close",
                     action: () => this.win.close(),
                 },
@@ -435,6 +493,23 @@ export class ZenExplorerApp extends Application {
                     label: "&Refresh",
                     shortcutLabel: "F5",
                     action: () => this.navigateTo(this.currentPath),
+                },
+            ],
+            "&Go": [
+                {
+                    label: "&Back",
+                    action: () => this.goBack(),
+                    enabled: () => this.historyIndex > 0,
+                },
+                {
+                    label: "&Forward",
+                    action: () => this.goForward(),
+                    enabled: () => this.historyIndex < this.history.length - 1,
+                },
+                {
+                    label: "&Up One Level",
+                    action: () => this.goUp(),
+                    enabled: () => this.currentPath !== "/",
                 },
             ],
             "&Help": [
