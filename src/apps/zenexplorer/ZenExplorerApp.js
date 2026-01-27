@@ -200,8 +200,8 @@ export class ZenExplorerApp extends Application {
 
             this.currentPath = path;
 
-            // Update MRU (Unique, top 10, current at top)
-            this.mruFolders = [path, ...this.mruFolders.filter(p => p !== path)].slice(0, 10);
+            // Update MRU (Log of last 10 visits, oldest to latest)
+            this.mruFolders = [...this.mruFolders, path].slice(-10);
 
             // Refresh menu bar
             this._updateMenuBar();
