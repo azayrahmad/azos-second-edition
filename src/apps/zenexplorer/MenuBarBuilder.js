@@ -1,5 +1,6 @@
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getPathName } from "./utils/PathUtils.js";
+import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 /**
  * MenuBarBuilder - Constructs menu bar for ZenExplorer
@@ -17,10 +18,46 @@ export class MenuBarBuilder {
     build() {
         return new window.MenuBar({
             "&File": this._getFileMenuItems(),
+            "&Edit": this._getEditMenuItems(),
             "&View": this._getViewMenuItems(),
             "&Go": this._getGoMenuItems(),
             "&Help": this._getHelpMenuItems()
         });
+    }
+
+    /**
+     * Get Edit menu items
+     * @private
+     */
+    _getEditMenuItems() {
+        return [
+            {
+                label: "Cu&t",
+                shortcutLabel: "Ctrl+X",
+                action: () => {
+                    const selectedPaths = [...this.app.iconManager.selectedIcons]
+                        .map(icon => icon.getAttribute("data-path"));
+                    this.app.fileOps.cutItems(selectedPaths);
+                },
+                enabled: () => this.app.iconManager.selectedIcons.size > 0,
+            },
+            {
+                label: "&Copy",
+                shortcutLabel: "Ctrl+C",
+                action: () => {
+                    const selectedPaths = [...this.app.iconManager.selectedIcons]
+                        .map(icon => icon.getAttribute("data-path"));
+                    this.app.fileOps.copyItems(selectedPaths);
+                },
+                enabled: () => this.app.iconManager.selectedIcons.size > 0,
+            },
+            {
+                label: "&Paste",
+                shortcutLabel: "Ctrl+V",
+                action: () => this.app.fileOps.pasteItems(this.app.currentPath),
+                enabled: () => !ZenClipboardManager.isEmpty(),
+            },
+        ];
     }
 
     /**

@@ -80,6 +80,10 @@
     font-size: var(--font-size-menu);
 }
 
+.explorer-icon.cut {
+    opacity: 0.5;
+}
+
 .explorer-icon .highlighted-icon {
     filter: var(--icon-filter);
 }
