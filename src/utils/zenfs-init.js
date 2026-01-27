@@ -10,7 +10,7 @@ export async function initFileSystem() {
         await configure({
             mounts: {
                 "/": InMemory,
-                "/c": {
+                "/C:": {
                     backend: IndexedDB,
                     name: "win98-c-drive",
                 },

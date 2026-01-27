@@ -9,7 +9,7 @@
  * @returns {string} Joined path
  */
 export function joinPath(base, name) {
-    return base === "/" ? `/${name}` : `${base}/${name}`;
+    return base === "/" ? `${name}` : `${base}/${name}`;
 }
 
 /**
@@ -27,11 +27,11 @@ export function getParentPath(path) {
 /**
  * Extract folder/file name from path
  * @param {string} path - Full path
- * @param {string} rootName - Name to use for root path (default: "ZenFS")
+ * @param {string} rootName - Name to use for root path (default: "My Computer")
  * @returns {string} Path name
  */
-export function getPathName(path, rootName = "ZenFS") {
-    return path === "/" ? rootName : path.split("/").pop() || path;
+export function getPathName(path, rootName = "My Computer") {
+    return path === "/" || path === "My Computer" ? rootName : path.split("/").pop() || path;
 }
 
 /**

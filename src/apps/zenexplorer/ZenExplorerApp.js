@@ -185,6 +185,9 @@ export class ZenExplorerApp extends Application {
         if (!path) return;
 
         try {
+            if (path === "My Computer") {
+                path = "/";
+            }
             const stats = await fs.promises.stat(path);
 
             if (!stats.isDirectory()) {
@@ -225,8 +228,8 @@ export class ZenExplorerApp extends Application {
         const name = getPathName(path);
         const icon = path === "/" ? ICONS.computer : ICONS.folderOpen;
 
-        this.addressBar.setValue(path);
-        this.win.title(`ZenFS - ${name}`);
+        this.addressBar.setValue(path === "/" ? "My Computer" : path);
+        this.win.title(name);
         this.sidebar.update(name, icon[32]);
         this.win.setIcons(icon);
     }
