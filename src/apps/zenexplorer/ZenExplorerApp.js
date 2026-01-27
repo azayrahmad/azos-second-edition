@@ -181,7 +181,7 @@ export class ZenExplorerApp extends Application {
         });
     }
 
-    async navigateTo(path, isHistoryNav = false) {
+    async navigateTo(path, isHistoryNav = false, skipMRU = false) {
         if (!path) return;
 
         try {
@@ -197,7 +197,11 @@ export class ZenExplorerApp extends Application {
             }
 
             this.currentPath = path;
-            this.navHistory.addToMRU(path);
+
+            // Only add to MRU if not skipping (i.e., not from manual radio selection)
+            if (!skipMRU) {
+                this.navHistory.addToMRU(path);
+            }
 
             // Refresh menu bar
             this._updateMenuBar();

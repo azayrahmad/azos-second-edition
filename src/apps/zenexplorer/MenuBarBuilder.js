@@ -60,12 +60,24 @@ export class MenuBarBuilder {
             },
             "MENU_DIVIDER",
             {
-                radioItems: this.app.navHistory.getMRUFolders().map(path => ({
-                    label: getPathName(path),
-                    value: path
+                radioItems: this.app.navHistory.getMRUFolders().map(entry => ({
+                    label: getPathName(entry.path),
+                    value: entry.id // Use unique ID as value instead of path
                 })),
-                getValue: () => this.app.currentPath,
-                setValue: (path) => this.app.navigateTo(path)
+                getValue: () => {
+                    // Return the ID of the selected entry
+                    return this.app.navHistory.getSelectedMRUId();
+                },
+                setValue: (id) => {
+                    // Find the entry by ID
+                    const entry = this.app.navHistory.getMRUFolders().find(e => e.id === id);
+                    if (entry) {
+                        // Mark this specific entry as manually selected
+                        this.app.navHistory.markAsManuallySelectedById(id);
+                        // Navigate without adding to MRU (pass true for skipMRU)
+                        this.app.navigateTo(entry.path, false, true);
+                    }
+                }
             },
             "MENU_DIVIDER",
             {
