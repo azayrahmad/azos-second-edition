@@ -30,6 +30,17 @@ export class MenuBarBuilder {
     _getFileMenuItems() {
         return [
             {
+                label: "&Open",
+                action: () => {
+                    const selectedPaths = [...this.app.iconManager.selectedIcons]
+                        .map(icon => icon.getAttribute("data-path"));
+                    this.app.navigateTo(selectedPaths[0]);
+                },
+                enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
+                default: true,
+            },
+            "MENU_DIVIDER",
+            {
                 label: "&New",
                 submenu: [
                     {
@@ -46,7 +57,7 @@ export class MenuBarBuilder {
                         .map(icon => icon.getAttribute("data-path"));
                     this.app.fileOps.deleteItems(selectedPaths);
                 },
-                enabled: () => this.app.iconManager.selectedIcons.size > 0,
+                enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
             },
             {
                 label: "&Rename",
@@ -56,7 +67,7 @@ export class MenuBarBuilder {
                         this.app.fileOps.renameItem(firstSelected.getAttribute("data-path"));
                     }
                 },
-                enabled: () => this.app.iconManager.selectedIcons.size > 0,
+                enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
             },
             "MENU_DIVIDER",
             {
