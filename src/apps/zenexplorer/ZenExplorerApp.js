@@ -45,8 +45,8 @@ export class ZenExplorerApp extends Application {
         this.win = win;
 
         // 2a. Setup MenuBar
-        const menuBar = this._createMenuBar();
-        win.setMenuBar(menuBar);
+        this.menuBar = this._createMenuBar();
+        win.setMenuBar(this.menuBar);
 
         // 3. Toolbar / Address Bar
         this.addressBar = new AddressBar({
@@ -114,8 +114,18 @@ export class ZenExplorerApp extends Application {
         this.iconManager = new IconManager(this.iconContainer, {
             iconSelector: ".explorer-icon",
             onItemContext: (e, icon) => {
-                // Placeholder for context menu
-                console.log("Context menu for", icon);
+                const path = icon.getAttribute("data-path");
+                const menuItems = [
+                    {
+                        label: "Rename",
+                        action: () => this.renameItem(path),
+                    },
+                    {
+                        label: "Delete",
+                        action: () => this.deleteItems([path]),
+                    },
+                ];
+                new window.ContextMenu(menuItems, e);
             },
             onBackgroundContext: (e) => {
                 const menuItems = [
@@ -134,6 +144,9 @@ export class ZenExplorerApp extends Application {
             onSelectionChange: () => {
                 const count = this.iconManager.selectedIcons.size;
                 this.statusBar.setText(`${count} object(s) selected`);
+                if (this.menuBar) {
+                    this.menuBar.element.dispatchEvent(new Event("update"));
+                }
             }
         });
 
@@ -211,18 +224,31 @@ export class ZenExplorerApp extends Application {
                 // Element Creation
                 const iconDiv = document.createElement("div");
                 iconDiv.className = "explorer-icon";
+                iconDiv.setAttribute("data-path", fullPath);
                 iconDiv.setAttribute("data-type", isDir ? "directory" : "file");
                 iconDiv.setAttribute("data-name", file);
 
-                const img = document.createElement("img");
-                img.src = isDir ? ICONS.folderClosed[32] : ICONS.fileGeneric[32]; // Basic icons
-                iconDiv.appendChild(img);
+                const iconInner = document.createElement("div");
+                iconInner.className = "icon";
+
+                const iconWrapper = document.createElement("div");
+                iconWrapper.className = "icon-wrapper";
+
+                const iconImg = document.createElement("img");
+                iconImg.src = isDir ? ICONS.folderClosed[32] : ICONS.fileGeneric[32]; // Basic icons
+                iconImg.draggable = false;
+                iconWrapper.appendChild(iconImg);
+
+                iconInner.appendChild(iconWrapper);
 
                 const label = document.createElement("div");
                 label.className = "icon-label";
                 label.textContent = file;
+
+                iconDiv.appendChild(iconInner);
                 iconDiv.appendChild(label);
 
+                this.iconManager.configureIcon(iconDiv);
                 this.iconContainer.appendChild(iconDiv);
             }
 
@@ -231,6 +257,90 @@ export class ZenExplorerApp extends Application {
         } catch (err) {
             console.error("Navigation failed", err);
         }
+    }
+
+    async deleteItems(paths) {
+        if (paths.length === 0) return;
+
+        const message = paths.length === 1
+            ? `Are you sure you want to permanently delete '${paths[0].split("/").pop()}'?`
+            : `Are you sure you want to permanently delete these ${paths.length} items?`;
+
+        ShowDialogWindow({
+            title: "Confirm File Delete",
+            text: message,
+            parentWindow: this.win,
+            modal: true,
+            buttons: [
+                {
+                    label: "Yes",
+                    isDefault: true,
+                    action: async () => {
+                        try {
+                            for (const path of paths) {
+                                await fs.promises.rm(path, { recursive: true });
+                            }
+                            this.navigateTo(this.currentPath);
+                        } catch (e) {
+                            ShowDialogWindow({
+                                title: "Error Deleting File",
+                                text: `Could not delete items: ${e.message}`,
+                                buttons: [{ label: "OK" }]
+                            });
+                        }
+                    }
+                },
+                { label: "No" }
+            ]
+        });
+    }
+
+    async renameItem(fullPath) {
+        const oldName = fullPath.split("/").pop();
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = oldName;
+        input.style.width = "100%";
+        input.style.boxSizing = "border-box";
+        input.style.marginBottom = "10px";
+
+        // Select text on focus
+        setTimeout(() => input.select(), 100);
+
+        const content = document.createElement("div");
+        content.textContent = "New name:";
+        content.appendChild(input);
+
+        ShowDialogWindow({
+            title: "Rename",
+            content: content,
+            parentWindow: this.win,
+            modal: true,
+            buttons: [
+                {
+                    label: "OK",
+                    isDefault: true,
+                    action: async () => {
+                        const newName = input.value.trim();
+                        if (!newName || newName === oldName) return;
+
+                        try {
+                            const parentPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
+                            const newPath = parentPath === "" ? `/${newName}` : `${parentPath}/${newName}`;
+                            await fs.promises.rename(fullPath, newPath);
+                            this.navigateTo(this.currentPath);
+                        } catch (e) {
+                            ShowDialogWindow({
+                                title: "Error Renaming File",
+                                text: `Cannot rename ${oldName}: ${e.message}`,
+                                buttons: [{ label: "OK" }]
+                            });
+                        }
+                    }
+                },
+                { label: "Cancel" }
+            ]
+        });
     }
 
     async createNewFolder() {
@@ -294,6 +404,25 @@ export class ZenExplorerApp extends Application {
                             action: () => this.createNewFolder(),
                         },
                     ],
+                },
+                "MENU_DIVIDER",
+                {
+                    label: "&Delete",
+                    action: () => {
+                        const selectedPaths = [...this.iconManager.selectedIcons].map(icon => icon.getAttribute("data-path"));
+                        this.deleteItems(selectedPaths);
+                    },
+                    enabled: () => this.iconManager.selectedIcons.size > 0,
+                },
+                {
+                    label: "&Rename",
+                    action: () => {
+                        const firstSelected = [...this.iconManager.selectedIcons][0];
+                        if (firstSelected) {
+                            this.renameItem(firstSelected.getAttribute("data-path"));
+                        }
+                    },
+                    enabled: () => this.iconManager.selectedIcons.size > 0,
                 },
                 "MENU_DIVIDER",
                 {
