@@ -1,6 +1,8 @@
 import { Application } from "../Application.js";
-import { fs } from "@zenfs/core";
+import { fs, mount, umount, mounts } from "@zenfs/core";
+import { WebAccess } from "@zenfs/dom";
 import { initFileSystem } from "../../utils/zenfs-init.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { ICONS } from "../../config/icons.js";
 import { getAssociation } from "../../utils/directory.js";
 import { launchApp } from "../../utils/appManager.js";
@@ -102,6 +104,9 @@ export class ZenExplorerApp extends Application {
         // 7a. Clipboard listener
         this._setupClipboardListener();
 
+        // 7b. Floppy listener
+        this._setupFloppyListener();
+
         // 8. Initial Navigation
         this.navigateTo(this.currentPath);
 
@@ -139,6 +144,8 @@ export class ZenExplorerApp extends Application {
                 const type = icon.getAttribute("data-type");
                 const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
                 const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+                const isFloppy = path === "/A:";
+                const isFloppyMounted = mounts.has("/A:");
 
                 const menuItems = [
                     {
@@ -152,6 +159,23 @@ export class ZenExplorerApp extends Application {
                         },
                         default: true,
                     },
+                ];
+
+                if (isFloppy) {
+                    if (isFloppyMounted) {
+                        menuItems.push({
+                            label: "Eject",
+                            action: () => this.ejectFloppy(),
+                        });
+                    } else {
+                        menuItems.push({
+                            label: "Insert",
+                            action: () => this.insertFloppy(),
+                        });
+                    }
+                }
+
+                menuItems.push(
                     "MENU_DIVIDER",
                     {
                         label: "Cut",
@@ -183,7 +207,7 @@ export class ZenExplorerApp extends Application {
                         label: "Properties",
                         action: () => PropertiesManager.show(selectedPaths),
                     },
-                ];
+                );
                 new window.ContextMenu(menuItems, e);
             },
             onBackgroundContext: (e) => {
@@ -373,6 +397,12 @@ export class ZenExplorerApp extends Application {
                 normalizedPath = "/" + normalizedPath;
             }
 
+            // Check if floppy is mounted when accessing A:
+            if (normalizedPath.startsWith("/A:") && !mounts.has("/A:")) {
+                this.showFloppyDialog();
+                return;
+            }
+
             const stats = await fs.promises.stat(normalizedPath);
 
             if (!stats.isDirectory()) {
@@ -414,7 +444,12 @@ export class ZenExplorerApp extends Application {
      */
     _updateUIForPath(path) {
         const name = getDisplayName(path);
-        const icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
+        let icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
+
+        // Handle Floppy icon
+        if (path === "/A:") {
+            icon = ICONS.disketteDrive;
+        }
 
         this.addressBar.setValue(formatPathForDisplay(path));
         this.win.title(name);
@@ -482,12 +517,71 @@ export class ZenExplorerApp extends Application {
         this.win.setMenuBar(this.menuBar);
     }
 
+    /**
+     * Show dialog for unmounted floppy
+     */
+    showFloppyDialog() {
+        ShowDialogWindow({
+            title: "3½ Floppy (A:)",
+            text: "Insert floppy disk into drive A:\\",
+            buttons: [
+                {
+                    label: "OK",
+                    action: () => this.insertFloppy(),
+                },
+                { label: "Cancel" },
+            ],
+        });
+    }
+
+    /**
+     * Insert floppy using WebAccess
+     */
+    async insertFloppy() {
+        try {
+            const handle = await window.showDirectoryPicker();
+            const floppyFs = await WebAccess.create({ handle });
+            mount("/A:", floppyFs);
+            document.dispatchEvent(new CustomEvent("zen-floppy-change"));
+        } catch (err) {
+            console.error("Failed to mount floppy:", err);
+        }
+    }
+
+    /**
+     * Eject floppy
+     */
+    ejectFloppy() {
+        if (mounts.has("/A:")) {
+            umount("/A:");
+            document.dispatchEvent(new CustomEvent("zen-floppy-change"));
+        }
+    }
+
+    /**
+     * Setup floppy change listener
+     * @private
+     */
+    _setupFloppyListener() {
+        this._floppyHandler = () => {
+            if (this.currentPath.startsWith("/A:") && !mounts.has("/A:")) {
+                this.navigateTo("/");
+            } else {
+                this.navigateTo(this.currentPath, true, true);
+            }
+        };
+        document.addEventListener("zen-floppy-change", this._floppyHandler);
+    }
+
     _onClose() {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
         }
         if (this._clipboardHandler) {
             document.removeEventListener("zen-clipboard-change", this._clipboardHandler);
+        }
+        if (this._floppyHandler) {
+            document.removeEventListener("zen-floppy-change", this._floppyHandler);
         }
     }
 }

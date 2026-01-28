@@ -14,6 +14,9 @@ import { getDisplayName } from "../utils/PathUtils.js";
  */
 export function getIconForFile(fileName, isDir) {
     if (isDir) {
+        if (fileName.match(/^A:$/i)) {
+            return ICONS.disketteDrive[32];
+        }
         if (fileName.match(/^[A-Z]:$/i)) {
             return ICONS.drive[32];
         }
