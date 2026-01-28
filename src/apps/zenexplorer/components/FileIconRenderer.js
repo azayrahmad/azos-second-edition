@@ -1,4 +1,5 @@
 import { ICONS } from "../../../config/icons.js";
+import { getAssociation } from "../../../utils/directory.js";
 import { getDisplayName } from "../utils/PathUtils.js";
 
 /**
@@ -19,15 +20,8 @@ export function getIconForFile(fileName, isDir) {
         return ICONS.folderClosed[32];
     }
 
-    // Future: Add extension-based icon selection
-    // const ext = fileName.split('.').pop().toLowerCase();
-    // switch(ext) {
-    //     case 'txt': return ICONS.fileText[32];
-    //     case 'jpg': case 'png': return ICONS.fileImage[32];
-    //     default: return ICONS.fileGeneric[32];
-    // }
-
-    return ICONS.fileGeneric[32];
+    const association = getAssociation(fileName);
+    return association.icon[32];
 }
 
 /**

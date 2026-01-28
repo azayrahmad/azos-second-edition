@@ -83,8 +83,18 @@ export class MenuBarBuilder {
       {
         label: "&Open",
         action: () => {
-          this.app.navigateTo(selectedPaths[0]);
-        },
+                    const selectedPaths = [...this.app.iconManager.selectedIcons]
+                        .map(icon => icon.getAttribute("data-path"));
+                    const firstSelected = [...this.app.iconManager.selectedIcons][0];
+                    if (firstSelected) {
+                        const type = firstSelected.getAttribute("data-type");
+                        if (type === "directory") {
+                            this.app.navigateTo(selectedPaths[0]);
+                        } else {
+                            this.app.openFile(firstSelected);
+                        }
+                    }
+                },
         enabled: () => selectedPaths.length > 0,
         default: true,
       },
@@ -98,6 +108,12 @@ export class MenuBarBuilder {
             action: () => this.app.fileOps.createNewFolder(),
             enabled: () => !isRoot,
           },
+          {
+                        label: "&Text Document",
+                        action: () => this.app.fileOps.createNewTextFile(),
+            
+            enabled: () => !isRoot,
+                    },
         ],
       },
       "MENU_DIVIDER",
