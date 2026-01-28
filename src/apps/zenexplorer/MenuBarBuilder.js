@@ -1,5 +1,5 @@
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
-import { getPathName } from "./utils/PathUtils.js";
+import { getDisplayName, getParentPath } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 /**
@@ -30,32 +30,34 @@ export class MenuBarBuilder {
      * @private
      */
     _getEditMenuItems() {
+        const selectedIcons = this.app.iconManager?.selectedIcons || new Set();
+        const selectedPaths = [...selectedIcons]
+            .map(icon => icon.getAttribute("data-path"));
+        const containsRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+        const isRoot = this.app.currentPath === "/";
+
         return [
             {
                 label: "Cu&t",
                 shortcutLabel: "Ctrl+X",
                 action: () => {
-                    const selectedPaths = [...this.app.iconManager.selectedIcons]
-                        .map(icon => icon.getAttribute("data-path"));
                     this.app.fileOps.cutItems(selectedPaths);
                 },
-                enabled: () => this.app.iconManager.selectedIcons.size > 0,
+                enabled: () => selectedPaths.length > 0 && !containsRootItem,
             },
             {
                 label: "&Copy",
                 shortcutLabel: "Ctrl+C",
                 action: () => {
-                    const selectedPaths = [...this.app.iconManager.selectedIcons]
-                        .map(icon => icon.getAttribute("data-path"));
                     this.app.fileOps.copyItems(selectedPaths);
                 },
-                enabled: () => this.app.iconManager.selectedIcons.size > 0,
+                enabled: () => selectedPaths.length > 0,
             },
             {
                 label: "&Paste",
                 shortcutLabel: "Ctrl+V",
                 action: () => this.app.fileOps.pasteItems(this.app.currentPath),
-                enabled: () => !ZenClipboardManager.isEmpty(),
+                enabled: () => !ZenClipboardManager.isEmpty() && !isRoot,
             },
         ];
     }
@@ -65,24 +67,30 @@ export class MenuBarBuilder {
      * @private
      */
     _getFileMenuItems() {
+        const selectedIcons = this.app.iconManager?.selectedIcons || new Set();
+        const selectedPaths = [...selectedIcons]
+            .map(icon => icon.getAttribute("data-path"));
+        const containsRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+        const isRoot = this.app.currentPath === "/";
+
         return [
             {
                 label: "&Open",
                 action: () => {
-                    const selectedPaths = [...this.app.iconManager.selectedIcons]
-                        .map(icon => icon.getAttribute("data-path"));
                     this.app.navigateTo(selectedPaths[0]);
                 },
-                enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
+                enabled: () => selectedPaths.length > 0,
                 default: true,
             },
             "MENU_DIVIDER",
             {
                 label: "&New",
+                enabled: () => !isRoot,
                 submenu: [
                     {
                         label: "&Folder",
                         action: () => this.app.fileOps.createNewFolder(),
+                        enabled: () => !isRoot,
                     },
                 ],
             },
@@ -90,11 +98,9 @@ export class MenuBarBuilder {
             {
                 label: "&Delete",
                 action: () => {
-                    const selectedPaths = [...this.app.iconManager.selectedIcons]
-                        .map(icon => icon.getAttribute("data-path"));
                     this.app.fileOps.deleteItems(selectedPaths);
                 },
-                enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
+                enabled: () => selectedPaths.length > 0 && !containsRootItem,
             },
             {
                 label: "&Rename",
@@ -104,12 +110,12 @@ export class MenuBarBuilder {
                         this.app.fileOps.renameItem(firstSelected.getAttribute("data-path"));
                     }
                 },
-                enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
+                enabled: () => selectedPaths.length === 1 && !containsRootItem,
             },
             "MENU_DIVIDER",
             {
                 radioItems: this.app.navHistory.getMRUFolders().map(entry => ({
-                    label: getPathName(entry.path),
+                    label: getDisplayName(entry.path),
                     value: entry.id // Use unique ID as value instead of path
                 })),
                 getValue: () => {

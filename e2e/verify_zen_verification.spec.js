@@ -9,6 +9,9 @@ test('ZenExplorer folder management', async ({ page }) => {
     const zenWin = page.locator('#zenexplorer');
     await expect(zenWin).toBeVisible();
 
+    // Navigate to C:
+    await zenWin.locator('.explorer-icon').filter({ hasText: '(C:)' }).dblclick();
+
     // Create a folder
     await zenWin.locator('.explorer-icon-view').click({ button: 'right' });
     await page.locator('.menu-item:has-text("New")').click();
