@@ -1,5 +1,6 @@
 import { ICONS } from "../../../config/icons.js";
 import { getAssociation } from "../../../utils/directory.js";
+import { getDisplayName } from "../utils/PathUtils.js";
 
 /**
  * FileIconRenderer - Handles rendering of file/folder icons in ZenExplorer
@@ -13,6 +14,9 @@ import { getAssociation } from "../../../utils/directory.js";
  */
 export function getIconForFile(fileName, isDir) {
     if (isDir) {
+        if (fileName.match(/^[A-Z]:$/i)) {
+            return ICONS.drive[32];
+        }
         return ICONS.folderClosed[32];
     }
 
@@ -49,7 +53,7 @@ export function renderFileIcon(fileName, fullPath, isDir) {
 
     const label = document.createElement("div");
     label.className = "icon-label";
-    label.textContent = fileName;
+    label.textContent = getDisplayName(fileName);
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(label);

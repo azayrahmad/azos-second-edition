@@ -15,7 +15,7 @@ import { renderFileIcon } from "./components/FileIconRenderer.js";
 import { NavigationHistory } from "./NavigationHistory.js";
 import { FileOperations } from "./FileOperations.js";
 import { MenuBarBuilder } from "./MenuBarBuilder.js";
-import { joinPath, getParentPath, getPathName } from "./utils/PathUtils.js";
+import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
@@ -132,6 +132,7 @@ export class ZenExplorerApp extends Application {
                 const path = icon.getAttribute("data-path");
                 const type = icon.getAttribute("data-type");
                 const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
+                const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
 
                 const menuItems = [
                     {
@@ -149,6 +150,7 @@ export class ZenExplorerApp extends Application {
                     {
                         label: "Cut",
                         action: () => this.fileOps.cutItems(selectedPaths),
+                        enabled: () => !isRootItem,
                     },
                     {
                         label: "Copy",
@@ -163,28 +165,33 @@ export class ZenExplorerApp extends Application {
                     {
                         label: "Delete",
                         action: () => this.fileOps.deleteItems(selectedPaths),
+                        enabled: () => !isRootItem,
                     },
                     {
                         label: "Rename",
                         action: () => this.fileOps.renameItem(path),
+                        enabled: () => !isRootItem && selectedPaths.length === 1,
                     },
                 ];
                 new window.ContextMenu(menuItems, e);
             },
             onBackgroundContext: (e) => {
+                const isRoot = this.currentPath === "/";
                 const menuItems = [
                     {
                         label: "Paste",
                         action: () => this.fileOps.pasteItems(this.currentPath),
-                        enabled: () => !ZenClipboardManager.isEmpty(),
+                        enabled: () => !ZenClipboardManager.isEmpty() && !isRoot,
                     },
                     "MENU_DIVIDER",
                     {
                         label: "New",
+                        enabled: () => !isRoot,
                         submenu: [
                             {
                                 label: "Folder",
                                 action: () => this.fileOps.createNewFolder(),
+                                enabled: () => !isRoot,
                             },
                             {
                                 label: "Text Document",
@@ -307,7 +314,14 @@ export class ZenExplorerApp extends Application {
             if (path === "My Computer") {
                 path = "/";
             }
-            const stats = await fs.promises.stat(path);
+
+            // Normalize path for ZenFS
+            let normalizedPath = path.replace(/\\/g, "/");
+            if (!normalizedPath.startsWith("/")) {
+                normalizedPath = "/" + normalizedPath;
+            }
+
+            const stats = await fs.promises.stat(normalizedPath);
 
             if (!stats.isDirectory()) {
                 throw new Error("Not a directory");
@@ -315,24 +329,24 @@ export class ZenExplorerApp extends Application {
 
             // Update navigation history
             if (!isHistoryNav) {
-                this.navHistory.push(path);
+                this.navHistory.push(normalizedPath);
             }
 
-            this.currentPath = path;
+            this.currentPath = normalizedPath;
 
             // Only add to MRU if not skipping (i.e., not from manual radio selection)
             if (!skipMRU) {
-                this.navHistory.addToMRU(path);
+                this.navHistory.addToMRU(normalizedPath);
             }
 
             // Refresh menu bar
             this._updateMenuBar();
 
             // Update UI elements
-            this._updateUIForPath(path);
+            this._updateUIForPath(normalizedPath);
 
             // Read and render directory contents
-            await this._renderDirectoryContents(path);
+            await this._renderDirectoryContents(normalizedPath);
 
             // Update cut icons
             this._updateCutIcons();
@@ -347,10 +361,10 @@ export class ZenExplorerApp extends Application {
      * @private
      */
     _updateUIForPath(path) {
-        const name = getPathName(path);
-        const icon = path === "/" ? ICONS.computer : ICONS.folderOpen;
+        const name = getDisplayName(path);
+        const icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
 
-        this.addressBar.setValue(path === "/" ? "My Computer" : path);
+        this.addressBar.setValue(formatPathForDisplay(path));
         this.win.title(name);
         this.sidebar.update(name, icon[32]);
         this.win.setIcons(icon);
