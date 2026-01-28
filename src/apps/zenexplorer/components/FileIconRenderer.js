@@ -34,6 +34,7 @@ export function getIconForFile(fileName, isDir) {
 export function renderFileIcon(fileName, fullPath, isDir) {
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
+    iconDiv.setAttribute("tabindex", "0");
     iconDiv.setAttribute("data-path", fullPath);
     iconDiv.setAttribute("data-type", isDir ? "directory" : "file");
     iconDiv.setAttribute("data-name", fileName);
