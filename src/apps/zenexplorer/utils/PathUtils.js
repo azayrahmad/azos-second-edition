@@ -1,4 +1,5 @@
 import { ZenFloppyManager } from "./ZenFloppyManager.js";
+import { ZenCDManager } from "./ZenCDManager.js";
 
 /**
  * Utility functions for path manipulation in ZenExplorer
@@ -91,6 +92,10 @@ export function getDisplayName(path) {
     if (name && name.match(/^A:$/i)) {
         const label = ZenFloppyManager.getLabel();
         return label ? `${label} (${name.toUpperCase()})` : `3½ Floppy (${name.toUpperCase()})`;
+    }
+    if (name && name.match(/^E:$/i)) {
+        const label = ZenCDManager.getLabel();
+        return label ? `${label} (${name.toUpperCase()})` : `CD-ROM (${name.toUpperCase()})`;
     }
     if (name && name.match(/^[A-Z]:$/i)) {
         return `(${name.toUpperCase()})`;
