@@ -15,6 +15,7 @@ import { renderFileIcon } from "./components/FileIconRenderer.js";
 import { NavigationHistory } from "./NavigationHistory.js";
 import { FileOperations } from "./FileOperations.js";
 import { MenuBarBuilder } from "./MenuBarBuilder.js";
+import { PropertiesManager } from "./utils/PropertiesManager.js";
 import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
@@ -172,6 +173,11 @@ export class ZenExplorerApp extends Application {
                         action: () => this.fileOps.renameItem(path),
                         enabled: () => !isRootItem && selectedPaths.length === 1,
                     },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Properties",
+                        action: () => PropertiesManager.show(selectedPaths),
+                    },
                 ];
                 new window.ContextMenu(menuItems, e);
             },
@@ -198,6 +204,11 @@ export class ZenExplorerApp extends Application {
                                 action: () => this.fileOps.createNewTextFile(),
                             },
                         ],
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Properties",
+                        action: () => PropertiesManager.show([this.currentPath]),
                     },
                 ];
                 new window.ContextMenu(menuItems, e);
