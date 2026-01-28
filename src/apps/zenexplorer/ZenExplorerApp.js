@@ -1,12 +1,15 @@
 import { Application } from "../Application.js";
-import { fs } from "@zenfs/core";
+import { fs, mount, umount, mounts } from "@zenfs/core";
+import { WebAccess } from "@zenfs/dom";
 import { initFileSystem } from "../../utils/zenfs-init.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { ICONS } from "../../config/icons.js";
 import { getAssociation } from "../../utils/directory.js";
 import { launchApp } from "../../utils/appManager.js";
 import { IconManager } from "../../components/IconManager.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import { StatusBar } from "../../components/StatusBar.js";
+import { requestWaitState, releaseWaitState } from "../../utils/busyStateManager.js";
 import "../explorer/explorer.css"; // Reuse explorer styles
 
 // Extracted modules
@@ -18,6 +21,7 @@ import { MenuBarBuilder } from "./MenuBarBuilder.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
 import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
+import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 import { playSound } from "../../utils/soundManager.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
@@ -106,7 +110,10 @@ export class ZenExplorerApp extends Application {
         // 7a. Clipboard listener
         this._setupClipboardListener();
 
-        // 7b. Recycle Bin listener
+        // 7b. Floppy listener
+        this._setupFloppyListener();
+      
+        // 7c. Recycle Bin listener
         this._setupRecycleBinListener();
 
         // 8. Initial Navigation
@@ -146,6 +153,8 @@ export class ZenExplorerApp extends Application {
                 const type = icon.getAttribute("data-type");
                 const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
                 const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+                const isFloppy = path === "/A:";
+                const isFloppyMounted = mounts.has("/A:");
                 const isRecycledItem = RecycleBinManager.isRecycledItemPath(path);
                 const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
 
@@ -214,6 +223,20 @@ export class ZenExplorerApp extends Application {
                                 });
                             }
                         });
+                    }
+                  
+                    if (isFloppy) {
+                      if (isFloppyMounted) {
+                        menuItems.push({
+                            label: "Eject",
+                            action: () => this.ejectFloppy(),
+                        });
+                      } else {
+                          menuItems.push({
+                              label: "Insert",
+                              action: () => this.insertFloppy(),
+                          });
+                      }
                     }
 
                     menuItems.push(
@@ -460,6 +483,12 @@ export class ZenExplorerApp extends Application {
                 normalizedPath = "/" + normalizedPath;
             }
 
+            // Check if floppy is mounted when accessing A:
+            if (normalizedPath.startsWith("/A:") && !mounts.has("/A:")) {
+                this.showFloppyDialog();
+                return;
+            }
+
             const stats = await fs.promises.stat(normalizedPath);
 
             if (!stats.isDirectory()) {
@@ -503,6 +532,10 @@ export class ZenExplorerApp extends Application {
         const name = getDisplayName(path);
         let icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
 
+        // Handle Floppy icon
+        if (path === "/A:") {
+            icon = ICONS.disketteDrive;
+        }
         if (RecycleBinManager.isRecycleBinPath(path)) {
             const isEmpty = await RecycleBinManager.isEmpty();
             icon = isEmpty ? ICONS.recycleBinEmpty : ICONS.recycleBinFull;
@@ -521,6 +554,13 @@ export class ZenExplorerApp extends Application {
     async _renderDirectoryContents(path) {
         let files = await fs.promises.readdir(path);
 
+        // Sort files alphabetically (so A: comes before C:)
+        files.sort((a, b) => a.localeCompare(b));
+
+        // Clear view
+        this.iconContainer.innerHTML = "";
+        this.iconManager.clearSelection();
+      
         // Hide metadata file in recycle bin
         if (RecycleBinManager.isRecycleBinPath(path)) {
             files = files.filter(f => f !== ".metadata.json");
@@ -582,12 +622,86 @@ export class ZenExplorerApp extends Application {
         this.win.setMenuBar(this.menuBar);
     }
 
+    /**
+     * Show dialog for unmounted floppy
+     */
+    showFloppyDialog() {
+        ShowDialogWindow({
+            title: "3½ Floppy (A:)",
+            text: "Insert floppy disk into drive A:\\",
+            buttons: [
+                {
+                    label: "OK",
+                    action: (win) => this.insertFloppy(win),
+                },
+                { label: "Cancel" },
+            ],
+        });
+    }
+
+    /**
+     * Insert floppy using WebAccess
+     */
+    async insertFloppy(dialogWin) {
+        try {
+            const handle = await window.showDirectoryPicker();
+
+            // Close dialog immediately after selection
+            if (dialogWin) dialogWin.close();
+
+            const busyRequesterId = "zen-floppy-mount";
+            requestWaitState(busyRequesterId, this.win.element);
+
+            try {
+                const floppyFs = await WebAccess.create({ handle });
+                mount("/A:", floppyFs);
+                ZenFloppyManager.setLabel(handle.name);
+                document.dispatchEvent(new CustomEvent("zen-floppy-change"));
+            } finally {
+                releaseWaitState(busyRequesterId, this.win.element);
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error("Failed to mount floppy:", err);
+            }
+        }
+    }
+
+    /**
+     * Eject floppy
+     */
+    ejectFloppy() {
+        if (mounts.has("/A:")) {
+            umount("/A:");
+            ZenFloppyManager.clear();
+            document.dispatchEvent(new CustomEvent("zen-floppy-change"));
+        }
+    }
+
+    /**
+     * Setup floppy change listener
+     * @private
+     */
+    _setupFloppyListener() {
+        this._floppyHandler = () => {
+            if (this.currentPath.startsWith("/A:") && !mounts.has("/A:")) {
+                this.navigateTo("/");
+            } else {
+                this.navigateTo(this.currentPath, true, true);
+            }
+        };
+        document.addEventListener("zen-floppy-change", this._floppyHandler);
+    }
+
     _onClose() {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
         }
         if (this._clipboardHandler) {
             document.removeEventListener("zen-clipboard-change", this._clipboardHandler);
+        }
+        if (this._floppyHandler) {
+            document.removeEventListener("zen-floppy-change", this._floppyHandler);
         }
         if (this._recycleBinHandler) {
             document.removeEventListener("zen-recycle-bin-change", this._recycleBinHandler);

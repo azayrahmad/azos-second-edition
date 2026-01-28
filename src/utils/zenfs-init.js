@@ -1,4 +1,4 @@
-import { configure, InMemory } from "@zenfs/core";
+import { configure, InMemory, fs } from "@zenfs/core";
 import { IndexedDB } from "@zenfs/dom";
 
 let isInitialized = false;
@@ -16,6 +16,12 @@ export async function initFileSystem() {
                 },
             },
         });
+
+        // Ensure A: drive directory exists in the root
+        if (!fs.existsSync('/A:')) {
+            await fs.promises.mkdir('/A:');
+        }
+
         isInitialized = true;
         console.log("ZenFS initialized successfully.");
     } catch (error) {

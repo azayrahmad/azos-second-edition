@@ -1,4 +1,5 @@
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
+import { mounts } from "@zenfs/core";
 import { getDisplayName, getParentPath } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
@@ -98,6 +99,16 @@ export class MenuBarBuilder {
                 },
         enabled: () => selectedPaths.length > 0,
         default: true,
+      },
+      {
+        label: "&Insert Floppy",
+        action: () => this.app.insertFloppy(),
+        enabled: () => !mounts.has("/A:"),
+      },
+      {
+        label: "&Eject Floppy",
+        action: () => this.app.ejectFloppy(),
+        enabled: () => mounts.has("/A:"),
       },
       "MENU_DIVIDER",
       {
