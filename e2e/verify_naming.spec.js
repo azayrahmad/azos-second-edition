@@ -12,6 +12,9 @@ test('ZenExplorer copy naming logic', async ({ page }) => {
     const zenWin = page.locator('#zenexplorer');
     await expect(zenWin).toBeVisible();
 
+    // Navigate to C:
+    await zenWin.locator('.explorer-icon').filter({ hasText: '(C:)' }).dblclick();
+
     // Helper to create a folder
     const createFolder = async (name) => {
         await zenWin.locator('.explorer-icon-view').click({ button: 'right' });
