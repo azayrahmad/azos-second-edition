@@ -14,6 +14,7 @@ import { NavigationHistory } from "./NavigationHistory.js";
 import { FileOperations } from "./FileOperations.js";
 import { MenuBarBuilder } from "./MenuBarBuilder.js";
 import { joinPath, getParentPath, getPathName } from "./utils/PathUtils.js";
+import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -38,6 +39,7 @@ export class ZenExplorerApp extends Application {
     async _createWindow() {
         // 1. Initialize File System
         await initFileSystem();
+        await RecycleBinManager.init();
 
         // 2. Setup Window
         const win = new window.$Window({
@@ -124,10 +126,12 @@ export class ZenExplorerApp extends Application {
             iconSelector: ".explorer-icon",
             onItemContext: (e, icon) => {
                 const path = icon.getAttribute("data-path");
+                const isRecycleBin = this.currentPath === "/C:/Recycled";
+
                 const menuItems = [
                     {
-                        label: "Open",
-                        action: () => this.navigateTo(path),
+                        label: isRecycleBin ? "Restore" : "Open",
+                        action: () => isRecycleBin ? this.fileOps.restoreItems([path]) : this.navigateTo(path),
                         default: true,
                     },
                     "MENU_DIVIDER",
@@ -138,12 +142,19 @@ export class ZenExplorerApp extends Application {
                     {
                         label: "Rename",
                         action: () => this.fileOps.renameItem(path),
+                        enabled: !isRecycleBin,
                     },
                 ];
                 new window.ContextMenu(menuItems, e);
             },
             onBackgroundContext: (e) => {
-                const menuItems = [
+                const isRecycleBin = this.currentPath === "/C:/Recycled";
+                const menuItems = isRecycleBin ? [
+                    {
+                        label: "Empty Recycle Bin",
+                        action: () => this.fileOps.emptyRecycleBin(),
+                    }
+                ] : [
                     {
                         label: "New",
                         submenu: [
@@ -176,12 +187,30 @@ export class ZenExplorerApp extends Application {
             if (icon) {
                 const type = icon.getAttribute("data-type");
                 const name = icon.getAttribute("data-name");
+                const path = icon.getAttribute("data-path");
+                const isRecycleBin = this.currentPath === "/C:/Recycled";
+
+                if (isRecycleBin) {
+                    this.fileOps.restoreItems([path]);
+                    return;
+                }
+
                 if (type === "directory") {
                     const newPath = joinPath(this.currentPath, name);
                     this.navigateTo(newPath);
                 } else {
                     // Open file (placeholder)
                     alert(`Cannot open file: ${name} (Not implemented)`);
+                }
+            }
+        });
+
+        this.win.element.addEventListener("keydown", (e) => {
+            if (e.key === "Delete") {
+                const selectedPaths = [...this.iconManager.selectedIcons]
+                    .map(icon => icon.getAttribute("data-path"));
+                if (selectedPaths.length > 0) {
+                    this.fileOps.deleteItems(selectedPaths, e.shiftKey);
                 }
             }
         });
@@ -232,7 +261,20 @@ export class ZenExplorerApp extends Application {
      */
     _updateUIForPath(path) {
         const name = getPathName(path);
-        const icon = path === "/" ? ICONS.computer : ICONS.folderOpen;
+        let icon = ICONS.folderOpen;
+
+        if (path === "/") {
+            icon = ICONS.computer;
+        } else if (path === "/C:/Recycled") {
+            // Check if full or empty for icon
+            icon = ICONS.recycleBinEmpty; // Default to empty for now
+            RecycleBinManager.getMetadata().then(metadata => {
+                if (metadata.items.length > 0) {
+                    this.win.setIcons(ICONS.recycleBinFull);
+                    this.sidebar.update(name, ICONS.recycleBinFull[32]);
+                }
+            });
+        }
 
         this.addressBar.setValue(path === "/" ? "My Computer" : path);
         this.win.title(name);
@@ -245,7 +287,15 @@ export class ZenExplorerApp extends Application {
      * @private
      */
     async _renderDirectoryContents(path) {
-        const files = await fs.promises.readdir(path);
+        const isRecycleBin = path === "/C:/Recycled";
+        let files = await fs.promises.readdir(path);
+        let metadata = null;
+
+        if (isRecycleBin) {
+            metadata = await RecycleBinManager.getMetadata();
+            // Filter out metadata file from directory listing
+            files = files.filter(f => f !== ".metadata.json");
+        }
 
         // Clear view
         this.iconContainer.innerHTML = "";
@@ -264,7 +314,16 @@ export class ZenExplorerApp extends Application {
             }
 
             const isDir = fileStat.isDirectory();
-            const iconDiv = renderFileIcon(file, fullPath, isDir);
+
+            let displayName = file;
+            if (isRecycleBin && metadata) {
+                const item = metadata.items.find(i => i.id === file);
+                if (item) {
+                    displayName = item.name;
+                }
+            }
+
+            const iconDiv = renderFileIcon(displayName, fullPath, isDir);
 
             this.iconManager.configureIcon(iconDiv);
             this.iconContainer.appendChild(iconDiv);
@@ -296,7 +355,7 @@ export class ZenExplorerApp extends Application {
     _updateMenuBar() {
         if (!this.win) return;
         const menuBuilder = new MenuBarBuilder(this);
-        this.menuBar = menuBuilder.build();
+        this.menuBar = new window.MenuBar(menuBuilder.build());
         this.win.setMenuBar(this.menuBar);
     }
 

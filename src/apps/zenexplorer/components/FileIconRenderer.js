@@ -12,7 +12,7 @@ import { ICONS } from "../../../config/icons.js";
  */
 export function getIconForFile(fileName, isDir) {
     if (isDir) {
-        return ICONS.folderClosed[32];
+        return ICONS.folderClosed ? ICONS.folderClosed[32] : ICONS.folder[32];
     }
 
     // Future: Add extension-based icon selection
@@ -23,7 +23,7 @@ export function getIconForFile(fileName, isDir) {
     //     default: return ICONS.fileGeneric[32];
     // }
 
-    return ICONS.fileGeneric[32];
+    return ICONS.file ? ICONS.file[32] : "";
 }
 
 /**

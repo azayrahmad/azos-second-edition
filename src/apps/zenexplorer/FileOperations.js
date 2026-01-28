@@ -2,7 +2,8 @@ import { fs } from "@zenfs/core";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { showInputDialog } from "./components/InputDialog.js";
 import { handleFileSystemError } from "./utils/ErrorHandler.js";
-import { joinPath } from "./utils/PathUtils.js";
+import { joinPath, getParentPath } from "./utils/PathUtils.js";
+import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 
 /**
  * FileOperations - Handles file system operations with user interaction
@@ -16,16 +17,27 @@ export class FileOperations {
     /**
      * Delete items with confirmation dialog
      * @param {Array<string>} paths - Paths to delete
+     * @param {boolean} permanent - Whether to delete permanently
      */
-    async deleteItems(paths) {
+    async deleteItems(paths, permanent = false) {
         if (paths.length === 0) return;
 
-        const message = paths.length === 1
-            ? `Are you sure you want to permanently delete '${paths[0].split("/").pop()}'?`
-            : `Are you sure you want to permanently delete these ${paths.length} items?`;
+        const isRecycleBin = this.app.currentPath === "/C:/Recycled";
+        const forcePermanent = permanent || isRecycleBin;
+
+        let message;
+        if (forcePermanent) {
+            message = paths.length === 1
+                ? `Are you sure you want to permanently delete '${paths[0].split("/").pop()}'?`
+                : `Are you sure you want to permanently delete these ${paths.length} items?`;
+        } else {
+            message = paths.length === 1
+                ? `Are you sure you want to send '${paths[0].split("/").pop()}' to the Recycle Bin?`
+                : `Are you sure you want to send these ${paths.length} items to the Recycle Bin?`;
+        }
 
         ShowDialogWindow({
-            title: "Confirm File Delete",
+            title: forcePermanent ? "Confirm File Delete" : "Confirm Send to Recycle Bin",
             text: message,
             parentWindow: this.app.win,
             modal: true,
@@ -36,11 +48,63 @@ export class FileOperations {
                     action: async () => {
                         try {
                             for (const path of paths) {
-                                await fs.promises.rm(path, { recursive: true });
+                                if (forcePermanent) {
+                                    if (isRecycleBin) {
+                                        const id = path.split("/").pop();
+                                        await RecycleBinManager.deletePermanently(id);
+                                    } else {
+                                        await fs.promises.rm(path, { recursive: true });
+                                    }
+                                } else {
+                                    await RecycleBinManager.moveToRecycleBin(path);
+                                }
                             }
                             this.app.navigateTo(this.app.currentPath);
                         } catch (e) {
-                            handleFileSystemError("delete", e, "items");
+                            handleFileSystemError(forcePermanent ? "delete" : "recycle", e, "items");
+                        }
+                    }
+                },
+                { label: "No" }
+            ]
+        });
+    }
+
+    /**
+     * Restore items from Recycle Bin
+     * @param {Array<string>} paths - Paths to restore
+     */
+    async restoreItems(paths) {
+        try {
+            for (const path of paths) {
+                const id = path.split("/").pop();
+                await RecycleBinManager.restoreItem(id);
+            }
+            this.app.navigateTo(this.app.currentPath);
+        } catch (e) {
+            handleFileSystemError("restore", e, "items");
+        }
+    }
+
+    /**
+     * Empty Recycle Bin
+     */
+    async emptyRecycleBin() {
+        ShowDialogWindow({
+            title: "Confirm Empty Recycle Bin",
+            text: "Are you sure you want to permanently delete all items in the Recycle Bin?",
+            parentWindow: this.app.win,
+            modal: true,
+            buttons: [
+                {
+                    label: "Yes",
+                    isDefault: true,
+                    action: async () => {
+                        try {
+                            await RecycleBinManager.emptyRecycleBin();
+                            this.app.navigateTo(this.app.currentPath);
+                        } catch (e) {
+                            handleFileSystemError("empty", e, "Recycle Bin");
                         }
                     }
                 },
@@ -65,8 +129,8 @@ export class FileOperations {
                 if (newName === oldName) return;
 
                 try {
-                    const parentPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
-                    const newPath = parentPath === "" ? `/${newName}` : `${parentPath}/${newName}`;
+                    const parentPath = getParentPath(fullPath);
+                    const newPath = joinPath(parentPath, newName);
                     await fs.promises.rename(fullPath, newPath);
                     this.app.navigateTo(this.app.currentPath);
                 } catch (e) {
