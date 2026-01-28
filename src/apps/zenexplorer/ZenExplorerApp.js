@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { fs, mount, umount, mounts } from "@zenfs/core";
 import { WebAccess } from "@zenfs/dom";
+import { Iso } from "@zenfs/archives";
 import { initFileSystem } from "../../utils/zenfs-init.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { ICONS } from "../../config/icons.js";
@@ -22,9 +23,9 @@ import { PropertiesManager } from "./utils/PropertiesManager.js";
 import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
+import { ZenCDManager } from "./utils/ZenCDManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 import { playSound } from "../../utils/soundManager.js";
-import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -112,8 +113,11 @@ export class ZenExplorerApp extends Application {
 
         // 7b. Floppy listener
         this._setupFloppyListener();
+
+        // 7c. CD listener
+        this._setupCDListener();
       
-        // 7c. Recycle Bin listener
+        // 7d. Recycle Bin listener
         this._setupRecycleBinListener();
 
         // 8. Initial Navigation
@@ -155,6 +159,8 @@ export class ZenExplorerApp extends Application {
                 const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
                 const isFloppy = path === "/A:";
                 const isFloppyMounted = mounts.has("/A:");
+                const isCD = path === "/E:";
+                const isCDMounted = mounts.has("/E:");
                 const isRecycledItem = RecycleBinManager.isRecycledItemPath(path);
                 const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
 
@@ -237,6 +243,20 @@ export class ZenExplorerApp extends Application {
                               action: () => this.insertFloppy(),
                           });
                       }
+                    }
+
+                    if (isCD) {
+                        if (isCDMounted) {
+                            menuItems.push({
+                                label: "Eject",
+                                action: () => this.ejectCD(),
+                            });
+                        } else {
+                            menuItems.push({
+                                label: "Insert",
+                                action: () => this.insertCD(),
+                            });
+                        }
                     }
 
                     menuItems.push(
@@ -489,6 +509,12 @@ export class ZenExplorerApp extends Application {
                 return;
             }
 
+            // Check if CD is mounted when accessing E:
+            if (normalizedPath.startsWith("/E:") && !mounts.has("/E:")) {
+                this.showCDDialog();
+                return;
+            }
+
             const stats = await fs.promises.stat(normalizedPath);
 
             if (!stats.isDirectory()) {
@@ -534,6 +560,10 @@ export class ZenExplorerApp extends Application {
 
         // Handle Floppy icon
         if (path === "/A:") {
+            icon = ICONS.disketteDrive;
+        }
+        // Handle CD icon
+        if (path === "/E:") {
             icon = ICONS.disketteDrive;
         }
         if (RecycleBinManager.isRecycleBinPath(path)) {
@@ -693,6 +723,90 @@ export class ZenExplorerApp extends Application {
         document.addEventListener("zen-floppy-change", this._floppyHandler);
     }
 
+    /**
+     * Show dialog for unmounted CD
+     */
+    showCDDialog() {
+        ShowDialogWindow({
+            title: "CD-ROM (E:)",
+            text: "Please insert a disc into drive E:\\",
+            buttons: [
+                {
+                    label: "OK",
+                    action: (win) => this.insertCD(win),
+                },
+                { label: "Cancel" },
+            ],
+        });
+    }
+
+    /**
+     * Insert CD (ISO)
+     */
+    async insertCD(dialogWin) {
+        try {
+            const [handle] = await window.showOpenFilePicker({
+                types: [
+                    {
+                        description: 'ISO Images',
+                        accept: {
+                            'application/x-iso9660-image': ['.iso'],
+                        },
+                    },
+                ],
+            });
+
+            // Close dialog immediately after selection
+            if (dialogWin) dialogWin.close();
+
+            const busyRequesterId = "zen-cd-mount";
+            requestWaitState(busyRequesterId, this.win.element);
+
+            try {
+                const file = await handle.getFile();
+                const buffer = await file.arrayBuffer();
+                const isoFs = await Iso.create({ data: new Uint8Array(buffer) });
+                mount("/E:", isoFs);
+                // Strip extension for label
+                const label = file.name.replace(/\.[^/.]+$/, "");
+                ZenCDManager.setLabel(label);
+                document.dispatchEvent(new CustomEvent("zen-cd-change"));
+            } finally {
+                releaseWaitState(busyRequesterId, this.win.element);
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error("Failed to mount CD:", err);
+            }
+        }
+    }
+
+    /**
+     * Eject CD
+     */
+    ejectCD() {
+        if (mounts.has("/E:")) {
+            umount("/E:");
+            ZenCDManager.clear();
+            document.dispatchEvent(new CustomEvent("zen-cd-change"));
+        }
+    }
+
+    /**
+     * Setup CD change listener
+     * @private
+     */
+    _setupCDListener() {
+        this._cdHandler = () => {
+            if (this.currentPath.startsWith("/E:") && !mounts.has("/E:")) {
+                this.navigateTo("/");
+            } else {
+                this.navigateTo(this.currentPath, true, true);
+            }
+        };
+        document.addEventListener("zen-cd-change", this._cdHandler);
+    }
+
     _onClose() {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
@@ -702,6 +816,9 @@ export class ZenExplorerApp extends Application {
         }
         if (this._floppyHandler) {
             document.removeEventListener("zen-floppy-change", this._floppyHandler);
+        }
+        if (this._cdHandler) {
+            document.removeEventListener("zen-cd-change", this._cdHandler);
         }
         if (this._recycleBinHandler) {
             document.removeEventListener("zen-recycle-bin-change", this._recycleBinHandler);

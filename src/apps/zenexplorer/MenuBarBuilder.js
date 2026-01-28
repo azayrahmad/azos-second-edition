@@ -112,6 +112,17 @@ export class MenuBarBuilder {
       },
       "MENU_DIVIDER",
       {
+        label: "&Insert CD",
+        action: () => this.app.insertCD(),
+        enabled: () => !mounts.has("/E:"),
+      },
+      {
+        label: "&Eject CD",
+        action: () => this.app.ejectCD(),
+        enabled: () => mounts.has("/E:"),
+      },
+      "MENU_DIVIDER",
+      {
         label: "&New",
         enabled: () => !isRoot,
         submenu: [
