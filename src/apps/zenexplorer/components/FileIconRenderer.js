@@ -14,18 +14,21 @@ import { RecycleBinManager } from "../utils/RecycleBinManager.js";
  * @returns {string} Icon URL
  */
 export function getIconForFile(fileName, isDir) {
-    if (isDir) {
-        if (fileName.match(/^A:$/i)) {
-            return ICONS.disketteDrive[32];
-        }
-        if (fileName.match(/^[A-Z]:$/i)) {
-            return ICONS.drive[32];
-        }
-        return ICONS.folderClosed[32];
+  if (isDir) {
+    if (fileName.match(/^A:$/i)) {
+      return ICONS.disketteDrive[32];
     }
+    if (fileName.match(/^E:$/i)) {
+      return ICONS.cdDrive[32];
+    }
+    if (fileName.match(/^[A-Z]:$/i)) {
+      return ICONS.drive[32];
+    }
+    return ICONS.folderClosed[32];
+  }
 
-    const association = getAssociation(fileName);
-    return association.icon[32];
+  const association = getAssociation(fileName);
+  return association.icon[32];
 }
 
 /**
@@ -37,53 +40,55 @@ export function getIconForFile(fileName, isDir) {
  * @returns {Promise<HTMLElement>} Icon element
  */
 export async function renderFileIcon(fileName, fullPath, isDir, options = {}) {
-    const iconDiv = document.createElement("div");
-    iconDiv.className = "explorer-icon";
-    iconDiv.setAttribute("tabindex", "0");
-    iconDiv.setAttribute("data-path", fullPath);
-    iconDiv.setAttribute("data-type", isDir ? "directory" : "file");
-    iconDiv.setAttribute("data-name", fileName);
+  const iconDiv = document.createElement("div");
+  iconDiv.className = "explorer-icon";
+  iconDiv.setAttribute("tabindex", "0");
+  iconDiv.setAttribute("data-path", fullPath);
+  iconDiv.setAttribute("data-type", isDir ? "directory" : "file");
+  iconDiv.setAttribute("data-name", fileName);
 
-    const iconInner = document.createElement("div");
-    iconInner.className = "icon";
+  const iconInner = document.createElement("div");
+  iconInner.className = "icon";
 
-    const iconWrapper = document.createElement("div");
-    iconWrapper.className = "icon-wrapper";
+  const iconWrapper = document.createElement("div");
+  iconWrapper.className = "icon-wrapper";
 
-    const iconImg = document.createElement("img");
+  const iconImg = document.createElement("img");
 
-    let iconSrc = getIconForFile(fileName, isDir);
-    let displayName = getDisplayName(fileName);
+  let iconSrc = getIconForFile(fileName, isDir);
+  let displayName = getDisplayName(fileName);
 
-    // Special handling for Recycle Bin folder
-    if (RecycleBinManager.isRecycleBinPath(fullPath)) {
-        const isEmpty = options.recycleBinEmpty !== undefined
-            ? options.recycleBinEmpty
-            : await RecycleBinManager.isEmpty();
-        iconSrc = isEmpty ? ICONS.recycleBinEmpty[32] : ICONS.recycleBinFull[32];
+  // Special handling for Recycle Bin folder
+  if (RecycleBinManager.isRecycleBinPath(fullPath)) {
+    const isEmpty =
+      options.recycleBinEmpty !== undefined
+        ? options.recycleBinEmpty
+        : await RecycleBinManager.isEmpty();
+    iconSrc = isEmpty ? ICONS.recycleBinEmpty[32] : ICONS.recycleBinFull[32];
+  }
+  // Special handling for items INSIDE Recycle Bin
+  else if (RecycleBinManager.isRecycledItemPath(fullPath)) {
+    const metadata =
+      options.metadata || (await RecycleBinManager.getMetadata());
+    const entry = metadata[fileName]; // fileName is the ID
+    if (entry) {
+      iconSrc = getIconForFile(entry.originalName, isDir);
+      displayName = getDisplayName(entry.originalName);
     }
-    // Special handling for items INSIDE Recycle Bin
-    else if (RecycleBinManager.isRecycledItemPath(fullPath)) {
-        const metadata = options.metadata || await RecycleBinManager.getMetadata();
-        const entry = metadata[fileName]; // fileName is the ID
-        if (entry) {
-            iconSrc = getIconForFile(entry.originalName, isDir);
-            displayName = getDisplayName(entry.originalName);
-        }
-    }
+  }
 
-    iconImg.src = iconSrc;
-    iconImg.draggable = false;
-    iconWrapper.appendChild(iconImg);
+  iconImg.src = iconSrc;
+  iconImg.draggable = false;
+  iconWrapper.appendChild(iconImg);
 
-    iconInner.appendChild(iconWrapper);
+  iconInner.appendChild(iconWrapper);
 
-    const label = document.createElement("div");
-    label.className = "icon-label";
-    label.textContent = displayName;
+  const label = document.createElement("div");
+  label.className = "icon-label";
+  label.textContent = displayName;
 
-    iconDiv.appendChild(iconInner);
-    iconDiv.appendChild(label);
+  iconDiv.appendChild(iconInner);
+  iconDiv.appendChild(label);
 
-    return iconDiv;
+  return iconDiv;
 }

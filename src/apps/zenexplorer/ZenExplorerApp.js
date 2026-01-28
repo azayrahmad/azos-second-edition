@@ -1,6 +1,7 @@
 import { Application } from "../Application.js";
 import { fs, mount, umount, mounts } from "@zenfs/core";
 import { WebAccess } from "@zenfs/dom";
+import { Iso } from "@zenfs/archives";
 import { initFileSystem } from "../../utils/zenfs-init.js";
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { ICONS } from "../../config/icons.js";
@@ -23,6 +24,7 @@ import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayN
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import ZenUndoManager from "./utils/ZenUndoManager.js";
 import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
+import { ZenCDManager } from "./utils/ZenCDManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 import { playSound } from "../../utils/soundManager.js";
 
@@ -44,6 +46,9 @@ export class ZenExplorerApp extends Application {
         this.currentPath = "/";
         this.navHistory = new NavigationHistory();
         this.fileOps = new FileOperations(this);
+        this.lastSelectedIcon = null;
+        this.selectionTimestamp = 0;
+        this._isRenaming = false;
     }
 
     async _createWindow(initialPath) {
@@ -111,8 +116,11 @@ export class ZenExplorerApp extends Application {
 
         // 7b. Floppy listener
         this._setupFloppyListener();
+
+        // 7c. CD listener
+        this._setupCDListener();
       
-        // 7c. Recycle Bin listener
+        // 7d. Recycle Bin listener
         this._setupRecycleBinListener();
 
         // 7d. Undo listener
@@ -157,6 +165,8 @@ export class ZenExplorerApp extends Application {
                 const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
                 const isFloppy = path === "/A:";
                 const isFloppyMounted = mounts.has("/A:");
+                const isCD = path === "/E:";
+                const isCDMounted = mounts.has("/E:");
                 const isRecycledItem = RecycleBinManager.isRecycledItemPath(path);
                 const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
 
@@ -226,19 +236,33 @@ export class ZenExplorerApp extends Application {
                             }
                         });
                     }
-                  
+
                     if (isFloppy) {
-                      if (isFloppyMounted) {
-                        menuItems.push({
-                            label: "Eject",
-                            action: () => this.ejectFloppy(),
-                        });
-                      } else {
-                          menuItems.push({
-                              label: "Insert",
-                              action: () => this.insertFloppy(),
-                          });
-                      }
+                        if (isFloppyMounted) {
+                            menuItems.push({
+                                label: "Eject",
+                                action: () => this.ejectFloppy(),
+                            });
+                        } else {
+                            menuItems.push({
+                                label: "Insert",
+                                action: () => this.insertFloppy(),
+                            });
+                        }
+                    }
+
+                    if (isCD) {
+                        if (isCDMounted) {
+                            menuItems.push({
+                                label: "Eject",
+                                action: () => this.ejectCD(),
+                            });
+                        } else {
+                            menuItems.push({
+                                label: "Insert",
+                                action: () => this.insertCD(),
+                            });
+                        }
                     }
 
                     menuItems.push(
@@ -311,8 +335,21 @@ export class ZenExplorerApp extends Application {
                 new window.ContextMenu(menuItems, e);
             },
             onSelectionChange: () => {
-                const count = this.iconManager.selectedIcons.size;
+                const selectedIcons = this.iconManager.selectedIcons;
+                const count = selectedIcons.size;
                 this.statusBar.setText(`${count} object(s) selected`);
+
+                if (count === 1) {
+                    const icon = [...selectedIcons][0];
+                    if (this.lastSelectedIcon !== icon) {
+                        this.lastSelectedIcon = icon;
+                        this.selectionTimestamp = Date.now();
+                    }
+                } else {
+                    this.lastSelectedIcon = null;
+                    this.selectionTimestamp = 0;
+                }
+
                 if (this.menuBar) {
                     this._updateMenuBar();
                 }
@@ -508,6 +545,12 @@ export class ZenExplorerApp extends Application {
                 return;
             }
 
+            // Check if CD is mounted when accessing E:
+            if (normalizedPath.startsWith("/E:") && !mounts.has("/E:")) {
+                this.showCDDialog();
+                return;
+            }
+
             const stats = await fs.promises.stat(normalizedPath);
 
             if (!stats.isDirectory()) {
@@ -555,6 +598,10 @@ export class ZenExplorerApp extends Application {
         if (path === "/A:") {
             icon = ICONS.disketteDrive;
         }
+        // Handle CD icon
+        if (path === "/E:") {
+            icon = ICONS.disketteDrive;
+        }
         if (RecycleBinManager.isRecycleBinPath(path)) {
             const isEmpty = await RecycleBinManager.isEmpty();
             icon = isEmpty ? ICONS.recycleBinEmpty : ICONS.recycleBinFull;
@@ -579,7 +626,7 @@ export class ZenExplorerApp extends Application {
         // Clear view
         this.iconContainer.innerHTML = "";
         this.iconManager.clearSelection();
-      
+
         // Hide metadata file in recycle bin
         if (RecycleBinManager.isRecycleBinPath(path)) {
             files = files.filter(f => f !== ".metadata.json");
@@ -598,6 +645,17 @@ export class ZenExplorerApp extends Application {
                 const isDir = fileStat.isDirectory();
                 const iconDiv = await renderFileIcon(file, fullPath, isDir, { metadata, recycleBinEmpty });
                 this.iconManager.configureIcon(iconDiv);
+
+                // Add click listener for inline rename
+                iconDiv.addEventListener("click", (e) => {
+                    if (this._isRenaming) return;
+                    if (this.lastSelectedIcon === iconDiv && (Date.now() - this.selectionTimestamp) > 500) {
+                        this.enterRenameMode(iconDiv);
+                        e.stopPropagation();
+                    }
+                });
+
+
                 icons.push(iconDiv);
             } catch (e) {
                 console.warn("Could not stat", fullPath);
@@ -612,6 +670,92 @@ export class ZenExplorerApp extends Application {
         this.iconContainer.appendChild(fragment);
 
         this.statusBar.setText(`${icons.length} object(s)`);
+    }
+
+    /**
+     * Enter inline rename mode for an icon
+     * @param {HTMLElement} icon - The icon element
+     */
+    async enterRenameMode(icon) {
+        if (this._isRenaming) return;
+
+        const path = icon.getAttribute("data-path");
+        const isRootItem = getParentPath(path) === "/";
+        const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
+
+        if (isRootItem || isRecycleBin) return;
+
+        this._isRenaming = true;
+
+        const label = icon.querySelector(".icon-label");
+        const fullPath = icon.getAttribute("data-path");
+        const oldName = fullPath.split("/").pop();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "icon-label-input";
+        input.value = oldName;
+
+        label.innerHTML = "";
+        label.appendChild(input);
+
+        // Select filename without extension
+        const dotIndex = oldName.lastIndexOf(".");
+        if (dotIndex > 0 && icon.getAttribute("data-type") !== "directory") {
+            input.setSelectionRange(0, dotIndex);
+        } else {
+            input.select();
+        }
+        input.focus();
+
+        const finishRename = async (save) => {
+            if (!this._isRenaming) return;
+            this._isRenaming = false;
+
+            const newName = input.value.trim();
+            if (save && newName && newName !== oldName) {
+                try {
+                    const parentPath = getParentPath(fullPath);
+                    const newPath = joinPath(parentPath, newName);
+                    await fs.promises.rename(fullPath, newPath);
+                    await this.navigateTo(this.currentPath, true, true);
+                } catch (e) {
+                    alert(`Error renaming: ${e.message}`);
+                    label.textContent = getDisplayName(fullPath);
+                }
+            } else {
+                label.textContent = getDisplayName(fullPath);
+            }
+        };
+
+        input.onkeydown = (e) => {
+            e.stopPropagation();
+            if (e.key === "Enter") {
+                finishRename(true);
+            } else if (e.key === "Escape") {
+                finishRename(false);
+            }
+        };
+
+        input.onblur = () => {
+            finishRename(true);
+        };
+
+        // Prevent click propagation to avoid re-triggering rename
+        input.onclick = (e) => e.stopPropagation();
+        input.ondblclick = (e) => e.stopPropagation();
+    }
+
+    /**
+     * Enter rename mode finding icon by path
+     * @param {string} path
+     */
+    enterRenameModeByPath(path) {
+        const icon = this.iconContainer.querySelector(`.explorer-icon[data-path="${path}"]`);
+        if (icon) {
+            this.iconManager.setSelection(new Set([icon]));
+            this.enterRenameMode(icon);
+        }
     }
 
     goUp() {
@@ -712,6 +856,90 @@ export class ZenExplorerApp extends Application {
         document.addEventListener("zen-floppy-change", this._floppyHandler);
     }
 
+    /**
+     * Show dialog for unmounted CD
+     */
+    showCDDialog() {
+        ShowDialogWindow({
+            title: "CD-ROM (E:)",
+            text: "Please insert a disc into drive E:\\",
+            buttons: [
+                {
+                    label: "OK",
+                    action: (win) => this.insertCD(win),
+                },
+                { label: "Cancel" },
+            ],
+        });
+    }
+
+    /**
+     * Insert CD (ISO)
+     */
+    async insertCD(dialogWin) {
+        try {
+            const [handle] = await window.showOpenFilePicker({
+                types: [
+                    {
+                        description: 'ISO Images',
+                        accept: {
+                            'application/x-iso9660-image': ['.iso'],
+                        },
+                    },
+                ],
+            });
+
+            // Close dialog immediately after selection
+            if (dialogWin) dialogWin.close();
+
+            const busyRequesterId = "zen-cd-mount";
+            requestWaitState(busyRequesterId, this.win.element);
+
+            try {
+                const file = await handle.getFile();
+                const buffer = await file.arrayBuffer();
+                const isoFs = await Iso.create({ data: new Uint8Array(buffer) });
+                mount("/E:", isoFs);
+                // Strip extension for label
+                const label = file.name.replace(/\.[^/.]+$/, "");
+                ZenCDManager.setLabel(label);
+                document.dispatchEvent(new CustomEvent("zen-cd-change"));
+            } finally {
+                releaseWaitState(busyRequesterId, this.win.element);
+            }
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error("Failed to mount CD:", err);
+            }
+        }
+    }
+
+    /**
+     * Eject CD
+     */
+    ejectCD() {
+        if (mounts.has("/E:")) {
+            umount("/E:");
+            ZenCDManager.clear();
+            document.dispatchEvent(new CustomEvent("zen-cd-change"));
+        }
+    }
+
+    /**
+     * Setup CD change listener
+     * @private
+     */
+    _setupCDListener() {
+        this._cdHandler = () => {
+            if (this.currentPath.startsWith("/E:") && !mounts.has("/E:")) {
+                this.navigateTo("/");
+            } else {
+                this.navigateTo(this.currentPath, true, true);
+            }
+        };
+        document.addEventListener("zen-cd-change", this._cdHandler);
+    }
+
     _onClose() {
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
@@ -721,6 +949,9 @@ export class ZenExplorerApp extends Application {
         }
         if (this._floppyHandler) {
             document.removeEventListener("zen-floppy-change", this._floppyHandler);
+        }
+        if (this._cdHandler) {
+            document.removeEventListener("zen-cd-change", this._cdHandler);
         }
         if (this._recycleBinHandler) {
             document.removeEventListener("zen-recycle-bin-change", this._recycleBinHandler);

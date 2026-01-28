@@ -20,10 +20,12 @@ test('ZenExplorer copy naming logic', async ({ page }) => {
         await zenWin.locator('.explorer-icon-view').click({ button: 'right' });
         await page.locator('.menu-item:has-text("New")').click();
         await page.locator('.menu-popup .menu-item:has-text("Folder")').click();
-        const dialog = page.locator('.window').filter({ hasText: 'Create New Folder' }).last();
-        await dialog.locator('input[type="text"]').fill(name);
-        await dialog.locator('button:has-text("OK")').click();
-        await expect(dialog).not.toBeVisible();
+
+        const renameInput = zenWin.locator('.icon-label-input');
+        await expect(renameInput).toBeVisible();
+        await renameInput.fill(name);
+        await renameInput.press('Enter');
+        await expect(renameInput).not.toBeVisible();
     };
 
     // 1. Create TestFolder

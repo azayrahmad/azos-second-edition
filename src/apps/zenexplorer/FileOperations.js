@@ -237,84 +237,62 @@ export class FileOperations {
     }
 
     /**
-     * Rename item with input dialog
+     * Rename item using inline rename
      * @param {string} fullPath - Full path to item
      */
     async renameItem(fullPath) {
-        const oldName = fullPath.split("/").pop();
-
-        showInputDialog({
-            title: "Rename",
-            label: "New name:",
-            defaultValue: oldName,
-            parentWindow: this.app.win,
-            onSubmit: async (newName) => {
-                if (newName === oldName) return;
-
-                try {
-                    const parentPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
-                    const newPath = parentPath === "" ? `/${newName}` : `${parentPath}/${newName}`;
-                    await fs.promises.rename(fullPath, newPath);
-                    ZenUndoManager.push({
-                        type: 'rename',
-                        data: { from: fullPath, to: newPath }
-                    });
-                    this.app.navigateTo(this.app.currentPath);
-                } catch (e) {
-                    handleFileSystemError("rename", e, oldName);
-                }
-            }
-        });
+        this.app.enterRenameModeByPath(fullPath);
     }
 
     /**
-     * Create new folder with input dialog
+     * Create new folder with inline rename
      */
     async createNewFolder() {
-        showInputDialog({
-            title: "Create New Folder",
-            label: "Folder name:",
-            defaultValue: "New Folder",
-            parentWindow: this.app.win,
-            onSubmit: async (name) => {
-                try {
-                    const newPath = joinPath(this.app.currentPath, name);
-                    await fs.promises.mkdir(newPath);
-                    ZenUndoManager.push({
-                        type: 'create',
-                        data: { path: newPath }
-                    });
-                    this.app.navigateTo(this.app.currentPath); // Refresh
-                } catch (e) {
-                    handleFileSystemError("create", e, "folder");
-                }
-            }
-        });
+        try {
+            const name = await this.getUniqueName(this.app.currentPath, "New Folder");
+            const newPath = joinPath(this.app.currentPath, name);
+            await fs.promises.mkdir(newPath);
+            await this.app.navigateTo(this.app.currentPath, true, true);
+            this.app.enterRenameModeByPath(newPath);
+        } catch (e) {
+            handleFileSystemError("create", e, "folder");
+        }
     }
 
     /**
-     * Create new text document with input dialog
+     * Create new text document with inline rename
      */
     async createNewTextFile() {
-        showInputDialog({
-            title: "Create New Text Document",
-            label: "File name:",
-            defaultValue: "New Text Document.txt",
-            parentWindow: this.app.win,
-            onSubmit: async (name) => {
-                try {
-                    const newPath = joinPath(this.app.currentPath, name);
-                    await fs.promises.writeFile(newPath, "");
-                    ZenUndoManager.push({
-                        type: 'create',
-                        data: { path: newPath }
-                    });
-                    this.app.navigateTo(this.app.currentPath); // Refresh
-                } catch (e) {
-                    handleFileSystemError("create", e, "file");
-                }
+        try {
+            const name = await this.getUniqueName(this.app.currentPath, "New Text Document", ".txt");
+            const newPath = joinPath(this.app.currentPath, name);
+            await fs.promises.writeFile(newPath, "");
+            await this.app.navigateTo(this.app.currentPath, true, true);
+            this.app.enterRenameModeByPath(newPath);
+        } catch (e) {
+            handleFileSystemError("create", e, "file");
+        }
+    }
+
+    /**
+     * Get a unique name for a new item
+     * @private
+     */
+    async getUniqueName(parentPath, baseName, extension = "") {
+        let name = baseName + extension;
+        let counter = 1;
+        while (true) {
+            const checkPath = joinPath(parentPath, name);
+            try {
+                await fs.promises.stat(checkPath);
+                // Exists, try next
+                counter++;
+                name = `${baseName} (${counter})${extension}`;
+            } catch (e) {
+                // Doesn't exist, we can use it
+                return name;
             }
-        });
+        }
     }
 
     /**
