@@ -22,32 +22,211 @@ import {
   formatPathForDisplay,
   getDisplayName,
 } from "./utils/PathUtils.js";
+import { PropertiesManager } from "./utils/PropertiesManager.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
 export class ZenExplorerApp extends Application {
-  static config = {
-    id: "zenexplorer",
-    title: "File Manager (ZenFS)",
-    description: "Browse files using ZenFS.",
-    icon: ICONS.computer,
-    width: 640,
-    height: 480,
-    resizable: true,
-    isSingleton: false,
-  };
+    static config = {
+        id: "zenexplorer",
+        title: "File Manager (ZenFS)",
+        description: "Browse files using ZenFS.",
+        icon: ICONS.computer,
+        width: 640,
+        height: 480,
+        resizable: true,
+    };
 
-  constructor(config) {
-    super(config);
-    this.currentPath = "/";
-    this.navHistory = new NavigationHistory();
-    this.fileOps = new FileOperations(this);
-  }
+    constructor(config) {
+        super(config);
+        this.currentPath = "/";
+        this.navHistory = new NavigationHistory();
+        this.fileOps = new FileOperations(this);
+    }
 
-  async _createWindow(initialPath) {
-    if (initialPath) {
-      this.currentPath = initialPath;
+    async _createWindow() {
+        // 1. Initialize File System
+        await initFileSystem();
+
+        // 2. Setup Window
+        const win = new window.$Window({
+            title: this.title,
+            outerWidth: this.width,
+            outerHeight: this.height,
+            resizable: this.resizable,
+            minimizeButton: this.minimizeButton,
+            maximizeButton: this.maximizeButton,
+            id: this.id,
+        });
+        this.win = win;
+
+        // 2a. Setup MenuBar
+        this._updateMenuBar();
+
+        // 3. Toolbar / Address Bar
+        this.addressBar = new AddressBar({
+            onEnter: (path) => this.navigateTo(path),
+        });
+        win.$content.append(this.addressBar.element);
+
+        // 4. Main Content Area (Split View)
+        const content = document.createElement("div");
+        content.className = "explorer-content sunken-panel";
+        content.style.height = "calc(100% - 60px)"; // Adjust for bars
+        this.content = content;
+
+        // 4a. Sidebar
+        this.sidebar = new ZenSidebar();
+        content.appendChild(this.sidebar.element);
+
+        // 4b. Icon View
+        this.iconContainer = document.createElement("div");
+        this.iconContainer.className = "explorer-icon-view";
+        content.appendChild(this.iconContainer);
+
+        win.$content.append(content);
+
+        // 4c. Resize Observer for responsive layout
+        this._setupResizeObserver();
+
+        // 5. Status Bar
+        this.statusBar = new StatusBar();
+        win.$content.append(this.statusBar.element);
+
+        // 6. Icon Manager
+        this._setupIconManager();
+
+        // 7. Event Delegation for Navigation
+        this._setupEventListeners();
+
+        // 7a. Clipboard listener
+        this._setupClipboardListener();
+
+        // 8. Initial Navigation
+        this.navigateTo(this.currentPath);
+
+        return win;
+    }
+
+    /**
+     * Setup resize observer for responsive layout
+     * @private
+     */
+    _setupResizeObserver() {
+        this.resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                if (entry.contentRect.width <= 400) {
+                    this.content.classList.add("small-width");
+                    this.content.classList.remove("with-sidebar");
+                } else {
+                    this.content.classList.remove("small-width");
+                    this.content.classList.add("with-sidebar");
+                }
+            }
+        });
+        this.resizeObserver.observe(this.content);
+    }
+
+    /**
+     * Setup icon manager with event handlers
+     * @private
+     */
+    _setupIconManager() {
+        this.iconManager = new IconManager(this.iconContainer, {
+            iconSelector: ".explorer-icon",
+            onItemContext: (e, icon) => {
+                const path = icon.getAttribute("data-path");
+                const type = icon.getAttribute("data-type");
+                const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
+                const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+
+                const menuItems = [
+                    {
+                        label: "Open",
+                        action: () => {
+                            if (type === "directory") {
+                                this.navigateTo(path);
+                            } else {
+                                this.openFile(icon);
+                            }
+                        },
+                        default: true,
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Cut",
+                        action: () => this.fileOps.cutItems(selectedPaths),
+                        enabled: () => !isRootItem,
+                    },
+                    {
+                        label: "Copy",
+                        action: () => this.fileOps.copyItems(selectedPaths),
+                    },
+                    {
+                        label: "Paste",
+                        action: () => this.fileOps.pasteItems(path),
+                        enabled: () => !ZenClipboardManager.isEmpty() && type === "directory",
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Delete",
+                        action: () => this.fileOps.deleteItems(selectedPaths),
+                        enabled: () => !isRootItem,
+                    },
+                    {
+                        label: "Rename",
+                        action: () => this.fileOps.renameItem(path),
+                        enabled: () => !isRootItem && selectedPaths.length === 1,
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Properties",
+                        action: () => PropertiesManager.show(selectedPaths),
+                    },
+                ];
+                new window.ContextMenu(menuItems, e);
+            },
+            onBackgroundContext: (e) => {
+                const isRoot = this.currentPath === "/";
+                const menuItems = [
+                    {
+                        label: "Paste",
+                        action: () => this.fileOps.pasteItems(this.currentPath),
+                        enabled: () => !ZenClipboardManager.isEmpty() && !isRoot,
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "New",
+                        enabled: () => !isRoot,
+                        submenu: [
+                            {
+                                label: "Folder",
+                                action: () => this.fileOps.createNewFolder(),
+                                enabled: () => !isRoot,
+                            },
+                            {
+                                label: "Text Document",
+                                action: () => this.fileOps.createNewTextFile(),
+                            },
+                        ],
+                    },
+                    "MENU_DIVIDER",
+                    {
+                        label: "Properties",
+                        action: () => PropertiesManager.show([this.currentPath]),
+                    },
+                ];
+                new window.ContextMenu(menuItems, e);
+            },
+            onSelectionChange: () => {
+                const count = this.iconManager.selectedIcons.size;
+                this.statusBar.setText(`${count} object(s) selected`);
+                if (this.menuBar) {
+                    this._updateMenuBar();
+                }
+            }
+        });
     }
 
     // 1. Initialize File System
