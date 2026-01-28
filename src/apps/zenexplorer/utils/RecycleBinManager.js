@@ -52,10 +52,12 @@ export class RecycleBinManager {
     /**
      * Move multiple items to the Recycle Bin
      * @param {string[]} paths
+     * @returns {Promise<string[]>} IDs of the recycled items
      */
     static async moveItemsToRecycleBin(paths) {
         const metadata = await this.getMetadata();
         let changed = false;
+        const recycledIds = [];
 
         for (const path of paths) {
             if (this.isRecycledItemPath(path)) continue;
@@ -80,6 +82,7 @@ export class RecycleBinManager {
                 originalName: name,
                 deletionDate: new Date().toISOString()
             };
+            recycledIds.push(id);
             changed = true;
         }
 
@@ -87,6 +90,8 @@ export class RecycleBinManager {
             await this.saveMetadata(metadata);
             document.dispatchEvent(new CustomEvent("zen-recycle-bin-change"));
         }
+
+        return recycledIds;
     }
 
     /**

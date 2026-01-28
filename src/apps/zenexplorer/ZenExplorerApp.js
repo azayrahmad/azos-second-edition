@@ -21,12 +21,11 @@ import { MenuBarBuilder } from "./MenuBarBuilder.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
 import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
+import ZenUndoManager from "./utils/ZenUndoManager.js";
 import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 import { playSound } from "../../utils/soundManager.js";
-import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
-// MenuBar is expected to be global from public/os-gui/MenuBar.js
 
 export class ZenExplorerApp extends Application {
     static config = {
@@ -115,6 +114,9 @@ export class ZenExplorerApp extends Application {
       
         // 7c. Recycle Bin listener
         this._setupRecycleBinListener();
+
+        // 7d. Undo listener
+        this._setupUndoListener();
 
         // 8. Initial Navigation
         this.navigateTo(this.currentPath);
@@ -389,6 +391,10 @@ export class ZenExplorerApp extends Application {
                     this.fileOps.pasteItems(this.currentPath);
                     e.preventDefault();
                     break;
+                case "z":
+                    this.fileOps.undo();
+                    e.preventDefault();
+                    break;
             }
         } else {
             if (e.key === "Enter" && selectedIcons.length > 0) {
@@ -421,6 +427,19 @@ export class ZenExplorerApp extends Application {
                 e.preventDefault();
             }
         }
+    }
+
+    /**
+     * Setup Undo listener
+     * @private
+     */
+    _setupUndoListener() {
+        this._undoHandler = () => {
+            if (this.menuBar) {
+                this.menuBar.element.dispatchEvent(new Event("update"));
+            }
+        };
+        document.addEventListener("zen-undo-change", this._undoHandler);
     }
 
     /**
@@ -705,6 +724,9 @@ export class ZenExplorerApp extends Application {
         }
         if (this._recycleBinHandler) {
             document.removeEventListener("zen-recycle-bin-change", this._recycleBinHandler);
+        }
+        if (this._undoHandler) {
+            document.removeEventListener("zen-undo-change", this._undoHandler);
         }
     }
 }

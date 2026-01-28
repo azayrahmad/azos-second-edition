@@ -5,6 +5,7 @@ import { handleFileSystemError } from "./utils/ErrorHandler.js";
 import { joinPath, normalizePath, getPathName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
+import ZenUndoManager from "./utils/ZenUndoManager.js";
 
 /**
  * FileOperations - Handles file system operations with user interaction
@@ -41,6 +42,8 @@ export class FileOperations {
         const { items, operation } = ZenClipboardManager.get();
         if (items.length === 0) return;
 
+        const targetPaths = [];
+
         try {
             for (const itemPath of items) {
                 const itemName = getPathName(itemPath);
@@ -51,10 +54,20 @@ export class FileOperations {
                 } else if (operation === "copy") {
                     await this.copyRecursive(itemPath, targetPath);
                 }
+                targetPaths.push(targetPath);
             }
 
             if (operation === "cut") {
                 ZenClipboardManager.clear();
+                ZenUndoManager.push({
+                    type: 'move',
+                    data: { from: items, to: targetPaths }
+                });
+            } else if (operation === "copy") {
+                ZenUndoManager.push({
+                    type: 'copy',
+                    data: { created: targetPaths }
+                });
             }
 
             this.app.navigateTo(this.app.currentPath);
@@ -200,7 +213,11 @@ export class FileOperations {
                                     }
                                 }
                             } else {
-                                await RecycleBinManager.moveItemsToRecycleBin(paths);
+                                const recycledIds = await RecycleBinManager.moveItemsToRecycleBin(paths);
+                                ZenUndoManager.push({
+                                    type: 'delete',
+                                    data: { recycledIds }
+                                });
                             }
 
                             // If it was permanent and NOT in recycle bin, we need to refresh manually
@@ -238,6 +255,10 @@ export class FileOperations {
                     const parentPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
                     const newPath = parentPath === "" ? `/${newName}` : `${parentPath}/${newName}`;
                     await fs.promises.rename(fullPath, newPath);
+                    ZenUndoManager.push({
+                        type: 'rename',
+                        data: { from: fullPath, to: newPath }
+                    });
                     this.app.navigateTo(this.app.currentPath);
                 } catch (e) {
                     handleFileSystemError("rename", e, oldName);
@@ -259,6 +280,10 @@ export class FileOperations {
                 try {
                     const newPath = joinPath(this.app.currentPath, name);
                     await fs.promises.mkdir(newPath);
+                    ZenUndoManager.push({
+                        type: 'create',
+                        data: { path: newPath }
+                    });
                     this.app.navigateTo(this.app.currentPath); // Refresh
                 } catch (e) {
                     handleFileSystemError("create", e, "folder");
@@ -280,11 +305,113 @@ export class FileOperations {
                 try {
                     const newPath = joinPath(this.app.currentPath, name);
                     await fs.promises.writeFile(newPath, "");
+                    ZenUndoManager.push({
+                        type: 'create',
+                        data: { path: newPath }
+                    });
                     this.app.navigateTo(this.app.currentPath); // Refresh
                 } catch (e) {
                     handleFileSystemError("create", e, "file");
                 }
             }
         });
+    }
+
+    /**
+     * Undo the last file operation
+     */
+    async undo() {
+        const op = ZenUndoManager.peek();
+        if (!op) return;
+
+        try {
+            switch (op.type) {
+                case 'rename':
+                    await this._undoRename(op.data);
+                    break;
+                case 'move':
+                    await this._undoMove(op.data);
+                    break;
+                case 'copy':
+                    await this._undoCopy(op.data);
+                    break;
+                case 'delete':
+                    await this._undoDelete(op.data);
+                    break;
+                case 'create':
+                    await this._undoCreate(op.data);
+                    break;
+            }
+            ZenUndoManager.pop(); // Only pop if successful
+            this.app.navigateTo(this.app.currentPath);
+        } catch (e) {
+            ShowDialogWindow({
+                title: "Undo",
+                text: `Could not undo operation: ${e.message}`,
+                parentWindow: this.app.win,
+                modal: true,
+                buttons: [{ label: "OK" }]
+            });
+        }
+    }
+
+    async _undoRename(data) {
+        // data: { from, to }
+        try {
+            await fs.promises.stat(data.from);
+            throw new Error(`The destination already contains an item named '${getPathName(data.from)}'.`);
+        } catch (e) {
+            if (e.code !== 'ENOENT') throw e;
+        }
+        await fs.promises.rename(data.to, data.from);
+    }
+
+    async _undoMove(data) {
+        // data: { from: [], to: [] }
+        // First check all collisions and existence
+        for (let i = 0; i < data.to.length; i++) {
+            const to = data.to[i];
+            const from = data.from[i];
+
+            await fs.promises.stat(to); // Ensure 'to' still exists
+
+            try {
+                await fs.promises.stat(from);
+                throw new Error(`The destination already contains an item named '${getPathName(from)}'.`);
+            } catch (e) {
+                if (e.code !== 'ENOENT') throw e;
+            }
+        }
+
+        // Perform the moves
+        for (let i = 0; i < data.to.length; i++) {
+            await fs.promises.rename(data.to[i], data.from[i]);
+        }
+    }
+
+    async _undoCopy(data) {
+        // data: { created: [] }
+        for (const path of data.created) {
+            try {
+                await fs.promises.rm(path, { recursive: true });
+            } catch (e) {
+                // Ignore if already deleted
+                if (e.code !== 'ENOENT') throw e;
+            }
+        }
+    }
+
+    async _undoDelete(data) {
+        // data: { recycledIds: [] }
+        await RecycleBinManager.restoreItems(data.recycledIds);
+    }
+
+    async _undoCreate(data) {
+        // data: { path }
+        try {
+            await fs.promises.rm(data.path, { recursive: true });
+        } catch (e) {
+            if (e.code !== 'ENOENT') throw e;
+        }
     }
 }
