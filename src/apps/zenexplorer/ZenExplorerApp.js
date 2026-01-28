@@ -44,6 +44,9 @@ export class ZenExplorerApp extends Application {
         this.currentPath = "/";
         this.navHistory = new NavigationHistory();
         this.fileOps = new FileOperations(this);
+        this.lastSelectedIcon = null;
+        this.selectionTimestamp = 0;
+        this._isRenaming = false;
     }
 
     async _createWindow(initialPath) {
@@ -308,8 +311,21 @@ export class ZenExplorerApp extends Application {
                 new window.ContextMenu(menuItems, e);
             },
             onSelectionChange: () => {
-                const count = this.iconManager.selectedIcons.size;
+                const selectedIcons = this.iconManager.selectedIcons;
+                const count = selectedIcons.size;
                 this.statusBar.setText(`${count} object(s) selected`);
+
+                if (count === 1) {
+                    const icon = [...selectedIcons][0];
+                    if (this.lastSelectedIcon !== icon) {
+                        this.lastSelectedIcon = icon;
+                        this.selectionTimestamp = Date.now();
+                    }
+                } else {
+                    this.lastSelectedIcon = null;
+                    this.selectionTimestamp = 0;
+                }
+
                 if (this.menuBar) {
                     this._updateMenuBar();
                 }
@@ -578,6 +594,17 @@ export class ZenExplorerApp extends Application {
                 const isDir = fileStat.isDirectory();
                 const iconDiv = await renderFileIcon(file, fullPath, isDir, { metadata, recycleBinEmpty });
                 this.iconManager.configureIcon(iconDiv);
+
+                // Add click listener for inline rename
+                iconDiv.addEventListener("click", (e) => {
+                    if (this._isRenaming) return;
+                    if (this.lastSelectedIcon === iconDiv && (Date.now() - this.selectionTimestamp) > 500) {
+                        this.enterRenameMode(iconDiv);
+                        e.stopPropagation();
+                    }
+                });
+
+
                 icons.push(iconDiv);
             } catch (e) {
                 console.warn("Could not stat", fullPath);
@@ -592,6 +619,92 @@ export class ZenExplorerApp extends Application {
         this.iconContainer.appendChild(fragment);
 
         this.statusBar.setText(`${icons.length} object(s)`);
+    }
+
+    /**
+     * Enter inline rename mode for an icon
+     * @param {HTMLElement} icon - The icon element
+     */
+    async enterRenameMode(icon) {
+        if (this._isRenaming) return;
+
+        const path = icon.getAttribute("data-path");
+        const isRootItem = getParentPath(path) === "/";
+        const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
+
+        if (isRootItem || isRecycleBin) return;
+
+        this._isRenaming = true;
+
+        const label = icon.querySelector(".icon-label");
+        const fullPath = icon.getAttribute("data-path");
+        const oldName = fullPath.split("/").pop();
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "icon-label-input";
+        input.value = oldName;
+
+        label.innerHTML = "";
+        label.appendChild(input);
+
+        // Select filename without extension
+        const dotIndex = oldName.lastIndexOf(".");
+        if (dotIndex > 0 && icon.getAttribute("data-type") !== "directory") {
+            input.setSelectionRange(0, dotIndex);
+        } else {
+            input.select();
+        }
+        input.focus();
+
+        const finishRename = async (save) => {
+            if (!this._isRenaming) return;
+            this._isRenaming = false;
+
+            const newName = input.value.trim();
+            if (save && newName && newName !== oldName) {
+                try {
+                    const parentPath = getParentPath(fullPath);
+                    const newPath = joinPath(parentPath, newName);
+                    await fs.promises.rename(fullPath, newPath);
+                    await this.navigateTo(this.currentPath, true, true);
+                } catch (e) {
+                    alert(`Error renaming: ${e.message}`);
+                    label.textContent = getDisplayName(fullPath);
+                }
+            } else {
+                label.textContent = getDisplayName(fullPath);
+            }
+        };
+
+        input.onkeydown = (e) => {
+            e.stopPropagation();
+            if (e.key === "Enter") {
+                finishRename(true);
+            } else if (e.key === "Escape") {
+                finishRename(false);
+            }
+        };
+
+        input.onblur = () => {
+            finishRename(true);
+        };
+
+        // Prevent click propagation to avoid re-triggering rename
+        input.onclick = (e) => e.stopPropagation();
+        input.ondblclick = (e) => e.stopPropagation();
+    }
+
+    /**
+     * Enter rename mode finding icon by path
+     * @param {string} path
+     */
+    enterRenameModeByPath(path) {
+        const icon = this.iconContainer.querySelector(`.explorer-icon[data-path="${path}"]`);
+        if (icon) {
+            this.iconManager.setSelection(new Set([icon]));
+            this.enterRenameMode(icon);
+        }
     }
 
     goUp() {

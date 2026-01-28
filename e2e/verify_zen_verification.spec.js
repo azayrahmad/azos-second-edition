@@ -16,9 +16,12 @@ test('ZenExplorer folder management', async ({ page }) => {
     await zenWin.locator('.explorer-icon-view').click({ button: 'right' });
     await page.locator('.menu-item:has-text("New")').click();
     await page.locator('.menu-popup .menu-item:has-text("Folder")').click();
-    const dialog = page.locator('.window').filter({ hasText: 'Create New Folder' }).last();
-    await dialog.locator('input[type="text"]').fill('VerificationFolder');
-    await dialog.locator('button:has-text("OK")').click();
+
+    const renameInput = zenWin.locator('.icon-label-input');
+    await expect(renameInput).toBeVisible();
+    await renameInput.fill('VerificationFolder');
+    await renameInput.press('Enter');
+    await expect(renameInput).not.toBeVisible();
 
     // Select it
     const icon = zenWin.locator('.explorer-icon').filter({ hasText: 'VerificationFolder' });
