@@ -1,6 +1,7 @@
 import { ShowDialogWindow } from "../../components/DialogWindow.js";
 import { getDisplayName, getParentPath } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
+import { PropertiesManager } from "./utils/PropertiesManager.js";
 
 /**
  * MenuBarBuilder - Constructs menu bar for ZenExplorer
@@ -156,6 +157,21 @@ export class MenuBarBuilder {
             this.app.navHistory.markAsManuallySelectedById(id);
             // Navigate without adding to MRU (pass true for skipMRU)
             this.app.navigateTo(entry.path, false, true);
+          }
+        },
+      },
+      "MENU_DIVIDER",
+      {
+        label: "&Properties",
+        action: () => {
+          const selectedIcons = this.app.iconManager?.selectedIcons || new Set();
+          const selectedPaths = [...selectedIcons].map((icon) =>
+            icon.getAttribute("data-path"),
+          );
+          if (selectedPaths.length > 0) {
+            PropertiesManager.show(selectedPaths);
+          } else {
+            PropertiesManager.show([this.app.currentPath]);
           }
         },
       },
