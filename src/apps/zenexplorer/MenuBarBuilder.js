@@ -3,6 +3,7 @@ import { mounts } from "@zenfs/core";
 import { getDisplayName, getParentPath } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
+import ZenUndoManager from "./utils/ZenUndoManager.js";
 
 /**
  * MenuBarBuilder - Constructs menu bar for ZenExplorer
@@ -42,6 +43,13 @@ export class MenuBarBuilder {
     const isRoot = this.app.currentPath === "/";
 
     return [
+      {
+        label: ZenUndoManager.getUndoLabel(),
+        shortcutLabel: "Ctrl+Z",
+        action: () => this.app.fileOps.undo(),
+        enabled: () => ZenUndoManager.canUndo(),
+      },
+      "MENU_DIVIDER",
       {
         label: "Cu&t",
         shortcutLabel: "Ctrl+X",
