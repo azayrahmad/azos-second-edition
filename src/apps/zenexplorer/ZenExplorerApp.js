@@ -24,7 +24,6 @@ import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 import { playSound } from "../../utils/soundManager.js";
-import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
