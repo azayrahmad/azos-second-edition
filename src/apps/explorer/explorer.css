@@ -113,3 +113,19 @@
 .explorer-content.small-width .explorer-title {
     display: block; /* Show the title */
 }
+
+.explorer-icon .icon-label-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid black;
+    background: white;
+    color: black;
+    text-align: center;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    z-index: 10;
+    position: relative;
+}
