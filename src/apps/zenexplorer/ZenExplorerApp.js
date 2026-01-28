@@ -24,7 +24,6 @@ import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
 import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 import { playSound } from "../../utils/soundManager.js";
-import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -112,7 +111,7 @@ export class ZenExplorerApp extends Application {
 
         // 7b. Floppy listener
         this._setupFloppyListener();
-      
+
         // 7c. Recycle Bin listener
         this._setupRecycleBinListener();
 
@@ -224,19 +223,19 @@ export class ZenExplorerApp extends Application {
                             }
                         });
                     }
-                  
+
                     if (isFloppy) {
-                      if (isFloppyMounted) {
-                        menuItems.push({
-                            label: "Eject",
-                            action: () => this.ejectFloppy(),
-                        });
-                      } else {
-                          menuItems.push({
-                              label: "Insert",
-                              action: () => this.insertFloppy(),
-                          });
-                      }
+                        if (isFloppyMounted) {
+                            menuItems.push({
+                                label: "Eject",
+                                action: () => this.ejectFloppy(),
+                            });
+                        } else {
+                            menuItems.push({
+                                label: "Insert",
+                                action: () => this.insertFloppy(),
+                            });
+                        }
                     }
 
                     menuItems.push(
@@ -560,7 +559,7 @@ export class ZenExplorerApp extends Application {
         // Clear view
         this.iconContainer.innerHTML = "";
         this.iconManager.clearSelection();
-      
+
         // Hide metadata file in recycle bin
         if (RecycleBinManager.isRecycleBinPath(path)) {
             files = files.filter(f => f !== ".metadata.json");
