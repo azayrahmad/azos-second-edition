@@ -1,45 +1,50 @@
 # ZenExplorer (File Manager)
 
-**ZenExplorer** is the next-generation file manager for win98-web, built on top of [ZenFS](https://zenfs.dev/). Unlike the legacy Explorer (which relies on a static, synchronous `directory.js` object tree), ZenExplorer interacts with a real, asynchronous file system that supports persistence via IndexedDB.
+**ZenExplorer** is the next-generation file manager for win98-web, built on top of [ZenFS](https://zenfs.dev/). Unlike the legacy Explorer, ZenExplorer interacts with a real, asynchronous file system that supports persistence via IndexedDB.
 
-## How It Works
+## Architecture
 
-### Architecture
-- **Backend**: Uses `@zenfs/core` and `@zenfs/dom`.
-- **Storage**:
-    - `/`: **InMemory** (Volatile, resets on reload).
-    - `/c`: **IndexedDB** (Persistent, emulates a hard drive).
-- **Async-First**: All file operations (`readdir`, `mkdir`, `stat`) use `fs.promises`. This prevents UI blocking and enables proper error handling.
+ZenExplorer follows a modular architecture to separate concerns and maintain a clean codebase.
 
-### Key Components
-- **`ZenExplorerApp.js`**: The main application logic. It handles the window life-cycle, navigation state, and rendering.
-- **`zenfs-init.js`**: A utility that initializes the ZenFS backends and mounts. It ensures the file system is ready before the app launches.
-- **UI Components**: Reuses existing `IconManager`, `MenuBar`, and `DialogWindow` for a consistent look and feel.
+### Core Logic
+- **`ZenExplorerApp.js`**: The main application entry point and "glue" class. It orchestrates the window lifecycle and coordinates between various managers and controllers.
+- **`ZenNavigationController.js`**: Manages navigation state, path normalization, and interacts with `NavigationHistory`.
+- **`FileOperations.js`**: Handles file system operations (copy, move, delete, create) and provides user confirmation dialogs.
 
-## Roadmap to Parity
+### UI Components
+- **`components/ZenDirectoryView.js`**: Responsible for rendering directory contents (icons) and handling inline renaming UI.
+- **`components/ZenSidebar.js`**: Renders the dynamic sidebar showing information about the current location.
+- **`MenuBarBuilder.js`**: Dynamically constructs the application menu bar.
 
-The goal is to eventually replace `src/apps/explorer` with `ZenExplorer`. To do that, we need to implement the following features:
+### Utilities and Managers
+- **`utils/ZenDriveManager.js`**: Handles mounting and ejecting of external media (Floppy disks via WebAccess and CDs via ISO images).
+- **`utils/ZenContextMenuBuilder.js`**: Builds context menus for file items and the directory background.
+- **`utils/ZenKeyboardHandler.js`**: Processes keyboard shortcuts (Ctrl+C, Ctrl+V, Delete, etc.).
+- **`utils/RecycleBinManager.js`**: Manages the persistent Recycle Bin at `/C:/Recycled`.
+- **`utils/ZenClipboardManager.js`**: A singleton that tracks cut/copy operations across explorer instances.
+- **`utils/ZenUndoManager.js`**: Manages a global undo stack for file operations.
+- **`utils/PropertiesManager.js`**: Handles file and folder properties dialogs.
 
-### Phase 1: Core File Operations (Current Focus)
-- [x] **Navigation**: Browsing directories.
-- [x] **Folder Creation**: Creating new directories via Menu.
-- [ ] **File Deletion**: Right-click -> Delete.
-- [ ] **Renaming**: Right-click -> Rename.
-- [ ] **File Opening**: Double-click to launch associated apps (Notepad, Image Viewer) with the ZenFS file content.
+## Features
 
-### Phase 2: User Experience
-- [ ] **Context Menus**: Full right-click support for items and background.
-- [ ] **Navigation History**: Back, Forward, and Up buttons in the toolbar.
-- [ ] **Drag & Drop**:
-    - Move files within ZenFS.
-    - **Import**: Drag files from the user's *real* OS into the browser window to save them to `/c`.
-- [ ] **Clipboard**: Cut/Copy/Paste files.
+### File Operations
+- **Navigation**: Full support for browsing the filesystem, including Back, Forward, and Up actions.
+- **Standard Actions**: Create folders/files, Delete (to Recycle Bin or permanent via Shift+Delete), Rename, and Open.
+- **Clipboard**: Cross-window Cut, Copy, and Paste support.
+- **Undo**: Multi-level undo for file operations.
 
-### Phase 3: System Integration
-- [ ] **"My Documents" Sync**: Map the system "My Documents" shortcut to `/c/My Documents`.
-- [ ] **Recycle Bin**: Implement a persistent trash can (e.g., specific hidden folder or metadata).
-- [ ] **Properties**: Show file size, creation date, and type in a dialog.
+### Media Support
+- **Drive A:**: Mount local folders as a floppy drive using the File System Access API.
+- **Drive E:**: Mount `.iso` files as a virtual CD-ROM.
 
-## Technical Debt to Address
-- **IconManager**: Currently assumes static objects. Needs to be fully adapted for async data sources.
-- **Sorting**: Implement sorting by Name, Date, and Size for ZenFS entries.
+### System Integration
+- **Recycle Bin**: Fully functional Recycle Bin with "Restore" and "Empty" capabilities.
+- **Properties**: Detailed information for files and folders, including recursive size calculation.
+- **App Association**: Automatically launches the correct application based on file extension.
+
+## Development
+
+The ZenFS environment is initialized via `src/utils/zenfs-init.js`. It mounts:
+- `/`: **InMemory** (Volatile, used for system mount points).
+- `/C:`: **IndexedDB** (Persistent, the primary user drive).
+- `/A:` & `/E:`: Dynamic mount points for Floppy and CD-ROM.
