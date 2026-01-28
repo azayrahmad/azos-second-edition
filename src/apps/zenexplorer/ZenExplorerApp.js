@@ -30,6 +30,7 @@ export class ZenExplorerApp extends Application {
         width: 640,
         height: 480,
         resizable: true,
+        isSingleton: false,
     };
 
     constructor(config) {
@@ -39,7 +40,11 @@ export class ZenExplorerApp extends Application {
         this.fileOps = new FileOperations(this);
     }
 
-    async _createWindow() {
+    async _createWindow(initialPath) {
+        if (initialPath) {
+            this.currentPath = initialPath;
+        }
+
         // 1. Initialize File System
         await initFileSystem();
 
@@ -266,8 +271,14 @@ export class ZenExplorerApp extends Application {
      * @param {KeyboardEvent} e
      */
     handleKeyDown(e) {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+            return;
+        }
+
+        const selectedIcons = [...this.iconManager.selectedIcons];
+        const selectedPaths = selectedIcons.map(icon => icon.getAttribute("data-path"));
+
         if (e.ctrlKey) {
-            const selectedPaths = [...this.iconManager.selectedIcons].map(icon => icon.getAttribute("data-path"));
             switch (e.key.toLowerCase()) {
                 case "x":
                     this.fileOps.cutItems(selectedPaths);
@@ -281,6 +292,36 @@ export class ZenExplorerApp extends Application {
                     this.fileOps.pasteItems(this.currentPath);
                     e.preventDefault();
                     break;
+            }
+        } else {
+            if (e.key === "Enter" && selectedIcons.length > 0) {
+                if (selectedIcons.length === 1) {
+                    const icon = selectedIcons[0];
+                    const type = icon.getAttribute("data-type");
+                    const path = icon.getAttribute("data-path");
+                    if (type === "directory") {
+                        this.navigateTo(path);
+                    } else {
+                        this.openFile(icon);
+                    }
+                } else {
+                    selectedIcons.forEach(icon => {
+                        const type = icon.getAttribute("data-type");
+                        const path = icon.getAttribute("data-path");
+                        if (type === "directory") {
+                            launchApp("zenexplorer", { filePath: path });
+                        } else {
+                            this.openFile(icon);
+                        }
+                    });
+                }
+                e.preventDefault();
+            } else if (e.key === "Delete" && selectedIcons.length > 0) {
+                const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+                if (!isRootItem) {
+                    this.fileOps.deleteItems(selectedPaths);
+                }
+                e.preventDefault();
             }
         }
     }
