@@ -230,19 +230,19 @@ export class ZenExplorerApp extends Application {
                             }
                         });
                     }
-                  
+
                     if (isFloppy) {
-                      if (isFloppyMounted) {
-                        menuItems.push({
-                            label: "Eject",
-                            action: () => this.ejectFloppy(),
-                        });
-                      } else {
-                          menuItems.push({
-                              label: "Insert",
-                              action: () => this.insertFloppy(),
-                          });
-                      }
+                        if (isFloppyMounted) {
+                            menuItems.push({
+                                label: "Eject",
+                                action: () => this.ejectFloppy(),
+                            });
+                        } else {
+                            menuItems.push({
+                                label: "Insert",
+                                action: () => this.insertFloppy(),
+                            });
+                        }
                     }
 
                     if (isCD) {
@@ -590,7 +590,7 @@ export class ZenExplorerApp extends Application {
         // Clear view
         this.iconContainer.innerHTML = "";
         this.iconManager.clearSelection();
-      
+
         // Hide metadata file in recycle bin
         if (RecycleBinManager.isRecycleBinPath(path)) {
             files = files.filter(f => f !== ".metadata.json");
