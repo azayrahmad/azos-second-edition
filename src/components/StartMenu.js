@@ -530,6 +530,7 @@ class StartMenu {
         title: 'Shut Down Windows',
         content: content, // Pass the DOM element directly
         modal: true,
+        showOverlay: true,
         buttons: [
             {
                 label: 'OK',

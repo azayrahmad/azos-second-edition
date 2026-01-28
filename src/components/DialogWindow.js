@@ -16,6 +16,7 @@ import { playSound } from "../utils/soundManager.js";
  * @property {DialogButton[]} [buttons] - The buttons to display in the dialog.
  * @property {string} [soundEvent] - The name of the sound event to play.
  * @property {boolean} [modal=false] - Whether the dialog should be modal.
+ * @property {boolean} [showOverlay=false] - Whether to show the visual overlay for modal dialogs.
  */
 
 /**
@@ -32,6 +33,7 @@ function ShowDialogWindow(options) {
     buttons = [{ label: "OK", action: () => {}, isDefault: true }],
     soundEvent,
     modal = false,
+    showOverlay = false,
     parentWindow,
   } = options;
 
@@ -112,6 +114,13 @@ function ShowDialogWindow(options) {
     const screen = document.getElementById("screen");
     modalOverlay = document.createElement("div");
     modalOverlay.className = "modal-overlay";
+    if (showOverlay) {
+      modalOverlay.classList.add("visible");
+    }
+
+    modalOverlay.onclick = () => {
+      playSound("Default");
+    };
 
     // Use a high z-index, but relative to the window manager's current z-index
     // This should be just below the dialog window itself.
