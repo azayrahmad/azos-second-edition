@@ -202,7 +202,13 @@ export class FileOperations {
                             } else {
                                 await RecycleBinManager.moveItemsToRecycleBin(paths);
                             }
-                            this.app.navigateTo(this.app.currentPath);
+
+                            // If it was permanent and NOT in recycle bin, we need to refresh manually
+                            // because no event was dispatched. If an event was dispatched,
+                            // ZenExplorerApp already refreshed.
+                            if (isPermanent && !alreadyInRecycle) {
+                                this.app.navigateTo(this.app.currentPath);
+                            }
                         } catch (e) {
                             handleFileSystemError("delete", e, "items");
                         }

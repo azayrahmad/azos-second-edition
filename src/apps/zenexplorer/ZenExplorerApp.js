@@ -530,30 +530,29 @@ export class ZenExplorerApp extends Application {
         const metadata = isRecycleBin ? await RecycleBinManager.getMetadata() : null;
         const recycleBinEmpty = await RecycleBinManager.isEmpty();
 
-        // Clear view
-        this.iconContainer.innerHTML = "";
-        this.iconManager.clearSelection();
-
-        // Render each file/folder
+        // Build icons first (async operations here)
+        const icons = [];
         for (const file of files) {
             const fullPath = joinPath(path, file);
-            let fileStat;
-
             try {
-                fileStat = await fs.promises.stat(fullPath);
+                const fileStat = await fs.promises.stat(fullPath);
+                const isDir = fileStat.isDirectory();
+                const iconDiv = await renderFileIcon(file, fullPath, isDir, { metadata, recycleBinEmpty });
+                this.iconManager.configureIcon(iconDiv);
+                icons.push(iconDiv);
             } catch (e) {
                 console.warn("Could not stat", fullPath);
-                continue;
             }
-
-            const isDir = fileStat.isDirectory();
-            const iconDiv = await renderFileIcon(file, fullPath, isDir, { metadata, recycleBinEmpty });
-
-            this.iconManager.configureIcon(iconDiv);
-            this.iconContainer.appendChild(iconDiv);
         }
 
-        this.statusBar.setText(`${files.length} object(s)`);
+        // Only clear and update DOM once all icons are ready to avoid duplication during concurrent renders
+        this.iconContainer.innerHTML = "";
+        this.iconManager.clearSelection();
+        const fragment = document.createDocumentFragment();
+        icons.forEach(icon => fragment.appendChild(icon));
+        this.iconContainer.appendChild(fragment);
+
+        this.statusBar.setText(`${icons.length} object(s)`);
     }
 
     goUp() {
