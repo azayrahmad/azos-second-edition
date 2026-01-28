@@ -15,468 +15,488 @@ import { renderFileIcon } from "./components/FileIconRenderer.js";
 import { NavigationHistory } from "./NavigationHistory.js";
 import { FileOperations } from "./FileOperations.js";
 import { MenuBarBuilder } from "./MenuBarBuilder.js";
-import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
+import {
+  joinPath,
+  getParentPath,
+  getPathName,
+  formatPathForDisplay,
+  getDisplayName,
+} from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
 export class ZenExplorerApp extends Application {
-    static config = {
-        id: "zenexplorer",
-        title: "File Manager (ZenFS)",
-        description: "Browse files using ZenFS.",
-        icon: ICONS.computer,
-        width: 640,
-        height: 480,
-        resizable: true,
-        isSingleton: false,
-    };
+  static config = {
+    id: "zenexplorer",
+    title: "File Manager (ZenFS)",
+    description: "Browse files using ZenFS.",
+    icon: ICONS.computer,
+    width: 640,
+    height: 480,
+    resizable: true,
+    isSingleton: false,
+  };
 
-    constructor(config) {
-        super(config);
-        this.currentPath = "/";
-        this.navHistory = new NavigationHistory();
-        this.fileOps = new FileOperations(this);
+  constructor(config) {
+    super(config);
+    this.currentPath = "/";
+    this.navHistory = new NavigationHistory();
+    this.fileOps = new FileOperations(this);
+  }
+
+  async _createWindow(initialPath) {
+    if (initialPath) {
+      this.currentPath = initialPath;
     }
 
-    async _createWindow(initialPath) {
-        if (initialPath) {
-            this.currentPath = initialPath;
-        }
+    // 1. Initialize File System
+    await initFileSystem();
 
-        // 1. Initialize File System
-        await initFileSystem();
+    // 2. Setup Window
+    const win = new window.$Window({
+      title: this.title,
+      outerWidth: this.width,
+      outerHeight: this.height,
+      resizable: this.resizable,
+      minimizeButton: this.minimizeButton,
+      maximizeButton: this.maximizeButton,
+      id: this.id,
+    });
+    this.win = win;
 
-        // 2. Setup Window
-        const win = new window.$Window({
-            title: this.title,
-            outerWidth: this.width,
-            outerHeight: this.height,
-            resizable: this.resizable,
-            minimizeButton: this.minimizeButton,
-            maximizeButton: this.maximizeButton,
-            id: this.id,
-        });
-        this.win = win;
+    // 2a. Setup MenuBar
+    this._updateMenuBar();
 
-        // 2a. Setup MenuBar
-        this._updateMenuBar();
+    // 3. Toolbar / Address Bar
+    this.addressBar = new AddressBar({
+      onEnter: (path) => this.navigateTo(path),
+    });
+    win.$content.append(this.addressBar.element);
 
-        // 3. Toolbar / Address Bar
-        this.addressBar = new AddressBar({
-            onEnter: (path) => this.navigateTo(path),
-        });
-        win.$content.append(this.addressBar.element);
+    // 4. Main Content Area (Split View)
+    const content = document.createElement("div");
+    content.className = "explorer-content sunken-panel";
+    content.style.height = "calc(100% - 60px)"; // Adjust for bars
+    this.content = content;
 
-        // 4. Main Content Area (Split View)
-        const content = document.createElement("div");
-        content.className = "explorer-content sunken-panel";
-        content.style.height = "calc(100% - 60px)"; // Adjust for bars
-        this.content = content;
+    // 4a. Sidebar
+    this.sidebar = new ZenSidebar();
+    content.appendChild(this.sidebar.element);
 
-        // 4a. Sidebar
-        this.sidebar = new ZenSidebar();
-        content.appendChild(this.sidebar.element);
+    // 4b. Icon View
+    this.iconContainer = document.createElement("div");
+    this.iconContainer.className = "explorer-icon-view";
+    content.appendChild(this.iconContainer);
 
-        // 4b. Icon View
-        this.iconContainer = document.createElement("div");
-        this.iconContainer.className = "explorer-icon-view";
-        content.appendChild(this.iconContainer);
+    win.$content.append(content);
 
-        win.$content.append(content);
+    // 4c. Resize Observer for responsive layout
+    this._setupResizeObserver();
 
-        // 4c. Resize Observer for responsive layout
-        this._setupResizeObserver();
+    // 5. Status Bar
+    this.statusBar = new StatusBar();
+    win.$content.append(this.statusBar.element);
 
-        // 5. Status Bar
-        this.statusBar = new StatusBar();
-        win.$content.append(this.statusBar.element);
+    // 6. Icon Manager
+    this._setupIconManager();
 
-        // 6. Icon Manager
-        this._setupIconManager();
+    // 7. Event Delegation for Navigation
+    this._setupEventListeners();
 
-        // 7. Event Delegation for Navigation
-        this._setupEventListeners();
+    // 7a. Clipboard listener
+    this._setupClipboardListener();
 
-        // 7a. Clipboard listener
-        this._setupClipboardListener();
+    // 8. Initial Navigation
+    this.navigateTo(this.currentPath);
 
-        // 8. Initial Navigation
-        this.navigateTo(this.currentPath);
+    return win;
+  }
 
-        return win;
-    }
-
-    /**
-     * Setup resize observer for responsive layout
-     * @private
-     */
-    _setupResizeObserver() {
-        this.resizeObserver = new ResizeObserver((entries) => {
-            for (let entry of entries) {
-                if (entry.contentRect.width <= 400) {
-                    this.content.classList.add("small-width");
-                    this.content.classList.remove("with-sidebar");
-                } else {
-                    this.content.classList.remove("small-width");
-                    this.content.classList.add("with-sidebar");
-                }
-            }
-        });
-        this.resizeObserver.observe(this.content);
-    }
-
-    /**
-     * Setup icon manager with event handlers
-     * @private
-     */
-    _setupIconManager() {
-        this.iconManager = new IconManager(this.iconContainer, {
-            iconSelector: ".explorer-icon",
-            onItemContext: (e, icon) => {
-                const path = icon.getAttribute("data-path");
-                const type = icon.getAttribute("data-type");
-                const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
-                const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
-
-                const menuItems = [
-                    {
-                        label: "Open",
-                        action: () => {
-                            if (type === "directory") {
-                                this.navigateTo(path);
-                            } else {
-                                this.openFile(icon);
-                            }
-                        },
-                        default: true,
-                    },
-                    "MENU_DIVIDER",
-                    {
-                        label: "Cut",
-                        action: () => this.fileOps.cutItems(selectedPaths),
-                        enabled: () => !isRootItem,
-                    },
-                    {
-                        label: "Copy",
-                        action: () => this.fileOps.copyItems(selectedPaths),
-                    },
-                    {
-                        label: "Paste",
-                        action: () => this.fileOps.pasteItems(path),
-                        enabled: () => !ZenClipboardManager.isEmpty() && type === "directory",
-                    },
-                    "MENU_DIVIDER",
-                    {
-                        label: "Delete",
-                        action: () => this.fileOps.deleteItems(selectedPaths),
-                        enabled: () => !isRootItem,
-                    },
-                    {
-                        label: "Rename",
-                        action: () => this.fileOps.renameItem(path),
-                        enabled: () => !isRootItem && selectedPaths.length === 1,
-                    },
-                ];
-                new window.ContextMenu(menuItems, e);
-            },
-            onBackgroundContext: (e) => {
-                const isRoot = this.currentPath === "/";
-                const menuItems = [
-                    {
-                        label: "Paste",
-                        action: () => this.fileOps.pasteItems(this.currentPath),
-                        enabled: () => !ZenClipboardManager.isEmpty() && !isRoot,
-                    },
-                    "MENU_DIVIDER",
-                    {
-                        label: "New",
-                        enabled: () => !isRoot,
-                        submenu: [
-                            {
-                                label: "Folder",
-                                action: () => this.fileOps.createNewFolder(),
-                                enabled: () => !isRoot,
-                            },
-                            {
-                                label: "Text Document",
-                                action: () => this.fileOps.createNewTextFile(),
-                            },
-                        ],
-                    },
-                ];
-                new window.ContextMenu(menuItems, e);
-            },
-            onSelectionChange: () => {
-                const count = this.iconManager.selectedIcons.size;
-                this.statusBar.setText(`${count} object(s) selected`);
-                if (this.menuBar) {
-                    this._updateMenuBar();
-                }
-            }
-        });
-    }
-
-    /**
-     * Setup event listeners for navigation
-     * @private
-     */
-    _setupEventListeners() {
-        this.iconContainer.addEventListener("dblclick", (e) => {
-            const icon = e.target.closest(".explorer-icon");
-            if (icon) {
-                const type = icon.getAttribute("data-type");
-                if (type === "directory") {
-                    const name = icon.getAttribute("data-name");
-                    const newPath = joinPath(this.currentPath, name);
-                    this.navigateTo(newPath);
-                } else {
-                    this.openFile(icon);
-                }
-            }
-        });
-
-        // Keyboard shortcuts
-        this.win.element.addEventListener("keydown", (e) => this.handleKeyDown(e));
-    }
-
-    /**
-     * Open a file using its association
-     * @param {HTMLElement} icon - The icon element of the file
-     */
-    openFile(icon) {
-        const name = icon.getAttribute("data-name");
-        const fullPath = icon.getAttribute("data-path");
-        const association = getAssociation(name);
-        if (association.appId) {
-            launchApp(association.appId, fullPath);
+  /**
+   * Setup resize observer for responsive layout
+   * @private
+   */
+  _setupResizeObserver() {
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (entry.contentRect.width <= 400) {
+          this.content.classList.add("small-width");
+          this.content.classList.remove("with-sidebar");
         } else {
-            alert(`Cannot open file: ${name} (No association)`);
+          this.content.classList.remove("small-width");
+          this.content.classList.add("with-sidebar");
         }
-    }
+      }
+    });
+    this.resizeObserver.observe(this.content);
+  }
 
-    /**
-     * Handle keyboard shortcuts
-     * @param {KeyboardEvent} e
-     */
-    handleKeyDown(e) {
-        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
-            return;
+  /**
+   * Setup icon manager with event handlers
+   * @private
+   */
+  _setupIconManager() {
+    this.iconManager = new IconManager(this.iconContainer, {
+      iconSelector: ".explorer-icon",
+      onItemContext: (e, icon) => {
+        const path = icon.getAttribute("data-path");
+        const type = icon.getAttribute("data-type");
+        const selectedPaths = [...this.iconManager.selectedIcons].map((i) =>
+          i.getAttribute("data-path"),
+        );
+        const isRootItem = selectedPaths.some((p) => getParentPath(p) === "/");
+
+        const menuItems = [
+          {
+            label: "Open",
+            action: () => {
+              if (type === "directory") {
+                this.navigateTo(path);
+              } else {
+                this.openFile(icon);
+              }
+            },
+            default: true,
+          },
+          "MENU_DIVIDER",
+          {
+            label: "Cut",
+            action: () => this.fileOps.cutItems(selectedPaths),
+            enabled: () => !isRootItem,
+          },
+          {
+            label: "Copy",
+            action: () => this.fileOps.copyItems(selectedPaths),
+          },
+          {
+            label: "Paste",
+            action: () => this.fileOps.pasteItems(path),
+            enabled: () =>
+              !ZenClipboardManager.isEmpty() && type === "directory",
+          },
+          "MENU_DIVIDER",
+          {
+            label: "Delete",
+            action: () => this.fileOps.deleteItems(selectedPaths),
+            enabled: () => !isRootItem,
+          },
+          {
+            label: "Rename",
+            action: () => this.fileOps.renameItem(path),
+            enabled: () => !isRootItem && selectedPaths.length === 1,
+          },
+        ];
+        new window.ContextMenu(menuItems, e);
+      },
+      onBackgroundContext: (e) => {
+        const isRoot = this.currentPath === "/";
+        const menuItems = [
+          {
+            label: "Paste",
+            action: () => this.fileOps.pasteItems(this.currentPath),
+            enabled: () => !ZenClipboardManager.isEmpty() && !isRoot,
+          },
+          "MENU_DIVIDER",
+          {
+            label: "New",
+            enabled: () => !isRoot,
+            submenu: [
+              {
+                label: "Folder",
+                action: () => this.fileOps.createNewFolder(),
+                enabled: () => !isRoot,
+              },
+              {
+                label: "Text Document",
+                action: () => this.fileOps.createNewTextFile(),
+              },
+            ],
+          },
+        ];
+        new window.ContextMenu(menuItems, e);
+      },
+      onSelectionChange: () => {
+        const count = this.iconManager.selectedIcons.size;
+        this.statusBar.setText(`${count} object(s) selected`);
+        if (this.menuBar) {
+          this._updateMenuBar();
         }
+      },
+    });
+  }
 
-        const selectedIcons = [...this.iconManager.selectedIcons];
-        const selectedPaths = selectedIcons.map(icon => icon.getAttribute("data-path"));
-
-        if (e.ctrlKey) {
-            switch (e.key.toLowerCase()) {
-                case "x":
-                    this.fileOps.cutItems(selectedPaths);
-                    e.preventDefault();
-                    break;
-                case "c":
-                    this.fileOps.copyItems(selectedPaths);
-                    e.preventDefault();
-                    break;
-                case "v":
-                    this.fileOps.pasteItems(this.currentPath);
-                    e.preventDefault();
-                    break;
-            }
+  /**
+   * Setup event listeners for navigation
+   * @private
+   */
+  _setupEventListeners() {
+    this.iconContainer.addEventListener("dblclick", (e) => {
+      const icon = e.target.closest(".explorer-icon");
+      if (icon) {
+        const type = icon.getAttribute("data-type");
+        if (type === "directory") {
+          const name = icon.getAttribute("data-name");
+          const newPath = joinPath(this.currentPath, name);
+          this.navigateTo(newPath);
         } else {
-            if (e.key === "Enter" && selectedIcons.length > 0) {
-                if (selectedIcons.length === 1) {
-                    const icon = selectedIcons[0];
-                    const type = icon.getAttribute("data-type");
-                    const path = icon.getAttribute("data-path");
-                    if (type === "directory") {
-                        this.navigateTo(path);
-                    } else {
-                        this.openFile(icon);
-                    }
-                } else {
-                    selectedIcons.forEach(icon => {
-                        const type = icon.getAttribute("data-type");
-                        const path = icon.getAttribute("data-path");
-                        if (type === "directory") {
-                            launchApp("zenexplorer", { filePath: path });
-                        } else {
-                            this.openFile(icon);
-                        }
-                    });
-                }
-                e.preventDefault();
-            } else if (e.key === "Delete" && selectedIcons.length > 0) {
-                const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
-                if (!isRootItem) {
-                    this.fileOps.deleteItems(selectedPaths);
-                }
-                e.preventDefault();
-            }
+          this.openFile(icon);
         }
+      }
+    });
+
+    // Keyboard shortcuts
+    this.win.element.addEventListener("keydown", (e) => this.handleKeyDown(e));
+  }
+
+  /**
+   * Open a file using its association
+   * @param {HTMLElement} icon - The icon element of the file
+   */
+  openFile(icon) {
+    const name = icon.getAttribute("data-name");
+    const fullPath = icon.getAttribute("data-path");
+    const association = getAssociation(name);
+    if (association.appId) {
+      launchApp(association.appId, fullPath);
+    } else {
+      alert(`Cannot open file: ${name} (No association)`);
+    }
+  }
+
+  /**
+   * Handle keyboard shortcuts
+   * @param {KeyboardEvent} e
+   */
+  handleKeyDown(e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+      return;
     }
 
-    /**
-     * Setup clipboard listener
-     * @private
-     */
-    _setupClipboardListener() {
-        this._clipboardHandler = () => {
-            this._updateCutIcons();
-            if (this.menuBar) {
-                this.menuBar.element.dispatchEvent(new Event("update"));
-            }
-        };
-        document.addEventListener("zen-clipboard-change", this._clipboardHandler);
-    }
+    const selectedIcons = [...this.iconManager.selectedIcons];
+    const selectedPaths = selectedIcons.map((icon) =>
+      icon.getAttribute("data-path"),
+    );
 
-    /**
-     * Update icon styles based on clipboard state
-     * @private
-     */
-    _updateCutIcons() {
-        const { items, operation } = ZenClipboardManager.get();
-        const cutPaths = operation === "cut" ? new Set(items) : new Set();
-
-        const icons = this.iconContainer.querySelectorAll(".explorer-icon");
-        icons.forEach(icon => {
+    if (e.ctrlKey) {
+      switch (e.key.toLowerCase()) {
+        case "x":
+          this.fileOps.cutItems(selectedPaths);
+          e.preventDefault();
+          break;
+        case "c":
+          this.fileOps.copyItems(selectedPaths);
+          e.preventDefault();
+          break;
+        case "v":
+          this.fileOps.pasteItems(this.currentPath);
+          e.preventDefault();
+          break;
+      }
+    } else {
+      if (e.key === "Enter" && selectedIcons.length > 0) {
+        if (selectedIcons.length === 1) {
+          const icon = selectedIcons[0];
+          const type = icon.getAttribute("data-type");
+          const path = icon.getAttribute("data-path");
+          if (type === "directory") {
+            this.navigateTo(path);
+          } else {
+            this.openFile(icon);
+          }
+        } else {
+          selectedIcons.forEach((icon) => {
+            const type = icon.getAttribute("data-type");
             const path = icon.getAttribute("data-path");
-            if (cutPaths.has(path)) {
-                icon.classList.add("cut");
+            if (type === "directory") {
+              launchApp("zenexplorer", { filePath: path });
             } else {
-                icon.classList.remove("cut");
+              this.openFile(icon);
             }
-        });
-    }
-
-    async navigateTo(path, isHistoryNav = false, skipMRU = false) {
-        if (!path) return;
-
-        try {
-            if (path === "My Computer") {
-                path = "/";
-            }
-
-            // Normalize path for ZenFS
-            let normalizedPath = path.replace(/\\/g, "/");
-            if (!normalizedPath.startsWith("/")) {
-                normalizedPath = "/" + normalizedPath;
-            }
-
-            const stats = await fs.promises.stat(normalizedPath);
-
-            if (!stats.isDirectory()) {
-                throw new Error("Not a directory");
-            }
-
-            // Update navigation history
-            if (!isHistoryNav) {
-                this.navHistory.push(normalizedPath);
-            }
-
-            this.currentPath = normalizedPath;
-
-            // Only add to MRU if not skipping (i.e., not from manual radio selection)
-            if (!skipMRU) {
-                this.navHistory.addToMRU(normalizedPath);
-            }
-
-            // Refresh menu bar
-            this._updateMenuBar();
-
-            // Update UI elements
-            this._updateUIForPath(normalizedPath);
-
-            // Read and render directory contents
-            await this._renderDirectoryContents(normalizedPath);
-
-            // Update cut icons
-            this._updateCutIcons();
-
-        } catch (err) {
-            console.error("Navigation failed", err);
+          });
         }
-    }
-
-    /**
-     * Update UI elements for current path
-     * @private
-     */
-    _updateUIForPath(path) {
-        const name = getDisplayName(path);
-        const icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
-
-        this.addressBar.setValue(formatPathForDisplay(path));
-        this.win.title(name);
-        this.sidebar.update(name, icon[32]);
-        this.win.setIcons(icon);
-    }
-
-    /**
-     * Render directory contents
-     * @private
-     */
-    async _renderDirectoryContents(path) {
-        const files = await fs.promises.readdir(path);
-
-        // Clear view
-        this.iconContainer.innerHTML = "";
-        this.iconManager.clearSelection();
-
-        // Render each file/folder
-        for (const file of files) {
-            const fullPath = joinPath(path, file);
-            let fileStat;
-
-            try {
-                fileStat = await fs.promises.stat(fullPath);
-            } catch (e) {
-                console.warn("Could not stat", fullPath);
-                continue;
-            }
-
-            const isDir = fileStat.isDirectory();
-            const iconDiv = renderFileIcon(file, fullPath, isDir);
-
-            this.iconManager.configureIcon(iconDiv);
-            this.iconContainer.appendChild(iconDiv);
+        e.preventDefault();
+      } else if (e.key === "Delete" && selectedIcons.length > 0) {
+        const isRootItem = selectedPaths.some((p) => getParentPath(p) === "/");
+        if (!isRootItem) {
+          this.fileOps.deleteItems(selectedPaths);
         }
+        e.preventDefault();
+      }
+    }
+  }
 
-        this.statusBar.setText(`${files.length} object(s)`);
+  /**
+   * Setup clipboard listener
+   * @private
+   */
+  _setupClipboardListener() {
+    this._clipboardHandler = () => {
+      this._updateCutIcons();
+      if (this.menuBar) {
+        this.menuBar.element.dispatchEvent(new Event("update"));
+      }
+    };
+    document.addEventListener("zen-clipboard-change", this._clipboardHandler);
+  }
+
+  /**
+   * Update icon styles based on clipboard state
+   * @private
+   */
+  _updateCutIcons() {
+    const { items, operation } = ZenClipboardManager.get();
+    const cutPaths = operation === "cut" ? new Set(items) : new Set();
+
+    const icons = this.iconContainer.querySelectorAll(".explorer-icon");
+    icons.forEach((icon) => {
+      const path = icon.getAttribute("data-path");
+      if (cutPaths.has(path)) {
+        icon.classList.add("cut");
+      } else {
+        icon.classList.remove("cut");
+      }
+    });
+  }
+
+  async navigateTo(path, isHistoryNav = false, skipMRU = false) {
+    if (!path) return;
+
+    try {
+      if (path === "My Computer") {
+        path = "/";
+      }
+
+      // Normalize path for ZenFS
+      let normalizedPath = path.replace(/\\/g, "/");
+      if (!normalizedPath.startsWith("/")) {
+        normalizedPath = "/" + normalizedPath;
+      }
+
+      const stats = await fs.promises.stat(normalizedPath);
+
+      if (!stats.isDirectory()) {
+        throw new Error("Not a directory");
+      }
+
+      // Update navigation history
+      if (!isHistoryNav) {
+        this.navHistory.push(normalizedPath);
+      }
+
+      this.currentPath = normalizedPath;
+
+      // Only add to MRU if not skipping (i.e., not from manual radio selection)
+      if (!skipMRU) {
+        this.navHistory.addToMRU(normalizedPath);
+      }
+
+      // Refresh menu bar
+      this._updateMenuBar();
+
+      // Update UI elements
+      this._updateUIForPath(normalizedPath);
+
+      // Read and render directory contents
+      await this._renderDirectoryContents(normalizedPath);
+
+      // Update cut icons
+      this._updateCutIcons();
+
+      this.win.focus();
+    } catch (err) {
+      console.error("Navigation failed", err);
+    }
+  }
+
+  /**
+   * Update UI elements for current path
+   * @private
+   */
+  _updateUIForPath(path) {
+    const name = getDisplayName(path);
+    const icon =
+      path === "/"
+        ? ICONS.computer
+        : path.match(/^\/[A-Z]:\/?$/i)
+          ? ICONS.drive
+          : ICONS.folderOpen;
+
+    this.addressBar.setValue(formatPathForDisplay(path));
+    this.win.title(name);
+    this.sidebar.update(name, icon[32]);
+    this.win.setIcons(icon);
+  }
+
+  /**
+   * Render directory contents
+   * @private
+   */
+  async _renderDirectoryContents(path) {
+    const files = await fs.promises.readdir(path);
+
+    // Clear view
+    this.iconContainer.innerHTML = "";
+    this.iconManager.clearSelection();
+
+    // Render each file/folder
+    for (const file of files) {
+      const fullPath = joinPath(path, file);
+      let fileStat;
+
+      try {
+        fileStat = await fs.promises.stat(fullPath);
+      } catch (e) {
+        console.warn("Could not stat", fullPath);
+        continue;
+      }
+
+      const isDir = fileStat.isDirectory();
+      const iconDiv = renderFileIcon(file, fullPath, isDir);
+
+      this.iconManager.configureIcon(iconDiv);
+      this.iconContainer.appendChild(iconDiv);
     }
 
-    goUp() {
-        if (this.currentPath === "/") return;
-        const newPath = getParentPath(this.currentPath);
-        this.navigateTo(newPath);
-    }
+    this.statusBar.setText(`${files.length} object(s)`);
+  }
 
-    goBack() {
-        const path = this.navHistory.goBack();
-        if (path) {
-            this.navigateTo(path, true);
-        }
-    }
+  goUp() {
+    if (this.currentPath === "/") return;
+    const newPath = getParentPath(this.currentPath);
+    this.navigateTo(newPath);
+  }
 
-    goForward() {
-        const path = this.navHistory.goForward();
-        if (path) {
-            this.navigateTo(path, true);
-        }
+  goBack() {
+    const path = this.navHistory.goBack();
+    if (path) {
+      this.navigateTo(path, true);
     }
+  }
 
-    _updateMenuBar() {
-        if (!this.win) return;
-        const menuBuilder = new MenuBarBuilder(this);
-        this.menuBar = menuBuilder.build();
-        this.win.setMenuBar(this.menuBar);
+  goForward() {
+    const path = this.navHistory.goForward();
+    if (path) {
+      this.navigateTo(path, true);
     }
+  }
 
-    _onClose() {
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-        }
-        if (this._clipboardHandler) {
-            document.removeEventListener("zen-clipboard-change", this._clipboardHandler);
-        }
+  _updateMenuBar() {
+    if (!this.win) return;
+    const menuBuilder = new MenuBarBuilder(this);
+    this.menuBar = menuBuilder.build();
+    this.win.setMenuBar(this.menuBar);
+  }
+
+  _onClose() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
     }
+    if (this._clipboardHandler) {
+      document.removeEventListener(
+        "zen-clipboard-change",
+        this._clipboardHandler,
+      );
+    }
+  }
 }
