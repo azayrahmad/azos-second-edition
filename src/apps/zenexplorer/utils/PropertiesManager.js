@@ -9,6 +9,7 @@ import {
   getPathName,
 } from "./PathUtils.js";
 import { getIconForFile } from "../components/FileIconRenderer.js";
+import { RecycleBinManager } from "./RecycleBinManager.js";
 
 /**
  * PropertiesManager - Handles showing properties for files and folders in ZenExplorer
@@ -45,9 +46,23 @@ export class PropertiesManager {
    */
   static async _showSingleProperties({ path, stats }) {
     const isDir = stats.isDirectory();
-    const name = getPathName(path);
-    const displayPath = formatPathForDisplay(path);
-    const iconUrl = getIconForFile(name, isDir);
+    const isRecycled = RecycleBinManager.isRecycledItemPath(path);
+    let name = getPathName(path);
+    let displayPath = formatPathForDisplay(path);
+    let locationLabel = "Location";
+    let iconUrl = getIconForFile(name, isDir);
+
+    if (isRecycled) {
+        const metadata = await RecycleBinManager.getMetadata();
+        const entry = metadata[name]; // name is the ID
+        if (entry) {
+            name = entry.originalName;
+            displayPath = formatPathForDisplay(entry.originalPath);
+            locationLabel = "Origin";
+            // For recycled items, use the original icon if possible
+            iconUrl = getIconForFile(name, isDir);
+        }
+    }
 
     let type = "File Folder";
     if (!isDir) {
@@ -93,6 +108,7 @@ export class PropertiesManager {
       name,
       type,
       location: displayPath,
+      locationLabel,
       size: formattedSize,
       contains,
       created,
@@ -267,7 +283,7 @@ export class PropertiesManager {
     };
 
     addRow("Type", data.type);
-    addRow("Location", data.location);
+    addRow(data.locationLabel || "Location", data.location);
     addRow("Size", data.size);
 
     if (data.contains) {

@@ -4,6 +4,7 @@ import { showInputDialog } from "./components/InputDialog.js";
 import { handleFileSystemError } from "./utils/ErrorHandler.js";
 import { joinPath, normalizePath, getPathName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
+import { RecycleBinManager } from "./utils/RecycleBinManager.js";
 
 /**
  * FileOperations - Handles file system operations with user interaction
@@ -150,13 +151,22 @@ export class FileOperations {
     /**
      * Delete items with confirmation dialog
      * @param {Array<string>} paths - Paths to delete
+     * @param {boolean} permanent - Whether to bypass Recycle Bin
      */
-    async deleteItems(paths) {
+    async deleteItems(paths, permanent = false) {
         if (paths.length === 0) return;
 
-        const message = paths.length === 1
-            ? `Are you sure you want to permanently delete '${paths[0].split("/").pop()}'?`
-            : `Are you sure you want to permanently delete these ${paths.length} items?`;
+        // If items are already in Recycle Bin, deletion is always permanent
+        const alreadyInRecycle = paths.some(path => RecycleBinManager.isRecycledItemPath(path));
+        const isPermanent = permanent || alreadyInRecycle;
+
+        const message = isPermanent
+            ? (paths.length === 1
+                ? `Are you sure you want to permanently delete '${getPathName(paths[0])}'?`
+                : `Are you sure you want to permanently delete these ${paths.length} items?`)
+            : (paths.length === 1
+                ? `Are you sure you want to send '${getPathName(paths[0])}' to the Recycle Bin?`
+                : `Are you sure you want to send these ${paths.length} items to the Recycle Bin?`);
 
         ShowDialogWindow({
             title: "Confirm File Delete",
@@ -169,10 +179,36 @@ export class FileOperations {
                     isDefault: true,
                     action: async () => {
                         try {
-                            for (const path of paths) {
-                                await fs.promises.rm(path, { recursive: true });
+                            if (isPermanent) {
+                                for (const path of paths) {
+                                    await fs.promises.rm(path, { recursive: true });
+                                }
+                                // If it was in recycle bin, we should also clean up metadata
+                                if (alreadyInRecycle) {
+                                    const metadata = await RecycleBinManager.getMetadata();
+                                    let changed = false;
+                                    for (const path of paths) {
+                                        const id = getPathName(path);
+                                        if (metadata[id]) {
+                                            delete metadata[id];
+                                            changed = true;
+                                        }
+                                    }
+                                    if (changed) {
+                                        await RecycleBinManager.saveMetadata(metadata);
+                                        document.dispatchEvent(new CustomEvent("zen-recycle-bin-change"));
+                                    }
+                                }
+                            } else {
+                                await RecycleBinManager.moveItemsToRecycleBin(paths);
                             }
-                            this.app.navigateTo(this.app.currentPath);
+
+                            // If it was permanent and NOT in recycle bin, we need to refresh manually
+                            // because no event was dispatched. If an event was dispatched,
+                            // ZenExplorerApp already refreshed.
+                            if (isPermanent && !alreadyInRecycle) {
+                                this.app.navigateTo(this.app.currentPath);
+                            }
                         } catch (e) {
                             handleFileSystemError("delete", e, "items");
                         }
