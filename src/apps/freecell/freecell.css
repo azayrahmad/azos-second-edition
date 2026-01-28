@@ -9,27 +9,28 @@
 .freecell-container .game-board {
     width: 100%;
     height: 100%;
-    background-size: auto;
-    background-repeat: no-repeat;
-    background-position: center;
+    background-color: #008000;
     position: relative;
     border: none !important;
 }
 
 .freecell-container .top-area {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 90px;
 }
 
 .freecell-container .free-cells,
 .freecell-container .foundations {
     display: flex;
     height: 96px;
+    gap: 2px;
 }
 
 .freecell-container .tableau-piles {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
+    gap: 10px;
     position: absolute;
     top: 100px; /* Adjust as needed */
     width: 100%;
@@ -52,6 +53,7 @@
     height: 96px;
     box-sizing: border-box;
     position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .freecell-container .placeholder::before {

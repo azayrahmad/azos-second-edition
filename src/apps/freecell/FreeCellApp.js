@@ -6,7 +6,6 @@ import { OptionsManager } from "./OptionsManager.js";
 import { StatisticsManager } from "./StatisticsManager.js";
 import "./freecell.css";
 import "../../styles/solitaire.css";
-import freecellTable from "./assets/freecell-table.png";
 import kingLeft from "./assets/king-left.png";
 import kingRight from "./assets/king-right.png";
 import kingWin from "./assets/king-win.png";
@@ -17,7 +16,8 @@ export class FreeCellApp extends Application {
     title: "FreeCell",
     width: 632,
     height: 446,
-    resizable: false,
+    resizable: true,
+    maximizeButton: true,
     icon: ICONS.freecell,
   };
 
@@ -27,12 +27,13 @@ export class FreeCellApp extends Application {
       innerWidth: this.config.width,
       innerHeight: this.config.height,
       resizable: this.config.resizable,
+      maximizeButton: this.config.maximizeButton,
       icons: this.icon,
     });
 
     win.element.querySelector(".window-content").innerHTML = `
       <div class="freecell-container">
-        <div class="game-board" style="background-image: url(${freecellTable})">
+        <div class="game-board">
           <img class="king-image" src="${kingLeft}" alt="King" />
           <img class="king-win-image" src="${kingWin}" alt="Winning King" />
           <div class="top-area">
