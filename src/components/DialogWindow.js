@@ -119,7 +119,7 @@ function ShowDialogWindow(options) {
     }
 
     modalOverlay.onclick = () => {
-      playSound("SystemExclamation");
+      playSound("Default");
     };
 
     // Use a high z-index, but relative to the window manager's current z-index
