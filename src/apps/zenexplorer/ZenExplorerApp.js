@@ -18,6 +18,9 @@ import { MenuBarBuilder } from "./MenuBarBuilder.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
 import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
+import { RecycleBinManager } from "./utils/RecycleBinManager.js";
+import { playSound } from "../../utils/soundManager.js";
+import { ShowDialogWindow } from "../../components/DialogWindow.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -47,6 +50,7 @@ export class ZenExplorerApp extends Application {
 
         // 1. Initialize File System
         await initFileSystem();
+        await RecycleBinManager.init();
 
         // 2. Setup Window
         const win = new window.$Window({
@@ -102,6 +106,9 @@ export class ZenExplorerApp extends Application {
         // 7a. Clipboard listener
         this._setupClipboardListener();
 
+        // 7b. Recycle Bin listener
+        this._setupRecycleBinListener();
+
         // 8. Initial Navigation
         this.navigateTo(this.currentPath);
 
@@ -139,51 +146,111 @@ export class ZenExplorerApp extends Application {
                 const type = icon.getAttribute("data-type");
                 const selectedPaths = [...this.iconManager.selectedIcons].map(i => i.getAttribute("data-path"));
                 const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
+                const isRecycledItem = RecycleBinManager.isRecycledItemPath(path);
+                const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
 
-                const menuItems = [
-                    {
-                        label: "Open",
-                        action: () => {
-                            if (type === "directory") {
-                                this.navigateTo(path);
-                            } else {
-                                this.openFile(icon);
-                            }
+                let menuItems = [];
+
+                if (isRecycledItem) {
+                    menuItems = [
+                        {
+                            label: "Restore",
+                            action: () => {
+                                const ids = selectedPaths.map(p => getPathName(p));
+                                RecycleBinManager.restoreItems(ids);
+                            },
+                            default: true,
                         },
-                        default: true,
-                    },
-                    "MENU_DIVIDER",
-                    {
-                        label: "Cut",
-                        action: () => this.fileOps.cutItems(selectedPaths),
-                        enabled: () => !isRootItem,
-                    },
-                    {
-                        label: "Copy",
-                        action: () => this.fileOps.copyItems(selectedPaths),
-                    },
-                    {
-                        label: "Paste",
-                        action: () => this.fileOps.pasteItems(path),
-                        enabled: () => !ZenClipboardManager.isEmpty() && type === "directory",
-                    },
-                    "MENU_DIVIDER",
-                    {
-                        label: "Delete",
-                        action: () => this.fileOps.deleteItems(selectedPaths),
-                        enabled: () => !isRootItem,
-                    },
-                    {
-                        label: "Rename",
-                        action: () => this.fileOps.renameItem(path),
-                        enabled: () => !isRootItem && selectedPaths.length === 1,
-                    },
-                    "MENU_DIVIDER",
-                    {
-                        label: "Properties",
-                        action: () => PropertiesManager.show(selectedPaths),
-                    },
-                ];
+                        "MENU_DIVIDER",
+                        {
+                            label: "Delete",
+                            action: () => this.fileOps.deleteItems(selectedPaths, true),
+                        },
+                        "MENU_DIVIDER",
+                        {
+                            label: "Properties",
+                            action: () => PropertiesManager.show(selectedPaths),
+                        }
+                    ];
+                } else {
+                    menuItems = [
+                        {
+                            label: "Open",
+                            action: () => {
+                                if (type === "directory") {
+                                    this.navigateTo(path);
+                                } else {
+                                    this.openFile(icon);
+                                }
+                            },
+                            default: true,
+                        },
+                    ];
+
+                    if (isRecycleBin) {
+                        menuItems.push({
+                            label: "Empty Recycle Bin",
+                            action: async () => {
+                                const isEmpty = await RecycleBinManager.isEmpty();
+                                if (isEmpty) return;
+
+                                ShowDialogWindow({
+                                    title: "Confirm Empty Recycle Bin",
+                                    text: "Are you sure you want to permanently delete all items in the Recycle Bin?",
+                                    buttons: [
+                                        {
+                                            label: "Yes",
+                                            isDefault: true,
+                                            action: async () => {
+                                                await RecycleBinManager.emptyRecycleBin();
+                                                playSound("EmptyRecycleBin");
+                                                if (this.currentPath === path) {
+                                                    this.navigateTo(path, true, true);
+                                                }
+                                            }
+                                        },
+                                        { label: "No" }
+                                    ]
+                                });
+                            }
+                        });
+                    }
+
+                    menuItems.push(
+                        "MENU_DIVIDER",
+                        {
+                            label: "Cut",
+                            action: () => this.fileOps.cutItems(selectedPaths),
+                            enabled: () => !isRootItem && !isRecycleBin,
+                        },
+                        {
+                            label: "Copy",
+                            action: () => this.fileOps.copyItems(selectedPaths),
+                            enabled: () => !isRecycleBin,
+                        },
+                        {
+                            label: "Paste",
+                            action: () => this.fileOps.pasteItems(path),
+                            enabled: () => !ZenClipboardManager.isEmpty() && type === "directory",
+                        },
+                        "MENU_DIVIDER",
+                        {
+                            label: "Delete",
+                            action: () => this.fileOps.deleteItems(selectedPaths),
+                            enabled: () => !isRootItem && !isRecycleBin,
+                        },
+                        {
+                            label: "Rename",
+                            action: () => this.fileOps.renameItem(path),
+                            enabled: () => !isRootItem && selectedPaths.length === 1 && !isRecycleBin,
+                        },
+                        "MENU_DIVIDER",
+                        {
+                            label: "Properties",
+                            action: () => PropertiesManager.show(selectedPaths),
+                        }
+                    );
+                }
                 new window.ContextMenu(menuItems, e);
             },
             onBackgroundContext: (e) => {
@@ -236,7 +303,14 @@ export class ZenExplorerApp extends Application {
         this.iconContainer.addEventListener("dblclick", (e) => {
             const icon = e.target.closest(".explorer-icon");
             if (icon) {
+                const path = icon.getAttribute("data-path");
                 const type = icon.getAttribute("data-type");
+
+                if (RecycleBinManager.isRecycledItemPath(path)) {
+                    PropertiesManager.show([path]);
+                    return;
+                }
+
                 if (type === "directory") {
                     const name = icon.getAttribute("data-name");
                     const newPath = joinPath(this.currentPath, name);
@@ -295,31 +369,31 @@ export class ZenExplorerApp extends Application {
             }
         } else {
             if (e.key === "Enter" && selectedIcons.length > 0) {
-                if (selectedIcons.length === 1) {
-                    const icon = selectedIcons[0];
+                selectedIcons.forEach(icon => {
                     const type = icon.getAttribute("data-type");
                     const path = icon.getAttribute("data-path");
+
+                    if (RecycleBinManager.isRecycledItemPath(path)) {
+                        PropertiesManager.show([path]);
+                        return;
+                    }
+
                     if (type === "directory") {
-                        this.navigateTo(path);
+                        if (selectedIcons.length === 1) {
+                            this.navigateTo(path);
+                        } else {
+                            launchApp("zenexplorer", { filePath: path });
+                        }
                     } else {
                         this.openFile(icon);
                     }
-                } else {
-                    selectedIcons.forEach(icon => {
-                        const type = icon.getAttribute("data-type");
-                        const path = icon.getAttribute("data-path");
-                        if (type === "directory") {
-                            launchApp("zenexplorer", { filePath: path });
-                        } else {
-                            this.openFile(icon);
-                        }
-                    });
-                }
+                });
                 e.preventDefault();
             } else if (e.key === "Delete" && selectedIcons.length > 0) {
                 const isRootItem = selectedPaths.some(p => getParentPath(p) === "/");
-                if (!isRootItem) {
-                    this.fileOps.deleteItems(selectedPaths);
+                const containsRecycleBin = selectedPaths.some(p => RecycleBinManager.isRecycleBinPath(p));
+                if (!isRootItem && !containsRecycleBin) {
+                    this.fileOps.deleteItems(selectedPaths, e.shiftKey);
                 }
                 e.preventDefault();
             }
@@ -338,6 +412,19 @@ export class ZenExplorerApp extends Application {
             }
         };
         document.addEventListener("zen-clipboard-change", this._clipboardHandler);
+    }
+
+    /**
+     * Setup Recycle Bin listener
+     * @private
+     */
+    _setupRecycleBinListener() {
+        this._recycleBinHandler = () => {
+            // Refresh current view if we are in or near the recycle bin
+            // Or if we need to update icons
+            this.navigateTo(this.currentPath, true, true);
+        };
+        document.addEventListener("zen-recycle-bin-change", this._recycleBinHandler);
     }
 
     /**
@@ -395,7 +482,7 @@ export class ZenExplorerApp extends Application {
             this._updateMenuBar();
 
             // Update UI elements
-            this._updateUIForPath(normalizedPath);
+            await this._updateUIForPath(normalizedPath);
 
             // Read and render directory contents
             await this._renderDirectoryContents(normalizedPath);
@@ -412,9 +499,14 @@ export class ZenExplorerApp extends Application {
      * Update UI elements for current path
      * @private
      */
-    _updateUIForPath(path) {
+    async _updateUIForPath(path) {
         const name = getDisplayName(path);
-        const icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
+        let icon = path === "/" ? ICONS.computer : (path.match(/^\/[A-Z]:\/?$/i) ? ICONS.drive : ICONS.folderOpen);
+
+        if (RecycleBinManager.isRecycleBinPath(path)) {
+            const isEmpty = await RecycleBinManager.isEmpty();
+            icon = isEmpty ? ICONS.recycleBinEmpty : ICONS.recycleBinFull;
+        }
 
         this.addressBar.setValue(formatPathForDisplay(path));
         this.win.title(name);
@@ -427,7 +519,16 @@ export class ZenExplorerApp extends Application {
      * @private
      */
     async _renderDirectoryContents(path) {
-        const files = await fs.promises.readdir(path);
+        let files = await fs.promises.readdir(path);
+
+        // Hide metadata file in recycle bin
+        if (RecycleBinManager.isRecycleBinPath(path)) {
+            files = files.filter(f => f !== ".metadata.json");
+        }
+
+        const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
+        const metadata = isRecycleBin ? await RecycleBinManager.getMetadata() : null;
+        const recycleBinEmpty = await RecycleBinManager.isEmpty();
 
         // Clear view
         this.iconContainer.innerHTML = "";
@@ -446,7 +547,7 @@ export class ZenExplorerApp extends Application {
             }
 
             const isDir = fileStat.isDirectory();
-            const iconDiv = renderFileIcon(file, fullPath, isDir);
+            const iconDiv = await renderFileIcon(file, fullPath, isDir, { metadata, recycleBinEmpty });
 
             this.iconManager.configureIcon(iconDiv);
             this.iconContainer.appendChild(iconDiv);
@@ -488,6 +589,9 @@ export class ZenExplorerApp extends Application {
         }
         if (this._clipboardHandler) {
             document.removeEventListener("zen-clipboard-change", this._clipboardHandler);
+        }
+        if (this._recycleBinHandler) {
+            document.removeEventListener("zen-recycle-bin-change", this._recycleBinHandler);
         }
     }
 }

@@ -1,6 +1,7 @@
 import { ICONS } from "../../../config/icons.js";
 import { getAssociation } from "../../../utils/directory.js";
 import { getDisplayName } from "../utils/PathUtils.js";
+import { RecycleBinManager } from "../utils/RecycleBinManager.js";
 
 /**
  * FileIconRenderer - Handles rendering of file/folder icons in ZenExplorer
@@ -29,9 +30,10 @@ export function getIconForFile(fileName, isDir) {
  * @param {string} fileName - Name of the file
  * @param {string} fullPath - Full path to the file
  * @param {boolean} isDir - Whether this is a directory
- * @returns {HTMLElement} Icon element
+ * @param {Object} [options] - Additional options (metadata, etc.)
+ * @returns {Promise<HTMLElement>} Icon element
  */
-export function renderFileIcon(fileName, fullPath, isDir) {
+export async function renderFileIcon(fileName, fullPath, isDir, options = {}) {
     const iconDiv = document.createElement("div");
     iconDiv.className = "explorer-icon";
     iconDiv.setAttribute("tabindex", "0");
@@ -46,7 +48,28 @@ export function renderFileIcon(fileName, fullPath, isDir) {
     iconWrapper.className = "icon-wrapper";
 
     const iconImg = document.createElement("img");
-    iconImg.src = getIconForFile(fileName, isDir);
+
+    let iconSrc = getIconForFile(fileName, isDir);
+    let displayName = getDisplayName(fileName);
+
+    // Special handling for Recycle Bin folder
+    if (RecycleBinManager.isRecycleBinPath(fullPath)) {
+        const isEmpty = options.recycleBinEmpty !== undefined
+            ? options.recycleBinEmpty
+            : await RecycleBinManager.isEmpty();
+        iconSrc = isEmpty ? ICONS.recycleBinEmpty[32] : ICONS.recycleBinFull[32];
+    }
+    // Special handling for items INSIDE Recycle Bin
+    else if (RecycleBinManager.isRecycledItemPath(fullPath)) {
+        const metadata = options.metadata || await RecycleBinManager.getMetadata();
+        const entry = metadata[fileName]; // fileName is the ID
+        if (entry) {
+            iconSrc = getIconForFile(entry.originalName, isDir);
+            displayName = getDisplayName(entry.originalName);
+        }
+    }
+
+    iconImg.src = iconSrc;
     iconImg.draggable = false;
     iconWrapper.appendChild(iconImg);
 
@@ -54,7 +77,7 @@ export function renderFileIcon(fileName, fullPath, isDir) {
 
     const label = document.createElement("div");
     label.className = "icon-label";
-    label.textContent = getDisplayName(fileName);
+    label.textContent = displayName;
 
     iconDiv.appendChild(iconInner);
     iconDiv.appendChild(label);
