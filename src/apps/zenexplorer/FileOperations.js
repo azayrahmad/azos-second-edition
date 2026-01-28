@@ -230,4 +230,25 @@ export class FileOperations {
             }
         });
     }
+
+    /**
+     * Create new text document with input dialog
+     */
+    async createNewTextFile() {
+        showInputDialog({
+            title: "Create New Text Document",
+            label: "File name:",
+            defaultValue: "New Text Document.txt",
+            parentWindow: this.app.win,
+            onSubmit: async (name) => {
+                try {
+                    const newPath = joinPath(this.app.currentPath, name);
+                    await fs.promises.writeFile(newPath, "");
+                    this.app.navigateTo(this.app.currentPath); // Refresh
+                } catch (e) {
+                    handleFileSystemError("create", e, "file");
+                }
+            }
+        });
+    }
 }

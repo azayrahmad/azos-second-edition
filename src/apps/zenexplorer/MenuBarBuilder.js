@@ -71,7 +71,15 @@ export class MenuBarBuilder {
                 action: () => {
                     const selectedPaths = [...this.app.iconManager.selectedIcons]
                         .map(icon => icon.getAttribute("data-path"));
-                    this.app.navigateTo(selectedPaths[0]);
+                    const firstSelected = [...this.app.iconManager.selectedIcons][0];
+                    if (firstSelected) {
+                        const type = firstSelected.getAttribute("data-type");
+                        if (type === "directory") {
+                            this.app.navigateTo(selectedPaths[0]);
+                        } else {
+                            this.app.openFile(firstSelected);
+                        }
+                    }
                 },
                 enabled: () => this.app.iconManager?.selectedIcons?.size > 0,
                 default: true,
@@ -83,6 +91,10 @@ export class MenuBarBuilder {
                     {
                         label: "&Folder",
                         action: () => this.app.fileOps.createNewFolder(),
+                    },
+                    {
+                        label: "&Text Document",
+                        action: () => this.app.fileOps.createNewTextFile(),
                     },
                 ],
             },

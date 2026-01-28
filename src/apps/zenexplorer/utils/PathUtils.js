@@ -9,7 +9,8 @@
  * @returns {string} Joined path
  */
 export function joinPath(base, name) {
-    return base === "/" ? `${name}` : `${base}/${name}`;
+    const baseWithSlash = base.endsWith('/') ? base : base + '/';
+    return baseWithSlash + name;
 }
 
 /**

@@ -2,6 +2,8 @@ import { Application } from "../Application.js";
 import { fs } from "@zenfs/core";
 import { initFileSystem } from "../../utils/zenfs-init.js";
 import { ICONS } from "../../config/icons.js";
+import { getAssociation } from "../../utils/directory.js";
+import { launchApp } from "../../utils/appManager.js";
 import { IconManager } from "../../components/IconManager.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import { StatusBar } from "../../components/StatusBar.js";
@@ -134,7 +136,13 @@ export class ZenExplorerApp extends Application {
                 const menuItems = [
                     {
                         label: "Open",
-                        action: () => this.navigateTo(path),
+                        action: () => {
+                            if (type === "directory") {
+                                this.navigateTo(path);
+                            } else {
+                                this.openFile(icon);
+                            }
+                        },
                         default: true,
                     },
                     "MENU_DIVIDER",
@@ -178,6 +186,10 @@ export class ZenExplorerApp extends Application {
                                 label: "Folder",
                                 action: () => this.fileOps.createNewFolder(),
                             },
+                            {
+                                label: "Text Document",
+                                action: () => this.fileOps.createNewTextFile(),
+                            },
                         ],
                     },
                 ];
@@ -202,19 +214,33 @@ export class ZenExplorerApp extends Application {
             const icon = e.target.closest(".explorer-icon");
             if (icon) {
                 const type = icon.getAttribute("data-type");
-                const name = icon.getAttribute("data-name");
                 if (type === "directory") {
+                    const name = icon.getAttribute("data-name");
                     const newPath = joinPath(this.currentPath, name);
                     this.navigateTo(newPath);
                 } else {
-                    // Open file (placeholder)
-                    alert(`Cannot open file: ${name} (Not implemented)`);
+                    this.openFile(icon);
                 }
             }
         });
 
         // Keyboard shortcuts
         this.win.element.addEventListener("keydown", (e) => this.handleKeyDown(e));
+    }
+
+    /**
+     * Open a file using its association
+     * @param {HTMLElement} icon - The icon element of the file
+     */
+    openFile(icon) {
+        const name = icon.getAttribute("data-name");
+        const fullPath = icon.getAttribute("data-path");
+        const association = getAssociation(name);
+        if (association.appId) {
+            launchApp(association.appId, fullPath);
+        } else {
+            alert(`Cannot open file: ${name} (No association)`);
+        }
     }
 
     /**
