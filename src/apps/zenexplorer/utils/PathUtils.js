@@ -1,3 +1,5 @@
+import { ZenFloppyManager } from "./ZenFloppyManager.js";
+
 /**
  * Utility functions for path manipulation in ZenExplorer
  */
@@ -87,7 +89,8 @@ export function getDisplayName(path) {
     if (path === "/" || path === "My Computer") return "My Computer";
     const name = path.split("/").filter(Boolean).pop();
     if (name && name.match(/^A:$/i)) {
-        return `3½ Floppy (${name.toUpperCase()})`;
+        const label = ZenFloppyManager.getLabel();
+        return label ? `${label} (${name.toUpperCase()})` : `3½ Floppy (${name.toUpperCase()})`;
     }
     if (name && name.match(/^[A-Z]:$/i)) {
         return `(${name.toUpperCase()})`;

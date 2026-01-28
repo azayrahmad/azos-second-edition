@@ -9,6 +9,7 @@ import { launchApp } from "../../utils/appManager.js";
 import { IconManager } from "../../components/IconManager.js";
 import { AddressBar } from "../../components/AddressBar.js";
 import { StatusBar } from "../../components/StatusBar.js";
+import { requestWaitState, releaseWaitState } from "../../utils/busyStateManager.js";
 import "../explorer/explorer.css"; // Reuse explorer styles
 
 // Extracted modules
@@ -20,6 +21,7 @@ import { MenuBarBuilder } from "./MenuBarBuilder.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
 import { joinPath, getParentPath, getPathName, formatPathForDisplay, getDisplayName } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
+import { ZenFloppyManager } from "./utils/ZenFloppyManager.js";
 
 // MenuBar is expected to be global from public/os-gui/MenuBar.js
 
@@ -464,6 +466,9 @@ export class ZenExplorerApp extends Application {
     async _renderDirectoryContents(path) {
         const files = await fs.promises.readdir(path);
 
+        // Sort files alphabetically (so A: comes before C:)
+        files.sort((a, b) => a.localeCompare(b));
+
         // Clear view
         this.iconContainer.innerHTML = "";
         this.iconManager.clearSelection();
@@ -527,7 +532,7 @@ export class ZenExplorerApp extends Application {
             buttons: [
                 {
                     label: "OK",
-                    action: () => this.insertFloppy(),
+                    action: (win) => this.insertFloppy(win),
                 },
                 { label: "Cancel" },
             ],
@@ -537,14 +542,28 @@ export class ZenExplorerApp extends Application {
     /**
      * Insert floppy using WebAccess
      */
-    async insertFloppy() {
+    async insertFloppy(dialogWin) {
         try {
             const handle = await window.showDirectoryPicker();
-            const floppyFs = await WebAccess.create({ handle });
-            mount("/A:", floppyFs);
-            document.dispatchEvent(new CustomEvent("zen-floppy-change"));
+
+            // Close dialog immediately after selection
+            if (dialogWin) dialogWin.close();
+
+            const busyRequesterId = "zen-floppy-mount";
+            requestWaitState(busyRequesterId, this.win.element);
+
+            try {
+                const floppyFs = await WebAccess.create({ handle });
+                mount("/A:", floppyFs);
+                ZenFloppyManager.setLabel(handle.name);
+                document.dispatchEvent(new CustomEvent("zen-floppy-change"));
+            } finally {
+                releaseWaitState(busyRequesterId, this.win.element);
+            }
         } catch (err) {
-            console.error("Failed to mount floppy:", err);
+            if (err.name !== 'AbortError') {
+                console.error("Failed to mount floppy:", err);
+            }
         }
     }
 
@@ -554,6 +573,7 @@ export class ZenExplorerApp extends Application {
     ejectFloppy() {
         if (mounts.has("/A:")) {
             umount("/A:");
+            ZenFloppyManager.clear();
             document.dispatchEvent(new CustomEvent("zen-floppy-change"));
         }
     }
