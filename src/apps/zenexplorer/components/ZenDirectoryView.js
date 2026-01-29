@@ -152,28 +152,39 @@ export class ZenDirectoryView {
     const fullPath = icon.getAttribute("data-path");
     const oldName = fullPath.split("/").pop();
 
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "icon-label-input";
-    input.value = oldName;
+    const textarea = document.createElement("textarea");
+    textarea.className = "icon-label-input";
+    textarea.value = oldName;
+    textarea.spellcheck = false; // Disable spell check for file names
 
     label.innerHTML = "";
-    label.appendChild(input);
+    label.appendChild(textarea);
+
+    const adjustTextareaHeight = (ta) => {
+      ta.style.height = "auto"; // Reset height to recalculate
+      ta.style.height = `${ta.scrollHeight}px`;
+    };
+
+    // Initial adjustment
+    adjustTextareaHeight(textarea);
 
     // Select filename without extension
     const dotIndex = oldName.lastIndexOf(".");
     if (dotIndex > 0 && icon.getAttribute("data-type") !== "directory") {
-      input.setSelectionRange(0, dotIndex);
+      textarea.setSelectionRange(0, dotIndex);
     } else {
-      input.select();
+      textarea.select();
     }
-    input.focus();
+    textarea.focus();
+
+    // Adjust height on input
+    textarea.addEventListener("input", () => adjustTextareaHeight(textarea));
 
     const finishRename = async (save) => {
       if (!this._isRenaming) return;
       this._isRenaming = false;
 
-      const newName = input.value.trim();
+      const newName = textarea.value.trim();
       if (save && newName && newName !== oldName) {
         try {
           const parentPath = getParentPath(fullPath);
@@ -183,7 +194,6 @@ export class ZenDirectoryView {
             type: "rename",
             data: { from: fullPath, to: newPath },
           });
-          await this.app.navController.navigateTo(this.app.currentPath, true, true);
         } catch (e) {
           alert(`Error renaming: ${e.message}`);
           label.textContent = getDisplayName(fullPath);
@@ -191,24 +201,28 @@ export class ZenDirectoryView {
       } else {
         label.textContent = getDisplayName(fullPath);
       }
+
+      await this.app.navController.navigateTo(this.app.currentPath, true, true);
     };
 
-    input.onkeydown = (e) => {
+    textarea.onkeydown = (e) => {
       e.stopPropagation();
       if (e.key === "Enter") {
+        // Prevent new line on Enter
+        e.preventDefault();
         finishRename(true);
       } else if (e.key === "Escape") {
         finishRename(false);
       }
     };
 
-    input.onblur = () => {
+    textarea.onblur = () => {
       finishRename(true);
     };
 
     // Prevent click propagation to avoid re-triggering rename
-    input.onclick = (e) => e.stopPropagation();
-    input.ondblclick = (e) => e.stopPropagation();
+    textarea.onclick = (e) => e.stopPropagation();
+    textarea.ondblclick = (e) => e.stopPropagation();
   }
 
   /**
