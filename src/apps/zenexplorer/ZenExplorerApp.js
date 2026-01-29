@@ -294,6 +294,7 @@ export class ZenExplorerApp extends Application {
     if (this.iconContainer) {
       this.iconContainer.className = `explorer-icon-view ${mode}-icons`;
     }
+    this.directoryView.renderDirectoryContents(this.currentPath);
     this._updateMenuBar();
   }
 

@@ -71,6 +71,11 @@
     gap: 0 5px;
 }
 
+.explorer-icon-view.details-icons {
+    display: block;
+    padding: 0;
+}
+
 .explorer-icon-view.has-absolute-icons {
     position: relative;
 }
@@ -83,7 +88,8 @@
 }
 
 .explorer-icon-view.small-icons .explorer-icon,
-.explorer-icon-view.list-icons .explorer-icon {
+.explorer-icon-view.list-icons .explorer-icon,
+.explorer-icon-view.details-icons tr.explorer-icon {
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -102,7 +108,8 @@
 }
 
 .explorer-icon-view.small-icons .explorer-icon .icon,
-.explorer-icon-view.list-icons .explorer-icon .icon {
+.explorer-icon-view.list-icons .explorer-icon .icon,
+.explorer-icon-view.details-icons tr.explorer-icon .icon {
     margin: 0 4px 0 0;
     flex-shrink: 0;
 }
@@ -120,12 +127,14 @@
 }
 
 .explorer-icon-view.small-icons .explorer-icon .icon img.icon-32,
-.explorer-icon-view.list-icons .explorer-icon .icon img.icon-32 {
+.explorer-icon-view.list-icons .explorer-icon .icon img.icon-32,
+.explorer-icon-view.details-icons tr.explorer-icon .icon img.icon-32 {
     display: none;
 }
 
 .explorer-icon-view.small-icons .explorer-icon .icon img.icon-16,
-.explorer-icon-view.list-icons .explorer-icon .icon img.icon-16 {
+.explorer-icon-view.list-icons .explorer-icon .icon img.icon-16,
+.explorer-icon-view.details-icons tr.explorer-icon .icon img.icon-16 {
     display: block;
 }
 
@@ -153,6 +162,30 @@
 
 .explorer-icon.selected {
     border: 1px dotted var(--HilightText);
+}
+
+.explorer-icon-view.details-icons table {
+    width: 100%;
+}
+
+.explorer-icon-view.details-icons tr.explorer-icon {
+    border: none;
+    height: 22px;
+}
+
+.explorer-icon-view.details-icons tr.explorer-icon.selected {
+    background-color: var(--highlight-blue);
+    color: var(--highlight-text);
+}
+
+.explorer-icon-view.details-icons td {
+    border: none;
+    padding: 0 4px;
+}
+
+.explorer-icon-view.details-icons tr.explorer-icon .name-cell {
+    display: flex;
+    align-items: center;
 }
 
 .explorer-title {
@@ -199,6 +232,7 @@
 }
 
 .explorer-icon-view.small-icons .explorer-icon .icon-label-input,
-.explorer-icon-view.list-icons .explorer-icon .icon-label-input {
+.explorer-icon-view.list-icons .explorer-icon .icon-label-input,
+.explorer-icon-view.details-icons tr.explorer-icon .icon-label-input {
     text-align: left;
 }

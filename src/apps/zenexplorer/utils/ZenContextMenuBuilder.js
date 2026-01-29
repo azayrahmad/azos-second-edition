@@ -171,7 +171,7 @@ export class ZenContextMenuBuilder {
               { label: "Large Icons", value: "large" },
               { label: "Small Icons", value: "small" },
               { label: "List", value: "list" },
-              { label: "Details", value: "details", enabled: false },
+              { label: "Details", value: "details" },
             ],
             getValue: () => this.app.viewMode,
             setValue: (value) => this.app.setViewMode(value),
