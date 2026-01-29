@@ -55,6 +55,12 @@
     position: relative;
 }
 
+.explorer-icon-view.small-icons {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-auto-rows: min-content;
+    gap: 2px 5px;
+}
+
 .explorer-icon-view.has-absolute-icons {
     position: relative;
 }
@@ -63,6 +69,16 @@
     width: 70px;
     text-align: center;
     color: var(--WindowText);
+    border: 1px solid transparent; /* Reserve space for selection border */
+}
+
+.explorer-icon-view.small-icons .explorer-icon {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: 2px;
 }
 
 .explorer-icon .icon {
@@ -70,9 +86,29 @@
     margin: auto;
 }
 
-.explorer-icon .icon img {
+.explorer-icon-view.small-icons .explorer-icon .icon {
+    margin: 0 4px 0 0;
+    flex-shrink: 0;
+}
+
+.explorer-icon .icon img.icon-32 {
     width: 32px;
     height: 32px;
+    display: block;
+}
+
+.explorer-icon .icon img.icon-16 {
+    width: 16px;
+    height: 16px;
+    display: none;
+}
+
+.explorer-icon-view.small-icons .explorer-icon .icon img.icon-32 {
+    display: none;
+}
+
+.explorer-icon-view.small-icons .explorer-icon .icon img.icon-16 {
+    display: block;
 }
 
 .explorer-icon .icon-label {
@@ -142,4 +178,8 @@
     word-break: break-word; /* Ensure long words break */
     line-height: 1.2; /* Adjust line height for better appearance */
     padding: 2px; /* Add some padding for better text visibility */
+}
+
+.explorer-icon-view.small-icons .explorer-icon .icon-label-input {
+    text-align: left;
 }
