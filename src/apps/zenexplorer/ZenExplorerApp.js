@@ -120,6 +120,9 @@ export class ZenExplorerApp extends Application {
     // 7d. Undo listener
     this._setupUndoListener();
 
+    // 7e. Removable Disk listener
+    this._setupRemovableDiskListener();
+
     // 8. Initial Navigation
     this.navigateTo(this.currentPath);
 
@@ -337,6 +340,25 @@ export class ZenExplorerApp extends Application {
     document.addEventListener("zen-cd-change", this._cdHandler);
   }
 
+  /**
+   * Setup Removable Disk change listener
+   * @private
+   */
+  _setupRemovableDiskListener() {
+    this._removableDiskHandler = () => {
+      const driveMatch = this.currentPath.match(/^\/([A-Z]:)/);
+      if (driveMatch && !mounts.has(driveMatch[0])) {
+        this.navigateTo("/");
+      } else {
+        this.navigateTo(this.currentPath, true, true);
+      }
+    };
+    document.addEventListener(
+      "zen-removable-disk-change",
+      this._removableDiskHandler,
+    );
+  }
+
   _onClose() {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
@@ -352,6 +374,12 @@ export class ZenExplorerApp extends Application {
     }
     if (this._cdHandler) {
       document.removeEventListener("zen-cd-change", this._cdHandler);
+    }
+    if (this._removableDiskHandler) {
+      document.removeEventListener(
+        "zen-removable-disk-change",
+        this._removableDiskHandler,
+      );
     }
     if (this._recycleBinHandler) {
       document.removeEventListener(
