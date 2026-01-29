@@ -223,7 +223,7 @@ export class MenuBarBuilder {
         radioItems: [
           { label: "Large Icons", value: "large" },
           { label: "Small Icons", value: "small" },
-          { label: "List", value: "list", enabled: false },
+          { label: "List", value: "list" },
           { label: "Details", value: "details", enabled: false },
         ],
         getValue: () => this.app.viewMode,
