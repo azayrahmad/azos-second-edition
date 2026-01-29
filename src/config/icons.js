@@ -53,6 +53,10 @@ export const ICONS = {
     16: new URL("../assets/icons/SHELL32_7-16.png", import.meta.url).href,
     32: new URL("../assets/icons/SHELL32_7-32.png", import.meta.url).href,
   },
+  cdDrive: {
+    16: new URL("../assets/icons/cd_drive-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/cd_drive-2.png", import.meta.url).href,
+  },
   defrag: {
     16: new URL("../assets/icons/defragment-1.png", import.meta.url).href,
     32: new URL("../assets/icons/defragment-0.png", import.meta.url).href,
@@ -250,6 +254,10 @@ export const ICONS = {
   file: {
     16: new URL("../assets/icons/file_lines-1.png", import.meta.url).href,
     32: new URL("../assets/icons/file_lines-0.png", import.meta.url).href,
+  },
+  fileSet: {
+    16: new URL("../assets/icons/file_set-1.png", import.meta.url).href,
+    32: new URL("../assets/icons/file_set-0.png", import.meta.url).href,
   },
   "cursor-explorer": {
     16: new URL("../assets/icons/COMCTL32_20481-16.png", import.meta.url).href,

@@ -78,6 +78,14 @@
 .explorer-icon .icon-label {
     font-family: var(--font-family-menu);
     font-size: var(--font-size-menu);
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflowing content */
+    text-overflow: ellipsis; /* Show ellipsis for truncated text */
+    line-height: 1.2; /* Minimize vertical space */
+}
+
+.explorer-icon.cut {
+    opacity: 0.5;
 }
 
 .explorer-icon .highlighted-icon {
@@ -108,4 +116,30 @@
 
 .explorer-content.small-width .explorer-title {
     display: block; /* Show the title */
+}
+
+.explorer-icon .icon-label-input {
+    /* This will be applied to <textarea> */
+    width: 100%;
+    box-sizing: content-box;
+    border: none;
+    box-shadow: none;
+    background: white;
+    color: black;
+    text-align: center;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    outline: none;
+    z-index: 10;
+    position: relative;
+    /* New styles for textarea */
+    resize: none; /* Disable user resize handle */
+    overflow: hidden; /* Hide scrollbar, JS will manage height */
+    height: auto; /* Allow height to be controlled by content/JS */
+    min-height: 1.2em; /* Ensure at least one line is visible */
+    white-space: normal; /* Allow text to wrap */
+    word-break: break-word; /* Ensure long words break */
+    line-height: 1.2; /* Adjust line height for better appearance */
+    padding: 2px; /* Add some padding for better text visibility */
 }
