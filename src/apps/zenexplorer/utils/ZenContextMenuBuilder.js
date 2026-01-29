@@ -1,6 +1,7 @@
 import { mounts } from "@zenfs/core";
 import { RecycleBinManager } from "./RecycleBinManager.js";
 import { PropertiesManager } from "./PropertiesManager.js";
+import { ZenRemovableDiskManager } from "./ZenRemovableDiskManager.js";
 import { getParentPath, getPathName } from "./PathUtils.js";
 import ZenClipboardManager from "./ZenClipboardManager.js";
 import { ShowDialogWindow } from "../../../components/DialogWindow.js";
@@ -22,6 +23,9 @@ export class ZenContextMenuBuilder {
     const isFloppyMounted = mounts.has("/A:");
     const isCD = path === "/E:";
     const isCDMounted = mounts.has("/E:");
+    const driveLetterMatch = path.match(/^\/([A-Z]):$/i);
+    const driveLetter = driveLetterMatch ? driveLetterMatch[1].toUpperCase() : null;
+    const isRemovableDiskMounted = driveLetter && ZenRemovableDiskManager.isMounted(driveLetter);
     const isRecycledItem = RecycleBinManager.isRecycledItemPath(path);
     const isRecycleBin = RecycleBinManager.isRecycleBinPath(path);
 
@@ -118,6 +122,13 @@ export class ZenContextMenuBuilder {
             action: () => this.app.driveManager.insertCD(),
           });
         }
+      }
+
+      if (isRemovableDiskMounted) {
+        menuItems.push({
+          label: "Eject",
+          action: () => this.app.driveManager.ejectRemovableDisk(driveLetter),
+        });
       }
 
       menuItems.push(

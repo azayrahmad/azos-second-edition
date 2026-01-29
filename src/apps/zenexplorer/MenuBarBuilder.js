@@ -4,6 +4,7 @@ import { getDisplayName, getParentPath } from "./utils/PathUtils.js";
 import ZenClipboardManager from "./utils/ZenClipboardManager.js";
 import { PropertiesManager } from "./utils/PropertiesManager.js";
 import ZenUndoManager from "./utils/ZenUndoManager.js";
+import { ZenRemovableDiskManager } from "./utils/ZenRemovableDiskManager.js";
 
 /**
  * MenuBarBuilder - Constructs menu bar for ZenExplorer
@@ -128,6 +129,11 @@ export class MenuBarBuilder {
         label: "&Eject CD",
         action: () => this.app.ejectCD(),
         enabled: () => mounts.has("/E:"),
+      },
+      {
+        label: "&Insert Removable Disk",
+        action: () => this.app.driveManager.insertRemovableDisk(),
+        enabled: () => ZenRemovableDiskManager.getAvailableLetter() !== null,
       },
       "MENU_DIVIDER",
       {

@@ -1,5 +1,6 @@
 import { ZenFloppyManager } from "./ZenFloppyManager.js";
 import { ZenCDManager } from "./ZenCDManager.js";
+import { ZenRemovableDiskManager } from "./ZenRemovableDiskManager.js";
 
 /**
  * Utility functions for path manipulation in ZenExplorer
@@ -98,6 +99,10 @@ export function getDisplayName(path) {
         return label ? `${label} (${name.toUpperCase()})` : `CD-ROM (${name.toUpperCase()})`;
     }
     if (name && name.match(/^[A-Z]:$/i)) {
+        const letter = name.charAt(0).toUpperCase();
+        if (ZenRemovableDiskManager.isMounted(letter)) {
+            return `Removable Disk (${letter}:)`;
+        }
         return `(${name.toUpperCase()})`;
     }
     return name || path;
