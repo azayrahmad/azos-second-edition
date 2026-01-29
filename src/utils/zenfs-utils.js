@@ -9,7 +9,7 @@ import { initFileSystem } from "./zenfs-init.js";
 export function isZenFSPath(path) {
   return (
     typeof path === "string" &&
-    /^\/[A-Z]:/.test(path) &&
+    /^\/[A-Z]:/.test(path) && // Path that starts with a drive letter (/A:, /C:, etc)
     !path.startsWith("//") &&
     !path.startsWith("http")
   );
